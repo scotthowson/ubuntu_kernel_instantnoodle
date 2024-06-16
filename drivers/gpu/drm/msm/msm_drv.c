@@ -19,8 +19,6 @@
 #include <linux/kthread.h>
 #include <uapi/linux/sched/types.h>
 #include <drm/drm_of.h>
-#include <linux/device.h>
-#include <linux/string.h>  // Ensure this is included for strnstr
 
 #include "msm_drv.h"
 #include "msm_debugfs.h"
@@ -1199,10 +1197,11 @@ static int add_components_mdp(struct device *mdp_dev,
 		}
 
 		/*
-		 * The LCDC/LVDS port on MDP4 is a special case where the
+		 * The LCDC/LVDS port on MDP4 is a speacial case where the
 		 * remote-endpoint isn't a component that we need to add
 		 */
-		if (of_device_is_compatible(np, "qcom,mdp4") && ep.port == 0)
+		if (of_device_is_compatible(np, "qcom,mdp4") &&
+		    ep.port == 0)
 			continue;
 
 		/*
@@ -1214,7 +1213,8 @@ static int add_components_mdp(struct device *mdp_dev,
 		if (!intf)
 			continue;
 
-		drm_of_component_match_add(master_dev, matchptr, compare_of, intf);
+		drm_of_component_match_add(master_dev, matchptr, compare_of,
+					   intf);
 		of_node_put(intf);
 	}
 
@@ -1223,7 +1223,7 @@ static int add_components_mdp(struct device *mdp_dev,
 
 static int compare_name_mdp(struct device *dev, void *data)
 {
-	return (strnstr(dev_name(dev), "mdp", strlen(dev_name(dev))) != NULL);
+	return (strnstr(dev_name(dev), "mdp") != NULL);
 }
 
 static int add_display_components(struct device *dev,
@@ -1256,7 +1256,8 @@ static int add_display_components(struct device *dev,
 		put_device(mdp_dev);
 
 		/* add the MDP component itself */
-		drm_of_component_match_add(dev, matchptr, compare_of, mdp_dev->of_node);
+		drm_of_component_match_add(dev, matchptr, compare_of,
+					   mdp_dev->of_node);
 	} else {
 		/* MDP4 */
 		mdp_dev = dev;

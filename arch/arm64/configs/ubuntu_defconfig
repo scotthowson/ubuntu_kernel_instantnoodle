@@ -2,13 +2,13 @@
 # 1.a) SELINUX — Enables SELinux for security enforcement — HowsonDev
 CONFIG_SECURITY_SELINUX=y                                       # Enables SELinux
 CONFIG_SECURITY_SELINUX_BOOTPARAM=y                             # Allows SELinux to be disabled at boot time
-CONFIG_SECURITY_SELINUX_BOOTPARAM_VALUE=0                       # Default value for SELinux boot parameter (0 disables SELinux)
+CONFIG_SECURITY_SELINUX_BOOTPARAM_VALUE=0
 CONFIG_SECURITY_SELINUX_DEVELOP=y                               # Enable development options for SELinux
 CONFIG_SECURITY_SELINUX_AVC_STATS=y                             # Collects SELinux Access Vector Cache (AVC) statistics
-CONFIG_SECURITY_SELINUX_CHECKREQPROT_VALUE=0                    # Default value for SELinux checkreqprot enforcement
+CONFIG_SECURITY_SELINUX_CHECKREQPROT_VALUE=0
 # 1.b) AppArmor — Enables AppArmor for security enforcement — HowsonDev
 CONFIG_SECURITY_APPARMOR=y                                      # Enables AppArmor
-CONFIG_SECURITY_APPARMOR_BOOTPARAM_VALUE=1                      # Allows AppArmor to be enabled at boot time
+CONFIG_SECURITY_APPARMOR_BOOTPARAM_VALUE=1
 CONFIG_SECURITY_APPARMOR_HASH=y                                 # Enable hashing support for AppArmor
 CONFIG_SECURITY_APPARMOR_HASH_DEFAULT=y                         # Set the default hashing algorithm for AppArmor
 CONFIG_DEFAULT_SECURITY_APPARMOR=y                              # Set AppArmor as the default security module
@@ -36,7 +36,7 @@ CONFIG_ANDROID_BINDER_DEVICES="binder,hwbinder,vndbinder,anbox-binder,anbox-hwbi
 CONFIG_ASHMEM=y                                                 # Enable Android ashmem
 CONFIG_ION=y                                                    # Enable Android ION memory allocator
 CONFIG_ION_POOL_AUTO_REFILL=y                                   # Enable auto-refill for ION pools
-CONFIG_ION_POOL_FILL_MARK=100                                   # Set ION pool fill mark
+CONFIG_ION_POOL_FILL_MARK=100
 # 4. Ubuntu Touch — HowsonDev
 CONFIG_DEVPTS_MULTIPLE_INSTANCES=y                              # Enable multiple instances of devpts filesystem
 CONFIG_USB_CONFIGFS_RMNET_BAM=y                                 # Enable rmnet BAM interface support in USB configfs
@@ -95,7 +95,7 @@ CONFIG_VETH=y                                                   # Enable virtual
 CONFIG_NETFILTER_XT_TARGET_CHECKSUM=y                           # Enable checksum target support in netfilter
 # Testing Portion — Place Uncertain Defconfigs — HowsonDev
 CONFIG_BACKLIGHT_LCD_SUPPORT=y                                  # Enable backlight LCD support
-CONFIG_SND_HDA_PREALLOC_SIZE=64                                 # Enable audio support?
+CONFIG_SND_HDA_PREALLOC_SIZE='64'                                 # Enable audio support?
 # End of Testing Portion
 CONFIG_LOCALVERSION="-perf"
 CONFIG_AUDIT=y

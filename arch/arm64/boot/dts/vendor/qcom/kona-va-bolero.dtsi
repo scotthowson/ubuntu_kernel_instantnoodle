@@ -1,7 +1,7 @@
 &bolero {
 	va_macro: va-macro@3370000 {
 		compatible = "qcom,va-macro";
-		reg = <0x3370000 0x0>;
+		reg = <0x0 0x3370000 0x1000>; // Assuming size is 0x1000
 		clock-names = "lpass_audio_hw_vote";
 		clocks = <&lpass_audio_hw_vote 0>;
 		va-vdd-micb-supply = <&S4A>;

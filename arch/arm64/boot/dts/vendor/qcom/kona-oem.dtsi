@@ -234,7 +234,7 @@
 	status = "ok";
 	sec-s6sy761@48 {
 		compatible = "sec-s6sy761";
-		reg = <0x48>;
+		reg = <0x0 0x48 0x1>; // Assuming size is 0x1
 		project-name = "19811";
 		chip-name = "SY761";
 		module_id = <7>;
@@ -269,7 +269,7 @@
 	status = "ok";
 	synaptics-s3908@4B {
 		compatible = "synaptics-s3908";
-		reg = <0x4B>;
+		reg = <0x0 0x4B 0x1>; // Assuming size is 0x1
 		project-name = "19821";
 		chip-name = "S3908";
 		module_id = <7>;
@@ -381,14 +381,14 @@
 &qupv3_se15_i2c {
 	tfa98xx_right: tfa98xx_right@34 {
 		compatible = "nxp,tfa98xx";
-		reg = <0x34>;
+		reg = <0x0 0x34 0x1>; // Assuming size is 0x1
 		reset-gpio = <&tlmm 91 0>;
 		status = "ok";
 	};
 
 	tfa98xx_left: tfa98xx_left@35 {
 		compatible = "nxp,tfa98xx";
-		reg = <0x35>;
+		reg = <0x0 0x35 0x1>; // Assuming size is 0x1
 		reset-gpio = <&tlmm 99 0>;
 		status = "ok";
 	};
@@ -537,19 +537,19 @@
 &reserved_memory {
 
 	bootloader_log_mem: bootloader_log_mem@0x9FFF7000 {
-		reg = <0 0x9FFF7000 0 0x00009000>;
+		reg = <0x0 0x9FFF7000 0x9000>;
 		label = "bootloader_log_mem";
 	};
 
 	param_mem: param_mem@ac200000 {
-		reg = <0 0xAC200000 0 0x00100000>;
+		reg = <0x0 0xAC200000 0x100000>;
 		label = "param_mem";
 	};
 
 	/*after cdsp_secure_heap we add a offset to ignore change address need reconfig*/
 	ramoops: ramoops@0xA9800000 {
 		compatible = "ramoops";
-		reg = <0 0xA9800000 0 0x00400000>;
+		reg = <0x0 0xA9800000 0x400000>;
 		record-size =  <0x40000>; //256x1024
 		console-size = <0x40000>;
 		ftrace-size =  <0x40000>;
@@ -559,7 +559,7 @@
 	};
 
 	mtp_mem: mtp_mem@ac300000 {
-		reg = <0 0xAC300000 0 0x00B00000>;
+		reg = <0x0 0xAC300000 0xB00000>;
 		label = "mtp_mem";
 	};
 };

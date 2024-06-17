@@ -48,7 +48,7 @@
 	qcom,clk-freq-out = <400000>;
 	ist8801@19 {
 		compatible = "oneplus,hall-ist8801,up";
-		reg = <0x19>;
+		reg = <0x0 0x19 0x1>; // Assuming size is 0x1
 		dhall,id = <1>;
 		vdd-supply = <&pm8150a_l10>;
 		interrupt-parent = <&tlmm>;
@@ -59,7 +59,7 @@
 	};
 	ist8801@18 {
 		compatible = "oneplus,hall-ist8801,down";
-		reg = <0x18>;
+		reg = <0x0 0x18 0x1>; // Assuming size is 0x1
 		dhall,id = <2>;
 		vdd-supply = <&pm8150a_l10>;
 		interrupt-parent = <&tlmm>;

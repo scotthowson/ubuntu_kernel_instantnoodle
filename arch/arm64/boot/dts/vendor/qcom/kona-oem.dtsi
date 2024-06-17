@@ -48,45 +48,48 @@
 	qcom,clk-freq-out = <400000>;
 	ist8801@19 {
 		compatible = "oneplus,hall-ist8801,up";
-		reg = <0x0 0x19 0x1>;
+		reg = <0x19>;
 		dhall,id = <1>;
 		vdd-supply = <&pm8150a_l10>;
 		interrupt-parent = <&tlmm>;
-		interrupts = <157 0x02>;
+		interrups = <157 0x02>;
 		dhall,irq-gpio = <&tlmm 157 0x2008>;
 		pinctrl-names = "ist8801_hall_up_active";
 		pinctrl-0 = <&ist8801_hall_up_active>;
 	};
 	ist8801@18 {
 		compatible = "oneplus,hall-ist8801,down";
-		reg = <0x0 0x18 0x1>;
+		reg = <0x18>;
 		dhall,id = <2>;
 		vdd-supply = <&pm8150a_l10>;
 		interrupt-parent = <&tlmm>;
-		interrupts = <158 0x02>;
+		interrups = <158 0x02>;
 		dhall,irq-gpio = <&tlmm 158 0x2008>;
 		pinctrl-names = "ist8801_hall_down_active";
 		pinctrl-0 = <&ist8801_hall_down_active>;
 	};
-
+};
+&qupv3_se1_i2c {
+	status = "ok";
+	qcom,clk-freq-out = <400000>;
 	magnachip@0D {
 		compatible = "tri_key_magnachip,tk_mxm1120,up";
-		reg = <0x0 0x0D 0x1>;
+		reg = <0x0D>;
 		vdd-supply = <&pm8150a_l10>;
 		magnachip,init-interval = <200>;
 		interrupt-parent = <&tlmm>;
-		interrupts = <157 0x02>;
+		interrups = <157 0x02>;
 		dhall,irq-gpio = <&tlmm 157 0x2008>;
 		pinctrl-names = "uphall_tri_state_key_active";
 		pinctrl-0 = <&uphall_tri_state_key_active>;
 	};
 	magnachip@0C {
 		compatible = "tri_key_magnachip,tk_mxm1120,down";
-		reg = <0x0 0x0C 0x1>;
+		reg = <0x0C>;
 		vdd-supply = <&pm8150a_l10>;
 		magnachip,init-interval = <200>;
 		interrupt-parent = <&tlmm>;
-		interrupts = <158 0x02>;
+		interrups = <158 0x02>;
 		dhall,irq-gpio = <&tlmm 158 0x2008>;
 		pinctrl-names = "downhall_tri_state_key_active";
 		pinctrl-0 = <&downhall_tri_state_key_active>;
@@ -99,13 +102,13 @@
        pixelworks@26 {  //i2c: 22, i3c: 26
                status = "ok";
                compatible = "pixelworks,iris5";
-               reg = <0x0 0x26 0x1>;
+               reg = <0x26>;
         };
 
        pixelworks@22 {  //i2c: 22, i3c: 26
                status = "ok";
                compatible = "pixelworks,iris5-i2c";
-               reg = <0x0 0x22 0x1>;
+               reg = <0x22>;
         };
 };
 
@@ -231,59 +234,59 @@
 	status = "ok";
 	sec-s6sy761@48 {
 		compatible = "sec-s6sy761";
-		reg = <0x0 0x48 0x1>;
+		reg = <0x48>;
 		project-name = "19811";
 		chip-name = "SY761";
 		module_id = <7>;
 		reset-gpio = <&tlmm 38 0x00>;
 		irq-gpio = <&tlmm 39 0x2008>;
-		vdd_2v8-supply = <&pm8150_l13>; //set 3.3 by ldo
+		vdd_2v8-supply = <&pm8150_l13>;                 //set 3.3 by ldo
 		vdd_2v8_volt = <3008000>;
 		vcc_1v8-supply = <&pm8150a_l1>;
-		// enable1v8_gpio = <&tlmm 119 0x00>; //set 1.8v by
+	//	enable1v8_gpio = <&tlmm 119 0x00>;               //set 1.8v by
 		touchpanel,display-coords = <1439 3119>;
 		touchpanel,panel-coords = <1439 3119>;
 		touchpanel,tx-rx-num = <17 37>;
-		// edge_limit_support = <1>;
-		// spurious_fingerprint_support = <1>;
-		// charger_pump_support = <1>;
+		//edge_limit_support = <1>;
+		//spurious_fingerprint_support = <1>;
+		//charger_pump_support = <1>;
 		black_gesture_support = <1>;
-		// black_gesture_test_support = <1>;
+		//black_gesture_test_support = <1>;
 		game_switch_support = <1>;
 		face_detect_support = <1>;
 		touch_hold_support = <1>;
 		touchpanel,max-num-support = <10>;
 		charge_detect_support = <1>;
-		// lcd_trigger_fp_check = <1>;
+		//lcd_trigger_fp_check = <1>;
 		module_id_support = <1>;
 		pinctrl-names = "pin_set_high", "pin_set_low";
 		pinctrl-0 = <&tp_irq_active &tp_rst_active>;
 		pinctrl-1 = <&tp_rst_suspend>;
-		// touchpanel,int-mode = <1>;
+		//touchpanel,int-mode = <1>;
 	};
 };
 &qupv3_se13_i2c {
 	status = "ok";
 	synaptics-s3908@4B {
 		compatible = "synaptics-s3908";
-		reg = <0x0 0x4B 0x1>;
+		reg = <0x4B>;
 		project-name = "19821";
 		chip-name = "S3908";
 		module_id = <7>;
 		reset-gpio = <&tlmm 38 0x00>;
 		irq-gpio = <&tlmm 39 0x2008>;
-		vdd_2v8-supply = <&pm8150_l13>; //set 3.3 by ldo
+		vdd_2v8-supply = <&pm8150_l13>;                 //set 3.3 by ldo
 		vdd_2v8_volt = <3008000>;
 		vcc_1v8-supply = <&pm8150a_l1>;
 		touchpanel,display-coords = <1079 2399>;
 		touchpanel,panel-coords = <1079 2399>;
 		touchpanel,tx-rx-num = <16 36>;
-		// edge_limit_support = <1>;
-		// spurious_fingerprint_support = <1>;
-		// charger_pump_support = <1>;
+		//edge_limit_support = <1>;
+		//spurious_fingerprint_support = <1>;
+		//charger_pump_support = <1>;
 		black_gesture_support = <1>;
-		// black_gesture_test_support = <1>;
-		// game_switch_support = <1>;
+		//black_gesture_test_support = <1>;
+		//game_switch_support = <1>;
 		face_detect_support = <1>;
 		touch_hold_support = <1>;
 		touchpanel,max-num-support = <10>;
@@ -378,14 +381,14 @@
 &qupv3_se15_i2c {
 	tfa98xx_right: tfa98xx_right@34 {
 		compatible = "nxp,tfa98xx";
-		reg = <0x0 0x34 0x1>;
+		reg = <0x34>;
 		reset-gpio = <&tlmm 91 0>;
 		status = "ok";
 	};
 
 	tfa98xx_left: tfa98xx_left@35 {
 		compatible = "nxp,tfa98xx";
-		reg = <0x0 0x35 0x1>;
+		reg = <0x35>;
 		reset-gpio = <&tlmm 99 0>;
 		status = "ok";
 	};
@@ -532,33 +535,31 @@
 };
 
 &reserved_memory {
-	#address-cells = <2>;
-	#size-cells = <1>;
 
 	bootloader_log_mem: bootloader_log_mem@0x9FFF7000 {
-		reg = <0x0 0x9FFF7000 0x00009000>;
+		reg = <0 0x9FFF7000 0 0x00009000>;
 		label = "bootloader_log_mem";
 	};
 
 	param_mem: param_mem@ac200000 {
-		reg = <0x0 0xAC200000 0x00100000>;
+		reg = <0 0xAC200000 0 0x00100000>;
 		label = "param_mem";
 	};
 
 	/*after cdsp_secure_heap we add a offset to ignore change address need reconfig*/
 	ramoops: ramoops@0xA9800000 {
 		compatible = "ramoops";
-		reg = <0x0 0xA9800000 0x00400000>;
-		record-size = <0x40000>; //256x1024
+		reg = <0 0xA9800000 0 0x00400000>;
+		record-size =  <0x40000>; //256x1024
 		console-size = <0x40000>;
-		ftrace-size = <0x40000>;
-		pmsg-size = <0x200000>;
-		devinfo-size = <0x01000>;
-		ecc-size = <0x0>;
+		ftrace-size =  <0x40000>;
+		pmsg-size=	   <0x200000>;
+		devinfo-size=  <0x01000>;
+		ecc-size=	   <0x0>;
 	};
 
 	mtp_mem: mtp_mem@ac300000 {
-		reg = <0x0 0xAC300000 0x00B00000>;
+		reg = <0 0xAC300000 0 0x00B00000>;
 		label = "mtp_mem";
 	};
 };
@@ -573,7 +574,7 @@
 	};
 	pn5xx@28 {
 		compatible = "nxp,pn544";
-		reg = <0x0 0x28 0x0>;  // Added the size to match #size-cells = 1
+		reg = <0x28>;
 		nxp,pn544-irq = <&tlmm 111 0x00>;
 		nxp,pn544-ven = <&tlmm 83 0x00>;
 		nxp,pn544-fw-dwnld = <&tlmm 110 0x00>;
@@ -734,15 +735,15 @@
 
 &qupv3_se11_i2c {
 		status = "ok";
-		aw8697_haptic: aw8697_haptic@5A {
+		aw8697_haptic:aw8697_haptic@5A {
 		compatible = "awinic,aw8697_haptic";
-		reg = <0x0 0x5A 0x0>;  // Added the size to match #size-cells = 1
+		reg = <0x5A>;
 		reset-gpio = <&tlmm 72 0x00>;
 		irq-gpio = <&tlmm 118 0x00>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&aw_irq &aw_reset>;
 		status = "okay";
-	};
+   };
 };
 
 &tlmm {
@@ -774,18 +775,18 @@
 &qupv3_se16_i2c {
 	qcom,clk-freq-out = <100000>;
 	status = "ok";
-	bq27541_battery: bq27541-battery@55 {
+	bq27541_battery:bq27541-battery@55 {
 		status = "ok";
 		compatible = "ti,bq27541-battery";
-		reg = <0x0 0x55 0x0>;  // Added the size to match #size-cells = 1
+		reg = <0x55>;
 		qcom,modify-soc-smooth;
 		op,bat-4p45v;
 	};
 
-	oneplus_fastchg@26 {
+	oneplus_fastchg@26{
 		status = "ok";
 		compatible = "microchip,oneplus_fastchg";
-		reg = <0x0 0x26 0x0>;  // Added the size to match #size-cells = 1
+		reg = <0x26>;
 		microchip,mcu-en-gpio = <&tlmm 10 0x00>;
 		microchip,usb-sw-1-gpio = <&tlmm 50 0x00>;
 		microchip,usb-sw-2-gpio = <&tlmm 82 0x00>;
@@ -802,8 +803,8 @@
 		pinctrl-1 = <&usb_sw_suspend
 		&fastchg_suspend
 		&ap_clk_suspend>;
-		pinctrl-2 = <&ap_data_active>;
-		pinctrl-3 = <&ap_data_suspend>;
+		pinctrl-2 =<&ap_data_active>;
+		pinctrl-3 =<&ap_data_suspend>;
 		op,fw-erase-count = <384>;
 		op,fw-addr-low = <0x88>;
 		op,fw-addr-high = <0>;
@@ -1145,14 +1146,14 @@
 	status = "ok";
 	qcom,clk-freq-out = <400000>;
 
-	op_wlchg_rx: op,wlchg_rx@3b {
+	op_wlchg_rx:op,wlchg_rx@3b {
 		status = "disable";
 		compatible = "op,wlchg-rx-chip";
-		reg = <0x0 0x3b 0x0>;
+		reg = <0x3b>;
 		#address-cells = <1>;
 		#size-cells = <0>;
 
-		idt_p9415: idt,p9415 {
+		idt_p9415:idt,p9415 {
 			compatible = "op,p9415-charger";
 			qcom,idt_int-gpio = <&tlmm 162 0x00>;
 			qcom,idt_connect-gpio = <&tlmm 84 0x00>;
@@ -1180,10 +1181,10 @@
 	};
 
 	// ha7223
-	op_wlchg_cp1: chgpump-charger@19 {
+	op_wlchg_cp1:chgpump-charger@19 {
 		status = "disable";
 		compatible = "op,chgpump-charger";
-		reg = <0x0 0x19 0x0>;
+		reg = <0x19>;
 		qcom,cp_en-gpio = <&tlmm 114 0x00>;
 		pinctrl-names = "cp_en_active", "cp_en_sleep", "cp_en_default";
 		pinctrl-0 = <&cp_en_active>;
@@ -1191,10 +1192,10 @@
 		pinctrl-2 = <&cp_en_default>;
 	};
 	// bq25970
-	op_wlchg_cp2: chgpump-bq25970@66 {
+	op_wlchg_cp2:chgpump-bq25970@66 {
 		status = "disable";
 		compatible = "ti,bq2597x-standalone";
-		reg = <0x0 0x66 0x0>;
+		reg = <0x66>;
 		qcom,bq_int-gpio = <&tlmm 15 0x00>;
 		ti,bq2597x,bus-ocp-alarm-disable;
 		ti,bq2597x,bus-ovp-alarm-disable;

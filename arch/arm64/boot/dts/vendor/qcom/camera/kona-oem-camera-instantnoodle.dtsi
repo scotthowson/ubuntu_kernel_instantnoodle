@@ -69,31 +69,31 @@
 
     ois_rear_0: qcom,ois@0{
         cell-index = <0>;
-        reg = <0x0 0x0 0x1>;
+        reg = <0>;
         compatible = "qcom,ois";
-        cam_vio-supply = <&pm8009_l7>;
+	cam_vio-supply = <&pm8009_l7>;
         cam_vdig-supply = <&pm8009_l1>;
-        cam_vaf-supply = <&pm8009_l6>;
-        regulator-names = "cam_vio","cam_vdig","cam_vaf";
+	cam_vaf-supply = <&pm8009_l6>;
+        regulator-names ="cam_vio","cam_vdig","cam_vaf";
         rgltr-cntrl-support;
         rgltr-min-voltage = <0 1104000 2800000>;
         rgltr-max-voltage = <0 1104000 2800000>;
         rgltr-load-current = <0 1200000 1200000>;
         cci-master = <0>;
         status = "ok";
-        ois_gyro,position = <3>;
-        ois,type = <0>;
-        ois_gyro,type = <3>;
-        ois,name = "LC898124";
-        ois_module,vendor = <0>;
-        ois_actuator,vednor = <0>;
-        ois,fw = <1>;
+        ois_gyro,position=<3>;
+        ois,type=<0>;
+        ois_gyro,type=<3>;
+	ois,name="LC898124";
+	ois_module,vendor=<0>;
+	ois_actuator,vednor=<0>;
+	ois,fw=<1>;
     };
 
     eeprom_rear_0: qcom,eeprom@0 {
         cell-index = <0>;
         compatible = "qcom,eeprom";
-        reg = <0x0 0x0 0x1>;
+        reg = <0x0>;
         cam_vio-supply = <&pm8009_l7>;
         cam_vdig-supply = <&pm8009_l1>;
         cam_vana-supply = <&pm8150_s5>;
@@ -110,26 +110,26 @@
         pinctrl-names = "cam_default", "cam_suspend";
         pinctrl-0 = <&cam_sensor_rear_0_clock_active
                      &cam_sensor_rear_0_reset_active
-                     &cam_sensor_rear_0_avdd_active
-                     &cam_sensor_rear_0_avdd2_active>;
+		     &cam_sensor_rear_0_avdd_active
+		     &cam_sensor_rear_0_avdd2_active>;
         pinctrl-1 = <&cam_sensor_rear_0_clock_suspend
                      &cam_sensor_rear_0_reset_suspend
-                     &cam_sensor_rear_0_avdd_suspend
-                     &cam_sensor_rear_0_avdd2_suspend>;
+		     &cam_sensor_rear_0_avdd_suspend
+	             &cam_sensor_rear_0_avdd2_suspend>;
         gpios = <&tlmm 94 0>,
                 <&tlmm 145 0>,
-                <&tlmm 26 0>,
-                <&tlmm 156 0>;
+		<&tlmm 26 0>,
+		<&tlmm 156 0>;
         use-shared-clk;
         gpio-reset = <1>;
-        gpio-vana = <2>;
-        gpio-custom1 = <3>;
+	gpio-vana = <2>;
+	gpio-custom1 = <3>;
         gpio-req-tbl-num = <0 1 2 3>;
         gpio-req-tbl-flags = <1 0 0 0>;
         gpio-req-tbl-label = "CAM_MCLK0",
             "CAM_RESET0",
-            "CAM_VANA",
-            "CAM_VANA2";
+	    "CAM_VANA",
+	    "CAM_VANA2";
         sensor-mode = <0>;
         cci-master = <0>;
         status = "ok";
@@ -142,35 +142,35 @@
     eeprom_rear_1: qcom,eeprom@1 {
         cell-index = <1>;
         compatible = "qcom,eeprom";
-        reg = <0x1 0x0 0x1>;
-        cam_vio-supply = <&pm8009_l7>;
+        reg = <0x1>;
+       cam_vio-supply = <&pm8009_l7>;
         cam_vana-supply = <&pm8150a_bob>;
         cam_clk-supply = <&titan_top_gdsc>;
         regulator-names = "cam_vio","cam_vana",
             "cam_clk";
         rgltr-cntrl-support;
-        rgltr-min-voltage = <0 3008000 0>;
-        rgltr-max-voltage = <0 3960000 0>;
-        rgltr-load-current = <0 800000 0>;
+        rgltr-min-voltage = <0  3008000 0>;
+        rgltr-max-voltage = <0  3960000 0>;
+        rgltr-load-current = <0  800000 0>;
         gpio-no-mux = <0>;
         pinctrl-names = "cam_default", "cam_suspend";
         pinctrl-0 = <&cam_sensor_rear_1_clock_active
                      &cam_sensor_rear_1_reset_active
-                     &cam_sensor_rear_1_avdd_active>;
+		     &cam_sensor_rear_1_avdd_active>;
         pinctrl-1 = <&cam_sensor_rear_1_clock_suspend
                      &cam_sensor_rear_1_reset_suspend
-                     &cam_sensor_rear_1_avdd_suspend>;
+		     &cam_sensor_rear_1_avdd_suspend>;
         gpios = <&tlmm 95 0>,
                 <&tlmm 144 0>,
-                <&tlmm 139 0>;
+		<&tlmm 139 0>;
         use-shared-clk;
         gpio-reset = <1>;
-        gpio-vana = <2>;
+	gpio-vana = <2>;
         gpio-req-tbl-num = <0 1 2>;
         gpio-req-tbl-flags = <1 0 0>;
         gpio-req-tbl-label = "CAM_MCLK1",
             "CAM_RESET1",
-            "CAM_VANA1";
+	    "CAM_VANA1";
         sensor-mode = <0>;
         cci-master = <1>;
         status = "ok";

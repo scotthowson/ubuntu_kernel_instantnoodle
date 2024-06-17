@@ -736,15 +736,16 @@
 };
 
 &spmi_bus {
-       #address-cells = <2>;
-       #size-cells = <0>;
-
        qcom,pmk8002@6 {
                compatible ="qcom,spmi-pmic";
-               reg = <0x0 0x6>;
+               reg = <0x6 SPMI_USID>;
+               #address-cells = <2>;
+               #size-cells = <0>;
        };
        qcom,pmk8002@7 {
                compatible = "qcom,spmi-pmic";
-               reg = <0x0 0x7>;
+               reg = <0x7 SPMI_USID>;
+               #address-cells = <2>;
+               #size-cells = <0>;
        };
 };

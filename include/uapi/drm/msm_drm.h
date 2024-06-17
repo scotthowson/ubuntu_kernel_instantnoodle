@@ -27,9 +27,9 @@
 
 #include "drm.h"
 #include "sde_drm.h"
-#if defined(CONFIG_PXLW_IRIS5) || defined(PXLW_IRIS5) || defined(CONFIG_PXLW_SOFT_IRIS) || defined(PXLW_SOFT_IRIS_ONLY)
+#if defined(CONFIG_PXLW_IRIS) || defined(PXLW_IRIS5) || defined(CONFIG_PXLW_SOFT_IRIS) || defined(PXLW_SOFT_IRIS_ONLY)
 #include "msm_drm_iris.h"
-#endif // CONFIG_PXLW_IRIS5 || PXLW_IRIS5
+#endif // CONFIG_PXLW_IRIS || PXLW_IRIS5
 
 #if defined(__cplusplus)
 extern "C" {
@@ -218,7 +218,11 @@ struct drm_msm_gem_cpu_fini {
  */
 struct drm_msm_gem_submit_reloc {
 	__u32 submit_offset;  /* in, offset from submit_bo */
+#ifdef __cplusplus
+	__u32 or_val;
+#else
 	__u32 or;             /* in, value OR'd with result */
+#endif
 	__s32 shift;          /* in, amount of left shift (can be negative) */
 	__u32 reloc_idx;      /* in, index of reloc_bo buffer */
 	__u64 reloc_offset;   /* in, offset from start of reloc_bo */

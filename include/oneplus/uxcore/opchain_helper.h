@@ -42,3 +42,4 @@ static inline bool opc_check_uxtop_cpu(int uxtop, int cpu) { return true; }
 static inline void opc_set_boost(unsigned int val) {};
 #endif
 #endif
+

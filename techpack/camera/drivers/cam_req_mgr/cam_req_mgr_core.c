@@ -471,6 +471,7 @@ static void __cam_req_mgr_reset_slot_sync_mode(
 		CAM_DBG(CAM_CRM,
 			"link %0x req %lld sync mode %d -> %d",
 			link->link_hdl,
+			(long long)req_id,
 			in_q->slot[slot_idx].sync_mode,
 			CAM_REQ_MGR_SYNC_MODE_NO_SYNC);
 		in_q->slot[slot_idx].sync_mode = CAM_REQ_MGR_SYNC_MODE_NO_SYNC;
@@ -608,6 +609,9 @@ static void __cam_req_mgr_validate_crm_wd_timer(
 	CAM_DBG(CAM_CRM,
 		"rd_idx: %d idx: %d current_frame_timeout: %d ms",
 		in_q->rd_idx, idx, current_frame_timeout);
+
+        if ((!current_frame_timeout) && (!next_frame_timeout))
+		return;
 	spin_lock_bh(&link->link_state_spin_lock);
 	if (link->watchdog) {
 		if ((next_frame_timeout + CAM_REQ_MGR_WATCHDOG_TIMEOUT) >
@@ -2254,6 +2258,16 @@ int cam_req_mgr_process_sched_req(void *priv, void *data)
 		slot->additional_timeout = sched_req->additional_timeout;
 	}
 
+	if (link->is_first_req) {
+		if (sched_req->additional_timeout >
+                                       CAM_REQ_MGR_WATCHDOG_TIMEOUT) {
+			crm_timer_modify(link->watchdog,
+                                        (sched_req->additional_timeout +
+                                            CAM_REQ_MGR_WATCHDOG_TIMEOUT - 1));
+		}
+		link->is_first_req = false;
+	}
+
 	link->open_req_cnt++;
 	__cam_req_mgr_inc_idx(&in_q->wr_idx, 1, in_q->num_slots);
 
@@ -3829,6 +3843,7 @@ int cam_req_mgr_link_control(struct cam_req_mgr_link_control *control)
 		if (control->ops == CAM_REQ_MGR_LINK_ACTIVATE) {
 			spin_lock_bh(&link->link_state_spin_lock);
 			link->state = CAM_CRM_LINK_STATE_READY;
+			link->is_first_req = true;
 			spin_unlock_bh(&link->link_state_spin_lock);
 			/* Start SOF watchdog timer */
 			rc = crm_timer_init(&link->watchdog,
@@ -3864,6 +3879,7 @@ int cam_req_mgr_link_control(struct cam_req_mgr_link_control *control)
 			/* Destroy SOF watchdog timer */
 			spin_lock_bh(&link->link_state_spin_lock);
 			link->state = CAM_CRM_LINK_STATE_IDLE;
+			link->is_first_req = false;
 			crm_timer_exit(&link->watchdog);
 			spin_unlock_bh(&link->link_state_spin_lock);
 		} else {

@@ -159,7 +159,7 @@ int dsi_display_get_serial_number_min(struct drm_connector *connector);
 int dsi_display_get_serial_number_sec(struct drm_connector *connector);
 int dsi_display_get_serial_number_msec_int(struct drm_connector *connector);
 int dsi_display_get_serial_number_msec_rem(struct drm_connector *connector);
-uint64_t dsi_display_get_serial_number_id(uint64_t serial_number);
+u64 dsi_display_get_serial_number_at(struct drm_connector *connector);
 int dsi_display_get_code_info(struct drm_connector *connector);
 int dsi_display_get_stage_info(struct drm_connector *connector);
 int dsi_display_get_production_info(struct drm_connector *connector);

@@ -162,7 +162,7 @@ static int sec_enable_reverse_wireless_charge(struct chip_data_s6sy761 *chip_inf
 
 }
 
-static int sec_disable_wet_mode(struct chip_data_s6sy761 *chip_info, bool enable)
+static int sec_enable_wet_mode(struct chip_data_s6sy761 *chip_info, bool enable)
 {
 	int ret = -1;
 
@@ -1038,7 +1038,6 @@ static fw_update_state sec_fw_update(void *chip_data, const struct firmware *fw,
 	touch_i2c_read_block(chip_info->client, SEC_READ_CONFIG_VERSION, 4, buf);
 	config_version_in_ic = (buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3];
 	TPD_INFO("config version in bin is 0x%04x, config version in ic is 0x%04x\n", config_version_in_bin, config_version_in_ic);
-
 	msleep(10);
 	ret = touch_i2c_read_byte(chip_info->client, SEC_STATUS);//check wet mode status
 	TPD_INFO("ret is %d\n", ret);
@@ -1097,6 +1096,7 @@ static fw_update_state sec_fw_update(void *chip_data, const struct firmware *fw,
 		TPD_INFO("calibration %s\n", (ret < 0) ? "failed" : "success");
 	}
 	TPD_INFO("%s: update success\n", __func__);
+
 	return FW_UPDATE_SUCCESS;
 }
 
@@ -1645,13 +1645,11 @@ static int sec_mode_switch(void *chip_data, work_mode mode, bool flag)
 			if (ret < 0)
 				TPD_INFO("%s: switch reverse wireless mode : %d failes\n", __func__, flag);
 			break;
-
 		case MODE_WET_DETECT:
-			ret = sec_disable_wet_mode(chip_info, flag);
+			ret = sec_enable_wet_mode(chip_info, flag);
 			if (ret < 0)
 				TPD_INFO("%s: change wet mode : %d failes\n", __func__, flag);
 			break;
-
 		default:
 			TPD_INFO("%s: Wrong mode.\n", __func__);
 	}

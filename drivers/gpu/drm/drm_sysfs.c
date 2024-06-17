@@ -39,6 +39,7 @@
 #define DSI_PANEL_SAMSUNG_SOFEF03F_M 2
 #define DSI_PANEL_SAMSUNG_ANA6705 3
 #define DSI_PANEL_SAMSUNG_ANA6706 4
+#define DSI_PANEL_SAMSUNG_AMB655XL 5
 
 int dsi_cmd_log_enable;
 EXPORT_SYMBOL(dsi_cmd_log_enable);
@@ -393,22 +394,13 @@ static ssize_t hbm_brightness_store(struct device *dev,
 	struct drm_connector *connector = to_drm_connector(dev);
 	int ret = 0;
 	int hbm_brightness = 0;
-	int panel_stage_info = 0;
 
 	ret = kstrtoint(buf, 10, &hbm_brightness);
 	if (ret) {
 		pr_err("kstrtoint failed. ret=%d\n", ret);
 		return ret;
 	}
-	if (dsi_panel_name == DSI_PANEL_SAMSUNG_ANA6705) {
-		panel_stage_info = dsi_display_get_stage_info(connector);
-		if (((panel_stage_info == 0x02) || (panel_stage_info == 0x03)
-			|| (panel_stage_info == 0x04))) {
-			hbm_brightness = hbm_brightness + 380;
-		} else {
-			pr_err("19821 panel stage version is T0/DVT2/PVT&MP");
-		}
-	}
+
 	ret = dsi_display_set_hbm_brightness(connector, hbm_brightness);
 	if (ret)
 		pr_err("set hbm brightness (%d) failed\n", hbm_brightness);
@@ -476,6 +468,7 @@ static ssize_t aod_store(struct device *dev,
 		pr_err("kstrtoint failed. ret=%d\n", ret);
 		return ret;
 	}
+	pr_err("node aod_mode=%d\n", aod_mode);
 	ret = dsi_display_set_aod_mode(connector, aod_mode);
 	if (ret)
 		pr_err("set AOD mode(%d) fail\n", aod_mode);
@@ -890,6 +883,8 @@ static ssize_t panel_serial_number_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
 	struct drm_connector *connector = to_drm_connector(dev);
+	int ret = 0;
+
 	int panel_year = 0;
 	int panel_mon = 0;
 	int panel_day = 0;
@@ -901,17 +896,18 @@ static ssize_t panel_serial_number_show(struct device *dev,
 	int panel_code_info = 0;
 	int panel_stage_info = 0;
 	int panel_production_info = 0;
+
 	int panel_ic_v_info = 0;
 	int ddic_check_info = 0;
-	int ddic_x = 0;
-	int ddic_y = 0;
 	int panel_tool = 0;
-	char *buf_select = NULL;
-	char *panel_tool_result = NULL;
-	char *production_string_info = NULL;
+	int ddic_y = 0;
+	int ddic_x = 0;
+
 	char *stage_string_info = NULL;
+	char *production_string_info = NULL;
 	char *ddic_check_result = NULL;
-	int ret = 0;
+	char *panel_tool_result = NULL;
+	char *buf_select = NULL;
 
 	dsi_display_get_serial_number(connector);
 
@@ -926,16 +922,6 @@ static ssize_t panel_serial_number_show(struct device *dev,
 	panel_code_info = dsi_display_get_code_info(connector);
 	panel_stage_info = dsi_display_get_stage_info(connector);
 	panel_production_info = dsi_display_get_production_info(connector);
-	panel_ic_v_info = dsi_display_get_panel_ic_v_info(connector);
-	ddic_check_info = dsi_display_get_ddic_check_info(connector);
-	panel_tool = dsi_display_get_ToolsType_ANA6706(connector);
-	ddic_x = dsi_display_get_ddic_coords_X(connector);
-	ddic_y = dsi_display_get_ddic_coords_Y(connector);
-
-	if (ddic_check_info == 1)
-		ddic_check_result = "OK";
-	else if (ddic_check_info == 0)
-		ddic_check_result = "NG";
 
 	if (dsi_panel_name == DSI_PANEL_SAMSUNG_S6E3HC2) {
 		if (panel_code_info == 0xED) {
@@ -1041,27 +1027,22 @@ static ssize_t panel_serial_number_show(struct device *dev,
 			stage_string_info = "STAGE: DVT2";
 		else if (panel_stage_info == 0x06)
 			stage_string_info = "STAGE: PVT/MP";
+		else
+			stage_string_info = "STAGE: UNKNOWN";
+
+	ddic_check_info = dsi_display_get_ddic_check_info(connector);
+	if (ddic_check_info == 1)
+		ddic_check_result = "OK";
+	else if (ddic_check_info == 0)
+		ddic_check_result = "NG";
 
 		ret = scnprintf(buf, PAGE_SIZE,
-		"%04d/%02d/%02d\n%02d:%02d:%02d:%03d.%01d\n%s\nID: %02X %02X %02X\n DDIC_Check_Result: %s\n",
-					panel_year, panel_mon, panel_day, panel_hour, panel_min,
-						panel_sec, panel_msec_int, panel_msec_rem,
-							stage_string_info, panel_code_info,
-								panel_stage_info, panel_production_info,
-								ddic_check_result);
+		"%04d/%02d/%02d\n%02d:%02d:%02d:%03d.%01d\n%s\nID: %02X %02X %02X\nDDIC_Check_Result: %s\n",
+				panel_year, panel_mon, panel_day, panel_hour, panel_min,
+					panel_sec, panel_msec_int, panel_msec_rem, stage_string_info, panel_code_info,
+							panel_stage_info, panel_production_info, ddic_check_result);
 	} else if (dsi_panel_name == DSI_PANEL_SAMSUNG_ANA6706) {
-		buf_select = dsi_display_get_ic_reg_buf(connector);
-		if (buf_select == NULL)
-			return 0;
-
-		if (panel_tool == 0)
-			panel_tool_result = "ToolB";
-		else if (panel_tool == 1)
-			panel_tool_result = "ToolA";
-		else if (panel_tool == 2)
-			panel_tool_result = "ToolA_HVS30";
-		else
-			panel_tool_result = "Indistinguishable";
+		panel_ic_v_info = dsi_display_get_panel_ic_v_info(connector);
 
 		if (panel_stage_info == 0x01)
 			stage_string_info = "STAGE: T0";
@@ -1079,27 +1060,64 @@ static ssize_t panel_serial_number_show(struct device *dev,
 			stage_string_info = "STAGE: DVT2";
 		else if (panel_stage_info == 0xA6)
 			stage_string_info = "STAGE: PVT/MP";
+		else
+			stage_string_info = "STAGE: UNKNOWN";
+
+		ddic_check_info = dsi_display_get_ddic_check_info(connector);
+		if (ddic_check_info == 1)
+			ddic_check_result = "OK";
+		else if (ddic_check_info == 0)
+			ddic_check_result = "NG";
+
+		panel_tool = dsi_display_get_ToolsType_ANA6706(connector);
+		if (panel_tool == 0)
+			panel_tool_result = "ToolB";
+		else if (panel_tool == 1)
+			panel_tool_result = "ToolA";
+		else if (panel_tool == 2)
+			panel_tool_result = "ToolA_HVS30";
+		else
+			panel_tool_result = "Indistinguishable";
+
+		ddic_y = dsi_display_get_ddic_coords_Y(connector);
+		ddic_x = dsi_display_get_ddic_coords_X(connector);
+
+		buf_select = dsi_display_get_ic_reg_buf(connector);
+		if (buf_select == NULL)
+			return ret;
 
 		ret = scnprintf(buf, PAGE_SIZE,
-		"%04d/%02d/%02d\n%02d:%02d:%02d:%03d.%01d\n%s\n ID: %02X %02X %02X\n"
-		"IC_V: %02d\n DDIC_Check_Result: %s\n Tool: %s\n ddic_y: %02d ddic_x: %02d\n Lotid: %s\n"
-		"reg:%02x %02x %02x %02x %02x %02x %02x\n",
-					panel_year, panel_mon, panel_day, panel_hour, panel_min,
-						panel_sec, panel_msec_int, panel_msec_rem,
-							stage_string_info, panel_code_info,
-							panel_stage_info, panel_production_info,
-							panel_ic_v_info, ddic_check_result,
-							panel_tool_result, ddic_y, ddic_x, buf_Lotid,
-							buf_select[0], buf_select[1], buf_select[2],
-							buf_select[3], buf_select[4], buf_select[5],
-							buf_select[6]);
-	} else {
-		ret = scnprintf(buf, PAGE_SIZE, "%04d/%02d/%02d %02d:%02d:%02d\n",
-				panel_year, panel_mon, panel_day, panel_hour, panel_min, panel_sec);
-	}
+		"%04d/%02d/%02d\n%02d:%02d:%02d:%03d.%01d\n%s\nID: %02X %02X %02X\n"
+		"IC_V: %02d\nDDIC_Check_Result: %s\nTool: %s\nddic_y: %02d ddic_x: %02d\nLotid: %s\n"
+		"reg: %02x %02x %02x %02x %02x %02x %02x\n",
+			panel_year, panel_mon, panel_day, panel_hour, panel_min, panel_sec, panel_msec_int,
+				panel_msec_rem, stage_string_info, panel_code_info, panel_stage_info,
+					panel_production_info, panel_ic_v_info, ddic_check_result, panel_tool_result,
+						ddic_y, ddic_x, buf_Lotid, buf_select[0], buf_select[1], buf_select[2],
+							buf_select[3], buf_select[4], buf_select[5], buf_select[6]);
+	} else if (dsi_panel_name == DSI_PANEL_SAMSUNG_AMB655XL) {
+		if (panel_stage_info == 0x01)
+			stage_string_info = "STAGE: T0";
+		else if (panel_stage_info == 0x02)
+			stage_string_info = "STAGE: EVT1";
+		else if (panel_stage_info == 0x03)
+			stage_string_info = "STAGE: DVT1";
+		else if (panel_stage_info == 0x04)
+			stage_string_info = "STAGE: DVT2";
+		else if (panel_stage_info == 0x05)
+			stage_string_info = "STAGE: PVT/MP";
+		else
+			stage_string_info = "STAGE: UNKNOWN";
 
-	pr_err("panel year = %d, mon = %d, day = %d, hour = %d, min = %d, msec = %d.%d\n",
-		panel_year, panel_mon, panel_day, panel_hour, panel_min, panel_msec_int, panel_msec_rem);
+		ret = scnprintf(buf, PAGE_SIZE, "%04d/%02d/%02d\n%02d:%02d:%02d:%03d.%01d\n%s\nID: %02X %02X %02X\n",
+				panel_year, panel_mon, panel_day, panel_hour, panel_min, panel_sec, panel_msec_int,
+					panel_msec_rem, stage_string_info, panel_code_info, panel_stage_info,
+						panel_production_info);
+	} else {
+		ret = scnprintf(buf, PAGE_SIZE, "%04d/%02d/%02d %02d:%02d:%02d\nID: %02X %02X %02X\n",
+				panel_year, panel_mon, panel_day, panel_hour, panel_min, panel_sec,
+					panel_code_info, panel_stage_info, panel_production_info);
+	}
 
 	return ret;
 }
@@ -1107,11 +1125,10 @@ static ssize_t panel_serial_number_show(struct device *dev,
 static ssize_t panel_serial_number_AT_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
-
+	struct drm_connector *connector = to_drm_connector(dev);
 	int ret = 0;
-	uint64_t serial_number = 0;
 
-	ret = scnprintf(buf, PAGE_SIZE, "%llu\n", dsi_display_get_serial_number_id(serial_number));
+	ret = scnprintf(buf, PAGE_SIZE, "%llu\n", dsi_display_get_serial_number_at(connector));
 
 	return ret;
 }

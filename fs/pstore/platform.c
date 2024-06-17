@@ -489,10 +489,10 @@ static void pstore_console_write(struct console *con, const char *s, unsigned c)
 	psinfo->write(&record);
 }
 
-static void  pstore_console_init(void )
+static void  pstore_console_init(void)
 {
 	size_t oldsize;
-	size_t size =0;
+	size_t size = 0;
 	struct ramoops_context *cxt = psinfo->data;
 	struct pstore_record record;
 
@@ -514,7 +514,7 @@ static void  pstore_console_init(void )
 
 	psinfo->write(&record);
 
-	psinfo->bufsize = oldsize ;
+	psinfo->bufsize = oldsize;
 }
 
 static struct console pstore_console = {
@@ -526,7 +526,7 @@ static struct console pstore_console = {
 
 static void pstore_register_console(void)
 {
-	/*pstore memset befor use*/
+	/* pstore memset before use */
 	pstore_console_init();
 	register_console(&pstore_console);
 }

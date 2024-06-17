@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
- * Copyright (c) 2018-2019 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2018-2020 The Linux Foundation. All rights reserved.
  */
 
 #define pr_fmt(fmt)	"FG: %s: " fmt, __func__
@@ -20,7 +20,6 @@
 #include "fg-core.h"
 #include "fg-reg.h"
 #include "fg-alg.h"
-/* @bsp, 2019/07/05 Battery & Charging porting */
 #include <linux/oem/power/oem_external_fg.h>
 
 #define FG_GEN4_DEV_NAME	"qcom,fg-gen4"
@@ -173,7 +172,6 @@
 #define MONOTONIC_SOC_WORD		463
 #define MONOTONIC_SOC_OFFSET		0
 
-/* @bsp, 2019/07/05 Battery & Charging porting */
 static void oem_update_cc_cv_setpoint(struct fg_dev *chip,
 	int cv_float_point);
 static void oneplus_set_allow_read_iic(struct fg_dev *chip,
@@ -340,6 +338,15 @@ struct bias_config {
 	int	bias_kohms;
 };
 
+enum capacity_level {
+	CAPACITY_LEVEL_UNKNOWN,
+	CAPACITY_LEVEL_CRITICAL,
+	CAPACITY_LEVEL_LOW,
+	CAPACITY_LEVEL_NORMAL,
+	CAPACITY_LEVEL_HIGH,
+	CAPACITY_LEVEL_FULL,
+};
+
 static int fg_gen4_debug_mask;
 
 static bool fg_profile_dump;
@@ -384,7 +391,6 @@ static ssize_t sram_dump_period_ms_store(struct device *dev,
 }
 static DEVICE_ATTR_RW(sram_dump_period_ms);
 
-/* @bsp, 2019/07/05 Battery & Charging porting */
 void external_battery_gauge_register(
 				struct external_battery_gauge *batt_gauge)
 {
@@ -425,6 +431,8 @@ static struct fg_sram_param pm8150b_v1_sram_params[] = {
 		0, NULL, fg_decode_voltage_15b),
 	PARAM(IBAT_FINAL, IBAT_FINAL_WORD, IBAT_FINAL_OFFSET, 2, 1000, 488282,
 		0, NULL, fg_decode_current_16b),
+	PARAM(RCONN, RCONN_WORD, RCONN_OFFSET, 2, 1000, 122070, 0,
+		fg_encode_default, fg_decode_value_16b),
 	PARAM(ESR, ESR_WORD, ESR_OFFSET, 2, 1000, 244141, 0, fg_encode_default,
 		fg_decode_value_16b),
 	PARAM(ESR_MDL, ESR_MDL_WORD, ESR_MDL_OFFSET, 2, 1000, 244141, 0,
@@ -525,6 +533,8 @@ static struct fg_sram_param pm8150b_v2_sram_params[] = {
 		0, NULL, fg_decode_current_16b),
 	PARAM(IBAT_FLT, IBAT_FLT_WORD, IBAT_FLT_OFFSET, 4, 10000, 19073, 0,
 		NULL, fg_decode_current_24b),
+	PARAM(RCONN, RCONN_WORD, RCONN_OFFSET, 2, 1000, 122070, 0,
+		fg_encode_default, fg_decode_value_16b),
 	PARAM(ESR, ESR_WORD, ESR_OFFSET, 2, 1000, 244141, 0, fg_encode_default,
 		fg_decode_value_16b),
 	PARAM(ESR_MDL, ESR_MDL_WORD, ESR_MDL_OFFSET, 2, 1000, 244141, 0,
@@ -658,7 +668,6 @@ static int fg_get_batt_id_adc(struct fg_gen4_chip *chip, u32 *batt_id_ohms)
 
 #define MAX_BIAS_CODE	0x70E4
 
-/* @bsp, 2019/07/05 Battery & Charging porting */
 #define OP_SW_DEFAULT_ID 200000
 static int fg_gen4_get_batt_id(struct fg_gen4_chip *chip)
 {
@@ -709,7 +718,7 @@ static int fg_gen4_get_batt_id(struct fg_gen4_chip *chip)
 	 */
 	batt_id_kohms = (id_table[bias_id].bias_kohms * bias_code) * 10 /
 			(MAX_BIAS_CODE - bias_code);
-/* @bsp, 2019/07/05 Battery & Charging porting */
+
 	fg->batt_id_ohms = OP_SW_DEFAULT_ID;
 	return 0;
 }
@@ -2779,14 +2788,14 @@ static int fg_gen4_update_maint_soc(struct fg_dev *fg)
 		goto out;
 	}
 
-	if (msoc > fg->maint_soc) {
+	if (msoc >= fg->maint_soc) {
 		/*
 		 * When the monotonic SOC goes above maintenance SOC, we should
 		 * stop showing the maintenance SOC.
 		 */
 		fg->delta_soc = 0;
 		fg->maint_soc = 0;
-	} else if (fg->maint_soc && msoc <= fg->last_msoc) {
+	} else if (fg->maint_soc && msoc < fg->last_msoc) {
 		/* MSOC is decreasing. Decrease maintenance SOC as well */
 		fg->maint_soc -= 1;
 		if (!(msoc % 10)) {
@@ -2807,7 +2816,6 @@ out:
 	return rc;
 }
 
-/* @bsp, 2019/07/05 Battery & Charging porting */
 #define DEFALUT_BATT_TEMP	250
 
 static int fg_gen4_configure_full_soc(struct fg_dev *fg, int bsoc)
@@ -3876,7 +3884,7 @@ static struct fg_irq_info fg_irqs[FG_GEN4_IRQ_MAX] = {
 	[ESR_DELTA_IRQ] = {
 		.name		= "esr-delta",
 		.handler	= fg_delta_esr_irq_handler,
-		/*.wakeable	= true,*//*op disable ers calibration*/
+		.wakeable	= true,
 	},
 	[VBATT_LOW_IRQ] = {
 		.name		= "vbatt-low",
@@ -4247,13 +4255,11 @@ static void status_change_work(struct work_struct *work)
 	cycle_count_update(chip->counter, (u32)batt_soc >> 24,
 		fg->charge_status, fg->charge_done, input_present);
 
-	if (fg->charge_status != fg->prev_charge_status) {
-		batt_soc_cp = div64_u64((u64)(u32)batt_soc * CENTI_FULL_SOC,
-					BATT_SOC_32BIT);
-		cap_learning_update(chip->cl, batt_temp, batt_soc_cp,
+	batt_soc_cp = div64_u64((u64)(u32)batt_soc * CENTI_FULL_SOC,
+				BATT_SOC_32BIT);
+	cap_learning_update(chip->cl, batt_temp, batt_soc_cp,
 			fg->charge_status, fg->charge_done, input_present,
 			qnovo_en);
-	}
 
 	rc = fg_gen4_charge_full_update(fg);
 	if (rc < 0)
@@ -4289,7 +4295,6 @@ static void status_change_work(struct work_struct *work)
 		pr_err("Failed to validate SOC scale mode, rc=%d\n", rc);
 
 	ttf_update(chip->ttf, input_present);
-	fg->prev_charge_status = fg->charge_status;
 out:
 	fg_dbg(fg, FG_STATUS, "charge_status:%d charge_type:%d charge_done:%d\n",
 		fg->charge_status, fg->charge_type, fg->charge_done);
@@ -4504,7 +4509,6 @@ static int fg_psy_get_property(struct power_supply *psy,
 
 	switch (psp) {
 	case POWER_SUPPLY_PROP_CAPACITY:
-/* @bsp, 2019/07/05 Battery & Charging porting */
 		if (!get_extern_fg_regist_done())
 			pval->intval = get_prop_pre_shutdown_soc();
 		else if (fg->use_external_fg && external_fg
@@ -4529,7 +4533,6 @@ static int fg_psy_get_property(struct power_supply *psy,
 		pval->intval = div_s64((int64_t)val * 10000,  CC_SOC_30BIT);
 		break;
 	case POWER_SUPPLY_PROP_VOLTAGE_NOW:
-/* @bsp, 2019/07/05 Battery & Charging porting */
 		if (fg->use_external_fg && external_fg
 				&& external_fg->get_battery_mvolts)
 			pval->intval = external_fg->get_battery_mvolts();
@@ -4537,7 +4540,6 @@ static int fg_psy_get_property(struct power_supply *psy,
 			pval->intval = 4000000;
 		break;
 	case POWER_SUPPLY_PROP_CURRENT_NOW:
-/* @bsp, 2019/07/05 Battery & Charging porting */
 		if (fg->use_external_fg && external_fg
 				&& external_fg->get_average_current)
 			pval->intval = external_fg->get_average_current();
@@ -4548,7 +4550,6 @@ static int fg_psy_get_property(struct power_supply *psy,
 		rc = fg_get_sram_prop(fg, FG_SRAM_IBAT_FLT, &pval->intval);
 		break;
 	case POWER_SUPPLY_PROP_TEMP:
-/* @bsp, 2019/07/05 Battery & Charging porting */
 		if (!get_extern_fg_regist_done()
 				&& get_extern_bq_present())
 			pval->intval = DEFALUT_BATT_TEMP;
@@ -4559,8 +4560,12 @@ static int fg_psy_get_property(struct power_supply *psy,
 		} else
 			pval->intval = -400;
 		break;
-	case POWER_SUPPLY_PROP_BATTERY_HEALTH:
-		pval->intval =  -EINVAL;
+	case POWER_SUPPLY_PROP_BATTERY_H:
+		if (get_extern_fg_regist_done() && fg->use_external_fg && external_fg
+				&& external_fg->get_batt_health)
+			pval->intval = external_fg->get_batt_health();
+		else
+			pval->intval = -1;
 		break;
 	case POWER_SUPPLY_PROP_RESISTANCE:
 		rc = fg_get_battery_resistance(fg, &pval->intval);
@@ -4603,6 +4608,28 @@ static int fg_psy_get_property(struct power_supply *psy,
 				pval->intval = (int)temp;
 		}
 		break;
+	case POWER_SUPPLY_PROP_FULL_AVAILABLE_CAPACITY:
+		if (!get_extern_fg_regist_done() && get_extern_bq_present())
+                        pval->intval = -EINVAL;
+                else if (fg->use_external_fg && external_fg && external_fg->get_batt_full_available_capacity)
+                        pval->intval = external_fg->get_batt_full_available_capacity();
+                else {
+                        rc = fg_gen4_get_learned_capacity(chip, &temp);
+                        if (!rc)
+                                pval->intval = (int)temp;
+                }
+		break;
+	case POWER_SUPPLY_PROP_CHARGE_FULL_CHARGE_CAPACITY_FILTERED:
+                if (!get_extern_fg_regist_done() && get_extern_bq_present())
+                        pval->intval = -EINVAL;
+                else if (fg->use_external_fg && external_fg && external_fg->get_batt_full_available_capacity_filtered)
+                        pval->intval = external_fg->get_batt_full_available_capacity_filtered();
+                else {
+                        rc = fg_gen4_get_learned_capacity(chip, &temp);
+                        if (!rc)
+                                pval->intval = (int)temp;
+                }
+		break;
 	case POWER_SUPPLY_PROP_REMAINING_CAPACITY:
 		if (!get_extern_fg_regist_done() && get_extern_bq_present())
 			pval->intval = DEFALUT_BATT_TEMP;
@@ -4612,9 +4639,17 @@ static int fg_psy_get_property(struct power_supply *psy,
 			pval->intval = -EINVAL;
 		break;
 	case POWER_SUPPLY_PROP_CHARGE_FULL_DESIGN:
-		rc = fg_gen4_get_nominal_capacity(chip, &temp);
-		if (!rc)
+		if (!get_extern_fg_regist_done() && get_extern_bq_present())
 			pval->intval = -EINVAL;
+		else if (fg->use_external_fg && external_fg && external_fg->get_batt_full_chg_capacity) {
+			temp = external_fg->get_batt_full_chg_capacity();
+			pval->intval = 1000 * temp;
+		}
+		else {
+			rc = fg_gen4_get_nominal_capacity(chip, &temp);
+			if (!rc)
+				pval->intval = -EINVAL;
+		}
 		break;
 	case POWER_SUPPLY_PROP_CHARGE_COUNTER:
 		rc = fg_gen4_get_charge_counter(chip, &pval->intval);
@@ -4642,7 +4677,6 @@ static int fg_psy_get_property(struct power_supply *psy,
 	case POWER_SUPPLY_PROP_DEBUG_BATTERY:
 		pval->intval = is_debug_batt_id(fg);
 		break;
-/* @bsp, 2019/07/05 Battery & Charging porting */
 	case POWER_SUPPLY_PROP_FG_CAPACITY:
 		rc = fg_gen4_get_prop_capacity(fg, &pval->intval);
 		break;
@@ -4656,7 +4690,9 @@ static int fg_psy_get_property(struct power_supply *psy,
 			rc = fg_get_battery_current(fg, &pval->intval);
 		break;
 	case POWER_SUPPLY_PROP_BQ_SOC:
-		if (fg->use_external_fg && external_fg
+		if (!get_extern_fg_regist_done())
+			pval->intval = 50;
+		else if (fg->use_external_fg && external_fg
 				&& external_fg->get_batt_bq_soc)
 			pval->intval = external_fg->get_batt_bq_soc();
 		else
@@ -4666,11 +4702,30 @@ static int fg_psy_get_property(struct power_supply *psy,
 		rc = fg_get_sram_prop(fg, FG_SRAM_VBATT_FULL, &pval->intval);
 		break;
 	case POWER_SUPPLY_PROP_TIME_TO_FULL_AVG:
-		rc = ttf_get_time_to_full(chip->ttf, &pval->intval);
+		if (fg->use_external_fg && external_fg
+			&& external_fg->get_time_to_full)
+			rc = external_fg->get_time_to_full();
+			if (rc >= 0)
+				pval->intval = rc;
+		else
+			rc = ttf_get_time_to_full(chip->ttf, &pval->intval);
 		break;
 	case POWER_SUPPLY_PROP_TIME_TO_EMPTY_AVG:
 		rc = ttf_get_time_to_empty(chip->ttf, &pval->intval);
 		break;
+#if 0
+	case POWER_SUPPLY_PROP_TIME_TO_FULL_NOW:
+		if (fg->iskebab) {
+			if (fg->use_external_fg && external_fg
+				&& external_fg->get_time_to_full)
+				rc = external_fg->get_time_to_full();
+				if (rc >= 0)
+					pval->intval = rc;
+		} else
+			rc = ttf_get_time_to_full(chip->ttf, &pval->intval);
+		pval->intval = pval->intval > 0 ? pval->intval : 1;
+		break;
+#endif
 	case POWER_SUPPLY_PROP_CC_STEP:
 		if ((chip->ttf->cc_step.sel >= 0) &&
 				(chip->ttf->cc_step.sel < MAX_CC_STEPS)) {
@@ -4700,6 +4755,39 @@ static int fg_psy_get_property(struct power_supply *psy,
 	case POWER_SUPPLY_PROP_CALIBRATE:
 		pval->intval = chip->calib_level;
 		break;
+	case POWER_SUPPLY_PROP_VBAT_CELL_MAX:
+		if (fg->use_external_fg && external_fg
+			&& external_fg->get_battery_mvolts_2cell_max)
+			pval->intval = external_fg->get_battery_mvolts_2cell_max();
+		else
+			pval->intval = 3800;
+		break;
+	case POWER_SUPPLY_PROP_VBAT_CELL_MIN:
+		if (fg->use_external_fg && external_fg
+			&& external_fg->get_battery_mvolts_2cell_min)
+			pval->intval = external_fg->get_battery_mvolts_2cell_min();
+		else
+			pval->intval = 3800;
+		break;
+	case POWER_SUPPLY_PROP_CAPACITY_LEVEL:
+		if (get_extern_fg_regist_done() && fg->use_external_fg && external_fg
+					&& external_fg->get_battery_soc) {
+			val = external_fg->get_battery_soc();
+			if (val < 0)
+				pval->intval = CAPACITY_LEVEL_UNKNOWN;
+			else if (val == 0)
+				pval->intval = CAPACITY_LEVEL_CRITICAL;
+			else if (val <= 15)
+				pval->intval = CAPACITY_LEVEL_LOW;
+			else if (val <= 85)
+				pval->intval = CAPACITY_LEVEL_NORMAL;
+			else if (val < 100)
+				pval->intval = CAPACITY_LEVEL_HIGH;
+			else if (val == 100)
+				pval->intval = CAPACITY_LEVEL_FULL;
+		} else
+			pval->intval = CAPACITY_LEVEL_NORMAL;
+		break;
 	default:
 		pr_err("unsupported property %d\n", psp);
 		rc = -EINVAL;
@@ -4722,7 +4810,6 @@ static int fg_psy_set_property(struct power_supply *psy,
 	u8 val, mask;
 
 	switch (psp) {
-/* @bsp, 2019/07/05 Battery & Charging porting */
 	case POWER_SUPPLY_PROP_CC_TO_CV_POINT:
 		oem_update_cc_cv_setpoint(&chip->fg, pval->intval);
 		break;
@@ -4822,7 +4909,6 @@ static int fg_property_is_writeable(struct power_supply *psy,
 	case POWER_SUPPLY_PROP_ESR_ACTUAL:
 	case POWER_SUPPLY_PROP_ESR_NOMINAL:
 	case POWER_SUPPLY_PROP_SOH:
-/* @bsp, 2019/07/05 Battery & Charging porting */
 	case POWER_SUPPLY_PROP_SET_ALLOW_READ_EXTERN_FG_IIC:
 	case POWER_SUPPLY_PROP_CLEAR_SOH:
 	case POWER_SUPPLY_PROP_BATT_AGE_LEVEL:
@@ -4856,6 +4942,8 @@ static enum power_supply_property fg_psy_props[] = {
 	POWER_SUPPLY_PROP_CHARGE_NOW_RAW,
 	POWER_SUPPLY_PROP_CHARGE_NOW,
 	POWER_SUPPLY_PROP_CHARGE_FULL,
+	POWER_SUPPLY_PROP_FULL_AVAILABLE_CAPACITY,
+	POWER_SUPPLY_PROP_CHARGE_FULL_CHARGE_CAPACITY_FILTERED,
 	POWER_SUPPLY_PROP_CHARGE_COUNTER,
 	POWER_SUPPLY_PROP_CHARGE_COUNTER_SHADOW,
 	POWER_SUPPLY_PROP_CYCLE_COUNTS,
@@ -4865,6 +4953,9 @@ static enum power_supply_property fg_psy_props[] = {
 	POWER_SUPPLY_PROP_DEBUG_BATTERY,
 	POWER_SUPPLY_PROP_CONSTANT_CHARGE_VOLTAGE,
 	POWER_SUPPLY_PROP_TIME_TO_FULL_AVG,
+#if 0
+	POWER_SUPPLY_PROP_TIME_TO_FULL_NOW,
+#endif
 	POWER_SUPPLY_PROP_TIME_TO_EMPTY_AVG,
 	POWER_SUPPLY_PROP_CC_STEP,
 	POWER_SUPPLY_PROP_CC_STEP_SEL,
@@ -4873,10 +4964,13 @@ static enum power_supply_property fg_psy_props[] = {
 	POWER_SUPPLY_PROP_POWER_AVG,
 	POWER_SUPPLY_PROP_SCALE_MODE_EN,
 	POWER_SUPPLY_PROP_CALIBRATE,
-/* @bsp, 2019/07/05 Battery & Charging porting */
 	POWER_SUPPLY_PROP_SET_ALLOW_READ_EXTERN_FG_IIC,
 	POWER_SUPPLY_PROP_BQ_SOC,
 	POWER_SUPPLY_PROP_REMAINING_CAPACITY,
+	POWER_SUPPLY_PROP_VBAT_CELL_MAX,
+	POWER_SUPPLY_PROP_VBAT_CELL_MIN,
+	POWER_SUPPLY_PROP_CAPACITY_LEVEL,
+	POWER_SUPPLY_PROP_BATTERY_H,
 };
 
 static const struct power_supply_desc fg_psy_desc = {
@@ -4999,6 +5093,7 @@ static int fg_parallel_current_en_cb(struct votable *votable, void *data,
 		pr_err("Error in writing to 0x%04x, rc=%d\n",
 			BATT_INFO_FG_CNV_CHAR_CFG(fg), rc);
 
+	//vote(chip->mem_attn_irq_en_votable, MEM_ATTN_IRQ_VOTER, false, 0);
 	fg_dbg(fg, FG_STATUS, "Parallel current summing: %d\n", enable);
 
 	return rc;
@@ -5023,7 +5118,6 @@ static int fg_delta_bsoc_irq_en_cb(struct votable *votable, void *data,
 	return 0;
 }
 
-static bool esr_irq_is_en;
 static int fg_gen4_delta_esr_irq_en_cb(struct votable *votable, void *data,
 					int enable, const char *client)
 {
@@ -5033,17 +5127,11 @@ static int fg_gen4_delta_esr_irq_en_cb(struct votable *votable, void *data,
 		return 0;
 
 	if (enable) {
-		if (!esr_irq_is_en) {
-			esr_irq_is_en = true;
-			enable_irq(fg->irqs[ESR_DELTA_IRQ].irq);
-			enable_irq_wake(fg->irqs[ESR_DELTA_IRQ].irq);
-		}
+		enable_irq(fg->irqs[ESR_DELTA_IRQ].irq);
+		enable_irq_wake(fg->irqs[ESR_DELTA_IRQ].irq);
 	} else {
-		if (esr_irq_is_en) {
-			esr_irq_is_en = false;
-			disable_irq_wake(fg->irqs[ESR_DELTA_IRQ].irq);
-			disable_irq_nosync(fg->irqs[ESR_DELTA_IRQ].irq);
-		}
+		disable_irq_wake(fg->irqs[ESR_DELTA_IRQ].irq);
+		disable_irq_nosync(fg->irqs[ESR_DELTA_IRQ].irq);
 	}
 
 	return 0;
@@ -5555,7 +5643,6 @@ static int fg_gen4_hw_init(struct fg_gen4_chip *chip)
 		return rc;
 	}
 
-/* @bsp, 2019/07/05 Battery & Charging porting */
 	rc = fg_masked_write(fg,
 			BATT_INFO_ESR_PULL_DN_CFG(fg), 0xFF, 0);
 	if (rc < 0) {
@@ -5586,8 +5673,7 @@ static int fg_gen4_hw_init(struct fg_gen4_chip *chip)
 		}
 
 		if (!buf[0] && !buf[1]) {
-			/* Rconn has same encoding as ESR */
-			fg_encode(fg->sp, FG_SRAM_ESR, chip->dt.rconn_uohms,
+			fg_encode(fg->sp, FG_SRAM_RCONN, chip->dt.rconn_uohms,
 				buf);
 			rc = fg_sram_write(fg, RCONN_WORD, RCONN_OFFSET, buf, 2,
 					FG_IMA_DEFAULT);
@@ -6184,10 +6270,12 @@ static int fg_gen4_parse_dt(struct fg_gen4_chip *chip)
 	chip->dt.force_load_profile = of_property_read_bool(node,
 					"qcom,fg-force-load-profile");
 
-/* @bsp, 2019/07/05 Battery & Charging porting */
 	fg->use_external_fg =
 	of_property_read_bool(node, "oem,use_external_fg");
 	pr_info("use_external_fg=%d\n", fg->use_external_fg);
+	fg->iskebab =
+	of_property_read_bool(node, "oem,iskebab");
+	pr_info("iskebab=%d\n", fg->use_external_fg);
 
 	fg_gen4_parse_cl_params_dt(chip);
 	fg_gen4_parse_batt_temp_dt(chip);
@@ -6267,7 +6355,6 @@ static void fg_gen4_cleanup(struct fg_gen4_chip *chip)
 {
 	struct fg_dev *fg = &chip->fg;
 
-/* @bsp, 2019/07/05 Battery & Charging porting */
 	if (fg->fg_psy)
 		power_supply_unregister(fg->fg_psy);
 
@@ -6303,7 +6390,6 @@ static void fg_gen4_cleanup(struct fg_gen4_chip *chip)
 	dev_set_drvdata(fg->dev, NULL);
 }
 
-/* @bsp, 2019/07/05 Battery & Charging porting */
 static void oem_update_cc_cv_setpoint(
 				struct fg_dev *chip, int cv_float_point)
 {
@@ -6374,7 +6460,6 @@ static int fg_gen4_probe(struct platform_device *pdev)
 	fg->debug_mask = &fg_gen4_debug_mask;
 	fg->irqs = fg_irqs;
 	fg->charge_status = -EINVAL;
-	fg->prev_charge_status = -EINVAL;
 	fg->online_status = -EINVAL;
 	fg->batt_id_ohms = -EINVAL;
 	chip->ki_coeff_full_soc[0] = -EINVAL;
@@ -6539,12 +6624,7 @@ static int fg_gen4_probe(struct platform_device *pdev)
 	/* Keep MEM_ATTN_IRQ disabled until we require it */
 	vote(chip->mem_attn_irq_en_votable, MEM_ATTN_IRQ_VOTER, false, 0);
 
-	rc = fg_debugfs_create(fg);
-	if (rc < 0) {
-		dev_err(fg->dev, "Error in creating debugfs entries, rc:%d\n",
-			rc);
-		goto exit;
-	}
+	fg_debugfs_create(fg);
 
 	rc = sysfs_create_groups(&fg->dev->kobj, fg_groups);
 	if (rc < 0) {

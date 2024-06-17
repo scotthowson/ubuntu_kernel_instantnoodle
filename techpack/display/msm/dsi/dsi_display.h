@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
- * Copyright (c) 2015-2019, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2015-2020, The Linux Foundation. All rights reserved.
  */
 
 #ifndef _DSI_DISPLAY_H_
@@ -106,12 +106,15 @@ struct dsi_display_boot_param {
  * struct dsi_display_clk_info - dsi display clock source information
  * @src_clks:          Source clocks for DSI display.
  * @mux_clks:          Mux clocks used for DFPS.
- * @shadow_clks:       Used for DFPS.
+ * @shadow_clks:       Used for D-phy clock switch.
+ * @shadow_cphy_clks:  Used for C-phy clock switch.
  */
 struct dsi_display_clk_info {
 	struct dsi_clk_link_set src_clks;
 	struct dsi_clk_link_set mux_clks;
+	struct dsi_clk_link_set cphy_clks;
 	struct dsi_clk_link_set shadow_clks;
+	struct dsi_clk_link_set shadow_cphy_clks;
 };
 
 /**
@@ -269,7 +272,7 @@ struct dsi_display {
 
 	u32 te_source;
 	u32 clk_gating_config;
-#if defined(CONFIG_PXLW_IRIS5)
+#if defined(CONFIG_PXLW_IRIS)
 	u32 off;
 	u32 cnt;
 	u8 cmd_data_type;
@@ -439,7 +442,6 @@ int dsi_display_validate_mode_change(struct dsi_display *display,
  *
  * Return: error code.
  */
-
 int dsi_display_set_mode(struct dsi_display *display,
 			 struct dsi_display_mode *mode,
 			 u32 flags);
@@ -595,10 +597,6 @@ int dsi_display_set_tpg_state(struct dsi_display *display, bool enable);
 
 int dsi_display_clock_gate(struct dsi_display *display, bool enable);
 int dsi_dispaly_static_frame(struct dsi_display *display, bool enable);
-uint64_t dsi_display_get_serial_number_id(uint64_t serial_number);
-
-int dsi_display_get_serial_number_AT(struct drm_connector *connector);
-
 
 /**
  * dsi_display_get_drm_panel() - get drm_panel from display.
@@ -741,10 +739,13 @@ int dsi_display_cmd_engine_enable(struct dsi_display *display);
 int dsi_display_cmd_engine_disable(struct dsi_display *display);
 
 struct dsi_display *get_main_display(void);
+extern struct delayed_work *sde_esk_check_delayed_work;
+
+int dsi_display_register_read(struct dsi_display *dsi_display, unsigned char registers, char *buf, size_t count);
+int dsi_display_back_ToolsType_ANA6706(u8 *buff);
+int dsi_display_get_serial_number(struct drm_connector *connector);
+
 extern char gamma_para[2][413];
 int dsi_display_gamma_read(struct dsi_display *dsi_display);
 void dsi_display_gamma_read_work(struct work_struct *work);
-extern struct delayed_work *sde_esk_check_delayed_work;
-
-int dsi_display_back_ToolsType_ANA6706(u8 *buff);
 #endif /* _DSI_DISPLAY_H_ */

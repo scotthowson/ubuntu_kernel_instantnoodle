@@ -52,7 +52,13 @@
 #include <linux/bug.h>
 #include <linux/delay.h>
 
+#ifdef CONFIG_OEM_FORCE_DUMP
+#include <linux/sched/debug.h>
+#endif
+
+#ifdef CONFIG_IM
 #include <linux/oem/im.h>
+#endif
 #include "workqueue_internal.h"
 
 enum {
@@ -1426,7 +1432,6 @@ retry:
 	if (req_cpu == WORK_CPU_UNBOUND)
 		cpu = wq_select_unbound_cpu(raw_smp_processor_id());
 
-	/* pwq which will be used unless @work is executing elsewhere */
 	if (!(wq->flags & WQ_UNBOUND))
 		pwq = per_cpu_ptr(wq->cpu_pwqs, cpu);
 	else
@@ -1547,7 +1552,9 @@ static void __queue_delayed_work(int cpu, struct workqueue_struct *wq,
 	struct work_struct *work = &dwork->work;
 
 	WARN_ON_ONCE(!wq);
+#ifndef CONFIG_CFI
 	WARN_ON_ONCE(timer->function != delayed_work_timer_fn);
+#endif
 	WARN_ON_ONCE(timer_pending(timer));
 	WARN_ON_ONCE(!list_empty(&work->entry));
 
@@ -1854,8 +1861,10 @@ static struct worker *create_worker(struct worker_pool *pool)
 	if (IS_ERR(worker->task))
 		goto fail;
 
+#ifdef CONFIG_IM
 	/* set kworker flags */
 	im_set_flag(worker->task, IM_KWORKER);
+#endif
 
 	set_user_nice(worker->task, pool->attrs->nice);
 	kthread_bind_mask(worker->task, pool->attrs->cpumask);
@@ -2458,8 +2467,14 @@ repeat:
 			 */
 			if (need_to_create_worker(pool)) {
 				spin_lock(&wq_mayday_lock);
-				get_pwq(pwq);
-				list_move_tail(&pwq->mayday_node, &wq->maydays);
+				/*
+				 * Queue iff we aren't racing destruction
+				 * and somebody else hasn't queued it already.
+				 */
+				if (wq->rescuer && list_empty(&pwq->mayday_node)) {
+					get_pwq(pwq);
+					list_add_tail(&pwq->mayday_node, &wq->maydays);
+				}
 				spin_unlock(&wq_mayday_lock);
 			}
 		}
@@ -4199,8 +4214,28 @@ void destroy_workqueue(struct workqueue_struct *wq)
 	struct pool_workqueue *pwq;
 	int node;
 
+	/*
+	 * Remove it from sysfs first so that sanity check failure doesn't
+	 * lead to sysfs name conflicts.
+	 */
+	workqueue_sysfs_unregister(wq);
+
 	/* drain it before proceeding with destruction */
 	drain_workqueue(wq);
+
+	/* kill rescuer, if sanity checks fail, leave it w/o rescuer */
+	if (wq->rescuer) {
+		struct worker *rescuer = wq->rescuer;
+
+		/* this prevents new queueing */
+		spin_lock_irq(&wq_mayday_lock);
+		wq->rescuer = NULL;
+		spin_unlock_irq(&wq_mayday_lock);
+
+		/* rescuer will empty maydays list before exiting */
+		kthread_stop(rescuer->task);
+		kfree(rescuer);
+	}
 
 	/* sanity checks */
 	mutex_lock(&wq->mutex);
@@ -4232,11 +4267,6 @@ void destroy_workqueue(struct workqueue_struct *wq)
 	mutex_lock(&wq_pool_mutex);
 	list_del_rcu(&wq->list);
 	mutex_unlock(&wq_pool_mutex);
-
-	workqueue_sysfs_unregister(wq);
-
-	if (wq->rescuer)
-		kthread_stop(wq->rescuer->task);
 
 	if (!(wq->flags & WQ_UNBOUND)) {
 		/*
@@ -4509,7 +4539,8 @@ static void show_pwq(struct pool_workqueue *pwq)
 	pr_info("  pwq %d:", pool->id);
 	pr_cont_pool_info(pool);
 
-	pr_cont(" active=%d/%d%s\n", pwq->nr_active, pwq->max_active,
+	pr_cont(" active=%d/%d refcnt=%d%s\n",
+		pwq->nr_active, pwq->max_active, pwq->refcnt,
 		!list_empty(&pwq->mayday_node) ? " MAYDAY" : "");
 
 	hash_for_each(pool->busy_hash, bkt, worker, hentry) {
@@ -5862,3 +5893,32 @@ int __init workqueue_init(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_OEM_FORCE_DUMP
+void dump_workqueue(void)
+{
+	int cpu, pool_id, bkt;
+	struct worker_pool *pool;
+	struct worker *worker;
+	struct work_struct *work;
+
+	pr_info("==================== WORKQUEUE STATE ====================\n");
+	for_each_possible_cpu(cpu) {
+		pr_info("CPU %d\n", cpu);
+		pool_id = 0;
+		for_each_cpu_worker_pool(pool, cpu) {
+			pr_info("pool %d\n", pool_id++);
+			hash_for_each(pool->busy_hash, bkt, worker, hentry) {
+				pr_info("BUSY Workqueue worker: %s\n", worker->task->comm);
+				sched_show_task(worker->task);
+			}
+			list_for_each_entry(worker, &pool->idle_list, entry) {
+				pr_info("IDLE Workqueue worker: %s\n", worker->task->comm);
+			}
+			list_for_each_entry(work, &pool->worklist, entry) {
+				pr_info("Pending entry: %pS\n", work->func);
+			}
+		}
+	}
+}
+#endif

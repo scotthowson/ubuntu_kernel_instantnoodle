@@ -974,7 +974,7 @@ static struct clk_dummy measure_only_mccc_clk = {
 	},
 };
 
-#ifdef CONFIG_HOUSTON
+#if defined(CONFIG_CONTROL_CENTER) || defined(CONFIG_HOUSTON)
 int get_only_mccc_hw(struct clk_hw **hwptr)
 {
 	if (unlikely(!&(measure_only_mccc_clk.hw))) {

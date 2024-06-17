@@ -25,6 +25,13 @@ struct cam_sensor_settings {
     struct cam_sensor_i2c_reg_setting_array gc5035_setting;
     struct cam_sensor_i2c_reg_setting_array imx689_setting;
     struct cam_sensor_i2c_reg_setting_array gc2375_setting;
+
+    struct cam_sensor_i2c_reg_setting_array hi846_setting; //Rear_UW
+    struct cam_sensor_i2c_reg_setting_array imx616_setting; //Front_Main
+    struct cam_sensor_i2c_reg_setting_array gc8054_setting; //Front_UW
+    struct cam_sensor_i2c_reg_setting_array ov02b10_setting;
+    struct cam_sensor_i2c_reg_setting_array ov8856_setting;
+    struct cam_sensor_i2c_reg_setting_array gc02m1b_setting;
 };
 
 struct cam_sensor_settings sensor_settings = {
@@ -54,7 +61,13 @@ static long cam_sensor_subdev_ioctl(struct v4l2_subdev *sd,
                 	||s_ctrl->sensordata->slave_info.sensor_id == 0x481
                 	||s_ctrl->sensordata->slave_info.sensor_id == 0x5035
                 	||s_ctrl->sensordata->slave_info.sensor_id == 0x689
-                	||s_ctrl->sensordata->slave_info.sensor_id == 0x2375) {
+                	||s_ctrl->sensordata->slave_info.sensor_id == 0x2375
+                    ||s_ctrl->sensordata->slave_info.sensor_id == 0x4608
+                    ||s_ctrl->sensordata->slave_info.sensor_id == 0x0616
+                    ||s_ctrl->sensordata->slave_info.sensor_id == 0x8054
+                    ||s_ctrl->sensordata->slave_info.sensor_id == 0x88
+                    ||s_ctrl->sensordata->slave_info.sensor_id == 0x2b
+                    ||s_ctrl->sensordata->slave_info.sensor_id == 0x02) {
                 	sensor_setting.reg_setting = sensor_settings.streamoff.reg_setting;
 			sensor_setting.addr_type = CAMERA_SENSOR_I2C_TYPE_WORD;
 			sensor_setting.data_type = CAMERA_SENSOR_I2C_TYPE_BYTE;
@@ -92,7 +105,7 @@ static long cam_sensor_subdev_ioctl(struct v4l2_subdev *sd,
     		    /* If the I2C reg write failed for the first section reg, send
                     the result instead of keeping writing the next section of reg. */
                         CAM_ERR(CAM_SENSOR, "FTM Failed to write sensor setting 1/2");
-                        break;
+                        goto power_down;
                     } else {
                         CAM_ERR(CAM_SENSOR, "FTM successfully to write sensor setting 1/2");
                     }
@@ -104,6 +117,7 @@ static long cam_sensor_subdev_ioctl(struct v4l2_subdev *sd,
                     rc = camera_io_dev_write(&(s_ctrl->io_master_info), &sensor_setting);
                     if (rc < 0) {
                         CAM_ERR(CAM_SENSOR, "FTM Failed to write sensor setting 2/2");
+                        goto power_down;
                     } else {
                         CAM_ERR(CAM_SENSOR, "FTM successfully to write sensor setting 2/2");
                     }
@@ -156,12 +170,61 @@ static long cam_sensor_subdev_ioctl(struct v4l2_subdev *sd,
 				sensor_setting.size = sensor_settings.gc2375_setting.size;
 				sensor_setting.delay = sensor_settings.gc2375_setting.delay;
                                 rc = camera_io_dev_write(&(s_ctrl->io_master_info), &sensor_setting);
+			} else if (s_ctrl->sensordata->slave_info.sensor_id == 0x4608) {
+				CAM_ERR(CAM_SENSOR, "FTM sensor setting 0x%x",s_ctrl->sensordata->slave_info.sensor_id);
+				sensor_setting.reg_setting = sensor_settings.hi846_setting.reg_setting;
+				sensor_setting.addr_type = CAMERA_SENSOR_I2C_TYPE_WORD;
+				sensor_setting.data_type = CAMERA_SENSOR_I2C_TYPE_WORD;
+				sensor_setting.size = sensor_settings.hi846_setting.size;
+				sensor_setting.delay = sensor_settings.hi846_setting.delay;
+                                rc = camera_io_dev_write(&(s_ctrl->io_master_info), &sensor_setting);
+			} else if (s_ctrl->sensordata->slave_info.sensor_id == 0x0616) {
+				CAM_ERR(CAM_SENSOR, "FTM sensor setting 0x%x",s_ctrl->sensordata->slave_info.sensor_id);
+				sensor_setting.reg_setting = sensor_settings.imx616_setting.reg_setting;
+				sensor_setting.addr_type = CAMERA_SENSOR_I2C_TYPE_WORD;
+				sensor_setting.data_type = CAMERA_SENSOR_I2C_TYPE_BYTE;
+				sensor_setting.size = sensor_settings.imx616_setting.size;
+				sensor_setting.delay = sensor_settings.imx616_setting.delay;
+                                rc = camera_io_dev_write(&(s_ctrl->io_master_info), &sensor_setting);
+			} else if (s_ctrl->sensordata->slave_info.sensor_id == 0x8054) {
+				CAM_ERR(CAM_SENSOR, "FTM sensor setting 0x%x",s_ctrl->sensordata->slave_info.sensor_id);
+				sensor_setting.reg_setting = sensor_settings.gc8054_setting.reg_setting;
+				sensor_setting.addr_type = CAMERA_SENSOR_I2C_TYPE_WORD;
+				sensor_setting.data_type = CAMERA_SENSOR_I2C_TYPE_BYTE;
+				sensor_setting.size = sensor_settings.gc8054_setting.size;
+				sensor_setting.delay = sensor_settings.gc8054_setting.delay;
+                                rc = camera_io_dev_write(&(s_ctrl->io_master_info), &sensor_setting);
+			}else if (s_ctrl->sensordata->slave_info.sensor_id == 0x88) {
+				CAM_ERR(CAM_SENSOR, "FTM sensor setting 0x%x",s_ctrl->sensordata->slave_info.sensor_id);
+				sensor_setting.reg_setting = sensor_settings.imx616_setting.reg_setting;
+				sensor_setting.addr_type = CAMERA_SENSOR_I2C_TYPE_WORD;
+				sensor_setting.data_type = CAMERA_SENSOR_I2C_TYPE_BYTE;
+				sensor_setting.size = sensor_settings.imx616_setting.size;
+				sensor_setting.delay = sensor_settings.imx616_setting.delay;
+                                rc = camera_io_dev_write(&(s_ctrl->io_master_info), &sensor_setting);
+			} else if (s_ctrl->sensordata->slave_info.sensor_id == 0x2b) {
+				CAM_ERR(CAM_SENSOR, "FTM sensor setting 0x%x",s_ctrl->sensordata->slave_info.sensor_id);
+				sensor_setting.reg_setting = sensor_settings.gc8054_setting.reg_setting;
+				sensor_setting.addr_type = CAMERA_SENSOR_I2C_TYPE_BYTE;
+				sensor_setting.data_type = CAMERA_SENSOR_I2C_TYPE_BYTE;
+				sensor_setting.size = sensor_settings.gc8054_setting.size;
+				sensor_setting.delay = sensor_settings.gc8054_setting.delay;
+                                rc = camera_io_dev_write(&(s_ctrl->io_master_info), &sensor_setting);
+			} else if (s_ctrl->sensordata->slave_info.sensor_id == 0x02) {
+				CAM_ERR(CAM_SENSOR, "FTM sensor setting 0x%x",s_ctrl->sensordata->slave_info.sensor_id);
+				sensor_setting.reg_setting = sensor_settings.gc02m1b_setting.reg_setting;
+				sensor_setting.addr_type = CAMERA_SENSOR_I2C_TYPE_BYTE;
+				sensor_setting.data_type = CAMERA_SENSOR_I2C_TYPE_BYTE;
+				sensor_setting.size = sensor_settings.gc02m1b_setting.size;
+				sensor_setting.delay = sensor_settings.gc02m1b_setting.delay;
+                                rc = camera_io_dev_write(&(s_ctrl->io_master_info), &sensor_setting);
 			}else {
                                CAM_ERR(CAM_SENSOR, "FTM unknown sensor id 0x%x",s_ctrl->sensordata->slave_info.sensor_id);
                                rc = -1;
                         }
                         if (rc < 0) {
 		            CAM_ERR(CAM_SENSOR, "FTM Failed to write sensor setting");
+                            goto power_down;
 	                } else {
 		           CAM_ERR(CAM_SENSOR, "FTM successfully to write sensor setting");
                         }
@@ -173,6 +236,10 @@ static long cam_sensor_subdev_ioctl(struct v4l2_subdev *sd,
 		break;
 	}
 	return rc;
+power_down:
+        CAM_ERR(CAM_SENSOR, "FTM wirte setting failed，do power down");
+        cam_sensor_power_down(s_ctrl);
+        return rc;
 }
 
 static int cam_sensor_subdev_close(struct v4l2_subdev *sd,

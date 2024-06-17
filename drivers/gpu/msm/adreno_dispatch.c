@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
- * Copyright (c) 2013-2019, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2013-2020, The Linux Foundation. All rights reserved.
  */
 
 #include <linux/slab.h>
@@ -1755,6 +1755,26 @@ void adreno_fault_skipcmd_detached(struct adreno_device *adreno_dev,
 	}
 }
 
+
+static void kgsl_send_uevent_cmd_notify(struct kgsl_device *desc, int contextId,
+		int timestamp)
+{
+	char *envp[4];
+	char *title = "GPU_CMD_PAGE_FAULT";
+
+	if (!desc)
+		return;
+
+	envp[0] = kasprintf(GFP_KERNEL, "title=%s", title);
+	envp[1] = kasprintf(GFP_KERNEL, "cntId=%d", contextId);
+	envp[2] = kasprintf(GFP_KERNEL, "timestamp=%d", timestamp);
+	envp[3] = NULL;
+	kobject_uevent_env(&desc->dev->kobj, KOBJ_CHANGE, envp);
+	kfree(envp[0]);
+	kfree(envp[1]);
+	kfree(envp[2]);
+}
+
 /**
  * process_cmdobj_fault() - Process a cmdobj for fault policies
  * @device: Device on which the cmdobj caused a fault
@@ -1925,6 +1945,8 @@ static void process_cmdobj_fault(struct kgsl_device *device,
 
 	pr_context(device, drawobj->context, "gpu %s ctx %d ts %d\n",
 		state, drawobj->context->id, drawobj->timestamp);
+
+	kgsl_send_uevent_cmd_notify(device, drawobj->context->id, drawobj->timestamp);
 
 	/* Mark the context as failed */
 	mark_guilty_context(device, drawobj->context->id);
@@ -2260,11 +2282,12 @@ static int dispatcher_do_fault(struct adreno_device *adreno_dev)
 		ret = adreno_reset(device, fault);
 
 	mutex_unlock(&device->mutex);
-	/* if any other fault got in until reset then ignore */
-	atomic_set(&dispatcher->fault, 0);
 
 	/* If adreno_reset() fails then what hope do we have for the future? */
 	BUG_ON(ret);
+
+	/* if any other fault got in until reset then ignore */
+	atomic_set(&dispatcher->fault, 0);
 
 	/* recover all the dispatch_q's starting with the one that hung */
 	if (dispatch_q)

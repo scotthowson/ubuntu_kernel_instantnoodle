@@ -136,7 +136,7 @@ static inline bool current_is_gcd(void)
 	return current == gc_tsk;
 }
 
-bool ctech_current_is_swapind() {
+bool ctech_current_is_swapind(void) {
 	return current == swapind_tsk;
 }
 
@@ -1346,23 +1346,36 @@ static long memplus_sub_ioctl(unsigned int cmd, void __user *parg)
 			break;
 		case MEMPLUS_RECLAIM_ANON_MEMORY:
 			/* TODO: reclaim directly, the reclaimd thread move to userspace */
+			if (total_swap_pages == 0) {
+				pr_err("reclaim task anon memory failed, becauce of no swap space!\n");
+				if (copy_to_user(parg, &size, sizeof(unsigned long)))
+					ret = -EFAULT;
+				break;
+			}
 			if (is_fg(uid)) {
 				pr_err("task %s(pid:%d uid:%d) is top app\n", task->comm, pid, uid);
 				if (copy_to_user(parg, &size, sizeof(unsigned long)))
 					ret = -EFAULT;
 				break;
 			}
-			spin_lock(&task->signal->reclaim_state_lock);
-			if (task->signal->swapin_should_readahead_m == RECLAIM_STANDBY) {
+			if (!ctech__memplus_enabled()) {
+				spin_lock(&task->signal->reclaim_state_lock);
 				task->signal->swapin_should_readahead_m = RECLAIM_QUEUE;
-				can_reclaim = check_can_reclaimd(task);
 				spin_unlock(&task->signal->reclaim_state_lock);
-				if (can_reclaim && uid > AID_APP) {
-					size = reclaim_anon(task, 900);
-				}
+				size = reclaim_anon(task, 900);
 			} else {
-				spin_unlock(&task->signal->reclaim_state_lock);
-				pr_err("task %s(pid:%d) is doing swapin, top app?\n",task->comm, pid);
+				spin_lock(&task->signal->reclaim_state_lock);
+				if (task->signal->swapin_should_readahead_m == RECLAIM_STANDBY) {
+					task->signal->swapin_should_readahead_m = RECLAIM_QUEUE;
+					can_reclaim = check_can_reclaimd(task);
+					spin_unlock(&task->signal->reclaim_state_lock);
+					if (can_reclaim && uid > AID_APP) {
+						size = reclaim_anon(task, 900);
+					}
+				} else {
+					spin_unlock(&task->signal->reclaim_state_lock);
+					pr_err("task %s(pid:%d) is doing swapin, top app?\n",task->comm, pid);
+				}
 			}
 
 			if (copy_to_user(parg, &size, sizeof(unsigned long)))

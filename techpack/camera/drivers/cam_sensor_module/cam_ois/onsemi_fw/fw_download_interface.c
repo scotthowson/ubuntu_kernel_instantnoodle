@@ -16,9 +16,12 @@ enum cam_ois_state_vendor ois_state[CAM_OIS_TYPE_MAX] = {0};
 
 #define OIS_REGISTER_SIZE 100
 #define OIS_READ_REGISTER_DELAY 100
-#define COMMAND_SIZE 255
-struct dentry *ois_dentry = NULL;
+#define COMMAND_SIZE 1000
+static struct kobject *cam_ois_kobj;
 bool dump_ois_registers = false;
+struct proc_dir_entry *face_common_dir = NULL;
+struct proc_dir_entry *proc_file_entry = NULL;
+struct proc_dir_entry *proc_file_entry_tele = NULL;
 uint32_t ois_registers_124[OIS_REGISTER_SIZE][2] = {
 	{0xF010, 0x0000},//Servo On/Off
 	{0xF012, 0x0000},//Enable/Disable OIS
@@ -58,6 +61,10 @@ uint32_t ois_registers_128[OIS_REGISTER_SIZE][2] = {
 	{0xF01D, 0x0000},//SPI IF read access command
 	{0xF01E, 0x0000},//SPI IF Write access command
 	{0xF100, 0x0000},//OIS status
+        {0x04d4, 0x0000},
+        {0x04d8, 0x0000},
+        {0x0C44, 0x0000},
+        {0x06BC, 0x0000},
 	{0x0000, 0x0000},
 };
 
@@ -73,33 +80,51 @@ static ssize_t ois_write(struct file *p_file,
 	size_t count, loff_t *p_offset)
 {
 	char data[COMMAND_SIZE] = {0};
-	char* const delim = " ";
+	char* const delim = ":";
 	int iIndex = 0;
 	char *token = NULL, *cur = NULL;
 	uint32_t addr =0, value = 0;
 	int result = 0;
+        uint32_t if_write=0;
 
 	if(puser_buf) {
-		copy_from_user(&data, puser_buf, count);
+		if (copy_from_user(&data, puser_buf, count)) {
+			CAM_ERR(CAM_OIS, "copy from user buffer error");
+			return -EFAULT;
+		}
 	}
 
 	cur = data;
 	while ((token = strsep(&cur, delim))) {
 		//CAM_ERR(CAM_OIS, "string = %s iIndex = %d, count = %d", token, iIndex, count);
+                int ret=0;
 		if (iIndex  == 0) {
-			kstrtoint(token, 16, &addr);
+			ret=kstrtoint(token, 16, &addr);
 		} else if (iIndex == 1) {
-		    kstrtoint(token, 16, &value);
-		}
+		        ret=kstrtoint(token, 16, &value);
+                } else if (iIndex == 2) {
+                        ret=kstrtoint(token, 16, &if_write);
+                }
+                if(ret < 0)
+                        CAM_ERR(CAM_OIS,"String conversion to unsigned int failed");
 		iIndex++;
 	}
 	if (ois_ctrls[CAM_OIS_MASTER] && addr != 0) {
-		result = RamWrite32A_oneplus(ois_ctrls[CAM_OIS_MASTER], addr, value);
-		if (result < 0) {
-			CAM_ERR(CAM_OIS, "write addr = 0x%x, value = 0x%x fail", addr, value);
-		} else {
-			CAM_INFO(CAM_OIS, "write addr = 0x%x, value = 0x%x success", addr, value);
-		}
+                if(if_write == 1){
+		        result = RamWrite32A_oneplus(ois_ctrls[CAM_OIS_MASTER], addr, value);
+		        if (result < 0) {
+			        CAM_ERR(CAM_OIS, "write addr = 0x%x, value = 0x%x fail", addr, value);
+		        } else {
+			        CAM_INFO(CAM_OIS, "write addr = 0x%x, value = 0x%x success", addr, value);
+		        }
+                }else if(if_write == 2){
+                        result = RamRead32A_oneplus(ois_ctrls[CAM_OIS_MASTER], addr, &value);
+                        if (result < 0) {
+                                CAM_ERR(CAM_OIS, "read addr = 0x%x, value = 0x%x fail", addr, value);
+                        } else {
+                                CAM_INFO(CAM_OIS, "read addr = 0x%x, value = 0x%x success", addr, value);
+                        }
+                }
 	}
 	return count;
 }
@@ -115,11 +140,12 @@ static ssize_t ois_write_tele(struct file *p_file,
 	size_t count, loff_t *p_offset)
 {
 	char data[COMMAND_SIZE] = {0};
-	char* const delim = " ";
+	char* const delim = ":";
 	int iIndex = 0;
 	char *token = NULL, *cur = NULL;
 	uint32_t addr =0, value = 0;
 	int result = 0;
+        uint32_t if_write=0;
 
 	if(puser_buf) {
 		if (copy_from_user(&data, puser_buf, count)) {
@@ -131,20 +157,34 @@ static ssize_t ois_write_tele(struct file *p_file,
 	cur = data;
 	while ((token = strsep(&cur, delim))) {
 		//CAM_ERR(CAM_OIS, "string = %s iIndex = %d, count = %d", token, iIndex, count);
-		if (iIndex  == 0) {
-			kstrtouint(token, 16, &addr);
-		} else if (iIndex == 1) {
-		    kstrtouint(token, 16, &value);
-		}
+		int ret=0;
+        	if (iIndex  == 0) {
+			ret=kstrtoint(token, 16, &addr);
+        	} else if (iIndex == 1) {
+			ret=kstrtoint(token, 16, &value);
+        	} else if (iIndex == 2) {
+			ret=kstrtoint(token, 16, &if_write);
+        	}
+                if(ret < 0)
+                        CAM_ERR(CAM_OIS,"String conversion to unsigned int failed");
 		iIndex++;
 	}
 	if (ois_ctrls[CAM_OIS_SLAVE] && addr != 0) {
-		result = RamWrite32A_oneplus(ois_ctrls[CAM_OIS_SLAVE], addr, value);
-		if (result < 0) {
-			CAM_ERR(CAM_OIS, "write addr = 0x%x, value = 0x%x fail", addr, value);
-		} else {
-			CAM_INFO(CAM_OIS, "write addr = 0x%x, value = 0x%x success", addr, value);
-		}
+                if(if_write == 1){
+		        result = RamWrite32A_oneplus(ois_ctrls[CAM_OIS_SLAVE], addr, value);
+		        if (result < 0) {
+			        CAM_ERR(CAM_OIS, "write addr = 0x%x, value = 0x%x fail", addr, value);
+		        } else {
+			        CAM_INFO(CAM_OIS, "write addr = 0x%x, value = 0x%x success", addr, value);
+		        }
+                }else if(if_write == 2){
+                        result = RamRead32A_oneplus(ois_ctrls[CAM_OIS_SLAVE], addr, &value);
+                        if (result < 0) {
+                                CAM_ERR(CAM_OIS, "read addr = 0x%x, value = 0x%x fail", addr, value);
+                        } else {
+                                CAM_INFO(CAM_OIS, "read addr = 0x%x, value = 0x%x success", addr, value);
+                        }
+                }
 	}
 	return count;
 }
@@ -273,6 +313,38 @@ int ois_start_read_thread(void *arg, bool start)
 
 	return 0;
 }
+
+static ssize_t dump_registers_store(struct device * dev,
+                             struct device_attribute * attr,
+                             const char * buf,
+                             size_t count)
+{
+        unsigned int if_start_thread;
+        CAM_WARN(CAM_OIS, "%s", buf);
+        if (sscanf(buf, "%u", &if_start_thread) != 1) {
+                return -1;
+        }
+        if(if_start_thread) {
+                dump_ois_registers = true;
+        } else {
+                dump_ois_registers = false;
+        }
+
+        return count;
+}
+
+static DEVICE_ATTR(dump_registers, 0644, NULL, dump_registers_store);
+static struct attribute *ois_node_attrs[] = {
+        &dev_attr_dump_registers.attr,
+        NULL,
+};
+static const struct attribute_group ois_common_group = {
+        .attrs = ois_node_attrs,
+};
+static const struct attribute_group *ois_groups[] = {
+        &ois_common_group,
+        NULL,
+};
 
 void WitTim( uint16_t time)
 {
@@ -555,6 +627,7 @@ void OISCountinueWrite(  struct cam_ois_ctrl_t *o_ctrl, void *register_data, uin
 			break;
 		}
 	}
+	kfree(i2c_write_setting_gl);
 }
 
 int OISWrite(struct cam_ois_ctrl_t *o_ctrl, uint32_t addr, uint32_t data)
@@ -841,11 +914,6 @@ int DownloadFW(struct cam_ois_ctrl_t *o_ctrl)
 			} else if (CAM_OIS_SLAVE == o_ctrl->ois_type) {
 				if (CAM_OIS_INVALID == ois_state[CAM_OIS_MASTER]) {
 					rc = Download124Or128FW(ois_ctrls[CAM_OIS_MASTER]);
-					/*donot start main camera thread when switch tele
-					if (!rc&&dump_ois_registers&&!ois_start_read_thread(ois_ctrls[CAM_OIS_MASTER], 1)) {
-						ois_start_read(ois_ctrls[CAM_OIS_MASTER], 1);
-					}*/
-					//msleep(120);// Need to check whether we need a long time delay
 				}
 				if (rc) {
 					CAM_ERR(CAM_OIS, "ois type=%d,Download %s FW failed",o_ctrl->ois_type, ois_ctrls[CAM_OIS_MASTER]->ois_name);
@@ -1171,7 +1239,7 @@ int OISPollThread128(void *arg)
 
 					if (total_sample_count > 100 ) {
 					real_QTimer =  pre_real_QTimer + vaild_cnt * interval_QTimer;
-						CAM_ERR(CAM_OIS, "OIS HALL data force calate  %d ",offset_cnt);
+						CAM_DBG(CAM_OIS, "OIS HALL data force calate  %d ",offset_cnt);
 						offset_cnt ++ ;
 						if (offset_cnt > 3) {
 							is_add_Offset = 1;
@@ -1233,7 +1301,7 @@ int OISPollThread128(void *arg)
 					if (kfifo_in_len != vaild_cnt*SAMPLE_SIZE_IN_DRIVER) {
 						CAM_DBG(CAM_OIS, "ois type=%d,kfifo_in %d Bytes, FIFO maybe full, some OIS Hall sample maybe dropped.",o_ctrl->ois_type, kfifo_in_len);
 					} else {
-						CAM_DBG(CAM_OIS, "ois type=%d,kfifo_in %d Bytes",o_ctrl->ois_type, vaild_cnt*SAMPLE_SIZE_IN_DRIVER);
+						CAM_DBG(CAM_OIS, "ois type=%d,kfifo_in %ld Bytes",o_ctrl->ois_type, vaild_cnt*SAMPLE_SIZE_IN_DRIVER);
 					}
 				}
 				//Store ois data for EISv2
@@ -1243,7 +1311,7 @@ int OISPollThread128(void *arg)
 					if (kfifo_in_len != vaild_cnt*SAMPLE_SIZE_IN_DRIVER) {
 						CAM_DBG(CAM_OIS, "ois type=%d,kfifo_in %d Bytes, FIFOV2 maybe full, some OIS Hall sample maybe dropped.",o_ctrl->ois_type, kfifo_in_len);
 					} else {
-						CAM_DBG(CAM_OIS, "ois type=%d,kfifo_inV2 %d Bytes",o_ctrl->ois_type, vaild_cnt*SAMPLE_SIZE_IN_DRIVER);
+						CAM_DBG(CAM_OIS, "ois type=%d,kfifo_inV2 %ld Bytes",o_ctrl->ois_type, vaild_cnt*SAMPLE_SIZE_IN_DRIVER);
 					}
 				}
 				mutex_unlock(&(o_ctrl->ois_hall_data_mutex));
@@ -1270,11 +1338,12 @@ void ReadOISHALLData(struct cam_ois_ctrl_t *o_ctrl, void *data)
 	mutex_lock(&(o_ctrl->ois_hall_data_mutex));
 	fifo_len_in_ois_driver = kfifo_len(&(o_ctrl->ois_hall_data_fifo));
 	if (fifo_len_in_ois_driver > 0) {
+                int ret;
 		if (fifo_len_in_ois_driver > SAMPLE_SIZE_IN_DRIVER*SAMPLE_COUNT_IN_DRIVER) {
 			fifo_len_in_ois_driver = SAMPLE_SIZE_IN_DRIVER*SAMPLE_COUNT_IN_DRIVER;
 		}
-		kfifo_to_user(&(o_ctrl->ois_hall_data_fifo), data, fifo_len_in_ois_driver, &data_size);
-		CAM_DBG(CAM_OIS, "ois type=%d,Copied %d Bytes to UMD",o_ctrl->ois_type, data_size);
+                ret = kfifo_to_user(&(o_ctrl->ois_hall_data_fifo), data, fifo_len_in_ois_driver, &data_size);
+		CAM_DBG(CAM_OIS, "ois type=%d,Copied %d Bytes to UMD with return value %d",o_ctrl->ois_type, data_size,ret);
 	} else {
 		CAM_DBG(CAM_OIS, "ois type=%d,fifo_len is %d, no need copy to UMD",o_ctrl->ois_type, fifo_len_in_ois_driver);
 	}
@@ -1290,11 +1359,12 @@ void ReadOISHALLDataV2(struct cam_ois_ctrl_t *o_ctrl, void *data)
 	mutex_lock(&(o_ctrl->ois_hall_data_mutex));
 	fifo_len_in_ois_driver = kfifo_len(&(o_ctrl->ois_hall_data_fifoV2));
 	if (fifo_len_in_ois_driver > 0) {
+                int ret;
 		if (fifo_len_in_ois_driver > SAMPLE_SIZE_IN_DRIVER*SAMPLE_COUNT_IN_DRIVER) {
 			fifo_len_in_ois_driver = SAMPLE_SIZE_IN_DRIVER*SAMPLE_COUNT_IN_DRIVER;
 		}
-		kfifo_to_user(&(o_ctrl->ois_hall_data_fifoV2), data, fifo_len_in_ois_driver, &data_size);
-		CAM_DBG(CAM_OIS, "ois type=%d,Copied %d Bytes to UMD EISv2",o_ctrl->ois_type, data_size);
+                ret = kfifo_to_user(&(o_ctrl->ois_hall_data_fifoV2), data, fifo_len_in_ois_driver, &data_size);
+		CAM_DBG(CAM_OIS, "ois type=%d,Copied %d Bytes to UMD EISv2 with return value %d",o_ctrl->ois_type, data_size,ret);
 	} else {
 		CAM_DBG(CAM_OIS, "ois type=%d,fifo_len is %d, no need copy to UMD EISv2",o_ctrl->ois_type, fifo_len_in_ois_driver);
 	}
@@ -1312,7 +1382,7 @@ void ReadOISHALLDataV3(struct cam_ois_ctrl_t *o_ctrl, void *data)
 
 int OISControl(struct cam_ois_ctrl_t *o_ctrl)
 {
-	if (o_ctrl->ois_type != CAM_OIS_MASTER){
+	if (o_ctrl && (o_ctrl->ois_type != CAM_OIS_MASTER)){
 		CAM_INFO(CAM_OIS, "ois type=%d, don't create OIS thread",o_ctrl->ois_type);
 		return 0;
 	}
@@ -1327,11 +1397,11 @@ int OISControl(struct cam_ois_ctrl_t *o_ctrl)
 				if (strstr(o_ctrl->ois_name, "128")) {
 					o_ctrl->ois_poll_thread = kthread_run(OISPollThread128, o_ctrl, o_ctrl->ois_name);
 				} else if (strstr(o_ctrl->ois_name, "124")) {
-					o_ctrl->ois_poll_thread = kthread_run(OISPollThread124, o_ctrl, o_ctrl->ois_name);
+					//o_ctrl->ois_poll_thread = kthread_run(OISPollThread124, o_ctrl, o_ctrl->ois_name);
 				}
 				if (!o_ctrl->ois_poll_thread) {
 					o_ctrl->ois_poll_thread_exit = true;
-					CAM_ERR(CAM_OIS, "ois type=%d,create ois poll thread failed",o_ctrl->ois_type);
+					CAM_DBG(CAM_OIS, "ois type=%d,create ois poll thread failed",o_ctrl->ois_type);
 				}
 			}
 			mutex_unlock(&(o_ctrl->ois_poll_thread_mutex));
@@ -1438,9 +1508,7 @@ void DeinitOIS(struct cam_ois_ctrl_t *o_ctrl)
 
 void InitOISResource(struct cam_ois_ctrl_t *o_ctrl)
 {
-	struct proc_dir_entry *face_common_dir = NULL;
-	struct proc_dir_entry *proc_file_entry = NULL;
-        struct proc_dir_entry *proc_file_entry_tele = NULL;
+        int rc;
 	mutex_init(&ois_mutex);
 	if (o_ctrl) {
 		if (o_ctrl->ois_type == CAM_OIS_MASTER) {
@@ -1457,40 +1525,44 @@ void InitOISResource(struct cam_ois_ctrl_t *o_ctrl)
 		} else {
 			CAM_ERR(CAM_OIS, "ois_type 0x%x is wrong", o_ctrl->ois_type);
 		}
-
-		if (!ois_dentry) {
-			ois_dentry = debugfs_create_dir("camera_ois", NULL);
-			if (ois_dentry) {
-				debugfs_create_bool("dump_registers", 0777, ois_dentry, &dump_ois_registers);
-			} else {
-				CAM_ERR(CAM_OIS, "failed to create dump_registers node");
-			}
-		} else {
-			CAM_ERR(CAM_OIS, "dump_registers node exist");
-		}
+                if(cam_ois_kobj == NULL){
+                        cam_ois_kobj = kobject_create_and_add("ois_control", kernel_kobj);
+                        rc = sysfs_create_groups(cam_ois_kobj, ois_groups);
+                        if (rc != 0) {
+                                CAM_ERR(CAM_OIS,"Error creating sysfs ois group");
+                                sysfs_remove_groups(cam_ois_kobj, ois_groups);
+                        }
+               }
 	} else {
 		CAM_ERR(CAM_OIS, "o_ctrl is NULL");
 	}
 
-	//Create OIS control node
-	face_common_dir =  proc_mkdir("OIS", NULL);
-	if(!face_common_dir) {
-		CAM_ERR(CAM_OIS, "create dir fail CAM_ERROR API");
-		//return FACE_ERROR_GENERAL;
-	}
+        //Create OIS control node
+        if(face_common_dir == NULL){
+                face_common_dir =  proc_mkdir("OIS", NULL);
+                if(!face_common_dir) {
+                        CAM_ERR(CAM_OIS, "create dir fail CAM_ERROR API");
+                        //return FACE_ERROR_GENERAL;
+                }
+        }
 
-	proc_file_entry = proc_create("OISControl", 0777, face_common_dir, &proc_file_fops);
-	if(proc_file_entry == NULL) {
-		CAM_ERR(CAM_OIS, "Create fail");
-	} else {
-		CAM_INFO(CAM_OIS, "Create successs");
-	}
-	proc_file_entry_tele = proc_create("OISControl_tele", 0777, face_common_dir, &proc_file_fops_tele);
-	if(proc_file_entry_tele == NULL) {
-		CAM_ERR(CAM_OIS, "Create fail");
-	} else {
-		CAM_INFO(CAM_OIS, "Create successs");
-	}
+        if(proc_file_entry == NULL){
+                proc_file_entry = proc_create("OISControl", 0777, face_common_dir, &proc_file_fops);
+                if(proc_file_entry == NULL) {
+                        CAM_ERR(CAM_OIS, "Create fail");
+                } else {
+                        CAM_INFO(CAM_OIS, "Create successs");
+                }
+        }
+
+        if(proc_file_entry_tele == NULL){
+                proc_file_entry_tele = proc_create("OISControl_tele", 0777, face_common_dir, &proc_file_fops_tele);
+                if(proc_file_entry_tele == NULL) {
+                        CAM_ERR(CAM_OIS, "Create fail");
+                } else {
+                CAM_INFO(CAM_OIS, "Create successs");
+                }
+        }
 }
 
 

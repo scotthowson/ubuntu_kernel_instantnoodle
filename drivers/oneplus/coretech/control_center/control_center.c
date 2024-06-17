@@ -22,6 +22,8 @@
 #include <linux/oem/opchain_define.h>
 #endif
 
+#include <linux/sched/core_ctl.h>
+
 /* time measurement */
 #define CC_TIME_START(start) { \
 	if (cc_time_measure) \
@@ -57,14 +59,6 @@ module_param_named(fps_boost_enable, cc_fps_boost_enable, bool, 0644);
 /* turbo boost */
 static bool cc_tb_freq_boost_enable = true;
 module_param_named(tb_freq_boost_enable, cc_tb_freq_boost_enable, bool, 0644);
-
-static bool cc_tb_freq_reset_enable = true;
-module_param_named(tb_freq_reset_enable, cc_tb_freq_reset_enable, bool, 0644);
-
-bool cc_tb_freq_reset_enabled(void)
-{
-	return cc_tb_freq_reset_enable;
-}
 
 static bool cc_tb_place_boost_enable = true;
 module_param_named(tb_place_boost_enable, cc_tb_place_boost_enable, bool, 0644);
@@ -183,6 +177,32 @@ static inline void tracing_mark_write(struct cc_command *cc, int count, bool tsk
 #else
 static inline void tracing_mark_write(struct cc_command *cc, int count, bool tsk) {}
 #endif
+
+static int cc_tb_cctl_boost_enable = true;
+static int cc_tb_cctl_boost_enable_store(const char *buf,
+		const struct kernel_param *kp)
+{
+	unsigned int val;
+
+	if (sscanf(buf, "%u\n", &val) <= 0)
+		return 0;
+
+	cc_tb_cctl_boost_enable = !!val;
+
+	return 0;
+}
+
+static int cc_tb_cctl_boost_enable_show(char *buf,
+		const struct kernel_param *kp)
+{
+	return snprintf(buf, PAGE_SIZE, "%u\n", cc_tb_cctl_boost_enable);
+}
+
+static struct kernel_param_ops cc_tb_cctl_boost_enable_ops = {
+	.set = cc_tb_cctl_boost_enable_store,
+	.get = cc_tb_cctl_boost_enable_show,
+};
+module_param_cb(tb_cctl_boost_enable, &cc_tb_cctl_boost_enable_ops, NULL, 0644);
 
 static void cc_queue_rq(struct cc_command *cc);
 
@@ -547,7 +567,7 @@ void cc_check_renice(void *tsk)
 	struct task_struct *t = (struct task_struct *) tsk;
 	u64 next_ts;
 
-	if (unlikely(!im_ux(t)))
+	if (unlikely(!im_main(t) && !im_enqueue(t) && !im_render(t)))
 		return;
 
 	if (!cc_tb_nice_last_enable)
@@ -583,7 +603,7 @@ static void cc_tb_freq_boost(struct cc_command *cc)
 	get_online_cpus();
 	/* force trigger cpufreq change */
 	for (clus = 0; clus < 3; ++clus) {
-		if (!cc->params[clus] && !cc_tb_freq_reset_enable)
+		if (!cc->params[clus])
 			continue;
 
 		pol = cpufreq_cpu_get(cc_get_cpu_idx(clus));
@@ -741,14 +761,16 @@ static void cc_adjust_ddr_lock_freq(struct cc_command *cc)
 	/* check if need update */
 	cur = query_ddrfreq();
 
-	if (cur != val)
-		aop_lock_ddr_freq(val);
+//	if (cur != val)
+//		aop_lock_ddr_freq(val);
 }
 
 static void cc_adjust_sched(struct cc_command *cc)
 {
+#ifdef CONFIG_OPCHAIN
 	struct task_struct *task = NULL;
 	pid_t pid = cc->params[0];
+#endif
 
 	if (cc_is_nonblock(cc))
 		return;
@@ -769,6 +791,20 @@ static void cc_adjust_sched(struct cc_command *cc)
 		cc_logw("can't find task %d\n", pid);
 	rcu_read_unlock();
 #endif
+}
+
+static void cc_tb_cctl_boost(struct cc_command *cc)
+{
+	if (!cc_tb_cctl_boost_enable)
+		return;
+
+	if (cc_is_reset(cc)) {
+		ccdm_update_hint_1(CCDM_TB_CCTL_BOOST, 0);
+		core_ctl_op_boost(false, 0);
+	} else {
+		ccdm_update_hint_1(CCDM_TB_CCTL_BOOST, 1);
+		core_ctl_op_boost(true, cc->params[0]);
+	}
 }
 
 void cc_process(struct cc_command* cc)
@@ -838,6 +874,11 @@ void cc_process(struct cc_command* cc)
 			cc->type, cc->params[0], cc->params[1],
 			cc->params[2]);
 		cc_tb_place_boost(cc);
+		break;
+	case CC_CTL_CATEGORY_TB_CORECTL_BOOST:
+		cc_logv("tb_corectl_boost: type: %u, hint %llu\n",
+			cc->type, cc->params[0]);
+		cc_tb_cctl_boost(cc);
 		break;
 	default:
 		cc_logw("category %d not support\n", cc->category);
@@ -1092,7 +1133,30 @@ static inline int cc_tsk_copy(struct cc_command* cc, bool copy_to_user)
 	return 0;
 }
 
-void cc_tsk_process(struct cc_command* cc)
+static inline struct task_struct *cc_get_owner(bool bind_leader)
+{
+	struct task_struct *task = current;
+
+	rcu_read_lock();
+
+	if (bind_leader)
+		task = find_task_by_vpid(current->tgid);
+
+	if (task)
+		get_task_struct(task);
+
+	rcu_read_unlock();
+	return task;
+}
+
+static inline void cc_put_owner(struct task_struct *task)
+{
+	if (likely(task))
+		put_task_struct(task);
+}
+
+// call with get/put owner`s task_struct
+static void __cc_tsk_process(struct cc_command* cc)
 {
 	u32 category = cc->category;
 
@@ -1115,27 +1179,44 @@ void cc_tsk_process(struct cc_command* cc)
 	cc_tsk_copy(cc, true);
 }
 
+void cc_tsk_process(struct cc_command* cc)
+{
+	struct task_struct *owner = NULL;
+
+	owner = cc_get_owner(cc->bind_leader);
+
+	if (!owner) {
+		cc_logw("request owner is gone\n");
+		return;
+	}
+
+	if (likely(owner->cc_enable))
+		__cc_tsk_process(cc);
+	else
+		cc_logw("request owner is going to leave\n");
+
+	cc_put_owner(owner);
+}
+
 /* for fork and exit, use void* to avoid include sched.h in control_center.h */
 void cc_tsk_init(void* ptr)
 {
 	struct task_struct *task = (struct task_struct*) ptr;
 
-	task->cc_enable = false;
+	task->cc_enable = true;
 	task->ctd = NULL;
 }
 
-void cc_tsk_free(void* ptr)
+void cc_tsk_disable(void* ptr)
 {
 	struct task_struct *task = (struct task_struct*) ptr;
 	struct cc_tsk_data *data = task->ctd;
 	u32 category;
 
-	if (!task->cc_enable)
-		return;
-
 	if (!task->ctd)
 		return;
 
+	// disable to avoid further use
 	task->cc_enable = false;
 
 	/* detach all */
@@ -1161,11 +1242,17 @@ void cc_tsk_free(void* ptr)
 			cc_record_rel(category, &data[category].cc);
 		}
 	}
+}
 
-	if (task->ctd) {
-		kfree(task->ctd);
-		task->ctd = NULL;
-	}
+void cc_tsk_free(void* ptr)
+{
+	struct task_struct *task = (struct task_struct*) ptr;
+
+	if (!task->ctd)
+		return;
+
+	kfree(task->ctd);
+	task->ctd = NULL;
 }
 
 static int cc_ctl_show(struct seq_file *m, void *v)
@@ -1202,20 +1289,17 @@ static long cc_ctl_ioctl(struct file *file, unsigned int cmd, unsigned long __us
 	case CC_IOC_COMMAND:
 		{
 			struct cc_command cc;
+
 			if (copy_from_user(&cc, (struct cc_command *) arg, sizeof(struct cc_command)))
-				goto err_out;
+				break;
 
 			cc_tsk_process(&cc);
 
 			if (copy_to_user((struct cc_command *) arg, &cc, sizeof(struct cc_command)))
-				goto err_out;
+				break;
 		}
 	}
 
-	CC_TIME_END(begin, end, t, tmax);
-	return 0;
-
-err_out:
 	CC_TIME_END(begin, end, t, tmax);
 	return 0;
 }
@@ -1558,6 +1642,7 @@ static int cc_ccdm_status_show(char *buf, const struct kernel_param *kp)
 		long long tb_freq_boost[3];
 		long long tb_place_boost_hint;
 		long long tb_idle_block_hint[8];
+		long long tb_cctl_boost_hint;
 	} info;
 
 	ccdm_get_status((void *) &info);
@@ -1610,6 +1695,9 @@ static int cc_ccdm_status_show(char *buf, const struct kernel_param *kp)
 		i, get_jiffies_64(), (u64)info.tb_idle_block_hint[i]);
 	}
 
+	cnt += snprintf(buf + cnt, PAGE_SIZE - cnt,
+		"tb_corectl_boost: %lld\n", info.tb_cctl_boost_hint);
+
 	return cnt;
 }
 
@@ -1631,7 +1719,8 @@ static const char *cc_category_tags[CC_CTL_CATEGORY_MAX] = {
 	"cpufreq_2_query",
 	"ddrfreq_query",
 	"turbo boost freq",
-	"turbo boost placement"
+	"turbo boost placement",
+	"turbo boost corectl boost"
 };
 
 static const char *cc_category_tags_mapping(int idx)

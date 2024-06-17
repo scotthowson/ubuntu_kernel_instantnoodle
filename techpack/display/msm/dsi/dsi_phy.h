@@ -261,7 +261,7 @@ int dsi_phy_set_clk_freq(struct msm_dsi_phy *phy,
  * Return: error code.
  */
 int dsi_phy_set_timing_params(struct msm_dsi_phy *phy,
-			      u32 *timing, u32 size);
+			      u32 *timing, u32 size, bool commit);
 
 /* TODO: Deduplicate this */
 int dsi_phy_set_timing_params_commit(struct msm_dsi_phy *phy,

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
- * Copyright (c) 2016-2019, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2016-2020, The Linux Foundation. All rights reserved.
  */
 
 #include <linux/clk.h>
@@ -69,8 +69,6 @@ struct bus_vectors {
  * @bus_bw_set_noc:	Clock plan for DDR path.
  * @cur_bus_bw_idx:	Current index within the bus clock plan.
  * @cur_bus_bw_idx_noc:	Current index within the DDR path clock plan.
- * @num_clk_levels:	Number of valid clock levels in clk_perf_tbl.
- * @clk_perf_tbl:	Table of clock frequency input to Serial Engine clock.
  * @log_ctx:		Logging context to hold the debug information.
  * @vectors:		Structure to store Master End and Slave End IDs for
 			QUPv3 clock and DDR path bus BW request.
@@ -107,8 +105,6 @@ struct geni_se_device {
 	unsigned long *bus_bw_set_noc;
 	int cur_bus_bw_idx;
 	int cur_bus_bw_idx_noc;
-	unsigned int num_clk_levels;
-	unsigned long *clk_perf_tbl;
 	void *log_ctx;
 	struct bus_vectors *vectors;
 	int num_paths;
@@ -361,9 +357,12 @@ static int geni_se_select_dma_mode(void __iomem *base)
 	geni_write_reg(0xFFFFFFFF, base, SE_IRQ_EN);
 
 	common_geni_m_irq_en = geni_read_reg(base, SE_GENI_M_IRQ_EN);
-	if (proto != UART)
+	if (proto != UART) {
 		common_geni_m_irq_en &=
 			~(M_TX_FIFO_WATERMARK_EN | M_RX_FIFO_WATERMARK_EN);
+		if (proto != I3C)
+			common_geni_m_irq_en &= ~M_CMD_DONE_EN;
+	}
 
 	geni_write_reg(common_geni_m_irq_en, base, SE_GENI_M_IRQ_EN);
 	geni_dma_mode = geni_read_reg(base, SE_GENI_DMA_MODE_EN);
@@ -482,6 +481,14 @@ EXPORT_SYMBOL(geni_setup_s_cmd);
  */
 void geni_cancel_m_cmd(void __iomem *base)
 {
+	unsigned int common_geni_m_irq_en;
+	int proto = get_se_proto(base);
+
+	if (proto != UART && proto != I3C) {
+		common_geni_m_irq_en = geni_read_reg(base, SE_GENI_M_IRQ_EN);
+		common_geni_m_irq_en &= ~M_CMD_DONE_EN;
+		geni_write_reg(common_geni_m_irq_en, base, SE_GENI_M_IRQ_EN);
+	}
 	geni_write_reg(M_GENI_CMD_CANCEL, base, SE_GENI_M_CMD_CTRL_REG);
 }
 EXPORT_SYMBOL(geni_cancel_m_cmd);
@@ -1135,31 +1142,31 @@ int geni_se_clk_tbl_get(struct se_geni_rsc *rsc, unsigned long **tbl)
 	mutex_lock(&geni_se_dev->geni_dev_lock);
 	*tbl = NULL;
 
-	if (geni_se_dev->clk_perf_tbl) {
-		*tbl = geni_se_dev->clk_perf_tbl;
-		ret = geni_se_dev->num_clk_levels;
+	if (rsc->clk_perf_tbl) {
+		*tbl = rsc->clk_perf_tbl;
+		ret = rsc->num_clk_levels;
 		goto exit_se_clk_tbl_get;
 	}
 
-	geni_se_dev->clk_perf_tbl = kzalloc(sizeof(*geni_se_dev->clk_perf_tbl) *
+	rsc->clk_perf_tbl = kzalloc(sizeof(*rsc->clk_perf_tbl) *
 						MAX_CLK_PERF_LEVEL, GFP_KERNEL);
-	if (!geni_se_dev->clk_perf_tbl) {
+	if (!rsc->clk_perf_tbl) {
 		ret = -ENOMEM;
 		goto exit_se_clk_tbl_get;
 	}
 
 	for (i = 0; i < MAX_CLK_PERF_LEVEL; i++) {
-		geni_se_dev->clk_perf_tbl[i] = clk_round_rate(rsc->se_clk,
+		rsc->clk_perf_tbl[i] = clk_round_rate(rsc->se_clk,
 								prev_freq + 1);
-		if (geni_se_dev->clk_perf_tbl[i] == prev_freq) {
-			geni_se_dev->clk_perf_tbl[i] = 0;
+		if (rsc->clk_perf_tbl[i] == prev_freq) {
+			rsc->clk_perf_tbl[i] = 0;
 			break;
 		}
-		prev_freq = geni_se_dev->clk_perf_tbl[i];
+		prev_freq = rsc->clk_perf_tbl[i];
 	}
-	geni_se_dev->num_clk_levels = i;
-	*tbl = geni_se_dev->clk_perf_tbl;
-	ret = geni_se_dev->num_clk_levels;
+	rsc->num_clk_levels = i;
+	*tbl = rsc->clk_perf_tbl;
+	ret = rsc->num_clk_levels;
 exit_se_clk_tbl_get:
 	mutex_unlock(&geni_se_dev->geni_dev_lock);
 	return ret;
@@ -1260,27 +1267,26 @@ int geni_se_tx_dma_prep(struct device *wrapper_dev, void __iomem *base,
 }
 EXPORT_SYMBOL(geni_se_tx_dma_prep);
 
- /**
-  * geni_se_rx_dma_start() - Prepare the Serial Engine registers for RX DMA
+/**
+ * geni_se_rx_dma_start() - Prepare the Serial Engine registers for RX DMA
 				transfers.
-  * @base:		Base address of the SE register block.
-  * @rx_len:		Length of the RX buffer.
-  * @rx_dma:		Pointer to store the mapped DMA address.
-  *
-  * This function is used to prepare the Serial Engine registers for DMA RX.
-  *
-  * Return:	None.
-  */
-
+ * @base:		Base address of the SE register block.
+ * @rx_len:		Length of the RX buffer.
+ * @rx_dma:		Pointer to store the mapped DMA address.
+ *
+ * This function is used to prepare the Serial Engine registers for DMA RX.
+ *
+ * Return:	None.
+ */
 void geni_se_rx_dma_start(void __iomem *base, int rx_len, dma_addr_t *rx_dma)
 {
+
 	if (!*rx_dma || !base || !rx_len)
 		return;
 
 	geni_write_reg(7, base, SE_DMA_RX_IRQ_EN_SET);
 	geni_write_reg(GENI_SE_DMA_PTR_L(*rx_dma), base, SE_DMA_RX_PTR_L);
 	geni_write_reg(GENI_SE_DMA_PTR_H(*rx_dma), base, SE_DMA_RX_PTR_H);
-
 	/* RX does not have EOT bit */
 	geni_write_reg(0, base, SE_DMA_RX_ATTR);
 
@@ -1566,7 +1572,8 @@ void geni_se_dump_dbg_regs(struct se_geni_rsc *rsc, void __iomem *base,
 		return;
 
 	geni_se_dev = dev_get_drvdata(rsc->wrapper_dev);
-	if (unlikely(!geni_se_dev || !geni_se_dev->bus_bw))
+	if (unlikely(!geni_se_dev || !(geni_se_dev->bus_bw ||
+					geni_se_dev->bus_bw_noc)))
 		return;
 	if (unlikely(list_empty(&rsc->ab_list) || list_empty(&rsc->ib_list))) {
 		GENI_SE_DBG(ipc, false, NULL, "%s: Clocks not on\n", __func__);
@@ -1590,8 +1597,8 @@ void geni_se_dump_dbg_regs(struct se_geni_rsc *rsc, void __iomem *base,
 	se_dma_tx_len_in = geni_read_reg(base, SE_DMA_TX_LEN_IN);
 
 	GENI_SE_DBG(ipc, false, NULL,
-	"%s: m_cmd0:0x%x, m_irq_status:0x%x, geni_status:0x%x, geni_ios:0x%x\n",
-	__func__, m_cmd0, m_irq_status, geni_status, geni_ios);
+	"%s: m_cmd0:0x%x, m_irq_status:0x%x, s_irq_status:0x%x, geni_status:0x%x, geni_ios:0x%x\n",
+	__func__, m_cmd0, m_irq_status, s_irq_status, geni_status, geni_ios);
 	GENI_SE_DBG(ipc, false, NULL,
 	"dma_rx_irq:0x%x, dma_tx_irq:0x%x, rx_fifo_sts:0x%x, tx_fifo_sts:0x%x\n"
 	, dma_rx_irq, dma_tx_irq, rx_fifo_status, tx_fifo_status);

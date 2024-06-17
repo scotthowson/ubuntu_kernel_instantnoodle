@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
- * Copyright (c) 2018-2019 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2018-2020 The Linux Foundation. All rights reserved.
  */
 
 #define pr_fmt(fmt)	"QG-K: %s: " fmt, __func__
@@ -385,14 +385,7 @@ int qg_adjust_sys_soc(struct qpnp_qg *chip)
 	/* TCSS */
 	chip->sys_soc = qg_process_tcss_soc(chip, chip->sys_soc);
 
-	if (chip->sys_soc <= 50) { /* 0.5% */
-		/* Hold SOC to 1% of VBAT has not dropped below cutoff */
-		rc = qg_get_battery_voltage(chip, &vbat_uv);
-		if (!rc && vbat_uv >= (vcutoff_uv + VBAT_LOW_HYST_UV))
-			soc = 1;
-		else
-			soc = 0;
-	} else if (chip->sys_soc == QG_MAX_SOC) {
+	if (chip->sys_soc == QG_MAX_SOC) {
 		soc = FULL_SOC;
 	} else if (chip->sys_soc >= (QG_MAX_SOC - 100)) {
 		/* Hold SOC to 100% if we are dropping from 100 to 99 */
@@ -404,14 +397,24 @@ int qg_adjust_sys_soc(struct qpnp_qg *chip)
 		soc = DIV_ROUND_CLOSEST(chip->sys_soc, 100);
 	}
 
-	qg_dbg(chip, QG_DEBUG_SOC, "sys_soc=%d adjusted sys_soc=%d\n",
-					chip->sys_soc, soc);
-
 	/* FVSS */
 	soc = qg_process_fvss_soc(chip, soc);
 
 	/* BASS */
 	soc = qg_process_bass_soc(chip, soc);
+
+	if (soc == 0) {
+		/* Hold SOC to 1% if we have not dropped below cutoff */
+		rc = qg_get_vbat_avg(chip, &vbat_uv);
+		if (!rc && (vbat_uv >= (vcutoff_uv + VBAT_LOW_HYST_UV))) {
+			soc = 1;
+			qg_dbg(chip, QG_DEBUG_SOC, "vbat_uv=%duV holding SOC to 1%\n",
+						vbat_uv);
+		}
+	}
+
+	qg_dbg(chip, QG_DEBUG_SOC, "sys_soc=%d adjusted sys_soc=%d\n",
+					chip->sys_soc, soc);
 
 	chip->last_adj_ssoc = soc;
 
@@ -483,8 +486,9 @@ static bool is_scaling_required(struct qpnp_qg *chip)
 
 	if (chip->catch_up_soc > chip->msoc && input_present &&
 			(chip->charge_status != POWER_SUPPLY_STATUS_CHARGING &&
-			chip->charge_status != POWER_SUPPLY_STATUS_FULL))
-		/* USB is present, but not charging */
+			chip->charge_status != POWER_SUPPLY_STATUS_FULL
+			&& chip->msoc != 0))
+		/* USB is present, but not charging. Ignore when msoc = 0 */
 		return false;
 
 	return true;

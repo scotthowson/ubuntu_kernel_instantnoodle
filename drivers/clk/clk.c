@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2010-2011 Canonical Ltd <jeremy.kerr@canonical.com>
  * Copyright (C) 2011-2012 Linaro Ltd <mturquette@linaro.org>
- * Copyright (c) 2017-2019, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2017-2020, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -28,8 +28,12 @@
 #include <linux/of_platform.h>
 #include <linux/pm_opp.h>
 #include <linux/regulator/consumer.h>
+#include <linux/proc_fs.h>
+#include <linux/kobject.h>
+#include <linux/sysfs.h>
 
 #include "clk.h"
+#include "../soc/qcom/rpmh_master_stat.h"
 
 static DEFINE_SPINLOCK(enable_lock);
 static DEFINE_MUTEX(prepare_lock);
@@ -39,6 +43,8 @@ static struct task_struct *enable_owner;
 
 static int prepare_refcnt;
 static int enable_refcnt;
+
+static unsigned int debug_suspend_flag;
 
 static HLIST_HEAD(clk_root_list);
 static HLIST_HEAD(clk_orphan_list);
@@ -82,6 +88,9 @@ struct clk_core {
 	struct clk_core		*new_child;
 	unsigned long		flags;
 	bool			orphan;
+	bool			rpm_enabled;
+	bool			need_sync;
+	bool			boot_enabled;
 	unsigned int		enable_count;
 	unsigned int		prepare_count;
 	unsigned int		protect_count;
@@ -96,10 +105,10 @@ struct clk_core {
 	struct hlist_node	child_node;
 	struct hlist_head	clks;
 	unsigned int		notifier_count;
-#ifdef CONFIG_DEBUG_FS
+//#ifdef CONFIG_DEBUG_FS
 	struct dentry		*dentry;
 	struct hlist_node	debug_node;
-#endif
+//#endif
 	struct kref		ref;
 	struct clk_vdd_class	*vdd_class;
 	int			vdd_class_vote;
@@ -125,9 +134,9 @@ struct clk {
 /***           runtime pm          ***/
 static int clk_pm_runtime_get(struct clk_core *core)
 {
-	int ret = 0;
+	int ret;
 
-	if (!core->dev)
+	if (!core->rpm_enabled)
 		return 0;
 
 	ret = pm_runtime_get_sync(core->dev);
@@ -136,7 +145,7 @@ static int clk_pm_runtime_get(struct clk_core *core)
 
 static void clk_pm_runtime_put(struct clk_core *core)
 {
-	if (!core->dev)
+	if (!core->rpm_enabled)
 		return;
 
 	pm_runtime_put_sync(core->dev);
@@ -256,7 +265,7 @@ static bool clk_core_is_enabled(struct clk_core *core)
 	 * taking enable spinlock, but the below check is needed if one tries
 	 * to call it from other places.
 	 */
-	if (core->dev) {
+	if (core->rpm_enabled) {
 		pm_runtime_get_noresume(core->dev);
 		if (!pm_runtime_active(core->dev)) {
 			ret = false;
@@ -266,7 +275,7 @@ static bool clk_core_is_enabled(struct clk_core *core)
 
 	ret = core->ops->is_enabled(core->hw);
 done:
-	if (core->dev)
+	if (core->rpm_enabled)
 		pm_runtime_put(core->dev);
 
 	return ret;
@@ -1282,6 +1291,10 @@ static void clk_unprepare_unused_subtree(struct clk_core *core)
 	hlist_for_each_entry(child, &core->children, child_node)
 		clk_unprepare_unused_subtree(child);
 
+	if (dev_has_sync_state(core->dev) &&
+	    !(core->flags & CLK_DONT_HOLD_STATE))
+		return;
+
 	/*
 	 * setting CLK_ENABLE_HAND_OFF flag triggers this conditional
 	 *
@@ -1325,6 +1338,10 @@ static void clk_disable_unused_subtree(struct clk_core *core)
 
 	hlist_for_each_entry(child, &core->children, child_node)
 		clk_disable_unused_subtree(child);
+
+	if (dev_has_sync_state(core->dev) &&
+	    !(core->flags & CLK_DONT_HOLD_STATE))
+		return;
 
 	/*
 	 * setting CLK_ENABLE_HAND_OFF flag triggers this conditional
@@ -1424,6 +1441,38 @@ static int clk_disable_unused(void)
 	return 0;
 }
 late_initcall_sync(clk_disable_unused);
+
+static void clk_unprepare_disable_dev_subtree(struct clk_core *core,
+					      struct device *dev)
+{
+	struct clk_core *child;
+
+	lockdep_assert_held(&prepare_lock);
+
+	hlist_for_each_entry(child, &core->children, child_node)
+		clk_unprepare_disable_dev_subtree(child, dev);
+
+	if (core->dev != dev || !core->need_sync)
+		return;
+
+	clk_core_disable_unprepare(core);
+}
+
+void clk_sync_state(struct device *dev)
+{
+	struct clk_core *core;
+
+	clk_prepare_lock();
+
+	hlist_for_each_entry(core, &clk_root_list, child_node)
+		clk_unprepare_disable_dev_subtree(core, dev);
+
+	hlist_for_each_entry(core, &clk_orphan_list, child_node)
+		clk_unprepare_disable_dev_subtree(core, dev);
+
+	clk_prepare_unlock();
+}
+EXPORT_SYMBOL_GPL(clk_sync_state);
 
 static int clk_core_determine_round_nolock(struct clk_core *core,
 					   struct clk_rate_request *req)
@@ -1772,6 +1821,33 @@ static int clk_fetch_parent_index(struct clk_core *core,
 			return i;
 
 	return -EINVAL;
+}
+
+static void clk_core_hold_state(struct clk_core *core)
+{
+	if (core->need_sync || !core->boot_enabled)
+		return;
+
+	if (core->orphan || !dev_has_sync_state(core->dev))
+		return;
+
+	if (core->flags & CLK_DONT_HOLD_STATE)
+		return;
+
+	core->need_sync = !clk_core_prepare_enable(core);
+}
+
+static void __clk_core_update_orphan_hold_state(struct clk_core *core)
+{
+	struct clk_core *child;
+
+	if (core->orphan)
+		return;
+
+	clk_core_hold_state(core);
+
+	hlist_for_each_entry(child, &core->children, child_node)
+		__clk_core_update_orphan_hold_state(child);
 }
 
 /*
@@ -3143,10 +3219,11 @@ EXPORT_SYMBOL_GPL(clk_set_flags);
 
 /***        debugfs support        ***/
 
-#ifdef CONFIG_DEBUG_FS
+//#ifdef CONFIG_DEBUG_FS
 #include <linux/debugfs.h>
 
 static struct dentry *rootdir;
+static struct proc_dir_entry *procdir;
 static int inited = 0;
 static u32 debug_suspend;
 static DEFINE_MUTEX(clk_debug_lock);
@@ -3503,45 +3580,6 @@ do {							\
 		pr_info(fmt, ##__VA_ARGS__);		\
 } while (0)
 
-/*
- * clock_debug_print_enabled_debug_suspend() - Print names of enabled clocks
- * during suspend.
- */
-static void clock_debug_print_enabled_debug_suspend(struct seq_file *s)
-{
-	struct clk_core *core;
-	int cnt = 0;
-
-	if (!mutex_trylock(&clk_debug_lock))
-		return;
-
-	clock_debug_output(s, 0, "Enabled clocks:\n");
-
-	hlist_for_each_entry(core, &clk_debug_list, debug_node) {
-		if (!core->prepare_count)
-			continue;
-
-		if (core->vdd_class)
-			clock_debug_output(s, 0, " %s:%u:%u [%ld, %d]",
-					core->name, core->prepare_count,
-					core->enable_count, core->rate,
-					clk_find_vdd_level(core, core->rate));
-
-		else
-			clock_debug_output(s, 0, " %s:%u:%u [%ld]",
-					core->name, core->prepare_count,
-					core->enable_count, core->rate);
-		cnt++;
-	}
-
-	mutex_unlock(&clk_debug_lock);
-
-	if (cnt)
-		clock_debug_output(s, 0, "Enabled clock count: %d\n", cnt);
-	else
-		clock_debug_output(s, 0, "No clocks enabled.\n");
-}
-
 static int clock_debug_print_clock(struct clk_core *c, struct seq_file *s)
 {
 	char *start = "";
@@ -3552,7 +3590,7 @@ static int clock_debug_print_clock(struct clk_core *c, struct seq_file *s)
 
 	clk = c->hw->clk;
 
-	clock_debug_output(s, 0, "\t");
+	clock_debug_output(s, 0, "    ");
 
 	do {
 		if (clk->core->vdd_class)
@@ -3584,9 +3622,10 @@ static void clock_debug_print_enabled_clocks(struct seq_file *s)
 	struct clk_core *core;
 	int cnt = 0;
 
-	clock_debug_output(s, 0, "Enabled clocks:\n");
+	if (!mutex_trylock(&clk_debug_lock))
+		return;
 
-	mutex_lock(&clk_debug_lock);
+	clock_debug_output(s, 0, "Enabled clocks:\n");
 
 	hlist_for_each_entry(core, &clk_debug_list, debug_node)
 		cnt += clock_debug_print_clock(core, s);
@@ -3908,12 +3947,47 @@ static void clk_debug_unregister(struct clk_core *core)
  */
 void clock_debug_print_enabled(void)
 {
-	if (likely(!debug_suspend))
-		return;
-
-	clock_debug_print_enabled_debug_suspend(NULL);
+	if (IS_ENABLED(CONFIG_DEBUG_FS)) {
+		if (likely(!debug_suspend))
+			return;
+		clock_debug_print_enabled_clocks(NULL);
+		rpmhstats_statistics();
+	} else {
+		if (debug_suspend_flag == 1) {
+			pr_info("Enable debug_suspend mode: clk list.");
+			clock_debug_print_enabled_clocks(NULL);
+		} else if (debug_suspend_flag == 2) {
+			pr_info("Enable debug_suspend mode: RPMh.");
+			rpmhstats_statistics();
+		} else if (debug_suspend_flag == 3) {
+			pr_info("Enable debug_suspend mode: Both clk and RPMh.");
+			clock_debug_print_enabled_clocks(NULL);
+			rpmhstats_statistics();
+		} else
+			return;
+	}
 }
+
 EXPORT_SYMBOL_GPL(clock_debug_print_enabled);
+
+static ssize_t debug_suspend_show(struct kobject *kobj,
+				      struct kobj_attribute *attr, char *buf)
+{
+	return snprintf(buf, sizeof(buf), "%d\n", debug_suspend_flag);
+}
+
+static ssize_t debug_suspend_store(struct kobject *kobj,
+					struct kobj_attribute *attr, const char *buf, size_t count)
+{
+	if (kstrtouint(buf, 10, &debug_suspend_flag))
+		return -EINVAL;
+
+	pr_info("debug_suspend flag: %d", debug_suspend_flag);
+	return count;
+}
+
+static struct kobj_attribute debug_suspend_attribute =
+__ATTR(debug_suspend, 0644, debug_suspend_show, debug_suspend_store);
 
 /**
  * clk_debug_init - lazily populate the debugfs clk directory
@@ -3928,56 +4002,68 @@ static int __init clk_debug_init(void)
 {
 	struct clk_core *core;
 	struct dentry *d;
+	int ret;
 
-	rootdir = debugfs_create_dir("clk", NULL);
+	if (IS_ENABLED(CONFIG_DEBUG_FS)) {
+		rootdir = debugfs_create_dir("clk", NULL);
 
-	if (!rootdir)
-		return -ENOMEM;
+		if (!rootdir)
+			return -ENOMEM;
 
-	d = debugfs_create_file("clk_summary", 0444, rootdir, &all_lists,
-				&clk_summary_fops);
-	if (!d)
-		return -ENOMEM;
+		d = debugfs_create_file("clk_summary", 0444, rootdir, &all_lists,
+					&clk_summary_fops);
+		if (!d)
+			return -ENOMEM;
 
-	d = debugfs_create_file("clk_dump", 0444, rootdir, &all_lists,
-				&clk_dump_fops);
-	if (!d)
-		return -ENOMEM;
+		d = debugfs_create_file("clk_dump", 0444, rootdir, &all_lists,
+					&clk_dump_fops);
+		if (!d)
+			return -ENOMEM;
 
-	d = debugfs_create_file("clk_orphan_summary", 0444, rootdir,
-				&orphan_list, &clk_summary_fops);
-	if (!d)
-		return -ENOMEM;
+		d = debugfs_create_file("clk_orphan_summary", 0444, rootdir,
+					&orphan_list, &clk_summary_fops);
+		if (!d)
+			return -ENOMEM;
 
-	d = debugfs_create_file("clk_orphan_dump", 0444, rootdir,
-				&orphan_list, &clk_dump_fops);
-	if (!d)
-		return -ENOMEM;
+		d = debugfs_create_file("clk_orphan_dump", 0444, rootdir,
+					&orphan_list, &clk_dump_fops);
+		if (!d)
+			return -ENOMEM;
 
-	d = debugfs_create_file("clk_enabled_list", 0444, rootdir,
-				&clk_debug_list, &clk_enabled_list_fops);
-	if (!d)
-		return -ENOMEM;
+		d = debugfs_create_file("clk_enabled_list", 0444, rootdir,
+					&clk_debug_list, &clk_enabled_list_fops);
+		if (!d)
+			return -ENOMEM;
 
-	d = debugfs_create_u32("debug_suspend", 0644, rootdir, &debug_suspend);
-	if (!d)
-		return -ENOMEM;
+		d = debugfs_create_u32("debug_suspend", 0644, rootdir, &debug_suspend);
+		if (!d)
+			return -ENOMEM;
 
-	d = debugfs_create_file("trace_clocks", 0444, rootdir, &all_lists,
-				&clk_state_fops);
-	if (!d)
-		return -ENOMEM;
+		d = debugfs_create_file("trace_clocks", 0444, rootdir, &all_lists,
+					&clk_state_fops);
+		if (!d)
+			return -ENOMEM;
 
-	mutex_lock(&clk_debug_lock);
-	hlist_for_each_entry(core, &clk_debug_list, debug_node)
-		clk_debug_create_one(core, rootdir);
+		mutex_lock(&clk_debug_lock);
+		hlist_for_each_entry(core, &clk_debug_list, debug_node)
+			clk_debug_create_one(core, rootdir);
 
-	inited = 1;
-	mutex_unlock(&clk_debug_lock);
+		inited = 1;
+		mutex_unlock(&clk_debug_lock);
+	}
+
+	ret = sysfs_create_file(power_kobj, &debug_suspend_attribute.attr);
+	if (ret < 0)
+		pr_err("Failed to create debug_suspend sysfs.");
+
+	procdir = proc_mkdir("power", NULL);
+	proc_create("clk_enabled_list", 0444, procdir, &clk_enabled_list_fops);
 
 	return 0;
 }
 late_initcall(clk_debug_init);
+
+/*
 #else
 static inline void clk_debug_register(struct clk_core *core) { }
 static inline void clk_debug_reparent(struct clk_core *core,
@@ -3987,7 +4073,121 @@ static inline void clk_debug_reparent(struct clk_core *core,
 static inline void clk_debug_unregister(struct clk_core *core)
 {
 }
+
+void clk_debug_print_hw(struct clk_core *clk, struct seq_file *f)
+{
+}
+
+void clock_debug_print_enabled(void)
+{
+}
 #endif
+*/
+
+static struct proc_dir_entry *proc_clkdir;
+
+static int proc_clock_rate_show(struct seq_file *file, void *data)
+{
+	struct clk_core *core = PDE_DATA(file_inode(file->file));
+	u64 val;
+
+	clk_prepare_lock();
+	if (core->ops->bus_vote)
+		core->ops->bus_vote(core->hw, true);
+
+	val = clk_get_rate(core->hw->clk);
+
+	seq_printf(file, "%d\n", val);
+
+	if (core->ops->bus_vote)
+		core->ops->bus_vote(core->hw, false);
+	clk_prepare_unlock();
+
+	return 0;
+}
+
+DEFINE_SHOW_ATTRIBUTE(proc_clock_rate);
+
+static int proc_clk_enable_count_show(struct seq_file *file, void *data)
+{
+	struct clk_core *core = PDE_DATA(file_inode(file->file));
+
+	seq_printf(file, "%d\n", core->enable_count);
+
+	return 0;
+}
+
+DEFINE_SHOW_ATTRIBUTE(proc_clk_enable_count);
+
+static int proc_list_rates_show(struct seq_file *s, void *unused)
+{
+	struct clk_core *core = PDE_DATA(file_inode(s->file));
+	int level = 0, i = 0;
+	unsigned long rate, rate_max = 0;
+
+	/* Find max frequency supported within voltage constraints. */
+	if (!core->vdd_class) {
+		rate_max = ULONG_MAX;
+	} else {
+		for (level = 0; level < core->num_rate_max; level++)
+			if (core->rate_max[level])
+				rate_max = core->rate_max[level];
+	}
+
+	/*
+	 * List supported frequencies <= rate_max. Higher frequencies may
+	 * appear in the frequency table, but are not valid and should not
+	 * be listed.
+	 */
+	while (!IS_ERR_VALUE(rate =
+			core->ops->list_rate(core->hw, i++, rate_max))) {
+		if (rate <= 0)
+			break;
+		if (rate <= rate_max)
+			seq_printf(s, "%lu\n", rate);
+	}
+
+	return 0;
+}
+
+static int proc_list_rates_open(struct inode *inode, struct file *file)
+{
+	return single_open(file, proc_list_rates_show, inode->i_private);
+}
+
+static const struct file_operations proc_list_rates_fops = {
+	.open		= proc_list_rates_open,
+	.read		= seq_read,
+	.llseek		= seq_lseek,
+	.release	= seq_release,
+};
+
+static int proc_add_clk(struct clk_core *core)
+{
+	struct proc_dir_entry *dentry;
+
+	if (!proc_clkdir) {
+		proc_clkdir = proc_mkdir("clk", NULL);
+		if (!proc_clkdir)
+			return -ENOMEM;
+	}
+
+	dentry = proc_mkdir(core->name, proc_clkdir);
+	if (!dentry)
+		goto out;
+
+	proc_create_data("clk_rate", 0444, dentry, &proc_clock_rate_fops, core);
+
+	if (core->ops->list_rate) {
+		proc_create_data("clk_list_rates",
+				0444, dentry, &proc_list_rates_fops, core);
+	}
+
+	proc_create_data("clk_enable_count", 0444, dentry,
+		&proc_clk_enable_count_fops, core);
+out:
+	return 0;
+}
 
 /**
  * __clk_core_init - initialize the data structures in a struct clk_core
@@ -4138,6 +4338,8 @@ static int __clk_core_init(struct clk_core *core)
 		rate = 0;
 	core->rate = core->req_rate = rate;
 
+	core->boot_enabled = clk_core_is_enabled(core);
+
 	/*
 	 * Enable CLK_IS_CRITICAL clocks so newly added critical clocks
 	 * don't get accidentally disabled when walking the orphan tree and
@@ -4146,12 +4348,20 @@ static int __clk_core_init(struct clk_core *core)
 	if (core->flags & CLK_IS_CRITICAL) {
 		unsigned long flags;
 
-		clk_core_prepare(core);
+		ret = clk_core_prepare(core);
+		if (ret)
+			goto out;
 
 		flags = clk_enable_lock();
-		clk_core_enable(core);
+		ret = clk_core_enable(core);
 		clk_enable_unlock(flags);
+		if (ret) {
+			clk_core_unprepare(core);
+			goto out;
+		}
 	}
+
+	clk_core_hold_state(core);
 
 	/*
 	 * walk the list of orphan clocks and reparent any that newly finds a
@@ -4172,6 +4382,7 @@ static int __clk_core_init(struct clk_core *core)
 			__clk_set_parent_after(orphan, parent, NULL);
 			__clk_recalc_accuracies(orphan);
 			__clk_recalc_rates(orphan, 0);
+			__clk_core_update_orphan_hold_state(orphan);
 		}
 	}
 
@@ -4232,6 +4443,9 @@ out:
 	clk_pm_runtime_put(core);
 unlock:
 	clk_prepare_unlock();
+
+	if (!strncmp("gcc_ufs_phy_axi_clk_src", core->name, 23))
+		proc_add_clk(core);
 
 	if (!ret)
 		clk_debug_register(core);
@@ -4310,7 +4524,8 @@ struct clk *clk_register(struct device *dev, struct clk_hw *hw)
 	core->ops = hw->init->ops;
 
 	if (dev && pm_runtime_enabled(dev))
-		core->dev = dev;
+		core->rpm_enabled = true;
+	core->dev = dev;
 	if (dev && dev->driver)
 		core->owner = dev->driver->owner;
 	core->hw = hw;

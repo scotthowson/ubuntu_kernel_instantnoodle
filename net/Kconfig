@@ -190,7 +190,6 @@ config BRIDGE_NETFILTER
 	depends on NETFILTER && INET
 	depends on NETFILTER_ADVANCED
 	select NETFILTER_FAMILY_BRIDGE
-	default m
 	---help---
 	  Enabling this option will let arptables resp. iptables see bridged
 	  ARP resp. IP traffic. If you want a bridging firewall, you probably
@@ -210,6 +209,16 @@ config SLA
 
 	  If unsure, say n.
 
+config SLA_ALGO
+	bool "op algo"
+	default n
+	bool "OnePlus SLA algorithm"
+	help
+	  Realtime netlink traffic monitor.
+	  The purpose of this is to monitor the ipv4 packet status and
+	  switch between each interface.
+
+	  If unsure, say n.
 
 source "net/netfilter/Kconfig"
 source "net/ipv4/netfilter/Kconfig"

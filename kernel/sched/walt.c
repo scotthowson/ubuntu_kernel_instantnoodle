@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
- * Copyright (c) 2016-2019, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2016-2020, The Linux Foundation. All rights reserved.
  */
 
 #include <linux/syscore_ops.h>
@@ -14,7 +14,9 @@
 
 #include <trace/events/sched.h>
 
+#ifdef CONFIG_IM
 #include <linux/oem/im.h>
+#endif
 
 const char *task_event_names[] = {"PUT_PREV_TASK", "PICK_NEXT_TASK",
 				  "TASK_WAKE", "TASK_MIGRATE", "TASK_UPDATE",
@@ -96,22 +98,6 @@ static void release_rq_locks_irqrestore(const cpumask_t *cpus,
 	local_irq_restore(*flags);
 }
 
-#ifdef CONFIG_HZ_300
-/*
- * Tick interval becomes to 3333333 due to
- * rounding error when HZ=300.
- */
-#define MIN_SCHED_RAVG_WINDOW (3333333 * 6)
-#else
-/* Min window size (in ns) = 20ms */
-#define MIN_SCHED_RAVG_WINDOW 20000000
-#endif
-
-/* Max window size (in ns) = 1s */
-#define MAX_SCHED_RAVG_WINDOW 1000000000
-
-#define NR_WINDOWS_PER_SEC (NSEC_PER_SEC / MIN_SCHED_RAVG_WINDOW)
-
 __read_mostly unsigned int sysctl_sched_cpu_high_irqload = TICK_NSEC;
 
 unsigned int sysctl_sched_walt_rotate_big_tasks;
@@ -133,8 +119,8 @@ static unsigned int display_sched_ravg_window_nr_ticks =
 unsigned int sysctl_sched_dynamic_ravg_window_enable = (HZ == 250);
 
 /* Window size (in ns) */
-__read_mostly unsigned int sched_ravg_window = MIN_SCHED_RAVG_WINDOW;
-__read_mostly unsigned int new_sched_ravg_window = MIN_SCHED_RAVG_WINDOW;
+__read_mostly unsigned int sched_ravg_window = DEFAULT_SCHED_RAVG_WINDOW;
+__read_mostly unsigned int new_sched_ravg_window = DEFAULT_SCHED_RAVG_WINDOW;
 
 static DEFINE_SPINLOCK(sched_ravg_window_lock);
 u64 sched_ravg_window_change_time;
@@ -174,11 +160,11 @@ unsigned int __read_mostly sched_disable_window_stats;
  * The entire range of load from 0 to sched_ravg_window needs to be covered
  * in NUM_LOAD_INDICES number of buckets. Therefore the size of each bucket
  * is given by sched_ravg_window / NUM_LOAD_INDICES. Since the default value
- * of sched_ravg_window is MIN_SCHED_RAVG_WINDOW, use that to compute
+ * of sched_ravg_window is DEFAULT_SCHED_RAVG_WINDOW, use that to compute
  * sched_load_granule.
  */
 __read_mostly unsigned int sched_load_granule =
-			MIN_SCHED_RAVG_WINDOW / NUM_LOAD_INDICES;
+			DEFAULT_SCHED_RAVG_WINDOW / NUM_LOAD_INDICES;
 /* Size of bitmaps maintained to track top tasks */
 static const unsigned int top_tasks_bitmap_size =
 		BITS_TO_LONGS(NUM_LOAD_INDICES + 1) * sizeof(unsigned long);
@@ -195,7 +181,7 @@ static int __init set_sched_ravg_window(char *str)
 
 	get_option(&str, &window_size);
 
-	if (window_size < MIN_SCHED_RAVG_WINDOW ||
+	if (window_size < DEFAULT_SCHED_RAVG_WINDOW ||
 			window_size > MAX_SCHED_RAVG_WINDOW) {
 		WARN_ON(1);
 		return -EINVAL;
@@ -219,6 +205,14 @@ early_param("sched_predl", set_sched_predl);
 
 __read_mostly unsigned int walt_scale_demand_divisor;
 #define scale_demand(d) ((d)/walt_scale_demand_divisor)
+
+static inline void walt_irq_work_queue(struct irq_work *work)
+{
+	if (likely(cpu_online(raw_smp_processor_id())))
+		irq_work_queue(work);
+	else
+		irq_work_queue_on(work, cpumask_any(cpu_online_mask));
+}
 
 void inc_rq_walt_stats(struct rq *rq, struct task_struct *p)
 {
@@ -585,7 +579,6 @@ __cpu_util_freq_walt(int cpu, struct sched_walt_cpu_load *walt_load)
 
 		nl = div64_u64(nl * (100 + boost), walt_cpu_util_freq_divisor);
 
-		walt_load->prev_window_util = util;
 		walt_load->nl = nl;
 		walt_load->pl = pl;
 		walt_load->ws = walt_load_reported_window;
@@ -620,7 +613,6 @@ cpu_util_freq_walt(int cpu, struct sched_walt_cpu_load *walt_load)
 		mpct = 100;
 
 	util = ADJUSTED_ASYM_CAP_CPU_UTIL(util, util_other, mpct);
-	walt_load->prev_window_util = util;
 
 	walt_load->nl = ADJUSTED_ASYM_CAP_CPU_UTIL(walt_load->nl, wl_other.nl,
 						   mpct);
@@ -989,7 +981,7 @@ void fixup_busy_time(struct task_struct *p, int new_cpu)
 	if (!same_freq_domain(new_cpu, task_cpu(p))) {
 		src_rq->notif_pending = true;
 		dest_rq->notif_pending = true;
-		sched_irq_work_queue(&walt_migration_irq_work);
+		walt_irq_work_queue(&walt_migration_irq_work);
 	}
 
 	if (is_ed_enabled()) {
@@ -1038,7 +1030,7 @@ unsigned int max_possible_efficiency = 1;
 unsigned int min_possible_efficiency = UINT_MAX;
 
 unsigned int sysctl_sched_conservative_pl;
-unsigned int sysctl_sched_many_wakeup_threshold = 1000;
+unsigned int sysctl_sched_many_wakeup_threshold = WALT_MANY_WAKEUP_DEFAULT;
 
 #define INC_STEP 8
 #define DEC_STEP 2
@@ -1874,7 +1866,7 @@ static void update_history(struct rq *rq, struct task_struct *p,
 	p->ravg.pred_demand = pred_demand;
 	p->ravg.pred_demand_scaled = pred_demand_scaled;
 
-	if (demand_scaled > sched_task_filter_util)
+	if (demand_scaled > sysctl_sched_min_task_util_for_colocation)
 		p->unfilter = sysctl_sched_task_unfilter_period;
 	else
 		if (p->unfilter)
@@ -2061,12 +2053,12 @@ update_task_rq_cpu_cycles(struct task_struct *p, struct rq *rq, int event,
 		rq->task_exec_scale = DIV64_U64_ROUNDUP(cycles_delta *
 				topology_get_cpu_scale(NULL, cpu),
 				time_delta * rq->cluster->max_possible_freq);
+		trace_sched_get_task_cpu_cycles(cpu, event,
+				cycles_delta, time_delta, p);
 	}
 
 	p->cpu_cycles = cur_cycles;
 
-	trace_sched_get_task_cpu_cycles(cpu, event,
-					cycles_delta, time_delta, p);
 }
 
 static inline void run_walt_irq_work(u64 old_window_start, struct rq *rq)
@@ -2079,7 +2071,7 @@ static inline void run_walt_irq_work(u64 old_window_start, struct rq *rq)
 	result = atomic64_cmpxchg(&walt_irq_work_lastq_ws, old_window_start,
 				   rq->window_start);
 	if (result == old_window_start)
-		sched_irq_work_queue(&walt_cpufreq_irq_work);
+		walt_irq_work_queue(&walt_cpufreq_irq_work);
 }
 
 /* Reflect task activity on its demand and cpu's busy time statistics */
@@ -2326,7 +2318,13 @@ static struct sched_cluster *alloc_new_cluster(const struct cpumask *cpus)
 	raw_spin_lock_init(&cluster->load_lock);
 	cluster->cpus = *cpus;
 	cluster->efficiency = topology_get_cpu_scale(NULL, cpumask_first(cpus));
-
+#ifdef CONFIG_ONEPLUS_HEALTHINFO
+	cluster->overload = kzalloc(sizeof(struct sched_stat_para), GFP_ATOMIC);
+	cluster->overload->low_thresh_ms = 100;
+	cluster->overload->high_thresh_ms = 500;
+	if (!cluster->overload)
+		return NULL;
+#endif
 	if (cluster->efficiency > max_possible_efficiency)
 		max_possible_efficiency = cluster->efficiency;
 	if (cluster->efficiency < min_possible_efficiency)
@@ -2660,7 +2658,6 @@ static void transfer_busy_time(struct rq *rq, struct related_thread_group *grp,
  * Enable colocation and frequency aggregation for all threads in a process.
  * The children inherits the group id from the parent.
  */
-unsigned int __read_mostly sysctl_sched_enable_thread_grouping;
 unsigned int __read_mostly sysctl_sched_coloc_downmigrate_ns;
 
 struct related_thread_group *related_thread_groups[MAX_NUM_CGROUP_COLOC_ID];
@@ -2928,15 +2925,10 @@ add_task_to_group(struct task_struct *p, struct related_thread_group *grp)
 	return 0;
 }
 
-
-static int __sched_set_group_id(struct task_struct *p, unsigned int group_id);
-
 void add_new_task_to_grp(struct task_struct *new)
 {
 	unsigned long flags;
 	struct related_thread_group *grp;
-	struct task_struct *leader = new->group_leader;
-	unsigned int leader_grp_id = sched_get_group_id(leader);
 
 #ifdef CONFIG_IM
 	if (im_sf(new)) {
@@ -2946,31 +2938,24 @@ void add_new_task_to_grp(struct task_struct *new)
 	}
 #endif
 
-	if (!sysctl_sched_enable_thread_grouping &&
-	    leader_grp_id != DEFAULT_CGROUP_COLOC_ID)
+	/*
+	 * If the task does not belong to colocated schedtune
+	 * cgroup, nothing to do. We are checking this without
+	 * lock. Even if there is a race, it will be added
+	 * to the co-located cgroup via cgroup attach.
+	 */
+	if (!schedtune_task_colocated(new))
 		return;
 
-	if (thread_group_leader(new))
-		return;
-
-	if (leader_grp_id == DEFAULT_CGROUP_COLOC_ID) {
-		if (!same_schedtune(new, leader))
-			return;
-	}
-
+	grp = lookup_related_thread_group(DEFAULT_CGROUP_COLOC_ID);
 	write_lock_irqsave(&related_thread_group_lock, flags);
-
-	rcu_read_lock();
-	grp = task_related_thread_group(leader);
-	rcu_read_unlock();
 
 	/*
 	 * It's possible that someone already added the new task to the
-	 * group. A leader's thread group is updated prior to calling
-	 * this function. It's also possible that the leader has exited
-	 * the group. In either case, there is nothing else to do.
+	 * group. or it might have taken out from the colocated schedtune
+	 * cgroup. check these conditions under lock.
 	 */
-	if (!grp || new->grp) {
+	if (!schedtune_task_colocated(new) || new->grp) {
 		write_unlock_irqrestore(&related_thread_group_lock, flags);
 		return;
 	}
@@ -3023,8 +3008,7 @@ int sched_set_group_id(struct task_struct *p, unsigned int group_id)
 {
 	/* DEFAULT_CGROUP_COLOC_ID is a reserved id */
 	if (group_id == DEFAULT_CGROUP_COLOC_ID)
-		if (!im_rendering(p))
-			return -EINVAL;
+		return -EINVAL;
 
 	return __sched_set_group_id(p, group_id);
 }
@@ -3073,12 +3057,6 @@ int sync_cgroup_colocation(struct task_struct *p, bool insert)
 {
 	unsigned int grp_id = insert ? DEFAULT_CGROUP_COLOC_ID : 0;
 
-#ifdef CONFIG_IM
-	if (im_sf(p)) {
-		// bypass surfaceflinger to be group 0
-		return 0;
-	}
-#endif
 	return __sched_set_group_id(p, grp_id);
 }
 #endif
@@ -3089,6 +3067,7 @@ static bool is_cluster_hosting_top_app(struct sched_cluster *cluster)
 	bool grp_on_min;
 
 	grp = lookup_related_thread_group(DEFAULT_CGROUP_COLOC_ID);
+
 	if (!grp)
 		return false;
 
@@ -3361,6 +3340,7 @@ u64 get_rtgb_active_time(void)
 
 	if (grp && grp->skip_min && grp->start_ts)
 		return now - grp->start_ts;
+
 	return 0;
 }
 
@@ -3585,6 +3565,9 @@ int walt_proc_group_thresholds_handler(struct ctl_table *table, int write,
 	static DEFINE_MUTEX(mutex);
 	struct rq *rq = cpu_rq(cpumask_first(cpu_possible_mask));
 	unsigned long flags;
+
+	if (unlikely(num_sched_clusters <= 0))
+		return -EPERM;
 
 	mutex_lock(&mutex);
 	ret = proc_dointvec_minmax(table, write, buffer, lenp, ppos);

@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-only WITH Linux-syscall-note */
 /*
- * Copyright (c) 2017-2019, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2017-2020, The Linux Foundation. All rights reserved.
  */
 
 #ifndef _LINUX_QCOM_GENI_SE
@@ -50,6 +50,8 @@ enum se_protocol_types {
  * @geni_pinctrl:	Handle to the pinctrl configuration.
  * @geni_gpio_active:	Handle to the default/active pinctrl state.
  * @geni_gpi_sleep:	Handle to the sleep pinctrl state.
+ * @num_clk_levels:	Number of valid clock levels in clk_perf_tbl.
+ * @clk_perf_tbl:	Table of clock frequency input to Serial Engine clock.
  */
 struct se_geni_rsc {
 	struct device *ctrl_dev;
@@ -69,6 +71,8 @@ struct se_geni_rsc {
 	struct pinctrl_state *geni_gpio_active;
 	struct pinctrl_state *geni_gpio_sleep;
 	int	clk_freq_out;
+	unsigned int num_clk_levels;
+	unsigned long *clk_perf_tbl;
 };
 
 #define PINCTRL_DEFAULT	"default"
@@ -326,6 +330,7 @@ struct se_geni_rsc {
 #define TX_EOT			(BIT(1))
 #define TX_SBE			(BIT(2))
 #define TX_RESET_DONE		(BIT(3))
+#define TX_GENI_CANCEL_IRQ	(BIT(14))
 
 /* SE_DMA_RX_IRQ_STAT Register fields */
 #define RX_DMA_DONE		(BIT(0))
@@ -334,8 +339,14 @@ struct se_geni_rsc {
 #define RX_RESET_DONE		(BIT(3))
 #define RX_FLUSH_DONE		(BIT(4))
 #define RX_GENI_GP_IRQ		(GENMASK(10, 5))
-#define RX_GENI_CANCEL_IRQ	(BIT(11))
+#define RX_GENI_CANCEL_IRQ	(BIT(14))
 #define RX_GENI_GP_IRQ_EXT	(GENMASK(13, 12))
+
+/* DMA DEBUG Register fields */
+#define DMA_TX_ACTIVE		(BIT(0))
+#define DMA_RX_ACTIVE		(BIT(1))
+#define DMA_TX_STATE		(GENMASK(7, 4))
+#define DMA_RX_STATE		(GENMASK(11, 8))
 
 #define DEFAULT_BUS_WIDTH	(4)
 #define DEFAULT_SE_CLK		(19200000)
@@ -667,17 +678,17 @@ int geni_se_clk_freq_match(struct se_geni_rsc *rsc, unsigned long req_freq,
 int geni_se_tx_dma_prep(struct device *wrapper_dev, void __iomem *base,
 			void *tx_buf, int tx_len, dma_addr_t *tx_dma);
 
- /**
-  * geni_se_rx_dma_start() - Prepare the Serial Engine registers for RX DMA
+/**
+ * geni_se_rx_dma_start() - Prepare the Serial Engine registers for RX DMA
 				transfers.
-  * @base:		Base address of the SE register block.
-  * @rx_len:		Length of the RX buffer.
-  * @rx_dma:		Pointer to store the mapped DMA address.
-  *
-  * This function is used to prepare the Serial Engine registers for DMA RX.
-  *
-  * Return:	None.
-  */
+ * @base:		Base address of the SE register block.
+ * @rx_len:		Length of the RX buffer.
+ * @rx_dma:		Pointer to store the mapped DMA address.
+ *
+ * This function is used to prepare the Serial Engine registers for DMA RX.
+ *
+ * Return:	None.
+ */
 void geni_se_rx_dma_start(void __iomem *base, int rx_len, dma_addr_t *rx_dma);
 
 /**
@@ -808,15 +819,11 @@ int geni_se_iommu_free_buf(struct device *wrapper_dev, dma_addr_t *iova,
  */
 void geni_se_dump_dbg_regs(struct se_geni_rsc *rsc, void __iomem *base,
 				void *ipc);
+
 #else
 static inline unsigned int geni_read_reg_nolog(void __iomem *base, int offset)
 {
 	return 0;
-}
-
-static void geni_se_rx_dma_start(void __iomem *base, int rx_len,
-				dma_addr_t *rx_dma)
-{
 }
 
 static inline void geni_write_reg_nolog(unsigned int value,
@@ -996,6 +1003,11 @@ static inline int geni_se_iommu_free_buf(struct device *wrapper_dev,
 
 static void geni_se_dump_dbg_regs(struct se_geni_rsc *rsc, void __iomem *base,
 				void *ipc)
+{
+}
+
+static void geni_se_rx_dma_start(void __iomem *base, int rx_len,
+						dma_addr_t *rx_dma)
 {
 }
 

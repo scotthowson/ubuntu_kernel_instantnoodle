@@ -2,7 +2,6 @@
 /*
  * Copyright (c) 2016-2019, The Linux Foundation. All rights reserved.
  */
-#include <linux/debugfs.h>
 #include <linux/errno.h>
 #include <linux/delay.h>
 #include <linux/io.h>
@@ -782,7 +781,7 @@ static ssize_t tzdbgfs_read(struct file *file, char __user *buf,
 	size_t count, loff_t *offp)
 {
 	int len = 0;
-	int *tz_id =  file->private_data;
+	int *tz_id = PDE_DATA(file_inode(file));
 
 	if (*tz_id == TZDBG_BOOT || *tz_id == TZDBG_RESET ||
 		*tz_id == TZDBG_INTERRUPT || *tz_id == TZDBG_GENERAL ||
@@ -896,110 +895,14 @@ err:
 	dma_free_coherent(&pdev->dev, len, (void *)g_qsee_log, coh_pmem);
 }
 
-//add tz and qsee log to logkit
-static ssize_t proc_qsee_log_func(struct file *file, char __user *user_buf,
-					size_t count, loff_t *ppos)
-{
-	int len = 0;
-
-	memcpy_fromio((void *)tzdbg.diag_buf, tzdbg.virt_iobase,
-						debug_rw_buf_size);
-	memcpy_fromio((void *)tzdbg.hyp_diag_buf, tzdbg.hyp_virt_iobase,
-					tzdbg.hyp_debug_rw_buf_size);
-	len = _disp_qsee_log_stats(count);
-	*ppos = 0;
-
-	if (len > count)
-		len = count;
-
-	return simple_read_from_buffer(user_buf, len, ppos,
-				tzdbg.stat[6].data, len);
-}
-
-
-static const struct file_operations proc_qsee_log_fops = {
-	.read =  proc_qsee_log_func,
-	.open = simple_open,
-	.owner = THIS_MODULE,
-};
-
-static ssize_t proc_tz_log_func(struct file *file, char __user *user_buf,
-				size_t count, loff_t *ppos)
-{
-	int len = 0;
-
-	memcpy_fromio((void *)tzdbg.diag_buf, tzdbg.virt_iobase,
-						debug_rw_buf_size);
-	memcpy_fromio((void *)tzdbg.hyp_diag_buf, tzdbg.hyp_virt_iobase,
-					tzdbg.hyp_debug_rw_buf_size);
-
-	if (TZBSP_DIAG_MAJOR_VERSION_LEGACY <
-			(tzdbg.diag_buf->version >> 16)) {
-		len = _disp_tz_log_stats(count);
-		*ppos = 0;
-	} else {
-		len = _disp_tz_log_stats_legacy();
-	}
-
-	if (len > count)
-		len = count;
-
-	return simple_read_from_buffer(user_buf, len, ppos,
-			tzdbg.stat[5].data, len);
-}
-
-static const struct file_operations proc_tz_log_fops = {
-	.read =  proc_tz_log_func,
-	.open = simple_open,
-	.owner = THIS_MODULE,
-};
-
-static int tzprocfs_init(struct platform_device *pdev)
-{
-	int rc = 0;
-	struct proc_dir_entry *prEntry_tmp  = NULL;
-	struct proc_dir_entry *prEntry_dir  = NULL;
-
-	prEntry_dir = proc_mkdir("tzdbg", NULL);
-
-	if (prEntry_dir == NULL) {
-		dev_err(&pdev->dev, "tzdbg procfs_create_dir failed\n");
-		return -ENOMEM;
-	}
-
-	prEntry_tmp = proc_create("qsee_log", 0666,
-					prEntry_dir, &proc_qsee_log_fops);
-
-	if (prEntry_tmp  == NULL) {
-		dev_err(&pdev->dev, "TZ procfs_create_file qsee_log failed\n");
-		rc = -ENOMEM;
-		goto err;
-	}
-
-	prEntry_tmp = proc_create("tz_log", 0666,
-					prEntry_dir, &proc_tz_log_fops);
-
-	if (prEntry_tmp  == NULL) {
-		dev_err(&pdev->dev, "TZ procfs_create_file tz_log failed\n");
-		rc = -ENOMEM;
-		goto err;
-	}
-
-	return 0;
-err:
-	proc_remove(prEntry_dir);
-
-	return rc;
-}
-
 static int  tzdbgfs_init(struct platform_device *pdev)
 {
 	int rc = 0;
 	int i;
-	struct dentry           *dent_dir;
-	struct dentry           *dent;
+	struct proc_dir_entry *dent_dir    = NULL;
+	struct proc_dir_entry *dent        = NULL;
 
-	dent_dir = debugfs_create_dir("tzdbg", NULL);
+	dent_dir = proc_mkdir("tzdbg", NULL);
 	if (dent_dir == NULL) {
 		dev_err(&pdev->dev, "tzdbg debugfs_create_dir failed\n");
 		return -ENOMEM;
@@ -1007,9 +910,9 @@ static int  tzdbgfs_init(struct platform_device *pdev)
 
 	for (i = 0; i < TZDBG_STATS_MAX; i++) {
 		tzdbg.debug_tz[i] = i;
-		dent = debugfs_create_file_unsafe(tzdbg.stat[i].name,
-				0444, dent_dir,
-				&tzdbg.debug_tz[i], &tzdbg_fops);
+		dent = proc_create_data(tzdbg.stat[i].name,
+				0444, dent_dir
+				, &tzdbg_fops, &tzdbg.debug_tz[i]);
 		if (dent == NULL) {
 			dev_err(&pdev->dev, "TZ debugfs_create_file failed\n");
 			rc = -ENOMEM;
@@ -1023,14 +926,14 @@ static int  tzdbgfs_init(struct platform_device *pdev)
 	platform_set_drvdata(pdev, dent_dir);
 	return 0;
 err:
-	debugfs_remove_recursive(dent_dir);
+	proc_remove(dent_dir);
 
 	return rc;
 }
 
 static void tzdbgfs_exit(struct platform_device *pdev)
 {
-	struct dentry           *dent_dir;
+	struct proc_dir_entry *dent_dir;
 
 	if (g_qsee_log) {
 		qtee_shmbridge_deregister(qseelog_shmbridge_handle);
@@ -1039,7 +942,7 @@ static void tzdbgfs_exit(struct platform_device *pdev)
 	}
 	kzfree(tzdbg.disp_buf);
 	dent_dir = platform_get_drvdata(pdev);
-	debugfs_remove_recursive(dent_dir);
+	proc_remove(dent_dir);
 }
 
 static int __update_hypdbg_base(struct platform_device *pdev,
@@ -1186,12 +1089,10 @@ static int tz_log_probe(struct platform_device *pdev)
 
 	tzdbg.diag_buf = (struct tzdbg_t *)ptr;
 
+	pr_info("%s: Start init tz procfs\n", __func__);
 	if (tzdbgfs_init(pdev))
 		goto err;
-
-	//add tz and qsee log to logkit
-	if (tzprocfs_init(pdev))
-		goto err;
+	pr_info("%s: End init tz procfs\n", __func__);
 
 	tzdbg_register_qsee_log_buf(pdev);
 

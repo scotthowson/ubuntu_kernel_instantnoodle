@@ -34,6 +34,16 @@
 };
 
 &pm8150_gpios {
+	key_home {
+		key_home_default: key_home_default {
+			pins = "gpio1";
+			function = "normal";
+			input-enable;
+			bias-pull-up;
+			power-source = <0>;
+		};
+	};
+
 	key_vol_up {
 		key_vol_up_default: key_vol_up_default {
 			pins = "gpio6";
@@ -41,6 +51,16 @@
 			input-enable;
 			bias-pull-up;
 			power-source = <1>;
+		};
+	};
+
+	key_confirm {
+		key_confirm_default: key_confirm_default {
+			pins = "gpio7";
+			function = "normal";
+			input-enable;
+			bias-pull-up;
+			power-source = <0>;
 		};
 	};
 
@@ -125,6 +145,19 @@
 	vconn-supply = <&smb5_vconn>;
 };
 
+&pm8150b_gpios {
+	haptics_boost {
+		haptics_boost_default: haptics_boost_default {
+			pins = "gpio5";
+			function = "normal";
+			output-enable;
+			input-disable;
+			bias-disable;
+			qcom,drive-strength = <3>; /* high */
+			power-source = <1>; /* 1.8 V */
+		};
+	};
+};
 
 &soc {
 	vreg_tof: regulator-dbb1 {
@@ -151,6 +184,10 @@
 
 &usb0 {
 	extcon = <&pm8150b_pdphy>, <&eud>;
+};
+
+&usb_qmp_dp_phy {
+	 extcon = <&pm8150b_pdphy>;
 };
 
 &sde_dp {

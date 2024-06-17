@@ -63,6 +63,13 @@ int ois_power_down_thread(void *arg)
 		} else {
 			CAM_ERR(CAM_OIS, "ois type=%d,cam_ois_power_down failed",o_ctrl->ois_type);
 		}
+                if(o_ctrl->cam_ois_download_fw_in_advance) {
+                        mutex_lock(&(o_ctrl->do_ioctl_ois));
+                        o_ctrl->ois_downloadfw_thread = NULL;
+                        o_ctrl->ois_download_fw_done = CAM_OIS_FW_NOT_DOWNLOAD;
+                        o_ctrl->ois_fd_have_close_state = CAM_OIS_IS_CLOSE;
+                        mutex_unlock(&(o_ctrl->do_ioctl_ois));
+                }
 		o_ctrl->ois_power_state = CAM_OIS_POWER_OFF;
     } else {
 		CAM_ERR(CAM_OIS, "ois type=%d,No need to do power down, ois_power_down_thread_exit %d, ois_power_state %d",o_ctrl->ois_type, o_ctrl->ois_power_down_thread_exit, o_ctrl->ois_power_state);
@@ -79,30 +86,46 @@ int32_t cam_ois_construct_default_power_setting(
 {
 	int rc = 0;
 
-	power_info->power_setting_size = 1;
+	power_info->power_setting_size = 3;
 	power_info->power_setting =
-		kzalloc(sizeof(struct cam_sensor_power_setting),
+		kzalloc(sizeof(struct cam_sensor_power_setting)*3,
 			GFP_KERNEL);
 	if (!power_info->power_setting)
 		return -ENOMEM;
-
-	power_info->power_setting[0].seq_type = SENSOR_VAF;
-	power_info->power_setting[0].seq_val = CAM_VAF;
+	power_info->power_setting[0].seq_type = SENSOR_VIO;
+	power_info->power_setting[0].seq_val = CAM_VIO;
 	power_info->power_setting[0].config_val = 1;
-	power_info->power_setting[0].delay = 2;
+	power_info->power_setting[0].delay = 0;
 
-	power_info->power_down_setting_size = 1;
+	power_info->power_setting[1].seq_type = SENSOR_VAF;
+	power_info->power_setting[1].seq_val = CAM_VAF;
+	power_info->power_setting[1].config_val = 1;
+	power_info->power_setting[1].delay = 0;
+
+	power_info->power_setting[2].seq_type = SENSOR_VDIG;
+	power_info->power_setting[2].seq_val = CAM_VDIG;
+	power_info->power_setting[2].config_val = 1;
+	power_info->power_setting[2].delay = 10;
+
+	power_info->power_down_setting_size = 3;
 	power_info->power_down_setting =
-		kzalloc(sizeof(struct cam_sensor_power_setting),
+		kzalloc(sizeof(struct cam_sensor_power_setting)*3,
 			GFP_KERNEL);
 	if (!power_info->power_down_setting) {
 		rc = -ENOMEM;
 		goto free_power_settings;
 	}
-
-	power_info->power_down_setting[0].seq_type = SENSOR_VAF;
-	power_info->power_down_setting[0].seq_val = CAM_VAF;
+	power_info->power_down_setting[0].seq_type = SENSOR_VDIG;
+	power_info->power_down_setting[0].seq_val = CAM_VDIG;
 	power_info->power_down_setting[0].config_val = 0;
+
+	power_info->power_down_setting[1].seq_type = SENSOR_VIO;
+	power_info->power_down_setting[1].seq_val = CAM_VIO;
+	power_info->power_down_setting[1].config_val = 0;
+
+	power_info->power_down_setting[2].seq_type = SENSOR_VAF;
+	power_info->power_down_setting[2].seq_val = CAM_VAF;
+	power_info->power_down_setting[2].config_val = 0;
 
 	return rc;
 
@@ -156,7 +179,7 @@ static int cam_ois_get_dev_handle(struct cam_ois_ctrl_t *o_ctrl,
 	return 0;
 }
 
-static int cam_ois_power_up(struct cam_ois_ctrl_t *o_ctrl)
+int cam_ois_power_up(struct cam_ois_ctrl_t *o_ctrl)
 {
 	int                             rc = 0;
 	struct cam_hw_soc_info          *soc_info =
@@ -497,8 +520,6 @@ static int cam_ois_pkt_parse(struct cam_ois_ctrl_t *o_ctrl, void *arg)
 	struct cam_ois_soc_private     *soc_private =
 		(struct cam_ois_soc_private *)o_ctrl->soc_info.soc_private;
 	struct cam_sensor_power_ctrl_t  *power_info = &soc_private->power_info;
-        int count=0;
-        int enable=0;
 
 	ioctl_ctrl = (struct cam_control *)arg;
 	if (copy_from_user(&dev_config,
@@ -685,15 +706,32 @@ static int cam_ois_pkt_parse(struct cam_ois_ctrl_t *o_ctrl, void *arg)
 			if (strstr(o_ctrl->ois_name, "lc898")) {
 				o_ctrl->ois_module_vendor = (o_ctrl->opcode.pheripheral & 0xFF00) >> 8;
 				o_ctrl->ois_actuator_vendor = o_ctrl->opcode.pheripheral & 0xFF;
-				rc = DownloadFW(o_ctrl);
+                                if(o_ctrl->cam_ois_download_fw_in_advance){
+                                        mutex_lock(&(o_ctrl->do_ioctl_ois));
+                                        if(o_ctrl->ois_download_fw_done == CAM_OIS_FW_NOT_DOWNLOAD){
+                                                rc = DownloadFW(o_ctrl);
+                                        } else {
+                                                CAM_INFO(CAM_OIS, "OIS FW Have Download");
+                                        }
+                                }
+                                else
+                                        rc = DownloadFW(o_ctrl);
 			} else {
 				rc = cam_ois_fw_download(o_ctrl);
 			}
 
 			if (rc) {
+                                if(o_ctrl->cam_ois_download_fw_in_advance){
+                                        o_ctrl->ois_download_fw_done = CAM_OIS_FW_NOT_DOWNLOAD;
+                                        mutex_unlock(&(o_ctrl->do_ioctl_ois));
+                                }
 				CAM_ERR(CAM_OIS, "Failed OIS FW Download");
 				goto pwr_dwn;
 			}
+                        if(o_ctrl->cam_ois_download_fw_in_advance){
+                                o_ctrl->ois_download_fw_done = CAM_OIS_FW_DOWNLOAD_DONE;
+                                mutex_unlock(&(o_ctrl->do_ioctl_ois));
+                        }
 		}
 
 		rc = cam_ois_apply_settings(o_ctrl, &o_ctrl->i2c_init_data);
@@ -758,10 +796,6 @@ static int cam_ois_pkt_parse(struct cam_ois_ctrl_t *o_ctrl, void *arg)
 
 		if (!IsOISReady(o_ctrl)) {
 			CAM_ERR(CAM_OIS, "OIS is not ready, apply setting may fail");
-                        for(count=0;count<o_ctrl->soc_info.num_rgltr;count++){
-                            enable=regulator_is_enabled(regulator_get(o_ctrl->soc_info.dev,o_ctrl->soc_info.rgltr_name[count]));
-                            CAM_ERR(CAM_OIS, " jay regulator enable=%d,name[%d]=%s",enable,count,o_ctrl->soc_info.rgltr_name[count]);
-                        }
 		}
 		o_ctrl->ois_poll_thread_control_cmd = CAM_OIS_START_POLL_THREAD;
 		OISControl(o_ctrl);
@@ -906,6 +940,17 @@ int cam_ois_driver_cmd(struct cam_ois_ctrl_t *o_ctrl, void *arg)
 		CAM_DBG(CAM_OIS, "ois_cap: ID: %d", ois_cap.slot_info);
 		break;
 	case CAM_ACQUIRE_DEV:
+                if(o_ctrl->cam_ois_download_fw_in_advance){
+                        mutex_lock(&(o_ctrl->ois_power_down_mutex));
+                        if (o_ctrl->ois_power_state == CAM_OIS_POWER_ON){
+                                CAM_INFO(CAM_OIS, "ois need to exit power down thread");
+                                o_ctrl->ois_power_down_thread_exit = true;
+                        }
+                        mutex_unlock(&(o_ctrl->ois_power_down_mutex));
+                        mutex_lock(&(o_ctrl->do_ioctl_ois));
+                        o_ctrl->ois_fd_have_close_state = CAM_OIS_IS_OPEN;
+                        mutex_unlock(&(o_ctrl->do_ioctl_ois));
+                }
 		rc = cam_ois_get_dev_handle(o_ctrl, arg);
 		if (rc) {
 			CAM_ERR(CAM_OIS, "Failed to acquire dev");
@@ -925,6 +970,15 @@ int cam_ois_driver_cmd(struct cam_ois_ctrl_t *o_ctrl, void *arg)
 		o_ctrl->cam_ois_state = CAM_OIS_START;
 		break;
 	case CAM_CONFIG_DEV:
+                if(o_ctrl->cam_ois_download_fw_in_advance){
+                        mutex_lock(&(o_ctrl->do_ioctl_ois));
+                        if(o_ctrl->ois_fd_have_close_state != CAM_OIS_IS_OPEN){
+                                CAM_INFO(CAM_OIS, "ois have closing");
+                                mutex_unlock(&(o_ctrl->do_ioctl_ois));
+                                break;
+                        }
+                mutex_unlock(&(o_ctrl->do_ioctl_ois));
+                }
 		rc = cam_ois_pkt_parse(o_ctrl, arg);
 		if (rc) {
 			CAM_ERR(CAM_OIS, "Failed in ois pkt Parsing");
@@ -932,6 +986,16 @@ int cam_ois_driver_cmd(struct cam_ois_ctrl_t *o_ctrl, void *arg)
 		}
 		break;
 	case CAM_RELEASE_DEV:
+                if(o_ctrl->cam_ois_download_fw_in_advance){
+                        mutex_lock(&(o_ctrl->do_ioctl_ois));
+                        if(o_ctrl->ois_fd_have_close_state != CAM_OIS_IS_OPEN){
+                                rc = 0;
+                                CAM_INFO(CAM_OIS,"ois have release");
+                                mutex_unlock(&(o_ctrl->do_ioctl_ois));
+                                goto release_mutex;
+                        }
+                        mutex_unlock(&(o_ctrl->do_ioctl_ois));
+                }
 		if (o_ctrl->cam_ois_state == CAM_OIS_START) {
 			rc = -EINVAL;
 			CAM_WARN(CAM_OIS,
@@ -997,6 +1061,16 @@ int cam_ois_driver_cmd(struct cam_ois_ctrl_t *o_ctrl, void *arg)
 
 		break;
 	case CAM_STOP_DEV:
+                if(o_ctrl->cam_ois_download_fw_in_advance){
+                        mutex_lock(&(o_ctrl->do_ioctl_ois));
+                        if(o_ctrl->ois_fd_have_close_state != CAM_OIS_IS_OPEN){
+                                rc = 0;
+                                CAM_INFO(CAM_OIS,"ois have stop");
+                                mutex_unlock(&(o_ctrl->do_ioctl_ois));
+                                break;
+                        }
+                        mutex_unlock(&(o_ctrl->do_ioctl_ois));
+                }
 		if (o_ctrl->cam_ois_state != CAM_OIS_START) {
 			rc = -EINVAL;
 			CAM_WARN(CAM_OIS,

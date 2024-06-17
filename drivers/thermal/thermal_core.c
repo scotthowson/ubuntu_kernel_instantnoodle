@@ -1343,6 +1343,8 @@ thermal_zone_device_register(const char *type, int trips, int mask,
 	} else if (strcmp(tz->type, "msm-therm") ==  0) {
 		dev_set_name(&tz->device, tz->type);
 		msm_tz = tz;
+	} else if (strcmp(tz->type, "camera-flash-therm") ==  0) {
+		dev_set_name(&tz->device, tz->type);
 	} else
 		dev_set_name(&tz->device, "thermal_zone%d", tz->id);
 
@@ -1777,7 +1779,7 @@ static int __init thermal_init(void)
 		pr_warn("Thermal: Can not register suspend notifier, return %d\n",
 			result);
 
-	/*Power Teams add dynamic thermal qos notify. */
+	/*Power Teams add dynamic thermal qos notify */
 	pm_qos_add_notifier(PM_QOS_MSM_THERMAL, &msm_thermal_qos_notifier);
 	pm_qos_add_notifier(PM_QOS_SKIN_THERMAL, &skin_thermal_qos_notifier);
 	pm_qos_add_notifier(PM_QOS_MODEM_SKIN_THERMAL, &modem_skin_thermal_qos_notifier);

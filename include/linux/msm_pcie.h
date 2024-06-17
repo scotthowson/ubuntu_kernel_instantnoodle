@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0 */
-/* Copyright (c) 2014-2019, The Linux Foundation. All rights reserved.*/
+/* Copyright (c) 2014-2020, The Linux Foundation. All rights reserved.*/
 
 #ifndef __MSM_PCIE_H
 #define __MSM_PCIE_H
@@ -12,6 +12,7 @@ enum msm_pcie_config {
 	MSM_PCIE_CONFIG_NO_CFG_RESTORE = 0x1,
 	MSM_PCIE_CONFIG_LINKDOWN = 0x2,
 	MSM_PCIE_CONFIG_NO_RECOVERY = 0x4,
+	MSM_PCIE_CONFIG_NO_L1SS_TO = 0x8,
 };
 
 enum msm_pcie_pm_opt {
@@ -20,6 +21,7 @@ enum msm_pcie_pm_opt {
 	MSM_PCIE_RESUME,
 	MSM_PCIE_DISABLE_PC,
 	MSM_PCIE_ENABLE_PC,
+	MSM_PCIE_HANDLE_LINKDOWN,
 };
 
 enum msm_pcie_event {
@@ -215,6 +217,17 @@ int msm_pcie_shadow_control(struct pci_dev *dev, bool enable);
 int msm_pcie_debug_info(struct pci_dev *dev, u32 option, u32 base,
 			u32 offset, u32 mask, u32 value);
 
+/*
+ * msm_pcie_reg_dump - dump pcie regsters for debug
+ * @pci_dev:	pci device structure
+ * @buffer:	destination buffer address
+ * @len:		length of buffer
+ *
+ * This functions dumps PCIE registers for debug. Sould be used when
+ * link is alredy enabled
+ */
+int msm_pcie_reg_dump(struct pci_dev *pci_dev, u8 *buff, u32 len);
+
 #else /* !CONFIG_PCI_MSM */
 static inline int msm_pcie_pm_control(enum msm_pcie_pm_opt pm_opt, u32 busnr,
 			void *user, void *data, u32 options)
@@ -268,6 +281,11 @@ static inline int msm_pcie_shadow_control(struct pci_dev *dev, bool enable)
 
 static inline int msm_pcie_debug_info(struct pci_dev *dev, u32 option, u32 base,
 			u32 offset, u32 mask, u32 value)
+{
+	return -ENODEV;
+}
+
+static inline int msm_pcie_reg_dump(struct pci_dev *pci_dev, u8 *buff, u32 len)
 {
 	return -ENODEV;
 }

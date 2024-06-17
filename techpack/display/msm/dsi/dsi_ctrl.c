@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
- * Copyright (c) 2016-2019, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2016-2020, The Linux Foundation. All rights reserved.
  */
 
 #include <linux/of_device.h>
@@ -19,9 +19,12 @@
 #include "dsi_clk.h"
 #include "dsi_pwr.h"
 #include "dsi_catalog.h"
-
+#include "dsi_panel.h"
 
 #include "sde_dbg.h"
+#if defined(CONFIG_PXLW_IRIS)
+#include "iris/dsi_iris5_api.h"
+#endif
 
 #define DSI_CTRL_DEFAULT_LABEL "MDSS DSI CTRL"
 
@@ -35,7 +38,7 @@
 
 #define DSI_CTRL_DEBUG(c, fmt, ...)	DRM_DEV_DEBUG(NULL, "[msm-dsi-debug]: %s: "\
 		fmt, c ? c->name : "inv", ##__VA_ARGS__)
-#define DSI_CTRL_ERR(c, fmt, ...)	DRM_DEV_ERROR(NULL, "[msm-dsi-error]: %s: "\
+#define DSI_CTRL_ERR(c, fmt, ...)	DRM_DEV_ERROR(NULL, "%s: "\
 		fmt, c ? c->name : "inv", ##__VA_ARGS__)
 #define DSI_CTRL_INFO(c, fmt, ...)	DRM_DEV_INFO(NULL, "[msm-dsi-info]: %s: "\
 		fmt, c->name, ##__VA_ARGS__)
@@ -80,6 +83,7 @@ static const struct of_device_id msm_dsi_of_match[] = {
 	{}
 };
 
+#ifdef CONFIG_DEBUG_FS
 static ssize_t debugfs_state_info_read(struct file *file,
 				       char __user *buff,
 				       size_t count,
@@ -206,6 +210,11 @@ static int dsi_ctrl_debugfs_init(struct dsi_ctrl *dsi_ctrl,
 	struct dentry *dir, *state_file, *reg_dump;
 	char dbg_name[DSI_DEBUG_NAME_LEN];
 
+	if (!dsi_ctrl || !parent) {
+		DSI_CTRL_ERR(dsi_ctrl, "Invalid params\n");
+		return -EINVAL;
+	}
+
 	dir = debugfs_create_dir(dsi_ctrl->name, parent);
 	if (IS_ERR_OR_NULL(dir)) {
 		rc = PTR_ERR(dir);
@@ -253,6 +262,17 @@ static int dsi_ctrl_debugfs_deinit(struct dsi_ctrl *dsi_ctrl)
 	debugfs_remove(dsi_ctrl->debugfs_root);
 	return 0;
 }
+#else
+static int dsi_ctrl_debugfs_init(struct dsi_ctrl *dsi_ctrl,
+				 struct dentry *parent)
+{
+	return 0;
+}
+static int dsi_ctrl_debugfs_deinit(struct dsi_ctrl *dsi_ctrl)
+{
+	return 0;
+}
+#endif /* CONFIG_DEBUG_FS */
 
 static inline struct msm_gem_address_space*
 dsi_ctrl_get_aspace(struct dsi_ctrl *dsi_ctrl,
@@ -880,6 +900,7 @@ static int dsi_ctrl_update_link_freqs(struct dsi_ctrl *dsi_ctrl,
 {
 	int rc = 0;
 	u32 num_of_lanes = 0;
+	u32 bits_per_symbol = 16, num_of_symbols = 7; /* For Cphy */
 	u32 bpp, frame_time_us, byte_intf_clk_div;
 	u64 h_period, v_period, bit_rate, pclk_rate, bit_rate_per_lane,
 	    byte_clk_rate, byte_intf_clk_rate;
@@ -910,6 +931,10 @@ static int dsi_ctrl_update_link_freqs(struct dsi_ctrl *dsi_ctrl,
 
 	if (config->bit_clk_rate_hz_override != 0) {
 		bit_rate = config->bit_clk_rate_hz_override * num_of_lanes;
+		if (host_cfg->phy_type == DSI_PHY_TYPE_CPHY) {
+			bit_rate *= bits_per_symbol;
+			do_div(bit_rate, num_of_symbols);
+		}
 	} else if (config->panel_mode == DSI_OP_CMD_MODE) {
 		/* Calculate the bit rate needed to match dsi transfer time */
 		bit_rate = min_dsi_clk_hz * frame_time_us;
@@ -921,16 +946,29 @@ static int dsi_ctrl_update_link_freqs(struct dsi_ctrl *dsi_ctrl,
 		bit_rate = h_period * v_period * timing->refresh_rate * bpp;
 	}
 
-	bit_rate_per_lane = bit_rate;
-	do_div(bit_rate_per_lane, num_of_lanes);
+
 	pclk_rate = bit_rate;
 	do_div(pclk_rate, bpp);
-	byte_clk_rate = bit_rate_per_lane;
-	do_div(byte_clk_rate, 8);
-	byte_intf_clk_rate = byte_clk_rate;
-	byte_intf_clk_div = host_cfg->byte_intf_clk_div;
-	do_div(byte_intf_clk_rate, byte_intf_clk_div);
-
+	if (host_cfg->phy_type == DSI_PHY_TYPE_DPHY) {
+		bit_rate_per_lane = bit_rate;
+		do_div(bit_rate_per_lane, num_of_lanes);
+		byte_clk_rate = bit_rate_per_lane;
+		do_div(byte_clk_rate, 8);
+		byte_intf_clk_rate = byte_clk_rate;
+		byte_intf_clk_div = host_cfg->byte_intf_clk_div;
+		do_div(byte_intf_clk_rate, byte_intf_clk_div);
+		config->bit_clk_rate_hz = byte_clk_rate * 8;
+	} else {
+		do_div(bit_rate, bits_per_symbol);
+		bit_rate *= num_of_symbols;
+		bit_rate_per_lane = bit_rate;
+		do_div(bit_rate_per_lane, num_of_lanes);
+		byte_clk_rate = bit_rate_per_lane;
+		do_div(byte_clk_rate, 7);
+		/* For CPHY, byte_intf_clk is same as byte_clk */
+		byte_intf_clk_rate = byte_clk_rate;
+		config->bit_clk_rate_hz = byte_clk_rate * 7;
+	}
 	DSI_CTRL_DEBUG(dsi_ctrl, "bit_clk_rate = %llu, bit_clk_rate_per_lane = %llu\n",
 		 bit_rate, bit_rate_per_lane);
 	DSI_CTRL_DEBUG(dsi_ctrl, "byte_clk_rate = %llu, byte_intf_clk = %llu\n",
@@ -938,10 +976,9 @@ static int dsi_ctrl_update_link_freqs(struct dsi_ctrl *dsi_ctrl,
 	DSI_CTRL_DEBUG(dsi_ctrl, "pclk_rate = %llu\n", pclk_rate);
 
 	dsi_ctrl->clk_freq.byte_clk_rate = byte_clk_rate;
+	dsi_ctrl->clk_freq.byte_intf_clk_rate = byte_intf_clk_rate;
 	dsi_ctrl->clk_freq.pix_clk_rate = pclk_rate;
 	dsi_ctrl->clk_freq.esc_clk_rate = config->esc_clk_rate_hz;
-	dsi_ctrl->clk_freq.byte_intf_clk_rate = byte_intf_clk_rate;
-	config->bit_clk_rate_hz = dsi_ctrl->clk_freq.byte_clk_rate * 8;
 
 	rc = dsi_clk_set_link_frequencies(clk_handle, dsi_ctrl->clk_freq,
 					dsi_ctrl->cell_index);
@@ -956,12 +993,19 @@ static int dsi_ctrl_enable_supplies(struct dsi_ctrl *dsi_ctrl, bool enable)
 	int rc = 0;
 
 	if (enable) {
+		rc = pm_runtime_get_sync(dsi_ctrl->drm_dev->dev);
+		if (rc < 0) {
+			DSI_CTRL_ERR(dsi_ctrl,
+				"Power resource enable failed, rc=%d\n", rc);
+			goto error;
+		}
+
 		if (!dsi_ctrl->current_state.host_initialized) {
 			rc = dsi_pwr_enable_regulator(
 				&dsi_ctrl->pwr_info.host_pwr, true);
 			if (rc) {
 				DSI_CTRL_ERR(dsi_ctrl, "failed to enable host power regs\n");
-				goto error;
+				goto error_get_sync;
 			}
 		}
 
@@ -974,8 +1018,9 @@ static int dsi_ctrl_enable_supplies(struct dsi_ctrl *dsi_ctrl, bool enable)
 						&dsi_ctrl->pwr_info.host_pwr,
 						false
 						);
-			goto error;
+			goto error_get_sync;
 		}
+		return rc;
 	} else {
 		rc = dsi_pwr_enable_regulator(&dsi_ctrl->pwr_info.digital,
 					      false);
@@ -993,7 +1038,11 @@ static int dsi_ctrl_enable_supplies(struct dsi_ctrl *dsi_ctrl, bool enable)
 				goto error;
 			}
 		}
+		pm_runtime_put_sync(dsi_ctrl->drm_dev->dev);
+		return rc;
 	}
+error_get_sync:
+	pm_runtime_put_sync(dsi_ctrl->drm_dev->dev);
 error:
 	return rc;
 }
@@ -1162,13 +1211,15 @@ int dsi_message_validate_tx_mode(struct dsi_ctrl *dsi_ctrl,
 	}
 
 	if (*flags & DSI_CTRL_CMD_FETCH_MEMORY) {
-#if defined(CONFIG_PXLW_IRIS5)
-		if ((dsi_ctrl->cmd_len + cmd_len + 4) > SZ_256K) {
-			pr_err("Cannot transfer,size is greater than 256K\n");
-#else
 		if ((dsi_ctrl->cmd_len + cmd_len + 4) > SZ_4K) {
-			DSI_CTRL_ERR(dsi_ctrl, "Cannot transfer,size is greater than 4096\n");
+#if defined(CONFIG_PXLW_IRIS)
+			if (iris_is_chip_supported()) {
+				if ((dsi_ctrl->cmd_len + cmd_len + 4) <= SZ_256K)
+					return rc;
+				DSI_CTRL_ERR(dsi_ctrl, "Cannot transfer, size is greater than 256K\n");
+			}
 #endif
+			DSI_CTRL_ERR(dsi_ctrl, "Cannot transfer,size is greater than 4096\n");
 			return -ENOTSUPP;
 		}
 	}
@@ -1212,9 +1263,11 @@ static void dsi_kickoff_msg_tx(struct dsi_ctrl *dsi_ctrl,
 
 	if (flags & DSI_CTRL_CMD_DEFER_TRIGGER) {
 		if (flags & DSI_CTRL_CMD_FETCH_MEMORY) {
-#if defined(CONFIG_PXLW_IRIS5)
-			msm_gem_sync(dsi_ctrl->tx_cmd_buf);
+#if defined(CONFIG_PXLW_IRIS)
+			if (iris_is_chip_supported())
+				msm_gem_sync(dsi_ctrl->tx_cmd_buf);
 #endif
+
 			if (flags & DSI_CTRL_CMD_NON_EMBEDDED_MODE) {
 				dsi_hw_ops.kickoff_command_non_embedded_mode(
 							&dsi_ctrl->hw,
@@ -1235,9 +1288,7 @@ static void dsi_kickoff_msg_tx(struct dsi_ctrl *dsi_ctrl,
 
 	if (!(flags & DSI_CTRL_CMD_DEFER_TRIGGER)) {
 		dsi_ctrl_wait_for_video_done(dsi_ctrl);
-		if (dsi_hw_ops.mask_error_intr)
-			dsi_hw_ops.mask_error_intr(&dsi_ctrl->hw,
-					BIT(DSI_FIFO_OVERFLOW), true);
+		dsi_ctrl_mask_overflow(dsi_ctrl, true);
 
 		atomic_set(&dsi_ctrl->dma_irq_trig, 0);
 		dsi_ctrl_enable_status_interrupt(dsi_ctrl,
@@ -1270,9 +1321,8 @@ static void dsi_kickoff_msg_tx(struct dsi_ctrl *dsi_ctrl,
 			dsi_ctrl_dma_cmd_wait_for_done(&dsi_ctrl->dma_cmd_wait);
 		}
 
-		if (dsi_hw_ops.mask_error_intr && !dsi_ctrl->esd_check_underway)
-			dsi_hw_ops.mask_error_intr(&dsi_ctrl->hw,
-					BIT(DSI_FIFO_OVERFLOW), false);
+		dsi_ctrl_mask_overflow(dsi_ctrl, false);
+
 		dsi_hw_ops.reset_cmd_fifo(&dsi_ctrl->hw);
 
 		/*
@@ -1281,7 +1331,8 @@ static void dsi_kickoff_msg_tx(struct dsi_ctrl *dsi_ctrl,
 		 * result in smmu write faults with DSI as client.
 		 */
 		if (flags & DSI_CTRL_CMD_NON_EMBEDDED_MODE) {
-			dsi_hw_ops.soft_reset(&dsi_ctrl->hw);
+			if (dsi_ctrl->version < DSI_CTRL_VERSION_2_4)
+				dsi_hw_ops.soft_reset(&dsi_ctrl->hw);
 			dsi_ctrl->cmd_len = 0;
 		}
 	}
@@ -1317,9 +1368,9 @@ static void print_cmd_desc(struct dsi_ctrl *dsi_ctrl, const struct mipi_dsi_msg 
 
 extern int dsi_cmd_log_enable;
 
-static u32 dsi_ctrl_validate_msg_flags(struct dsi_ctrl *dsi_ctrl,
+static void dsi_ctrl_validate_msg_flags(struct dsi_ctrl *dsi_ctrl,
 				const struct mipi_dsi_msg *msg,
-				u32 flags)
+				u32 *flags)
 {
 	/*
 	 * ASYNC command wait mode is not supported for
@@ -1329,20 +1380,20 @@ static u32 dsi_ctrl_validate_msg_flags(struct dsi_ctrl *dsi_ctrl,
 	 *    - whenever an explicit wait time is specificed for the command
 	 *      since the wait time cannot be guaranteed in async mode
 	 *    - video mode panels
+	 * If async override is set, skip async flag reset
 	 */
-	if ((flags & DSI_CTRL_CMD_FIFO_STORE) ||
-		flags & DSI_CTRL_CMD_READ ||
-		flags & DSI_CTRL_CMD_NON_EMBEDDED_MODE ||
+	if (((*flags & DSI_CTRL_CMD_FIFO_STORE) ||
+		*flags & DSI_CTRL_CMD_READ ||
+		*flags & DSI_CTRL_CMD_NON_EMBEDDED_MODE ||
 		msg->wait_ms ||
-		(dsi_ctrl->host_config.panel_mode == DSI_OP_VIDEO_MODE))
-		flags &= ~DSI_CTRL_CMD_ASYNC_WAIT;
-
-	return flags;
+		(dsi_ctrl->host_config.panel_mode == DSI_OP_VIDEO_MODE)) &&
+		!(msg->flags & MIPI_DSI_MSG_ASYNC_OVERRIDE))
+		*flags &= ~DSI_CTRL_CMD_ASYNC_WAIT;
 }
 
 static int dsi_message_tx(struct dsi_ctrl *dsi_ctrl,
 			  const struct mipi_dsi_msg *msg,
-			  u32 flags)
+			  u32 *flags)
 {
 	int rc = 0;
 	struct mipi_dsi_packet packet;
@@ -1357,10 +1408,10 @@ static int dsi_message_tx(struct dsi_ctrl *dsi_ctrl,
 		print_cmd_desc(dsi_ctrl, msg);
 
 	/* Select the tx mode to transfer the command */
-	dsi_message_setup_tx_mode(dsi_ctrl, msg->tx_len, &flags);
+	dsi_message_setup_tx_mode(dsi_ctrl, msg->tx_len, flags);
 
 	/* Validate the mode before sending the command */
-	rc = dsi_message_validate_tx_mode(dsi_ctrl, msg->tx_len, &flags);
+	rc = dsi_message_validate_tx_mode(dsi_ctrl, msg->tx_len, flags);
 	if (rc) {
 		DSI_CTRL_ERR(dsi_ctrl,
 			"Cmd tx validation failed, cannot transfer cmd\n");
@@ -1368,16 +1419,16 @@ static int dsi_message_tx(struct dsi_ctrl *dsi_ctrl,
 		goto error;
 	}
 
-	flags = dsi_ctrl_validate_msg_flags(dsi_ctrl, msg, flags);
+	dsi_ctrl_validate_msg_flags(dsi_ctrl, msg, flags);
 
 	if (dsi_ctrl->dma_wait_queued)
 		dsi_ctrl_flush_cmd_dma_queue(dsi_ctrl);
 
-	if (flags & DSI_CTRL_CMD_NON_EMBEDDED_MODE) {
+	if (*flags & DSI_CTRL_CMD_NON_EMBEDDED_MODE) {
 		cmd_mem.offset = dsi_ctrl->cmd_buffer_iova;
-		cmd_mem.en_broadcast = (flags & DSI_CTRL_CMD_BROADCAST) ?
+		cmd_mem.en_broadcast = (*flags & DSI_CTRL_CMD_BROADCAST) ?
 			true : false;
-		cmd_mem.is_master = (flags & DSI_CTRL_CMD_BROADCAST_MASTER) ?
+		cmd_mem.is_master = (*flags & DSI_CTRL_CMD_BROADCAST_MASTER) ?
 			true : false;
 		cmd_mem.use_lpm = (msg->flags & MIPI_DSI_MSG_USE_LPM) ?
 			true : false;
@@ -1412,21 +1463,25 @@ static int dsi_message_tx(struct dsi_ctrl *dsi_ctrl,
 	if ((msg->flags & MIPI_DSI_MSG_LASTCOMMAND))
 		buffer[3] |= BIT(7);//set the last cmd bit in header.
 
-	if (flags & DSI_CTRL_CMD_FETCH_MEMORY) {
+	if (*flags & DSI_CTRL_CMD_FETCH_MEMORY) {
 		/* Embedded mode config is selected */
 		cmd_mem.offset = dsi_ctrl->cmd_buffer_iova;
-		cmd_mem.en_broadcast = (flags & DSI_CTRL_CMD_BROADCAST) ?
+		cmd_mem.en_broadcast = (*flags & DSI_CTRL_CMD_BROADCAST) ?
 			true : false;
-		cmd_mem.is_master = (flags & DSI_CTRL_CMD_BROADCAST_MASTER) ?
+		cmd_mem.is_master = (*flags & DSI_CTRL_CMD_BROADCAST_MASTER) ?
 			true : false;
 		cmd_mem.use_lpm = (msg->flags & MIPI_DSI_MSG_USE_LPM) ?
 			true : false;
 
 		cmdbuf = (u8 *)(dsi_ctrl->vaddr);
 
-#if !defined(CONFIG_PXLW_IRIS5)
+#if defined(CONFIG_PXLW_IRIS)
+		if (!iris_is_chip_supported())
+			msm_gem_sync(dsi_ctrl->tx_cmd_buf);
+#else
 		msm_gem_sync(dsi_ctrl->tx_cmd_buf);
 #endif
+
 		for (cnt = 0; cnt < length; cnt++)
 			cmdbuf[dsi_ctrl->cmd_len + cnt] = buffer[cnt];
 
@@ -1439,19 +1494,19 @@ static int dsi_message_tx(struct dsi_ctrl *dsi_ctrl,
 			dsi_ctrl->cmd_len = 0;
 		}
 
-	} else if (flags & DSI_CTRL_CMD_FIFO_STORE) {
+	} else if (*flags & DSI_CTRL_CMD_FIFO_STORE) {
 		cmd.command =  (u32 *)buffer;
 		cmd.size = length;
-		cmd.en_broadcast = (flags & DSI_CTRL_CMD_BROADCAST) ?
+		cmd.en_broadcast = (*flags & DSI_CTRL_CMD_BROADCAST) ?
 				     true : false;
-		cmd.is_master = (flags & DSI_CTRL_CMD_BROADCAST_MASTER) ?
+		cmd.is_master = (*flags & DSI_CTRL_CMD_BROADCAST_MASTER) ?
 				  true : false;
 		cmd.use_lpm = (msg->flags & MIPI_DSI_MSG_USE_LPM) ?
 				  true : false;
 	}
 
 kickoff:
-	dsi_kickoff_msg_tx(dsi_ctrl, msg, &cmd, &cmd_mem, flags);
+	dsi_kickoff_msg_tx(dsi_ctrl, msg, &cmd, &cmd_mem, *flags);
 error:
 	if (buffer)
 		devm_kfree(&dsi_ctrl->pdev->dev, buffer);
@@ -1479,7 +1534,7 @@ static int dsi_set_max_return_size(struct dsi_ctrl *dsi_ctrl,
 	dflags &= ~BIT(3);
 	msg.flags = dflags;
 
-	rc = dsi_message_tx(dsi_ctrl, &msg, flags);
+	rc = dsi_message_tx(dsi_ctrl, &msg, &flags);
 	if (rc)
 		DSI_CTRL_ERR(dsi_ctrl, "failed to send max return size packet, rc=%d\n",
 				rc);
@@ -1541,7 +1596,7 @@ static int dsi_parse_long_read_resp(const struct mipi_dsi_msg *msg,
 
 static int dsi_message_rx(struct dsi_ctrl *dsi_ctrl,
 			  const struct mipi_dsi_msg *msg,
-			  u32 flags)
+			  u32 *flags)
 {
 	int rc = 0;
 	u32 rd_pkt_size, total_read_len, hw_read_cnt;
@@ -2144,7 +2199,7 @@ int dsi_ctrl_drv_init(struct dsi_ctrl *dsi_ctrl, struct dentry *parent)
 {
 	int rc = 0;
 
-	if (!dsi_ctrl || !parent) {
+	if (!dsi_ctrl) {
 		DSI_CTRL_ERR(dsi_ctrl, "Invalid params\n");
 		return -EINVAL;
 	}
@@ -2745,8 +2800,7 @@ void dsi_ctrl_enable_status_interrupt(struct dsi_ctrl *dsi_ctrl,
 			intr_idx >= DSI_STATUS_INTERRUPT_COUNT)
 		return;
 
-	SDE_EVT32(dsi_ctrl->cell_index, SDE_EVTLOG_FUNC_ENTRY,
-			dsi_ctrl->irq_info.irq_stat_refcount[intr_idx], dsi_ctrl->irq_info.irq_stat_mask);
+	SDE_EVT32(dsi_ctrl->cell_index, SDE_EVTLOG_FUNC_ENTRY);
 	spin_lock_irqsave(&dsi_ctrl->irq_info.irq_lock, flags);
 
 	if (dsi_ctrl->irq_info.irq_stat_refcount[intr_idx] == 0) {
@@ -2763,7 +2817,6 @@ void dsi_ctrl_enable_status_interrupt(struct dsi_ctrl *dsi_ctrl,
 	if (intr_idx == DSI_SINT_CMD_MODE_DMA_DONE)
 		dsi_ctrl->hw.ops.enable_status_interrupts(&dsi_ctrl->hw,
 				dsi_ctrl->irq_info.irq_stat_mask);
-
 	++(dsi_ctrl->irq_info.irq_stat_refcount[intr_idx]);
 
 	if (event_info)
@@ -2777,12 +2830,10 @@ void dsi_ctrl_disable_status_interrupt(struct dsi_ctrl *dsi_ctrl,
 {
 	unsigned long flags;
 
-	if (!dsi_ctrl || dsi_ctrl->irq_info.irq_num == -1 ||
-			intr_idx >= DSI_STATUS_INTERRUPT_COUNT)
+	if (!dsi_ctrl || intr_idx >= DSI_STATUS_INTERRUPT_COUNT)
 		return;
 
-	SDE_EVT32(dsi_ctrl->cell_index, SDE_EVTLOG_FUNC_ENTRY,
-			dsi_ctrl->irq_info.irq_stat_refcount[intr_idx], dsi_ctrl->irq_info.irq_stat_mask);
+	SDE_EVT32(dsi_ctrl->cell_index, SDE_EVTLOG_FUNC_ENTRY);
 	spin_lock_irqsave(&dsi_ctrl->irq_info.irq_lock, flags);
 
 	if (dsi_ctrl->irq_info.irq_stat_refcount[intr_idx])
@@ -2792,7 +2843,8 @@ void dsi_ctrl_disable_status_interrupt(struct dsi_ctrl *dsi_ctrl,
 					dsi_ctrl->irq_info.irq_stat_mask);
 
 			/* don't need irq if no lines are enabled */
-			if (dsi_ctrl->irq_info.irq_stat_mask == 0)
+			if (dsi_ctrl->irq_info.irq_stat_mask == 0 &&
+				dsi_ctrl->irq_info.irq_num != -1)
 				disable_irq_nosync(dsi_ctrl->irq_info.irq_num);
 		}
 
@@ -3175,7 +3227,7 @@ int dsi_ctrl_validate_timing(struct dsi_ctrl *dsi_ctrl,
  */
 int dsi_ctrl_cmd_transfer(struct dsi_ctrl *dsi_ctrl,
 			  const struct mipi_dsi_msg *msg,
-			  u32 flags)
+			  u32 *flags)
 {
 	int rc = 0;
 
@@ -3193,7 +3245,7 @@ int dsi_ctrl_cmd_transfer(struct dsi_ctrl *dsi_ctrl,
 		goto error;
 	}
 
-	if (flags & DSI_CTRL_CMD_READ) {
+	if (*flags & DSI_CTRL_CMD_READ) {
 		rc = dsi_message_rx(dsi_ctrl, msg, flags);
 		if (rc <= 0)
 			DSI_CTRL_ERR(dsi_ctrl, "read message failed read length, rc=%d\n",
@@ -3210,6 +3262,28 @@ int dsi_ctrl_cmd_transfer(struct dsi_ctrl *dsi_ctrl,
 error:
 	mutex_unlock(&dsi_ctrl->ctrl_lock);
 	return rc;
+}
+
+/**
+ * dsi_ctrl_mask_overflow() -	API to mask/unmask overflow error.
+ * @dsi_ctrl:			DSI controller handle.
+ * @enable:			variable to control masking/unmasking.
+ */
+void dsi_ctrl_mask_overflow(struct dsi_ctrl *dsi_ctrl, bool enable)
+{
+	struct dsi_ctrl_hw_ops dsi_hw_ops;
+
+	dsi_hw_ops = dsi_ctrl->hw.ops;
+
+	if (enable) {
+		if (dsi_hw_ops.mask_error_intr)
+			dsi_hw_ops.mask_error_intr(&dsi_ctrl->hw,
+					BIT(DSI_FIFO_OVERFLOW), true);
+	} else {
+		if (dsi_hw_ops.mask_error_intr && !dsi_ctrl->esd_check_underway)
+			dsi_hw_ops.mask_error_intr(&dsi_ctrl->hw,
+					BIT(DSI_FIFO_OVERFLOW), false);
+	}
 }
 
 /**
@@ -3244,9 +3318,6 @@ int dsi_ctrl_cmd_tx_trigger(struct dsi_ctrl *dsi_ctrl, u32 flags)
 	if ((flags & DSI_CTRL_CMD_BROADCAST) &&
 		(flags & DSI_CTRL_CMD_BROADCAST_MASTER)) {
 		dsi_ctrl_wait_for_video_done(dsi_ctrl);
-		if (dsi_hw_ops.mask_error_intr)
-			dsi_hw_ops.mask_error_intr(&dsi_ctrl->hw,
-					BIT(DSI_FIFO_OVERFLOW), true);
 		atomic_set(&dsi_ctrl->dma_irq_trig, 0);
 		dsi_ctrl_enable_status_interrupt(dsi_ctrl,
 					DSI_SINT_CMD_MODE_DMA_DONE, NULL);
@@ -3263,13 +3334,9 @@ int dsi_ctrl_cmd_tx_trigger(struct dsi_ctrl *dsi_ctrl, u32 flags)
 			dsi_ctrl_dma_cmd_wait_for_done(&dsi_ctrl->dma_cmd_wait);
 		}
 
-		if (dsi_hw_ops.mask_error_intr &&
-				!dsi_ctrl->esd_check_underway)
-			dsi_hw_ops.mask_error_intr(&dsi_ctrl->hw,
-					BIT(DSI_FIFO_OVERFLOW), false);
-
 		if (flags & DSI_CTRL_CMD_NON_EMBEDDED_MODE) {
-			dsi_hw_ops.soft_reset(&dsi_ctrl->hw);
+			if (dsi_ctrl->version < DSI_CTRL_VERSION_2_4)
+				dsi_hw_ops.soft_reset(&dsi_ctrl->hw);
 			dsi_ctrl->cmd_len = 0;
 		}
 	}
@@ -3572,7 +3639,7 @@ int dsi_ctrl_set_vid_engine_state(struct dsi_ctrl *dsi_ctrl,
 	dsi_ctrl->hw.ops.video_engine_en(&dsi_ctrl->hw, on);
 
 	/* perform a reset when turning off video engine */
-	if (!on)
+	if (!on && dsi_ctrl->version < DSI_CTRL_VERSION_1_3)
 		dsi_ctrl->hw.ops.soft_reset(&dsi_ctrl->hw);
 
 	DSI_CTRL_DEBUG(dsi_ctrl, "Set video engine state = %d\n", state);

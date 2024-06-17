@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
- * Copyright (c) 2014-2019, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2014-2020, The Linux Foundation. All rights reserved.
  */
 
 #define pr_fmt(fmt)	"core_ctl: " fmt
@@ -19,6 +19,8 @@
 #include <trace/events/sched.h>
 #include "sched.h"
 #include "walt.h"
+
+#include <linux/oem/control_center.h>
 
 struct cluster_data {
 	bool inited;
@@ -46,6 +48,7 @@ struct cluster_data {
 	struct task_struct *core_ctl_thread;
 	unsigned int first_cpu;
 	unsigned int boost;
+	unsigned int op_boost;
 	struct kobject kobj;
 	unsigned int strict_nrrun;
 };
@@ -65,8 +68,8 @@ static struct cluster_data cluster_state[MAX_CLUSTERS];
 static unsigned int num_clusters;
 
 #define for_each_cluster(cluster, idx) \
-	for ((cluster) = &cluster_state[idx]; (idx) < num_clusters;\
-		(idx)++, (cluster) = &cluster_state[idx])
+	for (; (idx) < num_clusters && ((cluster) = &cluster_state[idx]);\
+		(idx)++)
 
 static DEFINE_SPINLOCK(state_lock);
 static void apply_need(struct cluster_data *state);
@@ -77,7 +80,6 @@ ATOMIC_NOTIFIER_HEAD(core_ctl_notifier);
 static unsigned int last_nr_big;
 
 static unsigned int get_active_cpu_count(const struct cluster_data *cluster);
-static void cpuset_next(struct cluster_data *cluster);
 
 /* ========================= sysfs interface =========================== */
 
@@ -89,8 +91,7 @@ static ssize_t store_min_cpus(struct cluster_data *state,
 	if (sscanf(buf, "%u\n", &val) != 1)
 		return -EINVAL;
 
-	state->min_cpus = min(val, state->max_cpus);
-	cpuset_next(state);
+	state->min_cpus = min(val, state->num_cpus);
 	wake_up_core_ctl_thread(state);
 
 	return count;
@@ -111,8 +112,6 @@ static ssize_t store_max_cpus(struct cluster_data *state,
 
 	val = min(val, state->num_cpus);
 	state->max_cpus = val;
-	state->min_cpus = min(state->min_cpus, state->max_cpus);
-	cpuset_next(state);
 	wake_up_core_ctl_thread(state);
 
 	return count;
@@ -333,6 +332,8 @@ static ssize_t show_global_state(const struct cluster_data *state, char *buf)
 						cluster->nr_isolated_cpus);
 		count += snprintf(buf + count, PAGE_SIZE - count,
 				"\tBoost: %u\n", (unsigned int) cluster->boost);
+		count += snprintf(buf + count, PAGE_SIZE - count,
+				"\tOPBoost: %u\n", (unsigned int) cluster->op_boost);
 	}
 	spin_unlock_irq(&state_lock);
 
@@ -768,6 +769,22 @@ static bool adjustment_possible(const struct cluster_data *cluster,
 	return (need < cluster->active_cpus || (need > cluster->active_cpus &&
 						cluster->nr_isolated_cpus));
 }
+#define TRACE_DEBUG 0
+
+static inline void tracing_mark_write(int serial, char *name, unsigned int value)
+{
+#if TRACE_DEBUG
+	trace_printk("C|%d|%s|%u\n", 99990+serial, name, value);
+#endif
+}
+
+
+static bool need_all_cpus(const struct cluster_data *cluster)
+{
+
+	return (is_min_capacity_cpu(cluster->first_cpu) &&
+		sched_ravg_window < DEFAULT_SCHED_RAVG_WINDOW);
+}
 
 static bool eval_need(struct cluster_data *cluster)
 {
@@ -784,7 +801,7 @@ static bool eval_need(struct cluster_data *cluster)
 
 	spin_lock_irqsave(&state_lock, flags);
 
-	if (cluster->boost || !cluster->enable) {
+	if (cluster->boost || cluster->op_boost || !cluster->enable || need_all_cpus(cluster)) {
 		need_cpus = cluster->max_cpus;
 	} else {
 		cluster->active_cpus = get_active_cpu_count(cluster);
@@ -863,7 +880,7 @@ static u64 core_ctl_check_timestamp;
 int core_ctl_set_boost(bool boost)
 {
 	unsigned int index = 0;
-	struct cluster_data *cluster;
+	struct cluster_data *cluster = NULL;
 	unsigned long flags;
 	int ret = 0;
 	bool boost_state_changed = false;
@@ -894,7 +911,8 @@ int core_ctl_set_boost(bool boost)
 			apply_need(cluster);
 	}
 
-	trace_core_ctl_set_boost(cluster->boost, ret);
+	if (cluster)
+		trace_core_ctl_set_boost(cluster->boost, ret);
 
 	return ret;
 }
@@ -982,8 +1000,6 @@ static void move_cpu_lru(struct cpu_data *cpu_data)
 	list_add_tail(&cpu_data->sib, &cpu_data->cluster->lru);
 	spin_unlock_irqrestore(&state_lock, flags);
 }
-
-static void cpuset_next(struct cluster_data *cluster) { }
 
 static bool should_we_isolate(int cpu, struct cluster_data *cluster)
 {
@@ -1244,6 +1260,48 @@ static int core_ctl_isolation_dead_cpu(unsigned int cpu)
 {
 	return isolation_cpuhp_state(cpu, false);
 }
+
+int core_ctl_op_boost(bool boost, int level)
+{
+	unsigned int index = 0;
+	struct cluster_data *cluster;
+	unsigned long flags;
+	int ret = 0;
+	bool boost_state_changed = false;
+	int total_boost = -1;
+
+	if (unlikely(!initialized))
+		return 0;
+
+	tracing_mark_write(0, "cctl_boost", boost);
+	spin_lock_irqsave(&state_lock, flags);
+	for_each_cluster(cluster, index) {
+		if (boost) {
+			boost_state_changed = !cluster->op_boost;
+			if (ccdm_get_hint(CCDM_TB_CCTL_BOOST) && cluster->op_boost == 0)
+				++cluster->op_boost;
+			if (++total_boost == level)
+				break;
+		} else {
+			if (!cluster->op_boost) {
+				ret = -EINVAL;
+				break;
+			}
+			--cluster->op_boost;
+			boost_state_changed = !cluster->op_boost;
+		}
+	}
+	spin_unlock_irqrestore(&state_lock, flags);
+
+	if (boost_state_changed) {
+		index = 0;
+		for_each_cluster(cluster, index)
+			apply_need(cluster);
+	}
+
+	return ret;
+}
+EXPORT_SYMBOL(core_ctl_op_boost);
 
 /* ============================ init code ============================== */
 

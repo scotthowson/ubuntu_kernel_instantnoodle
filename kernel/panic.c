@@ -182,8 +182,10 @@ void panic(const char *fmt, ...)
 	va_end(args);
 	dump_stack_minidump(0);
 
+#ifdef CONFIG_PANIC_FLUSH
 	if (!oem_get_download_mode())
 		panic_flush_device_cache(2000);
+#endif
 
 	pr_emerg("Kernel panic - not syncing: %s\n", buf);
 	function_name = parse_function_builtin_return_address(
@@ -650,7 +652,7 @@ device_initcall(register_warn_debugfs);
  */
 __visible void __stack_chk_fail(void)
 {
-	panic("stack-protector: Kernel stack is corrupted in: %pB\n",
+	panic("stack-protector: Kernel stack is corrupted in: %pB",
 		__builtin_return_address(0));
 }
 EXPORT_SYMBOL(__stack_chk_fail);

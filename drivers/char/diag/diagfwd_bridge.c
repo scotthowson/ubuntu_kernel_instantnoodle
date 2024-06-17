@@ -112,7 +112,7 @@ static int diagfwd_bridge_mux_write_done(unsigned char *buf, int len,
 		return -EINVAL;
 	ch = &bridge_info[buf_ctx];
 	if (ch->dev_ops && ch->dev_ops->fwd_complete) {
-		DIAG_LOG(DIAG_DEBUG_MHI,
+		DIAG_LOG(DIAG_DEBUG_BRIDGE,
 		"Write done completion received for buf %pK len:%d\n",
 			buf, len);
 		ch->dev_ops->fwd_complete(ch->id, ch->ctxt, buf, len, 0);
@@ -309,7 +309,7 @@ int diagfwd_bridge_close(int id)
 	return 0;
 }
 
-int diagfwd_bridge_write(int id, unsigned char *buf, int len)
+bool diagfwd_bridge_is_quit_cmd(unsigned char *buf)
 {
 	uint16_t cmd_code;
 	uint16_t subsys_id;
@@ -324,13 +324,19 @@ int diagfwd_bridge_write(int id, unsigned char *buf, int len)
 	temp += sizeof(uint8_t);
 	cmd_code_hi = (uint16_t)(*(uint16_t *)temp);
 	cmd_code_lo = (uint16_t)(*(uint16_t *)temp);
-	if (cmd_code == 0x4b && subsys_id == 0xb && cmd_code_hi == 0x35 && cmd_code_lo == 0x35) {
+	if (cmd_code == 0x4b && subsys_id == 0xb &&
+	    cmd_code_hi == 0x35 && cmd_code_lo == 0x35) {
 		pr_err("diag command with 75 11 53\n");
-		if (!driver->hdlc_disabled)
-			diag_process_hdlc_pkt(buf, len, 0);
-		else
-			diag_process_non_hdlc_pkt(buf, len, 0);
+		return true;
 	}
+	return false;
+}
+int diagfwd_bridge_write(int id, unsigned char *buf, int len)
+{
+	if (diagfwd_bridge_is_quit_cmd(buf) && !driver->hdlc_disabled)
+		diag_process_hdlc_pkt(buf, len, 0);
+	else if (diagfwd_bridge_is_quit_cmd(buf + 4*sizeof(uint8_t)))
+		diag_process_non_hdlc_pkt(buf, len, 0);
 
 	if (id < 0 || id >= NUM_REMOTE_DEV)
 		return -EINVAL;

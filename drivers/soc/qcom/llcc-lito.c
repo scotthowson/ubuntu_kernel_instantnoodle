@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
- * Copyright (c) 2019, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2019-2020, The Linux Foundation. All rights reserved.
  *
  */
 
@@ -54,7 +54,7 @@ static struct llcc_slice_config lito_data[] =  {
 	SCT_ENTRY(LLCC_CPUSS,    1, 1536, 1, 1, 0xFFF, 0x0, 0, 0, 0, 0, 1, 1),
 	SCT_ENTRY(LLCC_AUDIO,    6, 1024, 1, 1, 0xFFF, 0x0, 0, 0, 0, 0, 1, 0),
 	SCT_ENTRY(LLCC_MDM,      8, 512, 2, 0, 0xFFF, 0x0, 0, 0, 0, 0, 1, 0),
-	SCT_ENTRY(LLCC_GPUHTW,   11, 512, 1, 1, 0xFFF, 0x0, 0, 0, 0, 0, 1, 0),
+	SCT_ENTRY(LLCC_GPUHTW,   11, 256, 1, 1, 0xFFF, 0x0, 0, 0, 0, 0, 1, 0),
 	SCT_ENTRY(LLCC_GPU,      12, 1024, 1, 1, 0xFFF, 0x0, 0, 0, 0, 0, 1, 0),
 	SCT_ENTRY(LLCC_DISP,     16, 1536, 1, 1, 0xFFF, 0x0, 0, 0, 0, 0, 1, 0),
 	SCT_ENTRY(LLCC_MDMPNG,   21, 1024, 1, 1, 0xFFF, 0x0, 0, 0, 0, 0, 1, 0),

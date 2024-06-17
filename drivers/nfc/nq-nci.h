@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
- * Copyright (c) 2015-2019, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2015-2020, The Linux Foundation. All rights reserved.
  */
 
 #ifndef __NQ_NCI_H
@@ -50,6 +50,15 @@
 #define PAYLOAD_LENGTH_MAX		(256)
 #define BYTE				(0x8)
 #define NCI_IDENTIFIER			(0x10)
+#define NFC_LDO_SUPPLY_DT_NAME		"qcom,nq-vdd-1p8"
+#define NFC_LDO_SUPPLY_NAME		"qcom,nq-vdd-1p8-supply"
+#define NFC_LDO_VOL_DT_NAME		"qcom,nq-vdd-1p8-voltage"
+#define NFC_LDO_CUR_DT_NAME		"qcom,nq-vdd-1p8-current"
+
+//as per SN1x0 datasheet
+#define NFC_VDDIO_MIN			1650000 //in uV
+#define NFC_VDDIO_MAX			1950000 //in uV
+#define NFC_CURRENT_MAX			157000 //in uA
 
 enum ese_ioctl_request {
 	/* eSE POWER ON */
@@ -93,10 +102,7 @@ enum nfcc_chip_variant {
 	NFCC_NQ_210			= 0x48,	/**< NFCC NQ210 */
 	NFCC_NQ_220			= 0x58,	/**< NFCC NQ220 */
 	NFCC_NQ_310			= 0x40,	/**< NFCC NQ310 */
-	NFCC_NQ_310_V2			= 0x41,	/**< NFCC NQ310 */
 	NFCC_NQ_330			= 0x51,	/**< NFCC NQ330 */
-	NFCC_SN100			= 0xa0,	/**< NFCC SN100U */
-	NFCC_SN100_V2			= 0xa2,	/**< NFCC SN100U */
 	NFCC_SN100_A			= 0xa3,	/**< NFCC SN100_A */
 	NFCC_SN100_B			= 0xa4,	/**< NFCC SN100_B */
 	NFCC_PN66T			= 0x18,	/**< NFCC PN66T */

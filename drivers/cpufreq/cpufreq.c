@@ -35,8 +35,12 @@
 
 #include <linux/pm_qos.h>
 #include <trace/events/power.h>
+#ifdef CONFIG_CONTROL_CENTER
 #include <oneplus/control_center/control_center_helper.h>
+#endif
+#ifdef CONFIG_PCCORE
 #include <oneplus/houston/houston_helper.h>
+#endif
 #define GOLD_CPU_NUMBER 4
 #define GOLD_PLUS_CPU_NUMBER 7
 
@@ -537,6 +541,7 @@ unsigned int cpufreq_driver_resolve_freq(struct cpufreq_policy *policy,
 					 unsigned int target_freq)
 {
 	struct qos_request_value *qos;
+
 #ifdef CONFIG_PCCORE
 	unsigned int min_target;
 #endif
@@ -545,13 +550,7 @@ unsigned int cpufreq_driver_resolve_freq(struct cpufreq_policy *policy,
 	if (likely(policy->cc_enable))
 		target_freq = clamp_val(target_freq, policy->cc_min, policy->cc_max);
 #endif
-
 	target_freq = clamp_val(target_freq, policy->min, policy->max);
-
-#ifdef CONFIG_PCCORE
-	min_target = clamp_val(policy->min, policy->min, policy->max);
-	policy->min_idx = cpufreq_frequency_table_target(policy, min_target, CPUFREQ_RELATION_L);
-#endif
 	if (policy->cpu >= cluster2_first_cpu)
 		qos = &c2_qos_request_value;
 	else {
@@ -560,18 +559,23 @@ unsigned int cpufreq_driver_resolve_freq(struct cpufreq_policy *policy,
 	}
 	target_freq = clamp_val(target_freq, qos->min_cpufreq,
 				qos->max_cpufreq);
+#ifdef CONFIG_PCCORE
+	min_target = clamp_val(policy->min, policy->min, policy->max);
+	policy->min_idx = cpufreq_frequency_table_target(policy, min_target, CPUFREQ_RELATION_L);
+#endif
 	policy->cached_target_freq = target_freq;
 
 	if (cpufreq_driver->target_index) {
 		int idx;
-
-// rock.lin@ASTI, 2019/12/12, add for pccore CONFIG_PCCORE
+#ifdef CONFIG_PCCORE
 		idx = cpufreq_frequency_table_target(policy, target_freq,
 			(get_op_select_freq_enable() &&
 				(ht_pcc_alwayson() || !ccdm_any_hint())) ? CPUFREQ_RELATION_OP : CPUFREQ_RELATION_L);
-		policy->cached_resolved_idx = idx;
-// rock.lin@ASTI, 2019/12/12, add for pccore CONFIG_PCCORE
 		trace_cpu_frequency_select(target_freq, policy->freq_table[idx].frequency, idx, policy->cpu, 1);
+#else
+		idx = cpufreq_frequency_table_target(policy, target_freq, CPUFREQ_RELATION_L);
+#endif
+		policy->cached_resolved_idx = idx;
 		return policy->freq_table[idx].frequency;
 	}
 
@@ -961,6 +965,17 @@ static ssize_t show_bios_limit(struct cpufreq_policy *policy, char *buf)
 	return sprintf(buf, "%u\n", policy->cpuinfo.max_freq);
 }
 
+#ifdef CONFIG_ONEPLUS_HEALTHINFO
+static ssize_t show_freq_change_info(struct cpufreq_policy *policy, char *buf)
+{
+	ssize_t i = 0;
+
+	i += snprintf(buf, 100, "policy->org_max = %u,policy->change_comm = %s\n",
+		 policy->org_max, policy->change_comm);
+	return i;
+}
+#endif
+
 cpufreq_freq_attr_ro_perm(cpuinfo_cur_freq, 0400);
 cpufreq_freq_attr_ro(cpuinfo_min_freq);
 cpufreq_freq_attr_ro(cpuinfo_max_freq);
@@ -971,6 +986,9 @@ cpufreq_freq_attr_ro(scaling_cur_freq);
 cpufreq_freq_attr_ro(bios_limit);
 cpufreq_freq_attr_ro(related_cpus);
 cpufreq_freq_attr_ro(affected_cpus);
+#ifdef CONFIG_ONEPLUS_HEALTHINFO
+cpufreq_freq_attr_ro(freq_change_info);
+#endif
 cpufreq_freq_attr_rw(scaling_min_freq);
 cpufreq_freq_attr_rw(scaling_max_freq);
 cpufreq_freq_attr_rw(scaling_governor);
@@ -988,6 +1006,9 @@ static struct attribute *default_attrs[] = {
 	&scaling_driver.attr,
 	&scaling_available_governors.attr,
 	&scaling_setspeed.attr,
+#ifdef CONFIG_ONEPLUS_HEALTHINFO
+	&freq_change_info.attr,
+#endif
 	NULL
 };
 
@@ -999,6 +1020,9 @@ static ssize_t show(struct kobject *kobj, struct attribute *attr, char *buf)
 	struct cpufreq_policy *policy = to_policy(kobj);
 	struct freq_attr *fattr = to_attr(attr);
 	ssize_t ret;
+
+	if (!fattr->show)
+		return -EIO;
 
 	down_read(&policy->rwsem);
 	ret = fattr->show(policy, buf);
@@ -1013,6 +1037,9 @@ static ssize_t store(struct kobject *kobj, struct attribute *attr,
 	struct cpufreq_policy *policy = to_policy(kobj);
 	struct freq_attr *fattr = to_attr(attr);
 	ssize_t ret = -EINVAL;
+
+	if (!fattr->store)
+		return -EIO;
 
 	/*
 	 * cpus_read_trylock() is used here to work around a circular lock
@@ -1965,8 +1992,9 @@ unsigned int cpufreq_driver_fast_switch(struct cpufreq_policy *policy,
 	target_freq = clamp_val(target_freq, policy->min, policy->max);
 
 	ret = cpufreq_driver->fast_switch(policy, target_freq);
-// rock.lin@ASTI, 2019/12/12, add for pccore CONFIG_PCCORE
+#ifdef CONFIG_PCCORE
 	trace_cpu_frequency_select(target_freq, ret, -2, policy->cpu, 2);
+#endif
 	if (ret) {
 		cpufreq_times_record_transition(policy, ret);
 		cpufreq_stats_record_transition(policy, ret);
@@ -2313,6 +2341,10 @@ static int cpufreq_set_policy(struct cpufreq_policy *policy,
 	pr_debug("setting new policy for CPU %u: %u - %u kHz\n",
 		 new_policy->cpu, new_policy->min, new_policy->max);
 
+#ifdef CONFIG_ONEPLUS_HEALTHINFO
+	policy->org_max = new_policy->max;
+#endif
+
 	memcpy(&new_policy->cpuinfo, &policy->cpuinfo, sizeof(policy->cpuinfo));
 
 	/*
@@ -2357,6 +2389,9 @@ static int cpufreq_set_policy(struct cpufreq_policy *policy,
 #endif
 	trace_cpu_frequency_limits(policy);
 
+#ifdef CONFIG_ONEPLUS_HEALTHINFO
+	strlcpy(policy->change_comm, current->comm, TASK_COMM_LEN);
+#endif
 	arch_set_max_freq_scale(policy->cpus, policy->max);
 
 	policy->cached_target_freq = UINT_MAX;
@@ -2593,6 +2628,13 @@ int cpufreq_register_driver(struct cpufreq_driver *driver_data)
 	if (cpufreq_disabled())
 		return -ENODEV;
 
+	/*
+	 * The cpufreq core depends heavily on the availability of device
+	 * structure, make sure they are available before proceeding further.
+	 */
+	if (!get_cpu_device(0))
+		return -EPROBE_DEFER;
+
 	if (!driver_data || !driver_data->verify || !driver_data->init ||
 	    !(driver_data->setpolicy || driver_data->target_index ||
 		    driver_data->target) ||
@@ -2729,13 +2771,9 @@ static int get_c0_available_cpufreq(struct cpufreq_policy *policy)
 	max_cpufreq_index = (unsigned int)pm_qos_request(PM_QOS_C0_CPUFREQ_MAX);
 	min_cpufreq_index = (unsigned int)pm_qos_request(PM_QOS_C0_CPUFREQ_MIN);
 
-	/* you can limit the min cpufreq*/
 	if (min_cpufreq_index > max_cpufreq_index)
 		max_cpufreq_index = min_cpufreq_index;
 
-	/* get the available cpufreq
-	 * lock for the max available cpufreq
-	 */
 	cpufreq_for_each_valid_entry(pos, table) {
 		max_index = pos - table;
 	}
@@ -2780,18 +2818,13 @@ static int get_c1_available_cpufreq(struct cpufreq_policy *policy)
 	max_cpufreq_index = (unsigned int)pm_qos_request(PM_QOS_C1_CPUFREQ_MAX);
 	min_cpufreq_index = (unsigned int)pm_qos_request(PM_QOS_C1_CPUFREQ_MIN);
 
-	/* you can limit the min cpufreq*/
 	if (min_cpufreq_index > max_cpufreq_index)
 		max_cpufreq_index = min_cpufreq_index;
 
-	/* get the available cpufreq
-	 * lock for the max available cpufreq
-	 */
 	cpufreq_for_each_valid_entry(pos, table) {
 		max_index = pos - table;
 	}
 
-	/* add limits */
 	if (max_cpufreq_index & MASK_CPUFREQ) {
 		index_max = MAX_CPUFREQ - max_cpufreq_index;
 		if (index_max > max_index)
@@ -2833,18 +2866,13 @@ static int get_c2_available_cpufreq(struct cpufreq_policy *policy)
 	max_cpufreq_index = (unsigned int)pm_qos_request(PM_QOS_C2_CPUFREQ_MAX);
 	min_cpufreq_index = (unsigned int)pm_qos_request(PM_QOS_C2_CPUFREQ_MIN);
 
-	/* you can limit the min cpufreq*/
 	if (min_cpufreq_index > max_cpufreq_index)
 		max_cpufreq_index = min_cpufreq_index;
 
-	/* get the available cpufreq
-	 * lock for the max available cpufreq
-	 */
 	cpufreq_for_each_valid_entry(pos, table) {
 		max_index = pos - table;
 	}
 
-	/* add limits */
 	if (max_cpufreq_index & MASK_CPUFREQ) {
 		index_max = MAX_CPUFREQ - max_cpufreq_index;
 		if (index_max > max_index)
@@ -2990,7 +3018,6 @@ static struct notifier_block c2_cpufreq_qos_notifier = {
 
 static int __init pm_qos_notifier_init(void)
 {
-	/* add cpufreq qos notify */
 	pm_qos_add_notifier(PM_QOS_C0_CPUFREQ_MAX, &c0_cpufreq_qos_notifier);
 	pm_qos_add_notifier(PM_QOS_C0_CPUFREQ_MIN, &c0_cpufreq_qos_notifier);
 	pm_qos_add_notifier(PM_QOS_C1_CPUFREQ_MAX, &c1_cpufreq_qos_notifier);

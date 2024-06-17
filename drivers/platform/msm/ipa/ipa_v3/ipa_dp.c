@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
- * Copyright (c) 2012-2019, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
  */
 
 #include <linux/delay.h>
@@ -15,7 +15,7 @@
 #include "ipahal/ipahal.h"
 #include "ipahal/ipahal_fltrt.h"
 
-#define IPA_WAN_AGGR_PKT_CNT 5
+#define IPA_WAN_AGGR_PKT_CNT 1
 #define IPA_WAN_NAPI_MAX_FRAMES (NAPI_WEIGHT / IPA_WAN_AGGR_PKT_CNT)
 #define IPA_WAN_PAGE_ORDER 3
 #define IPA_LAN_AGGR_PKT_CNT 5
@@ -86,6 +86,8 @@
 #define IPA_EOT_THRESH 32
 
 #define IPA_QMAP_ID_BYTE 0
+
+#define IPA_TX_MAX_DESC (50)
 
 static struct sk_buff *ipa3_get_skb_ipa_rx(unsigned int len, gfp_t flags);
 static void ipa3_replenish_wlan_rx_cache(struct ipa3_sys_context *sys);
@@ -195,6 +197,15 @@ static void ipa3_wq_write_done_status(int src_pipe,
 	ipa3_wq_write_done_common(sys, tx_pkt);
 }
 
+static void ipa3_tasklet_schd_work(struct work_struct *work)
+{
+	struct ipa3_sys_context *sys;
+
+	sys = container_of(work, struct ipa3_sys_context, tasklet_work);
+	if (atomic_read(&sys->xmit_eot_cnt))
+		tasklet_schedule(&sys->tasklet);
+}
+
 /**
  * ipa_write_done() - this function will be (eventually) called when a Tx
  * operation is complete
@@ -212,6 +223,7 @@ static void ipa3_tasklet_write_done(unsigned long data)
 	struct ipa3_sys_context *sys;
 	struct ipa3_tx_pkt_wrapper *this_pkt;
 	bool xmit_done = false;
+	unsigned int max_tx_pkt = 0;
 
 	sys = (struct ipa3_sys_context *)data;
 	spin_lock_bh(&sys->spinlock);
@@ -223,11 +235,22 @@ static void ipa3_tasklet_write_done(unsigned long data)
 			spin_unlock_bh(&sys->spinlock);
 			ipa3_wq_write_done_common(sys, this_pkt);
 			spin_lock_bh(&sys->spinlock);
+			max_tx_pkt++;
 			if (xmit_done)
 				break;
 		}
+		/* If TX packets processing continuously in tasklet other
+		 * softirqs are not able to run on that core which is leading
+		 * to watchdog bark. For avoiding these scenarios exit from
+		 * tasklet after reaching max limit.
+		 */
+		if (max_tx_pkt >= IPA_TX_MAX_DESC)
+			break;
 	}
 	spin_unlock_bh(&sys->spinlock);
+
+	if (max_tx_pkt >= IPA_TX_MAX_DESC)
+		queue_work(sys->tasklet_wq, &sys->tasklet_work);
 }
 
 
@@ -1029,6 +1052,16 @@ int ipa3_setup_sys_pipe(struct ipa_sys_connect_params *sys_in, u32 *clnt_hdl)
 			goto fail_wq2;
 		}
 
+		snprintf(buff, IPA_RESOURCE_NAME_MAX, "ipataskletwq%d",
+				sys_in->client);
+		ep->sys->tasklet_wq = alloc_workqueue(buff,
+				WQ_MEM_RECLAIM | WQ_UNBOUND | WQ_SYSFS, 1);
+		if (!ep->sys->tasklet_wq) {
+			IPAERR("failed to create rep wq for client %d\n",
+					sys_in->client);
+			result = -EFAULT;
+			goto fail_wq3;
+		}
 		INIT_LIST_HEAD(&ep->sys->head_desc_list);
 		INIT_LIST_HEAD(&ep->sys->rcycl_list);
 		spin_lock_init(&ep->sys->spinlock);
@@ -1077,6 +1110,8 @@ int ipa3_setup_sys_pipe(struct ipa_sys_connect_params *sys_in, u32 *clnt_hdl)
 	atomic_set(&ep->sys->xmit_eot_cnt, 0);
 	tasklet_init(&ep->sys->tasklet, ipa3_tasklet_write_done,
 			(unsigned long) ep->sys);
+	INIT_WORK(&ep->sys->tasklet_work,
+		ipa3_tasklet_schd_work);
 	ep->skip_ep_cfg = sys_in->skip_ep_cfg;
 	if (ipa3_assign_policy(sys_in, ep->sys)) {
 		IPAERR("failed to sys ctx for client %d\n", sys_in->client);
@@ -1262,6 +1297,8 @@ fail_page_recycle_repl:
 fail_gen2:
 	ipa_pm_deregister(ep->sys->pm_hdl);
 fail_pm:
+	destroy_workqueue(ep->sys->tasklet_wq);
+fail_wq3:
 	destroy_workqueue(ep->sys->repl_wq);
 fail_wq2:
 	destroy_workqueue(ep->sys->wq);
@@ -1329,11 +1366,9 @@ int ipa3_teardown_sys_pipe(u32 clnt_hdl)
 		return result;
 	}
 
-	if (ep->sys->napi_obj) {
-		do {
-			usleep_range(95, 105);
-		} while (atomic_read(&ep->sys->curr_polling_state));
-	}
+	do {
+		usleep_range(95, 105);
+	} while (atomic_read(&ep->sys->curr_polling_state));
 
 	if (IPA_CLIENT_IS_CONS(ep->client))
 		cancel_delayed_work_sync(&ep->sys->replenish_rx_work);
@@ -1393,6 +1428,8 @@ int ipa3_teardown_sys_pipe(u32 clnt_hdl)
 	}
 	if (ep->sys->repl_wq)
 		flush_workqueue(ep->sys->repl_wq);
+	if (ep->sys->tasklet_wq)
+		flush_workqueue(ep->sys->tasklet_wq);
 	if (IPA_CLIENT_IS_CONS(ep->client))
 		ipa3_cleanup_rx(ep->sys);
 
@@ -1783,6 +1820,7 @@ static void ipa3_wq_handle_rx(struct work_struct *work)
 	if (sys->napi_obj) {
 		ipa_pm_activate_sync(sys->pm_hdl);
 		napi_schedule(sys->napi_obj);
+		IPA_STATS_INC_CNT(sys->napi_sch_cnt);
 	} else
 		ipa3_handle_rx(sys);
 }
@@ -3227,11 +3265,8 @@ void ipa3_lan_rx_cb(void *priv, enum ipa_dp_evt_type evt, unsigned long data)
 	metadata = status.metadata;
 	ucp = status.ucp;
 	ep = &ipa3_ctx->ep[src_pipe];
-	if (unlikely(src_pipe >= ipa3_ctx->ipa_num_pipes ||
-		!ep->valid ||
-		!ep->client_notify)) {
-		IPAERR_RL("drop pipe=%d ep_valid=%d client_notify=%pK\n",
-		  src_pipe, ep->valid, ep->client_notify);
+	if (unlikely(src_pipe >= ipa3_ctx->ipa_num_pipes)) {
+		IPAERR_RL("drop pipe=%d\n", src_pipe);
 		dev_kfree_skb_any(rx_skb);
 		return;
 	}
@@ -3253,7 +3288,12 @@ void ipa3_lan_rx_cb(void *priv, enum ipa_dp_evt_type evt, unsigned long data)
 			metadata, *(u32 *)rx_skb->cb);
 	IPADBG_LOW("ucp: %d\n", *(u8 *)(rx_skb->cb + 4));
 
-	ep->client_notify(ep->priv, IPA_RECEIVE, (unsigned long)(rx_skb));
+	if (likely((!atomic_read(&ep->disconnect_in_progress)) &&
+				ep->valid && ep->client_notify))
+		ep->client_notify(ep->priv, IPA_RECEIVE,
+				(unsigned long)(rx_skb));
+	else
+		dev_kfree_skb_any(rx_skb);
 }
 
 static void ipa3_recycle_rx_wrapper(struct ipa3_rx_pkt_wrapper *rx_pkt)
@@ -3389,10 +3429,17 @@ static struct sk_buff *handle_page_completion(struct gsi_chan_xfer_notify
 		IPAERR("update_truesize not supported\n");
 
 	if (notify->veid >= GSI_VEID_MAX) {
-		rx_pkt->sys->free_rx_wrapper(rx_pkt);
-		if (!rx_page.is_tmp_alloc)
-			init_page_count(rx_page.page);
 		IPAERR("notify->veid > GSI_VEID_MAX\n");
+		if (!rx_page.is_tmp_alloc) {
+			init_page_count(rx_page.page);
+		} else {
+			dma_unmap_page(ipa3_ctx->pdev, rx_page.dma_addr,
+					rx_pkt->len, DMA_FROM_DEVICE);
+			__free_pages(rx_pkt->page_data.page,
+							IPA_WAN_PAGE_ORDER);
+		}
+		rx_pkt->sys->free_rx_wrapper(rx_pkt);
+		IPA_STATS_INC_CNT(ipa3_ctx->stats.rx_page_drop_cnt);
 		return NULL;
 	}
 
@@ -3406,10 +3453,18 @@ static struct sk_buff *handle_page_completion(struct gsi_chan_xfer_notify
 		sys->ep->client == IPA_CLIENT_APPS_LAN_CONS) {
 		rx_skb = alloc_skb(0, GFP_ATOMIC);
 		if (unlikely(!rx_skb)) {
-			rx_pkt->sys->free_rx_wrapper(rx_pkt);
-			if (!rx_page.is_tmp_alloc)
-				init_page_count(rx_page.page);
 			IPAERR("skb alloc failure\n");
+			list_del(&rx_pkt->link);
+			if (!rx_page.is_tmp_alloc) {
+				init_page_count(rx_page.page);
+			} else {
+				dma_unmap_page(ipa3_ctx->pdev, rx_page.dma_addr,
+					rx_pkt->len, DMA_FROM_DEVICE);
+				__free_pages(rx_pkt->page_data.page,
+							IPA_WAN_PAGE_ORDER);
+			}
+			rx_pkt->sys->free_rx_wrapper(rx_pkt);
+			IPA_STATS_INC_CNT(ipa3_ctx->stats.rx_page_drop_cnt);
 			return NULL;
 		}
 	/* go over the list backward to save computations on updating length */
@@ -4351,6 +4406,7 @@ void __ipa_gsi_irq_rx_scedule_poll(struct ipa3_sys_context *sys)
 	clk_off = ipa_pm_activate(sys->pm_hdl);
 	if (!clk_off && sys->napi_obj) {
 		napi_schedule(sys->napi_obj);
+		IPA_STATS_INC_CNT(sys->napi_sch_cnt);
 		return;
 	}
 	queue_work(sys->wq, &sys->work);
@@ -4370,8 +4426,14 @@ static void ipa_gsi_irq_rx_notify_cb(struct gsi_chan_xfer_notify *notify)
 
 	sys = (struct ipa3_sys_context *)notify->chan_user_data;
 
-
-	sys->ep->xfer_notify_valid = true;
+	/*
+	 * In suspend just before stopping the channel possible to receive
+	 * the IEOB interrupt and xfer pointer will not be processed in this
+	 * mode and moving channel poll mode. In resume after starting the
+	 * channel will receive the IEOB interrupt and xfer pointer will be
+	 * overwritten. To avoid this process all data in polling context.
+	 */
+	sys->ep->xfer_notify_valid = false;
 	sys->ep->xfer_notify = *notify;
 
 	switch (notify->evt_id) {
@@ -4406,7 +4468,7 @@ static void ipa_dma_gsi_irq_rx_notify_cb(struct gsi_chan_xfer_notify *notify)
 		return;
 	}
 
-	sys->ep->xfer_notify_valid = true;
+	sys->ep->xfer_notify_valid = false;
 	sys->ep->xfer_notify = *notify;
 
 	switch (notify->evt_id) {
@@ -4993,6 +5055,7 @@ start_poll:
 	 */
 	if (cnt < weight && ep->sys->len > IPA_DEFAULT_SYS_YELLOW_WM) {
 		napi_complete(ep->sys->napi_obj);
+		IPA_STATS_INC_CNT(ep->sys->napi_comp_cnt);
 		ret = ipa3_rx_switch_to_intr_mode(ep->sys);
 		if (ret == -GSI_STATUS_PENDING_IRQ &&
 				napi_reschedule(ep->sys->napi_obj))

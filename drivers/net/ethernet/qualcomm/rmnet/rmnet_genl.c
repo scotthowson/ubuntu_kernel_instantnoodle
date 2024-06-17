@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0-only
-/* Copyright (c) 2019, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2019-2020, The Linux Foundation. All rights reserved.
  *
  * RMNET Data Generic Netlink
  *
@@ -48,6 +48,7 @@ struct genl_family rmnet_core_genl_family = {
 #define RMNET_PID_STATS_HT_SIZE (8)
 #define RMNET_PID_STATS_HT rmnet_pid_ht
 DEFINE_HASHTABLE(rmnet_pid_ht, RMNET_PID_STATS_HT_SIZE);
+
 /* Spinlock definition for pid hash table */
 static DEFINE_SPINLOCK(rmnet_pid_ht_splock);
 
@@ -149,7 +150,7 @@ void rmnet_boost_for_pid(pid_t pid, int boost_enable,
 				continue;
 
 			/* PID Match found */
-			rm_err("CORE_BOOST: enable boost for pid %d for %d ms",
+			rm_err("CORE_BOOST: enable boost for pid %d for %llu ms",
 			       pid, boost_period);
 			node_p->sched_boost_enable = boost_enable;
 			node_p->sched_boost_period_ms = boost_period;
@@ -339,7 +340,7 @@ int rmnet_core_genl_pid_boost_req_hdlr(struct sk_buff *skb_2,
 	u16 boost_pid_cnt = RMNET_CORE_GENL_MAX_PIDS;
 	u16 i = 0;
 
-	rm_err("%s", "CORE_GNL: %s", __func__);
+	rm_err("CORE_GNL: %s", __func__);
 
 	if (!info) {
 		rm_err("%s", "CORE_GNL: error - info is null");

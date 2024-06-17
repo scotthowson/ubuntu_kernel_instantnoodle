@@ -44,18 +44,15 @@ static const char * const power_supply_type_text[] = {
 	"Unknown", "Battery", "UPS", "Mains", "USB",
 	"USB_DCP", "USB_CDP", "USB_ACA", "USB_C",
 	"USB_PD", "USB_PD_DRP", "BrickID",
-	"USB_HVDCP", "USB_HVDCP_3", "Wireless", "USB_FLOAT",
-	"BMS", "Parallel", "Main",
-/* @bsp, 2019/07/05 Battery & Charging porting */
-	"USB_C_UFP", "USB_C_DFP",
-	"Charge_Pump", "DASH",
-	"BPP", "EPP", "FAST"
+	"USB_HVDCP", "USB_HVDCP_3", "USB_HVDCP_3P5", "Wireless", "USB_FLOAT",
+	"BMS", "Parallel", "Main", "USB_C_UFP", "USB_C_DFP",
+	"Charge_Pump",
+	"DASH",	"BPP", "EPP", "FAST",
 };
-/* @bsp, 2019/07/05 Battery & Charging porting */
-	static const char *const cc_orientation_text[] = {
-		"Unknown", "cc1", "cc2"
-	};
 
+static const char *const cc_orientation_text[] = {
+	"Unknown", "cc1", "cc2"
+};
 static const char * const power_supply_usb_type_text[] = {
 	"Unknown", "SDP", "DCP", "CDP", "ACA", "C",
 	"PD", "PD_DRP", "PD_PPS", "BrickID"
@@ -189,7 +186,6 @@ static ssize_t power_supply_show_property(struct device *dev,
 		break;
 	case POWER_SUPPLY_PROP_TYPE:
 	case POWER_SUPPLY_PROP_REAL_TYPE:
-	/* @bsp, 2019/08/30 Wireless Charging porting */
 	case POWER_SUPPLY_PROP_WIRELESS_TYPE:
 		ret = sprintf(buf, "%s\n",
 			      power_supply_type_text[value.intval]);
@@ -211,7 +207,6 @@ static ssize_t power_supply_show_property(struct device *dev,
 		ret = sprintf(buf, "%s\n",
 			      power_supply_usbc_pr_text[value.intval]);
 		break;
-/* @bsp, 2019/07/05 Battery & Charging porting */
 	case POWER_SUPPLY_PROP_OEM_TYPEC_CC_ORIENTATION:
 		ret = snprintf(buf, sizeof(buf), "%s\n",
 			      cc_orientation_text[value.intval]);
@@ -229,7 +224,6 @@ static ssize_t power_supply_show_property(struct device *dev,
 	case POWER_SUPPLY_PROP_CHARGE_COUNTER_EXT:
 		ret = sprintf(buf, "%lld\n", value.int64val);
 		break;
-	/* @bsp, 2019/08/30 Wireless Charging porting */
 	case POWER_SUPPLY_PROP_WIRELESS_MODE:
 	case POWER_SUPPLY_PROP_MODEL_NAME ... POWER_SUPPLY_PROP_SERIAL_NUMBER:
 		ret = sprintf(buf, "%s\n", value.strval);
@@ -299,12 +293,14 @@ static ssize_t power_supply_store_property(struct device *dev,
 static struct device_attribute power_supply_attrs[] = {
 	/* Properties of type `int' */
 	POWER_SUPPLY_ATTR(status),
-/* @bsp, 2018/07/13 Battery & Charging porting */
 	POWER_SUPPLY_ATTR(set_allow_read_extern_fg_iic),
 	POWER_SUPPLY_ATTR(cc_to_cv_point),
 	POWER_SUPPLY_ATTR(chg_protect_status),
 	POWER_SUPPLY_ATTR(fastchg_status_is_ok),
+	POWER_SUPPLY_ATTR(fastchg_temp_status),
 	POWER_SUPPLY_ATTR(fastchg_status),
+	POWER_SUPPLY_ATTR(fastchg_type),
+	POWER_SUPPLY_ATTR(engineer_mode),
 	POWER_SUPPLY_ATTR(fastchg_starting),
 	POWER_SUPPLY_ATTR(cutoff_volt_with_charger),
 	POWER_SUPPLY_ATTR(update_lcd_is_off),
@@ -317,6 +313,7 @@ static struct device_attribute power_supply_attrs[] = {
 	POWER_SUPPLY_ATTR(fg_current_now),
 	POWER_SUPPLY_ATTR(fg_voltage_now),
 	POWER_SUPPLY_ATTR(is_aging_test),
+	POWER_SUPPLY_ATTR(dump_reg),
 	POWER_SUPPLY_ATTR(connecter_temp1),
 	POWER_SUPPLY_ATTR(connecter_temp2),
 	POWER_SUPPLY_ATTR(connect_disable),
@@ -326,6 +323,7 @@ static struct device_attribute power_supply_attrs[] = {
 	POWER_SUPPLY_ATTR(health),
 	POWER_SUPPLY_ATTR(present),
 	POWER_SUPPLY_ATTR(online),
+	POWER_SUPPLY_ATTR(swarp_online),
 	POWER_SUPPLY_ATTR(authentic),
 	POWER_SUPPLY_ATTR(technology),
 	POWER_SUPPLY_ATTR(cycle_count),
@@ -346,6 +344,8 @@ static struct device_attribute power_supply_attrs[] = {
 	POWER_SUPPLY_ATTR(charge_full_design),
 	POWER_SUPPLY_ATTR(charge_empty_design),
 	POWER_SUPPLY_ATTR(charge_full),
+	POWER_SUPPLY_ATTR(full_available_capacity),
+	POWER_SUPPLY_ATTR(full_charge_capacity_filtered),
 	POWER_SUPPLY_ATTR(charge_empty),
 	POWER_SUPPLY_ATTR(charge_now),
 	POWER_SUPPLY_ATTR(charge_avg),
@@ -414,7 +414,7 @@ static struct device_attribute power_supply_attrs[] = {
 	POWER_SUPPLY_ATTR(temp_cold),
 	POWER_SUPPLY_ATTR(temp_hot),
 	POWER_SUPPLY_ATTR(system_temp_level),
-	POWER_SUPPLY_ATTR(battery_health),
+	POWER_SUPPLY_ATTR(battery_h),
 	POWER_SUPPLY_ATTR(op_disable_charge),
 	POWER_SUPPLY_ATTR(apsd_not_done),
 	POWER_SUPPLY_ATTR(remaining_capacity),
@@ -509,6 +509,8 @@ static struct device_attribute power_supply_attrs[] = {
 	POWER_SUPPLY_ATTR(skin_health),
 	POWER_SUPPLY_ATTR(aicl_done),
 	POWER_SUPPLY_ATTR(voltage_step),
+	POWER_SUPPLY_ATTR(apsd_rerun),
+	POWER_SUPPLY_ATTR(apsd_timeout),
 	/* Charge pump properties */
 	POWER_SUPPLY_ATTR(cp_status1),
 	POWER_SUPPLY_ATTR(cp_status2),
@@ -523,8 +525,6 @@ static struct device_attribute power_supply_attrs[] = {
 	POWER_SUPPLY_ATTR(irq_status),
 	POWER_SUPPLY_ATTR(parallel_output_mode),
 	POWER_SUPPLY_ATTR(cp_disable_cur_sens),
-	/* @bsp, 2019/08/30 Wireless Charging porting */
-	/* wireless properties */
 	POWER_SUPPLY_ATTR(wireless_mode),
 	POWER_SUPPLY_ATTR(wireless_type),
 	POWER_SUPPLY_ATTR(tx_voltage_now),
@@ -532,7 +532,10 @@ static struct device_attribute power_supply_attrs[] = {
 	POWER_SUPPLY_ATTR(cp_voltage_now),
 	POWER_SUPPLY_ATTR(cp_current_now),
 	POWER_SUPPLY_ATTR(icon_delay),
-
+	POWER_SUPPLY_ATTR(vbat_cell_max),
+	POWER_SUPPLY_ATTR(vbat_cell_min),
+	POWER_SUPPLY_ATTR(fg_type),
+	POWER_SUPPLY_ATTR(charger_status),
 	/* Local extensions of type int64_t */
 	POWER_SUPPLY_ATTR(charge_counter_ext),
 	/* Properties of type `const char *' */
@@ -541,6 +544,7 @@ static struct device_attribute power_supply_attrs[] = {
 	POWER_SUPPLY_ATTR(battery_type),
 	POWER_SUPPLY_ATTR(cycle_counts),
 	POWER_SUPPLY_ATTR(serial_number),
+	POWER_SUPPLY_ATTR(adapter_sid),
 };
 
 static struct attribute *

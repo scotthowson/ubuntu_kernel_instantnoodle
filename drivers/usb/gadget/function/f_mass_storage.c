@@ -228,7 +228,6 @@
 
 /*------------------------------------------------------------------------*/
 
-/* @BSP, 2019/09/21, CD-ROM and VID customized */
 #define PAGE_CACHE_SIZE PAGE_SIZE
 #define FSG_DRIVER_DESC		"Mass Storage Function"
 #define FSG_DRIVER_VERSION	"2009/09/11"
@@ -1183,7 +1182,6 @@ static int do_read_header(struct fsg_common *common, struct fsg_buffhd *bh)
 	return 8;
 }
 
-/* @BSP, 2019/09/21, CD-ROM and VID customized */
 static void _lba_to_msf(u8 *buf, int lba)
 {
 	lba += 150;
@@ -1434,7 +1432,6 @@ static int do_read_toc(struct fsg_common *common, struct fsg_buffhd *bh)
 	int		start_track = common->cmnd[6];
 	u8		*buf = (u8 *)bh->buf;
 
-/* @BSP, 2019/09/21, CD-ROM and VID customized */
 	int format = (common->cmnd[9] & 0xC0) >> 6;
 
 	if ((common->cmnd[1] & ~0x02) != 0 ||	/* Mask away MSF */
@@ -1443,7 +1440,6 @@ static int do_read_toc(struct fsg_common *common, struct fsg_buffhd *bh)
 		return -EINVAL;
 	}
 
-/* @BSP, 2019/09/21, CD-ROM and VID customized */
 	if (format == 2)
 		return _read_toc_raw(common, bh);
 
@@ -2185,14 +2181,12 @@ static int do_scsi_command(struct fsg_common *common)
 		common->data_size_from_cmnd =
 			get_unaligned_be16(&common->cmnd[7]);
 
-/* @BSP, 2019/09/21, CD-ROM and VID customized */
 		reply = check_command(common, 10, DATA_DIR_TO_HOST,
 				      (0xf<<6) | (1<<1), 1,
 				      "READ TOC");
 		if (reply == 0)
 			reply = do_read_toc(common, bh);
 		break;
-/* @BSP, 2019/09/21, CD-ROM and VID customized */
 	case READ_CD:
 		common->data_size_from_cmnd = ((common->cmnd[6] << 16)
 						| (common->cmnd[7] << 8)
@@ -3148,7 +3142,6 @@ void fsg_common_set_inquiry_string(struct fsg_common *common, const char *vn,
 		     ? "File-CD Gadget"
 		     : "File-Stor Gadget"),
 		 i);
-/* @BSP, 2019/09/21, CD-ROM and VID customized */
 	snprintf(common->inquiry_string,
 		sizeof(common->inquiry_string),
 		"%s",  "OnePlus Device Driver");

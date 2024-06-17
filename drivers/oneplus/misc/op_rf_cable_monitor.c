@@ -41,7 +41,7 @@ struct cable_data {
 	struct delayed_work work;
 	struct workqueue_struct *wqueue;
 	struct device *dev;
-	struct wakeup_source wl;
+	struct wakeup_source *wl;
 	int rf_v2;
 	int rf_v3;
 	int rf_v3_pre;
@@ -110,7 +110,9 @@ int get_all_gpio_val(void)
 	for(i = 0; i< CABLE_GPIO_NUM; i++)
 		gpiostate = gpiostate + (gpio_get_value(rf_cable_data->cable_gpio[i]) * local_pow(10, CABLE_GPIO_NUM - i - 1));
 	/*only 19811 china and 19821 china use ANT6(gpio109)*/
-	if((get_prj_version() == 12 && get_rf_version() == 11) || (get_prj_version() == 11 && get_rf_version() == 11))
+	if((get_prj_version() == 12 && get_rf_version() == 11) 
+		||(get_prj_version() == 11 && get_rf_version() == 11)
+		||(get_prj_version() == 14))
 		return gpiostate;
 	else
 		return gpiostate - gpiostate % 10;
@@ -203,7 +205,7 @@ irqreturn_t cable_interrupt(int irq, void *_dev)
 
 	rf_cable_data->gpio_state = get_all_gpio_val();
 
-	__pm_wakeup_event(&rf_cable_data->wl,
+	__pm_wakeup_event(rf_cable_data->wl,
 		msecs_to_jiffies(CABLE_WAKELOCK_HOLD_TIME));
 	queue_delayed_work(rf_cable_data->wqueue,
 		&rf_cable_data->work, msecs_to_jiffies(500));
@@ -531,7 +533,7 @@ static int op_rf_cable_probe(struct platform_device *pdev)
 		}
 	}
 
-	wakeup_source_init(&rf_cable_data->wl,"rf_cable_wake_lock");
+	rf_cable_data->wl = wakeup_source_register(rf_cable_data->dev,"rf_cable_wake_lock");
 	spin_lock_init(&rf_cable_data->lock);
 
 	for(i = 0; i < CABLE_GPIO_NUM; i++) {
@@ -556,7 +558,7 @@ static int op_rf_cable_probe(struct platform_device *pdev)
 		}
 		rc = request_irq(rf_cable_data->irq[i], cable_interrupt,
 			        IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
-			        cable, rf_cable_data);
+			        "rf,cable-gpio", rf_cable_data);
 		if (rc) {
 			pr_err("could not request irq %d\n", rf_cable_data->irq[i]);
 			goto exit_gpio;

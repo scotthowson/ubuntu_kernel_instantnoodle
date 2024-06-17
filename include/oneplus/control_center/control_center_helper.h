@@ -36,6 +36,7 @@ struct cc_tsk_data {
 };
 
 extern void cc_tsk_init(void *task);
+extern void cc_tsk_disable(void *task);
 extern void cc_tsk_free(void *task);
 
 /* ddr related control */
@@ -46,9 +47,9 @@ extern void aop_lock_ddr_freq(int lv);
 
 extern unsigned long cc_get_expect_ddrfreq(void);
 extern bool cc_ddr_boost_enabled(void);
-extern bool cc_tb_freq_reset_enabled(void);
 #else
 static inline void cc_tsk_init(void *task) {};
+static inline void cc_tsk_disable(void *task) {};
 static inline void cc_tsk_free(void *task) {};
 
 extern u64 cc_cpu_find_ddr(int cpu) { return 0; }
@@ -84,6 +85,7 @@ enum {
 	CCDM_TB_CPU_6_IDLE_BLOCK,
 	CCDM_TB_CPU_7_IDLE_BLOCK,
 	CCDM_TB_IDLE_BLOCK,
+	CCDM_TB_CCTL_BOOST,
 };
 
 /* status check */

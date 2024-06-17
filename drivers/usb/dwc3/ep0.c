@@ -27,7 +27,6 @@
 #include "debug.h"
 #include "gadget.h"
 #include "io.h"
-/* @bsp, 20170112 Add usb enumeration status */
 #include <linux/oem/power/oem_external_fg.h>
 
 static struct notify_usb_enumeration_status
@@ -223,7 +222,7 @@ int dwc3_gadget_ep0_queue(struct usb_ep *ep, struct usb_request *request,
 	u32				reg;
 
 	spin_lock_irqsave(&dwc->lock, flags);
-	if (!dep->endpoint.desc || !dwc->softconnect ||
+	if (!dep->endpoint.desc || !dwc->pullups_connected ||
 		!dwc->vbus_active) {
 		dev_err(dwc->dev, "%s: can't queue to disabled endpoint\n",
 				dep->name);
@@ -858,7 +857,6 @@ static int dwc3_ep0_std_request(struct dwc3 *dwc, struct usb_ctrlrequest *ctrl)
 		ret = dwc3_ep0_handle_feature(dwc, ctrl, 1);
 		break;
 	case USB_REQ_SET_ADDRESS:
-/* @bsp, 20170112 Add usb enumeration status */
 		if (usb_enumeration_status
 			&& usb_enumeration_status->notify_usb_enumeration) {
 			usb_enumeration_status->notify_usb_enumeration(true);
@@ -1259,10 +1257,9 @@ static void dwc3_ep0_xfernotready(struct dwc3 *dwc,
 void dwc3_ep0_interrupt(struct dwc3 *dwc,
 		const struct dwc3_event_depevt *event)
 {
-	struct dwc3_ep	*dep;
-	u8 epnum = event->endpoint_number;
+	struct dwc3_ep	*dep = dwc->eps[event->endpoint_number];
+	u8		cmd;
 
-	dep = dwc->eps[epnum];
 	switch (event->endpoint_event) {
 	case DWC3_DEPEVT_XFERCOMPLETE:
 		dwc3_ep0_xfer_complete(dwc, event);
@@ -1284,6 +1281,10 @@ void dwc3_ep0_interrupt(struct dwc3 *dwc,
 		dep->dbg_ep_events.streamevent++;
 		break;
 	case DWC3_DEPEVT_EPCMDCMPLT:
+		cmd = DEPEVT_PARAMETER_CMD(event->parameters);
+
+		if (cmd == DWC3_DEPCMD_ENDTRANSFER)
+			dep->flags &= ~DWC3_EP_TRANSFER_STARTED;
 		dep->dbg_ep_events.epcmdcomplete++;
 		break;
 	}

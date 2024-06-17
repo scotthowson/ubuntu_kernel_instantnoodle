@@ -65,8 +65,6 @@ static bool mtp_receive_flag;
 #define MAX_INST_NAME_LEN          40
 #define MTP_MAX_FILE_SIZE          0xFFFFFFFFL
 
-/* @bsp, 2019/09/18 usb & PD porting */
-/* OP fix device crash when setting MTP as usb mode use fixed memory */
 #define MTP_TX_BUFFER_BASE         0xAC300000
 #define MTP_RX_BUFFER_BASE         0xACB00000
 #define MTP_INTR_BUFFER_BASE       0xACD00000
@@ -186,9 +184,9 @@ static struct usb_interface_descriptor mtp_interface_desc = {
 	.bDescriptorType        = USB_DT_INTERFACE,
 	.bInterfaceNumber       = 0,
 	.bNumEndpoints          = 3,
-	.bInterfaceClass        = USB_CLASS_VENDOR_SPEC,
-	.bInterfaceSubClass     = USB_SUBCLASS_VENDOR_SPEC,
-	.bInterfaceProtocol     = 0,
+	.bInterfaceClass        = USB_CLASS_STILL_IMAGE,
+	.bInterfaceSubClass     = 1,
+	.bInterfaceProtocol     = 1,
 };
 
 static struct usb_interface_descriptor ptp_interface_desc = {
@@ -1044,7 +1042,11 @@ static void receive_file_work(struct work_struct *data)
 	if (!IS_ALIGNED(count, dev->ep_out->maxpacket))
 		mtp_log("- count(%lld) not multiple of mtu(%d)\n",
 						count, dev->ep_out->maxpacket);
-
+	mutex_lock(&dev->read_mutex);
+	if (dev->state == STATE_OFFLINE) {
+		r = -EIO;
+		goto fail;
+	}
 	if (delayed_work_pending(&cpu_freq_qos_work))
 		cancel_delayed_work(&cpu_freq_qos_work);
 
@@ -1052,7 +1054,6 @@ static void receive_file_work(struct work_struct *data)
 	pm_qos_update_request(&little_cpu_mtp_freq, MAX_CPUFREQ);
 	pm_qos_update_request(&big_cpu_mtp_freq, MAX_CPUFREQ);
 	pm_qos_update_request(&big_plus_cpu_mtp_freq, MAX_CPUFREQ);
-	mutex_lock(&dev->read_mutex);
 	while (count > 0 || write_req) {
 		if (count > 0) {
 			/* queue a request */
@@ -1135,17 +1136,16 @@ static void receive_file_work(struct work_struct *data)
 			read_req = NULL;
 		}
 	}
-
+fail:
 	mutex_unlock(&dev->read_mutex);
-
 	queue_delayed_work(cpu_freq_qos_queue, &cpu_freq_qos_work,
 		msecs_to_jiffies(1000)*3);
-
 	mtp_log("returning %d\n", r);
 	/* write the result */
 	dev->xfer_result = r;
 	smp_wmb();
 }
+
 static void update_qos_request(struct work_struct *data)
 {
 	pm_qos_update_request(&devfreq_mtp_request, MIN_CPUFREQ);
@@ -1261,14 +1261,6 @@ static long mtp_send_receive_ioctl(struct file *fp, unsigned int code,
 		flush_workqueue(dev->wq);
 		if (mtp_receive_flag) {
 			mtp_receive_flag = false;
-			pm_qos_update_request_timeout(&devfreq_mtp_request,
-			MAX_CPUFREQ - 1, PM_QOS_TIMEOUT);
-			pm_qos_update_request_timeout(&little_cpu_mtp_freq,
-			MAX_CPUFREQ, PM_QOS_TIMEOUT);
-			pm_qos_update_request_timeout(&big_cpu_mtp_freq,
-			MAX_CPUFREQ, PM_QOS_TIMEOUT);
-			pm_qos_update_request_timeout(&big_plus_cpu_mtp_freq,
-			MAX_CPUFREQ, PM_QOS_TIMEOUT);
 			msm_cpuidle_set_sleep_disable(false);
 		}
 		/* read the result */
@@ -1419,6 +1411,14 @@ static int mtp_release(struct inode *ip, struct file *fp)
 
 	if (mtp_receive_flag) {
 		mtp_receive_flag = false;
+		pm_qos_update_request_timeout(&devfreq_mtp_request,
+		MAX_CPUFREQ - 1, PM_QOS_TIMEOUT);
+		pm_qos_update_request_timeout(&little_cpu_mtp_freq,
+		MAX_CPUFREQ, PM_QOS_TIMEOUT);
+		pm_qos_update_request_timeout(&big_cpu_mtp_freq,
+		MAX_CPUFREQ, PM_QOS_TIMEOUT);
+		pm_qos_update_request_timeout(&big_plus_cpu_mtp_freq,
+		MAX_CPUFREQ, PM_QOS_TIMEOUT);
 		msm_cpuidle_set_sleep_disable(false);
 	}
 	mtp_unlock(&_mtp_dev->open_excl);
@@ -1733,7 +1733,7 @@ static int debug_mtp_read_stats(struct seq_file *s, void *unused)
 	}
 
 	seq_printf(s, "vfs_write(time in usec) min:%d\t max:%d\t avg:%d\n",
-						min, max, sum / iteration);
+				min, max, (iteration ? (sum / iteration) : 0));
 	min = max = sum = iteration = 0;
 	seq_puts(s, "\n=======================\n");
 	seq_puts(s, "MTP Read Stats:\n");
@@ -1755,7 +1755,7 @@ static int debug_mtp_read_stats(struct seq_file *s, void *unused)
 	}
 
 	seq_printf(s, "vfs_read(time in usec) min:%d\t max:%d\t avg:%d\n",
-						min, max, sum / iteration);
+				min, max, (iteration ? (sum / iteration) : 0));
 	spin_unlock_irqrestore(&dev->lock, flags);
 	return 0;
 }
@@ -2018,8 +2018,6 @@ static int mtp_ctrlreq_configfs(struct usb_function *f,
 
 static void mtp_free(struct usb_function *f)
 {
-	/*NO-OP: no function specific resource allocation in mtp_alloc*/
-/* @bsp, 2019/09/18 usb & PD porting */
 	struct mtp_instance *fi_mtp;
 
 	fi_mtp = container_of(f->fi, struct mtp_instance, func_inst);

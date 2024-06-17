@@ -282,7 +282,7 @@ exit:
 DEFINE_DEBUGFS_ATTRIBUTE(clk_measure_fops, clk_debug_measure_get,
 							NULL, "%lld\n");
 
-#ifdef CONFIG_HOUSTON
+#if defined(CONFIG_CONTROL_CENTER) || defined(CONFIG_HOUSTON)
 extern int get_only_mccc_hw(struct clk_hw **hwptr);
 
 void clk_get_ddr_freq(u64 *val)
@@ -323,7 +323,6 @@ void clk_get_ddr_freq(u64 *val)
 	}
 
 	mutex_unlock(&clk_debug_lock);
-	return;
 }
 #endif
 

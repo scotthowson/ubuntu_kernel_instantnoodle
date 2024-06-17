@@ -144,5 +144,10 @@ kernel/configs/android-*.cfg
 # Tech package directories
 #techpack/
 
-# Oem charge directories
-#drivers/power/supply
+# OP SLA feature
+#opslalib/slalib
+
+#
+#Ignoring Android.bp link file
+#
+Android.bp

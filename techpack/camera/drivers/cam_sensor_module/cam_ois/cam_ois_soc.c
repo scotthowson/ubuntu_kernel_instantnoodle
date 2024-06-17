@@ -183,5 +183,14 @@ int cam_ois_driver_soc_init(struct cam_ois_ctrl_t *o_ctrl)
 		CAM_INFO(CAM_OIS, "read ois,fw success, value:%d", o_ctrl->ois_fw_flag);
 	}
 
+	ret = of_property_read_u32(of_node, "download,fw", &id);
+	if (ret) {
+	    o_ctrl->cam_ois_download_fw_in_advance = 0;
+		CAM_ERR(CAM_OIS, "get download,fw failed rc:%d, default %d", ret, o_ctrl->cam_ois_download_fw_in_advance);
+	} else {
+	    o_ctrl->cam_ois_download_fw_in_advance = (uint8_t)id;
+		CAM_INFO(CAM_OIS, "read download,fw success, value:%d", o_ctrl->cam_ois_download_fw_in_advance);
+	}
+
 	return rc;
 }

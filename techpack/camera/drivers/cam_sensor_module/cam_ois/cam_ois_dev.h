@@ -64,6 +64,17 @@ enum cam_ois_power_state {
 };
 #endif
 
+enum cam_ois_close_state {
+	CAM_OIS_IS_OPEN,
+	CAM_OIS_IS_DOING_CLOSE,
+	CAM_OIS_IS_CLOSE,
+};
+enum cam_ois_download_fw_state {
+	CAM_OIS_FW_NOT_DOWNLOAD,
+	CAM_OIS_FW_DOWNLOAD_DONE,
+};
+
+
 enum cam_ois_state {
 	CAM_OIS_INIT,
 	CAM_OIS_ACQUIRE,
@@ -199,6 +210,11 @@ struct cam_ois_ctrl_t {
 	enum cam_ois_power_state ois_power_state;
 	bool ois_power_down_thread_exit;
 #endif
+        struct task_struct *ois_downloadfw_thread;
+        struct mutex do_ioctl_ois;
+        enum cam_ois_download_fw_state ois_download_fw_done;
+        enum cam_ois_close_state ois_fd_have_close_state;
+        int  cam_ois_download_fw_in_advance;
 };
 
 #endif /*_CAM_OIS_DEV_H_ */

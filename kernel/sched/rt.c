@@ -10,15 +10,18 @@
 #include <linux/interrupt.h>
 
 #include "walt.h"
-#ifdef CONFIG_OPCHAIN
-// morison.yan@ASTI, 2019/4/29, add for uxrealm CONFIG_OPCHAIN
-#include <oneplus/uxcore/opchain_helper.h>
-#endif
-
 #ifdef CONFIG_CONTROL_CENTER
 #include <linux/oem/control_center.h>
 #endif
+#ifdef CONFIG_IM
 #include <linux/oem/im.h>
+#endif
+#ifdef CONFIG_ONEPLUS_HEALTHINFO
+#include <linux/oem/oneplus_healthinfo.h>
+#endif/**/
+#ifdef CONFIG_OPCHAIN
+#include <oneplus/uxcore/opchain_helper.h>
+#endif
 
 int sched_rr_timeslice = RR_TIMESLICE;
 int sysctl_sched_rr_timeslice = (MSEC_PER_SEC / HZ) * RR_TIMESLICE;
@@ -936,9 +939,10 @@ static void dump_throttled_rt_tasks(struct rt_rq *rt_rq)
 		rt_rq, cpu_of(rq_of_rt_rq(rt_rq)));
 
 	pos += snprintf(pos, end - pos,
-			"rt_period_timer: expires=%lld now=%llu period=%llu\n",
+			"rt_period_timer: expires=%lld now=%llu runtime=%llu period=%llu\n",
 			hrtimer_get_expires_ns(&rt_b->rt_period_timer),
-			ktime_get_ns(), sched_rt_period(rt_rq));
+			ktime_get_ns(), sched_rt_runtime(rt_rq),
+			sched_rt_period(rt_rq));
 
 	if (bitmap_empty(array->bitmap, MAX_RT_PRIO))
 		goto out;
@@ -1041,6 +1045,11 @@ static void update_curr_rt(struct rq *rq)
 	u64 delta_exec;
 	u64 now;
 
+#ifdef CONFIG_ONEPLUS_TASKLOAD_INFO
+	u64 window_index = sample_window.window_index;
+	bool index = ODD(window_index);
+#endif
+
 	if (curr->sched_class != &rt_sched_class)
 		return;
 
@@ -1054,6 +1063,37 @@ static void update_curr_rt(struct rq *rq)
 
 	curr->se.sum_exec_runtime += delta_exec;
 	account_group_exec_runtime(curr, delta_exec);
+#ifdef CONFIG_ONEPLUS_HEALTHINFO
+	if (ohm_rtinfo_ctrl == true)
+		rt_total_record(delta_exec, cpu_of(rq));
+#endif
+
+#ifdef CONFIG_ONEPLUS_TASKLOAD_INFO
+	curr->tli[index].tli_overload_flag |= TASK_RT_THREAD_FLAG;
+	if (window_index != curr->tli[index].task_sample_index) {
+		curr->tli[index].task_sample_index = window_index;
+		curr->tli[index].write_bytes = 0;
+		curr->tli[index].read_bytes = 0;
+		if (current_is_fg()) {
+			curr->tli[index].runtime[1] = delta_exec;
+			curr->tli[index].runtime[0] = 0;
+		} else {
+			curr->tli[index].runtime[0] = delta_exec;
+			curr->tli[index].runtime[1] = 0;
+		}
+		curr->tli[index].tli_overload_flag = 0;
+	} else {
+		if (current_is_fg()) {
+			curr->tli[index].runtime[1] += delta_exec;
+			if (curr->tli[index].runtime[1] > ohm_runtime_thresh_fg)
+				curr->tli[index].tli_overload_flag |= TASK_CPU_OVERLOAD_FG_FLAG;
+		} else {
+			curr->tli[index].runtime[0] += delta_exec;
+			if (curr->tli[index].runtime[0] > ohm_runtime_thresh_bg)
+				curr->tli[index].tli_overload_flag |= TASK_CPU_OVERLOAD_BG_FLAG;
+			}
+	}
+#endif
 
 	curr->se.exec_start = now;
 	cgroup_account_cputime(curr, delta_exec);
@@ -1070,6 +1110,10 @@ static void update_curr_rt(struct rq *rq)
 			if (sched_rt_runtime_exceeded(rt_rq))
 				resched_curr(rq);
 			raw_spin_unlock(&rt_rq->rt_runtime_lock);
+#ifdef CONFIG_ONEPLUS_HEALTHINFO
+			if (ohm_rtinfo_ctrl == true)
+				rt_info_record(rt_rq, cpu_of(rq_of_rt_rq(rt_rq)));
+#endif
 		}
 	}
 }
@@ -1431,6 +1475,9 @@ static void dequeue_task_rt(struct rq *rq, struct task_struct *p, int flags)
 	schedtune_dequeue_task(p, cpu_of(rq));
 
 	update_curr_rt(rq);
+#ifdef CONFIG_ONEPLUS_HEALTHINFO
+	p->rtend_time = rq_clock_task(rq);
+#endif
 	dequeue_rt_entity(rt_se, flags);
 	walt_dec_cumulative_runnable_avg(rq, p);
 
@@ -1559,7 +1606,6 @@ select_task_rq_rt(struct task_struct *p, int cpu, int sd_flag, int flags,
 		    p->prio < cpu_rq(target)->rt.highest_prio.curr))
 			cpu = target;
 	}
-	cpu_dist_inc(p, cpu);
 	rcu_read_unlock();
 
 out:
@@ -1654,7 +1700,9 @@ static struct task_struct *_pick_next_task_rt(struct rq *rq)
 
 	p = rt_task_of(rt_se);
 	p->se.exec_start = rq_clock_task(rq);
-
+#ifdef CONFIG_ONEPLUS_HEALTHINFO
+	p->rtstart_time = rq_clock_task(rq);
+#endif /*CONFIG_ONEPLUS_HEALTHINFO*/
 	return p;
 }
 
@@ -1778,9 +1826,9 @@ static int rt_energy_aware_wake_cpu(struct task_struct *task)
 	int best_cpu_idle_idx = INT_MAX;
 	int cpu_idle_idx = -1;
 	bool boost_on_big = rt_boost_on_big();
-	// curtis@ASTI, 2019/4/29, add for uxrealm CONFIG_OPCHAIN
+#ifdef CONFIG_OPCHAIN
 	bool best_cpu_is_claimed = false;
-
+#endif
 	/* For surfaceflinger with util > 90, prefer to use big core */
 	if (task->compensate_need == 2 && tutil > 90)
 		boost_on_big = true;
@@ -1795,7 +1843,7 @@ static int rt_energy_aware_wake_cpu(struct task_struct *task)
 	if (!sd)
 		goto unlock;
 
-#ifdef CONFIG_CONTROL_CENTER
+#if defined(CONFIG_CONTROL_CENTER) && defined(CONFIG_IM)
 	boost_on_big = boost_on_big |
 		im_hwc(task) | // HWC select big core first
 		(im_sf(task) && ccdm_get_hint(CCDM_TB_PLACE_BOOST));
@@ -1816,12 +1864,14 @@ retry:
 		}
 
 		for_each_cpu_and(cpu, lowest_mask, sched_group_span(sg)) {
-			// add for chainboost CONFIG_ONEPLUS_CHAIN_BOOST
+#ifdef CONFIG_UXCHAIN
 			struct rq *rq = cpu_rq(cpu);
 			struct task_struct *tsk = rq->curr;
 
-			if (tsk->main_boost_switch || tsk->main_wake_boost)
+			if (tsk->static_ux && tsk == tsk->group_leader &&
+				sysctl_launcher_boost_enabled && sysctl_uxchain_enabled)
 				continue;
+#endif
 
 			if (cpu_isolated(cpu))
 				continue;
@@ -1833,8 +1883,7 @@ retry:
 
 			if (__cpu_overutilized(cpu, util + tutil))
 				continue;
-
-			// curtis@ASTI, 2019/4/29, add for uxrealm CONFIG_OPCHAIN
+#ifdef CONFIG_OPCHAIN
 			if (best_cpu_is_claimed) {
 				best_cpu_idle_idx = cpu_idle_idx;
 				best_cpu_util_cum = util_cum;
@@ -1843,7 +1892,7 @@ retry:
 				best_cpu_is_claimed = false;
 				continue;
 			}
-
+#endif
 			/* Find the least loaded CPU */
 			if (util > best_cpu_util)
 				continue;
@@ -1874,13 +1923,15 @@ retry:
 						best_cpu_util_cum < util_cum)
 					continue;
 			}
-			// curtis@ASTI, 2019/4/29, add for uxrealm CONFIG_OPCHAIN
+
+#ifdef CONFIG_OPCHAIN
 			if (opc_get_claim_on_cpu(cpu)) {
 				if (best_cpu != -1)
 					continue;
 				else
 					best_cpu_is_claimed = true;
 			}
+#endif
 			best_cpu_idle_idx = cpu_idle_idx;
 			best_cpu_util_cum = util_cum;
 			best_cpu_util = util;
@@ -2678,6 +2729,10 @@ const struct sched_class rt_sched_class = {
 	.update_curr		= update_curr_rt,
 #ifdef CONFIG_SCHED_WALT
 	.fixup_walt_sched_stats	= fixup_walt_sched_stats_common,
+#endif
+
+#ifdef CONFIG_UCLAMP_TASK
+	.uclamp_enabled		= 1,
 #endif
 };
 

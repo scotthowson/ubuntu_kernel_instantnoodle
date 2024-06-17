@@ -22,12 +22,12 @@
 #define PERPH_SUBTYPE_OFFSET	0x05
 #define SUBTYPE_MASK		GENMASK(7, 0)
 #define INT_RT_STS_OFFSET	0x10
+#define SDAM_TYPE		0x2E
 
 /********************************
  *  CHGR Peripheral Registers  *
  ********************************/
 #define BATTERY_CHARGER_STATUS_1_REG		(CHGR_BASE + 0x06)
-/* @bsp, 2019/07/05 Battery & Charging porting */
 #define BVR_INITIAL_RAMP_BIT		BIT(7)
 #define ZERO_CHARGE_CURRENT_BIT		BIT(6)
 #define STEP_CHARGING_STATUS_SHIFT	3
@@ -156,8 +156,6 @@ enum {
 #define DCDC_OTG_CFG_REG			(DCDC_BASE + 0x53)
 #define OTG_EN_SRC_CFG_BIT			BIT(1)
 
-/* @bsp, 2019/07/05 Battery & Charging porting */
-/*DCDC_VPH_TRACK_SEL*/
 #define DCDC_VPH_TRACK_SEL			(DCDC_BASE + 0x89)
 #define VPH_TRACK_SEL_MASK			GENMASK(1, 0)
 #define SEL_200MV				BIT(0)
@@ -273,12 +271,10 @@ enum {
 #define FORCE_5V				BIT(0)
 #define FORCE_NULL				0
 
-/* @bsp, 2019/08/30 Wireless Charging porting */
 #define USBIN_ADAPTER_ALLOW_OVERRIDE_REG (USBIN_BASE + 0x44)
 #define USBIN_ADAPTER_CONTINUOUS_BIT			         BIT(3)
 #define USBIN_ADAPTER_FORCE_9V_BIT			         BIT(1)
 #define USBIN_ADAPTER_FORCE_5V_BIT			         BIT(0)
-
 
 #define USB_CMD_PULLDOWN_REG			(USBIN_BASE + 0x45)
 #define EN_PULLDOWN_USB_IN_BIT			BIT(0)
@@ -295,7 +291,6 @@ enum {
 	HVDCP_PULSE_COUNT_MAX_QC2_INVALID = 0xC0
 };
 
-/* @bsp, 2019/08/30 Wireless Charging porting */
 #define USBIN_ADAPTER_ALLOW_CFG_REG		(USBIN_BASE + 0x60)
 enum {
 	USBIN_ADAPTER_ALLOW_5V		= 0,
@@ -338,7 +333,6 @@ enum {
 #define SUSPEND_ON_COLLAPSE_USBIN_BIT		BIT(7)
 #define USBIN_AICL_PERIODIC_RERUN_EN_BIT	BIT(4)
 #define USBIN_AICL_ADC_EN_BIT			BIT(3)
-/* @bsp 2019/07/05 add for porting & chage */
 #define SUSPEND_ON_COLLAPSE_USBIN_BIT		BIT(7)
 #define USBIN_AICL_HDC_EN_BIT			BIT(6)
 #define USBIN_AICL_START_AT_MAX_BIT		BIT(5)
@@ -383,8 +377,7 @@ enum {
  ********************************/
 #define TYPE_C_SNK_STATUS_REG			(TYPEC_BASE + 0x06)
 #define DETECTED_SRC_TYPE_MASK			GENMASK(6, 0)
-
-/* add to fix huawei cable compatible issue */
+#define SNK_DAM_MASK				GENMASK(6, 4)
 #define SNK_DAM_500MA_BIT			BIT(6)
 #define SNK_DAM_1500MA_BIT			BIT(5)
 #define SNK_DAM_3000MA_BIT			BIT(4)
@@ -405,7 +398,6 @@ enum {
 #define TYPE_C_STATE_MACHINE_STATUS_REG		(TYPEC_BASE + 0x09)
 #define TYPEC_ATTACH_DETACH_STATE_BIT		BIT(5)
 
-/* add to fix huawei cable compatible issue */
 #define DEBUG_ACCESS_SNK_CFG_REG                (TYPEC_BASE + 0x4A)
 
 #define TYPE_C_MISC_STATUS_REG			(TYPEC_BASE + 0x0B)
@@ -433,7 +425,6 @@ enum {
 #define EN_TRY_SNK_BIT				BIT(4)
 #define EN_TRY_SRC_BIT				BIT(3)
 #define EN_DRP_MODE				0
-/* @bsp, 2019/07/05 Battery & Charging porting */
 #define TYPEC_POWER_ROLE_CMD_MASK		GENMASK(4, 0)
 #define EN_SRC_ONLY_BIT				BIT(2)
 #define EN_SNK_ONLY_BIT				BIT(1)
@@ -470,6 +461,9 @@ enum {
 	TYPEC_SRC_RP_3A_DUPLICATE,
 	TYPEC_SRC_RP_MAX_ELEMENTS
 };
+
+#define TYPE_C_CC_CURRSRC_CONTROL_REG			(TYPEC_BASE + 0x5C)
+#define TYPE_C_CC_CURRSRC_CONTROL_MASK			GENMASK(3, 0)
 
 #define TYPE_C_INTERRUPT_EN_CFG_1_REG			(TYPEC_BASE + 0x5E)
 #define TYPEC_LEGACY_CABLE_INT_EN_BIT			BIT(7)
@@ -605,4 +599,8 @@ enum {
 /* SDAM regs */
 #define MISC_PBS_RT_STS_REG			(MISC_PBS_BASE + 0x10)
 #define PULSE_SKIP_IRQ_BIT			BIT(4)
+
+#define SDAM_QC_DET_STATUS_REG			0x58
+#define SDAM_QC_ADC_LSB_REG			0x54
+
 #endif /* __SMB5_CHARGER_REG_H */

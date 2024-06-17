@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
- * Copyright (c) 2015-2019, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2015-2020, The Linux Foundation. All rights reserved.
  */
 
 #include <linux/delay.h>
@@ -13,6 +13,9 @@
 #include "dsi_panel.h"
 #include "dsi_catalog.h"
 #include "sde_dbg.h"
+#if defined(CONFIG_PXLW_IRIS)
+#include "iris/dsi_iris5_api.h"
+#endif
 
 #define MMSS_MISC_CLAMP_REG_OFF           0x0014
 #define DSI_CTRL_DYNAMIC_FORCE_ON         (0x23F|BIT(8)|BIT(9)|BIT(11)|BIT(21))
@@ -117,6 +120,9 @@ void dsi_ctrl_hw_cmn_host_setup(struct dsi_ctrl_hw *ctrl,
 
 	DSI_W32(ctrl, DSI_CTRL, reg_value);
 
+	if (cfg->phy_type == DSI_PHY_TYPE_CPHY)
+		DSI_W32(ctrl, DSI_CPHY_MODE_CTRL, BIT(0));
+
 	if (ctrl->phy_isolation_enabled)
 		DSI_W32(ctrl, DSI_DEBUG_CTRL, BIT(28));
 	DSI_CTRL_HW_DBG(ctrl, "Host configuration complete\n");
@@ -178,6 +184,7 @@ void dsi_ctrl_hw_cmn_soft_reset(struct dsi_ctrl_hw *ctrl)
 	DSI_W32(ctrl, DSI_CTRL, reg_ctrl);
 	wmb(); /* make sure DSI controller is enabled again */
 	DSI_CTRL_HW_DBG(ctrl, "ctrl soft reset done\n");
+	SDE_EVT32(ctrl->index);
 }
 
 /**
@@ -660,13 +667,13 @@ void dsi_ctrl_hw_cmn_kickoff_command(struct dsi_ctrl_hw *ctrl,
 	reg &= ~BIT(29);/* WC_SEL to 0 */
 	DSI_W32(ctrl, DSI_COMMAND_MODE_DMA_CTRL, reg);
 
-#if defined(CONFIG_PXLW_IRIS5)
-	/* set DMA FIFO read and write watermark to 15/16 full */
-	reg = 0x33;
-#else
 	reg = DSI_R32(ctrl, DSI_DMA_FIFO_CTRL);
 	reg |= BIT(20);/* Disable write watermark*/
 	reg |= BIT(16);/* Disable read watermark */
+#if defined(CONFIG_PXLW_IRIS)
+	/* set DMA FIFO read watermark to 15/16 full */
+	if (iris_is_chip_supported())
+		reg = 0x33;
 #endif
 
 	DSI_W32(ctrl, DSI_DMA_FIFO_CTRL, reg);

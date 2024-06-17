@@ -47,6 +47,9 @@
 #include "msm_mmu.h"
 #include "sde_wb.h"
 #include "sde_dbg.h"
+#if defined(CONFIG_PXLW_IRIS) || defined(CONFIG_PXLW_SOFT_IRIS)
+#include "dsi/iris/dsi_iris5_api.h"
+#endif
 
 /*
  * MSM driver version:
@@ -323,6 +326,8 @@ static int vblank_ctrl_queue_work(struct msm_drm_private *priv,
 					int crtc_id, bool enable)
 {
 	struct vblank_work *cur_work;
+	struct drm_crtc *crtc;
+	struct kthread_worker *worker;
 
 	if (!priv || crtc_id >= priv->num_crtcs)
 		return -EINVAL;
@@ -331,14 +336,15 @@ static int vblank_ctrl_queue_work(struct msm_drm_private *priv,
 	if (!cur_work)
 		return -ENOMEM;
 
+	crtc = priv->crtcs[crtc_id];
+
 	kthread_init_work(&cur_work->work, vblank_ctrl_worker);
 	cur_work->crtc_id = crtc_id;
 	cur_work->enable = enable;
 	cur_work->priv = priv;
+	worker = &priv->event_thread[crtc_id].worker;
 
-	kthread_queue_work(&priv->event_thread[crtc_id].worker,
-						&cur_work->work);
-
+	kthread_queue_work(worker, &cur_work->work);
 	return 0;
 }
 
@@ -805,16 +811,7 @@ static int msm_drm_init(struct device *dev, struct drm_driver *drv)
 		priv->fbdev = msm_fbdev_init(ddev);
 #endif
 
-	priv->debug_root = debugfs_create_dir("debug",
-					ddev->primary->debugfs_root);
-	if (IS_ERR_OR_NULL(priv->debug_root)) {
-		pr_err("debugfs_root create_dir fail, error %ld\n",
-		       PTR_ERR(priv->debug_root));
-		priv->debug_root = NULL;
-		goto fail;
-	}
-
-	ret = sde_dbg_debugfs_register(priv->debug_root);
+	ret = sde_dbg_debugfs_register(dev);
 	if (ret) {
 		dev_err(dev, "failed to reg sde dbg debugfs: %d\n", ret);
 		goto fail;
@@ -1019,10 +1016,11 @@ static void msm_lastclose(struct drm_device *dev)
 
 	/* check for splash status before triggering cleanup
 	 * if we end up here with splash status ON i.e before first
-	 * commit then ignore the last close call
+	 * commit then ignore the last close call. Also, ignore
+	 * if kms module is not yet initialized.
 	 */
-	if (kms && kms->funcs && kms->funcs->check_for_splash
-		&& kms->funcs->check_for_splash(kms))
+	if (!kms || (kms && kms->funcs && kms->funcs->check_for_splash
+		&& kms->funcs->check_for_splash(kms)))
 		return;
 
 	/*
@@ -1590,17 +1588,24 @@ int msm_ioctl_power_ctrl(struct drm_device *dev, void *data,
 		pr_err("ignoring, unbalanced disable\n");
 	}
 
+	mutex_lock(&priv->phandle.ext_client_lock);
+
 	if (vote_req) {
-		if (power_ctrl->enable)
+		if (power_ctrl->enable) {
 			rc = pm_runtime_get_sync(dev->dev);
-		else
+			priv->phandle.is_ext_vote_en = true;
+		} else {
 			pm_runtime_put_sync(dev->dev);
+			 priv->phandle.is_ext_vote_en = false;
+		}
 
 		if (rc < 0)
 			ctx->enable_refcnt = old_cnt;
 		else
 			rc = 0;
 	}
+
+	mutex_unlock(&priv->phandle.ext_client_lock);
 
 	pr_debug("pid %d enable %d, refcnt %d, vote_req %d\n",
 			current->pid, power_ctrl->enable, ctx->enable_refcnt,
@@ -1611,29 +1616,6 @@ int msm_ioctl_power_ctrl(struct drm_device *dev, void *data,
 	return rc;
 }
 
-#if defined(CONFIG_PXLW_IRIS5) || defined(CONFIG_PXLW_SOFT_IRIS)
-static int msm_ioctl_iris_operate_conf(struct drm_device *dev, void *data,
-				    struct drm_file *file)
-{
-	int ret = -EINVAL;
-	struct msm_drm_private *priv = dev->dev_private;
-	struct msm_kms *kms = priv->kms;
-
-	ret = kms->funcs->iris5_operate(kms, DRM_MSM_IRIS_OPERATE_CONF, data);
-	return ret;
-}
-
-static int msm_ioctl_iris_operate_tool(struct drm_device *dev, void *data,
-				    struct drm_file *file)
-{
-	int ret = -EINVAL;
-	struct msm_drm_private *priv = dev->dev_private;
-	struct msm_kms *kms = priv->kms;
-
-	ret = kms->funcs->iris5_operate(kms, DRM_MSM_IRIS_OPERATE_TOOL, data);
-	return ret;
-}
-#endif // CONFIG_PXLW_IRIS5
 static const struct drm_ioctl_desc msm_ioctls[] = {
 	DRM_IOCTL_DEF_DRV(MSM_GEM_NEW,      msm_ioctl_gem_new,      DRM_AUTH|DRM_RENDER_ALLOW),
 	DRM_IOCTL_DEF_DRV(MSM_GEM_CPU_PREP, msm_ioctl_gem_cpu_prep, DRM_AUTH|DRM_RENDER_ALLOW),
@@ -1647,9 +1629,9 @@ static const struct drm_ioctl_desc msm_ioctls[] = {
 	DRM_IOCTL_DEF_DRV(MSM_RMFB2, msm_ioctl_rmfb2, DRM_UNLOCKED),
 	DRM_IOCTL_DEF_DRV(MSM_POWER_CTRL, msm_ioctl_power_ctrl,
 			DRM_RENDER_ALLOW),
-#if defined(CONFIG_PXLW_IRIS5) || defined(CONFIG_PXLW_SOFT_IRIS)
-	DRM_IOCTL_DEF_DRV(MSM_IRIS_OPERATE_CONF, msm_ioctl_iris_operate_conf, DRM_UNLOCKED),
-	DRM_IOCTL_DEF_DRV(MSM_IRIS_OPERATE_TOOL, msm_ioctl_iris_operate_tool, DRM_UNLOCKED),
+#if defined(CONFIG_PXLW_IRIS) || defined(CONFIG_PXLW_SOFT_IRIS)
+	DRM_IOCTL_DEF_DRV(MSM_IRIS_OPERATE_CONF, msm_ioctl_iris_operate_conf, DRM_UNLOCKED|DRM_RENDER_ALLOW),
+	DRM_IOCTL_DEF_DRV(MSM_IRIS_OPERATE_TOOL, msm_ioctl_iris_operate_tool, DRM_UNLOCKED|DRM_RENDER_ALLOW),
 #endif
 };
 

@@ -44,4 +44,3 @@ static inline void power_supply_remove_triggers(struct power_supply *psy) {}
 #ifdef CONFIG_F2FS_OF2FS
 extern int f2fs_battery_notifier_call_chain(unsigned long val, void *v);
 #endif
-

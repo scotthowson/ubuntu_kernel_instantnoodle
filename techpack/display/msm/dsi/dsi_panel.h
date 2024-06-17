@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
- * Copyright (c) 2016-2019, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2016-2020, The Linux Foundation. All rights reserved.
  */
 
 #ifndef _DSI_PANEL_H_
@@ -21,7 +21,7 @@
 #include "dsi_parser.h"
 #include "msm_drv.h"
 
- #define MAX_BL_LEVEL 4096
+#define MAX_BL_LEVEL 4096
 #define MAX_BL_SCALE_LEVEL 1024
 #define MAX_SV_BL_SCALE_LEVEL 65535
 #define DSI_CMD_PPS_SIZE 135
@@ -38,14 +38,24 @@
 extern u32 mode_fps;
 extern int gamma_read_flag;
 extern int tp_1v8_power;
-extern char dimming_gamma_60hz[30];
-extern char dimming_gamma_120hz[15];
+extern char b9_register_value[186];
+extern char dimming_gamma_60hz[48];
+extern char dimming_gamma_120hz[48];
+extern char b9_register_value_500step[229];
+extern char dimming_gamma_120hz_500step[48];
 
 enum dsi_gamma_cmd_set_type {
 	DSI_GAMMA_CMD_SET_SWITCH_60HZ = 0,
 	DSI_GAMMA_CMD_SET_SWITCH_90HZ,
 	DSI_GAMMA_CMD_SET_MAX
 };
+/*
+ * Defining custom dsi msg flag,
+ * continued from drm_mipi_dsi.h
+ * Override to use async transfer
+ */
+#define MIPI_DSI_MSG_ASYNC_OVERRIDE BIT(4)
+
 enum dsi_panel_rotation {
 	DSI_PANEL_ROTATE_NONE = 0,
 	DSI_PANEL_ROTATE_HV_FLIP,
@@ -125,6 +135,7 @@ struct dsi_backlight_config {
 	u32 bl_level;
 	u32 bl_scale;
 	u32 bl_scale_sv;
+	bool bl_inverted_dbv;
 
 	int en_gpio;
 	/* PWM params */
@@ -153,15 +164,6 @@ struct dsi_panel_reset_config {
 	int disp_en_gpio;
 	int lcd_mode_sel_gpio;
 	u32 mode_sel_state;
-#if defined(CONFIG_PXLW_IRIS5)
-	int iris_rst_gpio;
-	int abyp_gpio;
-	int abyp_status_gpio;
-	int iris_osd_gpio;
-	bool iris_osd_autorefresh;
-	bool iris_osd_autorefresh_enabled;
-	int iris_vdd_gpio;
-#endif
 };
 
 enum esd_check_status_mode {
@@ -219,9 +221,8 @@ struct dsi_panel {
 	struct drm_panel_esd_config esd_config;
 
 	struct dsi_parser_utils utils;
+
 	char buf_id[32];
-	char buf_select[10];
-	int panel_ic_v;
 	int panel_year;
 	int panel_mon;
 	int panel_day;
@@ -239,30 +240,38 @@ struct dsi_panel {
 	int panel_sec_index;
 	int panel_msec_high_index;
 	int panel_msec_low_index;
+	u64 panel_serial_number;
 	int panel_code_info;
 	int panel_stage_info;
 	int panel_production_info;
-	int ddic_check_info;
+	int panel_ic_v;
+	char buf_select[10];
+	int panel_tool;
 	int ddic_x;
 	int ddic_y;
-	int acl_mode;
-	int acl_cmd_index;
-	int acl_mode_index;
-	int hbm_mode;
+	int ddic_check_info;
+
+	int hbm_backlight;
 	int hbm_brightness;
+	int hbm_mode;
+	bool is_hbm_enabled;
+	int op_force_screenfp;
+	bool dim_status;
+
 	int aod_mode;
 	int aod_status;
 	int aod_curr_mode;
 	int aod_disable;
+
+	int seed_lp_mode;
+	int acl_mode;
+	int acl_cmd_index;
+	int acl_mode_index;
 	int srgb_mode;
 	int dci_p3_mode;
 	int night_mode;
 	int oneplus_mode;
 	int adaption_mode;
-	int status_value;
-	int panel_mismatch_check;
-	int panel_mismatch;
-	int hbm_backlight;
 	int naive_display_p3_mode;
 	int naive_display_wide_color_mode;
 	int naive_display_srgb_color_mode;
@@ -270,24 +279,27 @@ struct dsi_panel {
 	int naive_display_customer_srgb_mode;
 	int naive_display_customer_p3_mode;
 	int mca_setting_mode;
-	bool need_power_on_backlight;
 	struct delayed_work gamma_read_work;
-	int tp1v8_gpio;
+
+	int status_value;
+	int panel_mismatch_check;
+	int panel_mismatch;
+	bool panel_switch_status;
+	bool need_power_on_backlight;
+
+	int poc;
 	int vddr_gpio;
+	int vddd_gpio;
+	int tp1v8_gpio;
 	int err_flag_gpio;
 	bool is_err_flag_irq_enabled;
 	bool err_flag_status;
-	bool panel_switch_status;
-	bool is_hbm_enabled;
-	int  op_force_screenfp;
-	bool dim_status;
-	int seed_lp_mode;
-	int poc;
-	int panel_tool;
+
 	bool lp11_init;
 	bool ulps_feature_enabled;
 	bool ulps_suspend_enabled;
 	bool allow_phy_power_off;
+	bool reset_gpio_always_on;
 	atomic_t esd_recovery_pending;
 
 	bool panel_initialized;
@@ -301,7 +313,7 @@ struct dsi_panel {
 	int power_mode;
 
 	int panel_test_gpio;
-#if defined(CONFIG_PXLW_IRIS5)
+#if defined(CONFIG_PXLW_IRIS)
 	bool is_secondary;
 #endif
 	enum dsi_panel_physical_type panel_type;
@@ -451,6 +463,6 @@ int dsi_panel_set_customer_srgb_mode(struct dsi_panel *panel, int level);
 int dsi_panel_set_customer_p3_mode(struct dsi_panel *panel, int level);
 int dsi_panel_set_seed_lp_mode(struct dsi_panel *panel, int seed_lp_level);
 int dsi_panel_set_mca_setting_mode(struct dsi_panel *panel, int mca_setting_mode);
-void dsi_panel_update_gamma_change_write(void);
+void dsi_panel_update_gamma_change_write(struct dsi_panel *panel);
 int dsi_panel_dimming_gamma_write(struct dsi_panel *panel);
 #endif /* _DSI_PANEL_H_ */

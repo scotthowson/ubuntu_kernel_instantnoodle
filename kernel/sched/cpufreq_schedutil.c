@@ -20,9 +20,9 @@
 #ifdef CONFIG_HOUSTON
 #include <oneplus/houston/houston_helper.h>
 #endif
-
+#ifdef CONFIG_CONTROL_CENTER
 #include <oneplus/control_center/control_center_helper.h>
-
+#endif
 struct sugov_tunables {
 	struct gov_attr_set	attr_set;
 	unsigned int		up_rate_limit_us;
@@ -112,12 +112,10 @@ static bool sugov_should_update_freq(struct sugov_policy *sg_policy, u64 time)
 	 * by the hardware, as calculating the frequency is pointless if
 	 * we cannot in fact act on it.
 	 *
-	 * For the slow switching platforms, the kthread is always scheduled on
-	 * the right set of CPUs and any CPU can find the next frequency and
-	 * schedule the kthread.
+	 * This is needed on the slow switching platforms too to prevent CPUs
+	 * going offline from leaving stale IRQ work items behind.
 	 */
-	if (sg_policy->policy->fast_switch_enabled &&
-	    !cpufreq_this_cpu_can_update(sg_policy->policy))
+	if (!cpufreq_this_cpu_can_update(sg_policy->policy))
 		return false;
 
 	if (unlikely(sg_policy->limits_changed)) {
@@ -263,7 +261,7 @@ unsigned int cc_cal_next_freq_with_extra_util(
 	}
 
 	extra_util = ccdm_get_hint(type);
-	if (extra_util || cc_tb_freq_reset_enabled()) {
+	if (extra_util) {
 		unsigned long orig_util = 0;
 		unsigned long max = arch_scale_cpu_capacity(NULL, policy->cpu);
 		unsigned int freq = arch_scale_freq_invariant() ?
@@ -273,10 +271,10 @@ unsigned int cc_cal_next_freq_with_extra_util(
 		if (max) {
 			orig_util = freq_to_util(sg_cpu->sg_policy, next_freq);
 			extra_util = orig_util + extra_util * max / 100;
-			freq = freq * extra_util / max;
-			next_freq = cpufreq_driver_resolve_freq(policy, freq);
+			next_freq = freq * extra_util / max;
 		}
 	}
+	next_freq = cpufreq_driver_resolve_freq(policy, next_freq);
 	return next_freq;
 }
 EXPORT_SYMBOL(cc_cal_next_freq_with_extra_util);
@@ -314,7 +312,7 @@ static void sugov_deferred_update(struct sugov_policy *sg_policy, u64 time,
 
 	if (use_pelt())
 		sg_policy->work_in_progress = true;
-	sched_irq_work_queue(&sg_policy->irq_work);
+	irq_work_queue(&sg_policy->irq_work);
 }
 
 #define TARGET_LOAD 80
@@ -346,14 +344,27 @@ static unsigned int get_next_freq(struct sugov_policy *sg_policy,
 	struct cpufreq_policy *policy = sg_policy->policy;
 	unsigned int freq = arch_scale_freq_invariant() ?
 				policy->cpuinfo.max_freq : policy->cur;
+#ifdef CONFIG_CONTROL_CENTER
+	unsigned int req_freq;
 
 	freq = map_util_freq(util, freq, max);
-	trace_sugov_next_freq(policy->cpu, util, max, freq);
 
-#ifdef CONFIG_CONTROL_CENTER
-	/* keep requested freq */
-	sg_policy->policy->req_freq = freq;
-#endif
+	if (freq == sg_policy->cached_raw_freq && !sg_policy->need_freq_update) {
+		req_freq = sg_policy->next_freq;
+		goto out;
+	}
+
+	sg_policy->need_freq_update = false;
+	sg_policy->cached_raw_freq = freq;
+	req_freq = cpufreq_driver_resolve_freq(policy, freq);
+out:
+	/* keep resolved freq */
+	sg_policy->policy->req_freq = req_freq;
+	trace_sugov_next_freq(policy->cpu, util, max, freq, req_freq);
+	return req_freq;
+#else
+	freq = map_util_freq(util, freq, max);
+	trace_sugov_next_freq(policy->cpu, util, max, freq);
 
 	if (freq == sg_policy->cached_raw_freq && !sg_policy->need_freq_update)
 		return sg_policy->next_freq;
@@ -361,6 +372,7 @@ static unsigned int get_next_freq(struct sugov_policy *sg_policy,
 	sg_policy->need_freq_update = false;
 	sg_policy->cached_raw_freq = freq;
 	return cpufreq_driver_resolve_freq(policy, freq);
+#endif
 }
 
 /*
@@ -386,15 +398,17 @@ static unsigned int get_next_freq(struct sugov_policy *sg_policy,
  * based on the task model parameters and gives the minimal utilization
  * required to meet deadlines.
  */
-unsigned long schedutil_freq_util(int cpu, unsigned long util,
-				  unsigned long max, enum schedutil_type type)
+unsigned long schedutil_cpu_util(int cpu, unsigned long util_cfs,
+				 unsigned long max, enum schedutil_type type,
+				 struct task_struct *p)
 {
-	unsigned long dl_util, irq;
+	unsigned long dl_util, util, irq;
 	struct rq *rq = cpu_rq(cpu);
 
-	if (sched_feat(SUGOV_RT_MAX_FREQ) && type == FREQUENCY_UTIL &&
-						rt_rq_is_runnable(&rq->rt))
+	if (sched_feat(SUGOV_RT_MAX_FREQ) && !IS_BUILTIN(CONFIG_UCLAMP_TASK) &&
+	    type == FREQUENCY_UTIL && rt_rq_is_runnable(&rq->rt)) {
 		return max;
+	}
 
 	/*
 	 * Early check to see if IRQ/steal time saturates the CPU, can be
@@ -406,11 +420,21 @@ unsigned long schedutil_freq_util(int cpu, unsigned long util,
 		return max;
 
 	/*
-	 * The function is called with @util defined as the aggregation (the
-	 * sum) of RT and CFS signals, hence leaving the special case of DL
-	 * to be delt with. The exact way of doing things depend on the calling
-	 * context.
+	 * Because the time spend on RT/DL tasks is visible as 'lost' time to
+	 * CFS tasks and we use the same metric to track the effective
+	 * utilization (PELT windows are synchronized) we can directly add them
+	 * to obtain the CPU's actual utilization.
+	 *
+	 * CFS and RT utilization can be boosted or capped, depending on
+	 * utilization clamp constraints requested by currently RUNNABLE
+	 * tasks.
+	 * When there are no CFS RUNNABLE tasks, clamps are released and
+	 * frequency will be gracefully reduced with the utilization decay.
 	 */
+	util = util_cfs + cpu_util_rt(rq);
+	if (type == FREQUENCY_UTIL)
+		util = uclamp_rq_util_with(rq, util, p);
+
 	dl_util = cpu_util_dl(rq);
 
 	/*
@@ -469,20 +493,26 @@ static unsigned long sugov_get_util(struct sugov_cpu *sg_cpu)
 	sg_cpu->max = max;
 	sg_cpu->bw_dl = cpu_bw_dl(rq);
 
-	return boosted_cpu_util(sg_cpu->cpu, 0, &sg_cpu->walt_load);
+	return stune_util(sg_cpu->cpu, 0, &sg_cpu->walt_load);
 }
 #else
 static unsigned long sugov_get_util(struct sugov_cpu *sg_cpu)
 {
 	struct rq *rq = cpu_rq(sg_cpu->cpu);
-	unsigned long util = boosted_cpu_util(sg_cpu->cpu, cpu_util_rt(rq),
-									NULL);
+
+#ifdef CONFIG_SCHED_TUNE
+	unsigned long util = stune_util(sg_cpu->cpu, cpu_util_rt(rq), NULL);
+#else
+	unsigned long util = cpu_util_freq(sg_cpu->cpu, NULL);
+#endif
+	unsigned long util_cfs = util - cpu_util_rt(rq);
 	unsigned long max = arch_scale_cpu_capacity(NULL, sg_cpu->cpu);
 
 	sg_cpu->max = max;
 	sg_cpu->bw_dl = cpu_bw_dl(rq);
 
-	return schedutil_freq_util(sg_cpu->cpu, util, max, FREQUENCY_UTIL);
+	return schedutil_cpu_util(sg_cpu->cpu, util_cfs, max,
+				  FREQUENCY_UTIL, NULL);
 }
 #endif
 
@@ -685,10 +715,12 @@ static void sugov_update_single(struct update_util_data *hook, u64 time,
 {
 	struct sugov_cpu *sg_cpu = container_of(hook, struct sugov_cpu, update_util);
 	struct sugov_policy *sg_policy = sg_cpu->sg_policy;
-	struct cpufreq_policy *policy = sg_policy->policy;
 	unsigned long util, max, hs_util, boost_util;
 	unsigned int next_f;
 	bool busy;
+#ifdef CONFIG_CONTROL_CENTER
+	struct cpufreq_policy *policy = sg_policy->policy;
+#endif
 
 	if (!sg_policy->tunables->pl && flags & SCHED_CPUFREQ_PL)
 		return;
@@ -771,6 +803,7 @@ static unsigned int sugov_next_freq_shared(struct sugov_cpu *sg_cpu, u64 time)
 		struct sugov_cpu *j_sg_cpu = &per_cpu(sugov_cpu, j);
 		unsigned long j_util, j_max;
 		s64 delta_ns;
+
 		/*
 		 * If the CPU utilization was last updated before the previous
 		 * frequency update and the time elapsed between the last update
@@ -812,9 +845,11 @@ sugov_update_shared(struct update_util_data *hook, u64 time, unsigned int flags)
 {
 	struct sugov_cpu *sg_cpu = container_of(hook, struct sugov_cpu, update_util);
 	struct sugov_policy *sg_policy = sg_cpu->sg_policy;
-	struct cpufreq_policy *policy = sg_policy->policy;
 	unsigned long hs_util, boost_util;
 	unsigned int next_f;
+#ifdef CONFIG_CONTROL_CENTER
+	struct cpufreq_policy *policy = sg_policy->policy;
+#endif
 
 	if (!sg_policy->tunables->pl && flags & SCHED_CPUFREQ_PL)
 		return;
@@ -1396,11 +1431,9 @@ static int sugov_start(struct cpufreq_policy *policy)
 #endif
 
 	}
-
 #ifdef CONFIG_CONTROL_CENTER
 	policy->cc_enable = true;
 #endif
-
 	return 0;
 }
 

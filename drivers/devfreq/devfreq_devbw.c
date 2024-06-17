@@ -159,7 +159,6 @@ static int devfreq_qos_handler(struct notifier_block *b, unsigned long val,
 	max_devfreq_index = (unsigned int)pm_qos_request(PM_QOS_DEVFREQ_MAX);
 	min_devfreq_index = (unsigned int)pm_qos_request(PM_QOS_DEVFREQ_MIN);
 
-	/* add limit */
 	if (max_devfreq_index & MASK_CPUFREQ) {
 		index_max = MAX_CPUFREQ - max_devfreq_index;
 		if (index_max > qos_request_value.max_state)
@@ -342,7 +341,6 @@ static struct platform_driver devbw_driver = {
 
 static int __init devbw_init(void)
 {
-	/* add cpufreq qos notify */
 	cpubw_flag = false;
 	pm_qos_add_notifier(PM_QOS_DEVFREQ_MAX, &devfreq_qos_notifier);
 	pm_qos_add_notifier(PM_QOS_DEVFREQ_MIN, &devfreq_qos_notifier);

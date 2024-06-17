@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
- * Copyright (c) 2015-2019, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2015-2020, The Linux Foundation. All rights reserved.
  */
 
 #define pr_fmt(fmt)	"[drm:%s:%d] " fmt, __func__, __LINE__
@@ -136,25 +136,6 @@ static void sde_encoder_phys_wb_set_qos_remap(
 	sde_vbif_set_qos_remap(phys_enc->sde_kms, &qos_params);
 }
 
-static u64 _sde_encoder_phys_wb_get_qos_lut(const struct sde_qos_lut_tbl *tbl,
-		u32 total_fl)
-{
-	int i;
-
-	if (!tbl || !tbl->nentry || !tbl->entries)
-		return 0;
-
-	for (i = 0; i < tbl->nentry; i++)
-		if (total_fl <= tbl->entries[i].fl)
-			return tbl->entries[i].lut;
-
-	/* if last fl is zero, use as default */
-	if (!tbl->entries[i-1].fl)
-		return tbl->entries[i-1].lut;
-
-	return 0;
-}
-
 /**
  * sde_encoder_phys_wb_set_qos - set QoS/danger/safe LUTs for writeback
  * @phys_enc:	Pointer to physical encoder
@@ -163,14 +144,14 @@ static void sde_encoder_phys_wb_set_qos(struct sde_encoder_phys *phys_enc)
 {
 	struct sde_encoder_phys_wb *wb_enc;
 	struct sde_hw_wb *hw_wb;
-	struct sde_hw_wb_qos_cfg qos_cfg;
-	struct sde_mdss_cfg *catalog;
+	struct sde_hw_wb_qos_cfg qos_cfg = {0};
+	struct sde_perf_cfg *perf;
+	u32 fps_index = 0, lut_index, index, frame_rate, qos_count;
 
 	if (!phys_enc || !phys_enc->sde_kms || !phys_enc->sde_kms->catalog) {
 		SDE_ERROR("invalid parameter(s)\n");
 		return;
 	}
-	catalog = phys_enc->sde_kms->catalog;
 
 	wb_enc = to_sde_encoder_phys_wb(phys_enc);
 	if (!wb_enc->hw_wb) {
@@ -178,35 +159,38 @@ static void sde_encoder_phys_wb_set_qos(struct sde_encoder_phys *phys_enc)
 		return;
 	}
 
+	perf = &phys_enc->sde_kms->catalog->perf;
+	frame_rate = phys_enc->cached_mode.vrefresh;
+
 	hw_wb = wb_enc->hw_wb;
+	qos_count = perf->qos_refresh_count;
+	while (qos_count && perf->qos_refresh_rate) {
+		if (frame_rate >= perf->qos_refresh_rate[qos_count - 1]) {
+			fps_index = qos_count - 1;
+			break;
+		}
+		qos_count--;
+	}
 
-	memset(&qos_cfg, 0, sizeof(struct sde_hw_wb_qos_cfg));
 	qos_cfg.danger_safe_en = true;
-	qos_cfg.danger_lut =
-		catalog->perf.danger_lut_tbl[SDE_QOS_LUT_USAGE_NRT];
 
 	if (phys_enc->in_clone_mode)
-		qos_cfg.safe_lut = (u32) _sde_encoder_phys_wb_get_qos_lut(
-			&catalog->perf.sfe_lut_tbl[SDE_QOS_LUT_USAGE_CWB], 0);
+		lut_index = SDE_QOS_LUT_USAGE_CWB;
 	else
-		qos_cfg.safe_lut = (u32) _sde_encoder_phys_wb_get_qos_lut(
-			&catalog->perf.sfe_lut_tbl[SDE_QOS_LUT_USAGE_NRT], 0);
+		lut_index = SDE_QOS_LUT_USAGE_NRT;
+	index = (fps_index * SDE_QOS_LUT_USAGE_MAX) + lut_index;
 
-	if (phys_enc->in_clone_mode)
-		qos_cfg.creq_lut = _sde_encoder_phys_wb_get_qos_lut(
-			&catalog->perf.qos_lut_tbl[SDE_QOS_LUT_USAGE_CWB], 0);
-	else
-		qos_cfg.creq_lut = _sde_encoder_phys_wb_get_qos_lut(
-			&catalog->perf.qos_lut_tbl[SDE_QOS_LUT_USAGE_NRT], 0);
+	qos_cfg.danger_lut = perf->danger_lut[index];
+	qos_cfg.safe_lut = (u32) perf->safe_lut[index];
+	qos_cfg.creq_lut = perf->creq_lut[index];
 
-	if (hw_wb->ops.setup_danger_safe_lut)
-		hw_wb->ops.setup_danger_safe_lut(hw_wb, &qos_cfg);
+	SDE_DEBUG("wb_enc:%d hw idx:%d fps:%d mode:%d luts[0x%x,0x%x 0x%llx]\n",
+		DRMID(phys_enc->parent), hw_wb->idx - WB_0,
+		frame_rate, phys_enc->in_clone_mode,
+		qos_cfg.danger_lut, qos_cfg.safe_lut, qos_cfg.creq_lut);
 
-	if (hw_wb->ops.setup_creq_lut)
-		hw_wb->ops.setup_creq_lut(hw_wb, &qos_cfg);
-
-	if (hw_wb->ops.setup_qos_ctrl)
-		hw_wb->ops.setup_qos_ctrl(hw_wb, &qos_cfg);
+	if (hw_wb->ops.setup_qos_lut)
+		hw_wb->ops.setup_qos_lut(hw_wb, &qos_cfg);
 }
 
 /**
@@ -564,6 +548,13 @@ static void sde_encoder_phys_wb_setup_cdp(struct sde_encoder_phys *phys_enc,
 		intf_cfg_v1->wb_count = num_wb;
 		intf_cfg_v1->wb[0] = hw_wb->idx;
 		if (SDE_FORMAT_IS_YUV(format)) {
+			if (!phys_enc->hw_cdm) {
+				SDE_ERROR("Format:YUV but no cdm allocated\n");
+				SDE_EVT32(DRMID(phys_enc->parent),
+							 SDE_EVTLOG_ERROR);
+				return;
+			}
+
 			intf_cfg_v1->cdm_count = num_wb;
 			intf_cfg_v1->cdm[0] = hw_cdm->idx;
 		}
@@ -702,6 +693,7 @@ static int sde_encoder_phys_wb_atomic_check(
 	struct sde_rect wb_roi;
 	const struct drm_display_mode *mode = &crtc_state->mode;
 	int rc;
+	bool clone_mode_curr = false;
 
 	SDE_DEBUG("[atomic_check:%d,%d,\"%s\",%d,%d]\n",
 			hw_wb->idx - WB_0, mode->base.id, mode->name,
@@ -717,7 +709,14 @@ static int sde_encoder_phys_wb_atomic_check(
 		return -EINVAL;
 	}
 
+	clone_mode_curr = phys_enc->in_clone_mode;
+
 	_sde_enc_phys_wb_detect_cwb(phys_enc, crtc_state);
+
+	if (clone_mode_curr && !phys_enc->in_clone_mode) {
+		SDE_ERROR("WB commit before CWB disable\n");
+		return -EINVAL;
+	}
 
 	memset(&wb_roi, 0, sizeof(struct sde_rect));
 
@@ -730,11 +729,10 @@ static int sde_encoder_phys_wb_atomic_check(
 	SDE_DEBUG("[roi:%u,%u,%u,%u]\n", wb_roi.x, wb_roi.y,
 			wb_roi.w, wb_roi.h);
 
-	/* bypass check if commit with no framebuffer */
 	fb = sde_wb_connector_state_get_output_fb(conn_state);
 	if (!fb) {
-		SDE_DEBUG("no output framebuffer\n");
-		return 0;
+		SDE_ERROR("no output framebuffer\n");
+		return -EINVAL;
 	}
 
 	SDE_DEBUG("[fb_id:%u][fb:%u,%u]\n", fb->base.id,
@@ -1301,6 +1299,33 @@ static int sde_encoder_phys_wb_wait_for_commit_done(
 	return _sde_encoder_phys_wb_wait_for_commit_done(phys_enc, false);
 }
 
+static int sde_encoder_phys_wb_wait_for_cwb_done(
+		struct sde_encoder_phys *phys_enc)
+{
+	struct sde_encoder_phys_wb *wb_enc = to_sde_encoder_phys_wb(phys_enc);
+	struct sde_encoder_wait_info wait_info = {0};
+	int rc = 0;
+
+	if (!phys_enc->in_clone_mode)
+		return 0;
+
+	SDE_EVT32(atomic_read(&phys_enc->pending_retire_fence_cnt));
+
+	wait_info.wq = &phys_enc->pending_kickoff_wq;
+	wait_info.atomic_cnt = &phys_enc->pending_retire_fence_cnt;
+	wait_info.timeout_ms = max_t(u32, wb_enc->wbdone_timeout,
+				KICKOFF_TIMEOUT_MS);
+
+	rc = sde_encoder_helper_wait_for_irq(phys_enc, INTR_IDX_WB_DONE,
+		&wait_info);
+
+	if (rc == -ETIMEDOUT)
+		SDE_EVT32(DRMID(phys_enc->parent), WBID(wb_enc),
+			wb_enc->frame_count, SDE_EVTLOG_ERROR);
+
+	return rc;
+}
+
 /**
  * sde_encoder_phys_wb_prepare_for_kickoff - pre-kickoff processing
  * @phys_enc:	Pointer to physical encoder
@@ -1616,6 +1641,8 @@ exit:
 
 	phys_enc->enable_state = SDE_ENC_DISABLED;
 	wb_enc->crtc = NULL;
+	phys_enc->hw_cdm = NULL;
+	phys_enc->hw_ctl = NULL;
 }
 
 /**
@@ -1732,6 +1759,7 @@ static void sde_encoder_phys_wb_init_ops(struct sde_encoder_phys_ops *ops)
 	ops->trigger_start = sde_encoder_helper_trigger_start;
 	ops->hw_reset = sde_encoder_helper_hw_reset;
 	ops->irq_control = sde_encoder_phys_wb_irq_ctrl;
+	ops->wait_for_tx_complete = sde_encoder_phys_wb_wait_for_cwb_done;
 }
 
 /**

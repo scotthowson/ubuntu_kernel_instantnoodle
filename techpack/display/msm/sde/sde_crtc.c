@@ -194,6 +194,7 @@ static void _sde_crtc_deinit_events(struct sde_crtc *sde_crtc)
 		return;
 }
 
+#ifdef CONFIG_DEBUG_FS
 static int _sde_debugfs_fps_status_show(struct seq_file *s, void *data)
 {
 	struct sde_crtc *sde_crtc;
@@ -240,6 +241,7 @@ static int _sde_debugfs_fps_status(struct inode *inode, struct file *file)
 	return single_open(file, _sde_debugfs_fps_status_show,
 			inode->i_private);
 }
+#endif
 
 static ssize_t fps_periodicity_ms_store(struct device *device,
 		struct device_attribute *attr, const char *buf, size_t count)
@@ -592,7 +594,7 @@ static void _sde_crtc_setup_dim_layer_cfg(struct drm_crtc *crtc,
 						cstate->lm_roi[i].y;
 		}
 
-		SDE_EVT32_VERBOSE(DRMID(crtc),
+		SDE_EVT32(DRMID(crtc), dim_layer->stage,
 				cstate->lm_roi[i].x,
 				cstate->lm_roi[i].y,
 				cstate->lm_roi[i].w,
@@ -1370,8 +1372,8 @@ static void _sde_crtc_blend_setup_mixer(struct drm_crtc *crtc,
 	struct sde_rect plane_crtc_roi;
 	uint32_t stage_idx, lm_idx;
 	int zpos_cnt[SDE_STAGE_MAX + 1] = { 0 };
-	int i, cnt = 0;
-	bool bg_alpha_enable = false;
+	int i, mode, cnt = 0;
+	bool bg_alpha_enable = false, is_secure = false;
 
 	if (!sde_crtc || !crtc->state || !mixer) {
 		SDE_ERROR("invalid sde_crtc or mixer\n");
@@ -1400,6 +1402,12 @@ static void _sde_crtc_blend_setup_mixer(struct drm_crtc *crtc,
 		pstate = to_sde_plane_state(state);
 		fb = state->fb;
 
+		mode = sde_plane_get_property(pstate,
+				PLANE_PROP_FB_TRANSLATION_MODE);
+		is_secure = ((mode == SDE_DRM_FB_SEC) ||
+				(mode == SDE_DRM_FB_SEC_DIR_TRANS)) ?
+				true : false;
+
 		sde_plane_ctl_flush(plane, ctl, true);
 
 		SDE_DEBUG("crtc %d stage:%d - plane %d sspp %d fb %d\n",
@@ -1424,7 +1432,7 @@ static void _sde_crtc_blend_setup_mixer(struct drm_crtc *crtc,
 				state->src_w >> 16, state->src_h >> 16,
 				state->crtc_x, state->crtc_y,
 				state->crtc_w, state->crtc_h,
-				pstate->rotation);
+				pstate->rotation, is_secure);
 
 		stage_idx = zpos_cnt[pstate->stage]++;
 		stage_cfg->stage[pstate->stage][stage_idx] =
@@ -1804,9 +1812,11 @@ int sde_crtc_get_secure_transition_ops(struct drm_crtc *crtc,
 	struct sde_kms *sde_kms;
 	struct sde_mdss_cfg *catalog;
 	struct sde_kms_smmu_state_data *smmu_state;
+	struct drm_device *dev;
 	uint32_t translation_mode = 0, secure_level;
 	int ops  = 0;
 	bool post_commit = false;
+	bool clone_mode = false;
 
 	if (!crtc || !crtc->state) {
 		SDE_ERROR("invalid crtc\n");
@@ -1824,6 +1834,17 @@ int sde_crtc_get_secure_transition_ops(struct drm_crtc *crtc,
 	sde_crtc = to_sde_crtc(crtc);
 	secure_level = sde_crtc_get_secure_level(crtc, crtc->state);
 	catalog = sde_kms->catalog;
+	dev = sde_kms->dev;
+
+	/*
+	 * Loop through encoder list to find out if clone mode is
+	 * enabled on any of the encoders. If clone mode is enabled,
+	 * wait for the cwb commit to be completed, before making
+	 * the secure transition.
+	 */
+	list_for_each_entry(encoder, &crtc->dev->mode_config.encoder_list, head)
+		if (sde_encoder_in_clone_mode(encoder))
+			clone_mode = true;
 
 	/*
 	 * SMMU operations need to be delayed in case of video mode panels
@@ -1865,6 +1886,8 @@ int sde_crtc_get_secure_transition_ops(struct drm_crtc *crtc,
 	case SDE_DRM_FB_SEC_DIR_TRANS:
 		_sde_drm_fb_sec_dir_trans(smmu_state, secure_level,
 				catalog, old_valid_fb, &ops);
+		if (clone_mode && (ops & SDE_KMS_OPS_SECURE_STATE_CHANGE))
+			ops |= SDE_KMS_OPS_WAIT_FOR_TX_DONE;
 		break;
 
 	case SDE_DRM_FB_SEC:
@@ -2622,50 +2645,50 @@ struct ba {
 
 struct ba brightness_alpha_lut_1[] = {
 	{0, 0xff},
-	{1, 0xf1},
-	{2, 236},
-	{3, 235},
-	{4, 234},
-	{6, 233},
-	{10, 228},
-	{20, 219},
-	{30, 211},
-	{45, 203},
-	{70, 191},
-	{100, 179},
-	{150, 168},
-	{227, 149},
-	{300, 133},
-	{400, 115},
-	{500, 103},
-	{600, 87},
-	{800, 64},
-	{1023, 43},
-	{2000, 0x83},
+	{2, 0xf1},
+	{4, 236},
+	{6, 235},
+	{8, 234},
+	{12, 233},
+	{20, 228},
+	{40, 219},
+	{60, 211},
+	{90, 203},
+	{140, 191},
+	{200, 179},
+	{300, 168},
+	{454, 149},
+	{600, 133},
+	{800, 115},
+	{1000, 103},
+	{1200, 87},
+	{1600, 64},
+	{2047, 43},
+	{2047, 43},
 };
 
 struct ba brightness_alpha_lut_2[] = {
 	{0, 0xff},
-	{1, 0xf1},
-	{2, 237},
-	{3, 236},
-	{4, 234},
-	{6, 230},
-	{10, 223},
-	{20, 213},
-	{30, 208},
-	{45, 197},
-	{70, 183},
-	{100, 173},
-	{150, 164},
-	{227, 141},
-	{300, 126},
-	{400, 104},
-	{500, 90},
-	{600, 75},
-	{800, 50},
-	{1023, 25},
-	{2000, 0x83},
+	{2, 0xf1},
+	{4, 237},
+	{6, 236},
+	{8, 234},
+	{12, 230},
+	{20, 223},
+	{40, 213},
+	{60, 208},
+	{90, 197},
+	{140, 183},
+	{200, 173},
+	{300, 164},
+	{454, 141},
+	{600, 126},
+	{800, 104},
+	{1000, 90},
+	{1200, 75},
+	{1600, 50},
+	{2047, 25},
+	{2047, 25},
 };
 
 struct ba brightness_alpha_lut_dc[] = {
@@ -2752,6 +2775,7 @@ int bl_to_alpha_dc(int brightness)
 	return alpha;
 }
 
+bool oneplus_dimlayer_hbm_enable;
 int oneplus_get_panel_brightness_to_alpha(void)
 {
 	struct dsi_display *display = get_main_display();
@@ -2760,7 +2784,7 @@ int oneplus_get_panel_brightness_to_alpha(void)
 		return 0;
 	if (oneplus_panel_alpha)
 		return oneplus_panel_alpha;
-    if (display->panel->dim_status)
+    if (oneplus_dimlayer_hbm_enable)
 		return brightness_to_alpha(display->panel->hbm_backlight);
     else
 	return bl_to_alpha_dc(display->panel->hbm_backlight);
@@ -2774,7 +2798,7 @@ ssize_t notify_aod_store(struct device *dev,
 	int onscreenaod_hid = 0;
 	SDE_ATRACE_BEGIN("aod_hid_node");
 	sscanf(buf, "%du", &onscreenaod_hid);
-	oneplus_onscreenaod_hid = !!onscreenaod_hid;
+	//oneplus_onscreenaod_hid = !!onscreenaod_hid;
 	if (onscreenaod_hid == oneplus_onscreenaod_hid)
 		{
 		SDE_ATRACE_END("notify_fppress_store");
@@ -2819,7 +2843,7 @@ ssize_t notify_fppress_store(struct device *dev,
 	dsi_connector = dsi_display->drm_conn;
 	mode_config = &drm_dev->mode_config;
 	sscanf(buf, "%du", &onscreenfp_status);
-	onscreenfp_status = !!onscreenfp_status;
+	//onscreenfp_status = !!onscreenfp_status;
 	if (onscreenfp_status == oneplus_onscreenfp_status)
 		{
 		SDE_ATRACE_END("notify_fppress_store");
@@ -2849,6 +2873,8 @@ ssize_t notify_fppress_store(struct device *dev,
 
 extern int aod_layer_hide;
 extern bool HBM_flag;
+extern int dsi_panel_tx_cmd_set(struct dsi_panel *panel,
+				enum dsi_cmd_set_type type);
 int oneplus_dim_status = 0;
 int oneplus_aod_fod = 0;
 int oneplus_aod_dc = 0;
@@ -2864,7 +2890,7 @@ ssize_t notify_dim_store(struct device *dev,
 	struct drm_atomic_state *state;
 	struct drm_crtc_state *crtc_state;
 	struct drm_crtc *crtc;
-	int err;
+	int err = 0, rc = 0;
 	int dim_status = 0;
 
     SDE_ATRACE_BEGIN("notify_dim_store");
@@ -2896,15 +2922,23 @@ ssize_t notify_dim_store(struct device *dev,
 	} else if (dsi_display->panel->aod_status == 1 && dim_status == 5) {
 		oneplus_aod_dc = 1;
 	}
+	if (dim_status == 1)
+		dsi_display->panel->aod_status = 0;
 	if (dim_status == 0)
 		oneplus_onscreenfp_status = 0;
 	if (dim_status == oneplus_dim_status)
 		return count;
 	oneplus_dim_status = dim_status;
+	oneplus_dimlayer_hbm_enable = oneplus_dim_status != 0;
 	pr_err("notify dim %d,aod = %d press= %d aod_hide =%d\n",
 		oneplus_dim_status, dsi_display->panel->aod_status, oneplus_onscreenfp_status, aod_layer_hide);
 	if (oneplus_dim_status == 1 && HBM_flag) {
-		pr_err("notify dim not commit");
+		rc = dsi_panel_tx_cmd_set(dsi_display->panel, DSI_CMD_SET_HBM_ON_5);
+		if (rc) {
+			pr_err("failed to send DSI_CMD_SET_HBM_ON_5 cmds, rc=%d\n", rc);
+			return rc;
+		}
+		pr_err("Notify dim not commit,send DSI_CMD_SET_HBM_ON_5 cmds\n");
 		return count;
 	}
 	drm_modeset_lock_all(drm_dev);
@@ -2937,14 +2971,17 @@ static int sde_crtc_config_fingerprint_dim_layer(struct drm_crtc_state *crtc_sta
 		return 0;
     }
 
-	/*
 	//do not set alpha to avoid screen black when unlock in aod status
-	if(display->panel->aod_status==1){
+	if (display->panel->aod_status==1 && (display->panel->aod_mode==5 ||
+		display->panel->aod_mode==1 || display->panel->aod_mode==3)){
 		if(oneplus_dim_status == 2){
 			alpha = 255;
 		}
+	} else if (display->panel->aod_status==1 && display->panel->aod_mode==4){
+		if(oneplus_dim_status == 2){
+			alpha = 0;
+		}
 	}
-	*/
 
 	kms = _sde_crtc_get_kms(crtc_state->crtc);
 	if (!kms || !kms->catalog) {
@@ -4128,6 +4165,7 @@ static int _sde_crtc_vblank_enable_no_lock(
 
 		drm_for_each_encoder_mask(enc, crtc->dev,
 			crtc->state->encoder_mask) {
+
 			if (enc->crtc == NULL)
 				SDE_ERROR("enc->crtc is null\n");
 
@@ -4143,6 +4181,7 @@ static int _sde_crtc_vblank_enable_no_lock(
 	} else {
 		drm_for_each_encoder_mask(enc, crtc->dev,
 			crtc->state->encoder_mask) {
+
 			if (enc->crtc == NULL)
 				SDE_ERROR("enc->crtc is null\n");
 
@@ -4534,8 +4573,12 @@ static void sde_crtc_enable(struct drm_crtc *crtc,
 	SDE_EVT32_VERBOSE(DRMID(crtc));
 	sde_crtc = to_sde_crtc(crtc);
 
+	/*
+	 * Avoid drm_crtc_vblank_on during seamless DMS case
+	 * when CRTC is already in enabled state
+	 */
 	if (!sde_crtc->enabled)
-	    drm_crtc_vblank_on(crtc);
+		drm_crtc_vblank_on(crtc);
 
 	mutex_lock(&sde_crtc->crtc_lock);
 	SDE_EVT32(DRMID(crtc), sde_crtc->enabled);
@@ -4656,6 +4699,9 @@ static int _sde_crtc_check_secure_blend_config(struct drm_crtc *crtc,
 {
 	struct drm_plane *plane;
 	int i;
+	struct drm_crtc_state *old_state = crtc->state;
+	struct sde_crtc_state *old_cstate = to_sde_crtc_state(old_state);
+
 	if (secure == SDE_DRM_SEC_ONLY) {
 		/*
 		 * validate planes - only fb_sec_dir is allowed during sec_crtc
@@ -4716,6 +4762,8 @@ static int _sde_crtc_check_secure_blend_config(struct drm_crtc *crtc,
 		 * - fail empty commit
 		 * - validate dim_layer or plane is staged in the supported
 		 *   blendstage
+		 * - fail if previous commit has no planes staged and
+		 *   no dim layer at highest blendstage.
 		 */
 		if (sde_kms->catalog->sui_supported_blendstage) {
 			int sec_stage = cnt ? pstates[0].sde_pstate->stage :
@@ -4731,6 +4779,14 @@ static int _sde_crtc_check_secure_blend_config(struct drm_crtc *crtc,
 				  "crtc%d: empty cnt%d/dim%d or bad stage%d\n",
 					DRMID(crtc), cnt,
 					cstate->num_dim_layers, sec_stage);
+				return -EINVAL;
+			}
+
+			if (!old_state->plane_mask &&
+				!old_cstate->num_dim_layers) {
+				SDE_ERROR(
+				"crtc%d: no dim layer in nonsecure to secure transition\n",
+					DRMID(crtc));
 				return -EINVAL;
 			}
 		}
@@ -4774,6 +4830,20 @@ static int _sde_crtc_check_secure_state_smmu_translation(struct drm_crtc *crtc,
 	}
 
 	/*
+	 * Secure display to secure camera needs without direct
+	 * transition is currently not allowed
+	 */
+	if (fb_sec_dir && secure == SDE_DRM_SEC_NON_SEC &&
+		smmu_state->state != ATTACHED &&
+		smmu_state->secure_level == SDE_DRM_SEC_ONLY) {
+
+		SDE_EVT32(DRMID(crtc), fb_ns, fb_sec_dir,
+			smmu_state->state, smmu_state->secure_level,
+			secure);
+		goto sec_err;
+	}
+
+	/*
 	 * In video mode check for null commit before transition
 	 * from secure to non secure and vice versa
 	 */
@@ -4790,14 +4860,17 @@ static int _sde_crtc_check_secure_state_smmu_translation(struct drm_crtc *crtc,
 		SDE_EVT32(DRMID(crtc), fb_ns, fb_sec_dir,
 			smmu_state->state, smmu_state->secure_level,
 			secure, crtc->state->plane_mask, state->plane_mask);
-		SDE_ERROR(
-		 "crtc%d Invalid transition;sec%d state%d slvl%d ns%d sdir%d\n",
-			DRMID(crtc), secure, smmu_state->state,
-			smmu_state->secure_level, fb_ns, fb_sec_dir);
-		return -EINVAL;
+		goto sec_err;
 	}
 
 	return 0;
+
+sec_err:
+	SDE_ERROR(
+	 "crtc%d Invalid transition;sec%d state%d slvl%d ns%d sdir%d\n",
+		DRMID(crtc), secure, smmu_state->state,
+		smmu_state->secure_level, fb_ns, fb_sec_dir);
+	return -EINVAL;
 }
 
 static int _sde_crtc_check_secure_conn(struct drm_crtc *crtc,
@@ -4896,7 +4969,7 @@ int op_dimlayer_bl_enabled = 0;
 int op_dimlayer_bl_enable_real = 0;
 int op_dimlayer_bl = 0;
 bool finger_type = false;
-//extern int aod_layer_hide;
+extern int aod_layer_hide;
 extern int op_dimlayer_bl_enable;
 extern int op_dp_enable;
 extern int sde_plane_check_fingerprint_layer(const struct drm_plane_state *drm_state);
@@ -4928,11 +5001,24 @@ static int sde_crtc_onscreenfinger_atomic_check(struct sde_crtc_state *cstate,
 			fp_mode = 1;
 			//dim_mode = 0;
 		} else if (oneplus_dim_status == 2 && oneplus_onscreenfp_status == 0) {
+			if (display->panel->aod_mode == 2) {
+				fp_mode = 0;
+				dim_mode = 0;
+			} else {
+				fp_mode = 0;
+				//dim_mode = 0;
+			}
+		} else if (oneplus_dim_status == 2 && oneplus_onscreenfp_status == 4) {
 			fp_mode = 0;
 			dim_mode = 0;
 		}
+	} else if (oneplus_onscreenfp_status == 0 || oneplus_onscreenfp_status == 4) {
+		fp_mode = 0;
+		//dim_mode = 0; //add for press hbm up
 	}
-	if (oneplus_dim_status == 5 || aod_layer_hide == 1) {
+	if ((display->panel->aod_mode && display->panel->aod_mode != 2 && display->panel->aod_mode != 4) &&
+		(oneplus_dim_status == 5 || aod_layer_hide == 1)) {
+		SDE_ERROR("display  oneplus_onscreenaod_hid is 1\n");
 		oneplus_aod_hid = 1;
 		dim_mode = 0;
 	}
@@ -5007,7 +5093,8 @@ static int sde_crtc_onscreenfinger_atomic_check(struct sde_crtc_state *cstate,
 		}
     }
 
-	if (fp_index >= 0 || fppressed_index >= 0 || oneplus_force_screenfp || dim_backlight == 1) {
+	SDE_DEBUG("fp_index=%d,fppressed_index=%d,aod_index=%d\n", fp_index, fppressed_index, aod_index);
+	if (oneplus_dimlayer_hbm_enable || oneplus_force_screenfp || dim_backlight == 1) {
 		if (fp_index >= 0 && fppressed_index >= 0) {
 			if (pstates[fp_index].stage >= pstates[fppressed_index].stage) {
 				SDE_ERROR("Bug!!@@@@: fp layer top of fppressed layer\n");
@@ -5044,46 +5131,16 @@ static int sde_crtc_onscreenfinger_atomic_check(struct sde_crtc_state *cstate,
 			zpos++;
 		}
 
-		if (fp_index >= 0) {
-			if (dim_mode == 0) {
-				//pstates[fp_index].sde_pstate->property_values[PLANE_PROP_ALPHA].value = 0xff;
-				fp_index = -1;
-			}
-		}
-        if (fppressed_index >= 0) {
-			if (fp_mode == 0) {
-				pstates[fppressed_index].sde_pstate->property_values[PLANE_PROP_ALPHA].value = 0;
-				if(oneplus_aod_fod == 1 && aod_index < 0) {
-					for (i = 0; i < cnt; i++) {
-						if(i!=fppressed_index ) {
-							if(pstates[i].sde_pstate->property_values[PLANE_PROP_ALPHA].value == 0){
-								pstates[i].sde_pstate->property_values[PLANE_PROP_ALPHA].value = 0xff;
-							}
-						}
-					}
-				}
-				fppressed_index = -1;
-			} else {
-				pstates[fppressed_index].sde_pstate->property_values[PLANE_PROP_ALPHA].value = 0xff;
-			}
-		}
-
-         if (aod_index >= 0) {
-			if (aod_mode == 1) {
-                SDE_ATRACE_BEGIN("aod_layer_hid");
-				pstates[aod_index].sde_pstate->property_values[PLANE_PROP_ALPHA].value = 0;
-				aod_index = -1;
-                SDE_ATRACE_END("aod_layer_hid");
-			}
-		}
-
-		if (fp_index >= 0)
+		if (oneplus_dimlayer_hbm_enable)
 			cstate->fingerprint_mode = true;
 		else
 			cstate->fingerprint_mode = false;
 
-		if ((fp_index >= 0 || dim_backlight > 0) && sde_crtc_config_fingerprint_dim_layer(&cstate->base, zpos)) {
-			SDE_ERROR("Failed to config dim layer\n");
+		if (fp_index >= 0)
+			pstates[fp_index].sde_pstate->property_values[PLANE_PROP_ALPHA].value = 0;
+
+		if (sde_crtc_config_fingerprint_dim_layer(&cstate->base, zpos)) {
+			//SDE_ERROR("Failed to config dim layer\n");
 			return -EINVAL;
 		}
 		if (fppressed_index >= 0)
@@ -5091,12 +5148,20 @@ static int sde_crtc_onscreenfinger_atomic_check(struct sde_crtc_state *cstate,
 		else {
 			cstate->fingerprint_pressed = false;
 		}
-	} else{
-	cstate->fingerprint_pressed = false;
-	cstate->fingerprint_mode = false;
-    }
-	if (fp_index < 0 && !dim_backlight) {
+	} else {
 		cstate->fingerprint_dim_layer = NULL;
+		cstate->fingerprint_pressed = false;
+		cstate->fingerprint_mode = false;
+		for (i = 0; i < cnt; i++) {
+			if(pstates[i].sde_pstate->property_values[PLANE_PROP_ALPHA].value == 0){
+				SDE_DEBUG("pstates PLANE_PROP_ALPHA value is 0\n");
+			}
+		}
+    }
+	if (fp_mode == 1 && !oneplus_dimlayer_hbm_enable) {
+		cstate->fingerprint_mode = true;
+		cstate->fingerprint_pressed = true;
+		return 0;
 	}
 
 	return 0;
@@ -5442,6 +5507,43 @@ end:
 	return rc;
 }
 
+/**
+ * sde_crtc_get_num_datapath - get the number of datapath active
+ *				of primary connector
+ * @crtc: Pointer to DRM crtc object
+ * @connector: Pointer to DRM connector object of WB in CWB case
+ */
+int sde_crtc_get_num_datapath(struct drm_crtc *crtc,
+		struct drm_connector *connector)
+{
+	struct sde_crtc *sde_crtc = to_sde_crtc(crtc);
+	struct sde_connector_state *sde_conn_state = NULL;
+	struct drm_connector *conn;
+	struct drm_connector_list_iter conn_iter;
+
+	if (!sde_crtc || !connector) {
+		SDE_DEBUG("Invalid argument\n");
+		return 0;
+	}
+
+	if (sde_crtc->num_mixers)
+		return sde_crtc->num_mixers;
+
+	drm_connector_list_iter_begin(crtc->dev, &conn_iter);
+	drm_for_each_connector_iter(conn, &conn_iter) {
+		if (conn->state && conn->state->crtc == crtc &&
+				 conn != connector)
+			sde_conn_state = to_sde_connector_state(conn->state);
+	}
+
+	drm_connector_list_iter_end(&conn_iter);
+
+	if (sde_conn_state)
+		return sde_conn_state->mode_info.topology.num_lm;
+
+	return 0;
+}
+
 int sde_crtc_vblank(struct drm_crtc *crtc, bool en)
 {
 	struct sde_crtc *sde_crtc;
@@ -5453,6 +5555,7 @@ int sde_crtc_vblank(struct drm_crtc *crtc, bool en)
 	}
 	sde_crtc = to_sde_crtc(crtc);
 
+	mutex_lock(&sde_crtc->vblank_modeset_ctrl_lock);
 	mutex_lock(&sde_crtc->crtc_lock);
 	SDE_EVT32(DRMID(&sde_crtc->base), en, sde_crtc->enabled);
 	ret = _sde_crtc_vblank_enable_no_lock(sde_crtc, en);
@@ -5461,8 +5564,27 @@ int sde_crtc_vblank(struct drm_crtc *crtc, bool en)
 				sde_crtc->name, ret);
 
 	mutex_unlock(&sde_crtc->crtc_lock);
+	mutex_unlock(&sde_crtc->vblank_modeset_ctrl_lock);
 
 	return 0;
+}
+
+static void sde_kms_add_ubwc_info(struct sde_kms_info *info,
+				struct sde_mdss_cfg *catalog)
+{
+	sde_kms_info_add_keyint(info, "UBWC version",
+				catalog->ubwc_version);
+	sde_kms_info_add_keyint(info, "UBWC macrotile_mode",
+				catalog->macrotile_mode);
+	sde_kms_info_add_keyint(info, "UBWC highest banking bit",
+				catalog->mdp[0].highest_bank_bit);
+	sde_kms_info_add_keyint(info, "UBWC swizzle",
+				catalog->mdp[0].ubwc_swizzle);
+
+	if (of_fdt_get_ddrtype() == LP_DDR4_TYPE)
+		sde_kms_info_add_keystr(info, "DDR version", "DDR4");
+	else
+		sde_kms_info_add_keystr(info, "DDR version", "DDR5");
 }
 
 /**
@@ -5619,18 +5741,8 @@ static void sde_crtc_install_properties(struct drm_crtc *crtc,
 	if (catalog->qseed_type == SDE_SSPP_SCALER_QSEED3LITE)
 		sde_kms_info_add_keystr(info, "qseed_type", "qseed3lite");
 
-	sde_kms_info_add_keyint(info, "UBWC version", catalog->ubwc_version);
-	sde_kms_info_add_keyint(info, "UBWC macrotile_mode",
-				catalog->macrotile_mode);
-	sde_kms_info_add_keyint(info, "UBWC highest banking bit",
-				catalog->mdp[0].highest_bank_bit);
-	sde_kms_info_add_keyint(info, "UBWC swizzle",
-				catalog->mdp[0].ubwc_swizzle);
-
-	if (of_fdt_get_ddrtype() == LP_DDR4_TYPE)
-		sde_kms_info_add_keystr(info, "DDR version", "DDR4");
-	else
-		sde_kms_info_add_keystr(info, "DDR version", "DDR5");
+	if (catalog->ubwc_version)
+		sde_kms_add_ubwc_info(info, catalog);
 
 	if (sde_is_custom_client()) {
 		/* No support for SMART_DMA_V1 yet */
@@ -5701,6 +5813,10 @@ static void sde_crtc_install_properties(struct drm_crtc *crtc,
 	if (sde_kms->perf.max_core_clk_rate)
 		sde_kms_info_add_keyint(info, "max_mdp_clk",
 				sde_kms->perf.max_core_clk_rate);
+
+	if (catalog->uidle_cfg.uidle_rev)
+		sde_kms_info_add_keyint(info, "has_uidle",
+			true);
 
 	for (i = 0; i < catalog->limit_count; i++) {
 		sde_kms_info_add_keyint(info,
@@ -6740,6 +6856,7 @@ struct drm_crtc *sde_crtc_init(struct drm_device *dev, struct drm_plane *plane)
 	mutex_init(&sde_crtc->crtc_lock);
 	spin_lock_init(&sde_crtc->spin_lock);
 	atomic_set(&sde_crtc->frame_pending, 0);
+	mutex_init(&sde_crtc->vblank_modeset_ctrl_lock);
 
 	sde_crtc->enabled = false;
 
@@ -6961,7 +7078,7 @@ static int _sde_crtc_event_disable(struct sde_kms *kms,
 	spin_lock_irqsave(&crtc->spin_lock, flags);
 	list_for_each_entry(node, &crtc->user_event_list, list) {
 		if (node->event == event) {
-			list_del(&node->list);
+			list_del_init(&node->list);
 			found = true;
 			break;
 		}
@@ -6989,7 +7106,14 @@ static int _sde_crtc_event_disable(struct sde_kms *kms,
 	}
 
 	ret = node->func(crtc_drm, false, &node->irq);
-	kfree(node);
+	if (ret) {
+		spin_lock_irqsave(&crtc->spin_lock, flags);
+		list_add_tail(&node->list, &crtc->user_event_list);
+		spin_unlock_irqrestore(&crtc->spin_lock, flags);
+	} else {
+		kfree(node);
+	}
+
 	pm_runtime_put_sync(crtc_drm->dev->dev);
 	return ret;
 }

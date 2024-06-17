@@ -9,8 +9,8 @@
 #include "sde_core_irq.h"
 #include "sde_formats.h"
 #include "sde_trace.h"
-#if defined(CONFIG_PXLW_IRIS5)
-#include "dsi_iris5_api.h"
+#if defined(CONFIG_PXLW_IRIS)
+#include "iris/dsi_iris5_api.h"
 #endif
 
 #define SDE_DEBUG_CMDENC(e, fmt, ...) SDE_DEBUG("enc%d intf%d " fmt, \
@@ -37,16 +37,15 @@
 #define DEFAULT_TEARCHECK_SYNC_THRESH_CONTINUE	4
 
 #define SDE_ENC_WR_PTR_START_TIMEOUT_US 20000
-
 #if defined(PXLW_IRIS_DUAL)
 /* decrease the polling time interval, reduce polling time */
-#define AUTOREFRESH_SEQ1_POLL_TIME      1000
-#define AUTOREFRESH_SEQ2_POLL_TIME      1000
+#define AUTOREFRESH_SEQ1_POLL_TIME      (iris_is_dual_supported() ? 1000 : 2000)
+#define AUTOREFRESH_SEQ2_POLL_TIME      (iris_is_dual_supported() ? 1000 : 25000)
 #else
 #define AUTOREFRESH_SEQ1_POLL_TIME      2000
 #define AUTOREFRESH_SEQ2_POLL_TIME      25000
 #endif
-#define AUTOREFRESH_SEQ2_POLL_TIMEOUT   1000000
+#define AUTOREFRESH_SEQ2_POLL_TIMEOUT	1000000
 
 static inline int _sde_encoder_phys_cmd_get_idle_timeout(
 		struct sde_encoder_phys_cmd *cmd_enc)
@@ -79,6 +78,12 @@ static uint64_t _sde_encoder_phys_cmd_get_autorefresh_property(
 
 	if (!conn || !conn->state)
 		return 0;
+#if defined(CONFIG_PXLW_IRIS)
+	if (iris_is_chip_supported()) {
+		if (iris_secondary_display_autorefresh(phys_enc))
+			return 1;
+	}
+#endif
 
 	return sde_connector_get_property(conn->state,
 				CONNECTOR_PROP_AUTOREFRESH);
@@ -333,7 +338,7 @@ static void _sde_encoder_phys_cmd_setup_irq_hw_idx(
 		struct sde_encoder_phys *phys_enc)
 {
 	struct sde_encoder_irq *irq;
-	struct sde_kms *sde_kms = phys_enc->sde_kms;
+	struct sde_kms *sde_kms;
 	int ret = 0;
 
 	if (!phys_enc || !phys_enc->hw_pp || !phys_enc->hw_ctl) {
@@ -347,6 +352,7 @@ static void _sde_encoder_phys_cmd_setup_irq_hw_idx(
 		return;
 	}
 
+	sde_kms = phys_enc->sde_kms;
 	mutex_lock(&sde_kms->vblank_ctl_global_lock);
 
 	if (atomic_read(&phys_enc->vblank_refcount)) {
@@ -1764,7 +1770,12 @@ static void _sde_encoder_autorefresh_disable_seq1(
 	_sde_encoder_phys_cmd_config_autorefresh(phys_enc, 0);
 
 	do {
+#if defined(PXLW_IRIS_DUAL)
+		usleep_range(AUTOREFRESH_SEQ1_POLL_TIME,
+			AUTOREFRESH_SEQ1_POLL_TIME + 1);
+#else
 		udelay(AUTOREFRESH_SEQ1_POLL_TIME);
+#endif
 		if ((trial * AUTOREFRESH_SEQ1_POLL_TIME)
 				> (KICKOFF_TIMEOUT_MS * USEC_PER_MSEC)) {
 			SDE_ERROR_CMDENC(cmd_enc,
@@ -1810,8 +1821,20 @@ static void _sde_encoder_autorefresh_disable_seq2(
 	SDE_EVT32(DRMID(phys_enc->parent), phys_enc->intf_idx - INTF_0,
 				autorefresh_status, SDE_EVTLOG_FUNC_CASE1);
 
-  /* remove it for 120hz case */
-/*
+#if defined(PXLW_IRIS_DUAL)
+	if (!(autorefresh_status & BIT(7)) && !iris_is_dual_supported()) {
+#else
+	if (!(autorefresh_status & BIT(7))) {
+#endif
+		usleep_range(AUTOREFRESH_SEQ2_POLL_TIME,
+			AUTOREFRESH_SEQ2_POLL_TIME + 1);
+
+		autorefresh_status = hw_mdp->ops.get_autorefresh_status(hw_mdp,
+					phys_enc->intf_idx);
+		SDE_EVT32(DRMID(phys_enc->parent), phys_enc->intf_idx - INTF_0,
+				autorefresh_status, SDE_EVTLOG_FUNC_CASE2);
+	}
+
 	if (!(autorefresh_status & BIT(7))) {
 		usleep_range(AUTOREFRESH_SEQ2_POLL_TIME,
 			AUTOREFRESH_SEQ2_POLL_TIME + 1);
@@ -1821,7 +1844,7 @@ static void _sde_encoder_autorefresh_disable_seq2(
 		SDE_EVT32(DRMID(phys_enc->parent), phys_enc->intf_idx - INTF_0,
 				autorefresh_status, SDE_EVTLOG_FUNC_CASE2);
 	}
-*/
+
 	while (autorefresh_status & BIT(7)) {
 		if (!trial) {
 			SDE_ERROR_CMDENC(cmd_enc,
@@ -1892,24 +1915,25 @@ static void sde_encoder_phys_cmd_trigger_start(
 		return;
 
 	/* we don't issue CTL_START when using autorefresh */
-#if defined(CONFIG_PXLW_IRIS5)
-	if (iris_secondary_display_autorefresh(phys_enc)) {
-		frame_cnt = 1;
-	} else {
 		frame_cnt = _sde_encoder_phys_cmd_get_autorefresh_property(phys_enc);
-	}
 	if (frame_cnt) {
+#if defined(CONFIG_PXLW_IRIS)
+		if (iris_is_chip_supported()) {
 		atomic_inc(&cmd_enc->autorefresh.kickoff_cnt);
 		_sde_encoder_phys_cmd_config_autorefresh(phys_enc, frame_cnt);
-#else
-	frame_cnt = _sde_encoder_phys_cmd_get_autorefresh_property(phys_enc);
-	if (frame_cnt) {
-		_sde_encoder_phys_cmd_config_autorefresh(phys_enc, frame_cnt);
-		atomic_inc(&cmd_enc->autorefresh.kickoff_cnt);
+			goto end;
+		}
 #endif
+		_sde_encoder_phys_cmd_config_autorefresh(phys_enc, frame_cnt);
+		atomic_inc(&cmd_enc->autorefresh.kickoff_cnt);
 	} else {
 		sde_encoder_helper_trigger_start(phys_enc);
 	}
+
+#if defined(CONFIG_PXLW_IRIS)
+end:
+#endif
+
 	/* wr_ptr_wait_success is set true when wr_ptr arrives */
 	cmd_enc->wr_ptr_wait_success = false;
 }

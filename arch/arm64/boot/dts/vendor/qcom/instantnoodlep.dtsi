@@ -1,5 +1,4 @@
-/*this is for different project dtsi*/
-/* @bsp, 2019/09/10 Wireless Charging porting STRAT */
+
 &op_wlchg {
 	status = "okay";
 	op,max-voltage-mv = <4550>;
@@ -63,7 +62,10 @@
 
 	/* fod parameter*/
 	op,fastchg-fod-enable;
+	op,fastchg-match-q-new = /bits/ 8 <0x56>;
 	op,fastchg-match-q = /bits/ 8 <0x44>;
+	op,fastchg-fod-parm-new = /bits/ 8 <0xac 0x32 0xac 0x28 0xa0 0xba
+					0x9a 0xd3 0x9a 0xce 0x9f 0xf6>;
 	op,fastchg-fod-parm = /bits/ 8 <0xac 0x32 0xac 0x28 0xa0 0x1e
 					0x9a 0x37 0x9a 0x32 0x9f 0xc4>;
 	op,fastchg-fod-parm-startup = /bits/ 8 <0xac 0x7f 0xac 0x28 0xa0 0x1e
@@ -104,7 +106,7 @@
 	otg_en-gpio = <&pm8150l_gpios 4 0x00>;
 	vbus-gpio = <&tlmm 172 0x00>;
 };
-/* @bsp, 2019/09/10 Wireless Charging porting END */
+
 &qupv3_se13_i2c {
 	status = "ok";
 	sec-s6sy761@48 {
@@ -194,20 +196,36 @@
 	op,skin-thermal-pre-high-threshold = <39>;
 	op,skin-thermal-medium-threshold = <38>;
 	op,skin-thermal-normal-threshold = <36>;
+	op,skin-thermal-lcdoff-high-threshold = <41>;
+	op,skin-thermal-lcdoff-pre-high-threshold = <39>;
+	op,skin-thermal-lcdoff-medium-threshold = <38>;
+	op,skin-thermal-lcdoff-normal-threshold = <36>;
 	op,enable-dash-current-dynamic-adjust;
 
-	/* skin thermal temp adjust the pd current */
-	op,pd-skin-thermal-high-threshold = <39>;
-	op,pd-skin-thermal-normal-threshold = <37>;
-	op,enable-pd-current-dynamic-adjust;
+	/* skin thermal temp adjust the normal charger path current */
+	op,nor-skin-thermal-high-threshold = <39>;
+	op,nor-skin-thermal-pre-high-threshold = <37>;
+	op,nor-skin-thermal-warm-threshold = <36>;
+	op,nor-skin-thermal-pre-warm-threshold = <35>;
+	op,nor-skin-thermal-medium-threshold = <34>;
+	op,nor-skin-thermal-normal-threshold = <33>;
+	op,nor-skin-thermal-lcdoff-high-threshold = <39>;
+	op,nor-skin-thermal-lcdoff-pre-high-threshold = <37>;
+	op,nor-skin-thermal-lcdoff-warm-threshold = <36>;
+	op,nor-skin-thermal-lcdoff-pre-warm-threshold = <35>;
+	op,nor-skin-thermal-lcdoff-medium-threshold = <34>;
+	op,nor-skin-thermal-lcdoff-normal-threshold = <33>;
+	op,nor-call-on-current-ma = <1800>;
+	op,nor-skin-thermal-high-current-ma = <2000>;
+	op,nor-skin-thermal-warm-current-ma = <3000>;
+	op,nor-skin-thermal-medium-current-ma = <3000>;
+	op,enable-nor-current-dynamic-adjust;
 };
 
 &kona_mtp_batterydata {
 	#include "OP-fg-batterydata-4510mah.dtsi"
 };
-/* @bsp, Battery & Charging config END */
 
-/* @bsp, 2019/10/08 usb config START*/
 &usb2_phy0 {
 	qcom,param-override-seq =
 		<0x67 0x6c/*Disconnection voltage +21.56%*/
@@ -221,11 +239,6 @@
 
 &thermal_zones {
 	skin-therm {
-		polling-delay-passive = <0>;
-		polling-delay = <0>;
-		thermal-governor = "step_wise";
-		thermal-sensors = <&pm8150b_adc_tm ADC_AMUX_THM1_PU2>;
-		wake-capable-sensor;
 		trips {
 			freq_config0: freq_config0 {
 				temperature = <46000>;
@@ -233,37 +246,37 @@
 				type = "passive";
 			};
 			freq_config1: freq_config1 {
-                                temperature = <47000>;
-                                hysteresis = <1000>;
-                                type = "passive";
-                        };
+				temperature = <47000>;
+				hysteresis = <1000>;
+				type = "passive";
+			};
 			freq_config2: freq_config2 {
 				temperature = <49000>;
 				hysteresis = <2000>;
 				type = "passive";
 			};
 			freq_config3: freq_config3 {
-                                temperature = <50000>;
-                                hysteresis = <2000>;
-                                type = "passive";
-                        };
+				temperature = <50000>;
+				hysteresis = <2000>;
+				type = "passive";
+			};
 		};
 		cooling-maps {
 			freq_dev0 {
 				trip = <&freq_config1>;
 				cooling-device =
-					<&msm_gpu THERMAL_NO_LIMIT (THERMAL_MAX_LIMIT-1)>;/*345*/
+					<&msm_gpu (THERMAL_MAX_LIMIT-1) (THERMAL_MAX_LIMIT-1)>;/*345*/
 			};
-                        freq_dev1 {
-                                trip = <&freq_config0>;
-                                cooling-device =
-                                        <&CPU4 7 7>;/*1766*/
-                        };
-                        freq_dev2 {
-                                trip = <&freq_config0>;
-                                cooling-device =
-                                        <&CPU7 8 8>;/*2073*/
-                        };
+			freq_dev1 {
+				trip = <&freq_config0>;
+				cooling-device =
+					<&CPU4 7 7>;/*1766*/
+			};
+			freq_dev2 {
+				trip = <&freq_config0>;
+				cooling-device =
+					<&CPU7 8 8>;/*2073*/
+			};
 			freq_dev3 {
 				trip = <&freq_config1>;
 				cooling-device =
@@ -295,24 +308,19 @@
 					<&cpu7_isolate 1 1>;
 			};
 			freq_dev10 {
-                                trip = <&freq_config3>;
-                                cooling-device =
-                                        <&CPU0 10 10>;/*883*/
-                        };
+				trip = <&freq_config3>;
+				cooling-device =
+					<&CPU0 10 10>;/*883*/
+			};
 			freq_dev11 {
-                                trip = <&freq_config3>;
-                                cooling-device =
-                                        <&cpu4_isolate 1 1>;
-                        };
+				trip = <&freq_config3>;
+				cooling-device =
+					<&cpu4_isolate 1 1>;
+			};
 		};
 	};
 
 	msm-therm {
-		polling-delay-passive = <0>;
-		polling-delay = <0>;
-		thermal-governor = "step_wise";
-		thermal-sensors = <&pm8150l_adc_tm ADC_AMUX_THM2_PU2>;
-		wake-capable-sensor;
 		trips {
 			freq_config4: freq_config4 {
 				temperature = <67000>;
@@ -359,13 +367,13 @@
 			freq_dev6 {
 				trip = <&freq_config4>;
 				cooling-device =
-					<&msm_gpu THERMAL_NO_LIMIT
+					<&msm_gpu (THERMAL_MAX_LIMIT-3)
 						(THERMAL_MAX_LIMIT-3)>;/*441*/
 			};
 			freq_dev7 {
 				trip = <&freq_config5>;
 				cooling-device =
-					<&msm_gpu THERMAL_NO_LIMIT
+					<&msm_gpu (THERMAL_MAX_LIMIT-2)
 						(THERMAL_MAX_LIMIT-2)>;/*400*/
 			};
 		};
@@ -378,4 +386,3 @@
 		status = "disabled";
 	};
 };
-/* @bsp, 2019/10/08 usb config END*/

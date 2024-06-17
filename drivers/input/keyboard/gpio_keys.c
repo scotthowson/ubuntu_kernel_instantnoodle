@@ -415,6 +415,7 @@ static void gpio_vol_up_work_func(struct work_struct *work)
 	if (state && button->code == KEY_VOLUMEUP) {
 		set_vol_up_status(KEY_PRESSED);
 		compound_key_to_get_trace("system_server");
+		compound_key_to_get_tombstone("surfaceflinger");
 	}
 }
 

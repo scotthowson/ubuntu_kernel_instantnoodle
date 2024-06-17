@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
- * Copyright (c) 2011-2019, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2011-2020, The Linux Foundation. All rights reserved.
  */
 
 #define pr_fmt(fmt) "subsys-restart: %s(): " fmt, __func__
@@ -186,7 +186,7 @@ struct restart_log {
 struct subsys_device {
 	struct subsys_desc *desc;
 	struct work_struct work;
-	struct wakeup_source ssr_wlock;
+	struct wakeup_source *ssr_wlock;
 	char wlname[64];
 	struct work_struct device_restart_work;
 	struct subsys_tracking track;
@@ -889,104 +889,104 @@ static int restart_level;/*system original val*/
 struct delayed_work op_restart_modem_work;
 
 static ssize_t proc_restart_level_all_read(struct file *p_file,
-    char __user *puser_buf, size_t count, loff_t *p_offset)
+			char __user *puser_buf, size_t count, loff_t *p_offset)
 {
-    ssize_t len = 0;
+	ssize_t len = 0;
 
-    len = copy_to_user(puser_buf, val?"1":"0", 1);
-    pr_info("the restart level switch is:%d\n", val);
-    return len;
+	len = copy_to_user(puser_buf, val?"1":"0", 1);
+	pr_info("the restart level switch is:%d\n", val);
+	return len;
 }
 
 static ssize_t proc_restart_level_all_write(struct file *p_file,
-    const char __user *puser_buf,
-    size_t count, loff_t *p_offset)
+	const char __user *puser_buf,
+	size_t count, loff_t *p_offset)
 {
-    char  *subsysname [] = {
-        "ipa_fws",
-        "ipa_uc" ,
-        "wlan" ,
-        "esoc0" ,
-        "adsp" ,
-        "cdsp"  ,
-        "venus" ,
-        "spss",
-        "cvpss",
-        "npu",
-        "slpi",
-        "a650_zap"
-    };
-    int i = 0;
-    char temp[2] = {0};
-    struct subsys_device *subsys;
-    int rc;
+	char subsysname[][10] = {
+		"ipa_fws",
+		"ipa_uc",
+		"wlan",
+		"esoc0",
+		"adsp",
+		"cdsp",
+		"venus",
+		"spss",
+		"cvpss",
+		"npu",
+		"slpi",
+		"a650_zap"
+	};
+	int i = 0;
+	char temp[4] = {0};
+	struct subsys_device *subsys;
+	int rc;
 
-    if (copy_from_user(temp, puser_buf, 1))
-        return -EFAULT;
+	if (copy_from_user(temp, puser_buf, 1))
+		return -EFAULT;
 
-    rc = kstrtoint(temp, 0, &val);
-    if (rc != 0)
-        return -EINVAL;
+	rc = kstrtoint(temp, 0, &val);
+	if (rc != 0)
+		return -EINVAL;
 
-    cancel_delayed_work_sync(&op_restart_modem_work);
+	cancel_delayed_work_sync(&op_restart_modem_work);
 
-    for (i = 0 ; i < ARRAY_SIZE(subsysname); i++) {
-        subsys = find_subsys_device(subsysname[i]);
-        if (subsys) {
-            if (val==1)
-                subsys->restart_level = RESET_SOC;
-            else
-                subsys->restart_level = RESET_SUBSYS_COUPLED;
-        }
-    }
-    pr_info("write the restart level switch to :%d\n", val);
-    return count;
+	for (i = 0 ; i < ARRAY_SIZE(subsysname); i++) {
+		subsys = find_subsys_device(subsysname[i]);
+		if (subsys) {
+			if (val == 1)
+				subsys->restart_level = RESET_SOC;
+			else
+				subsys->restart_level = RESET_SUBSYS_COUPLED;
+		}
+	}
+	pr_info("write the restart level switch to :%d\n", val);
+	return count;
 }
 
 static const struct file_operations restart_level_all_operations = {
-    .read = proc_restart_level_all_read,
-    .write = proc_restart_level_all_write,
+	.read = proc_restart_level_all_read,
+	.write = proc_restart_level_all_write,
 };
 
 static void init_restart_level_all_node(void)
 {
-    if (!proc_create("restart_level_all", 0644, NULL,
-             &restart_level_all_operations)){
-        pr_err("%s : Failed to register proc interface\n", __func__);
-    }
+	if (!proc_create("restart_level_all", 0644, NULL,
+			&restart_level_all_operations)){
+		pr_err("%s : Failed to register proc interface\n", __func__);
+	}
 }
 
 static void op_restart_modem_work_fun(struct work_struct *work)
 {
-    struct subsys_device *subsys = find_subsys_device("modem");
+	struct subsys_device *subsys = find_subsys_device("modem");
 
 	if (!subsys)
 		return;
-    subsys->restart_level = restart_level;
-    pr_err("%s:level=%d\n", __func__,subsys->restart_level);
+	subsys->restart_level = restart_level;
+	pr_err("%s:level=%d\n", __func__, subsys->restart_level);
 }
 
 int op_restart_modem_init(void)
 {
-    INIT_DELAYED_WORK(&op_restart_modem_work, op_restart_modem_work_fun);
-    return 0;
+	INIT_DELAYED_WORK(&op_restart_modem_work, op_restart_modem_work_fun);
+	return 0;
 }
 
 int op_restart_modem(void)
 {
-    struct subsys_device *subsys = find_subsys_device("modem");
+	struct subsys_device *subsys = find_subsys_device("modem");
 
-    if (!subsys)
-        return -ENODEV;
-    pr_err("%s:level=%d\n", __func__,subsys->restart_level);
-    restart_level = subsys->restart_level;
-    subsys->restart_level = RESET_SUBSYS_COUPLED;
-    if (subsystem_restart("modem") == -ENODEV)
-        pr_err("%s: SSR call failed\n", __func__);
+	if (!subsys)
+		return -ENODEV;
+	pr_err("%s:level=%d\n", __func__, subsys->restart_level);
+	restart_level = subsys->restart_level;
+	subsys->restart_level = RESET_SUBSYS_COUPLED;
+	if (subsystem_restart("modem") == -ENODEV)
+		pr_err("%s: SSR call failed\n", __func__);
 
-    schedule_delayed_work(&op_restart_modem_work,
-            msecs_to_jiffies(10*1000));
-    return 0;
+	schedule_delayed_work(&op_restart_modem_work,
+			msecs_to_jiffies(10*1000));
+	return 0;
 }
 EXPORT_SYMBOL(op_restart_modem);
 
@@ -1091,9 +1091,9 @@ int wait_for_shutdown_ack(struct subsys_desc *desc)
 		return 0;
 
 	ret = wait_for_completion_timeout(&dev->shutdown_ack,
-						msecs_to_jiffies(6000));
+						msecs_to_jiffies(5000));
 	if (!ret) {
-		pr_err("[%s]: Timed out waiting for shutdown ack\n",
+		pr_err("[%s]: Timed out (5000ms) waiting for shutdown ack\n",
 				desc->name);
 		return -ETIMEDOUT;
 	}
@@ -1318,7 +1318,7 @@ err:
 
 	spin_lock_irqsave(&track->s_lock, flags);
 	track->p_state = SUBSYS_NORMAL;
-	__pm_relax(&dev->ssr_wlock);
+	__pm_relax(dev->ssr_wlock);
 	spin_unlock_irqrestore(&track->s_lock, flags);
 }
 
@@ -1342,7 +1342,7 @@ static void __subsystem_restart_dev(struct subsys_device *dev)
 					dev->track.state == SUBSYS_ONLINE) {
 		if (track->p_state != SUBSYS_RESTARTING) {
 			track->p_state = SUBSYS_CRASHED;
-			__pm_stay_awake(&dev->ssr_wlock);
+			__pm_stay_awake(dev->ssr_wlock);
 			queue_work(ssr_wq, &dev->work);
 		} else {
 			panic("Subsystem %s crashed during SSR!", name);
@@ -1487,7 +1487,7 @@ int subsystem_restart_dev(struct subsys_device *dev)
 			__subsystem_restart_dev(dev);
 		}
 	} else {
-		__pm_stay_awake(&dev->ssr_wlock);
+		__pm_stay_awake(dev->ssr_wlock);
 		schedule_work(&dev->device_restart_work);
 	}
 	return 0;
@@ -1652,7 +1652,7 @@ static void subsys_device_release(struct device *dev)
 {
 	struct subsys_device *subsys = to_subsys(dev);
 
-	wakeup_source_trash(&subsys->ssr_wlock);
+	wakeup_source_unregister(subsys->ssr_wlock);
 	mutex_destroy(&subsys->track.lock);
 	ida_simple_remove(&subsys_ida, subsys->id);
 	kfree(subsys);
@@ -2067,7 +2067,14 @@ struct subsys_device *subsys_register(struct subsys_desc *desc)
 	subsys->early_notify = subsys_get_early_notif_info(desc->name);
 
 	snprintf(subsys->wlname, sizeof(subsys->wlname), "ssr(%s)", desc->name);
-	wakeup_source_init(&subsys->ssr_wlock, subsys->wlname);
+
+	subsys->ssr_wlock =
+		wakeup_source_register(&subsys->dev, subsys->wlname);
+	if (!subsys->ssr_wlock) {
+		kfree(subsys);
+		return ERR_PTR(-ENOMEM);
+	}
+
 	INIT_WORK(&subsys->work, subsystem_restart_wq_func);
 	INIT_WORK(&subsys->device_restart_work, device_restart_work_hdlr);
 	spin_lock_init(&subsys->track.s_lock);
@@ -2075,7 +2082,7 @@ struct subsys_device *subsys_register(struct subsys_desc *desc)
 
 	subsys->id = ida_simple_get(&subsys_ida, 0, 0, GFP_KERNEL);
 	if (subsys->id < 0) {
-		wakeup_source_trash(&subsys->ssr_wlock);
+		wakeup_source_unregister(subsys->ssr_wlock);
 		ret = subsys->id;
 		kfree(subsys);
 		return ERR_PTR(ret);

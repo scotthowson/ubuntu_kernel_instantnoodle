@@ -1228,6 +1228,7 @@ static int bq2597x_set_vbat_reg_th(struct bq2597x *bq, int th_mv)
 	return ret;
 }
 
+#if 0
 static int bq2597x_check_reg_status(struct bq2597x *bq)
 {
 	int ret;
@@ -1241,6 +1242,7 @@ static int bq2597x_check_reg_status(struct bq2597x *bq)
 
 	return ret;
 }
+#endif
 
 static int bq2597x_get_work_mode(struct bq2597x *bq, int *mode)
 {
@@ -1673,6 +1675,7 @@ static int bq2597x_init_device(struct bq2597x *bq)
 	return 0;
 }
 
+#if 0
 static int bq2597x_set_present(struct bq2597x *bq, bool present)
 {
 	bq->usb_present = present;
@@ -1681,6 +1684,7 @@ static int bq2597x_set_present(struct bq2597x *bq, bool present)
 		bq2597x_init_device(bq);
 	return 0;
 }
+#endif
 
 static ssize_t bq2597x_show_registers(struct device *dev,
 				      struct device_attribute *attr, char *buf)
@@ -1735,6 +1739,7 @@ static const struct attribute_group bq2597x_attr_group = {
 	.attrs = bq2597x_attributes,
 };
 
+#if 0
 static enum power_supply_property bq2597x_charger_props[] = {
 	POWER_SUPPLY_PROP_PRESENT,
 	POWER_SUPPLY_PROP_CHARGING_ENABLED,
@@ -1937,18 +1942,19 @@ static int bq2597x_psy_register(struct bq2597x *bq)
 	bq->psy_desc.set_property = bq2597x_charger_set_property;
 	bq->psy_desc.property_is_writeable = bq2597x_charger_is_writeable;
 
-#if 0
+
 	bq->fc2_psy = devm_power_supply_register(bq->dev,
 			&bq->psy_desc, &bq->psy_cfg);
 	if (IS_ERR(bq->fc2_psy)) {
 		bq_err("failed to register fc2_psy:%d\n", ret);
 		return PTR_ERR(bq->fc2_psy);
 	}
-#endif
+
 	bq_info("%s power supply register successfully\n", bq->psy_desc.name);
 
 	return 0;
 }
+#endif
 
 void bq2597x_dump_reg(struct bq2597x *bq)
 {
@@ -2419,9 +2425,11 @@ static int bq2597x_charger_probe(struct i2c_client *client,
 		return ret;
 	}
 
+#if 0
 	ret = bq2597x_psy_register(bq);
 	if (ret)
 		return ret;
+#endif
 
 	ret = init_bq_irq(client, bq);
 	if (ret) {

@@ -78,49 +78,58 @@ EXPORT_SYMBOL(parse_function_builtin_return_address);
 
 void save_dump_reason_to_smem(char *info, char *function_name)
 {
-	int length = 0;
+	int strl = 0, strl1 = 0, length = 0;
 	size_t size;
-	static int flag;
-	char *buf1;
+	static int flag = 0;
+	char buf[7], *buf1;
 	struct pt_regs *regs;
 	char *caller_function_name;
 
 	/* Make sure save_dump_reason_to_smem() is not
-	 * called infinite times by nested panic caller fns etc
-	 */
+	called infinite times by nested panic caller fns etc*/
 	if (flag > 1)
 		return;
 
-	dp_info = qcom_smem_get(QCOM_SMEM_HOST_ANY, SMEM_DUMP_INFO, &size);
+	dp_info = qcom_smem_get(QCOM_SMEM_HOST_ANY,SMEM_DUMP_INFO,&size);
 
 	if (IS_ERR_OR_NULL(dp_info))
 		pr_debug("%s: get dp_info failure\n", __func__);
 	else {
-		pr_debug("%s: info : %s\n", __func__, info);
+		pr_debug("%s: info : %s\n",__func__, info);
 
-		if (info != NULL) {
-			strlcat(dp_info->dump_reason, info, DUMP_REASON_SIZE);
+		strl   = strlen(info)+1;
+		strl1  = strlen(function_name)+1;
+		strl   = strl  <  DUMP_REASON_SIZE ? strl : DUMP_REASON_SIZE;
+		strl1  = strl1 <  DUMP_REASON_SIZE ? strl1: DUMP_REASON_SIZE;
+		if ((strlen(dp_info->dump_reason) + strl) < DUMP_REASON_SIZE)
+			strncat(dp_info->dump_reason, info, strl);
+
+		if (function_name != NULL &&
+			((strlen(dp_info->dump_reason) + strl1 + 3) < DUMP_REASON_SIZE)) {
+			strncat(dp_info->dump_reason, "\r\n", 2);
+			strncat(dp_info->dump_reason, function_name, strl1);
 		}
-		if (function_name != NULL) {
-			strlcat(dp_info->dump_reason, "\r\n", DUMP_REASON_SIZE);
-			strlcat(dp_info->dump_reason, function_name, DUMP_REASON_SIZE);
-			pr_debug("%s: function caused panic :%s\n", __func__,
-				function_name);
-		}
+
 		caller_function_name = parse_function_builtin_return_address(
 			(unsigned long)__builtin_return_address(0));
 		if ((strcmp(caller_function_name, "panic") == 0)) {
 			regs = (struct pt_regs *)panic_info;
 			if (regs) {
 				buf1 = parse_regs_pc(regs->pc, &length);
-				strlcat(dp_info->dump_reason, "\r\nPC at:", DUMP_REASON_SIZE);
-				strlcat(dp_info->dump_reason, buf1, DUMP_REASON_SIZE);
-				strncat(dp_info->dump_reason, "\r\n", DUMP_REASON_SIZE);
+				length = length < DUMP_REASON_SIZE ? length: DUMP_REASON_SIZE;
+				if ((strlen(dp_info->dump_reason) + length + 12) < DUMP_REASON_SIZE) {
+					strncat(dp_info->dump_reason,"\r\n", 2);
+					strncpy(buf, "PC at:", 7);
+					strncat(dp_info->dump_reason, buf, 7);
+					strncat(dp_info->dump_reason, buf1, length);
+					strncat(dp_info->dump_reason, "\r\n", 2);
+				}
 			}
 		}
 	}
-	pr_debug("\r%s: dump_reason : %s \n", __func__,
-		dp_info->dump_reason);
+
+	pr_debug("\r%s: dump_reason : %s strl=%d function caused panic :%s strl1=%d \n", __func__,
+			dp_info->dump_reason, strl, function_name, strl1);
 	save_dump_reason_to_device_info(dp_info->dump_reason);
 	flag++;
 }
@@ -218,6 +227,7 @@ static struct attribute_group project_info_attr_group = {
 static DEVICE_ATTR(ddr, 0444, component_info_get, NULL);
 static DEVICE_ATTR(emmc, 0444, component_info_get, NULL);
 static DEVICE_ATTR(f_camera, 0444, component_info_get, NULL);
+static DEVICE_ATTR(second_f_camera, 0444, component_info_get, NULL);
 static DEVICE_ATTR(r_camera, 0444, component_info_get, NULL);
 static DEVICE_ATTR(second_r_camera, 0444, component_info_get, NULL);
 static DEVICE_ATTR(third_r_camera, 0444, component_info_get, NULL);
@@ -291,6 +301,7 @@ static struct attribute *component_info_sysfs_entries[] = {
     &dev_attr_ddr.attr,
     &dev_attr_emmc.attr,
     &dev_attr_f_camera.attr,
+    &dev_attr_second_f_camera.attr,
     &dev_attr_r_camera.attr,
     &dev_attr_second_r_camera.attr,
     &dev_attr_third_r_camera.attr,
@@ -338,6 +349,10 @@ static ssize_t component_info_get(struct device *dev,
         return snprintf(buf, BUF_SIZE, "VER:\t%s\nMANU:\t%s\n",
         get_component_version(F_CAMERA),
         get_component_manufacture(F_CAMERA));
+    if (attr == &dev_attr_second_f_camera)
+        return snprintf(buf, BUF_SIZE, "VER:\t%s\nMANU:\t%s\n",
+        get_component_version(SECOND_F_CAMERA),
+        get_component_manufacture(SECOND_F_CAMERA));
     if (attr == &dev_attr_r_camera)
         return snprintf(buf, BUF_SIZE, "VER:\t%s\nMANU:\t%s\n",
         get_component_version(R_CAMERA),

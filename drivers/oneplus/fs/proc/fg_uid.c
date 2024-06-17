@@ -121,5 +121,5 @@ module_init(fg_uids_init);
 module_exit(fg_uids_exit);
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Jared Wu <jared.wu@oneplus.com>");
+MODULE_AUTHOR("Jared Wu");
 MODULE_DESCRIPTION("optimize foreground process to promote performance");

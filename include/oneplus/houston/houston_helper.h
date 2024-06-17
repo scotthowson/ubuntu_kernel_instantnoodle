@@ -30,6 +30,8 @@ extern void ht_rtg_list_add_tail(struct task_struct *task);
 extern void ht_rtg_list_del(struct task_struct *task);
 extern void ht_sched_switch_update(struct task_struct *prev, struct task_struct *next);
 extern int ht_pcc_alwayson(void);
+extern void tb_parse_req(unsigned int tb_pol, unsigned int tb_type, unsigned int args[4]);
+extern void tb_parse_req_v2(unsigned int tb_pol, unsigned int tb_type, unsigned int *args, int size);
 #else
 static inline void ht_register_thermal_zone_device(struct thermal_zone_device *tz) {};
 static inline void ht_register_power_supply(struct power_supply *psy) {};
@@ -46,5 +48,7 @@ static inline void ht_rtg_list_add_tail(struct task_struct *task) {};
 static inline void ht_rtg_list_del(struct task_struct *task) {};
 static inline void ht_sched_switch_update(struct task_struct *prev, struct task_struct *next) {};
 static inline int ht_pcc_alwayson(void) { return 0; };
+static inline void tb_parse_req(unsigned int tb_pol, unsigned int tb_type, unsigned int args[4]) {};
+static inline void tb_parse_req_v2(unsigned int tb_pol, unsigned int tb_type, unsigned int *args, int size) {};
 #endif
 #endif // __INCLUDE_HOUSTON_HELPER__

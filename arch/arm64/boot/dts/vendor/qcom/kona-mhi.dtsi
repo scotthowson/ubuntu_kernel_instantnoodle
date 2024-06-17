@@ -27,7 +27,7 @@
 
 		/* mhi bus specific settings */
 		mhi,max-channels = <111>;
-		/* Case 0449153 - Reduce tiemout from 2000 to 500 ms */
+		/* Case 0449153 - Reduce tiemout from 2000 to 500 ms for shutdown performance */
 		mhi,timeout = <500>;
 		mhi,buffer-len = <0x8000>;
 		mhi,sfr-support;
@@ -628,6 +628,7 @@
 				mhi,brstmode = <3>;
 				mhi,hw-ev;
 				mhi,client-manage;
+				mhi,force-uncached;
 			};
 
 			mhi_event@9 {

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
- * Copyright (c) 2016-2019, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2016-2020, The Linux Foundation. All rights reserved.
  */
 
 #include <linux/list.h>
@@ -30,18 +30,17 @@
 #include <linux/proc_fs.h>
 #include "../sde/sde_trace.h"
 #include "dsi_parser.h"
-#if defined(CONFIG_PXLW_IRIS5)
-#include "dsi_iris5_api.h"
-#include "dsi_iris5_lightup.h"
-#include "dsi_iris5_loop_back.h"
+#if defined(CONFIG_PXLW_IRIS)
+#include "iris/dsi_iris5_api.h"
+#include "iris/dsi_iris5_lightup.h"
+#include "iris/dsi_iris5_loop_back.h"
 #include <video/mipi_display.h>
 #elif defined(CONFIG_PXLW_SOFT_IRIS)
-#include "dsi_iris5_api.h"
+#include "iris/dsi_iris5_api.h"
 #endif
 #include <linux/oem/boot_mode.h>
 #define to_dsi_display(x) container_of(x, struct dsi_display, host)
 #define INT_BASE_10 10
-#define NO_OVERRIDE -1
 
 #define MISR_BUFF_SIZE	256
 #define ESD_MODE_STRING_MAX_LEN 256
@@ -57,13 +56,7 @@
 #define UG_SEED_REGISTER 0xB1
 
 static char dsi_display_primary[MAX_CMDLINE_PARAM_LEN];
-#if defined(PXLW_IRIS_DUAL)
-/* FIXME: hardcode, should transfer 2nd panel info from UEFI*/
-static char dsi_display_secondary[MAX_CMDLINE_PARAM_LEN] = "qcom,mdss_dsi_samsung_ana6706_dsc_cmd_2nd:";
-#else
 static char dsi_display_secondary[MAX_CMDLINE_PARAM_LEN];
-#endif
-static char SERIAL_NUMBER_flag = 0;
 static struct dsi_display_boot_param boot_displays[MAX_DSI_ACTIVE_DISPLAY] = {
 	{.boot_param = dsi_display_primary},
 	{.boot_param = dsi_display_secondary},
@@ -86,551 +79,583 @@ EXPORT_SYMBOL(reg_read_len);
 char buf_Lotid[6];
 
 typedef enum {
-    ToolB   = 0,
-    ToolA   = 1,
-    ToolA_HVS30 = 2,
+	ToolB = 0,
+	ToolA = 1,
+	ToolA_HVS30 = 2,
 	Tool_Green = 10,
 } eTool;
 
 typedef struct {
-    char LotID[6];
-    int wafer_Start;
-    int wafer_End;
-    int HVS30;
+	char LotID[6];
+	int wafer_Start;
+	int wafer_End;
+	int HVS30;
 } LotDBItem;
 
 LotDBItem ANA6705_ToolA_DB[109] = {
-    {"K2T7N", 0, 0, 0},
-    {"K2T7P", 0, 0, 0},
-    {"K2TK4", 0, 0, 0},
-    {"K4ART", 1, 12, 1},
-    {"K4C07", 0, 0, 1},
-    {"K4C0A", 1, 12, 1},
-    {"K4C7S", 0, 0, 1},
-    {"K4C7T", 0, 0, 1},
-    {"K4CCH", 0, 0, 1},
-    {"K4CCN", 0, 0, 1},
-    {"K4CCP", 0, 0, 1},
-    {"K4CJL", 0, 0, 1},
-    {"K4CNS", 0, 0, 1},
-    {"K4C06", 0, 0, 1},
-    {"K4CNW", 0, 0, 1},
-    {"K4JGT", 0, 0, 1},
-    {"K4F8J", 0, 0, 1},
-    {"K4FFA", 0, 0, 1},
-    {"K4F4G", 0, 0, 1},
-    {"K4C82", 0, 0, 1},
-    {"K4CJM", 0, 0, 1},
-    {"K4CNT", 0, 0, 1},
-    {"K4F0T", 0, 0, 1},
-    {"K4F4K", 0, 0, 1},
-    {"K4F4N", 0, 0, 1},
-    {"K4JA8", 0, 0, 1},
-    {"K4JA8", 0, 0, 1},
-    {"K4J54", 0, 0, 1},
-    {"K4F4P", 0, 0, 1},
-    {"K4M9N", 0, 0, 1},
-    {"K4J6F", 0, 0, 1},
-    {"K4FFC", 0, 0, 1},
-    {"K4JQP", 0, 0, 1},
-    {"K4K5A", 0, 0, 1},
-    {"K4K19", 0, 0, 1},
-    {"K4K7L", 0, 0, 1},
-    {"K4JW4", 0, 0, 1},
-    {"K4MGK", 0, 0, 1},
-    {"K4KTR", 0, 0, 1},
-    {"K4L07", 0, 0, 1},
-    {"K4L07", 0, 0, 1},
-    {"K4MGJ", 0, 0, 1},
-    {"K4JLA", 0, 0, 1},
-    {"K4KTS", 0, 0, 1},
-    {"K4MGL", 0, 0, 1},
-    {"K4JJS", 0, 0, 1},
-    {"K4PYR", 0, 0, 1},
-    {"K4PS4", 0, 0, 1},
-    {"K4QC2", 0, 0, 1},
-    {"K4Q7K", 0, 0, 1},
-    {"K4PS5", 0, 0, 1},
-    {"K4Q3Q", 0, 0, 1},
-    {"K4Q3R", 0, 0, 1},
-    {"K4QC0", 0, 0, 1},
-    {"K4QHT", 0, 0, 1},
-    {"K4QC1", 0, 0, 1},
-    {"K4QHW", 0, 0, 1},
-    {"K4QMP", 0, 0, 1},
-    {"K4QMQ", 0, 0, 1},
-    {"K4QMR", 0, 0, 1},
-    {"K4Q7L", 0, 0, 1},
-    {"K4QRL", 0, 0, 1},
-    {"K4QYM", 0, 0, 1},
-    {"K4PYQ", 0, 0, 1},
-    {"K4QYN", 0, 0, 1},
-    {"K4R7A", 0, 0, 1},
-    {"K4QRM", 0, 0, 1},
-    {"K4R7F", 0, 0, 1},
-    {"K4R3L", 0, 0, 1},
-    {"K4QYP", 0, 0, 1},
-    {"K4R3K", 0, 0, 1},
-    {"K4RJ7", 0, 0, 1},
-    {"K4R7C", 0, 0, 1},
-    {"K4RC8", 0, 0, 1},
-    {"K4RNW", 0, 0, 1},
-    {"K4RS4", 0, 0, 1},
-    {"K4RC9", 0, 0, 1},
-    {"K4RJ8", 0, 0, 1},
-    {"K4RNS", 0, 0, 1},
-    {"K4RNT", 0, 0, 1},
-    {"K4RS5", 0, 0, 1},
-    {"K4RYL", 0, 0, 1},
-    {"K4RYM", 0, 0, 1},
-    {"K4S1S", 0, 0, 1},
-    {"K4S78", 0, 0, 1},
-    {"K4SAY", 0, 0, 1},
-    {"K4SHS", 0, 0, 1},
-    {"K4SHT", 0, 0, 1},
-    {"K4S1T", 0, 0, 1},
-    {"K4S77", 0, 0, 1},
-    {"K4SC1", 0, 0, 1},
-    {"K4SMM", 0, 0, 1},
-    {"K4SC0", 0, 0, 1},
-    {"K4SRA", 0, 0, 1},
-    {"K4TAM", 0, 0, 1},
-    {"K4TAN", 0, 0, 1},
-    {"K5G14", 0, 0, 1},
-    {"K5G16", 0, 0, 1},
-    {"K5G15", 0, 0, 1},
-    {"K5G4W", 0, 0, 1},
-    {"K5G4Y", 0, 0, 1},
-    {"K5G8W", 0, 0, 1},
-    {"K5G8Y", 0, 0, 1},
-    {"K5GFS", 0, 0, 1},
-    {"K5GFT", 0, 0, 1},
-    {"K5GFW", 0, 0, 1},
-    {"K5GL5", 0, 0, 1},
-    {"K5GL6", 0, 0, 1},
-    {"K5GNY", 0, 0, 1}
+	{"K2T7N", 0, 0, 0},
+	{"K2T7P", 0, 0, 0},
+	{"K2TK4", 0, 0, 0},
+	{"K4ART", 1, 12, 1},
+	{"K4C07", 0, 0, 1},
+	{"K4C0A", 1, 12, 1},
+	{"K4C7S", 0, 0, 1},
+	{"K4C7T", 0, 0, 1},
+	{"K4CCH", 0, 0, 1},
+	{"K4CCN", 0, 0, 1},
+	{"K4CCP", 0, 0, 1},
+	{"K4CJL", 0, 0, 1},
+	{"K4CNS", 0, 0, 1},
+	{"K4C06", 0, 0, 1},
+	{"K4CNW", 0, 0, 1},
+	{"K4JGT", 0, 0, 1},
+	{"K4F8J", 0, 0, 1},
+	{"K4FFA", 0, 0, 1},
+	{"K4F4G", 0, 0, 1},
+	{"K4C82", 0, 0, 1},
+	{"K4CJM", 0, 0, 1},
+	{"K4CNT", 0, 0, 1},
+	{"K4F0T", 0, 0, 1},
+	{"K4F4K", 0, 0, 1},
+	{"K4F4N", 0, 0, 1},
+	{"K4JA8", 0, 0, 1},
+	{"K4JA8", 0, 0, 1},
+	{"K4J54", 0, 0, 1},
+	{"K4F4P", 0, 0, 1},
+	{"K4M9N", 0, 0, 1},
+	{"K4J6F", 0, 0, 1},
+	{"K4FFC", 0, 0, 1},
+	{"K4JQP", 0, 0, 1},
+	{"K4K5A", 0, 0, 1},
+	{"K4K19", 0, 0, 1},
+	{"K4K7L", 0, 0, 1},
+	{"K4JW4", 0, 0, 1},
+	{"K4MGK", 0, 0, 1},
+	{"K4KTR", 0, 0, 1},
+	{"K4L07", 0, 0, 1},
+	{"K4L07", 0, 0, 1},
+	{"K4MGJ", 0, 0, 1},
+	{"K4JLA", 0, 0, 1},
+	{"K4KTS", 0, 0, 1},
+	{"K4MGL", 0, 0, 1},
+	{"K4JJS", 0, 0, 1},
+	{"K4PYR", 0, 0, 1},
+	{"K4PS4", 0, 0, 1},
+	{"K4QC2", 0, 0, 1},
+	{"K4Q7K", 0, 0, 1},
+	{"K4PS5", 0, 0, 1},
+	{"K4Q3Q", 0, 0, 1},
+	{"K4Q3R", 0, 0, 1},
+	{"K4QC0", 0, 0, 1},
+	{"K4QHT", 0, 0, 1},
+	{"K4QC1", 0, 0, 1},
+	{"K4QHW", 0, 0, 1},
+	{"K4QMP", 0, 0, 1},
+	{"K4QMQ", 0, 0, 1},
+	{"K4QMR", 0, 0, 1},
+	{"K4Q7L", 0, 0, 1},
+	{"K4QRL", 0, 0, 1},
+	{"K4QYM", 0, 0, 1},
+	{"K4PYQ", 0, 0, 1},
+	{"K4QYN", 0, 0, 1},
+	{"K4R7A", 0, 0, 1},
+	{"K4QRM", 0, 0, 1},
+	{"K4R7F", 0, 0, 1},
+	{"K4R3L", 0, 0, 1},
+	{"K4QYP", 0, 0, 1},
+	{"K4R3K", 0, 0, 1},
+	{"K4RJ7", 0, 0, 1},
+	{"K4R7C", 0, 0, 1},
+	{"K4RC8", 0, 0, 1},
+	{"K4RNW", 0, 0, 1},
+	{"K4RS4", 0, 0, 1},
+	{"K4RC9", 0, 0, 1},
+	{"K4RJ8", 0, 0, 1},
+	{"K4RNS", 0, 0, 1},
+	{"K4RNT", 0, 0, 1},
+	{"K4RS5", 0, 0, 1},
+	{"K4RYL", 0, 0, 1},
+	{"K4RYM", 0, 0, 1},
+	{"K4S1S", 0, 0, 1},
+	{"K4S78", 0, 0, 1},
+	{"K4SAY", 0, 0, 1},
+	{"K4SHS", 0, 0, 1},
+	{"K4SHT", 0, 0, 1},
+	{"K4S1T", 0, 0, 1},
+	{"K4S77", 0, 0, 1},
+	{"K4SC1", 0, 0, 1},
+	{"K4SMM", 0, 0, 1},
+	{"K4SC0", 0, 0, 1},
+	{"K4SRA", 0, 0, 1},
+	{"K4TAM", 0, 0, 1},
+	{"K4TAN", 0, 0, 1},
+	{"K5G14", 0, 0, 1},
+	{"K5G16", 0, 0, 1},
+	{"K5G15", 0, 0, 1},
+	{"K5G4W", 0, 0, 1},
+	{"K5G4Y", 0, 0, 1},
+	{"K5G8W", 0, 0, 1},
+	{"K5G8Y", 0, 0, 1},
+	{"K5GFS", 0, 0, 1},
+	{"K5GFT", 0, 0, 1},
+	{"K5GFW", 0, 0, 1},
+	{"K5GL5", 0, 0, 1},
+	{"K5GL6", 0, 0, 1},
+	{"K5GNY", 0, 0, 1}
 };
 
 LotDBItem ANA6705_ToolB_DB[164] = {
-    {"K2T30", 0, 0, 0},
-    {"K2T2Y", 0, 0, 0},
-    {"K2T35", 0, 0, 0},
-    {"K2WJ7", 0, 0, 0},
-    {"K2WJ7", 0, 0, 0},
-    {"K2TPW", 0, 0, 0},
-    {"K2W76", 0, 0, 0},
-    {"K2TW7", 0, 0, 0},
-    {"K2WJ6", 0, 0, 0},
-    {"K2WJ6", 0, 0, 0},
-    {"K2T7N", 0, 0, 0},
-    {"K2T7P", 0, 0, 0},
-    {"K2TK3", 0, 0, 0},
-    {"K2TK4", 0, 0, 0},
-    {"K2TPY", 0, 0, 0},
-    {"K2TQ0", 0, 0, 0},
-    {"K2TQ1", 0, 0, 0},
-    {"K2TW8", 0, 0, 0},
-    {"K2TW9", 0, 0, 0},
-    {"K2TWA", 0, 0, 0},
-    {"K2W2K", 0, 0, 0},
-    {"K2W2L", 0, 0, 0},
-    {"K2W2M", 0, 0, 0},
-    {"K2W2N", 0, 0, 0},
-    {"K2W75", 0, 0, 0},
-    {"K2W77", 0, 0, 0},
-    {"K2W78", 0, 0, 0},
-    {"K2WCF", 0, 0, 0},
-    {"K2WCG", 0, 0, 0},
-    {"K2WCH", 0, 0, 0},
-    {"K2WCJ", 0, 0, 0},
-    {"K2WJ8", 0, 0, 0},
-    {"K2WJ9", 0, 0, 0},
-    {"K2WN8", 0, 0, 0},
-    {"K2WN9", 0, 0, 0},
-    {"K2WNC", 0, 0, 0},
-    {"K2WNF", 0, 0, 0},
-    {"K2WNH", 0, 0, 0},
-    {"K2WSF", 0, 0, 0},
-    {"K2WSG", 0, 0, 0},
-    {"K2WSH", 0, 0, 0},
-    {"K2WSJ", 0, 0, 0},
-    {"K2WSK", 0, 0, 0},
-    {"K2WSL", 0, 0, 0},
-    {"K2Y14", 0, 0, 0},
-    {"K2Y15", 0, 0, 0},
-    {"K2Y16", 0, 0, 0},
-    {"K2Y17", 0, 0, 0},
-    {"K2Y18", 0, 0, 0},
-    {"K2Y19", 0, 0, 0},
-    {"K3C74", 0, 0, 0},
-    {"K3FK0", 0, 0, 0},
-    {"K2TF5", 0, 0, 0},
-    {"K2TF7", 0, 0, 0},
-    {"K2TK1", 0, 0, 0},
-    {"K2TK2", 0, 0, 0},
-    {"K2WNA", 0, 0, 0},
-    {"K2Y13", 0, 0, 0},
-    {"K4A0F", 0, 0, 0},
-    {"K4A3C", 0, 0, 0},
-    {"K3YSJ", 0, 0, 0},
-    {"K4A6L", 0, 0, 0},
-    {"K4A6M", 0, 0, 0},
-    {"K4A83", 0, 0, 0},
-    {"K4A83", 0, 0, 0},
-    {"K4A83", 0, 0, 0},
-    {"K4A80", 0, 0, 0},
-    {"K3WYS", 0, 0, 0},
-    {"K4AMP", 0, 0, 0},
-    {"K3J0A", 0, 0, 0},
-    {"K3TQY", 0, 0, 0},
-    {"K4A6N", 0, 0, 0},
-    {"K4A81", 0, 0, 0},
-    {"K4A82", 0, 0, 0},
-    {"K4AF1", 0, 0, 0},
-    {"K4ALM", 0, 0, 0},
-    {"K4ALN", 0, 0, 0},
-    {"K4ALS", 0, 0, 0},
-    {"K4ALT", 0, 0, 0},
-    {"K4ALT", 0, 0, 0},
-    {"K4ALW", 0, 0, 0},
-    {"K4AMQ", 0, 0, 0},
-    {"K4AMY", 0, 0, 0},
-    {"K4AS0", 0, 0, 0},
-    {"K3T2T", 0, 0, 0},
-    {"K4ALR", 0, 0, 0},
-    {"K4ART", 13, 25, 0},
-    {"K4ARW", 0, 0, 0},
-    {"K4AS2", 0, 0, 0},
-    {"K4C4A", 0, 0, 0},
-    {"K2T36", 0, 0, 0},
-    {"K2T37", 0, 0, 0},
-    {"K2T7M", 0, 0, 0},
-    {"K3HT4", 0, 0, 0},
-    {"K3PRW", 0, 0, 0},
-    {"K4A84", 0, 0, 0},
-    {"K4AF2", 0, 0, 0},
-    {"K4ALQ", 0, 0, 0},
-    {"K4AMT", 0, 0, 0},
-    {"K4AS1", 0, 0, 0},
-    {"K4AS3", 0, 0, 0},
-    {"K4C04", 0, 0, 0},
-    {"K4C05", 0, 0, 0},
-    {"K4C08", 0, 0, 0},
-    {"K4C0A", 13, 25, 0},
-    {"K4C46", 0, 0, 0},
-    {"K4C7R", 0, 0, 0},
-    {"K4CJJ", 0, 0, 0},
-    {"K4CSW", 0, 0, 0},
-    {"K4FQW", 0, 0, 0},
-    {"K4ARY", 0, 0, 0},
-    {"K4ARY", 0, 0, 0},
-    {"K4AMR", 0, 0, 0},
-    {"K4CJH", 0, 0, 0},
-    {"K4CP2", 0, 0, 0},
-    {"K4CSS", 0, 0, 0},
-    {"K4CT2", 0, 0, 0},
-    {"K4CT3", 0, 0, 0},
-    {"K4F0P", 0, 0, 0},
-    {"K4F0Q", 0, 0, 0},
-    {"K4F0R", 0, 0, 0},
-    {"K4F0S", 0, 0, 0},
-    {"K4F0W", 0, 0, 0},
-    {"K4F0Y", 0, 0, 0},
-    {"K4F10", 0, 0, 0},
-    {"K4F4H", 0, 0, 0},
-    {"K4F4J", 0, 0, 0},
-    {"K4F4L", 0, 0, 0},
-    {"K4F8G", 0, 0, 0},
-    {"K4F8H", 0, 0, 0},
-    {"K4F8L", 0, 0, 0},
-    {"K4FQT", 0, 0, 0},
-    {"K4GLQ", 0, 0, 0},
-    {"K4GLR", 0, 0, 0},
-    {"K4FFF", 0, 0, 0},
-    {"K4FFG", 0, 0, 0},
-    {"K2WNG", 0, 0, 0},
-    {"K2WSC", 9, 25, 0},
-    {"K4C44", 0, 0, 0},
-    {"K4CCJ", 0, 0, 0},
-    {"K4CT0", 0, 0, 0},
-    {"K4CT1", 0, 0, 0},
-    {"K4CP1", 0, 0, 0},
-    {"K4CSY", 0, 0, 0},
-    {"K4F8F", 0, 0, 0},
-    {"K4C09", 0, 0, 0},
-    {"K4C06", 13, 25, 0},
-    {"K4C47", 0, 0, 0},
-    {"K4C48", 0, 0, 0},
-    {"K4C49", 0, 0, 0},
-    {"K4C7W", 0, 0, 0},
-    {"K4C80", 0, 0, 0},
-    {"K4C81", 0, 0, 0},
-    {"K4CCK", 0, 0, 0},
-    {"K4CCL", 0, 0, 0},
-    {"K4CCM", 0, 0, 0},
-    {"K4CCQ", 0, 0, 0},
-    {"K4CJC", 0, 0, 0},
-    {"K4CJF", 0, 0, 0},
-    {"K4CJG", 0, 0, 0},
-    {"K4CJK", 0, 0, 0},
-    {"K4CNY", 0, 0, 0},
-    {"K4CP0", 0, 0, 0},
-    {"K4CP3", 0, 0, 0}
+	{"K2T30", 0, 0, 0},
+	{"K2T2Y", 0, 0, 0},
+	{"K2T35", 0, 0, 0},
+	{"K2WJ7", 0, 0, 0},
+	{"K2WJ7", 0, 0, 0},
+	{"K2TPW", 0, 0, 0},
+	{"K2W76", 0, 0, 0},
+	{"K2TW7", 0, 0, 0},
+	{"K2WJ6", 0, 0, 0},
+	{"K2WJ6", 0, 0, 0},
+	{"K2T7N", 0, 0, 0},
+	{"K2T7P", 0, 0, 0},
+	{"K2TK3", 0, 0, 0},
+	{"K2TK4", 0, 0, 0},
+	{"K2TPY", 0, 0, 0},
+	{"K2TQ0", 0, 0, 0},
+	{"K2TQ1", 0, 0, 0},
+	{"K2TW8", 0, 0, 0},
+	{"K2TW9", 0, 0, 0},
+	{"K2TWA", 0, 0, 0},
+	{"K2W2K", 0, 0, 0},
+	{"K2W2L", 0, 0, 0},
+	{"K2W2M", 0, 0, 0},
+	{"K2W2N", 0, 0, 0},
+	{"K2W75", 0, 0, 0},
+	{"K2W77", 0, 0, 0},
+	{"K2W78", 0, 0, 0},
+	{"K2WCF", 0, 0, 0},
+	{"K2WCG", 0, 0, 0},
+	{"K2WCH", 0, 0, 0},
+	{"K2WCJ", 0, 0, 0},
+	{"K2WJ8", 0, 0, 0},
+	{"K2WJ9", 0, 0, 0},
+	{"K2WN8", 0, 0, 0},
+	{"K2WN9", 0, 0, 0},
+	{"K2WNC", 0, 0, 0},
+	{"K2WNF", 0, 0, 0},
+	{"K2WNH", 0, 0, 0},
+	{"K2WSF", 0, 0, 0},
+	{"K2WSG", 0, 0, 0},
+	{"K2WSH", 0, 0, 0},
+	{"K2WSJ", 0, 0, 0},
+	{"K2WSK", 0, 0, 0},
+	{"K2WSL", 0, 0, 0},
+	{"K2Y14", 0, 0, 0},
+	{"K2Y15", 0, 0, 0},
+	{"K2Y16", 0, 0, 0},
+	{"K2Y17", 0, 0, 0},
+	{"K2Y18", 0, 0, 0},
+	{"K2Y19", 0, 0, 0},
+	{"K3C74", 0, 0, 0},
+	{"K3FK0", 0, 0, 0},
+	{"K2TF5", 0, 0, 0},
+	{"K2TF7", 0, 0, 0},
+	{"K2TK1", 0, 0, 0},
+	{"K2TK2", 0, 0, 0},
+	{"K2WNA", 0, 0, 0},
+	{"K2Y13", 0, 0, 0},
+	{"K4A0F", 0, 0, 0},
+	{"K4A3C", 0, 0, 0},
+	{"K3YSJ", 0, 0, 0},
+	{"K4A6L", 0, 0, 0},
+	{"K4A6M", 0, 0, 0},
+	{"K4A83", 0, 0, 0},
+	{"K4A83", 0, 0, 0},
+	{"K4A83", 0, 0, 0},
+	{"K4A80", 0, 0, 0},
+	{"K3WYS", 0, 0, 0},
+	{"K4AMP", 0, 0, 0},
+	{"K3J0A", 0, 0, 0},
+	{"K3TQY", 0, 0, 0},
+	{"K4A6N", 0, 0, 0},
+	{"K4A81", 0, 0, 0},
+	{"K4A82", 0, 0, 0},
+	{"K4AF1", 0, 0, 0},
+	{"K4ALM", 0, 0, 0},
+	{"K4ALN", 0, 0, 0},
+	{"K4ALS", 0, 0, 0},
+	{"K4ALT", 0, 0, 0},
+	{"K4ALT", 0, 0, 0},
+	{"K4ALW", 0, 0, 0},
+	{"K4AMQ", 0, 0, 0},
+	{"K4AMY", 0, 0, 0},
+	{"K4AS0", 0, 0, 0},
+	{"K3T2T", 0, 0, 0},
+	{"K4ALR", 0, 0, 0},
+	{"K4ART", 13, 25, 0},
+	{"K4ARW", 0, 0, 0},
+	{"K4AS2", 0, 0, 0},
+	{"K4C4A", 0, 0, 0},
+	{"K2T36", 0, 0, 0},
+	{"K2T37", 0, 0, 0},
+	{"K2T7M", 0, 0, 0},
+	{"K3HT4", 0, 0, 0},
+	{"K3PRW", 0, 0, 0},
+	{"K4A84", 0, 0, 0},
+	{"K4AF2", 0, 0, 0},
+	{"K4ALQ", 0, 0, 0},
+	{"K4AMT", 0, 0, 0},
+	{"K4AS1", 0, 0, 0},
+	{"K4AS3", 0, 0, 0},
+	{"K4C04", 0, 0, 0},
+	{"K4C05", 0, 0, 0},
+	{"K4C08", 0, 0, 0},
+	{"K4C0A", 13, 25, 0},
+	{"K4C46", 0, 0, 0},
+	{"K4C7R", 0, 0, 0},
+	{"K4CJJ", 0, 0, 0},
+	{"K4CSW", 0, 0, 0},
+	{"K4FQW", 0, 0, 0},
+	{"K4ARY", 0, 0, 0},
+	{"K4ARY", 0, 0, 0},
+	{"K4AMR", 0, 0, 0},
+	{"K4CJH", 0, 0, 0},
+	{"K4CP2", 0, 0, 0},
+	{"K4CSS", 0, 0, 0},
+	{"K4CT2", 0, 0, 0},
+	{"K4CT3", 0, 0, 0},
+	{"K4F0P", 0, 0, 0},
+	{"K4F0Q", 0, 0, 0},
+	{"K4F0R", 0, 0, 0},
+	{"K4F0S", 0, 0, 0},
+	{"K4F0W", 0, 0, 0},
+	{"K4F0Y", 0, 0, 0},
+	{"K4F10", 0, 0, 0},
+	{"K4F4H", 0, 0, 0},
+	{"K4F4J", 0, 0, 0},
+	{"K4F4L", 0, 0, 0},
+	{"K4F8G", 0, 0, 0},
+	{"K4F8H", 0, 0, 0},
+	{"K4F8L", 0, 0, 0},
+	{"K4FQT", 0, 0, 0},
+	{"K4GLQ", 0, 0, 0},
+	{"K4GLR", 0, 0, 0},
+	{"K4FFF", 0, 0, 0},
+	{"K4FFG", 0, 0, 0},
+	{"K2WNG", 0, 0, 0},
+	{"K2WSC", 9, 25, 0},
+	{"K4C44", 0, 0, 0},
+	{"K4CCJ", 0, 0, 0},
+	{"K4CT0", 0, 0, 0},
+	{"K4CT1", 0, 0, 0},
+	{"K4CP1", 0, 0, 0},
+	{"K4CSY", 0, 0, 0},
+	{"K4F8F", 0, 0, 0},
+	{"K4C09", 0, 0, 0},
+	{"K4C06", 13, 25, 0},
+	{"K4C47", 0, 0, 0},
+	{"K4C48", 0, 0, 0},
+	{"K4C49", 0, 0, 0},
+	{"K4C7W", 0, 0, 0},
+	{"K4C80", 0, 0, 0},
+	{"K4C81", 0, 0, 0},
+	{"K4CCK", 0, 0, 0},
+	{"K4CCL", 0, 0, 0},
+	{"K4CCM", 0, 0, 0},
+	{"K4CCQ", 0, 0, 0},
+	{"K4CJC", 0, 0, 0},
+	{"K4CJF", 0, 0, 0},
+	{"K4CJG", 0, 0, 0},
+	{"K4CJK", 0, 0, 0},
+	{"K4CNY", 0, 0, 0},
+	{"K4CP0", 0, 0, 0},
+	{"K4CP3", 0, 0, 0}
 };
 
 LotDBItem ANA6706_ToolA_DB[121] = {
-    {"K4AN0", 1, 12, 0},
-    {"K4AJG", 1, 12, 0},
-    {"K4AS4", 1, 12, 0},
-    {"K4H99", 0, 0, 0},
-    {"K4C4C", 0, 0, 1},
-    {"K4H9A", 0, 0, 1},
-    {"K4HAC", 0, 0, 1},
-    {"K4J55", 0, 0, 1},
-    {"K4HAC", 0, 0, 1},
-    {"K4HM2", 0, 0, 1},
-    {"K4HPW", 0, 0, 1},
-    {"K4HYW", 0, 0, 1},
-    {"K4J56", 0, 0, 1},
-    {"K4J6G", 0, 0, 1},
-    {"K4J6H", 0, 0, 1},
-    {"K4J6J", 0, 0, 1},
-    {"K4JA9", 0, 0, 1},
-    {"K4JAA", 0, 0, 1},
-    {"K4JLH", 0, 0, 1},
-    {"K4JQR", 0, 0, 1},
-    {"K4JLG", 0, 0, 1},
-    {"K4HJ0", 0, 0, 1},
-    {"K4JAF", 0, 0, 1},
-    {"K4JGW", 0, 0, 1},
-    {"K4JGY", 0, 0, 1},
-    {"K4JLF", 0, 0, 1},
-    {"K4J29", 0, 0, 1},
-    {"K4JAC", 0, 0, 1},
-    {"K4JH0", 0, 0, 1},
-    {"K4JW7", 0, 0, 1},
-    {"K4HS4", 0, 0, 1},
-    {"K4HYY", 0, 0, 1},
-    {"K4K5G", 0, 0, 1},
-    {"K4JLC", 0, 0, 1},
-    {"K4KL8", 0, 0, 1},
-    {"K4K1G", 0, 0, 1},
-    {"K4K5C", 0, 0, 1},
-    {"K4JQQ", 0, 0, 1},
-    {"K4KG8", 0, 0, 1},
-    {"K4KQL", 0, 0, 1},
-    {"K4KTT", 0, 0, 1},
-    {"K4KG9", 0, 0, 1},
-    {"K4L5G", 0, 0, 1},
-    {"K4K1C", 0, 0, 1},
-    {"K4K5F", 0, 0, 1},
-    {"K4K9L", 0, 0, 1},
-    {"K4KG6", 0, 0, 1},
-    {"K4KQK", 0, 0, 1},
-    {"K4KG9", 0, 0, 1},
-    {"K4JQS", 0, 0, 1},
-    {"K4JW5", 0, 0, 1},
-    {"K4KG7", 0, 0, 1},
-    {"K4KL9", 0, 0, 1},
-    {"K4K9H", 0, 0, 1},
-    {"K4L9G", 0, 0, 1},
-    {"K4K5H", 0, 0, 1},
-    {"K4K9J", 0, 0, 1},
-    {"K4K9K", 0, 0, 1},
-    {"K4KLA", 0, 0, 1},
-    {"K4L1J", 0, 0, 1},
-    {"K4L1K", 0, 0, 1},
-    {"K4L1L", 0, 0, 1},
-    {"K4L5H", 0, 0, 1},
-    {"K4L5J", 0, 0, 1},
-    {"K4L9H", 0, 0, 1},
-    {"K4L9J", 0, 0, 1},
-    {"K4LGA", 0, 0, 1},
-    {"K4LGC", 0, 0, 1},
-    {"K4LKY", 0, 0, 1},
-    {"K4LL0", 0, 0, 1},
-    {"K4LL1", 0, 0, 1},
-    {"K4LPQ", 0, 0, 1},
-    {"K4LPR", 0, 0, 1},
-    {"K4LPS", 0, 0, 1},
-    {"K4LTP", 0, 0, 1},
-    {"K4LTQ", 0, 0, 1},
-    {"K4LTR", 0, 0, 1},
-    {"K4M1F", 0, 0, 1},
-    {"K4M1G", 0, 0, 1},
-    {"K4M5M", 0, 0, 1},
-    {"K4M5N", 0, 0, 1},
-    {"K4M5P", 0, 0, 1},
-    {"K4M9P", 0, 0, 1},
-    {"K4M9Q", 0, 0, 1},
-    {"K4MLL", 0, 0, 1},
-    {"K4MLM", 0, 0, 1},
-    {"K4MLN", 0, 0, 1},
-    {"K4MQY", 0, 0, 1},
-    {"K4MR0", 0, 0, 1},
-    {"K4MWS", 0, 0, 1},
-    {"K4MWT", 0, 0, 1},
-    {"K4MWW", 0, 0, 1},
-    {"K4N2K", 0, 0, 1},
-    {"K4N2L", 0, 0, 1},
-    {"K4N66", 0, 0, 1},
-    {"K4N67", 0, 0, 1},
-    {"K4N68", 0, 0, 1},
-    {"K4NPW", 0, 0, 1},
-    {"K4NPY", 0, 0, 1},
-    {"K4NQ0", 0, 0, 1},
-    {"K4NTS", 0, 0, 1},
-    {"K4NTT", 0, 0, 1},
-    {"K4NTW", 0, 0, 1},
-    {"K4P1F", 0, 0, 1},
-    {"K4P1G", 0, 0, 1},
-    {"K4P1H", 0, 0, 1},
-    {"K4P51", 0, 0, 1},
-    {"K4P52", 0, 0, 1},
-    {"K4P53", 0, 0, 1},
-    {"K4P8M", 0, 0, 1},
-    {"K4P8N", 0, 0, 1},
-    {"K4SMN", 0, 0, 1},
-    {"K4SMP", 0, 0, 1},
-    {"K4SRC", 0, 0, 1},
-    {"K4SRF", 0, 0, 1},
-    {"K4SY4", 0, 0, 1},
-    {"K4SY5", 0, 0, 1},
-    {"K4T6T", 0, 0, 1},
-    {"K4T6W", 0, 0, 1},
-    {"K4TAP", 0, 0, 1},
-    {"K4TAQ", 0, 0, 1}
+	{"K4AN0", 1, 12, 0},
+	{"K4AJG", 1, 12, 0},
+	{"K4AS4", 1, 12, 0},
+	{"K4H99", 0, 0, 0},
+	{"K4C4C", 0, 0, 1},
+	{"K4H9A", 0, 0, 1},
+	{"K4HAC", 0, 0, 1},
+	{"K4J55", 0, 0, 1},
+	{"K4HAC", 0, 0, 1},
+	{"K4HM2", 0, 0, 1},
+	{"K4HPW", 0, 0, 1},
+	{"K4HYW", 0, 0, 1},
+	{"K4J56", 0, 0, 1},
+	{"K4J6G", 0, 0, 1},
+	{"K4J6H", 0, 0, 1},
+	{"K4J6J", 0, 0, 1},
+	{"K4JA9", 0, 0, 1},
+	{"K4JAA", 0, 0, 1},
+	{"K4JLH", 0, 0, 1},
+	{"K4JQR", 0, 0, 1},
+	{"K4JLG", 0, 0, 1},
+	{"K4HJ0", 0, 0, 1},
+	{"K4JAF", 0, 0, 1},
+	{"K4JGW", 0, 0, 1},
+	{"K4JGY", 0, 0, 1},
+	{"K4JLF", 0, 0, 1},
+	{"K4J29", 0, 0, 1},
+	{"K4JAC", 0, 0, 1},
+	{"K4JH0", 0, 0, 1},
+	{"K4JW7", 0, 0, 1},
+	{"K4HS4", 0, 0, 1},
+	{"K4HYY", 0, 0, 1},
+	{"K4K5G", 0, 0, 1},
+	{"K4JLC", 0, 0, 1},
+	{"K4KL8", 0, 0, 1},
+	{"K4K1G", 0, 0, 1},
+	{"K4K5C", 0, 0, 1},
+	{"K4JQQ", 0, 0, 1},
+	{"K4KG8", 0, 0, 1},
+	{"K4KQL", 0, 0, 1},
+	{"K4KTT", 0, 0, 1},
+	{"K4KG9", 0, 0, 1},
+	{"K4L5G", 0, 0, 1},
+	{"K4K1C", 0, 0, 1},
+	{"K4K5F", 0, 0, 1},
+	{"K4K9L", 0, 0, 1},
+	{"K4KG6", 0, 0, 1},
+	{"K4KQK", 0, 0, 1},
+	{"K4KG9", 0, 0, 1},
+	{"K4JQS", 0, 0, 1},
+	{"K4JW5", 0, 0, 1},
+	{"K4KG7", 0, 0, 1},
+	{"K4KL9", 0, 0, 1},
+	{"K4K9H", 0, 0, 1},
+	{"K4L9G", 0, 0, 1},
+	{"K4K5H", 0, 0, 1},
+	{"K4K9J", 0, 0, 1},
+	{"K4K9K", 0, 0, 1},
+	{"K4KLA", 0, 0, 1},
+	{"K4L1J", 0, 0, 1},
+	{"K4L1K", 0, 0, 1},
+	{"K4L1L", 0, 0, 1},
+	{"K4L5H", 0, 0, 1},
+	{"K4L5J", 0, 0, 1},
+	{"K4L9H", 0, 0, 1},
+	{"K4L9J", 0, 0, 1},
+	{"K4LGA", 0, 0, 1},
+	{"K4LGC", 0, 0, 1},
+	{"K4LKY", 0, 0, 1},
+	{"K4LL0", 0, 0, 1},
+	{"K4LL1", 0, 0, 1},
+	{"K4LPQ", 0, 0, 1},
+	{"K4LPR", 0, 0, 1},
+	{"K4LPS", 0, 0, 1},
+	{"K4LTP", 0, 0, 1},
+	{"K4LTQ", 0, 0, 1},
+	{"K4LTR", 0, 0, 1},
+	{"K4M1F", 0, 0, 1},
+	{"K4M1G", 0, 0, 1},
+	{"K4M5M", 0, 0, 1},
+	{"K4M5N", 0, 0, 1},
+	{"K4M5P", 0, 0, 1},
+	{"K4M9P", 0, 0, 1},
+	{"K4M9Q", 0, 0, 1},
+	{"K4MLL", 0, 0, 1},
+	{"K4MLM", 0, 0, 1},
+	{"K4MLN", 0, 0, 1},
+	{"K4MQY", 0, 0, 1},
+	{"K4MR0", 0, 0, 1},
+	{"K4MWS", 0, 0, 1},
+	{"K4MWT", 0, 0, 1},
+	{"K4MWW", 0, 0, 1},
+	{"K4N2K", 0, 0, 1},
+	{"K4N2L", 0, 0, 1},
+	{"K4N66", 0, 0, 1},
+	{"K4N67", 0, 0, 1},
+	{"K4N68", 0, 0, 1},
+	{"K4NPW", 0, 0, 1},
+	{"K4NPY", 0, 0, 1},
+	{"K4NQ0", 0, 0, 1},
+	{"K4NTS", 0, 0, 1},
+	{"K4NTT", 0, 0, 1},
+	{"K4NTW", 0, 0, 1},
+	{"K4P1F", 0, 0, 1},
+	{"K4P1G", 0, 0, 1},
+	{"K4P1H", 0, 0, 1},
+	{"K4P51", 0, 0, 1},
+	{"K4P52", 0, 0, 1},
+	{"K4P53", 0, 0, 1},
+	{"K4P8M", 0, 0, 1},
+	{"K4P8N", 0, 0, 1},
+	{"K4SMN", 0, 0, 1},
+	{"K4SMP", 0, 0, 1},
+	{"K4SRC", 0, 0, 1},
+	{"K4SRF", 0, 0, 1},
+	{"K4SY4", 0, 0, 1},
+	{"K4SY5", 0, 0, 1},
+	{"K4T6T", 0, 0, 1},
+	{"K4T6W", 0, 0, 1},
+	{"K4TAP", 0, 0, 1},
+	{"K4TAQ", 0, 0, 1}
 };
 
 LotDBItem ANA6706_ToolB_DB[8] = {
-    {"K4A6P", 0, 0, 0},
-    {"K4C0C", 0, 0, 0},
-    {"K4A85", 0, 0, 0},
-    {"K4AF3", 0, 0, 0},
-    {"K4AN0", 13, 25, 0},
-    {"K4AJG", 13, 25, 0},
-    {"K4AS4", 13, 24, 0},
-    {"K4HAR", 0, 0, 0},
+	{"K4A6P", 0, 0, 0},
+	{"K4C0C", 0, 0, 0},
+	{"K4A85", 0, 0, 0},
+	{"K4AF3", 0, 0, 0},
+	{"K4AN0", 13, 25, 0},
+	{"K4AJG", 13, 25, 0},
+	{"K4AS4", 13, 24, 0},
+	{"K4HAR", 0, 0, 0},
 };
 
 LotDBItem ANA6706_Green[18] = {
-    {"K4C4C", 0, 0 ,0},
-    {"K4H9A", 0, 0 ,0},
-    {"K4HAR", 0, 0 ,0},
-    {"K4HJ0", 0, 0 ,0},
-    {"K4HM2", 0, 0 ,0},
-    {"K4HM3", 0, 0 ,0},
-    {"K4HPW", 0, 0 ,0},
-    {"K4HS4", 0, 0 ,0},
-    {"K4HYW", 0, 0 ,0},
-    {"K4HYY", 0, 0 ,0},
-    {"K4J29", 0, 0 ,0},
-    {"K4J55", 0, 0 ,0},
-    {"K4J6H", 0, 0 ,0},
-    {"K4J6J", 0, 0 ,0},
-    {"K4JAA", 0, 0 ,0},
-    {"K4JAC", 0, 0 ,0},
-    {"K4JH0", 0, 0 ,0},
-    {"K4JW8", 0, 0 ,0},
+	{"K4C4C", 0, 0 ,0},
+	{"K4H9A", 0, 0 ,0},
+	{"K4HAR", 0, 0 ,0},
+	{"K4HJ0", 0, 0 ,0},
+	{"K4HM2", 0, 0 ,0},
+	{"K4HM3", 0, 0 ,0},
+	{"K4HPW", 0, 0 ,0},
+	{"K4HS4", 0, 0 ,0},
+	{"K4HYW", 0, 0 ,0},
+	{"K4HYY", 0, 0 ,0},
+	{"K4J29", 0, 0 ,0},
+	{"K4J55", 0, 0 ,0},
+	{"K4J6H", 0, 0 ,0},
+	{"K4J6J", 0, 0 ,0},
+	{"K4JAA", 0, 0 ,0},
+	{"K4JAC", 0, 0 ,0},
+	{"K4JH0", 0, 0 ,0},
+	{"K4JW8", 0, 0 ,0},
 };
 
 void extractLotID(unsigned char* chipID, char *szLotID)
 {
-    int i;
-    unsigned long lotValue = (chipID[0] << 14) + (chipID[1] << 6) + (chipID[2] >> 2);
+	int i;
+	unsigned long lotValue = (chipID[0] << 14) + (chipID[1] << 6) + (chipID[2] >> 2);
 
-    szLotID[0] = 'K';
-    szLotID[1] = ((long)(lotValue / (36 * 36 * 36)) % 36) + 'A';
+	szLotID[0] = 'K';
+	szLotID[1] = ((long)(lotValue / (36 * 36 * 36)) % 36) + 'A';
 
-    szLotID[2] = ((long)(lotValue / (36 * 36)) % 36) + 'A';
-    szLotID[3] = ((long)(lotValue / 36) % 36) + 'A';
-    szLotID[4] = (lotValue % 36) + 'A';
+	szLotID[2] = ((long)(lotValue / (36 * 36)) % 36) + 'A';
+	szLotID[3] = ((long)(lotValue / 36) % 36) + 'A';
+	szLotID[4] = (lotValue % 36) + 'A';
 
-    for (i = 1; i < 5; i++) {
-        if (szLotID[i] > 90)
-            szLotID[i] = (szLotID[i] - 91) + '0';
-    }
+	for (i = 1; i < 5; i++) {
+		if (szLotID[i] > 90)
+			szLotID[i] = (szLotID[i] - 91) + '0';
+	}
 }
-
 
 int extractWaferNumber(unsigned char* chipID)
 {
-    int noWafer;
-    noWafer = ((chipID[2] & 0x03) << 3) + (chipID[3] >> 5);
-    return noWafer;
+	int noWafer;
+	noWafer = ((chipID[2] & 0x03) << 3) + (chipID[3] >> 5);
+	return noWafer;
 }
 
 eTool discrimination_ANA6705_ToolsType(char* szLotID, int WaferNumber)
 {
-    int i;
-    int count = sizeof(ANA6705_ToolA_DB) / sizeof(LotDBItem);
-    bool bFound = false;
-    eTool toolType;
-    for (i = 0; i < count; i++) {
-        if (strncmp(szLotID, ANA6705_ToolA_DB[i].LotID, 5) == 0) {
-            if (ANA6705_ToolA_DB[i].wafer_Start > 0) {
-                if (WaferNumber >= ANA6705_ToolA_DB[i].wafer_Start && WaferNumber <= ANA6705_ToolA_DB[i].wafer_End) {
-                    bFound = true;
-                    if (ANA6705_ToolA_DB[i].HVS30)
-                        toolType = ToolA_HVS30;
-                    else
-                        toolType = ToolA;
-                }
-                break;
-            }
-            else {
-                bFound = true;
-                if (ANA6705_ToolA_DB[i].HVS30)
-                    toolType = ToolA_HVS30;
-                else
-                    toolType = ToolA;
+	int i;
+	int count = sizeof(ANA6705_ToolA_DB) / sizeof(LotDBItem);
+	bool bFound = false;
+	eTool toolType;
 
-                break;
-            }
-        }
-    }
+	for (i = 0; i < count; i++) {
+		if (strncmp(szLotID, ANA6705_ToolA_DB[i].LotID, 5) == 0) {
+			if (ANA6705_ToolA_DB[i].wafer_Start > 0) {
+				if (WaferNumber >= ANA6705_ToolA_DB[i].wafer_Start && WaferNumber <= ANA6705_ToolA_DB[i].wafer_End) {
+					bFound = true;
+					if (ANA6705_ToolA_DB[i].HVS30)
+						toolType = ToolA_HVS30;
+					else
+						toolType = ToolA;
+				}
+				break;
+			} else {
+				bFound = true;
+				if (ANA6705_ToolA_DB[i].HVS30)
+					toolType = ToolA_HVS30;
+				else
+					toolType = ToolA;
+				break;
+			}
+		}
+	}
 
-    if (bFound == false)
-        toolType = ToolB;
+	if (bFound == false)
+		toolType = ToolB;
 
-    return toolType;
+	return toolType;
 }
-
 
 eTool discrimination_ANA6706_ToolsType(char* szLotID, int WaferNumber)
 {
-    int i;
-    int count = sizeof(ANA6706_ToolA_DB) / sizeof(LotDBItem);
-    bool bFound = false;
-    eTool toolType;
-    for (i = 0; i < count; i++) {
-        if (strncmp(szLotID, ANA6706_ToolA_DB[i].LotID, 5) == 0) {
-            if (ANA6706_ToolA_DB[i].wafer_Start > 0) {
-                if (WaferNumber >= ANA6706_ToolA_DB[i].wafer_Start && WaferNumber <= ANA6706_ToolA_DB[i].wafer_End) {
-                    bFound = true;
-                    if (ANA6706_ToolA_DB[i].HVS30)
-                        toolType = ToolA_HVS30;
-                    else
-                        toolType = ToolA;
-                }
-                break;
-            }
-            else {
-                bFound = true;
-                if (ANA6706_ToolA_DB[i].HVS30)
-                    toolType = ToolA_HVS30;
-                else
-                    toolType = ToolA;
+	int i;
+	int count = sizeof(ANA6706_ToolA_DB) / sizeof(LotDBItem);
+	bool bFound = false;
+	eTool toolType;
 
-                break;
-            }
-        }
-    }
+	for (i = 0; i < count; i++) {
+		if (strncmp(szLotID, ANA6706_ToolA_DB[i].LotID, 5) == 0) {
+			if (ANA6706_ToolA_DB[i].wafer_Start > 0) {
+				if (WaferNumber >= ANA6706_ToolA_DB[i].wafer_Start && WaferNumber <= ANA6706_ToolA_DB[i].wafer_End) {
+					bFound = true;
+					if (ANA6706_ToolA_DB[i].HVS30)
+						toolType = ToolA_HVS30;
+					else
+						toolType = ToolA;
+				}
+				break;
+			} else {
+				bFound = true;
+				if (ANA6706_ToolA_DB[i].HVS30)
+					toolType = ToolA_HVS30;
+				else
+					toolType = ToolA;
+				break;
+			}
+		}
+	}
 
-    if (bFound == false)
-        toolType = ToolB;
+	if (bFound == false)
+		toolType = ToolB;
 
-    return toolType;
+	return toolType;
+}
+
+int dsi_display_back_ToolsType_ANA6706(u8 *buff)
+{
+	int i;
+	int WaferNumber;
+	eTool typeTool;
+	char szLotID[6] = {0};
+	unsigned char chipID1[4] = {0};
+
+	for(i = 0; i < 4; i++)
+		chipID1[i] = buff[i];
+
+	// [6706] Chip IDLot IDWafer Number
+	extractLotID(chipID1, szLotID);
+	memcpy(buf_Lotid, szLotID, 6);
+	WaferNumber = extractWaferNumber(chipID1);
+
+	// LotID Wafer Number Tool Type
+	typeTool = discrimination_ANA6706_ToolsType(szLotID, WaferNumber);
+
+	if (typeTool == ToolB)
+		DSI_ERR("Result: 6706 LotID: %s WaferNo: %d, Tool: Tool-B (%d)\n", szLotID, WaferNumber, typeTool);
+	else if (typeTool == ToolA)
+		DSI_ERR("Result: 6706 LotID: %s WaferNo: %d, Tool: Tool-A (%d)\n", szLotID, WaferNumber, typeTool);
+	else if (typeTool == ToolA_HVS30)
+		DSI_ERR("Result: 6706 LotID: %s WaferNo: %d, Tool: Tool-A HVS 3.0 (%d)\n", szLotID, WaferNumber, typeTool);
+
+	for (i = 0; i < 18; i++) {
+		if((strcmp(szLotID, ANA6706_Green[i].LotID) == 0)) {
+			typeTool = Tool_Green;
+			break;
+		}
+	}
+
+	return typeTool;
 }
 
 static void dsi_display_mask_ctrl_error_interrupts(struct dsi_display *display,
@@ -795,7 +820,6 @@ int dsi_display_set_backlight(struct drm_connector *connector,
 	panel = dsi_display->panel;
 
 	mutex_lock(&panel->panel_lock);
-
 	if (!dsi_panel_initialized(panel)) {
 		if (bl_lvl != INVALID_BL_VALUE) {
 			panel->hbm_backlight = bl_lvl;
@@ -806,10 +830,8 @@ int dsi_display_set_backlight(struct drm_connector *connector,
 		goto error;
 	}
 
-
-	if (strcmp(dsi_display->panel->name, "samsung s6e3fc2x01 cmd mode dsi panel") == 0) {
-		if (bl_lvl != 0 && bl_lvl != INVALID_BL_VALUE
-			&& panel->bl_config.bl_level == 0) {
+	if (bl_lvl != 0 && bl_lvl != INVALID_BL_VALUE && panel->bl_config.bl_level == 0) {
+		if (strcmp(dsi_display->panel->name, "samsung dsc cmd mode oneplus dsi panel") == 0) {
 			if (panel->naive_display_p3_mode) {
 				mdelay(20);
 				dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_NATIVE_DISPLAY_P3_ON);
@@ -822,6 +844,30 @@ int dsi_display_set_backlight(struct drm_connector *connector,
 			}
 			if (panel->naive_display_srgb_color_mode) {
 				mdelay(20);
+				dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_NATIVE_DISPLAY_SRGB_COLOR_ON);
+				DSI_ERR("Send DSI_CMD_SET_NATIVE_DISPLAY_SRGB_COLOR_ON cmds\n");
+			}
+			if (panel->naive_display_customer_srgb_mode) {
+				dsi_panel_tx_cmd_set(panel, DSI_CMD_LOADING_CUSTOMER_RGB_ON);
+				DSI_ERR("Send DSI_CMD_LOADING_CUSTOMER_RGB_ON cmds\n");
+			}
+			if (panel->naive_display_customer_p3_mode) {
+				dsi_panel_tx_cmd_set(panel, DSI_CMD_LOADING_CUSTOMER_P3_ON);
+				DSI_ERR("Send DSI_CMD_LOADING_CUSTOMER_P3_ON cmds\n");
+			}
+		} else if (strcmp(dsi_display->panel->name, "samsung sofef03f_m fhd cmd mode dsc dsi panel") == 0) {
+			if (panel->naive_display_p3_mode) {
+				msleep(20);
+				dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_NATIVE_DISPLAY_P3_ON);
+				DSI_ERR("Send DSI_CMD_SET_NATIVE_DISPLAY_P3_ON cmds\n");
+			}
+			if (panel->naive_display_wide_color_mode) {
+				msleep(20);
+				dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_NATIVE_DISPLAY_WIDE_COLOR_ON);
+				DSI_ERR("Send DSI_CMD_SET_NATIVE_DISPLAY_WIDE_COLOR_ON cmds\n");
+			}
+			if (panel->naive_display_srgb_color_mode) {
+				msleep(20);
 				dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_NATIVE_DISPLAY_SRGB_COLOR_ON);
 				DSI_ERR("Send DSI_CMD_SET_NATIVE_DISPLAY_SRGB_COLOR_ON cmds\n");
 			}
@@ -833,92 +879,8 @@ int dsi_display_set_backlight(struct drm_connector *connector,
 				DSI_ERR("Send DSI_CMD_LOADING_CUSTOMER_RGB_OFF cmds\n");
 			}
 			if (panel->naive_display_customer_p3_mode) {
-				dsi_panel_tx_cmd_set(panel, DSI_CMD_LOADING_CUSTOMER_P3_ON);
-				DSI_ERR("Send DSI_CMD_LOADING_CUSTOMER_P3_ON cmds\n");
-			} else {
-				dsi_panel_tx_cmd_set(panel, DSI_CMD_LOADING_CUSTOMER_P3_OFF);
-				DSI_ERR("Send DSI_CMD_LOADING_CUSTOMER_P3_OFF cmds\n");
-			}
-		}
-	}
-
-	if (strcmp(dsi_display->panel->name, "samsung dsc cmd mode oneplus dsi panel") == 0) {
-		if (bl_lvl != 0 && bl_lvl != INVALID_BL_VALUE
-			&& panel->bl_config.bl_level == 0) {
-			if (panel->naive_display_p3_mode) {
-				mdelay(20);
-				dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_NATIVE_DISPLAY_P3_ON);
-				DSI_ERR("Send DSI_CMD_SET_NATIVE_DISPLAY_P3_ON cmds\n");
-			}
-			if (panel->naive_display_wide_color_mode) {
-				mdelay(20);
-				dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_NATIVE_DISPLAY_WIDE_COLOR_ON);
-				DSI_ERR("Send DSI_CMD_SET_NATIVE_DISPLAY_WIDE_COLOR_ON cmds\n");
-			}
-			if (panel->naive_display_srgb_color_mode) {
-				mdelay(20);
-				dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_NATIVE_DISPLAY_SRGB_COLOR_ON);
-				DSI_ERR("Send DSI_CMD_SET_NATIVE_DISPLAY_SRGB_COLOR_ON cmds\n");
-			}
-			if (panel->naive_display_loading_effect_mode) {
-				dsi_panel_tx_cmd_set(panel, DSI_CMD_LOADING_EFFECT_ON);
-				DSI_ERR("Send DSI_CMD_LOADING_EFFECT_ON cmds\n");
-			} else {
-				dsi_panel_tx_cmd_set(panel, DSI_CMD_LOADING_EFFECT_OFF);
-				DSI_ERR("Send DSI_CMD_LOADING_EFFECT_OFF cmds\n");
-			}
-			if (panel->naive_display_customer_srgb_mode) {
-				dsi_panel_tx_cmd_set(panel, DSI_CMD_LOADING_CUSTOMER_RGB_ON);
-				DSI_ERR("Send DSI_CMD_LOADING_CUSTOMER_RGB_ON cmds\n");
-			} else {
-				//dsi_panel_tx_cmd_set(panel, DSI_CMD_LOADING_CUSTOMER_RGB_OFF);
-				DSI_ERR("Send DSI_CMD_LOADING_CUSTOMER_RGB_OFF cmds\n");
-			}
-			if (panel->naive_display_customer_p3_mode) {
-				dsi_panel_tx_cmd_set(panel, DSI_CMD_LOADING_CUSTOMER_P3_ON);
-				DSI_ERR("Send DSI_CMD_LOADING_CUSTOMER_P3_ON cmds\n");
-			} else {
-				//dsi_panel_tx_cmd_set(panel, DSI_CMD_LOADING_CUSTOMER_P3_OFF);
-				DSI_ERR("Send DSI_CMD_LOADING_CUSTOMER_P3_OFF cmds\n");
-			}
-		}
-	}
-
-	if (strcmp(dsi_display->panel->name, "samsung sofef03f_m fhd cmd mode dsc dsi panel") == 0) {
-		if (bl_lvl != 0 && bl_lvl != INVALID_BL_VALUE
-			&& panel->bl_config.bl_level == 0) {
-			if (panel->naive_display_p3_mode) {
-				msleep(20);
-				dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_NATIVE_DISPLAY_P3_ON);
-				DSI_ERR("Send DSI_CMD_SET_NATIVE_DISPLAY_P3_ON cmds\n");
-			}
-			if (panel->naive_display_wide_color_mode) {
-				msleep(20);
-				dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_NATIVE_DISPLAY_WIDE_COLOR_ON);
-				DSI_ERR("Send DSI_CMD_SET_NATIVE_DISPLAY_WIDE_COLOR_ON cmds\n");
-			}
-			if (panel->naive_display_srgb_color_mode) {
-				msleep(20);
-				dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_NATIVE_DISPLAY_SRGB_COLOR_ON);
-				DSI_ERR("Send DSI_CMD_SET_NATIVE_DISPLAY_SRGB_COLOR_ON cmds\n");
-			}
-			if (panel->naive_display_loading_effect_mode) {
-				dsi_panel_tx_cmd_set(panel, DSI_CMD_LOADING_EFFECT_ON);
-				DSI_ERR("Send DSI_CMD_LOADING_EFFECT_ON cmds\n");
-			} else {
-				dsi_panel_tx_cmd_set(panel, DSI_CMD_LOADING_EFFECT_OFF);
-				DSI_ERR("Send DSI_CMD_LOADING_EFFECT_OFF cmds\n");
-			}
-			if (panel->naive_display_customer_srgb_mode) {
-				dsi_panel_tx_cmd_set(panel, DSI_CMD_LOADING_CUSTOMER_RGB_ON);
-				DSI_ERR("Send DSI_CMD_LOADING_CUSTOMER_RGB_ON cmds\n");
-			} else {
 				dsi_panel_tx_cmd_set(panel, DSI_CMD_LOADING_CUSTOMER_RGB_OFF);
 				DSI_ERR("Send DSI_CMD_LOADING_CUSTOMER_RGB_OFF cmds\n");
-			}
-			if (panel->naive_display_customer_p3_mode) {
-				dsi_panel_tx_cmd_set(panel, DSI_CMD_LOADING_CUSTOMER_P3_ON);
-				DSI_ERR("Send DSI_CMD_LOADING_CUSTOMER_P3_ON cmds\n");
 			} else {
 				dsi_panel_tx_cmd_set(panel, DSI_CMD_LOADING_CUSTOMER_P3_OFF);
 				DSI_ERR("Send DSI_CMD_LOADING_CUSTOMER_P3_OFF cmds\n");
@@ -926,89 +888,6 @@ int dsi_display_set_backlight(struct drm_connector *connector,
 		}
 	}
 
-	if (strcmp(dsi_display->panel->name, "samsung ana6705 fhd cmd mode dsc dsi panel") == 0) {
-		if (bl_lvl != 0 && bl_lvl != INVALID_BL_VALUE
-			&& panel->bl_config.bl_level == 0) {
-			if (panel->naive_display_p3_mode) {
-				msleep(20);
-				dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_NATIVE_DISPLAY_P3_ON);
-				DSI_ERR("Send DSI_CMD_SET_NATIVE_DISPLAY_P3_ON cmds\n");
-			}
-			if (panel->naive_display_wide_color_mode) {
-				msleep(20);
-				dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_NATIVE_DISPLAY_WIDE_COLOR_ON);
-				DSI_ERR("Send DSI_CMD_SET_NATIVE_DISPLAY_WIDE_COLOR_ON cmds\n");
-			}
-			if (panel->naive_display_srgb_color_mode) {
-				msleep(20);
-				dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_NATIVE_DISPLAY_SRGB_COLOR_ON);
-				DSI_ERR("Send DSI_CMD_SET_NATIVE_DISPLAY_SRGB_COLOR_ON cmds\n");
-			}
-			if (panel->naive_display_loading_effect_mode) {
-				dsi_panel_tx_cmd_set(panel, DSI_CMD_LOADING_EFFECT_ON);
-				DSI_ERR("Send DSI_CMD_LOADING_EFFECT_ON cmds\n");
-			} else {
-				dsi_panel_tx_cmd_set(panel, DSI_CMD_LOADING_EFFECT_OFF);
-				DSI_ERR("Send DSI_CMD_LOADING_EFFECT_OFF cmds\n");
-			}
-			if (panel->naive_display_customer_srgb_mode) {
-				dsi_panel_tx_cmd_set(panel, DSI_CMD_LOADING_CUSTOMER_RGB_ON);
-				DSI_ERR("Send DSI_CMD_LOADING_CUSTOMER_RGB_ON cmds\n");
-			} else {
-				dsi_panel_tx_cmd_set(panel, DSI_CMD_LOADING_CUSTOMER_RGB_OFF);
-				DSI_ERR("Send DSI_CMD_LOADING_CUSTOMER_RGB_OFF cmds\n");
-			}
-			if (panel->naive_display_customer_p3_mode) {
-				dsi_panel_tx_cmd_set(panel, DSI_CMD_LOADING_CUSTOMER_P3_ON);
-				DSI_ERR("Send DSI_CMD_LOADING_CUSTOMER_P3_ON cmds\n");
-			} else {
-				dsi_panel_tx_cmd_set(panel, DSI_CMD_LOADING_CUSTOMER_P3_OFF);
-				DSI_ERR("Send DSI_CMD_LOADING_CUSTOMER_P3_OFF cmds\n");
-			}
-		}
-	}
-
-	if (strcmp(dsi_display->panel->name, "samsung ana6706 dsc cmd mode panel") == 0) {
-		if (bl_lvl != 0 && bl_lvl != INVALID_BL_VALUE
-			&& panel->bl_config.bl_level == 0) {
-			if (panel->naive_display_p3_mode) {
-				msleep(20);
-				dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_NATIVE_DISPLAY_P3_ON);
-				DSI_ERR("Send DSI_CMD_SET_NATIVE_DISPLAY_P3_ON cmds\n");
-			}
-			if (panel->naive_display_wide_color_mode) {
-				msleep(20);
-				dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_NATIVE_DISPLAY_WIDE_COLOR_ON);
-				DSI_ERR("Send DSI_CMD_SET_NATIVE_DISPLAY_WIDE_COLOR_ON cmds\n");
-			}
-			if (panel->naive_display_srgb_color_mode) {
-				msleep(20);
-				dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_NATIVE_DISPLAY_SRGB_COLOR_ON);
-				DSI_ERR("Send DSI_CMD_SET_NATIVE_DISPLAY_SRGB_COLOR_ON cmds\n");
-			}
-			if (panel->naive_display_loading_effect_mode) {
-				dsi_panel_tx_cmd_set(panel, DSI_CMD_LOADING_EFFECT_ON);
-				DSI_ERR("Send DSI_CMD_LOADING_EFFECT_ON cmds\n");
-			} else {
-				dsi_panel_tx_cmd_set(panel, DSI_CMD_LOADING_EFFECT_OFF);
-				DSI_ERR("Send DSI_CMD_LOADING_EFFECT_OFF cmds\n");
-			}
-			if (panel->naive_display_customer_srgb_mode) {
-				dsi_panel_tx_cmd_set(panel, DSI_CMD_LOADING_CUSTOMER_RGB_ON);
-				DSI_ERR("Send DSI_CMD_LOADING_CUSTOMER_RGB_ON cmds\n");
-			} else {
-				dsi_panel_tx_cmd_set(panel, DSI_CMD_LOADING_CUSTOMER_RGB_OFF);
-				DSI_ERR("Send DSI_CMD_LOADING_CUSTOMER_RGB_OFF cmds\n");
-			}
-			if (panel->naive_display_customer_p3_mode) {
-				dsi_panel_tx_cmd_set(panel, DSI_CMD_LOADING_CUSTOMER_P3_ON);
-				DSI_ERR("Send DSI_CMD_LOADING_CUSTOMER_P3_ON cmds\n");
-			} else {
-				dsi_panel_tx_cmd_set(panel, DSI_CMD_LOADING_CUSTOMER_P3_OFF);
-				DSI_ERR("Send DSI_CMD_LOADING_CUSTOMER_P3_OFF cmds\n");
-			}
-		}
-	}
 	if (bl_lvl != INVALID_BL_VALUE)
 		panel->bl_config.bl_level = bl_lvl;
 	else
@@ -1045,15 +924,14 @@ int dsi_display_set_backlight(struct drm_connector *connector,
 error:
 	mutex_unlock(&panel->panel_lock);
 
-	if((strcmp(dsi_display->panel->name, "samsung dsc cmd mode oneplus dsi panel") == 0
-		|| strcmp(panel->name, "samsung s6e3fc2x01 cmd mode dsi panel") == 0 ||
-		strcmp(panel->name, "samsung sofef03f_m fhd cmd mode dsc dsi panel") == 0 ||
-		strcmp(panel->name, "samsung ana6705 fhd cmd mode dsc dsi panel") == 0) && (0 == SERIAL_NUMBER_flag)) {
-		dsi_display_get_serial_number_AT(connector);
+	if ((0 == panel->panel_serial_number) &&
+		(strcmp(dsi_display->panel->name, "samsung sofef00_m video mode dsi panel") != 0)) {
+		dsi_display_get_serial_number(connector);
 	}
 
 	if ((gamma_read_flag < 2) && ((strcmp(dsi_display->panel->name, "samsung dsc cmd mode oneplus dsi panel") == 0)
-		|| (strcmp(dsi_display->panel->name, "samsung ana6706 dsc cmd mode panel") == 0))) {
+		|| (strcmp(dsi_display->panel->name, "samsung ana6706 dsc cmd mode panel") == 0)
+			|| (strcmp(dsi_display->panel->name, "samsung amb655x fhd cmd mode dsc dsi panel") == 0))) {
 		if (gamma_read_flag < 1) {
 			gamma_read_flag++;
 		}
@@ -1110,6 +988,13 @@ done:
 	return rc;
 }
 
+#if defined(CONFIG_PXLW_IRIS)
+int iris_display_cmd_engine_enable(struct dsi_display *display)
+{
+	return dsi_display_cmd_engine_enable(display);
+}
+#endif
+
 int dsi_display_cmd_engine_disable(struct dsi_display *display)
 {
 	int rc = 0;
@@ -1152,6 +1037,12 @@ done:
 	mutex_unlock(&m_ctrl->ctrl->ctrl_lock);
 	return rc;
 }
+#if defined(CONFIG_PXLW_IRIS)
+int iris_display_cmd_engine_disable(struct dsi_display *display)
+{
+	return dsi_display_cmd_engine_disable(display);
+}
+#endif
 
 static void dsi_display_aspace_cb_locked(void *cb_data, bool is_detach)
 {
@@ -1385,35 +1276,21 @@ error:
 		display->panel->esd_config.esd_enabled = false;
 }
 
-static bool dsi_display_is_te_based_esd(struct dsi_display *display)
-{
-	u32 status_mode = 0;
-
-	if (!display->panel) {
-		DSI_ERR("Invalid panel data\n");
-		return false;
-	}
-
-	status_mode = display->panel->esd_config.status_mode;
-
-	if (status_mode == ESD_MODE_PANEL_TE &&
-			gpio_is_valid(display->disp_te_gpio))
-		return true;
-	return false;
-}
-
 /* Allocate memory for cmd dma tx buffer */
 static int dsi_host_alloc_cmd_tx_buffer(struct dsi_display *display)
 {
 	int rc = 0, cnt = 0;
 	struct dsi_display_ctrl *display_ctrl;
 
-	display->tx_cmd_buf = msm_gem_new(display->drm_dev,
-#if defined(CONFIG_PXLW_IRIS5)
+#if defined(CONFIG_PXLW_IRIS)
+	if (iris_is_chip_supported()) {
+		display->tx_cmd_buf = msm_gem_new(display->drm_dev,
 			SZ_256K,
-#else
-			SZ_4K,
+			MSM_BO_UNCACHED);
+	} else
 #endif
+		display->tx_cmd_buf = msm_gem_new(display->drm_dev,
+			SZ_4K,
 			MSM_BO_UNCACHED);
 
 	if ((display->tx_cmd_buf) == NULL) {
@@ -1422,10 +1299,10 @@ static int dsi_host_alloc_cmd_tx_buffer(struct dsi_display *display)
 		goto error;
 	}
 
-#if defined(CONFIG_PXLW_IRIS5)
-	display->cmd_buffer_size = SZ_256K;
-#else
 	display->cmd_buffer_size = SZ_4K;
+#if defined(CONFIG_PXLW_IRIS)
+	if (iris_is_chip_supported())
+		display->cmd_buffer_size = SZ_256K;
 #endif
 
 	display->aspace = msm_gem_smmu_address_space_get(
@@ -1460,10 +1337,10 @@ static int dsi_host_alloc_cmd_tx_buffer(struct dsi_display *display)
 
 	display_for_each_ctrl(cnt, display) {
 		display_ctrl = &display->ctrl[cnt];
-#if defined(CONFIG_PXLW_IRIS5)
-		display_ctrl->ctrl->cmd_buffer_size = SZ_256K;
-#else
 		display_ctrl->ctrl->cmd_buffer_size = SZ_4K;
+#if defined(CONFIG_PXLW_IRIS)
+		if (iris_is_chip_supported())
+			display_ctrl->ctrl->cmd_buffer_size = SZ_256K;
 #endif
 		display_ctrl->ctrl->cmd_buffer_iova =
 					display->cmd_buffer_iova;
@@ -1598,7 +1475,7 @@ static int dsi_display_read_status(struct dsi_display_ctrl *ctrl,
 			cmds[i].msg.flags |= MIPI_DSI_MSG_USE_LPM;
 		cmds[i].msg.rx_buf = config->status_buf;
 		cmds[i].msg.rx_len = config->status_cmds_rlen[i];
-		rc = dsi_ctrl_cmd_transfer(ctrl->ctrl, &cmds[i].msg, flags);
+		rc = dsi_ctrl_cmd_transfer(ctrl->ctrl, &cmds[i].msg, &flags);
 		if (rc <= 0) {
 			DSI_ERR("rx cmd transfer failed rc=%d\n", rc);
 			return rc;
@@ -1617,13 +1494,14 @@ static int dsi_display_validate_status(struct dsi_display_ctrl *ctrl,
 {
 	int rc = 0;
 
-#if defined(CONFIG_PXLW_IRIS5)
-	rc = iris_read_status(ctrl, panel);
-	if (rc == 2)
-		rc = dsi_display_read_status(ctrl, panel);
-#else
-	rc = dsi_display_read_status(ctrl, panel);
+#if defined(CONFIG_PXLW_IRIS)
+	if (iris_is_chip_supported()) {
+		rc = iris_read_status(ctrl, panel);
+		if (rc == 2)
+			rc = dsi_display_read_status(ctrl, panel);
+	} else
 #endif
+		rc = dsi_display_read_status(ctrl, panel);
 	if (rc <= 0) {
 		goto exit;
 	} else {
@@ -1642,84 +1520,23 @@ exit:
 	return rc;
 }
 
-static int dsi_panel_tx_cmd_set_op(struct dsi_panel *panel,
-				enum dsi_cmd_set_type type)
-{
-	int rc = 0, i = 0;
-	ssize_t len;
-	struct dsi_cmd_desc *cmds;
-	u32 count;
-	enum dsi_cmd_set_state state;
-	struct dsi_display_mode *mode;
-	const struct mipi_dsi_host_ops *ops = panel->host->ops;
-	if (!panel || !panel->cur_mode)
-		return -EINVAL;
-
-
-	mode = panel->cur_mode;
-
-	cmds = mode->priv_info->cmd_sets[type].cmds;
-	count = mode->priv_info->cmd_sets[type].count;
-	state = mode->priv_info->cmd_sets[type].state;
-
-	if (count == 0) {
-		DSI_DEBUG("[%s] No commands to be sent for state(%d)\n",
-			 panel->name, type);
-		goto error;
-	}
-	for (i = 0; i < count; i++) {
-		if (state == DSI_CMD_SET_STATE_LP)
-			cmds->msg.flags |= MIPI_DSI_MSG_USE_LPM;
-
-		if (cmds->last_command)
-			cmds->msg.flags |= MIPI_DSI_MSG_LASTCOMMAND;
-
-		len = ops->transfer(panel->host, &cmds->msg);
-		if (len < 0) {
-			rc = len;
-			DSI_ERR("failed to set cmds(%d), rc=%d\n", type, rc);
-			goto error;
-		}
-		if (cmds->post_wait_ms)
-			usleep_range(cmds->post_wait_ms*1000,
-					((cmds->post_wait_ms*1000)+10));
-		cmds++;
-	}
-error:
-	return rc;
-}
-
 static int dsi_display_status_reg_read(struct dsi_display *display)
 {
 	int rc = 0, i;
 	struct dsi_display_ctrl *m_ctrl, *ctrl;
+
 	struct dsi_display_mode *mode;
-	u32 flags = 0;
-	u32 count = 0;
-	int retry_times = 0;
 	struct dsi_panel *panel = NULL;
-	struct dsi_cmd_desc *cmds1;
-	struct dsi_cmd_desc *cmds2;
-	struct dsi_cmd_desc *cmds3;
-	struct dsi_cmd_desc *cmds4;
-	struct dsi_cmd_desc *cmds5;
-	struct dsi_cmd_desc *cmds6;
-	struct dsi_cmd_desc *cmds7;
-	u8 temp_buffer_1[1] = {0};
-	u8 temp_buffer_2[1] = {0};
-	u8 temp_buffer_3[1] = {0};
-	u8 temp_buffer_4[1] = {0};
-	u8 temp_buffer_5[2] = {0,};
-	u8 temp_buffer_6[16] = {0,};
-	u8 temp_buffer_7[34] = {0,};
-	u8 register_0a[10] = {0};
-	u8 register_b6[10] = {0};
-	u8 register_ee[10] = {0};
-	u8 register_e5[10] = {0};
-	u8 register_e9[10] = {0};
-	u8 register_ed[10] = {0};
-	u8 buf[48];
-	memset(buf, 0, sizeof(buf));
+	
+	int count = 0;
+	#if defined(CONFIG_PXLW_IRIS)
+	struct dsi_cmd_desc *cmds;
+	unsigned char *payload;
+	#endif
+	unsigned char register1[10] = {0};
+	unsigned char register2[10] = {0};
+	unsigned char register3[10] = {0};
+	unsigned char register4[10] = {0};
 
 	DSI_DEBUG(" ++\n");
 
@@ -1738,475 +1555,190 @@ static int dsi_display_status_reg_read(struct dsi_display *display)
 		DSI_ERR("cmd engine enable failed\n");
 		return -EPERM;
 	}
-	mode = display->panel->cur_mode;
-	panel = display->panel;
 
-	if (strcmp(panel->name, "samsung dsc cmd mode oneplus dsi panel") == 0) {
-		count = mode->priv_info->cmd_sets[DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_ON].count;
+	if (!display->panel || !display->panel->cur_mode) {
+		rc = -EINVAL;
+		goto exit;
+	}
+
+	if ((strcmp(display->panel->name, "samsung dsc cmd mode oneplus dsi panel") == 0) ||
+		(strcmp(display->panel->name, "samsung sofef03f_m fhd cmd mode dsc dsi panel") == 0) ||
+		(strcmp(display->panel->name, "samsung ana6706 dsc cmd mode panel") == 0) ||
+		(strcmp(display->panel->name, "samsung ana6705 fhd cmd mode dsc dsi panel") == 0) ||
+		(strcmp(display->panel->name, "samsung amb655x fhd cmd mode dsc dsi panel") == 0)) {
+
+		mode = display->panel->cur_mode;
+		panel = display->panel;
+
+		count = mode->priv_info->cmd_sets[DSI_CMD_SET_LEVEL2_KEY_ENABLE].count;
 		if (!count) {
-			DSI_ERR("This panel does not read register\n");
+			DSI_ERR("This panel does not support level2 key enable command\n");
 		} else {
-			rc = dsi_panel_tx_cmd_set_op(panel, DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_ON);
-		}
-		cmds1 = mode->priv_info->cmd_sets[DSI_CMD_SET_PANEL_ID1].cmds;
-		if (cmds1->last_command) {
-			cmds1->msg.flags |= MIPI_DSI_MSG_LASTCOMMAND;
-			flags |= DSI_CTRL_CMD_LAST_COMMAND;
-		}
-		flags |= (DSI_CTRL_CMD_FETCH_MEMORY | DSI_CTRL_CMD_READ);
-		cmds1->msg.rx_buf = buf;
-		cmds1->msg.rx_len = 1;
-		rc = dsi_ctrl_cmd_transfer(m_ctrl->ctrl, &cmds1->msg, flags);
-		if (rc <= 0)
-			DSI_ERR("rx cmd transfer failed rc=%d\n", rc);
-		rc = dsi_panel_tx_cmd_set_op(panel, DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_OFF);
-
-		memcpy(temp_buffer_1, cmds1->msg.rx_buf, 1);
-		memset(buf, 0, sizeof(buf));
-
-		rc = dsi_panel_tx_cmd_set_op(panel, DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_ON);
-		cmds2 = mode->priv_info->cmd_sets[DSI_CMD_SET_PANEL_ID2].cmds;
-		if (cmds2->last_command) {
-			cmds2->msg.flags |= MIPI_DSI_MSG_LASTCOMMAND;
-			flags |= DSI_CTRL_CMD_LAST_COMMAND;
-		}
-		flags |= (DSI_CTRL_CMD_FETCH_MEMORY | DSI_CTRL_CMD_READ);
-		cmds2->msg.rx_buf = buf;
-		cmds2->msg.rx_len = 1;
-		rc = dsi_ctrl_cmd_transfer(m_ctrl->ctrl, &cmds2->msg, flags);
-		if (rc <= 0)
-			DSI_ERR("rx cmd transfer failed rc=%d\n", rc);
-		rc = dsi_panel_tx_cmd_set_op(panel, DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_OFF);
-
-		memcpy(temp_buffer_2, cmds2->msg.rx_buf, 1);
-		memset(buf, 0, sizeof(buf));
-
-		rc = dsi_panel_tx_cmd_set_op(panel, DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_ON);
-		cmds3 = mode->priv_info->cmd_sets[DSI_CMD_SET_PANEL_ID3].cmds;
-		if (cmds3->last_command) {
-			cmds3->msg.flags |= MIPI_DSI_MSG_LASTCOMMAND;
-			flags |= DSI_CTRL_CMD_LAST_COMMAND;
-		}
-		flags |= (DSI_CTRL_CMD_FETCH_MEMORY | DSI_CTRL_CMD_READ);
-		cmds3->msg.rx_buf = buf;
-		cmds3->msg.rx_len = 1;
-		rc = dsi_ctrl_cmd_transfer(m_ctrl->ctrl, &cmds3->msg, flags);
-		if (rc <= 0)
-			DSI_ERR("rx cmd transfer failed rc=%d\n", rc);
-		rc = dsi_panel_tx_cmd_set_op(panel, DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_OFF);
-
-		memcpy(temp_buffer_3, cmds3->msg.rx_buf, 1);
-
-		rc = dsi_panel_tx_cmd_set_op(panel, DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_ON);
-		cmds4 = mode->priv_info->cmd_sets[DSI_CMD_SET_PANEL_ID4].cmds;
-		if (cmds4->last_command) {
-			cmds4->msg.flags |= MIPI_DSI_MSG_LASTCOMMAND;
-			flags |= DSI_CTRL_CMD_LAST_COMMAND;
-		}
-		flags |= (DSI_CTRL_CMD_FETCH_MEMORY | DSI_CTRL_CMD_READ);
-		cmds4->msg.rx_buf = buf;
-		cmds4->msg.rx_len = 1;
-		rc = dsi_ctrl_cmd_transfer(m_ctrl->ctrl, &cmds4->msg, flags);
-		if (rc <= 0)
-			DSI_ERR("rx cmd transfer failed rc=%d\n", rc);
-		rc = dsi_panel_tx_cmd_set_op(panel, DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_OFF);
-
-		memcpy(temp_buffer_4, cmds4->msg.rx_buf, 1);
-		memset(buf, 0, sizeof(buf));
-
-		rc = dsi_panel_tx_cmd_set_op(panel, DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_ON);
-		cmds5 = mode->priv_info->cmd_sets[DSI_CMD_SET_PANEL_ID5].cmds;
-		if (cmds5->last_command) {
-			cmds5->msg.flags |= MIPI_DSI_MSG_LASTCOMMAND;
-			flags |= DSI_CTRL_CMD_LAST_COMMAND;
-		}
-		flags |= (DSI_CTRL_CMD_FETCH_MEMORY | DSI_CTRL_CMD_READ);
-		cmds5->msg.rx_buf = buf;
-		cmds5->msg.rx_len = 2;
-		rc = dsi_ctrl_cmd_transfer(m_ctrl->ctrl, &cmds5->msg, flags);
-		if (rc <= 0)
-			DSI_ERR("rx cmd transfer failed rc=%d\n", rc);
-		rc = dsi_panel_tx_cmd_set_op(panel, DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_OFF);
-
-		memcpy(temp_buffer_5, cmds5->msg.rx_buf, 2);
-		memset(buf, 0, sizeof(buf));
-
-		rc = dsi_panel_tx_cmd_set_op(panel, DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_ON);
-		cmds6 = mode->priv_info->cmd_sets[DSI_CMD_SET_PANEL_ID6].cmds;
-		if (cmds6->last_command) {
-			cmds6->msg.flags |= MIPI_DSI_MSG_LASTCOMMAND;
-			flags |= DSI_CTRL_CMD_LAST_COMMAND;
-		}
-		flags |= (DSI_CTRL_CMD_FETCH_MEMORY | DSI_CTRL_CMD_READ);
-		cmds6->msg.rx_buf = buf;
-		cmds6->msg.rx_len = 16;
-		rc = dsi_ctrl_cmd_transfer(m_ctrl->ctrl, &cmds6->msg, flags);
-		if (rc <= 0)
-			DSI_ERR("rx cmd transfer failed rc=%d\n", rc);
-		rc = dsi_panel_tx_cmd_set_op(panel, DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_OFF);
-
-		memcpy(temp_buffer_6, cmds6->msg.rx_buf, 16);
-		memset(buf, 0, sizeof(buf));
-
-		rc = dsi_panel_tx_cmd_set_op(panel, DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_ON);
-		rc = dsi_panel_tx_cmd_set_op(panel, DSI_CMD_SET_ESD_LOGREAD_PREREAD);
-
-		cmds7 = mode->priv_info->cmd_sets[DSI_CMD_SET_PANEL_ID7].cmds;
-		if (cmds7->last_command) {
-			cmds7->msg.flags |= MIPI_DSI_MSG_LASTCOMMAND;
-			flags |= DSI_CTRL_CMD_LAST_COMMAND;
-		}
-		flags |= (DSI_CTRL_CMD_FETCH_MEMORY | DSI_CTRL_CMD_READ);
-		cmds7->msg.rx_buf = buf;
-		cmds7->msg.rx_len = 34;
-		rc = dsi_ctrl_cmd_transfer(m_ctrl->ctrl, &cmds7->msg, flags);
-		if (rc <= 0)
-			DSI_ERR("rx cmd transfer failed rc=%d\n", rc);
-		rc = dsi_panel_tx_cmd_set_op(panel, DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_OFF);
-
-		memcpy(temp_buffer_7, cmds7->msg.rx_buf, 34);
-
-		if((temp_buffer_6[0] !=0x80) && (temp_buffer_2[0] != 0x80)) {
-			rc = -1;
-		}
-		else {
-			rc = 1;
-		}
-	} else if (strcmp(panel->name, "samsung s6e3fc2x01 cmd mode dsi panel") == 0) {
-		count = mode->priv_info->cmd_sets[DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_ON].count;
-		if (!count) {
-			DSI_ERR("This panel does not read register\n");
-		} else {
-			rc = dsi_panel_tx_cmd_set_op(panel, DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_ON);
-		}
-		cmds1 = mode->priv_info->cmd_sets[DSI_CMD_SET_PANEL_ID1].cmds;
-		if (cmds1->last_command) {
-			cmds1->msg.flags |= MIPI_DSI_MSG_LASTCOMMAND;
-			flags |= DSI_CTRL_CMD_LAST_COMMAND;
-		}
-		flags |= (DSI_CTRL_CMD_FETCH_MEMORY | DSI_CTRL_CMD_READ);
-		cmds1->msg.rx_buf = buf;
-		cmds1->msg.rx_len = 1;
-		rc = dsi_ctrl_cmd_transfer(m_ctrl->ctrl, &cmds1->msg, flags);
-		if (rc <= 0)
-			DSI_ERR("rx cmd transfer failed rc=%d\n", rc);
-		memcpy(temp_buffer_1, cmds1->msg.rx_buf, 1);
-		count = mode->priv_info->cmd_sets[DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_ON].count;
-		if (!count) {
-			DSI_ERR("This panel does not read register\n");
-		} else {
-			rc = dsi_panel_tx_cmd_set_op(panel, DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_ON);
-		}
-		cmds2 = mode->priv_info->cmd_sets[DSI_CMD_SET_PANEL_ID6].cmds;
-		if (cmds2->last_command) {
-			cmds2->msg.flags |= MIPI_DSI_MSG_LASTCOMMAND;
-			flags |= DSI_CTRL_CMD_LAST_COMMAND;
-		}
-		flags |= (DSI_CTRL_CMD_FETCH_MEMORY | DSI_CTRL_CMD_READ);
-		cmds2->msg.rx_buf = buf;
-		cmds2->msg.rx_len = 2;
-		rc = dsi_ctrl_cmd_transfer(m_ctrl->ctrl, &cmds2->msg, flags);
-		if (rc <= 0)
-			DSI_ERR("rx cmd transfer failed rc=%d\n", rc);
-		memcpy(temp_buffer_6, cmds2->msg.rx_buf, 2);
-		count = mode->priv_info->cmd_sets[DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_OFF].count;
-		if (!count) {
-			DSI_ERR("This panel does not read register\n");
-		} else {
-			rc = dsi_panel_tx_cmd_set_op(panel, DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_OFF);
-		}
-		if(((temp_buffer_6[0] == 132) && (temp_buffer_6[1] == 0))||(temp_buffer_1[0] != 159))
-			 rc = -1;
-		else
-			rc = 1;
-	} else if (strcmp(panel->name, "samsung sofef03f_m fhd cmd mode dsc dsi panel") == 0) {
-		count = mode->priv_info->cmd_sets[DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_ON].count;
-		if (!count) {
-			DSI_ERR("This panel does not support esd register reading\n");
-		} else {
-			rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_ON);
-		}
-
-		flags = 0;
-		cmds1 = mode->priv_info->cmd_sets[DSI_CMD_SET_PANEL_ID1].cmds;
-		if (cmds1->last_command) {
-			cmds1->msg.flags |= MIPI_DSI_MSG_LASTCOMMAND;
-			flags |= DSI_CTRL_CMD_LAST_COMMAND;
-		}
-		flags |= (DSI_CTRL_CMD_FETCH_MEMORY | DSI_CTRL_CMD_READ);
-		cmds1->msg.rx_buf = register_0a;
-		cmds1->msg.rx_len = 1;
-		rc = dsi_ctrl_cmd_transfer(m_ctrl->ctrl, &cmds1->msg, flags);
-		if (rc <= 0)
-			DSI_ERR("rx cmd transfer failed rc=%d\n", rc);
-
-		flags = 0;
-		cmds2 = mode->priv_info->cmd_sets[DSI_CMD_SET_PANEL_ID2].cmds;
-		if (cmds2->last_command) {
-			cmds2->msg.flags |= MIPI_DSI_MSG_LASTCOMMAND;
-			flags |= DSI_CTRL_CMD_LAST_COMMAND;
-		}
-		flags |= (DSI_CTRL_CMD_FETCH_MEMORY | DSI_CTRL_CMD_READ);
-		cmds2->msg.rx_buf = register_b6;
-		cmds2->msg.rx_len = 1;
-		rc = dsi_ctrl_cmd_transfer(m_ctrl->ctrl, &cmds2->msg, flags);
-		if (rc <= 0)
-			DSI_ERR("rx cmd transfer failed rc=%d\n", rc);
-
-		count = mode->priv_info->cmd_sets[DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_OFF].count;
-		if (!count) {
-			DSI_ERR("This panel does not support esd register reading\n");
-		} else {
-			rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_OFF);
-		}
-
-		if ((register_0a[0] != 0x9c) || (register_b6[0] != 0x0a)) {
-			if (register_0a[0] != 0x9c)
-				esd_black_count++;
-			if (register_b6[0] != 0x0a)
-				esd_greenish_count++;
-			DSI_ERR("%s:black_count=%d, greenish_count=%d, total=%d\n",
-				__func__, esd_black_count, esd_greenish_count,
-					esd_black_count + esd_greenish_count);
-			rc = -1;
-		}
-		else {
-			rc = 1;
-		}
-	} else if (strcmp(panel->name, "samsung ana6706 dsc cmd mode panel") == 0) {
-		count = mode->priv_info->cmd_sets[DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_ON].count;
-		if (!count) {
-			DSI_ERR("This panel does not support esd register reading\n");
-		} else {
-			rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_ON);
+			rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_LEVEL2_KEY_ENABLE);
 			if (rc) {
-				DSI_ERR("Failed to send DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_ON command\n");
-				rc = -1;
+				DSI_ERR("Failed to send DSI_CMD_SET_LEVEL2_KEY_ENABLE commands\n");
 				goto exit;
 			}
 		}
 
-#if defined(CONFIG_PXLW_IRIS5)
-		if (iris5_abypass_mode_get(panel) == PASS_THROUGH_MODE) {
-			rc = get_iris_status();
-			if (rc <= 0) {
-				DSI_ERR("Iris ESD snow screen error\n");
-				goto exit;
-			}
+		if (strcmp(panel->name, "samsung dsc cmd mode oneplus dsi panel") == 0) {
+			dsi_display_register_read(display, 0x0E, register1, 1);
+			dsi_display_register_read(display, 0xEA, register2, 1);
 
-			cmds1 = mode->priv_info->cmd_sets[DSI_CMD_SET_PANEL_ID1].cmds;
-			rc = iris_panel_ctrl_read_reg(m_ctrl, panel, register_e9, 4, cmds1);
-			if (rc <= 0) {
-				DSI_ERR("iris_panel_ctrl_read_reg id1 failed, rc=%d\n", rc);
-				goto exit;
+			if((register1[0] !=0x80) && (register2[0] != 0x80)) {
+				rc = -1;
+			} else {
+				rc = 1;
 			}
+		} else if (strcmp(panel->name, "samsung sofef03f_m fhd cmd mode dsc dsi panel") == 0) {
+			dsi_display_register_read(display, 0x0A, register1, 1);
+			dsi_display_register_read(display, 0xB6, register2, 1);
 
-			cmds2 = mode->priv_info->cmd_sets[DSI_CMD_SET_PANEL_ID2].cmds;
-			rc = iris_panel_ctrl_read_reg(m_ctrl, panel, register_0a, 1, cmds2);
-			if (rc <= 0) {
-				DSI_ERR("iris_panel_ctrl_read_reg id2 failed, rc=%d\n", rc);
-				goto exit;
+			if ((register1[0] != 0x9c) || (register2[0] != 0x0a)) {
+				if (register1[0] != 0x9c)
+					esd_black_count++;
+				if (register2[0] != 0x0a)
+					esd_greenish_count++;
+				DSI_ERR("%s:black_count=%d, greenish_count=%d, total=%d\n",
+					__func__, esd_black_count, esd_greenish_count,
+						esd_black_count + esd_greenish_count);
+				rc = -1;
 			}
-		} else {
+			else {
+				rc = 1;
+			}
+		} else if (strcmp(panel->name, "samsung ana6706 dsc cmd mode panel") == 0) {
+#if defined(CONFIG_PXLW_IRIS)
+			if (iris_is_chip_supported() && iris_is_pt_mode(panel)) {
+				rc = iris_get_status();
+				if (rc <= 0) {
+					DSI_ERR("Iris ESD snow screen error\n");
+					goto exit;
+				}
+
+				cmds = mode->priv_info->cmd_sets[DSI_CMD_SET_REGISTER_READ].cmds;
+				payload = (u8 *)cmds[0].msg.tx_buf;
+				payload[0] = 0xE9;
+				rc = iris_panel_ctrl_read_reg(m_ctrl, panel, register1, 4, cmds);
+				if (rc <= 0) {
+					DSI_ERR("iris_panel_ctrl_read_reg 1 failed, rc=%d\n", rc);
+					goto exit;
+				}
+
+				payload[0] = 0x0A;
+				rc = iris_panel_ctrl_read_reg(m_ctrl, panel, register2, 1, cmds);
+				if (rc <= 0) {
+					DSI_ERR("iris_panel_ctrl_read_reg 2 failed, rc=%d\n", rc);
+					goto exit;
+				}
+			} else {
 #else
-		{
+			{
 #endif
-			flags = 0;
-			retry_times = 0;
-			cmds1 = mode->priv_info->cmd_sets[DSI_CMD_SET_PANEL_ID1].cmds;
-			if (cmds1->last_command) {
-				cmds1->msg.flags |= MIPI_DSI_MSG_LASTCOMMAND;
-				flags |= DSI_CTRL_CMD_LAST_COMMAND;
-			}
-			flags |= (DSI_CTRL_CMD_FETCH_MEMORY | DSI_CTRL_CMD_READ);
-			cmds1->msg.rx_buf = register_e9;
-			cmds1->msg.rx_len = 4;
-			do {
-				rc = dsi_ctrl_cmd_transfer(m_ctrl->ctrl, &cmds1->msg, flags);
-				retry_times++;
-			} while ((rc <= 0) && (retry_times < 3));
-			if (rc <= 0) {
-				DSI_ERR("rx cmd transfer failed rc=%d\n", rc);
-				goto exit;
+				rc = dsi_display_register_read(display, 0xE9, register1, 4);
+				if (rc <= 0)
+					goto exit;
+
+				rc = dsi_display_register_read(display, 0x0A, register2, 1);
+				if (rc <= 0)
+					goto exit;
 			}
 
-			flags = 0;
-			retry_times = 0;
-			cmds2 = mode->priv_info->cmd_sets[DSI_CMD_SET_PANEL_ID2].cmds;
-			if (cmds2->last_command) {
-				cmds2->msg.flags |= MIPI_DSI_MSG_LASTCOMMAND;
-				flags |= DSI_CTRL_CMD_LAST_COMMAND;
-			}
-			flags |= (DSI_CTRL_CMD_FETCH_MEMORY | DSI_CTRL_CMD_READ);
-			cmds2->msg.rx_buf = register_0a;
-			cmds2->msg.rx_len = 1;
-			do {
-				rc = dsi_ctrl_cmd_transfer(m_ctrl->ctrl, &cmds2->msg, flags);
-				retry_times++;
-			} while ((rc <= 0) && (retry_times < 3));
-			if (rc <= 0) {
-				DSI_ERR("rx cmd transfer failed rc=%d\n", rc);
-				goto exit;
-			}
-		}
-
-		count = mode->priv_info->cmd_sets[DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_OFF].count;
-		if (!count) {
-			DSI_ERR("This panel does not support esd register reading\n");
-		} else {
-			rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_OFF);
-			if (rc) {
-				DSI_ERR("Failed to send DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_OFF command\n");
+			DSI_ERR("0xE9 = %02x, %02x, %02x, %02x, 0x0A = %02x\n", register1[0], register1[1], register1[2], register1[3], register2[0]);
+			if (((register1[3] != 0x00) && (register1[3] != 0x02) && (register1[3] != 0x06) && (register1[3] != 0x04)) || (register2[0] != 0x9C)) {
+				if ((register1[3] == 0x10) || (register1[3] == 0x30) || (register1[3] == 0x32)
+					|| (register1[3] == 0x38) || (register1[3] == 0x18) || (register1[3] == 0x08))
+					DSI_ERR("ESD color dot error\n");
+				if ((register1[3] == 0x31) || (register1[3] == 0x33))
+					DSI_ERR("ESD snow screen error\n");
+				if (register2[0] != 0x9C)
+					DSI_ERR("ESD black screen error\n");
 				rc = -1;
-				goto exit;
+			} else {
+				rc = 1;
 			}
-		}
+		} else if (strcmp(panel->name, "samsung ana6705 fhd cmd mode dsc dsi panel") == 0) {
+			rc = dsi_display_register_read(display, 0x0A, register1, 1);
+			if (rc <= 0)
+				goto exit;
 
-		DSI_ERR("0xE9 = %02x, %02x, %02x, %02x, 0x0A = %02x\n", register_e9[0], register_e9[1], register_e9[2], register_e9[3], register_0a[0]);
-		if (((register_e9[3] != 0x00) && (register_e9[3] != 0x02) && (register_e9[3] != 0x06)) || (register_0a[0] != 0x9C)) {
-			if ((register_e9[3] == 0x10) || (register_e9[3] == 0x30) || (register_e9[3] == 0x32)
-				|| (register_e9[3] == 0x38) || (register_e9[3] == 0x18) || (register_e9[3] == 0x08))
-				DSI_ERR("ESD color dot error\n");
-			if ((register_e9[3] == 0x31) || (register_e9[3] == 0x33))
-				DSI_ERR("ESD snow screen error\n");
-			if (register_0a[0] != 0x9C)
-				DSI_ERR("ESD black screen error\n");
-			rc = -1;
-		}
-		else {
-			rc = 1;
-		}
-	} else if (strcmp(panel->name, "samsung ana6705 fhd cmd mode dsc dsi panel") == 0) {
-		count = mode->priv_info->cmd_sets[DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_ON].count;
-		if (!count) {
-			DSI_ERR("This panel does not support esd register reading\n");
-		} else {
-			rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_ON);
-			if (rc) {
-				DSI_ERR("Failed to send DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_ON command\n");
+			rc = dsi_display_register_read(display, 0xEE, register2, 1);
+			if (rc <= 0)
+				goto exit;
+
+			rc = dsi_display_register_read(display, 0xE5, register3, 1);
+			if (rc <= 0)
+				goto exit;
+
+			count = mode->priv_info->cmd_sets[DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_ED_ON].count;
+			if (!count) {
+				DSI_ERR("This panel does not support esd register reading\n");
+			} else {
+				rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_ED_ON);
+				if (rc) {
+					DSI_ERR("Failed to send DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_ED_ON command\n");
+					rc = -1;
+					goto exit;
+				}
+			}
+			rc = dsi_display_register_read(display, 0xED, register4, 1);
+			if (rc <= 0)
+				goto exit;
+
+			if ((register1[0] != 0x9c) || ((register2[0] != 0x00) && (register2[0] != 0x80))
+				|| ((register3[0] != 0x13) && (register3[0] != 0x12)) || (register4[0] != 0x97)) {
+				DSI_ERR("0x0A = %02x, 0xEE = %02x, 0xE5 = %02x, 0xED = %02x\n", register1[0], register2[0], register3[0], register4[0]);
+				if (register1[0] != 0x9c)
+					esd_black_count++;
+				if ((register2[0] != 0x00) || (register3[0] != 0x13) || (register4[0] != 0x97))
+					esd_greenish_count++;
+				DSI_ERR("%s:black_count=%d, greenish_count=%d, total=%d\n",
+					__func__, esd_black_count, esd_greenish_count,
+						esd_black_count + esd_greenish_count);
 				rc = -1;
-				goto exit;
 			}
-		}
+			else {
+				rc = 1;
+			}
+		} else if (strcmp(panel->name, "samsung amb655x fhd cmd mode dsc dsi panel") == 0) {
+			rc = dsi_display_register_read(display, 0x0A, register1, 1);
+			if (rc <= 0)
+				goto exit;
 
-		flags = 0;
-		retry_times = 0;
-		cmds1 = mode->priv_info->cmd_sets[DSI_CMD_SET_PANEL_ID1].cmds;
-		if (cmds1->last_command) {
-			cmds1->msg.flags |= MIPI_DSI_MSG_LASTCOMMAND;
-			flags |= DSI_CTRL_CMD_LAST_COMMAND;
-		}
-		flags |= (DSI_CTRL_CMD_FETCH_MEMORY | DSI_CTRL_CMD_READ);
-		cmds1->msg.rx_buf = register_0a;
-		cmds1->msg.rx_len = 1;
-		do {
-			rc = dsi_ctrl_cmd_transfer(m_ctrl->ctrl, &cmds1->msg, flags);
-			retry_times++;
-		} while ((rc <= 0) && (retry_times < 3));
-		if (rc <= 0) {
-			DSI_ERR("rx cmd transfer failed rc=%d\n", rc);
-			goto exit;
-		}
+			rc = dsi_display_register_read(display, 0xB6, register2, 1);
+			if (rc <= 0)
+				goto exit;
 
-		flags = 0;
-		retry_times = 0;
-		cmds2 = mode->priv_info->cmd_sets[DSI_CMD_SET_PANEL_ID2].cmds;
-		if (cmds2->last_command) {
-			cmds2->msg.flags |= MIPI_DSI_MSG_LASTCOMMAND;
-			flags |= DSI_CTRL_CMD_LAST_COMMAND;
-		}
-		flags |= (DSI_CTRL_CMD_FETCH_MEMORY | DSI_CTRL_CMD_READ);
-		cmds2->msg.rx_buf = register_ee;
-		cmds2->msg.rx_len = 1;
-		do {
-			rc = dsi_ctrl_cmd_transfer(m_ctrl->ctrl, &cmds2->msg, flags);
-			retry_times++;
-		} while ((rc <= 0) && (retry_times < 3));
-		if (rc <= 0) {
-			DSI_ERR("rx cmd transfer failed rc=%d\n", rc);
-			goto exit;
-		}
+			rc = dsi_display_register_read(display, 0xA2, register3, 5);
+			if (rc <= 0)
+				goto exit;
 
-		flags = 0;
-		retry_times = 0;
-		cmds3 = mode->priv_info->cmd_sets[DSI_CMD_SET_PANEL_ID3].cmds;
-		if (cmds3->last_command) {
-			cmds3->msg.flags |= MIPI_DSI_MSG_LASTCOMMAND;
-			flags |= DSI_CTRL_CMD_LAST_COMMAND;
-		}
-		flags |= (DSI_CTRL_CMD_FETCH_MEMORY | DSI_CTRL_CMD_READ);
-		cmds3->msg.rx_buf = register_e5;
-		cmds3->msg.rx_len = 1;
-		do {
-			rc = dsi_ctrl_cmd_transfer(m_ctrl->ctrl, &cmds3->msg, flags);
-			retry_times++;
-		} while ((rc <= 0) && (retry_times < 3));
-		if (rc <= 0) {
-			DSI_ERR("rx cmd transfer failed rc=%d\n", rc);
-			goto exit;
-		}
+			DSI_ERR("0x0A = %02x, 0xB6 = %02x, 0xA2 = %02x, %02x, %02x, %02x, %02x\n", register1[0], register2[0],
+				register3[0], register3[1], register3[2], register3[3], register3[4]);
 
-		count = mode->priv_info->cmd_sets[DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_ED_ON].count;
-		if (!count) {
-			DSI_ERR("This panel does not support esd register reading\n");
-		} else {
-			rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_ED_ON);
-			if (rc) {
-				DSI_ERR("Failed to send DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_ED_ON command\n");
+			if ((register1[0] != 0x9c) || (register2[0] != 0x0a) || (register3[0] != 0x11) || (register3[1] != 0x00)
+					|| (register3[2] != 0x00) || (register3[3] != 0x89) || (register3[4] != 0x30)) {
+				if ((register1[0] != 0x9c) || (register3[0] != 0x11) || (register3[1] != 0x00)
+						|| (register3[2] != 0x00) || (register3[3] != 0x89) || (register3[4] != 0x30))
+					esd_black_count++;
+				if (register2[0] != 0x0a)
+					esd_greenish_count++;
+				DSI_ERR("black_count=%d, greenish_count=%d, total=%d\n",
+					esd_black_count, esd_greenish_count, esd_black_count + esd_greenish_count);
 				rc = -1;
-				goto exit;
-			}
-		}
-		flags = 0;
-		retry_times = 0;
-		cmds4 = mode->priv_info->cmd_sets[DSI_CMD_SET_PANEL_ID4].cmds;
-		if (cmds4->last_command) {
-			cmds4->msg.flags |= MIPI_DSI_MSG_LASTCOMMAND;
-			flags |= DSI_CTRL_CMD_LAST_COMMAND;
-		}
-		flags |= (DSI_CTRL_CMD_FETCH_MEMORY | DSI_CTRL_CMD_READ);
-		cmds4->msg.rx_buf = register_ed;
-		cmds4->msg.rx_len = 1;
-		do {
-			rc = dsi_ctrl_cmd_transfer(m_ctrl->ctrl, &cmds4->msg, flags);
-			retry_times++;
-		} while ((rc <= 0) && (retry_times < 3));
-		if (rc <= 0) {
-			DSI_ERR("rx cmd transfer failed rc=%d\n", rc);
-			goto exit;
-		}
-
-		count = mode->priv_info->cmd_sets[DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_OFF].count;
-		if (!count) {
-			DSI_ERR("This panel does not support esd register reading\n");
-		} else {
-			rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_OFF);
-			if (rc) {
-				DSI_ERR("Failed to send DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_OFF command\n");
-				rc = -1;
-				goto exit;
+			} else {
+				rc = 1;
 			}
 		}
 
-		if ((register_0a[0] != 0x9c) || ((register_ee[0] != 0x00) && (register_ee[0] != 0x80))
-			|| ((register_e5[0] != 0x13) && (register_e5[0] != 0x12)) || (register_ed[0] != 0x97)) {
-			DSI_ERR("0x0A = %02x, 0xEE = %02x, 0xE5 = %02x, 0xED = %02x\n", register_0a[0], register_ee[0], register_e5[0], register_ed[0]);
-			if (register_0a[0] != 0x9c)
-				esd_black_count++;
-			if ((register_ee[0] != 0x00) || (register_e5[0] != 0x13) || (register_ed[0] != 0x97))
-				esd_greenish_count++;
-			DSI_ERR("%s:black_count=%d, greenish_count=%d, total=%d\n",
-				__func__, esd_black_count, esd_greenish_count,
-					esd_black_count + esd_greenish_count);
-			rc = -1;
-		}
-		else {
-			rc = 1;
-		}
+		count = mode->priv_info->cmd_sets[DSI_CMD_SET_LEVEL2_KEY_DISABLE].count;
+		if (!count)
+			DSI_ERR("This panel does not support level2 key disable command\n");
+		else
+			dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_LEVEL2_KEY_DISABLE);
 	} else {
 		rc = dsi_display_validate_status(m_ctrl, display->panel);
 	}
-
 	if (rc <= 0) {
 		DSI_ERR("[%s] read status failed on master,rc=%d\n",
 		       display->name, rc);
@@ -2269,7 +1801,7 @@ int dsi_display_check_status(struct drm_connector *connector, void *display,
 	struct dsi_display *dsi_display = display;
 	struct dsi_panel *panel;
 	u32 status_mode;
-	int rc = 0x1;
+	int rc = 0x1, ret;
 	u32 mask;
 
 	if (!dsi_display || !dsi_display->panel)
@@ -2321,9 +1853,10 @@ int dsi_display_check_status(struct drm_connector *connector, void *display,
 		DSI_ERR("panel_switch_status = true, skip ESD reading\n");
 		goto release_panel_lock;
 	}
-
-	dsi_display_clk_ctrl(dsi_display->dsi_clk_handle,
+	ret = dsi_display_clk_ctrl(dsi_display->dsi_clk_handle,
 		DSI_ALL_CLKS, DSI_CLK_ON);
+	if (ret)
+		goto release_panel_lock;
 
 	/* Mask error interrupts before attempting ESD read */
 	mask = BIT(DSI_FIFO_OVERFLOW) | BIT(DSI_FIFO_UNDERFLOW);
@@ -2353,7 +1886,7 @@ int dsi_display_check_status(struct drm_connector *connector, void *display,
 
 exit:
 	/* Handle Panel failures during display disable sequence */
-	if (rc <= 0)
+	if (rc <=0)
 		atomic_set(&panel->esd_recovery_pending, 1);
 
 release_panel_lock:
@@ -2404,6 +1937,13 @@ static int dsi_display_ctrl_get_host_init_state(struct dsi_display *dsi_display,
 	}
 	return rc;
 }
+#if defined(CONFIG_PXLW_IRIS)
+int iris_dsi_display_ctrl_get_host_init_state(struct dsi_display *dsi_display,
+		bool *state)
+{
+	return dsi_display_ctrl_get_host_init_state(dsi_display, state);
+}
+#endif
 
 int dsi_display_cmd_transfer(struct drm_connector *connector,
 		void *display, const char *cmd_buf,
@@ -2559,12 +2099,28 @@ int dsi_display_set_power(struct drm_connector *connector,
 
 	switch (power_mode) {
 	case SDE_MODE_DPMS_LP1:
+		DSI_ERR("SDE_MODE_DPMS_LP1\n");
 		rc = dsi_panel_set_lp1(display->panel);
-		break;
+		if (display->panel->aod_mode && display->panel->aod_mode != 2) {
+			display->panel->aod_status = 0;
+			rc = dsi_panel_set_aod_mode(display->panel, 5);
+			DSI_ERR("Send dsi_panel_set_aod_mode 5 cmds\n");
+			if (rc) {
+				DSI_ERR("[%s] failed to send dsi_panel_set_aod_mode cmds, rc=%d\n",
+					display->panel->name, rc);
+			}
+		}
+		blank = DRM_PANEL_BLANK_AOD;
+		notifier_data.data = &blank;
+		DSI_ERR("DRM_PANEL_BLANK_AOD\n");
+		if (lcd_active_panel)
+			drm_panel_notifier_call_chain(lcd_active_panel, DRM_PANEL_EARLY_EVENT_BLANK, &notifier_data);
 	case SDE_MODE_DPMS_LP2:
+		DSI_ERR("SDE_MODE_DPMS_LP2\n");
 		rc = dsi_panel_set_lp2(display->panel);
 		break;
 	case SDE_MODE_DPMS_ON:
+		DSI_ERR("SDE_MODE_DPMS_ON\n");
 		if (display->panel->power_mode == SDE_MODE_DPMS_LP1 ||
 			display->panel->power_mode == SDE_MODE_DPMS_LP2)
 			rc = dsi_panel_set_nolp(display->panel);
@@ -2606,6 +2162,24 @@ int dsi_display_set_power(struct drm_connector *connector,
 		display->panel->power_mode = power_mode;
 
 	return rc;
+}
+
+#ifdef CONFIG_DEBUG_FS
+static bool dsi_display_is_te_based_esd(struct dsi_display *display)
+{
+	u32 status_mode = 0;
+
+	if (!display->panel) {
+		DSI_ERR("Invalid panel data\n");
+		return false;
+	}
+
+	status_mode = display->panel->esd_config.status_mode;
+
+	if (status_mode == ESD_MODE_PANEL_TE &&
+			gpio_is_valid(display->disp_te_gpio))
+		return true;
+	return false;
 }
 
 static ssize_t debugfs_dump_info_read(struct file *file,
@@ -3040,276 +2614,6 @@ static const struct file_operations esd_check_mode_fops = {
 	.read = debugfs_read_esd_check_mode,
 };
 
-#if defined(CONFIG_PXLW_IRIS5)
-static int panel_debug_base_open(struct inode *inode, struct file *file)
-{
-	/* non-seekable */
-	file->f_mode &= ~(FMODE_LSEEK | FMODE_PREAD | FMODE_PWRITE);
-	file->private_data = inode->i_private;
-	return 0;
-}
-
-static int panel_debug_base_release(struct inode *inode, struct file *file)
-{
-	return 0;
-}
-
-#define PANEL_REG_MAX_OFFSET 1024 // FIXME
-
-static ssize_t panel_debug_base_offset_write(struct file *file,
-		    const char __user *user_buf, size_t count, loff_t *ppos)
-{
-	struct dsi_display *display = file->private_data;
-	u32 off, cnt;
-	char buf[64];
-
-	if (!display)
-		return -ENODEV;
-
-	if (count >= sizeof(buf))
-		return -EINVAL;
-
-	if (copy_from_user(buf, user_buf, count))
-		return -EFAULT;
-
-	buf[count] = 0;	/* end of string */
-
-	if (sscanf(buf, "%x %u", &off, &cnt) != 2)
-		return -EINVAL;
-
-	if (off > PANEL_REG_MAX_OFFSET)
-		return -EINVAL;
-
-	if (cnt > (PANEL_REG_MAX_OFFSET - off))
-		cnt = PANEL_REG_MAX_OFFSET - off;
-
-	display->off = off;
-	display->cnt = cnt;
-
-	DSI_DEBUG("offset=%x cnt=%d\n", off, cnt);
-
-	return count;
-}
-
-static ssize_t panel_debug_base_offset_read(struct file *file,
-			char __user *buff, size_t count, loff_t *ppos)
-{
-	struct dsi_display *display = file->private_data;
-	int len;
-	char buf[64];
-
-	if (!display)
-		return -ENODEV;
-
-	if (*ppos)
-		return 0;	/* the end */
-
-	len = snprintf(buf, sizeof(buf), "0x%02x %x\n", display->off, display->cnt);
-
-	if (len < 0 || len >= sizeof(buf))
-		return -EINVAL;
-
-	if (count < sizeof(buf))
-		return -EINVAL;
-	if (copy_to_user(buff, buf, len))
-		return -EFAULT;
-
-	*ppos += len;	/* increase offset */
-	return len;
-}
-
-/* Hex number + whitespace */
-#define NEXT_VALUE_OFFSET 3
-
-#define PANEL_CMD_MIN_TX_COUNT 2
-
-
-static ssize_t panel_debug_base_reg_write(struct file *file,
-		const char __user *user_buf, size_t count, loff_t *ppos)
-{
-	struct dsi_display *display = file->private_data;
-	char buf[64];
-	char reg[64];
-	u32 len = 0, value = 0;
-	char *bufp;
-	bool state = false;
-	int rc;
-
-	struct dsi_cmd_desc cmds = {
-		{ 0 },	// msg
-		1,	// last
-		0	// wait
-	};
-#ifndef IRIS5_ABYP_LIGHTUP
-	struct dsi_panel_cmd_set cmdset = {
-		.state = DSI_CMD_SET_STATE_HS,
-		.count = 1,
-		.cmds = &cmds,
-	};
-#endif
-
-	if (!display)
-		return -ENODEV;
-
-	/* get command string from user */
-	if (count >= sizeof(buf))
-		return -EINVAL;
-
-	if (copy_from_user(buf, user_buf, count))
-		return -EFAULT;
-
-	buf[count] = 0;	/* end of string */
-
-	bufp = buf;
-	/* End of a hex value in given string */
-	bufp[NEXT_VALUE_OFFSET - 1] = 0;
-	while (kstrtouint(bufp, 16, &value) == 0) {
-		reg[len++] = value;
-		if (len >= sizeof(reg)) {
-			DSI_ERR("wrong input reg len\n");
-			return -EINVAL;
-		}
-		bufp += NEXT_VALUE_OFFSET;
-		if ((bufp >= (buf + count)) || (bufp < buf)) {
-			DSI_WARN("%s,buffer out-of-bounds\n", __func__);
-			break;
-		}
-		/* End of a hex value in given string */
-		if ((bufp + NEXT_VALUE_OFFSET - 1) < (buf + count))
-			bufp[NEXT_VALUE_OFFSET - 1] = 0;
-	}
-	if (len < PANEL_CMD_MIN_TX_COUNT) {
-		DSI_ERR("wrong input reg len\n");
-		return -EINVAL;
-	}
-
-	cmds.msg.type = display->cmd_data_type;
-	cmds.msg.flags = MIPI_DSI_MSG_LASTCOMMAND;
-	cmds.msg.tx_len = len;
-	cmds.msg.tx_buf = reg;
-
-	mutex_lock(&display->display_lock);
-	rc = dsi_display_ctrl_get_host_init_state(display, &state);
-	if (!rc && state) {
-#ifdef IRIS5_ABYP_LIGHTUP
-		rc = display->host.ops->transfer(&display->host, &cmds.msg);
-#else
-		iris5_panel_cmd_passthrough(display->panel, &cmdset);
-#endif
-	}
-	mutex_unlock(&display->display_lock);
-
-	return rc ? rc : count;
-}
-
-#define PANEL_REG_ADDR_LEN 8
-#define PANEL_REG_FORMAT_LEN 5
-
-static ssize_t panel_debug_base_reg_read(struct file *file,
-			char __user *user_buf, size_t count, loff_t *ppos)
-{
-	struct dsi_display *display = file->private_data;
-	u32 i, len = 0, reg_buf_len = 0;
-	char *panel_reg_buf, *rx_buf;
-	int rc;
-	bool state = false;
-	char panel_reg[2] = { 0 };
-	struct dsi_cmd_desc cmds = {
-		{ 0 },	// msg
-		1,	// last
-		0	// wait
-	};
-#ifndef IRIS5_ABYP_LIGHTUP
-	struct dsi_panel_cmd_set cmdset = {
-		.state = DSI_CMD_SET_STATE_HS,
-		.count = 1,
-		.cmds = &cmds,
-	};
-#endif
-
-	if (!display)
-		return -ENODEV;
-	if (!display->cnt)
-		return 0;
-	if (*ppos)
-		return 0;	/* the end */
-
-	/* '0x' + 2 digit + blank = 5 bytes for each number */
-	reg_buf_len = (display->cnt * PANEL_REG_FORMAT_LEN)
-		    + PANEL_REG_ADDR_LEN + 1;
-	if (count < reg_buf_len)
-		return -EINVAL;
-
-	rx_buf = kzalloc(display->cnt, GFP_KERNEL);
-	panel_reg_buf = kzalloc(reg_buf_len, GFP_KERNEL);
-
-	if (!rx_buf || !panel_reg_buf) {
-		DSI_ERR("not enough memory to hold panel reg dump\n");
-		rc = -ENOMEM;
-		goto read_reg_fail;
-	}
-
-	panel_reg[0] = display->off;
-
-	cmds.msg.type = MIPI_DSI_DCS_READ;
-	cmds.msg.flags = MIPI_DSI_MSG_LASTCOMMAND | MIPI_DSI_MSG_REQ_ACK;
-	cmds.msg.tx_len = 2;
-	cmds.msg.tx_buf = panel_reg;
-	cmds.msg.rx_len = display->cnt;
-	cmds.msg.rx_buf = rx_buf;
-
-	mutex_lock(&display->display_lock);
-	rc = dsi_display_ctrl_get_host_init_state(display, &state);
-	if (!rc && state) {
-#ifdef IRIS5_ABYP_LIGHTUP
-		rc = display->host.ops->transfer(&display->host, &cmds.msg);
-#else
-		iris5_panel_cmd_passthrough(display->panel, &cmdset);
-#endif
-	}
-	mutex_unlock(&display->display_lock);
-
-	if (rc)
-		goto read_reg_fail;
-
-	len = scnprintf(panel_reg_buf, reg_buf_len, "0x%02x: ", display->off);
-
-	for (i = 0; (len < reg_buf_len) && (i < display->cnt); i++)
-		len += scnprintf(panel_reg_buf + len, reg_buf_len - len,
-				"0x%02x ", rx_buf[i]);
-
-	if (len)
-		panel_reg_buf[len - 1] = '\n';
-
-	if (copy_to_user(user_buf, panel_reg_buf, len)) {
-		rc = -EFAULT;
-		goto read_reg_fail;
-	}
-
-	*ppos += len;	/* increase offset */
-	rc = len;
-
-read_reg_fail:
-	kfree(rx_buf);
-	kfree(panel_reg_buf);
-	return rc;
-}
-
-static const struct file_operations panel_off_fops = {
-	.open = panel_debug_base_open,
-	.release = panel_debug_base_release,
-	.read = panel_debug_base_offset_read,
-	.write = panel_debug_base_offset_write,
-};
-
-static const struct file_operations panel_reg_fops = {
-	.open = panel_debug_base_open,
-	.release = panel_debug_base_release,
-	.read = panel_debug_base_reg_read,
-	.write = panel_debug_base_reg_write,
-};
-#endif
-
 static int dsi_display_debugfs_init(struct dsi_display *display)
 {
 	int rc = 0;
@@ -3429,33 +2733,8 @@ static int dsi_display_debugfs_init(struct dsi_display *display)
 		       display->name);
 		goto error_remove_dir;
 	}
-#if defined(CONFIG_PXLW_IRIS5)
-	display->off = 0x0a;
-	display->cnt = 1;
-	display->cmd_data_type = MIPI_DSI_DCS_LONG_WRITE;
-
-	dump_file = debugfs_create_x8("cmd_data_type", 0600, dir, &display->cmd_data_type);
-	if (IS_ERR_OR_NULL(dump_file))
-		DSI_ERR("[%s] debugfs create panel cmd_data_type file failed, rc=%ld\n",
-		       display->name, PTR_ERR(dump_file));
-
-	dump_file = debugfs_create_file("off",
-					0600,
-					dir,
-					display,
-					&panel_off_fops);
-	if (IS_ERR_OR_NULL(dump_file))
-		DSI_ERR("[%s] debugfs create panel off file failed, rc=%ld\n",
-		       display->name, PTR_ERR(dump_file));
-
-	dump_file = debugfs_create_file("reg",
-					0600,
-					dir,
-					display,
-					&panel_reg_fops);
-	if (IS_ERR_OR_NULL(dump_file))
-		DSI_ERR("[%s] debugfs create panel reg file failed, rc=%ld\n",
-		       display->name, PTR_ERR(dump_file));
+#if defined(CONFIG_PXLW_IRIS)
+	iris_dsi_display_debugfs_init(display, dir, dump_file);
 #endif
 
 	display->root = dir;
@@ -3474,6 +2753,16 @@ static int dsi_display_debugfs_deinit(struct dsi_display *display)
 
 	return 0;
 }
+#else
+static int dsi_display_debugfs_init(struct dsi_display *display)
+{
+	return 0;
+}
+static int dsi_display_debugfs_deinit(struct dsi_display *display)
+{
+	return 0;
+}
+#endif /* CONFIG_DEBUG_FS */
 
 static void adjust_timing_by_ctrl_count(const struct dsi_display *display,
 					struct dsi_display_mode *mode)
@@ -3989,25 +3278,22 @@ static void dsi_display_parse_cmdline_topology(struct dsi_display *display,
 		display->sw_te_using_wd = true;
 
 	str = strnstr(boot_str, ":config", strlen(boot_str));
-	if (!str)
-		goto end;
-
-	if (kstrtol(str + strlen(":config"), INT_BASE_10,
-				(unsigned long *)&cmdline_topology)) {
-		DSI_ERR("invalid config index override: %s\n", boot_str);
-		goto end;
+	if (str) {
+		if (sscanf(str, ":config%lu", &cmdline_topology) != 1) {
+			DSI_ERR("invalid config index override: %s\n",
+				boot_str);
+			goto end;
+		}
 	}
 
 	str = strnstr(boot_str, ":timing", strlen(boot_str));
-	if (!str)
-		goto end;
-
-	if (kstrtol(str + strlen(":timing"), INT_BASE_10,
-				(unsigned long *)&cmdline_timing)) {
-		DSI_ERR("invalid timing index override: %s. resetting both timing and config\n",
-			boot_str);
-		cmdline_topology = NO_OVERRIDE;
-		goto end;
+	if (str) {
+		if (sscanf(str, ":timing%lu", &cmdline_timing) != 1) {
+			DSI_ERR("invalid timing index override: %s\n",
+				boot_str);
+			cmdline_topology = NO_OVERRIDE;
+			goto end;
+		}
 	}
 	DSI_DEBUG("successfully parsed command line topology and timing\n");
 end:
@@ -4110,6 +3396,20 @@ static int dsi_display_set_clk_src(struct dsi_display *display)
 	struct dsi_display_ctrl *m_ctrl, *ctrl;
 
 	/*
+	 * For CPHY mode, the parent of mux_clks need to be set
+	 * to Cphy_clks to have correct dividers for byte and
+	 * pixel clocks.
+	 */
+	if (display->panel->host_config.phy_type == DSI_PHY_TYPE_CPHY) {
+		rc = dsi_clk_update_parent(&display->clock_info.cphy_clks,
+			      &display->clock_info.mux_clks);
+		if (rc) {
+			DSI_ERR("failed update mux parent to shadow\n");
+			return rc;
+		}
+	}
+
+	/*
 	 * In case of split DSI usecases, the clock for master controller should
 	 * be enabled before the other controller. Master controller in the
 	 * clock context refers to the controller that sources the clock.
@@ -4117,7 +3417,7 @@ static int dsi_display_set_clk_src(struct dsi_display *display)
 	m_ctrl = &display->ctrl[display->clk_master_idx];
 
 	rc = dsi_ctrl_set_clock_source(m_ctrl->ctrl,
-		   &display->clock_info.mux_clks);
+				&display->clock_info.mux_clks);
 	if (rc) {
 		DSI_ERR("[%s] failed to set source clocks for master, rc=%d\n",
 			   display->name, rc);
@@ -4131,7 +3431,7 @@ static int dsi_display_set_clk_src(struct dsi_display *display)
 			continue;
 
 		rc = dsi_ctrl_set_clock_source(ctrl->ctrl,
-			   &display->clock_info.mux_clks);
+					&display->clock_info.mux_clks);
 		if (rc) {
 			DSI_ERR("[%s] failed to set source clocks, rc=%d\n",
 				   display->name, rc);
@@ -4175,8 +3475,12 @@ static void dsi_display_toggle_resync_fifo(struct dsi_display *display)
 
 	/*
 	 * After retime buffer synchronization we need to turn of clk_en_sel
-	 * bit on each phy.
+	 * bit on each phy. Avoid this for Cphy.
 	 */
+
+	if (display->panel->host_config.phy_type == DSI_PHY_TYPE_CPHY)
+		return;
+
 	display_for_each_ctrl(i, display) {
 		ctrl = &display->ctrl[i];
 		dsi_phy_reset_clk_en_sel(ctrl->phy);
@@ -4520,6 +3824,23 @@ static int dsi_display_wake_up(struct dsi_display *display)
 	return 0;
 }
 
+static void dsi_display_mask_overflow(struct dsi_display *display, u32 flags,
+						bool enable)
+{
+	struct dsi_display_ctrl *ctrl;
+	int i;
+
+	if (!(flags & DSI_CTRL_CMD_LAST_COMMAND))
+		return;
+
+	display_for_each_ctrl(i, display) {
+		ctrl = &display->ctrl[i];
+		if (!ctrl)
+			continue;
+		dsi_ctrl_mask_overflow(ctrl->ctrl, enable);
+	}
+}
+
 static int dsi_display_broadcast_cmd(struct dsi_display *display,
 				     const struct mipi_dsi_msg *msg)
 {
@@ -4538,7 +3859,8 @@ static int dsi_display_broadcast_cmd(struct dsi_display *display,
 		m_flags |= DSI_CTRL_CMD_LAST_COMMAND;
 	}
 
-	if (display->queue_cmd_waits) {
+	if (display->queue_cmd_waits ||
+			msg->flags & MIPI_DSI_MSG_ASYNC_OVERRIDE) {
 		flags |= DSI_CTRL_CMD_ASYNC_WAIT;
 		m_flags |= DSI_CTRL_CMD_ASYNC_WAIT;
 	}
@@ -4548,7 +3870,8 @@ static int dsi_display_broadcast_cmd(struct dsi_display *display,
 	 * 2. Trigger commands
 	 */
 	m_ctrl = &display->ctrl[display->cmd_master_idx];
-	rc = dsi_ctrl_cmd_transfer(m_ctrl->ctrl, msg, m_flags);
+	dsi_display_mask_overflow(display, m_flags, true);
+	rc = dsi_ctrl_cmd_transfer(m_ctrl->ctrl, msg, &m_flags);
 	if (rc) {
 		DSI_ERR("[%s] cmd transfer failed on master,rc=%d\n",
 		       display->name, rc);
@@ -4560,7 +3883,7 @@ static int dsi_display_broadcast_cmd(struct dsi_display *display,
 		if (ctrl == m_ctrl)
 			continue;
 
-		rc = dsi_ctrl_cmd_transfer(ctrl->ctrl, msg, flags);
+		rc = dsi_ctrl_cmd_transfer(ctrl->ctrl, msg, &flags);
 		if (rc) {
 			DSI_ERR("[%s] cmd transfer failed, rc=%d\n",
 			       display->name, rc);
@@ -4583,6 +3906,7 @@ static int dsi_display_broadcast_cmd(struct dsi_display *display,
 	}
 
 error:
+	dsi_display_mask_overflow(display, m_flags, false);
 	return rc;
 }
 
@@ -4697,23 +4021,26 @@ static ssize_t dsi_host_transfer(struct mipi_dsi_host *host,
 		int ctrl_idx = (msg->flags & MIPI_DSI_MSG_UNICAST) ?
 				msg->ctrl : 0;
 		u32 cmd_flags = DSI_CTRL_CMD_FETCH_MEMORY;
-#if defined(CONFIG_PXLW_IRIS5)
-		u32 flags = DSI_CTRL_CMD_FETCH_MEMORY;
-#endif
-		if (display->queue_cmd_waits)
+
+		if (display->queue_cmd_waits ||
+				msg->flags & MIPI_DSI_MSG_ASYNC_OVERRIDE)
 			cmd_flags |= DSI_CTRL_CMD_ASYNC_WAIT;
 
-#if defined(CONFIG_PXLW_IRIS5)
-		if (msg->rx_buf && msg->rx_len)
-			flags |= DSI_CTRL_CMD_READ;
-		rc = dsi_ctrl_cmd_transfer(display->ctrl[ctrl_idx].ctrl, msg,
-					  flags);
-		if (rc < 0) {
-#else
-		rc = dsi_ctrl_cmd_transfer(display->ctrl[ctrl_idx].ctrl, msg,
-				cmd_flags);
-		if (rc) {
+#if defined(CONFIG_PXLW_IRIS)
+		if (iris_is_chip_supported()) {
+			if (msg->rx_buf && msg->rx_len)
+				cmd_flags |= DSI_CTRL_CMD_READ;
+		}
 #endif
+		rc = dsi_ctrl_cmd_transfer(display->ctrl[ctrl_idx].ctrl, msg,
+				&cmd_flags);
+#if defined(CONFIG_PXLW_IRIS)
+		if (iris_is_chip_supported()) {
+			if (rc > 0)
+				rc = 0;
+		}
+#endif
+		if (rc) {
 			DSI_ERR("[%s] cmd transfer failed, rc=%d\n",
 			       display->name, rc);
 			goto error_disable_cmd_engine;
@@ -4850,12 +4177,18 @@ static int dsi_display_clocks_init(struct dsi_display *display)
 	const char *clk_name;
 	const char *src_byte = "src_byte", *src_pixel = "src_pixel";
 	const char *mux_byte = "mux_byte", *mux_pixel = "mux_pixel";
+	const char *cphy_byte = "cphy_byte", *cphy_pixel = "cphy_pixel";
 	const char *shadow_byte = "shadow_byte", *shadow_pixel = "shadow_pixel";
+	const char *shadow_cphybyte = "shadow_cphybyte",
+		   *shadow_cphypixel = "shadow_cphypixel";
 	struct clk *dsi_clk;
 	struct clk *bb_clk2;
 	struct dsi_clk_link_set *src = &display->clock_info.src_clks;
 	struct dsi_clk_link_set *mux = &display->clock_info.mux_clks;
+	struct dsi_clk_link_set *cphy = &display->clock_info.cphy_clks;
 	struct dsi_clk_link_set *shadow = &display->clock_info.shadow_clks;
+	struct dsi_clk_link_set *shadow_cphy =
+				&display->clock_info.shadow_cphy_clks;
 	struct dsi_dyn_clk_caps *dyn_clk_caps = &(display->panel->dyn_clk_caps);
 	char *dsi_clock_name;
 
@@ -4889,6 +4222,15 @@ static int dsi_display_clocks_init(struct dsi_display *display)
 				goto error;
 			}
 
+			if (dsi_display_check_prefix(cphy_byte, clk_name)) {
+				cphy->byte_clk = NULL;
+				goto error;
+			}
+			if (dsi_display_check_prefix(cphy_pixel, clk_name)) {
+				cphy->pixel_clk = NULL;
+				goto error;
+			}
+
 			if (dyn_clk_caps->dyn_clk_support &&
 				(display->panel->panel_mode ==
 					 DSI_OP_VIDEO_MODE)) {
@@ -4905,6 +4247,12 @@ static int dsi_display_clocks_init(struct dsi_display *display)
 				if (dsi_display_check_prefix(shadow_pixel,
 							clk_name))
 					shadow->pixel_clk = NULL;
+				if (dsi_display_check_prefix(shadow_cphybyte,
+							clk_name))
+					shadow_cphy->byte_clk = NULL;
+				if (dsi_display_check_prefix(shadow_cphypixel,
+							clk_name))
+					shadow_cphy->pixel_clk = NULL;
 
 				dyn_clk_caps->dyn_clk_support = false;
 			}
@@ -4917,6 +4265,16 @@ static int dsi_display_clocks_init(struct dsi_display *display)
 
 		if (dsi_display_check_prefix(src_pixel, clk_name)) {
 			src->pixel_clk = dsi_clk;
+			continue;
+		}
+
+		if (dsi_display_check_prefix(cphy_byte, clk_name)) {
+			cphy->byte_clk = dsi_clk;
+			continue;
+		}
+
+		if (dsi_display_check_prefix(cphy_pixel, clk_name)) {
+			cphy->pixel_clk = dsi_clk;
 			continue;
 		}
 
@@ -4939,6 +4297,16 @@ static int dsi_display_clocks_init(struct dsi_display *display)
 			shadow->pixel_clk = dsi_clk;
 			continue;
 		}
+		
+		if (dsi_display_check_prefix(shadow_cphybyte, clk_name)) {
+			shadow_cphy->byte_clk = dsi_clk;
+			continue;
+		}
+
+		if (dsi_display_check_prefix(shadow_cphypixel, clk_name)) {
+			shadow_cphy->pixel_clk = dsi_clk;
+			continue;
+		}
 		if (dsi_display_check_prefix("pw_bb_clk2", clk_name)) {
 			bb_clk2 = dsi_clk;
 			if(get_oem_project() != 19811){
@@ -4947,7 +4315,7 @@ static int dsi_display_clocks_init(struct dsi_display *display)
 				DSI_ERR("%s %d\n",__func__,get_oem_project());
 			}
 			continue;
-		}
+			}
 	}
 
 	return 0;
@@ -5263,8 +4631,7 @@ int dsi_pre_clkon_cb(void *priv,
 		 * Enable DSI core power
 		 * 1.> PANEL_PM are controlled as part of
 		 *     panel_power_ctrl. Needed not be handled here.
-		 * 2.> CORE_PM are controlled by dsi clk manager.
-		 * 3.> CTRL_PM need to be enabled/disabled
+		 * 2.> CTRL_PM need to be enabled/disabled
 		 *     only during unblank/blank. Their state should
 		 *     not be changed during static screen.
 		 */
@@ -5545,20 +4912,19 @@ static int dsi_display_res_init(struct dsi_display *display)
 		display->panel = NULL;
 		goto error_ctrl_put;
 	}
-#if defined(CONFIG_PXLW_IRIS5)
-	if (NULL != display->display_type && !strcmp(display->display_type, "secondary")) {
-		i = DSI_SECONDARY;
-		display->panel->is_secondary = true;
-	} else {
-		i = DSI_PRIMARY;
-		display->panel->is_secondary = false;
-	}
-	iris_set_cfg_index(i);
-	iris5_parse_params(display);
-	iris5_init(display, display->panel);
-#elif defined(CONFIG_PXLW_SOFT_IRIS)
-	iris5_init(display, display->panel);
+
+#if defined(CONFIG_PXLW_IRIS) || defined(CONFIG_PXLW_SOFT_IRIS)
+	iris_dsi_display_res_init(display);
 #endif
+
+	display_for_each_ctrl(i, display) {
+		struct msm_dsi_phy *phy = display->ctrl[i].phy;
+
+		phy->cfg.force_clk_lane_hs =
+			display->panel->host_config.force_hs_clk_lane;
+		phy->cfg.phy_type =
+			display->panel->host_config.phy_type;
+	}
 
 	rc = dsi_display_parse_lane_map(display);
 	if (rc) {
@@ -5573,10 +4939,12 @@ static int dsi_display_res_init(struct dsi_display *display)
 	}
 
 	if ((strcmp(display->panel->name, "samsung dsc cmd mode oneplus dsi panel") == 0)
-			|| (strcmp(display->panel->name, "samsung ana6706 dsc cmd mode panel") == 0)) {
+			|| (strcmp(display->panel->name, "samsung ana6706 dsc cmd mode panel") == 0)
+				|| (strcmp(display->panel->name, "samsung amb655x fhd cmd mode dsc dsi panel") == 0)) {
 		INIT_DELAYED_WORK(&display->panel->gamma_read_work, dsi_display_gamma_read_work);
 		DSI_ERR("INIT_DELAYED_WORK: dsi_display_gamma_read_work\n");
 	}
+
 
 	return 0;
 error_ctrl_put:
@@ -5777,6 +5145,7 @@ static int dsi_display_update_dsi_bitrate(struct dsi_display *display,
 		u32 num_of_lanes = 0, bpp, byte_intf_clk_div;
 		u64 bit_rate, pclk_rate, bit_rate_per_lane, byte_clk_rate,
 				byte_intf_clk_rate;
+		u32 bits_per_symbol = 16, num_of_symbols = 7; /* For Cphy */
 		struct dsi_host_common_cfg *host_cfg;
 
 		mutex_lock(&ctrl->ctrl_lock);
@@ -5804,11 +5173,24 @@ static int dsi_display_update_dsi_bitrate(struct dsi_display *display,
 		do_div(bit_rate_per_lane, num_of_lanes);
 		pclk_rate = bit_rate;
 		do_div(pclk_rate, bpp);
-		byte_clk_rate = bit_rate_per_lane;
-		do_div(byte_clk_rate, 8);
-		byte_intf_clk_rate = byte_clk_rate;
-		byte_intf_clk_div = host_cfg->byte_intf_clk_div;
-		do_div(byte_intf_clk_rate, byte_intf_clk_div);
+		if (host_cfg->phy_type == DSI_PHY_TYPE_DPHY) {
+			bit_rate_per_lane = bit_rate;
+			do_div(bit_rate_per_lane, num_of_lanes);
+			byte_clk_rate = bit_rate_per_lane;
+			do_div(byte_clk_rate, 8);
+			byte_intf_clk_rate = byte_clk_rate;
+			byte_intf_clk_div = host_cfg->byte_intf_clk_div;
+			do_div(byte_intf_clk_rate, byte_intf_clk_div);
+		} else {
+			bit_rate_per_lane = bit_clk_rate;
+			pclk_rate *= bits_per_symbol;
+			do_div(pclk_rate, num_of_symbols);
+			byte_clk_rate = bit_clk_rate;
+			do_div(byte_clk_rate, num_of_symbols);
+
+			/* For CPHY, byte_intf_clk is same as byte_clk */
+			byte_intf_clk_rate = byte_clk_rate;
+		}
 
 		DSI_DEBUG("bit_clk_rate = %llu, bit_clk_rate_per_lane = %llu\n",
 			 bit_rate, bit_rate_per_lane);
@@ -5848,18 +5230,19 @@ static void _dsi_display_calc_pipe_delay(struct dsi_display *display,
 	struct dsi_display_ctrl *m_ctrl;
 	struct dsi_ctrl *dsi_ctrl;
 	struct dsi_phy_cfg *cfg;
+	int phy_ver;
 
 	m_ctrl = &display->ctrl[display->clk_master_idx];
 	dsi_ctrl = m_ctrl->ctrl;
 
 	cfg = &(m_ctrl->phy->cfg);
 
-	esc_clk_rate_hz = dsi_ctrl->clk_freq.esc_clk_rate * 1000;
-	pclk_to_esc_ratio = ((dsi_ctrl->clk_freq.pix_clk_rate * 1000) /
+	esc_clk_rate_hz = dsi_ctrl->clk_freq.esc_clk_rate;
+	pclk_to_esc_ratio = (dsi_ctrl->clk_freq.pix_clk_rate /
 			     esc_clk_rate_hz);
-	byte_to_esc_ratio = ((dsi_ctrl->clk_freq.byte_clk_rate * 1000) /
+	byte_to_esc_ratio = (dsi_ctrl->clk_freq.byte_clk_rate /
 			     esc_clk_rate_hz);
-	hr_bit_to_esc_ratio = ((dsi_ctrl->clk_freq.byte_clk_rate * 4 * 1000) /
+	hr_bit_to_esc_ratio = ((dsi_ctrl->clk_freq.byte_clk_rate * 4) /
 					esc_clk_rate_hz);
 
 	hsync_period = DSI_H_TOTAL_DSC(&mode->timing);
@@ -5885,8 +5268,28 @@ static void _dsi_display_calc_pipe_delay(struct dsi_display *display,
 			  ((cfg->timing.lane_v3[4] >> 1) + 1)) /
 			 hr_bit_to_esc_ratio);
 
-	/* 130 us pll delay recommended by h/w doc */
-	delay->pll_delay = ((130 * esc_clk_rate_hz) / 1000000) * 2;
+	/*
+	 * 100us pll delay recommended for phy ver 2.0 and 3.0
+	 * 25us pll delay recommended for phy ver 4.0
+	 */
+	phy_ver = dsi_phy_get_version(m_ctrl->phy);
+	if (phy_ver <= DSI_PHY_VERSION_3_0)
+		delay->pll_delay = 100;
+	else
+		delay->pll_delay = 25;
+
+	delay->pll_delay = ((delay->pll_delay * esc_clk_rate_hz) / 1000000);
+}
+
+/*
+ * dsi_display_is_type_cphy - check if panel type is cphy
+ * @display: Pointer to private display structure
+ * Returns: True if panel type is cphy
+ */
+static inline bool dsi_display_is_type_cphy(struct dsi_display *display)
+{
+	return (display->panel->host_config.phy_type ==
+		DSI_PHY_TYPE_CPHY) ? true : false;
 }
 
 static int _dsi_display_dyn_update_clks(struct dsi_display *display,
@@ -5894,15 +5297,24 @@ static int _dsi_display_dyn_update_clks(struct dsi_display *display,
 {
 	int rc = 0, i;
 	struct dsi_display_ctrl *m_ctrl, *ctrl;
+	struct dsi_clk_link_set *parent_clk, *enable_clk;
 
 	m_ctrl = &display->ctrl[display->clk_master_idx];
 
-	dsi_clk_prepare_enable(&display->clock_info.src_clks);
+	if (dsi_display_is_type_cphy(display)) {
+		enable_clk = &display->clock_info.cphy_clks;
+		parent_clk = &display->clock_info.shadow_cphy_clks;
+	} else {
+		enable_clk = &display->clock_info.src_clks;
+		parent_clk = &display->clock_info.shadow_clks;
+	}
 
-	rc = dsi_clk_update_parent(&display->clock_info.shadow_clks,
-			      &display->clock_info.mux_clks);
+	dsi_clk_prepare_enable(enable_clk);
+
+	rc = dsi_clk_update_parent(parent_clk,
+				&display->clock_info.mux_clks);
 	if (rc) {
-		DSI_ERR("failed update mux parent to shadow\n");
+		DSI_ERR("failed to update mux parent\n");
 		goto exit;
 	}
 
@@ -5951,12 +5363,13 @@ static int _dsi_display_dyn_update_clks(struct dsi_display *display,
 		dsi_phy_dynamic_refresh_clear(ctrl->phy);
 	}
 
-	rc = dsi_clk_update_parent(&display->clock_info.src_clks,
-			      &display->clock_info.mux_clks);
+	rc = dsi_clk_update_parent(enable_clk,
+				&display->clock_info.mux_clks);
+
 	if (rc)
 		DSI_ERR("could not switch back to src clks %d\n", rc);
 
-	dsi_clk_disable_unprepare(&display->clock_info.src_clks);
+	dsi_clk_disable_unprepare(enable_clk);
 
 	return rc;
 
@@ -6319,6 +5732,30 @@ static bool dsi_display_validate_mode_seamless(struct dsi_display *display,
 	return rc;
 }
 
+static void dsi_display_validate_dms_fps(struct dsi_display_mode *cur_mode,
+		struct dsi_display_mode *to_mode)
+{
+	u32 cur_fps, to_fps;
+	u32 cur_h_active, to_h_active;
+	u32 cur_v_active, to_v_active;
+
+	cur_fps = cur_mode->timing.refresh_rate;
+	to_fps = to_mode->timing.refresh_rate;
+	cur_h_active = cur_mode->timing.h_active;
+	cur_v_active = cur_mode->timing.v_active;
+	to_h_active = to_mode->timing.h_active;
+	to_v_active = to_mode->timing.v_active;
+
+	if ((cur_h_active == to_h_active) && (cur_v_active == to_v_active) &&
+			(cur_fps != to_fps)) {
+		to_mode->dsi_mode_flags |= DSI_MODE_FLAG_DMS_FPS;
+		DSI_DEBUG("DMS Modeset with FPS change\n");
+	} else {
+		to_mode->dsi_mode_flags &= ~DSI_MODE_FLAG_DMS_FPS;
+	}
+}
+
+
 static int dsi_display_set_mode_sub(struct dsi_display *display,
 				    struct dsi_display_mode *mode,
 				    u32 flags)
@@ -6327,6 +5764,7 @@ static int dsi_display_set_mode_sub(struct dsi_display *display,
 	int i;
 	struct dsi_display_ctrl *ctrl;
 	struct dsi_display_mode_priv_info *priv_info;
+	bool commit_phy_timing = false;
 
 	priv_info = mode->priv_info;
 	if (!priv_info) {
@@ -6335,6 +5773,7 @@ static int dsi_display_set_mode_sub(struct dsi_display *display,
 		return -EINVAL;
 	}
 
+	SDE_EVT32(mode->dsi_mode_flags);
 	if (mode->dsi_mode_flags & DSI_MODE_FLAG_POMS) {
 		display->config.panel_mode = mode->panel_mode;
 		display->panel->panel_mode = mode->panel_mode;
@@ -6387,7 +5826,8 @@ static int dsi_display_set_mode_sub(struct dsi_display *display,
 				} else {
 					rc = dsi_phy_set_timing_params(ctrl->phy,
 						priv_info->phy_timing_val,
-						priv_info->phy_timing_len);
+						priv_info->phy_timing_len,
+						commit_phy_timing);
 				}
 				if (rc)
 					DSI_ERR("Fail to add timing params\n");
@@ -6432,15 +5872,25 @@ static int dsi_display_set_mode_sub(struct dsi_display *display,
 	}
 
 	if ((mode->dsi_mode_flags & DSI_MODE_FLAG_DMS) &&
-			(display->panel->panel_mode == DSI_OP_CMD_MODE))
+			(display->panel->panel_mode == DSI_OP_CMD_MODE)) {
+		u64 cur_bitclk = display->panel->cur_mode->timing.clk_rate_hz;
+		u64 to_bitclk = mode->timing.clk_rate_hz;
+		commit_phy_timing = true;
+
+		/* No need to set clkrate pending flag if clocks are same */
+		if ((!cur_bitclk && !to_bitclk) || (cur_bitclk != to_bitclk))
 			atomic_set(&display->clkrate_change_pending, 1);
+
+		dsi_display_validate_dms_fps(display->panel->cur_mode, mode);
+	}
 
 	if (priv_info->phy_timing_len) {
 		display_for_each_ctrl(i, display) {
 			ctrl = &display->ctrl[i];
 			 rc = dsi_phy_set_timing_params(ctrl->phy,
 				priv_info->phy_timing_val,
-				priv_info->phy_timing_len);
+				priv_info->phy_timing_len,
+				commit_phy_timing);
 			if (rc)
 				DSI_ERR("failed to add DSI PHY timing params\n");
 		}
@@ -6564,8 +6014,8 @@ int dsi_display_cont_splash_config(void *dsi_display)
 		       display->name, rc);
 		goto clk_manager_update;
 	}
-#if defined(CONFIG_PXLW_IRIS5)
-	iris5_control_pwr_regulator(true);
+#if defined(CONFIG_PXLW_IRIS)
+	iris_control_pwr_regulator(true);
 #endif
 	/* Vote on panel regulator will be removed during suspend path */
 	rc = dsi_pwr_enable_regulator(&display->panel->power_info, true);
@@ -6873,6 +6323,8 @@ static int dsi_display_bind(struct device *dev,
 		if (!display_ctrl->phy || !display_ctrl->ctrl)
 			continue;
 
+		display_ctrl->ctrl->drm_dev = drm;
+
 		rc = dsi_phy_set_clk_freq(display_ctrl->phy,
 				&display_ctrl->ctrl->clk_freq);
 		if (rc) {
@@ -6884,9 +6336,8 @@ static int dsi_display_bind(struct device *dev,
 
 	/* register te irq handler */
 	dsi_display_register_te_irq(display);
-	/* register err flag irq handler */
 	dsi_display_register_err_flag_irq(display);
-#if defined(CONFIG_PXLW_IRIS5)
+#if defined(CONFIG_PXLW_IRIS)
 	/* register osd irq handler */
 	iris_register_osd_irq(display);
 #endif
@@ -7013,11 +6464,13 @@ static void dsi_display_firmware_display(const struct firmware *fw,
 	struct dsi_display *display = context;
 
 	if (fw) {
-		DSI_DEBUG("reading data from firmware, size=%zd\n",
+		DSI_INFO("reading data from firmware, size=%zd\n",
 			fw->size);
 
 		display->fw = fw;
 		display->name = "dsi_firmware_display";
+	} else {
+		DSI_INFO("no firmware available, fallback to device node\n");
 	}
 
 	if (dsi_display_init(display))
@@ -7025,6 +6478,47 @@ static void dsi_display_firmware_display(const struct firmware *fw,
 
 	DSI_DEBUG("success\n");
 }
+
+#if defined(CONFIG_PXLW_IRIS)
+static int dsi_display_parse_boot_display_selection_iris(struct platform_device *pdev)
+{
+	// Add secondary display.
+	int i;
+	struct device_node *node = NULL, *mdp_node = NULL;
+	const char *disp_name = NULL;
+	static const char * const disp_name_type[] = {
+		"pxlw,dsi-display-primary-active",
+		"pxlw,dsi-display-secondary-active"};
+
+	node = pdev->dev.of_node;
+	mdp_node = of_parse_phandle(node, "qcom,mdp", 0);
+	if (!mdp_node) {
+		DSI_ERR("mdp_node not found\n");
+		return -ENODEV;
+	}
+
+	for (i = 0; i < MAX_DSI_ACTIVE_DISPLAY; i++) {
+		DSI_INFO("IRIS_LOG I UEFI display[%d] name: %s\n", i, boot_displays[i].name);
+		of_property_read_string(mdp_node, disp_name_type[i], &disp_name);
+		if (disp_name) {
+			if (i == 0) {
+				if (strstr(boot_displays[i].name, disp_name) == NULL)
+					break;
+				disp_name = NULL;
+			} else {
+				DSI_INFO("IRIS_LOG I actual display[%d] name: %s\n", i, disp_name);
+				strlcpy(boot_displays[i].name, disp_name,
+						MAX_CMDLINE_PARAM_LEN);
+				boot_displays[i].boot_disp_en = true;
+				disp_name = NULL;
+			}
+		} else {
+			break;
+		}
+	}
+	return 0;
+}
+#endif
 
 int dsi_display_dev_probe(struct platform_device *pdev)
 {
@@ -7062,6 +6556,11 @@ int dsi_display_dev_probe(struct platform_device *pdev)
 	if (!strcmp(display->display_type, "secondary"))
 		index = DSI_SECONDARY;
 
+#if defined(CONFIG_PXLW_IRIS)
+	if (index == DSI_PRIMARY)
+		dsi_display_parse_boot_display_selection_iris(pdev);
+#endif
+
 	boot_disp = &boot_displays[index];
 	node = pdev->dev.of_node;
 	if (boot_disp->boot_disp_en) {
@@ -7081,12 +6580,6 @@ int dsi_display_dev_probe(struct platform_device *pdev)
 				"qcom,dsi-default-panel", 0);
 		if (!panel_node)
 			DSI_WARN("default panel not found\n");
-
-		if (IS_ENABLED(CONFIG_DSI_PARSER))
-			firm_req = !request_firmware_nowait(
-				THIS_MODULE, 1, "dsi_prop",
-				&pdev->dev, GFP_KERNEL, display,
-				dsi_display_firmware_display);
 	}
 
 	boot_disp->node = pdev->dev.of_node;
@@ -7101,6 +6594,13 @@ int dsi_display_dev_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, display);
 
 	/* initialize display in firmware callback */
+	if (!boot_disp->boot_disp_en && IS_ENABLED(CONFIG_DSI_PARSER)) {
+		firm_req = !request_firmware_nowait(
+			THIS_MODULE, 1, "dsi_prop",
+			&pdev->dev, GFP_KERNEL, display,
+			dsi_display_firmware_display);
+	}
+
 	if (!firm_req) {
 		rc = dsi_display_init(display);
 		if (rc)
@@ -7128,10 +6628,9 @@ int dsi_display_dev_remove(struct platform_device *pdev)
 
 	display = platform_get_drvdata(pdev);
 
-#if defined(CONFIG_PXLW_IRIS5)
-	iris5_deinit(display);
+#if defined(CONFIG_PXLW_IRIS)
+	iris_deinit(display);
 #endif
-
 	/* decrement ref count */
 	of_node_put(display->panel_node);
 
@@ -7561,7 +7060,7 @@ static struct mipi_dsi_host_ops dsi_host_ext_ops = {
 struct drm_panel *dsi_display_get_drm_panel(struct dsi_display * display)
 {
 	if (!display || !display->panel) {
-		DSI_ERR("invalid param(s)\n");
+		pr_err("invalid param(s)\n");
 		return NULL;
 	}
 
@@ -7784,12 +7283,19 @@ int dsi_display_get_mode_count(struct dsi_display *display,
 	return 0;
 }
 
-void dsi_display_adjust_mode_timing(
-			struct dsi_dyn_clk_caps *dyn_clk_caps,
+void dsi_display_adjust_mode_timing(struct dsi_display *display,
 			struct dsi_display_mode *dsi_mode,
 			int lanes, int bpp)
 {
 	u64 new_htotal, new_vtotal, htotal, vtotal, old_htotal, div;
+	struct dsi_dyn_clk_caps *dyn_clk_caps;
+	u32 bits_per_symbol = 16, num_of_symbols = 7; /* For Cphy */
+
+	dyn_clk_caps = &(display->panel->dyn_clk_caps);
+
+	/* Constant FPS is not supported on command mode */
+	if (dsi_mode->panel_mode == DSI_OP_CMD_MODE)
+		return;
 
 	if (!dyn_clk_caps->maintain_const_fps)
 		return;
@@ -7804,21 +7310,31 @@ void dsi_display_adjust_mode_timing(
 	case DSI_DYN_CLK_TYPE_CONST_FPS_ADJUST_HFP:
 		vtotal = DSI_V_TOTAL(&dsi_mode->timing);
 		old_htotal = DSI_H_TOTAL_DSC(&dsi_mode->timing);
+		do_div(old_htotal, display->ctrl_count);
 		new_htotal = dsi_mode->timing.clk_rate_hz * lanes;
 		div = bpp * vtotal * dsi_mode->timing.refresh_rate;
+		if (dsi_display_is_type_cphy(display)) {
+			new_htotal = new_htotal * bits_per_symbol;
+			div = div * num_of_symbols;
+		}
 		do_div(new_htotal, div);
 		if (old_htotal > new_htotal)
 			dsi_mode->timing.h_front_porch -=
-					(old_htotal - new_htotal);
+			((old_htotal - new_htotal) * display->ctrl_count);
 		else
 			dsi_mode->timing.h_front_porch +=
-					(new_htotal - old_htotal);
+			((new_htotal - old_htotal) * display->ctrl_count);
 		break;
 
 	case DSI_DYN_CLK_TYPE_CONST_FPS_ADJUST_VFP:
 		htotal = DSI_H_TOTAL_DSC(&dsi_mode->timing);
+		do_div(htotal, display->ctrl_count);
 		new_vtotal = dsi_mode->timing.clk_rate_hz * lanes;
 		div = bpp * htotal * dsi_mode->timing.refresh_rate;
+		if (dsi_display_is_type_cphy(display)) {
+			new_vtotal = new_vtotal * bits_per_symbol;
+			div = div * num_of_symbols;
+		}
 		do_div(new_vtotal, div);
 		dsi_mode->timing.v_front_porch = new_vtotal -
 				dsi_mode->timing.v_back_porch -
@@ -7871,7 +7387,7 @@ static void _dsi_display_populate_bit_clks(struct dsi_display *display,
 		 */
 		src->timing.clk_rate_hz = dyn_clk_caps->bit_clk_list[0];
 
-		dsi_display_adjust_mode_timing(dyn_clk_caps, src, lanes, bpp);
+		dsi_display_adjust_mode_timing(display, src, lanes, bpp);
 
 		src->pixel_clk_khz =
 			div_u64(src->timing.clk_rate_hz * lanes, bpp);
@@ -7893,7 +7409,7 @@ static void _dsi_display_populate_bit_clks(struct dsi_display *display,
 			memcpy(dst, src, sizeof(struct dsi_display_mode));
 			dst->timing.clk_rate_hz = dyn_clk_caps->bit_clk_list[i];
 
-			dsi_display_adjust_mode_timing(dyn_clk_caps, dst, lanes,
+			dsi_display_adjust_mode_timing(display, dst, lanes,
 									bpp);
 
 			dst->pixel_clk_khz =
@@ -7954,17 +7470,23 @@ int dsi_display_get_modes(struct dsi_display *display,
 
 	dyn_clk_caps = &(display->panel->dyn_clk_caps);
 
-	num_dfps_rates = !dfps_caps.dfps_support ? 1 : dfps_caps.dfps_list_len;
-
 	timing_mode_count = display->panel->num_timing_nodes;
+
+	/* Validate command line timing */
+	if ((display->cmdline_timing != NO_OVERRIDE) &&
+		(display->cmdline_timing >= timing_mode_count))
+		display->cmdline_timing = NO_OVERRIDE;
 
 	for (mode_idx = 0; mode_idx < timing_mode_count; mode_idx++) {
 		struct dsi_display_mode display_mode;
 		int topology_override = NO_OVERRIDE;
+		bool is_preferred = false;
 		u32 frame_threshold_us = ctrl->ctrl->frame_threshold_time_us;
 
-		if (display->cmdline_timing == mode_idx)
+		if (display->cmdline_timing == mode_idx) {
 			topology_override = display->cmdline_topology;
+			is_preferred = true;
+		}
 
 		memset(&display_mode, 0, sizeof(display_mode));
 
@@ -7978,6 +7500,9 @@ int dsi_display_get_modes(struct dsi_display *display,
 		}
 
 		is_cmd_mode = (display_mode.panel_mode == DSI_OP_CMD_MODE);
+
+		num_dfps_rates = ((!dfps_caps.dfps_support ||
+			is_cmd_mode) ? 1 : dfps_caps.dfps_list_len);
 
 		/* Calculate dsi frame transfer time */
 		if (is_cmd_mode) {
@@ -8040,10 +7565,21 @@ int dsi_display_get_modes(struct dsi_display *display,
 		}
 		end = array_idx;
 		/*
-		 * if dynamic clk switch is supported then update all the bit
-		 * clk rates.
+		 * if POMS is enabled and boot up mode is video mode,
+		 * skip bit clk rates update for command mode,
+		 * else if dynamic clk switch is supported then update all
+		 * the bit clk rates.
 		 */
+
+		if (is_cmd_mode &&
+			(display->panel->panel_mode == DSI_OP_VIDEO_MODE))
+			continue;
+
 		_dsi_display_populate_bit_clks(display, start, end, &array_idx);
+		if (is_preferred) {
+			/* Set first timing sub mode as preferred mode */
+			display->modes[start].is_preferred = true;
+		}
 	}
 
 exit:
@@ -8242,7 +7778,8 @@ int dsi_display_validate_mode_change(struct dsi_display *display,
 	mutex_lock(&display->display_lock);
 	dyn_clk_caps = &(display->panel->dyn_clk_caps);
 	if ((cur_mode->timing.v_active == adj_mode->timing.v_active) &&
-		(cur_mode->timing.h_active == adj_mode->timing.h_active)) {
+		(cur_mode->timing.h_active == adj_mode->timing.h_active) &&
+		(cur_mode->panel_mode == adj_mode->panel_mode)) {
 		/* dfps and dynamic clock with const fps use case */
 		if (dsi_display_mode_switch_dfps(cur_mode, adj_mode)) {
 			dsi_panel_get_dfps_caps(display->panel, &dfps_caps);
@@ -8804,6 +8341,15 @@ int dsi_display_prepare(struct dsi_display *display)
 						display->name, rc);
 			goto error;
 		}
+
+		if (!display->is_cont_splash_enabled) {
+			/* update dsi ctrl for new mode */
+			rc = dsi_display_pre_switch(display);
+			if (rc)
+				DSI_ERR("[%s] panel pre-switch failed, rc=%d\n",
+					display->name, rc);
+			goto error;
+		}
 	}
 
 	if (!(mode->dsi_mode_flags & DSI_MODE_FLAG_POMS) &&
@@ -8924,8 +8470,8 @@ error_panel_post_unprep:
 error:
 	mutex_unlock(&display->display_lock);
 	SDE_EVT32(SDE_EVTLOG_FUNC_EXIT);
-#if defined(CONFIG_PXLW_IRIS5)
-	iris5_display_prepare(display);
+#if defined(CONFIG_PXLW_IRIS)
+	iris_prepare(display);
 #endif
 	return rc;
 }
@@ -9217,14 +8763,11 @@ int dsi_display_enable(struct dsi_display *display)
 	/* Engine states and panel states are populated during splash
 	 * resource init and hence we return early
 	 */
-
-
 	if (display->is_cont_splash_enabled) {
 		struct dsi_display_mode *adj_mode = NULL;
 
 		dsi_display_config_ctrl_for_cont_splash(display);
-
-#if defined(CONFIG_PXLW_IRIS5)
+#if defined(CONFIG_PXLW_IRIS)
 		iris_send_cont_splash(display);
 #endif
 
@@ -9322,12 +8865,13 @@ int dsi_display_enable(struct dsi_display *display)
 		}
 	}
 
+	/* Block sending pps command if modeset is due to fps difference */
 	if (mode->priv_info->dsc_enabled) {
-		mode->priv_info->dsc.pic_width *= display->ctrl_count;
-		SDE_ATRACE_BEGIN("dsi_panel_update_pps");
-		rc = dsi_panel_update_pps(display->panel);
-		SDE_ATRACE_END("dsi_panel_update_pps");
-		if (rc) {
+			mode->priv_info->dsc.pic_width *= display->ctrl_count;
+			SDE_ATRACE_BEGIN("dsi_panel_update_pps");
+			rc = dsi_panel_update_pps(display->panel);
+			SDE_ATRACE_END("dsi_panel_update_pps");
+			if (rc) {
 			DSI_ERR("[%s] panel pps cmd update failed, rc=%d\n",
 				display->name, rc);
 			goto error;
@@ -9434,14 +8978,44 @@ int dsi_display_pre_disable(struct dsi_display *display)
 		if (display->config.panel_mode == DSI_OP_CMD_MODE)
 			dsi_panel_pre_mode_switch_to_video(display->panel);
 
-		if (display->config.panel_mode == DSI_OP_VIDEO_MODE)
+		if (display->config.panel_mode == DSI_OP_VIDEO_MODE) {
+			/*
+			 * Add unbalanced vote for clock & cmd engine to enable
+			 * async trigger of pre video to cmd mode switch.
+			 */
+			rc = dsi_display_clk_ctrl(display->dsi_clk_handle,
+					DSI_ALL_CLKS, DSI_CLK_ON);
+			if (rc) {
+				DSI_ERR("[%s]failed to enable all clocks,rc=%d",
+						display->name, rc);
+				goto exit;
+			}
+
+			rc = dsi_display_cmd_engine_enable(display);
+			if (rc) {
+				DSI_ERR("[%s]failed to enable cmd engine,rc=%d",
+						display->name, rc);
+				goto error_disable_clks;
+			}
+
 			dsi_panel_pre_mode_switch_to_cmd(display->panel);
+		}
 	} else {
 		rc = dsi_panel_pre_disable(display->panel);
 		if (rc)
 			DSI_ERR("[%s] panel pre-disable failed, rc=%d\n",
 				display->name, rc);
 	}
+	goto exit;
+
+error_disable_clks:
+	rc = dsi_display_clk_ctrl(display->dsi_clk_handle,
+			DSI_ALL_CLKS, DSI_CLK_OFF);
+	if (rc)
+		DSI_ERR("[%s] failed to disable all DSI clocks, rc=%d\n",
+		       display->name, rc);
+
+exit:
 	mutex_unlock(&display->display_lock);
 	return rc;
 }
@@ -9572,240 +9146,227 @@ int dsi_display_get_acl_mode(struct drm_connector *connector)
 	return dsi_display->panel->acl_mode;
 }
 
+int dsi_display_register_read(struct dsi_display *dsi_display, unsigned char registers, char *buf, size_t count)
+{
+	int rc = 0;
+	int flags = 0;
+	int cmd_count = 0;
+	int retry_times = 0;
+	unsigned char *payload;
+	struct dsi_cmd_desc *cmds;
+	struct dsi_display_mode *mode;
+	struct dsi_display_ctrl *m_ctrl;
+
+	if (!dsi_display || !dsi_display->panel->cur_mode || !registers || !buf || !count) {
+		DSI_ERR("Invalid params\n");
+		return -EINVAL;
+	}
+
+	mode = dsi_display->panel->cur_mode;
+	m_ctrl = &dsi_display->ctrl[dsi_display->cmd_master_idx];
+	cmd_count = mode->priv_info->cmd_sets[DSI_CMD_SET_REGISTER_READ].count;
+
+	if (!m_ctrl || !m_ctrl->ctrl->vaddr || !cmd_count) {
+		DSI_ERR("Invalid params\n");
+		return -EINVAL;
+	}
+
+	cmds = mode->priv_info->cmd_sets[DSI_CMD_SET_REGISTER_READ].cmds;
+	payload = (u8 *)cmds[0].msg.tx_buf;
+	payload[0] = registers;
+
+	if (cmds->last_command) {
+		cmds->msg.flags |= MIPI_DSI_MSG_LASTCOMMAND;
+		flags |= DSI_CTRL_CMD_LAST_COMMAND;
+	}
+	flags |= (DSI_CTRL_CMD_FETCH_MEMORY | DSI_CTRL_CMD_READ);
+	cmds->msg.rx_buf = buf;
+	cmds->msg.rx_len = count;
+	do {
+		rc = dsi_ctrl_cmd_transfer(m_ctrl->ctrl, &cmds->msg, &flags);
+		retry_times++;
+	} while ((rc <= 0) && (retry_times < 3));
+	if (rc <= 0)
+		DSI_ERR("rx cmd transfer failed rc=%d\n", rc);
+
+	return rc;
+}
+
 int dsi_display_get_gamma_para(struct dsi_display *dsi_display, struct dsi_panel *panel)
 {
-    int i = 0;
-    int j = 0;
-    int rc = 0;
-    int flags = 0;
-    char fb[13] = {0};
-  //char c8[135] = {0};
-  //char c9[180] = {0};
-    char b3[47] = {0};
-    char fb_temp[13] = {0};
-    char c8_temp[135] = {0};
-    char c9_temp[180] = {0};
-    char b3_temp[47] = {0};
-    char gamma_para_60hz[452] = {0};
-    char gamma_para_backup[413] = {0};
-    int check_sum_60hz = 0;
+	int i = 0;
+	int j = 0;
+	int rc = 0;
+	char fb_temp[13] = {0};
+	char c8_temp[135] = {0};
+	char c9_temp[180] = {0};
+	char b3_temp[47] = {0};
+	char gamma_para_60hz[452] = {0};
+	char gamma_para_backup[413] = {0};
+	int check_sum_60hz = 0;
 
-    struct dsi_cmd_desc *cmds;
-    struct dsi_display_mode *mode;
-    struct dsi_display_ctrl *m_ctrl;
+	DSI_ERR("start\n", __func__);
 
-    DSI_ERR("%s start\n", __func__);
+	if (!panel || !panel->cur_mode)
+		return -EINVAL;
 
-    m_ctrl = &dsi_display->ctrl[dsi_display->cmd_master_idx];
-    if (!panel || !m_ctrl)
-        return -EINVAL;
+	rc = dsi_display_cmd_engine_enable(dsi_display);
+	if (rc) {
+		DSI_ERR("cmd engine enable failed\n");
+		return -EINVAL;
+	}
 
-    rc = dsi_display_cmd_engine_enable(dsi_display);
-    if (rc) {
-        DSI_ERR("cmd engine enable failed\n");
-        return -EINVAL;
-    }
-
-    dsi_panel_acquire_panel_lock(panel);
-    mode = panel->cur_mode;
+	dsi_panel_acquire_panel_lock(panel);
 
 /* Read 60hz gamma para */
-    memcpy(gamma_para_backup, gamma_para[0], 413);
-    do {
-        check_sum_60hz = 0;
-        if (j > 0) {
-            DSI_ERR("Failed to read the 60hz gamma parameters %d!", j);
-            for (i = 0; i < 52; i++) {
-                if (i != 51) {
-                    DSI_ERR("[60hz][%d]0x%02X,[%d]0x%02X,[%d]0x%02X,[%d]0x%02X,[%d]0x%02X,[%d]0x%02X,[%d]0x%02X,[%d]0x%02X",
-                        i*8, gamma_para[0][i*8], i*8+1, gamma_para[0][i*8+1], i*8+2, gamma_para[0][i*8+2], i*8+3, gamma_para[0][i*8+3], i*8+4, gamma_para[0][i*8+4],
-                            i*8+5, gamma_para[0][i*8+5], i*8+6, gamma_para[0][i*8+6], i*8+7, gamma_para[0][i*8+7]);
-                }
-                else {
-                    DSI_ERR("[60hz][%d]0x%02X,[%d]0x%02X,[%d]0x%02X,[%d]0x%02X,[%d]0x%02X",
-                        i*8, gamma_para[0][i*8], i*8+1, gamma_para[0][i*8+1], i*8+2, gamma_para[0][i*8+2], i*8+3, gamma_para[0][i*8+3], i*8+4, gamma_para[0][i*8+4]);
-                }
-            }
-            mdelay(1000);
-        }
-        for(i = 0; i < 452; i++)
-        {
-            rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_GAMMA_FLASH_PRE_READ_1);
-            if (rc) {
-                DSI_ERR("Failed to send DSI_CMD_SET_GAMMA_FLASH_PRE_READ_1 command\n");
-                goto error;
-            }
+	memcpy(gamma_para_backup, gamma_para[0], 413);
+	do {
+		check_sum_60hz = 0;
+		if (j > 0) {
+			DSI_ERR("Failed to read the 60hz gamma parameters %d!", j);
+			for (i = 0; i < 52; i++) {
+				if (i != 51) {
+					DSI_ERR("[60hz][%d]0x%02X,[%d]0x%02X,[%d]0x%02X,[%d]0x%02X,[%d]0x%02X,[%d]0x%02X,[%d]0x%02X,[%d]0x%02X",
+						i*8, gamma_para[0][i*8], i*8+1, gamma_para[0][i*8+1], i*8+2, gamma_para[0][i*8+2], i*8+3, gamma_para[0][i*8+3], i*8+4, gamma_para[0][i*8+4],
+							i*8+5, gamma_para[0][i*8+5], i*8+6, gamma_para[0][i*8+6], i*8+7, gamma_para[0][i*8+7]);
+				} else {
+					DSI_ERR("[60hz][%d]0x%02X,[%d]0x%02X,[%d]0x%02X,[%d]0x%02X,[%d]0x%02X",
+						i*8, gamma_para[0][i*8], i*8+1, gamma_para[0][i*8+1], i*8+2, gamma_para[0][i*8+2], i*8+3, gamma_para[0][i*8+3], i*8+4, gamma_para[0][i*8+4]);
+				}
+			}
+			mdelay(1000);
+		}
+		for(i = 0; i < 452; i++) {
+			rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_GAMMA_FLASH_PRE_READ_1);
+			if (rc) {
+				DSI_ERR("Failed to send DSI_CMD_SET_GAMMA_FLASH_PRE_READ_1 command\n");
+				goto error;
+			}
 
-            rc = dsi_panel_gamma_read_address_setting(panel, i);
-            if (rc) {
-                DSI_ERR("Failed to set gamma read address\n");
-                goto error;
-            }
+			rc = dsi_panel_gamma_read_address_setting(panel, i);
+			if (rc) {
+				DSI_ERR("Failed to set gamma read address\n");
+				goto error;
+			}
 
-            rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_GAMMA_FLASH_PRE_READ_2);
-            if (rc) {
-                DSI_ERR("Failed to send DSI_CMD_SET_GAMMA_FLASH_PRE_READ_2 command\n");
-                goto error;
-            }
+			rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_GAMMA_FLASH_PRE_READ_2);
+			if (rc) {
+				DSI_ERR("Failed to send DSI_CMD_SET_GAMMA_FLASH_PRE_READ_2 command\n");
+				goto error;
+			}
 
-            flags = 0;
-            cmds = mode->priv_info->cmd_sets[DSI_CMD_SET_GAMMA_FLASH_READ_FB].cmds;
-            if (cmds->last_command) {
-                cmds->msg.flags |= MIPI_DSI_MSG_LASTCOMMAND;
-                flags |= DSI_CTRL_CMD_LAST_COMMAND;
-            }
-            flags |= (DSI_CTRL_CMD_FETCH_MEMORY | DSI_CTRL_CMD_READ);
-            if (!m_ctrl->ctrl->vaddr)
-                goto error;
-            cmds->msg.rx_buf = fb_temp;
-            cmds->msg.rx_len = 13;
-            rc = dsi_ctrl_cmd_transfer(m_ctrl->ctrl, &cmds->msg, flags);
-            if (rc <= 0) {
-                DSI_ERR("Failed to read DSI_CMD_SET_GAMMA_FLASH_READ_FB\n");
-                goto error;
-            }
-            memcpy(fb, cmds->msg.rx_buf, 13);
+			rc = dsi_display_register_read(dsi_display, 0xFB, fb_temp, 13);
+			if (rc <= 0) {
+				DSI_ERR("Failed to read 0xFB registers\n");
+				goto error;
+			}
 
-            rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_LEVEL2_KEY_DISABLE);
-            if (rc) {
-                DSI_ERR("Failed to send DSI_CMD_SET_LEVEL2_KEY_DISABLE command\n");
-                goto error;
-            }
+			rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_LEVEL2_KEY_DISABLE);
+			if (rc) {
+				DSI_ERR("Failed to send DSI_CMD_SET_LEVEL2_KEY_DISABLE command\n");
+				goto error;
+			}
 
-            if (i < 135) {
-                gamma_para[0][i+18] = fb[12];
-            }
-            else if (i < 315) {
-                gamma_para[0][i+26] = fb[12];
-            }
-            else if (i < 360) {
-                gamma_para[0][i+43] = fb[12];
-            }
+			if (i < 135) {
+				gamma_para[0][i+18] = fb_temp[12];
+			}
+			else if (i < 315) {
+				gamma_para[0][i+26] = fb_temp[12];
+			}
+			else if (i < 360) {
+				gamma_para[0][i+43] = fb_temp[12];
+			}
 
-            gamma_para_60hz[i] = fb[12];
-            if (i < 449) {
-                check_sum_60hz = gamma_para_60hz[i] + check_sum_60hz;
-            }
-            j++;
-        }
-    }
-    while ((check_sum_60hz != (gamma_para_60hz[450] << 8) + gamma_para_60hz[451]) && (j < 10));
+			gamma_para_60hz[i] = fb_temp[12];
+			if (i < 449) {
+				check_sum_60hz = gamma_para_60hz[i] + check_sum_60hz;
+			}
+			j++;
+		}
+	}
+	while ((check_sum_60hz != (gamma_para_60hz[450] << 8) + gamma_para_60hz[451]) && (j < 10));
 
-    if (check_sum_60hz == (gamma_para_60hz[450] << 8) + gamma_para_60hz[451]) {
-        DSI_ERR("Read 60hz gamma done\n");
-    }
-    else {
-        DSI_ERR("Failed to read 60hz gamma, use default 60hz gamma.\n");
-        memcpy(gamma_para[0], gamma_para_backup, 413);
-        gamma_read_flag = GAMMA_READ_ERROR;
-    }
+	if (check_sum_60hz == (gamma_para_60hz[450] << 8) + gamma_para_60hz[451]) {
+		DSI_ERR("Read 60hz gamma done\n");
+	}
+	else {
+		DSI_ERR("Failed to read 60hz gamma, use default 60hz gamma.\n");
+		memcpy(gamma_para[0], gamma_para_backup, 413);
+		gamma_read_flag = GAMMA_READ_ERROR;
+	}
 
 /* Read 90hz gamma para */
-    rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_LEVEL2_KEY_ENABLE);
-    if (rc) {
-        DSI_ERR("Failed to send DSI_CMD_SET_LEVEL2_KEY_ENABLE command\n");
-        goto error;
-    }
+	rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_LEVEL2_KEY_ENABLE);
+	if (rc) {
+		DSI_ERR("Failed to send DSI_CMD_SET_LEVEL2_KEY_ENABLE command\n");
+		goto error;
+	}
 
-    rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_GAMMA_OTP_READ_C8_SMRPS);
-    if (rc) {
-        DSI_ERR("Failed to send DSI_CMD_SET_GAMMA_OTP_READ_C8_SMRPS command\n");
-        goto error;
-    }
+	rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_GAMMA_OTP_READ_C8_SMRPS);
+	if (rc) {
+		DSI_ERR("Failed to send DSI_CMD_SET_GAMMA_OTP_READ_C8_SMRPS command\n");
+		goto error;
+	}
 
-    flags = 0;
-    cmds = mode->priv_info->cmd_sets[DSI_CMD_SET_GAMMA_OTP_READ_C8].cmds;
-    if (cmds->last_command) {
-        cmds->msg.flags |= MIPI_DSI_MSG_LASTCOMMAND;
-        flags |= DSI_CTRL_CMD_LAST_COMMAND;
-    }
-    flags |= (DSI_CTRL_CMD_FETCH_MEMORY | DSI_CTRL_CMD_READ);
-    cmds->msg.rx_buf = c8_temp;
-    cmds->msg.rx_len = 135;
-    rc = dsi_ctrl_cmd_transfer(m_ctrl->ctrl, &cmds->msg, flags);
-    if (rc <= 0) {
-        DSI_ERR("Failed to read DSI_CMD_SET_GAMMA_OTP_READ_C8\n");
-        goto error;
-    }
-    memcpy(&gamma_para[1][18], cmds->msg.rx_buf, 135);
+	rc = dsi_display_register_read(dsi_display, 0xC8, c8_temp, 135);
+	if (rc <= 0) {
+		DSI_ERR("Failed to read 0xC8 registers\n");
+		goto error;
+	}
+	memcpy(&gamma_para[1][18], c8_temp, 135);
 
-    rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_GAMMA_OTP_READ_C9_SMRPS);
-    if (rc) {
-        DSI_ERR("Failed to send DSI_CMD_SET_GAMMA_OTP_READ_C9_SMRPS command\n");
-        goto error;
-    }
+	rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_GAMMA_OTP_READ_C9_SMRPS);
+	if (rc) {
+		DSI_ERR("Failed to send DSI_CMD_SET_GAMMA_OTP_READ_C9_SMRPS command\n");
+		goto error;
+	}
 
-    flags = 0;
-    cmds = mode->priv_info->cmd_sets[DSI_CMD_SET_GAMMA_OTP_READ_C9].cmds;
-    if (cmds->last_command) {
-        cmds->msg.flags |= MIPI_DSI_MSG_LASTCOMMAND;
-        flags |= DSI_CTRL_CMD_LAST_COMMAND;
-    }
-    flags |= (DSI_CTRL_CMD_FETCH_MEMORY | DSI_CTRL_CMD_READ);
-    cmds->msg.rx_buf = c9_temp;
-    cmds->msg.rx_len = 180;
-    rc = dsi_ctrl_cmd_transfer(m_ctrl->ctrl, &cmds->msg, flags);
-    if (rc <= 0) {
-        DSI_ERR("Failed to read DSI_CMD_SET_GAMMA_OTP_READ_C9\n");
-        goto error;
-    }
-    memcpy(&gamma_para[1][161], cmds->msg.rx_buf, 180);
+	rc = dsi_display_register_read(dsi_display, 0xC9, c9_temp, 180);
+	if (rc <= 0) {
+		DSI_ERR("Failed to read 0xC8 registers\n");
+		goto error;
+	}
+	memcpy(&gamma_para[1][161], c9_temp, 180);
 
-    rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_GAMMA_OTP_READ_B3_SMRPS);
-    if (rc) {
-        DSI_ERR("Failed to send DSI_CMD_SET_GAMMA_OTP_READ_C9_SMRPS command\n");
-        goto error;
-    }
+	rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_GAMMA_OTP_READ_B3_SMRPS);
+	if (rc) {
+		DSI_ERR("Failed to send DSI_CMD_SET_GAMMA_OTP_READ_C9_SMRPS command\n");
+		goto error;
+	}
 
-    flags = 0;
-    cmds = mode->priv_info->cmd_sets[DSI_CMD_SET_GAMMA_OTP_READ_B3].cmds;
-    if (cmds->last_command) {
-        cmds->msg.flags |= MIPI_DSI_MSG_LASTCOMMAND;
-        flags |= DSI_CTRL_CMD_LAST_COMMAND;
-    }
-    flags |= (DSI_CTRL_CMD_FETCH_MEMORY | DSI_CTRL_CMD_READ);
-    cmds->msg.rx_buf = b3_temp;
-    cmds->msg.rx_len = 47;
-    rc = dsi_ctrl_cmd_transfer(m_ctrl->ctrl, &cmds->msg, flags);
-    if (rc <= 0) {
-        DSI_ERR("Failed to read DSI_CMD_SET_GAMMA_OTP_READ_B3\n");
-        goto error;
-    }
-    memcpy(b3, cmds->msg.rx_buf, 47);
-    memcpy(&gamma_para[1][358], &b3[2], 45);
+	rc = dsi_display_register_read(dsi_display, 0xB3, b3_temp, 47);
+	if (rc <= 0) {
+		DSI_ERR("Failed to read 0xB3 registers\n");
+		goto error;
+	}
+	memcpy(&gamma_para[1][358], &b3_temp[2], 45);
 
-    rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_LEVEL2_KEY_DISABLE);
-    if (rc) {
-        DSI_ERR("Failed to send DSI_CMD_SET_GAMMA_OTP_READ_C9_SMRPS command\n");
-        goto error;
-    }
-    DSI_ERR("Read 90hz gamma done\n");
+	rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_LEVEL2_KEY_DISABLE);
+	if (rc) {
+		DSI_ERR("Failed to send DSI_CMD_SET_GAMMA_OTP_READ_C9_SMRPS command\n");
+		goto error;
+	}
+	DSI_ERR("Read 90hz gamma done\n");
 
 error:
-    dsi_panel_release_panel_lock(panel);
-    dsi_display_cmd_engine_disable(dsi_display);
-    DSI_ERR("%s end\n", __func__);
-    return rc;
+	dsi_panel_release_panel_lock(panel);
+	dsi_display_cmd_engine_disable(dsi_display);
+	DSI_ERR("%s end\n", __func__);
+	return rc;
 }
 
 extern bool HBM_flag;
-
 int dsi_display_get_dimming_gamma_para(struct dsi_display *dsi_display, struct dsi_panel *panel)
 {
 	int rc = 0;
 	int count = 0;
-	int flags = 0;
-	int retry_times = 0;
 	unsigned char payload = 0;
-	struct dsi_cmd_desc *cmds;
 	struct mipi_dsi_device *dsi;
 	struct dsi_display_mode *mode;
-	struct dsi_display_ctrl *m_ctrl;
 
 	mode = panel->cur_mode;
 	dsi = &panel->mipi_device;
-	m_ctrl = &dsi_display->ctrl[dsi_display->cmd_master_idx];
-	if (!dsi_display || !panel || !mode || !dsi || !m_ctrl)
+	if (!dsi_display || !panel || !mode || !dsi)
 		return -EINVAL;
 
 	rc = dsi_display_cmd_engine_enable(dsi_display);
@@ -9816,168 +9377,150 @@ int dsi_display_get_dimming_gamma_para(struct dsi_display *dsi_display, struct d
 
 	dsi_panel_acquire_panel_lock(panel);
 
+	if (strcmp(panel->name, "samsung ana6706 dsc cmd mode panel") == 0) {
+		count = mode->priv_info->cmd_sets[DSI_CMD_SET_LEVEL2_KEY_ENABLE].count;
+		if (!count) {
+			DSI_ERR("This panel does not support level2 key enable command\n");
+		} else {
+			rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_LEVEL2_KEY_ENABLE);
+			if (rc) {
+				DSI_ERR("Failed to send DSI_CMD_SET_LEVEL2_KEY_ENABLE commands\n");
+				goto error;
+			}
+		}
+
+		payload = 0xA4;
+		rc = mipi_dsi_dcs_write(dsi, 0xB0, &payload, sizeof(payload));
+		if (rc < 0) {
+			DSI_ERR("Failed to write mipi dsi dcs cmd\n");
+			goto error;
+		}
+
+		rc = dsi_display_register_read(dsi_display, 0xC9, dimming_gamma_60hz, 5);
+		if (rc <= 0) {
+			DSI_ERR("Failed to read 0xC9 registers\n");
+			goto error;
+		}
+
+		count = mode->priv_info->cmd_sets[DSI_CMD_SET_LEVEL2_KEY_DISABLE].count;
+		if (!count) {
+			DSI_ERR("This panel does not support level2 key disable command\n");
+		} else {
+			rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_LEVEL2_KEY_DISABLE);
+			if (rc) {
+				DSI_ERR("Failed to send DSI_CMD_SET_LEVEL2_KEY_DISABLE commands\n");
+				goto error;
+			}
+		}
+
+		count = mode->priv_info->cmd_sets[DSI_CMD_SET_LEVEL2_KEY_ENABLE].count;
+		if (!count) {
+			DSI_ERR("This panel does not support level2 key enable command\n");
+		} else {
+			rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_LEVEL2_KEY_ENABLE);
+			if (rc) {
+				DSI_ERR("Failed to send DSI_CMD_SET_LEVEL2_KEY_ENABLE commands\n");
+				goto error;
+			}
+		}
+
+		payload = 0xA7;
+		rc = mipi_dsi_dcs_write(dsi, 0xB0, &payload, sizeof(payload));
+		if (rc < 0) {
+			DSI_ERR("Failed to write mipi dsi dcs cmd\n");
+			goto error;
+		}
+
+		rc = dsi_display_register_read(dsi_display, 0xC7, dimming_gamma_120hz, 5);
+		if (rc <= 0) {
+			DSI_ERR("Failed to read 0xC7 registers\n");
+			goto error;
+		}
+
+		count = mode->priv_info->cmd_sets[DSI_CMD_SET_LEVEL2_KEY_DISABLE].count;
+		if (!count) {
+			DSI_ERR("This panel does not support level2 key disable command\n");
+		} else {
+			rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_LEVEL2_KEY_DISABLE);
+			if (rc) {
+				DSI_ERR("Failed to send DSI_CMD_SET_LEVEL2_KEY_DISABLE commands\n");
+				goto error;
+			}
+		}
+
+		count = mode->priv_info->cmd_sets[DSI_CMD_SET_LEVEL2_KEY_ENABLE].count;
+		if (!count) {
+			DSI_ERR("This panel does not support level2 key enable command\n");
+		} else {
+			rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_LEVEL2_KEY_ENABLE);
+			if (rc) {
+				DSI_ERR("Failed to send DSI_CMD_SET_LEVEL2_KEY_ENABLE commands\n");
+				goto error;
+			}
+		}
+
+		payload = 0x17;
+		rc = mipi_dsi_dcs_write(dsi, 0xB0, &payload, sizeof(payload));
+		if (rc < 0) {
+			DSI_ERR("Failed to write mipi dsi dcs cmd\n");
+			goto error;
+		}
+
+		rc = dsi_display_register_read(dsi_display, 0xC9, &dimming_gamma_60hz[15], 5);
+		if (rc <= 0) {
+			DSI_ERR("Failed to read 0xC9 registers\n");
+			goto error;
+		}
+
+		count = mode->priv_info->cmd_sets[DSI_CMD_SET_LEVEL2_KEY_DISABLE].count;
+		if (!count) {
+			DSI_ERR("This panel does not support level2 key disable command\n");
+		} else {
+			rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_LEVEL2_KEY_DISABLE);
+			if (rc) {
+				DSI_ERR("Failed to send DSI_CMD_SET_LEVEL2_KEY_DISABLE commands\n");
+				goto error;
+			}
+		}
+	} else {
 	count = mode->priv_info->cmd_sets[DSI_CMD_SET_LEVEL2_KEY_ENABLE].count;
-	if (!count) {
-		DSI_ERR("This panel does not support level2 key enable command\n");
-	} else {
-		rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_LEVEL2_KEY_ENABLE);
-		if (rc) {
-			DSI_ERR("Failed to send DSI_CMD_SET_LEVEL2_KEY_ENABLE commands\n");
+		if (!count) {
+			DSI_ERR("This panel does not support level2 key enable command\n");
+		} else {
+			rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_LEVEL2_KEY_ENABLE);
+			if (rc) {
+				DSI_ERR("Failed to send DSI_CMD_SET_LEVEL2_KEY_ENABLE commands\n");
+				goto error;
+			}
+		}
+
+		rc = dsi_display_register_read(dsi_display, 0xB9, b9_register_value_500step, 229);
+		if (rc <= 0) {
+			DSI_ERR("Failed to read 0xB9 registers\n");
 			goto error;
 		}
-	}
 
-	payload = 0xA4;
-	rc = mipi_dsi_dcs_write(dsi, 0xB0, &payload, sizeof(payload));
-	if (rc < 0) {
-		DSI_ERR("Failed to write mipi dsi dcs cmd\n");
-		goto error;
-	}
-
-	flags = 0;
-	retry_times = 0;
-	cmds = mode->priv_info->cmd_sets[DSI_CMD_SET_GAMMA_OTP_READ_C9].cmds;
-	if (cmds->last_command) {
-		cmds->msg.flags |= MIPI_DSI_MSG_LASTCOMMAND;
-		flags |= DSI_CTRL_CMD_LAST_COMMAND;
-	}
-	flags |= (DSI_CTRL_CMD_FETCH_MEMORY | DSI_CTRL_CMD_READ);
-	if (!m_ctrl->ctrl->vaddr)
-		goto error;
-	cmds->msg.rx_buf = dimming_gamma_60hz;
-	cmds->msg.rx_len = 5;
-	do {
-		rc = dsi_ctrl_cmd_transfer(m_ctrl->ctrl, &cmds->msg, flags);
-		retry_times++;
-	} while ((rc <= 0) && (retry_times < 3));
-	if (rc <= 0) {
-		DSI_ERR("rx cmd transfer failed rc=%d\n", rc);
-		goto error;
-	}
-
-	count = mode->priv_info->cmd_sets[DSI_CMD_SET_LEVEL2_KEY_DISABLE].count;
-	if (!count) {
-		DSI_ERR("This panel does not support level2 key disable command\n");
-	} else {
-		rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_LEVEL2_KEY_DISABLE);
-		if (rc) {
-			DSI_ERR("Failed to send DSI_CMD_SET_LEVEL2_KEY_DISABLE commands\n");
-			goto error;
+		count = mode->priv_info->cmd_sets[DSI_CMD_SET_LEVEL2_KEY_DISABLE].count;
+		if (!count) {
+			DSI_ERR("This panel does not support level2 key disable command\n");
+		} else {
+			rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_LEVEL2_KEY_DISABLE);
+			if (rc) {
+				DSI_ERR("Failed to send DSI_CMD_SET_LEVEL2_KEY_DISABLE commands\n");
+				goto error;
+			}
 		}
 	}
-
-	count = mode->priv_info->cmd_sets[DSI_CMD_SET_LEVEL2_KEY_ENABLE].count;
-	if (!count) {
-		DSI_ERR("This panel does not support level2 key enable command\n");
-	} else {
-		rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_LEVEL2_KEY_ENABLE);
-		if (rc) {
-			DSI_ERR("Failed to send DSI_CMD_SET_LEVEL2_KEY_ENABLE commands\n");
-			goto error;
-		}
-	}
-
-	payload = 0xA7;
-	rc = mipi_dsi_dcs_write(dsi, 0xB0, &payload, sizeof(payload));
-	if (rc < 0) {
-		DSI_ERR("Failed to write mipi dsi dcs cmd\n");
-		goto error;
-	}
-
-	flags = 0;
-	retry_times = 0;
-	cmds = mode->priv_info->cmd_sets[DSI_CMD_SET_GAMMA_OTP_READ_C7].cmds;
-	if (cmds->last_command) {
-		cmds->msg.flags |= MIPI_DSI_MSG_LASTCOMMAND;
-		flags |= DSI_CTRL_CMD_LAST_COMMAND;
-	}
-	flags |= (DSI_CTRL_CMD_FETCH_MEMORY | DSI_CTRL_CMD_READ);
-	if (!m_ctrl->ctrl->vaddr)
-		goto error;
-	cmds->msg.rx_buf = dimming_gamma_120hz;
-	cmds->msg.rx_len = 5;
-	do {
-		rc = dsi_ctrl_cmd_transfer(m_ctrl->ctrl, &cmds->msg, flags);
-		retry_times++;
-	} while ((rc <= 0) && (retry_times < 3));
-	if (rc <= 0) {
-		DSI_ERR("rx cmd transfer failed rc=%d\n", rc);
-		goto error;
-	}
-
-	count = mode->priv_info->cmd_sets[DSI_CMD_SET_LEVEL2_KEY_DISABLE].count;
-	if (!count) {
-		DSI_ERR("This panel does not support level2 key disable command\n");
-	} else {
-		rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_LEVEL2_KEY_DISABLE);
-		if (rc) {
-			DSI_ERR("Failed to send DSI_CMD_SET_LEVEL2_KEY_DISABLE commands\n");
-			goto error;
-		}
-	}
-
-	count = mode->priv_info->cmd_sets[DSI_CMD_SET_LEVEL2_KEY_ENABLE].count;
-	if (!count) {
-		DSI_ERR("This panel does not support level2 key enable command\n");
-	} else {
-		rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_LEVEL2_KEY_ENABLE);
-		if (rc) {
-			DSI_ERR("Failed to send DSI_CMD_SET_LEVEL2_KEY_ENABLE commands\n");
-			goto error;
-		}
-	}
-
-	payload = 0x17;
-	rc = mipi_dsi_dcs_write(dsi, 0xB0, &payload, sizeof(payload));
-	if (rc < 0) {
-		DSI_ERR("Failed to write mipi dsi dcs cmd\n");
-		goto error;
-	}
-
-	flags = 0;
-	retry_times = 0;
-	cmds = mode->priv_info->cmd_sets[DSI_CMD_SET_GAMMA_OTP_READ_C9].cmds;
-	if (cmds->last_command) {
-		cmds->msg.flags |= MIPI_DSI_MSG_LASTCOMMAND;
-		flags |= DSI_CTRL_CMD_LAST_COMMAND;
-	}
-	flags |= (DSI_CTRL_CMD_FETCH_MEMORY | DSI_CTRL_CMD_READ);
-	if (!m_ctrl->ctrl->vaddr)
-		goto error;
-	cmds->msg.rx_buf = &dimming_gamma_60hz[15];
-	cmds->msg.rx_len = 5;
-	do {
-		rc = dsi_ctrl_cmd_transfer(m_ctrl->ctrl, &cmds->msg, flags);
-		retry_times++;
-	} while ((rc <= 0) && (retry_times < 3));
-	if (rc <= 0) {
-		DSI_ERR("rx cmd transfer failed rc=%d\n", rc);
-		goto error;
-	}
-
-	count = mode->priv_info->cmd_sets[DSI_CMD_SET_LEVEL2_KEY_DISABLE].count;
-	if (!count) {
-		DSI_ERR("This panel does not support level2 key disable command\n");
-	} else {
-		rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_LEVEL2_KEY_DISABLE);
-		if (rc) {
-			DSI_ERR("Failed to send DSI_CMD_SET_LEVEL2_KEY_DISABLE commands\n");
-			goto error;
-		}
-	}
-
-	dsi_panel_update_gamma_change_write();
+	dsi_panel_update_gamma_change_write(panel);
 
 	rc = dsi_panel_dimming_gamma_write(panel);
-	HBM_flag = false;
 	if (rc < 0)
 		DSI_ERR("Failed to write dimming gamma, rc=%d\n", rc);
+	HBM_flag = false;
 
 error:
 	dsi_panel_release_panel_lock(panel);
-	rc = dsi_display_cmd_engine_disable(dsi_display);
-	if (rc)
-		DSI_ERR("cmd engine disable failed");
+	dsi_display_cmd_engine_disable(dsi_display);
 	return rc;
 }
 
@@ -9986,7 +9529,7 @@ int dsi_display_gamma_read(struct dsi_display *dsi_display)
 	int rc = 0;
 	struct dsi_panel *panel = NULL;
 
-	DSI_ERR("%s start\n", __func__);
+	DSI_ERR("start\n");
 	if ((dsi_display == NULL) || (dsi_display->panel == NULL))
 		return -EINVAL;
 
@@ -9999,11 +9542,16 @@ int dsi_display_gamma_read(struct dsi_display *dsi_display)
 		goto error;
 	}
 
-	if (strcmp(dsi_display->panel->name, "samsung dsc cmd mode oneplus dsi panel") == 0)
-		dsi_display_get_gamma_para(dsi_display, panel);
-	else if (strcmp(dsi_display->panel->name, "samsung ana6706 dsc cmd mode panel") == 0)
-		dsi_display_get_dimming_gamma_para(dsi_display, panel);
-
+	if (strcmp(dsi_display->panel->name, "samsung dsc cmd mode oneplus dsi panel") == 0) {
+		rc = dsi_display_get_gamma_para(dsi_display, panel);
+		if (rc)
+			DSI_ERR("Failed to dsi_display_get_gamma_para\n");
+	} else if ((strcmp(dsi_display->panel->name, "samsung ana6706 dsc cmd mode panel") == 0)
+		|| (strcmp(dsi_display->panel->name, "samsung amb655x fhd cmd mode dsc dsi panel") == 0)) {
+		rc = dsi_display_get_dimming_gamma_para(dsi_display, panel);
+		if (rc)
+			DSI_ERR("Failed to dsi_display_get_dimming_gamma_para\n");
+	}
 	rc = dsi_display_clk_ctrl(dsi_display->dsi_clk_handle, DSI_ALL_CLKS, DSI_CLK_OFF);
 	if (rc) {
 		DSI_ERR("[%s] failed to disable DSI clocks, rc=%d\n", dsi_display->name, rc);
@@ -10012,7 +9560,7 @@ int dsi_display_gamma_read(struct dsi_display *dsi_display)
 
 error:
 	mutex_unlock(&dsi_display->display_lock);
-	DSI_ERR("%s end\n", __func__);
+	DSI_ERR("end\n");
 	return rc;
 }
 
@@ -10028,7 +9576,8 @@ void dsi_display_gamma_read_work(struct work_struct *work)
 				|| ((dsi_display->panel->panel_production_info & 0x0F) == 0x0D))
 			dsi_display_gamma_read(dsi_display);
 		dsi_panel_parse_gamma_cmd_sets();
-	} else if (strcmp(dsi_display->panel->name, "samsung ana6706 dsc cmd mode panel") == 0) {
+	} else if ((strcmp(dsi_display->panel->name, "samsung ana6706 dsc cmd mode panel") == 0)
+		|| (strcmp(dsi_display->panel->name, "samsung amb655x fhd cmd mode dsc dsi panel") == 0)) {
 		dsi_display_gamma_read(dsi_display);
 	}
 }
@@ -10060,25 +9609,18 @@ int dsi_display_read_serial_number(struct dsi_display *dsi_display,
 		struct dsi_panel *panel, char *buf, int len)
 {
 	int rc = 0;
-	int flags = 0;
-	int code_info = 0;
-	int stage_info = 0;
-	int prodution_info = 0;
-	int panel_ic_v = 0;
+	int count = 0;
+	unsigned char panel_ic_v = 0;
+	unsigned char register_d6[10] = {0};
 	int ddic_x = 0;
 	int ddic_y = 0;
-	u32 count = 0;
-	u8 register_d6[10] = {0};
-	struct dsi_cmd_desc *cmds;
-	struct dsi_cmd_desc *cmds1;
+	unsigned char code_info = 0;
+	unsigned char stage_info = 0;
+	unsigned char prodution_info = 0;
+
 	struct dsi_display_mode *mode;
-	struct dsi_display_ctrl *m_ctrl;
 
-	DSI_ERR("%s start\n", __func__);
-
-	m_ctrl = &dsi_display->ctrl[dsi_display->cmd_master_idx];
-
-	if (!panel || !m_ctrl)
+	if (!panel || !panel->cur_mode)
 		return -EINVAL;
 
 	rc = dsi_display_cmd_engine_enable(dsi_display);
@@ -10090,173 +9632,80 @@ int dsi_display_read_serial_number(struct dsi_display *dsi_display,
 	dsi_panel_acquire_panel_lock(panel);
 	mode = panel->cur_mode;
 
-	if(strcmp(panel->name, "samsung ana6706 dsc cmd mode panel") == 0){
-		count = mode->priv_info->cmd_sets[DSI_CMD_READ_SAMSUNG_PANEL_IC_V_REGISTER_ON].count;
-		if (!count) {
-			DSI_ERR("This panel does not read register\n");
-		} else {
-			rc = dsi_panel_tx_cmd_set_op(panel, DSI_CMD_READ_SAMSUNG_PANEL_IC_V_REGISTER_ON);
+	count = mode->priv_info->cmd_sets[DSI_CMD_SET_LEVEL2_KEY_ENABLE].count;
+	if (!count) {
+		DSI_ERR("This panel does not support level2 key enable command\n");
+	} else {
+		rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_LEVEL2_KEY_ENABLE);
+		if (rc) {
+			DSI_ERR("Failed to send DSI_CMD_SET_LEVEL2_KEY_ENABLE commands\n");
+			goto error;
 		}
-		cmds = mode->priv_info->cmd_sets[DSI_CMD_SET_PANEL_IC_V].cmds;
-		if (cmds->last_command) {
-			cmds->msg.flags |= MIPI_DSI_MSG_LASTCOMMAND;
-			flags |= DSI_CTRL_CMD_LAST_COMMAND;
-		}
-		flags |= (DSI_CTRL_CMD_FETCH_MEMORY | DSI_CTRL_CMD_READ);
-		cmds->msg.rx_buf = &panel_ic_v;
-		cmds->msg.rx_len = 1;
-		rc = dsi_ctrl_cmd_transfer(m_ctrl->ctrl, &cmds->msg, flags);
-		if (rc <= 0)
-			DSI_ERR("rx cmd transfer failed rc=%d\n", rc);
-		panel->panel_ic_v = panel_ic_v & 0x0f;
-			DSI_ERR("rx panel_ic_v = %d\n", panel->panel_ic_v);
-		rc = dsi_panel_tx_cmd_set_op(panel, DSI_CMD_READ_SAMSUNG_PANEL_IC_V_REGISTER_OFF);
-		flags = 0;
 	}
 
-	if ((strcmp(panel->name, "samsung ana6705 fhd cmd mode dsc dsi panel") == 0) ||
-	(strcmp(panel->name, "samsung ana6706 dsc cmd mode panel") == 0)){
-		count = mode->priv_info->cmd_sets[DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_ON].count;
-		if (!count) {
-			DSI_ERR("This panel does not read ddic_check register\n");
-		} else {
-			rc = dsi_panel_tx_cmd_set_op(panel, DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_ON);
-		}
-		cmds1 = mode->priv_info->cmd_sets[DSI_CMD_SET_DDIC_CHECK_INFO].cmds;
-		if (cmds1->last_command) {
-			cmds1->msg.flags |= MIPI_DSI_MSG_LASTCOMMAND;
-			flags |= DSI_CTRL_CMD_LAST_COMMAND;
-		}
-		flags |= (DSI_CTRL_CMD_FETCH_MEMORY | DSI_CTRL_CMD_READ);
-		cmds1->msg.rx_buf = register_d6;
-		cmds1->msg.rx_len = 10;
-		rc = dsi_ctrl_cmd_transfer(m_ctrl->ctrl, &cmds1->msg, flags);
-		if (rc <= 0)
-			DSI_ERR("rx cmd transfer failed rc=%d\n", rc);
-		count = mode->priv_info->cmd_sets[DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_OFF].count;
-		if (!count) {
-			DSI_ERR("This panel does not support ddic_check register reading\n");
-		} else {
-			rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_READ_SAMSUNG_PANEL_REGISTER_OFF);
-		}
+	if(strcmp(panel->name, "samsung ana6706 dsc cmd mode panel") == 0) {
+		dsi_display_register_read(dsi_display, 0xFA, &panel_ic_v, 1);
+		panel->panel_ic_v = panel_ic_v & 0x0f;
+	}
+
+	if ((strcmp(panel->name, "samsung ana6705 fhd cmd mode dsc dsi panel") == 0)
+		|| (strcmp(panel->name, "samsung ana6706 dsc cmd mode panel") == 0)) {
+		dsi_display_register_read(dsi_display, 0xD6, register_d6, 10);
+
 		memcpy(panel->buf_select, register_d6, 10);
 		panel->panel_tool = dsi_display_back_ToolsType_ANA6706(register_d6);
-		DSI_ERR("reg_D6: %02x %02x %02x %02x %02x %02x %02x\n"
-		,register_d6[0],register_d6[1],register_d6[2],register_d6[3],register_d6[4],register_d6[5],register_d6[6]);
+		DSI_ERR("reg_d6: %02x %02x %02x %02x %02x %02x %02x\n", register_d6[0], register_d6[1], register_d6[2], register_d6[3], register_d6[4], register_d6[5], register_d6[6]);
+
 		ddic_x = (((register_d6[3] & 0x1f) << 4) | ((register_d6[4] & 0xf0) >> 4));
 		ddic_y = (register_d6[4] & 0x0f);
 		panel->ddic_x = ddic_x;
 		panel->ddic_y = ddic_y;
-		DSI_ERR("LCD X = %d, Y = %d\n", panel->ddic_x, panel->ddic_y);
-		flags = 0;
+		DSI_ERR("ddic_x = %d, ddic_y = %d\n", panel->ddic_x, panel->ddic_y);
+		len = 14;
 	}
 
-	if ((strcmp(dsi_display->panel->name, "samsung dsc cmd mode oneplus dsi panel") == 0) ||
-		(strcmp(dsi_display->panel->name, "samsung sofef03f_m fhd cmd mode dsc dsi panel") == 0)
-		|| (strcmp(dsi_display->panel->name, "samsung ana6705 fhd cmd mode dsc dsi panel") == 0)
-		|| (strcmp(panel->name, "samsung ana6706 dsc cmd mode panel") == 0) ) {
-		rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_LCDINFO_PRE);
+	dsi_display_register_read(dsi_display, 0xA1, buf, len);
+
+	dsi_display_register_read(dsi_display, 0xDA, &code_info, 1);
+	panel->panel_code_info = code_info;
+	DSI_ERR("Code info is 0x%X\n", panel->panel_code_info);
+
+	dsi_display_register_read(dsi_display, 0xDB, &stage_info, 1);
+	panel->panel_stage_info = stage_info;
+	DSI_ERR("Stage info is 0x%X\n", panel->panel_stage_info);
+
+	dsi_display_register_read(dsi_display, 0xDC, &prodution_info, 1);
+	panel->panel_production_info = prodution_info;
+	DSI_ERR("Production info is 0x%X\n", panel->panel_production_info);
+
+	count = mode->priv_info->cmd_sets[DSI_CMD_SET_LEVEL2_KEY_DISABLE].count;
+	if (!count) {
+		DSI_ERR("This panel does not support level2 key disable command\n");
+	} else {
+		rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_LEVEL2_KEY_DISABLE);
 		if (rc) {
-			DSI_ERR("Failed to send DSI_CMD_SET_LCDINFO_PRE commands\n");
+			DSI_ERR("Failed to send DSI_CMD_SET_LEVEL2_KEY_DISABLE commands\n");
 			goto error;
 		}
 	}
 
-	cmds = mode->priv_info->cmd_sets[DSI_CMD_SET_PANEL_SERIAL_NUMBER].cmds;
-	if (cmds->last_command) {
-		 cmds->msg.flags |= MIPI_DSI_MSG_LASTCOMMAND;
-		 flags |= DSI_CTRL_CMD_LAST_COMMAND;
-	}
-	flags |= (DSI_CTRL_CMD_FETCH_MEMORY | DSI_CTRL_CMD_READ);
-	if (!m_ctrl->ctrl->vaddr)
-		goto error;
-	cmds->msg.rx_buf = buf;
-	cmds->msg.rx_len = len;
-	rc = dsi_ctrl_cmd_transfer(m_ctrl->ctrl, &cmds->msg, flags);
-	if (rc <= 0)
-		DSI_ERR("Failed to get panel serial number, rc=%d\n", rc);
-
-	if ((strcmp(dsi_display->panel->name, "samsung dsc cmd mode oneplus dsi panel") == 0) ||
-		(strcmp(dsi_display->panel->name, "samsung sofef03f_m fhd cmd mode dsc dsi panel") == 0)
-		|| (strcmp(dsi_display->panel->name, "samsung ana6705 fhd cmd mode dsc dsi panel") == 0)
-		|| (strcmp(panel->name, "samsung ana6706 dsc cmd mode panel") == 0) ) {
-
-		flags = 0;
-		cmds = mode->priv_info->cmd_sets[DSI_CMD_SET_CODE_INFO].cmds;
-		if (cmds->last_command) {
-			cmds->msg.flags |= MIPI_DSI_MSG_LASTCOMMAND;
-			flags |= DSI_CTRL_CMD_LAST_COMMAND;
-		}
-		flags |= (DSI_CTRL_CMD_FETCH_MEMORY | DSI_CTRL_CMD_READ);
-		if (!m_ctrl->ctrl->vaddr)
-			goto error;
-		cmds->msg.rx_buf = &code_info;
-		cmds->msg.rx_len = 1;
-		rc = dsi_ctrl_cmd_transfer(m_ctrl->ctrl, &cmds->msg, flags);
-		if (rc <= 0)
-			DSI_ERR("Failed to get code info, rc=%d\n", rc);
-
-		panel->panel_code_info = code_info & 0xff;
-		DSI_ERR("Code info is 0x%X\n", panel->panel_code_info);
-
-		flags = 0;
-		cmds = mode->priv_info->cmd_sets[DSI_CMD_SET_STAGE_INFO].cmds;
-		if (cmds->last_command) {
-			 cmds->msg.flags |= MIPI_DSI_MSG_LASTCOMMAND;
-			 flags |= DSI_CTRL_CMD_LAST_COMMAND;
-		}
-		flags |= (DSI_CTRL_CMD_FETCH_MEMORY | DSI_CTRL_CMD_READ);
-		if (!m_ctrl->ctrl->vaddr)
-			goto error;
-		cmds->msg.rx_buf = &stage_info;
-		cmds->msg.rx_len = 1;
-		rc = dsi_ctrl_cmd_transfer(m_ctrl->ctrl, &cmds->msg, flags);
-		if (rc <= 0)
-			DSI_ERR("Failed to get stage info, rc=%d\n", rc);
-
-		panel->panel_stage_info = stage_info & 0xff;
-		DSI_ERR("Stage info is 0x%X\n", panel->panel_stage_info);
-
-		flags = 0;
-		cmds = mode->priv_info->cmd_sets[DSI_CMD_SET_PRODUCTION_INFO].cmds;
-		if (cmds->last_command) {
-			 cmds->msg.flags |= MIPI_DSI_MSG_LASTCOMMAND;
-			 flags |= DSI_CTRL_CMD_LAST_COMMAND;
-		}
-		flags |= (DSI_CTRL_CMD_FETCH_MEMORY | DSI_CTRL_CMD_READ);
-		if (!m_ctrl->ctrl->vaddr)
-			goto error;
-		cmds->msg.rx_buf = &prodution_info;
-		cmds->msg.rx_len = 1;
-		rc = dsi_ctrl_cmd_transfer(m_ctrl->ctrl, &cmds->msg, flags);
-		if (rc <= 0)
-			DSI_ERR("Failed to get production info, rc=%d\n", rc);
-
-		panel->panel_production_info = prodution_info & 0xff;
-		DSI_ERR("Production info is 0x%X\n", panel->panel_production_info);
-
-		rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_LCDINFO_POST);
-		if (rc) {
-			DSI_ERR("Failed to send DSI_CMD_SET_LCDINFO_POST commands\n");
-			goto error;
-		}
-	}
-
- error:
+error:
 	dsi_panel_release_panel_lock(panel);
 	dsi_display_cmd_engine_disable(dsi_display);
-	DSI_ERR("%s end\n", __func__);
-
 	return rc;
 }
 
 int dsi_display_get_serial_number(struct drm_connector *connector)
 {
 	struct dsi_display_mode *mode;
-	struct dsi_panel *panel = NULL;
-	struct dsi_display *dsi_display = NULL;
+	struct dsi_panel *panel;
+	struct dsi_display *dsi_display;
 	struct dsi_bridge *c_bridge;
-	char buf[32];
+	int len = 0;
+	int count = 0;
+	int rc = -EINVAL;
+
+	char buf[32] = {0};
 	int panel_year = 0;
 	int panel_mon = 0;
 	int panel_day = 0;
@@ -10266,15 +9715,12 @@ int dsi_display_get_serial_number(struct drm_connector *connector)
 	int panel_msec = 0;
 	int panel_msec_int = 0;
 	int panel_msec_rem = 0;
-	int len = 0;
-	int count;
-	int rc = 0;
 
-	DSI_DEBUG("%s start\n", __func__);
+	DSI_DEBUG("start\n", __func__);
 
 	if ((connector == NULL) || (connector->encoder == NULL)
 		|| (connector->encoder->bridge == NULL))
-		return 0;
+		return -EINVAL;
 
 	c_bridge =  to_dsi_bridge(connector->encoder->bridge);
 	dsi_display = c_bridge->display;
@@ -10289,9 +9735,9 @@ int dsi_display_get_serial_number(struct drm_connector *connector)
 		goto error;
 
 	mode = panel->cur_mode;
-	count = mode->priv_info->cmd_sets[DSI_CMD_SET_PANEL_SERIAL_NUMBER].count;
+	count = mode->priv_info->cmd_sets[DSI_CMD_SET_REGISTER_READ].count;
 	if (count) {
-		len = panel->panel_min_index;
+		len = panel->panel_msec_low_index;
 		if (len > sizeof(buf)) {
 			DSI_ERR("len is large than buf size!!!\n");
 			goto error;
@@ -10299,8 +9745,9 @@ int dsi_display_get_serial_number(struct drm_connector *connector)
 
 		if ((panel->panel_year_index > len) || (panel->panel_mon_index > len)
 			|| (panel->panel_day_index > len) || (panel->panel_hour_index > len)
-				|| (panel->panel_min_index > len)) {
-			DSI_ERR("Panel serial number index not corrected.\n");
+				|| (panel->panel_min_index > len) || (panel->panel_sec_index > len)
+					|| (panel->panel_msec_high_index > len)) {
+			DSI_ERR("Panel serial number index not corrected\n");
 			goto error;
 		}
 
@@ -10312,12 +9759,12 @@ int dsi_display_get_serial_number(struct drm_connector *connector)
 			goto error;
 		}
 
-		memset(buf, 0, sizeof(buf));
 		dsi_display_read_serial_number(dsi_display, panel, buf, len);
 		memcpy(panel->buf_id, buf, 32);
+
 		panel_year = 2011 + ((buf[panel->panel_year_index - 1] >> 4) & 0x0f);
 		if (panel_year == 2011)
-			panel_year = 0;
+			DSI_ERR("Panel Year not corrected.\n");
 		panel_mon = buf[panel->panel_mon_index - 1] & 0x0f;
 		if ((panel_mon > 12) || (panel_mon < 1)) {
 			DSI_ERR("Panel Mon not corrected.\n");
@@ -10343,14 +9790,13 @@ int dsi_display_get_serial_number(struct drm_connector *connector)
 			DSI_ERR("Panel sec not corrected.\n");
 			panel_sec = 0;
 		}
-		panel_msec = ((buf[panel->panel_msec_high_index - 1]<<8) | buf[panel->panel_msec_low_index - 1]);
+		panel_msec = ((buf[panel->panel_msec_high_index - 1] << 8) | buf[panel->panel_msec_low_index - 1]);
 		if ((panel_msec > 9999) || (panel_msec < 0)) {
 			DSI_ERR("Panel msec not corrected.\n");
-			panel_sec = 0;
+			panel_msec = 0;
 		}
-		panel_msec_int = panel_msec/10;
-		panel_msec_rem = panel_msec%10;
-		DSI_ERR("panel_msec is %d , panel_msec_int is %d , panel_msec_rem is %d.\n", panel_msec, panel_msec_int, panel_msec_rem);
+		panel_msec_int = panel_msec / 10;
+		panel_msec_rem = panel_msec % 10;
 
 		panel->panel_year = panel_year;
 		panel->panel_mon = panel_mon;
@@ -10361,6 +9807,9 @@ int dsi_display_get_serial_number(struct drm_connector *connector)
 		panel->panel_msec = panel_msec;
 		panel->panel_msec_int = panel_msec_int;
 		panel->panel_msec_rem = panel_msec_rem;
+
+		panel->panel_serial_number = (u64)panel_year * 10000000000 + (u64)panel_mon * 100000000 + (u64)panel_day * 1000000
+											 + (u64)panel_hour * 10000 + (u64)panel_min * 100 + (u64)panel_sec;
 
 		rc = dsi_display_clk_ctrl(dsi_display->dsi_clk_handle,
 			DSI_ALL_CLKS, DSI_CLK_OFF);
@@ -10375,275 +9824,28 @@ int dsi_display_get_serial_number(struct drm_connector *connector)
 
 error:
 	mutex_unlock(&dsi_display->display_lock);
-	DSI_DEBUG("%s end\n", __func__);
-	return 0;
+	DSI_DEBUG("end\n");
+	return rc;
 }
-
-char* dsi_display_get_ic_reg_buf(struct drm_connector *connector)
-{
-	struct dsi_display *dsi_display = NULL;
-	struct dsi_bridge *c_bridge;
-	DSI_DEBUG("%s start\n", __func__);
-
-	if ((connector == NULL) || (connector->encoder == NULL)
-		|| (connector->encoder->bridge == NULL))
-		return 0;
-
-	c_bridge =  to_dsi_bridge(connector->encoder->bridge);
-	dsi_display = c_bridge->display;
-
-	if ((dsi_display == NULL) || (dsi_display->panel == NULL))
-		return 0;
-
-	DSI_DEBUG("%s end\n", __func__);
-
-	return dsi_display->panel->buf_select;
-}
-
-int dsi_display_back_ToolsType_ANA6706(u8 *buff)
-{
-	int i;
-	int WaferNumber;
-	eTool typeTool;
-	char szLotID[6] = { 0 };
-	unsigned char chipID1[6] = { 0 };
-
-	for(i = 1;i <= 5; i++)
-		chipID1[i-1] = buff[i-1];
-
-	// [6706] Chip IDLot IDWafer Number
-	extractLotID(chipID1, szLotID);
-	memcpy(buf_Lotid, szLotID, 6);
-
-	WaferNumber = extractWaferNumber(chipID1);
-	// LotID Wafer Number Tool Type
-	typeTool = discrimination_ANA6706_ToolsType(szLotID, WaferNumber);
-
-	if (typeTool == ToolB)
-		DSI_ERR("Result: 6706 LotID: %s \tWaferNo: %d, Tool: Tool-B (%d)\n", szLotID, WaferNumber, typeTool);
-	else if (typeTool == ToolA)
-		DSI_ERR("Result: 6706 LotID: %s \tWaferNo: %d, Tool: Tool-A (%d)\n", szLotID, WaferNumber, typeTool);
-	else if (typeTool == ToolA_HVS30)
-		DSI_ERR("Result: 6706 LotID: %s \tWaferNo: %d, Tool: Tool-A HVS 3.0 (%d)\n", szLotID, WaferNumber, typeTool);
-
-	for (i = 0; i < 18; i++) {
-		if((strcmp(szLotID, ANA6706_Green[i].LotID) == 0)){
-			typeTool = Tool_Green;
-			DSI_ERR("Result: typeTool = %d \n",typeTool);
-			break;
-		}
-
-	}
-	return typeTool;
-}
-
-int dsi_display_get_ToolsType_ANA6706(struct drm_connector *connector)
-{
-	struct dsi_display *dsi_display = NULL;
-	struct dsi_bridge *c_bridge;
-	DSI_DEBUG("%s start\n", __func__);
-
-	if ((connector == NULL) || (connector->encoder == NULL)
-		|| (connector->encoder->bridge == NULL))
-		return 0;
-
-	c_bridge =  to_dsi_bridge(connector->encoder->bridge);
-	dsi_display = c_bridge->display;
-
-	if ((dsi_display == NULL) || (dsi_display->panel == NULL))
-		return 0;
-
-	DSI_DEBUG("%s end\n", __func__);
-
-	return dsi_display->panel->panel_tool;
-}
-int dsi_display_get_ddic_coords_X(struct drm_connector *connector)
-{
-	struct dsi_display *dsi_display = NULL;
-	struct dsi_bridge *c_bridge;
-	DSI_DEBUG("%s start\n", __func__);
-
-	if ((connector == NULL) || (connector->encoder == NULL)
-		|| (connector->encoder->bridge == NULL))
-		return 0;
-
-	c_bridge =  to_dsi_bridge(connector->encoder->bridge);
-	dsi_display = c_bridge->display;
-
-	if ((dsi_display == NULL) || (dsi_display->panel == NULL))
-		return 0;
-
-	DSI_DEBUG("%s end\n", __func__);
-
-	return dsi_display->panel->ddic_x;
-}
-int dsi_display_get_ddic_coords_Y(struct drm_connector *connector)
-{
-	struct dsi_display *dsi_display = NULL;
-	struct dsi_bridge *c_bridge;
-	DSI_DEBUG("%s start\n", __func__);
-
-	if ((connector == NULL) || (connector->encoder == NULL)
-		|| (connector->encoder->bridge == NULL))
-		return 0;
-
-	c_bridge =  to_dsi_bridge(connector->encoder->bridge);
-	dsi_display = c_bridge->display;
-
-	if ((dsi_display == NULL) || (dsi_display->panel == NULL))
-		return 0;
-
-	DSI_DEBUG("%s end\n", __func__);
-
-	return dsi_display->panel->ddic_y;
-}
-int dsi_display_get_ddic_check_info(struct drm_connector *connector)
-{
-	struct dsi_display *dsi_display = NULL;
-	struct dsi_bridge *c_bridge;
-	int ddic_x = 0;
-	int panel_tool = 0;
-	DSI_DEBUG("%s start\n", __func__);
-
-	if ((connector == NULL) || (connector->encoder == NULL)
-		|| (connector->encoder->bridge == NULL))
-		return 0;
-
-	c_bridge =  to_dsi_bridge(connector->encoder->bridge);
-	dsi_display = c_bridge->display;
-
-	if ((dsi_display == NULL) || (dsi_display->panel == NULL))
-		return 0;
-
-	ddic_x = dsi_display->panel->ddic_x;
-	panel_tool = dsi_display->panel->panel_tool;
-/*
-    ToolB         0
-    ToolA         1
-    ToolA_HVS30   2
-	*/
-
-	switch (dsi_display->panel->ddic_y) {
-	case 2:
-		if((strcmp(dsi_display->panel->name, "samsung ana6705 fhd cmd mode dsc dsi panel") == 0) &&
-		(ddic_x > 115) && (ddic_x < 186)) {
-			dsi_display->panel->ddic_check_info = 1;
-		} else
-			dsi_display->panel->ddic_check_info = 0;
-		break;
-
-	case 3:
-		if((strcmp(dsi_display->panel->name, "samsung ana6705 fhd cmd mode dsc dsi panel") == 0) &&
-		(ddic_x > 56) && (ddic_x < 245)) {
-			dsi_display->panel->ddic_check_info = 1;
-		} else if(strcmp(dsi_display->panel->name, "samsung ana6706 dsc cmd mode panel") == 0) {
-			if((panel_tool == 0) && (ddic_x > 54) && (ddic_x < 140))
-				dsi_display->panel->ddic_check_info = 1;
-			else if(((panel_tool == 1) || (panel_tool == 2)) && (ddic_x > 32) && (ddic_x < 154))
-				dsi_display->panel->ddic_check_info = 1;
-			else
-				dsi_display->panel->ddic_check_info = 0;
-		} else
-			dsi_display->panel->ddic_check_info = 0;
-		break;
-
-	case 4:
-		if((strcmp(dsi_display->panel->name, "samsung ana6705 fhd cmd mode dsc dsi panel") == 0) &&
-		(ddic_x > 40) && (ddic_x < 261)) {
-			dsi_display->panel->ddic_check_info = 1;
-		} else if(strcmp(dsi_display->panel->name, "samsung ana6706 dsc cmd mode panel") == 0) {
-			if((panel_tool == 0) && (ddic_x > 46) && (ddic_x < 140))
-				dsi_display->panel->ddic_check_info = 1;
-			else if(((panel_tool == 1) || (panel_tool == 2)) && (ddic_x > 24) && (ddic_x < 162))
-				dsi_display->panel->ddic_check_info = 1;
-			else
-				dsi_display->panel->ddic_check_info = 0;
-		} else
-			dsi_display->panel->ddic_check_info = 0;
-		break;
-
-	case 5:
-		if((strcmp(dsi_display->panel->name, "samsung ana6705 fhd cmd mode dsc dsi panel") == 0) &&
-		(ddic_x > 33) && (ddic_x < 268)) {
-			dsi_display->panel->ddic_check_info = 1;
-		} else if(strcmp(dsi_display->panel->name, "samsung ana6706 dsc cmd mode panel") == 0) {
-			if((panel_tool == 0) && (ddic_x > 46) && (ddic_x < 140))
-				dsi_display->panel->ddic_check_info = 1;
-			else if(((panel_tool == 1) || (panel_tool == 2)) && (ddic_x > 23) && (ddic_x < 163))
-				dsi_display->panel->ddic_check_info = 1;
-			else
-				dsi_display->panel->ddic_check_info = 0;
-		} else
-			dsi_display->panel->ddic_check_info = 0;
-		break;
-
-	case 6:
-		if((strcmp(dsi_display->panel->name, "samsung ana6705 fhd cmd mode dsc dsi panel") == 0) &&
-		(ddic_x > 41) && (ddic_x < 261)) {
-			dsi_display->panel->ddic_check_info = 1;
-		} else if(strcmp(dsi_display->panel->name, "samsung ana6706 dsc cmd mode panel") == 0) {
-			if((panel_tool == 0) && (ddic_x > 54) && (ddic_x < 132))
-				dsi_display->panel->ddic_check_info = 1;
-			else if(((panel_tool == 1) || (panel_tool == 2)) && (ddic_x > 30) && (ddic_x < 156))
-				dsi_display->panel->ddic_check_info = 1;
-			else
-				dsi_display->panel->ddic_check_info = 0;
-		} else
-			dsi_display->panel->ddic_check_info = 0;
-		break;
-
-	case 7:
-		if((strcmp(dsi_display->panel->name, "samsung ana6705 fhd cmd mode dsc dsi panel") == 0) &&
-		(ddic_x > 57) && (ddic_x < 245)) {
-			dsi_display->panel->ddic_check_info = 1;
-		} else if(strcmp(dsi_display->panel->name, "samsung ana6706 dsc cmd mode panel") == 0) {
-			if(((panel_tool == 1) || (panel_tool == 2)) && (ddic_x > 45) && (ddic_x < 141))
-				dsi_display->panel->ddic_check_info = 1;
-			else
-				dsi_display->panel->ddic_check_info = 0;
-		} else
-			dsi_display->panel->ddic_check_info = 0;
-		break;
-
-	case 8:
-		if((strcmp(dsi_display->panel->name, "samsung ana6705 fhd cmd mode dsc dsi panel") == 0) &&
-		(ddic_x > 119) && (ddic_x < 183)) {
-			dsi_display->panel->ddic_check_info = 1;
-		} else
-			dsi_display->panel->ddic_check_info = 0;
-		break;
-
-	default:
-		dsi_display->panel->ddic_check_info = 0;
-		break;
-	}
-	DSI_DEBUG("%s Result:panel_tool = %d end\n", __func__,panel_tool);
-
-	if(panel_tool == 10)
-		dsi_display->panel->ddic_check_info = 0;
-
-	return dsi_display->panel->ddic_check_info;
-}
-
 
 int dsi_display_get_serial_number_year(struct drm_connector *connector)
 {
 	struct dsi_display *dsi_display = NULL;
 	struct dsi_bridge *c_bridge;
 
-	DSI_DEBUG("%s start\n", __func__);
+	DSI_DEBUG("start\n");
 
 	if ((connector == NULL) || (connector->encoder == NULL)
 		|| (connector->encoder->bridge == NULL))
-		return 0;
+		return -EINVAL;
 
 	c_bridge =  to_dsi_bridge(connector->encoder->bridge);
 	dsi_display = c_bridge->display;
 
 	if ((dsi_display == NULL) || (dsi_display->panel == NULL))
-		return 0;
+		return -EINVAL;
 
-	DSI_DEBUG("%s end\n", __func__);
+	DSI_DEBUG("end\n");
 
 	return dsi_display->panel->panel_year;
 }
@@ -10652,19 +9854,20 @@ int dsi_display_get_serial_number_mon(struct drm_connector *connector)
 {
 	struct dsi_display *dsi_display = NULL;
 	struct dsi_bridge *c_bridge;
-	DSI_DEBUG("%s start\n", __func__);
+
+	DSI_DEBUG("start\n");
 
 	if ((connector == NULL) || (connector->encoder == NULL)
 		|| (connector->encoder->bridge == NULL))
-		return 0;
+		return -EINVAL;
 
 	c_bridge =  to_dsi_bridge(connector->encoder->bridge);
 	dsi_display = c_bridge->display;
 
 	if ((dsi_display == NULL) || (dsi_display->panel == NULL))
-		return 0;
+		return -EINVAL;
 
-	DSI_DEBUG("%s end\n", __func__);
+	DSI_DEBUG("end\n");
 
 	return dsi_display->panel->panel_mon;
 }
@@ -10674,17 +9877,17 @@ int dsi_display_get_serial_number_day(struct drm_connector *connector)
 	struct dsi_display *dsi_display = NULL;
 	struct dsi_bridge *c_bridge;
 
-	DSI_DEBUG("%s start\n", __func__);
+	DSI_DEBUG("start\n");
 
 	if ((connector == NULL) || (connector->encoder == NULL)
 		|| (connector->encoder->bridge == NULL))
-		return 0;
+		return -EINVAL;
 
 	c_bridge =  to_dsi_bridge(connector->encoder->bridge);
 	dsi_display = c_bridge->display;
 
 	if ((dsi_display == NULL) || (dsi_display->panel == NULL))
-		return 0;
+		return -EINVAL;
 
 	DSI_DEBUG("%s end\n", __func__);
 
@@ -10696,19 +9899,19 @@ int dsi_display_get_serial_number_hour(struct drm_connector *connector)
 	struct dsi_display *dsi_display = NULL;
 	struct dsi_bridge *c_bridge;
 
-	DSI_DEBUG("%s start\n", __func__);
+	DSI_DEBUG("start\n");
 
 	if ((connector == NULL) || (connector->encoder == NULL)
 		|| (connector->encoder->bridge == NULL))
-		return 0;
+		return -EINVAL;
 
 	c_bridge =  to_dsi_bridge(connector->encoder->bridge);
 	dsi_display = c_bridge->display;
 
 	if ((dsi_display == NULL) || (dsi_display->panel == NULL))
-		return 0;
+		return -EINVAL;
 
-	DSI_DEBUG("%s end\n", __func__);
+	DSI_DEBUG("end\n");
 
 	return dsi_display->panel->panel_hour;
 }
@@ -10718,19 +9921,19 @@ int dsi_display_get_serial_number_min(struct drm_connector *connector)
 	struct dsi_display *dsi_display = NULL;
 	struct dsi_bridge *c_bridge;
 
-	DSI_DEBUG("%s start\n", __func__);
+	DSI_DEBUG("start\n");
 
 	if ((connector == NULL) || (connector->encoder == NULL)
 		|| (connector->encoder->bridge == NULL))
-		return 0;
+		return -EINVAL;
 
 	c_bridge =  to_dsi_bridge(connector->encoder->bridge);
 	dsi_display = c_bridge->display;
 
 	if ((dsi_display == NULL) || (dsi_display->panel == NULL))
-		return 0;
+		return -EINVAL;
 
-	DSI_DEBUG("%s end\n", __func__);
+	DSI_DEBUG("end\n");
 
 	return dsi_display->panel->panel_min;
 }
@@ -10740,19 +9943,19 @@ int dsi_display_get_serial_number_sec(struct drm_connector *connector)
 	struct dsi_display *dsi_display = NULL;
 	struct dsi_bridge *c_bridge;
 
-	DSI_DEBUG("%s start\n", __func__);
+	DSI_DEBUG("start\n");
 
 	if ((connector == NULL) || (connector->encoder == NULL)
 		|| (connector->encoder->bridge == NULL))
-		return 0;
+		return -EINVAL;
 
 	c_bridge =  to_dsi_bridge(connector->encoder->bridge);
 	dsi_display = c_bridge->display;
 
 	if ((dsi_display == NULL) || (dsi_display->panel == NULL))
-		return 0;
+		return -EINVAL;
 
-	DSI_DEBUG("%s end\n", __func__);
+	DSI_DEBUG("end\n");
 
 	return dsi_display->panel->panel_sec;
 }
@@ -10762,19 +9965,19 @@ int dsi_display_get_serial_number_msec_int(struct drm_connector *connector)
 	struct dsi_display *dsi_display = NULL;
 	struct dsi_bridge *c_bridge;
 
-	DSI_DEBUG("%s start\n", __func__);
+	DSI_DEBUG("start\n");
 
 	if ((connector == NULL) || (connector->encoder == NULL)
 		|| (connector->encoder->bridge == NULL))
-		return 0;
+		return -EINVAL;
 
 	c_bridge =  to_dsi_bridge(connector->encoder->bridge);
 	dsi_display = c_bridge->display;
 
 	if ((dsi_display == NULL) || (dsi_display->panel == NULL))
-		return 0;
+		return -EINVAL;
 
-	DSI_DEBUG("%s end\n", __func__);
+	DSI_DEBUG("end\n");
 
 	return dsi_display->panel->panel_msec_int;
 }
@@ -10784,21 +9987,43 @@ int dsi_display_get_serial_number_msec_rem(struct drm_connector *connector)
 	struct dsi_display *dsi_display = NULL;
 	struct dsi_bridge *c_bridge;
 
-	DSI_DEBUG("%s start\n", __func__);
+	DSI_DEBUG("start\n");
 
 	if ((connector == NULL) || (connector->encoder == NULL)
 		|| (connector->encoder->bridge == NULL))
-		return 0;
+		return -EINVAL;
 
 	c_bridge =  to_dsi_bridge(connector->encoder->bridge);
 	dsi_display = c_bridge->display;
 
 	if ((dsi_display == NULL) || (dsi_display->panel == NULL))
-		return 0;
+		return -EINVAL;
 
-	DSI_DEBUG("%s end\n", __func__);
+	DSI_DEBUG("end\n");
 
 	return dsi_display->panel->panel_msec_rem;
+}
+
+int dsi_display_get_serial_number_at(struct drm_connector *connector)
+{
+	struct dsi_display *dsi_display = NULL;
+	struct dsi_bridge *c_bridge;
+
+	DSI_DEBUG("start\n");
+
+	if ((connector == NULL) || (connector->encoder == NULL)
+		|| (connector->encoder->bridge == NULL))
+		return -EINVAL;
+
+	c_bridge =  to_dsi_bridge(connector->encoder->bridge);
+	dsi_display = c_bridge->display;
+
+	if ((dsi_display == NULL) || (dsi_display->panel == NULL))
+		return -EINVAL;
+
+	DSI_DEBUG("end\n");
+
+	return dsi_display->panel->panel_serial_number;
 }
 
 int dsi_display_get_code_info(struct drm_connector *connector)
@@ -10806,43 +10031,21 @@ int dsi_display_get_code_info(struct drm_connector *connector)
 	struct dsi_display *dsi_display = NULL;
 	struct dsi_bridge *c_bridge;
 
-	DSI_DEBUG("%s start\n", __func__);
+	DSI_DEBUG("start\n");
 
 	if ((connector == NULL) || (connector->encoder == NULL)
 		|| (connector->encoder->bridge == NULL))
-		return 0;
+		return -EINVAL;
 
 	c_bridge =  to_dsi_bridge(connector->encoder->bridge);
 	dsi_display = c_bridge->display;
 
 	if ((dsi_display == NULL) || (dsi_display->panel == NULL))
-		return 0;
+		return -EINVAL;
 
-	DSI_DEBUG("%s end\n", __func__);
+	DSI_DEBUG("end\n");
 
 	return dsi_display->panel->panel_code_info;
-}
-
-int dsi_display_get_panel_ic_v_info(struct drm_connector *connector)
-{
-	struct dsi_display *dsi_display = NULL;
-	struct dsi_bridge *c_bridge;
-
-	DSI_DEBUG("%s start\n", __func__);
-
-	if ((connector == NULL) || (connector->encoder == NULL)
-		|| (connector->encoder->bridge == NULL))
-		return 0;
-
-	c_bridge =  to_dsi_bridge(connector->encoder->bridge);
-	dsi_display = c_bridge->display;
-
-	if ((dsi_display == NULL) || (dsi_display->panel == NULL))
-		return 0;
-
-	DSI_DEBUG("%s end\n", __func__);
-
-	return dsi_display->panel->panel_ic_v;
 }
 
 int dsi_display_get_stage_info(struct drm_connector *connector)
@@ -10850,19 +10053,19 @@ int dsi_display_get_stage_info(struct drm_connector *connector)
 	struct dsi_display *dsi_display = NULL;
 	struct dsi_bridge *c_bridge;
 
-	DSI_DEBUG("%s start\n", __func__);
+	DSI_DEBUG("start\n");
 
 	if ((connector == NULL) || (connector->encoder == NULL)
 		|| (connector->encoder->bridge == NULL))
-		return 0;
+		return -EINVAL;
 
 	c_bridge =  to_dsi_bridge(connector->encoder->bridge);
 	dsi_display = c_bridge->display;
 
 	if ((dsi_display == NULL) || (dsi_display->panel == NULL))
-		return 0;
+		return -EINVAL;
 
-	DSI_DEBUG("%s end\n", __func__);
+	DSI_DEBUG("end\n");
 
 	return dsi_display->panel->panel_stage_info;
 }
@@ -10872,7 +10075,51 @@ int dsi_display_get_production_info(struct drm_connector *connector)
 	struct dsi_display *dsi_display = NULL;
 	struct dsi_bridge *c_bridge;
 
-	DSI_DEBUG("%s start\n", __func__);
+	DSI_DEBUG("start\n");
+
+	if ((connector == NULL) || (connector->encoder == NULL)
+		|| (connector->encoder->bridge == NULL))
+		return -EINVAL;
+
+	c_bridge =  to_dsi_bridge(connector->encoder->bridge);
+	dsi_display = c_bridge->display;
+
+	if ((dsi_display == NULL) || (dsi_display->panel == NULL))
+		return -EINVAL;
+
+	DSI_DEBUG("end\n");
+
+	return dsi_display->panel->panel_production_info;
+}
+
+int dsi_display_get_panel_ic_v_info(struct drm_connector *connector)
+{
+	struct dsi_display *dsi_display = NULL;
+	struct dsi_bridge *c_bridge;
+
+	DSI_DEBUG("start\n");
+
+	if ((connector == NULL) || (connector->encoder == NULL)
+		|| (connector->encoder->bridge == NULL))
+		return -EINVAL;
+
+	c_bridge =  to_dsi_bridge(connector->encoder->bridge);
+	dsi_display = c_bridge->display;
+
+	if ((dsi_display == NULL) || (dsi_display->panel == NULL))
+		return -EINVAL;
+
+	DSI_DEBUG("end\n");
+
+	return dsi_display->panel->panel_ic_v;
+}
+
+char* dsi_display_get_ic_reg_buf(struct drm_connector *connector)
+{
+	struct dsi_display *dsi_display = NULL;
+	struct dsi_bridge *c_bridge;
+
+	DSI_DEBUG("start\n");
 
 	if ((connector == NULL) || (connector->encoder == NULL)
 		|| (connector->encoder->bridge == NULL))
@@ -10884,160 +10131,214 @@ int dsi_display_get_production_info(struct drm_connector *connector)
 	if ((dsi_display == NULL) || (dsi_display->panel == NULL))
 		return 0;
 
-	DSI_DEBUG("%s end\n", __func__);
+	DSI_DEBUG("end\n");
 
-	return dsi_display->panel->panel_production_info;
+	return dsi_display->panel->buf_select;
 }
 
-int dsi_display_get_serial_number_AT(struct drm_connector *connector)
+int dsi_display_get_ToolsType_ANA6706(struct drm_connector *connector)
 {
-    struct dsi_display_mode *mode;
-	struct dsi_panel *panel = NULL;
 	struct dsi_display *dsi_display = NULL;
 	struct dsi_bridge *c_bridge;
-	char buf[32];
-	int panel_year = 0;
-	int panel_mon = 0;
-	int panel_day = 0;
-	int panel_hour = 0;
-	int panel_min = 0;
-	int panel_sec = 0;
-	int len = 0;
-	u32 count;
-	int rc = 0;
-	uint64_t  serial_number;
-	DSI_ERR("%s start\n", __func__);
 
-    if ((connector == NULL) || (connector->encoder == NULL)
-            || (connector->encoder->bridge == NULL))
-				return 0;
+	DSI_DEBUG("start\n");
 
+	if ((connector == NULL) || (connector->encoder == NULL)
+		|| (connector->encoder->bridge == NULL))
+		return -EINVAL;
 
-    c_bridge =  to_dsi_bridge(connector->encoder->bridge);
-    dsi_display = c_bridge->display;
+	c_bridge =  to_dsi_bridge(connector->encoder->bridge);
+	dsi_display = c_bridge->display;
 
 	if ((dsi_display == NULL) || (dsi_display->panel == NULL))
 		return -EINVAL;
 
-	panel = dsi_display->panel;
-	mutex_lock(&dsi_display->display_lock);
+	DSI_DEBUG("end\n");
 
-    if (!dsi_panel_initialized(panel) || !panel->cur_mode) {
-		goto error;
-	}
-    mode = panel->cur_mode;
-	count = mode->priv_info->cmd_sets[DSI_CMD_SET_PANEL_SERIAL_NUMBER].count;
-
-    if (count) {
-
-       len = panel->panel_min_index;
-       if (len > sizeof(buf)) {
-           DSI_ERR("len is large than buf size!!!\n" );
-          goto error;
-       }
-
-       if ((panel->panel_year_index > len) || (panel->panel_mon_index > len)
-            || (panel->panel_day_index > len) || (panel->panel_hour_index > len)
-                || (panel->panel_min_index > len)) {
-           DSI_ERR("Panel serial number index not corrected.\n");
-           goto error;
-        }
-
-        rc = dsi_display_clk_ctrl(dsi_display->dsi_clk_handle,
-                DSI_ALL_CLKS, DSI_CLK_ON);
-        if (rc) {
-            DSI_ERR("[%s] failed to enable DSI clocks, rc=%d\n",
-                dsi_display->name, rc);
-            goto error;
-        }
-        memset(buf, 0, sizeof(buf));
-        dsi_display_read_serial_number(dsi_display, panel, buf, len);
-	memcpy(panel->buf_id, buf, 32);
-
-	  panel_year = 2011 + ((buf[panel->panel_year_index-1] >> 4) & 0x0f);
-      if (panel_year == 2011){
-          panel_year = 0;
-      }
-		panel_mon = buf[panel->panel_mon_index-1] & 0x0f;
-		if ((panel_mon > 12) || (panel_mon < 1)){
-			DSI_ERR("Panel Mon not corrected.\n");
-			panel_mon = 0;
-		}
-		panel_day = buf[panel->panel_day_index-1] & 0x3f;
-		if ((panel_day > 31) || (panel_day < 1)){
-			DSI_ERR("Panel Day not corrected.\n");
-			panel_day = 0;
-		}
-		panel_hour = buf[panel->panel_hour_index-1] & 0x3f;
-		if ((panel_hour > 23) || (panel_hour < 0)){
-			DSI_ERR("Panel Hour not corrected.\n");
-			panel_hour = 0;
-		}
-		panel_min = buf[panel->panel_min_index-1] & 0x3f;
-		if ((panel_min > 59) || (panel_min < 0)){
-			DSI_ERR("Panel Min not corrected.\n");
-			panel_min = 0;
-		}
-		panel_sec = buf[panel->panel_sec_index-1] & 0x3f;
-		if ((panel_sec > 59) || (panel_sec < 0)){
-			DSI_ERR("Panel sec not corrected.\n");
-			panel_sec = 0;
-		}
-/*
-		serial_number  =      ((uint64_t)panel_year << 56)
-							+ ((uint64_t)panel_mon  << 48)
-							+ ((uint64_t)panel_day  << 40)
-							+ ((uint64_t)panel_hour << 32)
-							+ ((uint64_t)panel_min  << 24)
-							+ ((uint64_t)panel_sec  << 16)
-							+ ((uint64_t)0 << 8)
-							+ ((uint64_t)0);
-*/
-		serial_number = (uint64_t)panel_year * 10000000000 + (uint64_t)panel_mon * 100000000 + (uint64_t)panel_day * 1000000
-											 + (uint64_t)panel_hour * 10000 + (uint64_t)panel_min * 100 + (uint64_t)panel_sec;
-
-		dsi_display_get_serial_number_id(serial_number);
-
-        rc = dsi_display_clk_ctrl(dsi_display->dsi_clk_handle,
-            DSI_ALL_CLKS, DSI_CLK_OFF);
-        if (rc) {
-            DSI_ERR("[%s] failed to enable DSI clocks, rc=%d\n",
-                dsi_display->name, rc);
-            goto error;
-        }
-    } else{
-        DSI_ERR("This panel not support serial number.\n");
-    }
-error:
-	mutex_unlock(&dsi_display->display_lock);
-	DSI_ERR("%s END\n", __func__);
-	return 0;
+	return dsi_display->panel->panel_tool;
 }
 
-uint64_t dsi_display_get_serial_number_id(uint64_t serial_number)
+int dsi_display_get_ddic_coords_X(struct drm_connector *connector)
 {
+	struct dsi_display *dsi_display = NULL;
+	struct dsi_bridge *c_bridge;
 
-	static uint64_t serial_number_at;
+	DSI_DEBUG("start\n");
 
-	DSI_ERR("%s start\n",__func__);
-	if(0 == SERIAL_NUMBER_flag)
-		{
-		serial_number_at = serial_number;
-		if(0 == serial_number_at)
-			SERIAL_NUMBER_flag = 0;
-		else
-			SERIAL_NUMBER_flag = 1;
-		}
+	if ((connector == NULL) || (connector->encoder == NULL)
+		|| (connector->encoder->bridge == NULL))
+		return -EINVAL;
 
-	return serial_number_at;
+	c_bridge =  to_dsi_bridge(connector->encoder->bridge);
+	dsi_display = c_bridge->display;
+
+	if ((dsi_display == NULL) || (dsi_display->panel == NULL))
+		return -EINVAL;
+
+	DSI_DEBUG("end\n");
+
+	return dsi_display->panel->ddic_x;
 }
 
+int dsi_display_get_ddic_coords_Y(struct drm_connector *connector)
+{
+	struct dsi_display *dsi_display = NULL;
+	struct dsi_bridge *c_bridge;
 
+	DSI_DEBUG("start\n");
+
+	if ((connector == NULL) || (connector->encoder == NULL)
+		|| (connector->encoder->bridge == NULL))
+		return -EINVAL;
+
+	c_bridge =  to_dsi_bridge(connector->encoder->bridge);
+	dsi_display = c_bridge->display;
+
+	if ((dsi_display == NULL) || (dsi_display->panel == NULL))
+		return -EINVAL;
+
+	DSI_DEBUG("end\n");
+
+	return dsi_display->panel->ddic_y;
+}
+
+int dsi_display_get_ddic_check_info(struct drm_connector *connector)
+{
+	struct dsi_display *dsi_display = NULL;
+	struct dsi_bridge *c_bridge;
+	int ddic_x = 0;
+	int panel_tool = 0;
+
+	DSI_DEBUG("start\n");
+
+	if ((connector == NULL) || (connector->encoder == NULL)
+		|| (connector->encoder->bridge == NULL))
+		return -EINVAL;
+
+	c_bridge =  to_dsi_bridge(connector->encoder->bridge);
+	dsi_display = c_bridge->display;
+
+	if ((dsi_display == NULL) || (dsi_display->panel == NULL))
+		return -EINVAL;
+
+	ddic_x = dsi_display->panel->ddic_x;
+	panel_tool = dsi_display->panel->panel_tool;
+
+/*
+	ToolB			0
+	ToolA			1
+	ToolA_HVS30		2
+*/
+
+	switch (dsi_display->panel->ddic_y) {
+	case 2:
+		if ((strcmp(dsi_display->panel->name, "samsung ana6705 fhd cmd mode dsc dsi panel") == 0) &&
+		(ddic_x > 115) && (ddic_x < 186)) {
+			dsi_display->panel->ddic_check_info = 1;
+		} else
+			dsi_display->panel->ddic_check_info = 0;
+		break;
+
+	case 3:
+		if ((strcmp(dsi_display->panel->name, "samsung ana6705 fhd cmd mode dsc dsi panel") == 0) &&
+		(ddic_x > 56) && (ddic_x < 245)) {
+			dsi_display->panel->ddic_check_info = 1;
+		} else if (strcmp(dsi_display->panel->name, "samsung ana6706 dsc cmd mode panel") == 0) {
+			if ((panel_tool == 0) && (ddic_x > 54) && (ddic_x < 140))
+				dsi_display->panel->ddic_check_info = 1;
+			else if (((panel_tool == 1) || (panel_tool == 2)) && (ddic_x > 32) && (ddic_x < 154))
+				dsi_display->panel->ddic_check_info = 1;
+			else
+				dsi_display->panel->ddic_check_info = 0;
+		} else
+			dsi_display->panel->ddic_check_info = 0;
+		break;
+
+	case 4:
+		if ((strcmp(dsi_display->panel->name, "samsung ana6705 fhd cmd mode dsc dsi panel") == 0) &&
+		(ddic_x > 40) && (ddic_x < 261)) {
+			dsi_display->panel->ddic_check_info = 1;
+		} else if (strcmp(dsi_display->panel->name, "samsung ana6706 dsc cmd mode panel") == 0) {
+			if ((panel_tool == 0) && (ddic_x > 46) && (ddic_x < 140))
+				dsi_display->panel->ddic_check_info = 1;
+			else if (((panel_tool == 1) || (panel_tool == 2)) && (ddic_x > 24) && (ddic_x < 162))
+				dsi_display->panel->ddic_check_info = 1;
+			else
+				dsi_display->panel->ddic_check_info = 0;
+		} else
+			dsi_display->panel->ddic_check_info = 0;
+		break;
+
+	case 5:
+		if ((strcmp(dsi_display->panel->name, "samsung ana6705 fhd cmd mode dsc dsi panel") == 0) &&
+		(ddic_x > 33) && (ddic_x < 268)) {
+			dsi_display->panel->ddic_check_info = 1;
+		} else if (strcmp(dsi_display->panel->name, "samsung ana6706 dsc cmd mode panel") == 0) {
+			if ((panel_tool == 0) && (ddic_x > 46) && (ddic_x < 140))
+				dsi_display->panel->ddic_check_info = 1;
+			else if (((panel_tool == 1) || (panel_tool == 2)) && (ddic_x > 23) && (ddic_x < 163))
+				dsi_display->panel->ddic_check_info = 1;
+			else
+				dsi_display->panel->ddic_check_info = 0;
+		} else
+			dsi_display->panel->ddic_check_info = 0;
+		break;
+
+	case 6:
+		if ((strcmp(dsi_display->panel->name, "samsung ana6705 fhd cmd mode dsc dsi panel") == 0) &&
+		(ddic_x > 41) && (ddic_x < 261)) {
+			dsi_display->panel->ddic_check_info = 1;
+		} else if (strcmp(dsi_display->panel->name, "samsung ana6706 dsc cmd mode panel") == 0) {
+			if((panel_tool == 0) && (ddic_x > 54) && (ddic_x < 132))
+				dsi_display->panel->ddic_check_info = 1;
+			else if (((panel_tool == 1) || (panel_tool == 2)) && (ddic_x > 30) && (ddic_x < 156))
+				dsi_display->panel->ddic_check_info = 1;
+			else
+				dsi_display->panel->ddic_check_info = 0;
+		} else
+			dsi_display->panel->ddic_check_info = 0;
+		break;
+
+	case 7:
+		if ((strcmp(dsi_display->panel->name, "samsung ana6705 fhd cmd mode dsc dsi panel") == 0) &&
+		(ddic_x > 57) && (ddic_x < 245)) {
+			dsi_display->panel->ddic_check_info = 1;
+		} else if (strcmp(dsi_display->panel->name, "samsung ana6706 dsc cmd mode panel") == 0) {
+			if(((panel_tool == 1) || (panel_tool == 2)) && (ddic_x > 45) && (ddic_x < 141))
+				dsi_display->panel->ddic_check_info = 1;
+			else
+				dsi_display->panel->ddic_check_info = 0;
+		} else
+			dsi_display->panel->ddic_check_info = 0;
+		break;
+
+	case 8:
+		if ((strcmp(dsi_display->panel->name, "samsung ana6705 fhd cmd mode dsc dsi panel") == 0) &&
+		(ddic_x > 119) && (ddic_x < 183)) {
+			dsi_display->panel->ddic_check_info = 1;
+		} else
+			dsi_display->panel->ddic_check_info = 0;
+		break;
+
+	default:
+		dsi_display->panel->ddic_check_info = 0;
+		break;
+	}
+
+	DSI_DEBUG("Result:panel_tool = %d\n", panel_tool);
+
+	if (panel_tool == 10)
+		dsi_display->panel->ddic_check_info = 0;
+
+	DSI_DEBUG("end\n");
+
+	return dsi_display->panel->ddic_check_info;
+}
 
 int iris_loop_back_test(struct drm_connector *connector)
 {
 	int ret = -1;
-#if defined(CONFIG_PXLW_IRIS5)
+#if defined(CONFIG_PXLW_IRIS)
 	struct iris_cfg *pcfg;
 	struct dsi_display *dsi_display = NULL;
 	struct dsi_bridge *c_bridge;
@@ -11218,7 +10519,9 @@ int dsi_display_set_hbm_brightness(struct drm_connector *connector, int level)
 	if ((strcmp(dsi_display->panel->name, "samsung dsc cmd mode oneplus dsi panel") != 0)
 		&& (strcmp(dsi_display->panel->name, "BOE dsc cmd mode oneplus dsi panel") != 0)
 		&& (strcmp(dsi_display->panel->name, "samsung ana6705 fhd cmd mode dsc dsi panel") != 0)
-		&& (strcmp(panel->name, "samsung ana6706 dsc cmd mode panel") != 0)) {
+		&& (strcmp(panel->name, "samsung ana6706 dsc cmd mode panel") != 0)
+		&& (strcmp(panel->name, "samsung dd305 fhd cmd mode dsc dsi panel") != 0)
+		&& (strcmp(panel->name, "samsung amb655x fhd cmd mode dsc dsi panel") != 0)) {
 		dsi_display->panel->hbm_brightness = 0;
 		return 0;
 	}
@@ -11904,20 +11207,7 @@ int dsi_display_set_aod_mode(struct drm_connector *connector, int level)
 
 	panel = dsi_display->panel;
 	panel->aod_mode = level;
-	if (strcmp(dsi_display->panel->name, "samsung s6e3fc2x01 cmd mode dsi panel") == 0) {
-		printk(KERN_ERR"dsi_display_set_aod_mode\n");
-	} else if (strcmp(dsi_display->panel->name, "samsung dsc cmd mode oneplus dsi panel") == 0) {
-		printk(KERN_ERR"oneplus SDC 2K OLED dsi_display_set_aod_mode\n");
-	} else if (strcmp(dsi_display->panel->name, "samsung sofef03f_m fhd cmd mode dsc dsi panel") == 0) {
-		printk(KERN_ERR"samsung sofef03f_m fhd cmd mode dsc dsi panel\n");
-	} else if (strcmp(dsi_display->panel->name, "samsung ana6705 fhd cmd mode dsc dsi panel") == 0) {
-		printk(KERN_ERR"samsung ana6705 fhd cmd mode dsc dsi panel\n");
-	} else if (strcmp(dsi_display->panel->name, "samsung ana6706 dsc cmd mode panel") == 0) {
-		printk(KERN_ERR"samsung ana6706 dsc cmd mode panel\n");
-	} else {
-		dsi_display->panel->aod_mode = 0;
-		return 0;
-	}
+
 	mutex_lock(&dsi_display->display_lock);
 	if (!dsi_panel_initialized(panel)) {
 		goto error;
@@ -11930,9 +11220,11 @@ int dsi_display_set_aod_mode(struct drm_connector *connector, int level)
 		       dsi_display->name, rc);
 		goto error;
 	}
-	rc = dsi_panel_set_aod_mode(panel, level);
-	if (rc)
-		DSI_ERR("unable to set aod mode\n");
+	if ((dsi_display->panel->aod_mode != 5) && (dsi_display->panel->aod_mode != 4)) {
+		rc = dsi_panel_set_aod_mode(panel, level);
+		if (rc)
+			DSI_ERR("unable to set aod mode\n");
+	}
 
 	rc = dsi_display_clk_ctrl(dsi_display->dsi_clk_handle,
 			DSI_CORE_CLK, DSI_CLK_OFF);
@@ -12121,7 +11413,7 @@ int dsi_display_read_panel_id(struct dsi_display *dsi_display,
 	cmds->msg.rx_len = len;
 	retry_times = 0;
     do {
-	    rc = dsi_ctrl_cmd_transfer(m_ctrl->ctrl, &cmds->msg, flags);
+	    rc = dsi_ctrl_cmd_transfer(m_ctrl->ctrl, &cmds->msg, &flags);
 	    retry_times++;
 	} while ((rc <= 0) && (retry_times < 3));
 
@@ -12293,6 +11585,7 @@ int dsi_display_update_dsi_panel_command(struct drm_connector *connector, const 
 	if ((strcmp(panel->name, "samsung dsc cmd mode oneplus dsi panel") != 0) &&
 		(strcmp(panel->name, "samsung sofef03f_m fhd cmd mode dsc dsi panel") != 0) &&
 			(strcmp(panel->name, "samsung ana6705 fhd cmd mode dsc dsi panel") != 0) &&
+		(strcmp(panel->name, "samsung amb655x fhd cmd mode dsc dsi panel") != 0) &&
 				(strcmp(panel->name, "samsung ana6706 dsc cmd mode panel") != 0)) {
 		return 0;
 	}
@@ -12405,6 +11698,7 @@ int dsi_display_update_dsi_seed_command(struct drm_connector *connector, const c
 	if ((strcmp(panel->name, "samsung dsc cmd mode oneplus dsi panel") != 0) &&
 		(strcmp(panel->name, "samsung sofef03f_m fhd cmd mode dsc dsi panel") != 0) &&
 		(strcmp(panel->name, "samsung ana6705 fhd cmd mode dsc dsi panel") != 0) &&
+		(strcmp(panel->name, "samsung amb655x fhd cmd mode dsc dsi panel") != 0) &&
 		(strcmp(panel->name, "samsung ana6706 dsc cmd mode panel") != 0)) {
 		return 0;
 	}
@@ -12494,6 +11788,7 @@ int dsi_display_get_dsi_seed_command(struct drm_connector *connector, char *buf)
 	if ((strcmp(dsi_display->panel->name, "samsung dsc cmd mode oneplus dsi panel") != 0) &&
 		(strcmp(dsi_display->panel->name, "samsung sofef03f_m fhd cmd mode dsc dsi panel") != 0) &&
 		(strcmp(dsi_display->panel->name, "samsung ana6705 fhd cmd mode dsc dsi panel") != 0) &&
+		(strcmp(dsi_display->panel->name, "samsung amb655x fhd cmd mode dsc dsi panel") != 0) &&
 		(strcmp(dsi_display->panel->name, "samsung ana6706 dsc cmd mode panel") != 0)) {
 		return 0;
 	}
@@ -12539,9 +11834,8 @@ int dsi_display_get_reg_value(struct dsi_display *dsi_display, struct dsi_panel 
 	} else {
 		dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_LEVEL2_KEY_ENABLE);
 	}
-
-#if defined(CONFIG_PXLW_IRIS5)
-	if (iris5_abypass_mode_get(panel) == PASS_THROUGH_MODE) {
+#if defined(CONFIG_PXLW_IRIS)
+	if (iris_is_chip_supported() && iris_is_pt_mode(panel)) {
 		cmds = mode->priv_info->cmd_sets[DSI_CMD_SET_PANEL_COMMAND].cmds;
 		rc = iris_panel_ctrl_read_reg(m_ctrl, panel, reg_read_value, reg_read_len, cmds);
 		if (rc <= 0)
@@ -12561,7 +11855,7 @@ int dsi_display_get_reg_value(struct dsi_display *dsi_display, struct dsi_panel 
 		cmds->msg.rx_buf = reg_read_value;
 		cmds->msg.rx_len = reg_read_len;
 		do {
-			rc = dsi_ctrl_cmd_transfer(m_ctrl->ctrl, &cmds->msg, flags);
+			rc = dsi_ctrl_cmd_transfer(m_ctrl->ctrl, &cmds->msg, &flags);
 			retry_times++;
 		} while ((rc <= 0) && (retry_times < 3));
 		if (rc <= 0) {
@@ -12616,6 +11910,7 @@ int dsi_display_reg_read(struct drm_connector *connector, const char *buf, size_
 	if ((strcmp(panel->name, "samsung dsc cmd mode oneplus dsi panel") != 0) &&
 		(strcmp(panel->name, "samsung sofef03f_m fhd cmd mode dsc dsi panel") != 0) &&
 			(strcmp(panel->name, "samsung ana6705 fhd cmd mode dsc dsi panel") != 0) &&
+		(strcmp(panel->name, "samsung amb655x fhd cmd mode dsc dsi panel") != 0) &&
 				(strcmp(panel->name, "samsung ana6706 dsc cmd mode panel") != 0)) {
 		return 0;
 	}
@@ -12792,7 +12087,8 @@ int dsi_display_panel_mismatch(struct drm_connector *connector)
 
 int dsi_display_unprepare(struct dsi_display *display)
 {
-	int rc = 0;
+	int rc = 0, i;
+	struct dsi_display_ctrl *ctrl;
 
 	if (!display) {
 		DSI_ERR("Invalid params\n");
@@ -12812,6 +12108,24 @@ int dsi_display_unprepare(struct dsi_display *display)
 			DSI_ERR("[%s] panel unprepare failed, rc=%d\n",
 			       display->name, rc);
 	}
+
+		/* Remove additional vote added for pre_mode_switch_to_cmd */
+	if (display->poms_pending &&
+			display->config.panel_mode == DSI_OP_VIDEO_MODE) {
+		display_for_each_ctrl(i, display) {
+			ctrl = &display->ctrl[i];
+			if (!ctrl->ctrl || !ctrl->ctrl->dma_wait_queued)
+				continue;
+			flush_workqueue(display->dma_cmd_workq);
+			cancel_work_sync(&ctrl->ctrl->dma_cmd_wait);
+			ctrl->ctrl->dma_wait_queued = false;
+		}
+
+		dsi_display_cmd_engine_disable(display);
+		dsi_display_clk_ctrl(display->dsi_clk_handle,
+				DSI_ALL_CLKS, DSI_CLK_OFF);
+	}
+
 	rc = dsi_display_ctrl_host_disable(display);
 	if (rc)
 		DSI_ERR("[%s] failed to disable DSI host, rc=%d\n",
@@ -12859,6 +12173,7 @@ int dsi_display_unprepare(struct dsi_display *display)
 	SDE_EVT32(SDE_EVTLOG_FUNC_EXIT);
 	return rc;
 }
+
 //*mark.yao@PSW.MM.Display.LCD.Stability,2018/4/28,add for support aod,hbm,seed*/
 struct dsi_display *get_main_display(void) {
 		return primary_display;
@@ -12891,3 +12206,4 @@ MODULE_PARM_DESC(dsi_display1,
 	"msm_drm.dsi_display1=<display node>:<configX> where <display node> is 'secondary dsi display node name' and <configX> where x represents index in the topology list");
 module_init(dsi_display_register);
 module_exit(dsi_display_unregister);
+

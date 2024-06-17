@@ -54,3 +54,11 @@ config PCCORE
 config VM_FRAGMENT_MONITOR
 	default n
 	bool "monitor virtual memory fragment"
+
+config UXCHAIN
+	default n
+	bool "A sched policy for ux relative threads "
+
+config TPD
+	default n
+	bool "a task placement decision for cpu limitation"

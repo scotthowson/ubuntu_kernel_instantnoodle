@@ -154,7 +154,7 @@
 #define SET_CMD_SET_AUDIO_NOISE_MODE			0x46
 #define SEC_NOISE_MODE							0xBB
 #define SEC_WET_MODE							0x8B
-#define SEC_STATUS								0x3B
+#define SEC_STATUS							0x3B
 
 
 
@@ -278,12 +278,6 @@ struct chip_data_s6sy761 {
 	u8								touch_noise_status;
 	short 							*pFrame;
 	bool 							print_num;
-};
-
-struct fp_underscreen_info {
-	uint8_t touch_state;
-	uint16_t x;
-	uint16_t y;
 };
 
 #endif

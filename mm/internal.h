@@ -100,10 +100,6 @@ static inline void set_page_refcounted(struct page *page)
 
 extern unsigned long highest_memmap_pfn;
 
-#ifdef CONFIG_KSWAPD_LAZY_RECLAIM
-extern atomic_t alloc_ongoing;
-#endif
-
 /*
  * Maximum number of reclaim retries without progress before the OOM
  * killer is consider the only way forward.
@@ -145,9 +141,6 @@ struct alloc_context {
 	int migratetype;
 	enum zone_type high_zoneidx;
 	bool spread_dirty_pages;
-#ifdef CONFIG_KSWAPD_LAZY_RECLAIM
-	bool lr_handle;
-#endif
 };
 
 #define ac_classzone_idx(ac) zonelist_zone_idx(ac->preferred_zoneref)
@@ -481,6 +474,16 @@ static inline void mminit_validate_memmodel_limits(unsigned long *start_pfn,
 #define NODE_RECLAIM_FULL	-1
 #define NODE_RECLAIM_SOME	0
 #define NODE_RECLAIM_SUCCESS	1
+
+#ifdef CONFIG_NUMA
+extern int node_reclaim(struct pglist_data *, gfp_t, unsigned int);
+#else
+static inline int node_reclaim(struct pglist_data *pgdat, gfp_t mask,
+				unsigned int order)
+{
+	return NODE_RECLAIM_NOSCAN;
+}
+#endif
 
 extern int hwpoison_filter(struct page *p);
 

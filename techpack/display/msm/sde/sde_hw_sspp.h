@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
- * Copyright (c) 2015-2019, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2015-2020, The Linux Foundation. All rights reserved.
  */
 
 #ifndef _SDE_HW_SSPP_H
@@ -359,15 +359,17 @@ struct sde_hw_sspp_ops {
 	 * @data: Pointer to config structure
 	 */
 	void (*setup_csc)(struct sde_hw_pipe *ctx, struct sde_csc_cfg *data);
+
 #if defined(PXLW_IRIS_DUAL)
 	/**
 	 * setup_csc_v2 - setup color space conversion version 2
 	 * @ctx: Pointer to pipe context
+	 * @fmt: Pointer to sde_format structure
 	 * @data: Pointer to config structure
 	 */
 	void (*setup_csc_v2)(struct sde_hw_pipe *ctx,
-			const struct sde_format *fmt,
-			struct sde_csc_cfg *data);
+					const struct sde_format *fmt,
+					struct sde_csc_cfg *data);
 #endif
 	/**
 	 * setup_solidfill - enable/disable colorfill
@@ -469,21 +471,12 @@ struct sde_hw_sspp_ops {
 				enum sde_sspp_multirect_index idx);
 
 	/**
-	 * setup_danger_safe_lut - setup danger safe LUTs
+	 * setup_qos_lut - setup danger, safe, creq LUTs
 	 * @ctx: Pointer to pipe context
 	 * @cfg: Pointer to pipe QoS configuration
 	 *
 	 */
-	void (*setup_danger_safe_lut)(struct sde_hw_pipe *ctx,
-			struct sde_hw_pipe_qos_cfg *cfg);
-
-	/**
-	 * setup_creq_lut - setup CREQ LUT
-	 * @ctx: Pointer to pipe context
-	 * @cfg: Pointer to pipe QoS configuration
-	 *
-	 */
-	void (*setup_creq_lut)(struct sde_hw_pipe *ctx,
+	void (*setup_qos_lut)(struct sde_hw_pipe *ctx,
 			struct sde_hw_pipe_qos_cfg *cfg);
 
 	/**
@@ -524,6 +517,14 @@ struct sde_hw_sspp_ops {
 	void (*setup_scaler_lut)(struct sde_reg_dma_setup_ops_cfg *buf,
 			struct sde_hw_scaler3_cfg *scaler3_cfg,
 			u32 offset);
+
+	/**
+	 * setup_pre_downscale - setup pre-downscaler for inline rotation
+	 * @ctx: Pointer to pipe context
+	 * @pre_down: Pointer to pre-downscaler configuration
+	 */
+	void (*setup_pre_downscale)(struct sde_hw_pipe *ctx,
+		struct sde_hw_inline_pre_downscale_cfg *pre_down);
 
 	/**
 	 * get_scaler_ver - get scaler h/w version

@@ -289,24 +289,7 @@ static int mdm_cmd_exe(enum esoc_cmd cmd, struct esoc_clink *esoc)
 			gpio_set_value(MDM_GPIO(mdm, AP2MDM_ERRFATAL), 1);
 			dev_dbg(mdm->dev,
 				"set ap2mdm errfatal to force reset\n");
-			/*
-			 * The 3000ms is there to allow for SDI/ramdump path to complete on the sdx55 side.
-			 * While you have disabled ramdump,
-			 * it is still dangerous to reduce the time because any timeout due to delay shortening
-			 * in this case will result in booting failure of the sdx55 most likely.
-			 * We will not test for how much time it takes for sdx55 to finish the SDI path in the
-			 * 3000ms range as a performance metric.
-			 * - Reducing it to 1.7 sec will minimize other impact or in case SSR dump is enabled
-			 *   by mistake.
-			 * - If SSR dump is enabled, 3 sec delay should be remained.
-			 */
-			if (!oem_get_download_mode() && gpio_get_value(MDM_GPIO(mdm, MDM2AP_STATUS)) == 0) {
-				esoc_mdm_log("[OEM] Reducing AP2MDM_ERRFATAL wait time to 1.7 sec\n");
-				msleep(1700);
-			} else {
-				esoc_mdm_log("[OEM] AP2MDM_ERRFATAL delay 3 sec by default\n");
-				msleep(mdm->ramdump_delay_ms);
-			}
+			msleep(mdm->ramdump_delay_ms);
 		}
 		break;
 	case ESOC_EXE_DEBUG:
@@ -447,7 +430,6 @@ static void mdm_get_restart_reason(struct work_struct *work)
 	}
 	mdm->get_restart_reason = false;
 
-	// oem twice or fusion modemdump checkpoint
 	if (get_esoc_ssr_state() || oem_get_twice_modemdump_state()) {
 		if (oem_get_download_mode()) {
 			char fusion_buf[] = "\r\nSDX5x esoc0 modem crash";
@@ -476,13 +458,6 @@ void mdm_wait_for_status_low(struct mdm_ctrl *mdm, bool atomic)
 	uint64_t now;
 
 	esoc_mdm_log("Waiting for MDM2AP_STATUS to go LOW\n");
-	// Optimize esoc SSR time
-	if (!oem_get_download_mode() && gpio_get_value(MDM_GPIO(mdm, MDM2AP_STATUS)) != 0) {
-		esoc_mdm_log("[OEM] mdm_toggle_soft_reset() directly to optimize esoc SSR time\n");
-		dev_err(mdm->dev, "[OEM] mdm_toggle_soft_reset() directly to optimize esoc SSR time\n");
-		mdm_toggle_soft_reset(mdm, atomic);
-	}
-
 	timeout = local_clock();
 	do_div(timeout, NSEC_PER_MSEC);
 	timeout += MDM_MODEM_TIMEOUT;
@@ -647,7 +622,6 @@ static irqreturn_t mdm_status_change(int irq, void *dev_id)
 		esoc_clink_evt_notify(ESOC_BOOT_STATE, esoc);
 		mdm_trigger_dbg(mdm);
 		queue_work(mdm->mdm_queue, &mdm->mdm_status_work);
-		/* OEM : get_restart_reason if twice modemdump is triggered */
 		if (mdm->get_restart_reason || oem_get_twice_modemdump_state())
 			queue_work(mdm->mdm_queue, &mdm->restart_reason_work);
 		if (esoc->auto_boot)

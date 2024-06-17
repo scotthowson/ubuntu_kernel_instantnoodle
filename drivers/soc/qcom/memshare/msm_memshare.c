@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0-only
-/* Copyright (c) 2013-2019, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2013-2020, The Linux Foundation. All rights reserved.
  */
 
 #include <linux/err.h>
@@ -260,31 +260,34 @@ static int mem_share_do_ramdump(void)
 				dev_err(memsh_child->dev,
 					"memshare: %s: failed to map the memory region to APPS\n",
 					client_name);
+				continue;
 			} else {
 				memblock[i].hyp_mapping = 0;
 			}
 		}
 
-		ramdump_segments_tmp = kcalloc(1,
-			sizeof(struct ramdump_segment),
-			GFP_KERNEL);
-		if (!ramdump_segments_tmp)
-			return -ENOMEM;
+		if (!memblock[i].hyp_mapping) {
+			ramdump_segments_tmp = kcalloc(1,
+				sizeof(struct ramdump_segment),
+				GFP_KERNEL);
+			if (!ramdump_segments_tmp)
+				return -ENOMEM;
 
-		ramdump_segments_tmp[0].size = memblock[i].size;
-		ramdump_segments_tmp[0].address = memblock[i].phy_addr;
+			ramdump_segments_tmp[0].size = memblock[i].size;
+			ramdump_segments_tmp[0].address = memblock[i].phy_addr;
 
-		dev_dbg(memsh_child->dev, "memshare: %s: Begin elf dump for size = %d\n",
-			client_name, memblock[i].size);
+			dev_dbg(memsh_child->dev, "memshare: %s: Begin elf dump for size = %d\n",
+				client_name, memblock[i].size);
 
-		ret = do_elf_ramdump(memshare_ramdump_dev[i],
-					ramdump_segments_tmp, 1);
-		kfree(ramdump_segments_tmp);
-		if (ret < 0) {
-			dev_err(memsh_child->dev,
-				"memshare: %s: Unable to elf dump with failure: %d\n",
-				client_name, ret);
-			return ret;
+			ret = do_elf_ramdump(memshare_ramdump_dev[i],
+						ramdump_segments_tmp, 1);
+			kfree(ramdump_segments_tmp);
+			if (ret < 0) {
+				dev_err(memsh_child->dev,
+					"memshare: %s: Unable to elf dump with failure: %d\n",
+					client_name, ret);
+				return ret;
+			}
 		}
 	}
 	return 0;
@@ -305,24 +308,35 @@ static int modem_notifier_cb(struct notifier_block *this, unsigned long code,
 
 	case SUBSYS_BEFORE_SHUTDOWN:
 		bootup_request++;
+		dev_info(memsh_drv->dev,
+		"memshare: SUBSYS_BEFORE_SHUTDOWN: bootup_request:%d\n",
+		bootup_request);
 		for (i = 0; i < MAX_CLIENTS; i++)
 			memblock[i].alloc_request = 0;
 		break;
 
 	case SUBSYS_RAMDUMP_NOTIFICATION:
 		ramdump_event = true;
+		dev_info(memsh_drv->dev,
+		"memshare: SUBSYS_RAMDUMP_NOTIFICATION: ramdump_event:%d\n",
+		ramdump_event);
 		break;
 
 	case SUBSYS_BEFORE_POWERUP:
 		if (_cmd) {
 			notifdata = (struct notif_data *) _cmd;
+			dev_info(memsh_drv->dev,
+			"memshare: SUBSYS_BEFORE_POWERUP: enable_ramdump: %d, ramdump_event: %d\n",
+			notifdata->enable_ramdump, ramdump_event);
 		} else {
 			ramdump_event = false;
+			dev_info(memsh_drv->dev,
+			"memshare: SUBSYS_BEFORE_POWERUP: ramdump_event: %d\n",
+			ramdump_event);
 			break;
 		}
 
 		if (notifdata->enable_ramdump && ramdump_event) {
-			dev_info(memsh_child->dev, "memshare: Ramdump collection is enabled\n");
 			ret = mem_share_do_ramdump();
 			if (ret)
 				dev_err(memsh_child->dev, "memshare: Ramdump collection failed\n");
@@ -331,7 +345,7 @@ static int modem_notifier_cb(struct notifier_block *this, unsigned long code,
 		break;
 
 	case SUBSYS_AFTER_POWERUP:
-		dev_dbg(memsh_child->dev, "memshare: Modem has booted up\n");
+		dev_info(memsh_drv->dev, "memshare: SUBSYS_AFTER_POWERUP: Modem has booted up\n");
 		for (i = 0; i < MAX_CLIENTS; i++) {
 			size = memblock[i].size;
 			if (memblock[i].free_memory > 0 &&
@@ -395,8 +409,9 @@ static int modem_notifier_cb(struct notifier_block *this, unsigned long code,
 	default:
 		break;
 	}
-
 	mutex_unlock(&memsh_drv->mem_share);
+	dev_info(memsh_drv->dev,
+	"memshare: notifier_cb processed for code: %d\n", code);
 	return NOTIFY_DONE;
 }
 
@@ -672,21 +687,21 @@ static struct qmi_msg_handler qmi_memshare_handlers[] = {
 		.type = QMI_REQUEST,
 		.msg_id = MEM_ALLOC_GENERIC_REQ_MSG_V01,
 		.ei = mem_alloc_generic_req_msg_data_v01_ei,
-		.decoded_size = MEM_ALLOC_REQ_MAX_MSG_LEN_V01,
+		.decoded_size = sizeof(struct mem_alloc_generic_req_msg_v01),
 		.fn = handle_alloc_generic_req,
 	},
 	{
 		.type = QMI_REQUEST,
 		.msg_id = MEM_FREE_GENERIC_REQ_MSG_V01,
 		.ei = mem_free_generic_req_msg_data_v01_ei,
-		.decoded_size = MEM_FREE_REQ_MAX_MSG_LEN_V01,
+		.decoded_size = sizeof(struct mem_free_generic_req_msg_v01),
 		.fn = handle_free_generic_req,
 	},
 	{
 		.type = QMI_REQUEST,
 		.msg_id = MEM_QUERY_SIZE_REQ_MSG_V01,
 		.ei = mem_query_size_req_msg_data_v01_ei,
-		.decoded_size = MEM_QUERY_MAX_MSG_LEN_V01,
+		.decoded_size = sizeof(struct mem_query_size_req_msg_v01),
 		.fn = handle_query_size_req,
 	},
 };

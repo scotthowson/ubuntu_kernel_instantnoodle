@@ -252,7 +252,6 @@ static int mdm4x_pon_dt_init(struct mdm_ctrl *mdm)
 			mdm->soft_reset_inverted = 1;
 		return 0;
 	} else
-		/*we not use soft reset,no this gpio,so we need return 0 instead -EIO*/
 		return 0;
 }
 

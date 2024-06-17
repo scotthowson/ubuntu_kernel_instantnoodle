@@ -99,6 +99,10 @@
 
 #if defined(CONFIG_SYSCTL)
 
+#ifdef CONFIG_HUNG_TASK_ENHANCE
+#include <linux/oem/hung_task_enhance.h>
+#endif
+
 /* External variables not in a header file. */
 #ifdef CONFIG_USB
 extern int deny_new_usb;
@@ -122,10 +126,6 @@ extern unsigned int sysctl_nr_open_min, sysctl_nr_open_max;
 extern int sysctl_nr_trim_pages;
 #endif
 
-#ifdef CONFIG_F2FS_FS
-extern unsigned int f2fs_dis_cp_ratio;
-#endif
-
 /* Constants used for minimum and  maximum */
 #ifdef CONFIG_LOCKUP_DETECTOR
 static int sixty = 60;
@@ -147,14 +147,16 @@ static int one_thousand = 1000;
 #ifdef CONFIG_DIRECT_SWAPPINESS
 static int two_hundred = 200;
 #endif
+#ifdef CONFIG_PANIC_FLUSH
 unsigned long sysctl_blkdev_issue_flush_count;
-
+#endif
 #ifdef CONFIG_PRINTK
 static int ten_thousand = 10000;
 #endif
 #ifdef CONFIG_PERF_EVENTS
 static int six_hundred_forty_kb = 640 * 1024;
 #endif
+static int max_kswapd_threads = MAX_KSWAPD_THREADS;
 static int two_hundred_fifty_five = 255;
 static int __maybe_unused two_hundred_million = 200000000;
 
@@ -338,6 +340,10 @@ static int max_sched_tunable_scaling = SCHED_TUNABLESCALING_END-1;
 #endif /* CONFIG_SMP */
 #endif /* CONFIG_SCHED_DEBUG */
 
+#ifdef CONFIG_UXCHAIN
+int sysctl_uxchain_enabled = 1;
+int sysctl_launcher_boost_enabled;
+#endif
 #ifdef CONFIG_COMPACTION
 static int min_extfrag_threshold;
 static int max_extfrag_threshold = 1000;
@@ -351,16 +357,16 @@ static struct ctl_table kern_table[] = {
 		.mode		= 0644,
 		.proc_handler	= proc_dointvec,
 	},
-#ifdef CONFIG_F2FS_FS
+#ifdef CONFIG_PANIC_FLUSH
 	{
-		.procname	= "f2fs_dis_cp_thresh",
-		.data		= &f2fs_dis_cp_ratio,
-		.maxlen		= sizeof(unsigned int),
-		.mode		= 0644,
-		.proc_handler	= proc_dointvec,
+		.procname       = "blkdev_issue_flush_count",
+		.data           = &sysctl_blkdev_issue_flush_count,
+		.maxlen         = sizeof(unsigned long),
+		.mode           = 0644,
+		.proc_handler   = proc_dointvec,
 	},
 #endif
-#if defined(CONFIG_PREEMPT_TRACER) || defined(CONFIG_DEBUG_PREEMPT)
+#if defined(CONFIG_PREEMPT_TRACER) && defined(CONFIG_PREEMPTIRQ_EVENTS)
 	{
 		.procname       = "preemptoff_tracing_threshold_ns",
 		.data           = &sysctl_preemptoff_tracing_threshold_ns,
@@ -578,18 +584,20 @@ static struct ctl_table kern_table[] = {
 		.proc_handler	= sched_updown_migrate_handler,
 	},
 	{
-		.procname       = "blkdev_issue_flush_count",
-		.data           = &sysctl_blkdev_issue_flush_count,
-		.maxlen         = sizeof(unsigned long),
-		.mode           = 0644,
-		.proc_handler   = proc_dointvec,
-	},
-	{
 		.procname	= "sched_downmigrate",
 		.data		= &sysctl_sched_capacity_margin_down,
 		.maxlen		= sizeof(unsigned int) * MAX_MARGIN_LEVELS,
 		.mode		= 0644,
 		.proc_handler	= sched_updown_migrate_handler,
+	},
+	{
+		.procname	= "sched_prefer_spread",
+		.data		= &sysctl_sched_prefer_spread,
+		.maxlen		= sizeof(unsigned int),
+		.mode		= 0644,
+		.proc_handler   = proc_dointvec_minmax,
+		.extra1		= &zero,
+		.extra2		= &two,
 	},
 #endif
 #ifdef CONFIG_SCHED_DEBUG
@@ -732,6 +740,22 @@ static struct ctl_table kern_table[] = {
 		.mode		= 0644,
 		.proc_handler	= sched_rr_handler,
 	},
+#ifdef CONFIG_UCLAMP_TASK
+	{
+		.procname	= "sched_util_clamp_min",
+		.data		= &sysctl_sched_uclamp_util_min,
+		.maxlen		= sizeof(unsigned int),
+		.mode		= 0644,
+		.proc_handler	= sysctl_sched_uclamp_handler,
+	},
+	{
+		.procname	= "sched_util_clamp_max",
+		.data		= &sysctl_sched_uclamp_util_max,
+		.maxlen		= sizeof(unsigned int),
+		.mode		= 0644,
+		.proc_handler	= sysctl_sched_uclamp_handler,
+	},
+#endif
 #ifdef CONFIG_SCHED_AUTOGROUP
 	{
 		.procname	= "sched_autogroup_enabled",
@@ -769,6 +793,17 @@ static struct ctl_table kern_table[] = {
 		.extra1		= &zero,
 		.extra2		= &two_hundred_fifty_five,
 	},
+#if defined(CONFIG_ENERGY_MODEL) && defined(CONFIG_CPU_FREQ_GOV_SCHEDUTIL)
+	{
+		.procname	= "sched_energy_aware",
+		.data		= &sysctl_sched_energy_aware,
+		.maxlen		= sizeof(unsigned int),
+		.mode		= 0644,
+		.proc_handler	= sched_energy_aware_handler,
+		.extra1		= &zero,
+		.extra2		= &one,
+	},
+#endif
 #ifdef CONFIG_PROVE_LOCKING
 	{
 		.procname	= "prove_locking",
@@ -1432,7 +1467,25 @@ static struct ctl_table kern_table[] = {
 		.extra1		= &zero,
 		.extra2		= &one,
 	},
-
+#ifdef CONFIG_HUNG_TASK_ENHANCE
+/* record the hung task killing */
+	{
+		.procname	= "hung_task_kill",
+		.data		= &sysctl_hung_task_kill,
+		.maxlen		= 128,
+		.mode		= 0666,
+		.proc_handler	= proc_dostring,
+	},
+/* Foreground background optimization,change max io count */
+	{
+		.procname	= "hung_task_maxiowait_count",
+		.data		= &sysctl_hung_task_maxiowait_count,
+		.maxlen		= sizeof(int),
+		.mode		= 0644,
+		.proc_handler	= proc_dointvec_minmax,
+		.extra1		= &five,
+	},
+#endif
 #endif
 #ifdef CONFIG_RT_MUTEXES
 	{
@@ -1574,6 +1627,23 @@ static struct ctl_table kern_table[] = {
 		.proc_handler	= proc_dointvec,
 	},
 #endif
+#ifdef CONFIG_UXCHAIN
+	{
+		.procname	= "uxchain_enabled",
+		.data		= &sysctl_uxchain_enabled,
+		.maxlen = sizeof(int),
+		.mode		= 0666,
+		.proc_handler = proc_dointvec,
+	},
+	{
+		.procname	= "launcher_boost_enabled",
+		.data		= &sysctl_launcher_boost_enabled,
+		.maxlen = sizeof(int),
+		.mode		= 0666,
+		.proc_handler = proc_dointvec,
+	},
+#endif
+
 	{ }
 };
 
@@ -1708,6 +1778,7 @@ static struct ctl_table vm_table[] = {
 #else
 		.extra2		= &one_hundred,
 #endif
+
 	},
 #ifdef CONFIG_DIRECT_SWAPPINESS
 	{
@@ -1718,23 +1789,6 @@ static struct ctl_table vm_table[] = {
 		.proc_handler	= proc_dointvec_minmax,
 		.extra1		= &zero,
 		.extra2		= &two_hundred,
-	},
-#endif
-#ifdef CONFIG_KSWAPD_LAZY_RECLAIM
-	{
-		.procname	= "breath_period",
-		.data		= &vm_breath_period,
-		.maxlen		= sizeof(vm_breath_period),
-		.mode		= 0644,
-		.proc_handler	= proc_dointvec_minmax,
-		.extra1		= &zero,
-	},
-	{
-		.procname	= "breath_priority",
-		.data		= &vm_breath_priority,
-		.maxlen		= sizeof(vm_breath_priority),
-		.mode		= 0644,
-		.proc_handler	= proc_dointvec,
 	},
 #endif
 	{
@@ -1798,7 +1852,7 @@ static struct ctl_table vm_table[] = {
 		.procname	= "drop_caches",
 		.data		= &sysctl_drop_caches,
 		.maxlen		= sizeof(int),
-		.mode		= 0644,
+		.mode		= 0200,
 		.proc_handler	= drop_caches_sysctl_handler,
 		.extra1		= &one,
 		.extra2		= &four,
@@ -1846,6 +1900,15 @@ static struct ctl_table vm_table[] = {
 		.mode		= 0644,
 		.proc_handler	= watermark_boost_factor_sysctl_handler,
 		.extra1		= &zero,
+	},
+	{
+		.procname	= "kswapd_threads",
+		.data		= &kswapd_threads,
+		.maxlen		= sizeof(kswapd_threads),
+		.mode		= 0644,
+		.proc_handler	= kswapd_threads_sysctl_handler,
+		.extra1		= &one,
+		.extra2		= &max_kswapd_threads,
 	},
 	{
 		.procname	= "watermark_scale_factor",
@@ -2895,10 +2958,11 @@ module_param(oem_en_chg_prk_lv, uint, 0644);
 int proc_dointvec_oem(struct ctl_table *table, int write,
 		     void __user *buffer, size_t *lenp, loff_t *ppos)
 {
-    if(oem_en_chg_prk_lv || !write )
-		return do_proc_dointvec(table, write, buffer, lenp, ppos, NULL, NULL);
-    else
-		return -ENOSYS;
+	if (oem_en_chg_prk_lv || !write)
+		return do_proc_dointvec(table, write, buffer,
+			lenp, ppos, NULL, NULL);
+	else
+		return -EPERM;
 }
 static int __init oem_disable_chg_prk_lv(char *str)
 {

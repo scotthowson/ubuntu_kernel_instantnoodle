@@ -69,7 +69,7 @@ static int download_mode = 1;
 static struct kobject dload_kobj;
 
 static int in_panic;
-static int dload_type = SCM_DLOAD_MINIDUMP;
+static int dload_type = SCM_DLOAD_FULLDUMP;
 static int oem_modemdump_type = OEM_FUSION_MODEMDUMP;
 static void *dload_mode_addr;
 static bool dload_mode_enabled;
@@ -584,7 +584,6 @@ static void msm_restart_prepare(const char *cmd)
 			qpnp_pon_set_restart_reason(
 				PON_RESTART_REASON_KEYS_CLEAR);
 			__raw_writel(0x7766550a, restart_reason);
-		//dylan.chang@BSP.TECH.AgingTest, 2019/01/07,Add for factory agingtest
 		} else if (!strcmp(cmd, "sbllowmemtest")) {
 			pr_info("[op aging mem test] lunch ddr sbllowmemtest!!comm: %s, pid: %d\n"
 				, current->comm, current->pid);
@@ -603,6 +602,12 @@ static void msm_restart_prepare(const char *cmd)
 			qpnp_pon_set_restart_reason(
 					PON_RESTART_REASON_MEM_AGING);
 			__raw_writel(0x7766550b, restart_reason);
+		} else if (!strncmp(cmd, "rf", 2)) {
+			qpnp_pon_set_restart_reason(PON_RESTART_REASON_RF);
+			__raw_writel(RF_MODE, restart_reason);
+		} else if (!strncmp(cmd, "ftm", 3)) {
+			qpnp_pon_set_restart_reason(PON_RESTART_REASON_FACTORY);
+			__raw_writel(FACTORY_MODE, restart_reason);
 		} else if (!strncmp(cmd, "oem-", 4)) {
 			unsigned long code;
 			int ret;
@@ -613,24 +618,6 @@ static void msm_restart_prepare(const char *cmd)
 					     restart_reason);
 		} else if (!strncmp(cmd, "edl", 3)) {
 			enable_emergency_dload_mode();
-		} else if (!strncmp(cmd, "rf", 2)) {
-			qpnp_pon_set_restart_reason(PON_RESTART_REASON_RF);
-			__raw_writel(RF_MODE, restart_reason);
-		} else if (!strncmp(cmd, "ftm", 3)) {
-			qpnp_pon_set_restart_reason(PON_RESTART_REASON_FACTORY);
-			__raw_writel(FACTORY_MODE, restart_reason);
-		} else if (!strncmp(cmd, "kernel", 6)) {
-			qpnp_pon_set_restart_reason(PON_RESTART_REASON_KERNEL);
-			__raw_writel(KERNEL_MODE, restart_reason);
-		} else if (!strncmp(cmd, "modem", 5)) {
-			qpnp_pon_set_restart_reason(PON_RESTART_REASON_MODEM);
-			__raw_writel(MODEM_MODE, restart_reason);
-		} else if (!strncmp(cmd, "android", 7)) {
-			qpnp_pon_set_restart_reason(PON_RESTART_REASON_ANDROID);
-			__raw_writel(ANDROID_MODE, restart_reason);
-		} else if (!strncmp(cmd, "aging", 5)) {
-			qpnp_pon_set_restart_reason(PON_RESTART_REASON_AGING);
-			__raw_writel(AGING_MODE, restart_reason);
 		} else {
 			__raw_writel(0x77665501, restart_reason);
 		}

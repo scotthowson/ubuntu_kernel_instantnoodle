@@ -136,6 +136,20 @@ enum fps {
 	FPS120 = 120,
 };
 
+#ifdef CONFIG_UXCHAIN
+#define GOLD_PLUS_CPU 7
+#define PREEMPT_DISABLE_NS 10000000
+extern int sysctl_uxchain_enabled;
+extern int sysctl_launcher_boost_enabled;
+extern void uxchain_mutex_list_add(struct task_struct *task,
+	struct list_head *entry, struct list_head *head, struct mutex *lock);
+extern void uxchain_dynamic_ux_boost(struct task_struct *owner,
+	struct task_struct *task);
+extern void uxchain_dynamic_ux_reset(struct task_struct *task);
+extern struct task_struct *get_futex_owner(u32 __user *uaddr2);
+extern int ux_thread(struct task_struct *task);
+#endif
+
 #ifdef CONFIG_DEBUG_ATOMIC_SLEEP
 
 /*
@@ -226,6 +240,63 @@ enum fps {
 		raw_spin_unlock_irqrestore(&current->pi_lock, flags);	\
 	} while (0)
 
+#endif
+#ifdef CONFIG_ONEPLUS_HEALTHINFO
+struct uifirst_d_state {
+	u64 iowait_ns;
+	u64 downread_ns;
+	u64 downwrite_ns;
+	u64 mutex_ns;
+	u64 other_ns;
+	int cnt;
+};
+
+struct uifirst_s_state {
+	u64 binder_ns;
+	u64 epoll_ns;
+	u64 futex_ns;
+	u64 other_ns;
+	int cnt;
+};
+
+struct oneplus_uifirst_monitor_info {
+	u64 runnable_state;
+	u64 ltt_running_state; /* ns */
+	u64 mid_running_state; /* ns */
+	u64 big_running_state; /* ns */
+	struct uifirst_d_state d_state;
+	struct uifirst_s_state s_state;
+};
+
+#endif /*CONFIG_ONEPLUS_HEALTHINFO*/
+
+
+#ifdef CONFIG_ONEPLUS_TASKLOAD_INFO
+#define ODD(x) (bool)(x & 0x0000000000000001)
+#define TASK_READ_OVERLOAD_FLAG 0x0000000000000001
+#define TASK_WRITE_OVERLOAD_FLAG 0x0000000000000002
+#define TASK_CPU_OVERLOAD_FG_FLAG 0x0000000000000004
+#define TASK_CPU_OVERLOAD_BG_FLAG 0x0000000000000008
+#define TASK_RT_THREAD_FLAG 0x0000000000000010
+
+extern struct sample_window_t sample_window;
+extern u64 ohm_write_thresh;
+extern u64 ohm_read_thresh;
+extern u64 ohm_runtime_thresh_fg;
+extern u64 ohm_runtime_thresh_bg;
+
+struct task_load_info {
+	u64 write_bytes;
+	u64 read_bytes;
+	u64 runtime[2];
+	u64 task_sample_index;
+	u64 tli_overload_flag;
+};
+
+struct sample_window_t {
+	u64 timestamp;
+	u64 window_index;
+};
 #endif
 
 /* Task command name length: */
@@ -355,6 +426,18 @@ struct vtime {
 	u64			gtime;
 };
 
+/*
+ * Utilization clamp constraints.
+ * @UCLAMP_MIN:	Minimum utilization
+ * @UCLAMP_MAX:	Maximum utilization
+ * @UCLAMP_CNT:	Utilization clamp constraints count
+ */
+enum uclamp_id {
+	UCLAMP_MIN = 0,
+	UCLAMP_MAX,
+	UCLAMP_CNT
+};
+
 struct sched_info {
 #ifdef CONFIG_SCHED_INFO
 	/* Cumulative counters: */
@@ -385,6 +468,10 @@ struct sched_info {
  */
 # define SCHED_FIXEDPOINT_SHIFT		10
 # define SCHED_FIXEDPOINT_SCALE		(1L << SCHED_FIXEDPOINT_SHIFT)
+
+/* Increase resolution of cpu_capacity calculations */
+# define SCHED_CAPACITY_SHIFT		SCHED_FIXEDPOINT_SHIFT
+# define SCHED_CAPACITY_SCALE		(1L << SCHED_CAPACITY_SHIFT)
 
 struct load_weight {
 	unsigned long			weight;
@@ -522,6 +609,9 @@ struct sched_entity {
 	u64				sum_exec_runtime;
 	u64				vruntime;
 	u64				prev_sum_exec_runtime;
+#ifdef CONFIG_UXCHAIN
+	u64				vruntime_minus;
+#endif
 
 	u64				nr_migrations;
 
@@ -545,7 +635,6 @@ struct sched_entity {
 	 */
 	struct sched_avg		avg;
 #endif
-
 };
 
 struct sched_load {
@@ -735,6 +824,41 @@ struct sched_dl_entity {
 	struct hrtimer inactive_timer;
 };
 
+#ifdef CONFIG_UCLAMP_TASK
+/* Number of utilization clamp buckets (shorter alias) */
+#define UCLAMP_BUCKETS CONFIG_UCLAMP_BUCKETS_COUNT
+
+/*
+ * Utilization clamp for a scheduling entity
+ * @value:		clamp value "assigned" to a se
+ * @bucket_id:		bucket index corresponding to the "assigned" value
+ * @active:		the se is currently refcounted in a rq's bucket
+ * @user_defined:	the requested clamp value comes from user-space
+ *
+ * The bucket_id is the index of the clamp bucket matching the clamp value
+ * which is pre-computed and stored to avoid expensive integer divisions from
+ * the fast path.
+ *
+ * The active bit is set whenever a task has got an "effective" value assigned,
+ * which can be different from the clamp value "requested" from user-space.
+ * This allows to know a task is refcounted in the rq's bucket corresponding
+ * to the "effective" bucket_id.
+ *
+ * The user_defined bit is set whenever a task has got a task-specific clamp
+ * value requested from userspace, i.e. the system defaults apply to this task
+ * just as a restriction. This allows to relax default clamps when a less
+ * restrictive task-specific value has been requested, thus allowing to
+ * implement a "nice" semantic. For example, a task running with a 20%
+ * default boost can still drop its own boosting to 0%.
+ */
+struct uclamp_se {
+	unsigned int value		: bits_per(SCHED_CAPACITY_SCALE);
+	unsigned int bucket_id		: bits_per(UCLAMP_BUCKETS);
+	unsigned int active		: 1;
+	unsigned int user_defined	: 1;
+};
+#endif /* CONFIG_UCLAMP_TASK */
+
 union rcu_special {
 	struct {
 		u8			blocked;
@@ -780,10 +904,13 @@ struct task_struct {
 	/* Per task flags (PF_*), defined further below: */
 	unsigned int			flags;
 	unsigned int			ptrace;
+#ifdef CONFIG_ONEPLUS_HEALTHINFO
+	u64 rtstart_time;
+	u64 rtend_time;
+#endif /*CONFIG_ONEPLUS_HEALTHINFO*/
 
 	int compensate_need;
 
-	/* huruihuan add for kill task in D status */
 	unsigned int kill_flag;
 	struct timespec ttu;
 
@@ -837,12 +964,20 @@ struct task_struct {
 	u64 cpu_cycles;
 	bool misfit;
 	u32 unfilter;
+	bool low_latency;
 #endif
 
 #ifdef CONFIG_CGROUP_SCHED
 	struct task_group		*sched_task_group;
 #endif
 	struct sched_dl_entity		dl;
+
+#ifdef CONFIG_UCLAMP_TASK
+	/* Clamp values requested for a scheduling entity */
+	struct uclamp_se		uclamp_req[UCLAMP_CNT];
+	/* Effective clamp values used for a scheduling entity */
+	struct uclamp_se		uclamp[UCLAMP_CNT];
+#endif
 
 #ifdef CONFIG_PREEMPT_NOTIFIERS
 	/* List of struct preempt_notifier: */
@@ -1172,6 +1307,11 @@ struct task_struct {
 	siginfo_t			*last_siginfo;
 
 	struct task_io_accounting	ioac;
+
+#ifdef CONFIG_ONEPLUS_TASKLOAD_INFO
+	struct task_load_info tli[2];
+#endif
+
 #ifdef CONFIG_PSI
 	/* Pressure stall state */
 	unsigned int			psi_flags;
@@ -1356,6 +1496,8 @@ struct task_struct {
 #endif /* CONFIG_TRACING */
 
 #ifdef CONFIG_KCOV
+	/* See kernel/kcov.c for more details. */
+
 	/* Coverage collection mode enabled for this task (0 if disabled): */
 	unsigned int			kcov_mode;
 
@@ -1367,6 +1509,12 @@ struct task_struct {
 
 	/* KCOV descriptor wired with this task or NULL: */
 	struct kcov			*kcov;
+
+	/* KCOV common handle for remote coverage collection: */
+	u64				kcov_handle;
+
+	/* KCOV sequence number: */
+	int				kcov_sequence;
 #endif
 
 #ifdef CONFIG_MEMCG
@@ -1421,18 +1569,25 @@ struct task_struct {
 	bool utask_slave;
 #endif
 
+#ifdef CONFIG_ONEPLUS_FG_OPT
+	int fuse_boost;
+#endif
+
+#ifdef CONFIG_ONEPLUS_HEALTHINFO
+	int stuck_trace;
+	struct oneplus_uifirst_monitor_info oneplus_stuck_info;
+	unsigned in_mutex:1;
+	unsigned in_downread:1;
+	unsigned in_downwrite:1;
+	unsigned in_futex:1;
+	unsigned in_binder:1;
+	unsigned in_epoll:1;
+#endif /*CONFIG_ONEPLUS_HEALTHINFO*/
 	/*
 	 * New fields for task_struct should be added above here, so that
 	 * they are included in the randomized portion of task_struct.
 	 */
 	randomized_struct_fields_end
-#ifdef CONFIG_SMART_BOOST
-	int hot_count;
-#endif
-
-	// add for chainboost CONFIG_ONEPLUS_CHAIN_BOOST
-	int main_boost_switch;
-	int main_wake_boost;
 
 #ifdef CONFIG_CONTROL_CENTER
 	bool cc_enable;
@@ -1441,12 +1596,23 @@ struct task_struct {
 	int cached_prio;
 #endif
 
+#ifdef CONFIG_UXCHAIN
+	int static_ux;
+	int dynamic_ux;
+	int ux_depth;
+	u64 oncpu_time;
+	int	prio_saved;
+	int	saved_flag;
+#endif
+
 #ifdef CONFIG_IM
 	int im_flag;
 #endif
-	/* add for cpu distribution statistics */
-	atomic64_t cpu_dist[8];
-	atomic64_t total_cpu_dist[8];
+
+#ifdef CONFIG_TPD
+	int tpd;
+	int dtpd;
+#endif
 
 #ifdef CONFIG_HOUSTON
 #ifndef HT_PERF_COUNT_MAX
@@ -1485,11 +1651,9 @@ struct task_struct {
 #undef HT_PERF_COUNT_MAX
 #endif
 #endif
-
+	struct fuse_package *fpack;
 	/* CPU-specific state of this task: */
 	struct thread_struct		thread;
-
-
 
 	/*
 	 * WARNING: on x86, 'thread_struct' contains a variable-sized
@@ -1499,12 +1663,11 @@ struct task_struct {
 	 */
 };
 
-/* add for cpu distribution statistics */
-static inline void cpu_dist_inc(struct task_struct *p, int cpu)
-{
-	if (likely(cpu >= 0 && cpu < 8))
-		atomic64_inc(&p->cpu_dist[cpu]);
-}
+struct fuse_package {
+	bool fuse_open_req;
+	struct file *filp;
+	char *iname;
+};
 
 static inline struct pid *task_pid(struct task_struct *task)
 {
@@ -1741,6 +1904,11 @@ static inline bool is_percpu_thread(void)
 #define PFA_SPEC_IB_DISABLE		5	/* Indirect branch speculation restricted */
 #define PFA_SPEC_IB_FORCE_DISABLE	6	/* Indirect branch speculation permanently restricted */
 
+#ifdef CONFIG_CGROUP_IOLIMIT
+/* add for pg */
+#define PFA_IN_PAGEFAULT		27
+#endif
+
 #define TASK_PFA_TEST(name, func)					\
 	static inline bool task_##func(struct task_struct *p)		\
 	{ return test_bit(PFA_##name, &p->atomic_flags); }
@@ -1759,6 +1927,12 @@ TASK_PFA_SET(NO_NEW_PRIVS, no_new_privs)
 TASK_PFA_TEST(SPREAD_PAGE, spread_page)
 TASK_PFA_SET(SPREAD_PAGE, spread_page)
 TASK_PFA_CLEAR(SPREAD_PAGE, spread_page)
+
+#ifdef CONFIG_CGROUP_IOLIMIT
+TASK_PFA_TEST(IN_PAGEFAULT, in_pagefault)
+TASK_PFA_SET(IN_PAGEFAULT, in_pagefault)
+TASK_PFA_CLEAR(IN_PAGEFAULT, in_pagefault)
+#endif
 
 TASK_PFA_TEST(SPREAD_SLAB, spread_slab)
 TASK_PFA_SET(SPREAD_SLAB, spread_slab)
@@ -2143,11 +2317,11 @@ static inline void rseq_migrate(struct task_struct *t)
 
 /*
  * If parent process has a registered restartable sequences area, the
- * child inherits. Only applies when forking a process, not a thread.
+ * child inherits. Unregister rseq for a clone with CLONE_VM set.
  */
 static inline void rseq_fork(struct task_struct *t, unsigned long clone_flags)
 {
-	if (clone_flags & CLONE_THREAD) {
+	if (clone_flags & CLONE_VM) {
 		t->rseq = NULL;
 		t->rseq_len = 0;
 		t->rseq_sig = 0;
@@ -2235,5 +2409,13 @@ static inline void set_wake_up_idle(bool enabled)
 	else
 		current->flags &= ~PF_WAKE_UP_IDLE;
 }
+
+#ifdef CONFIG_ONEPLUS_TASKLOAD_INFO
+static inline void task_tli_init(struct task_struct *cur)
+{
+	memset(cur->tli, 0, sizeof(cur->tli));
+	cur->tli[ODD(sample_window.window_index)].task_sample_index = sample_window.window_index;
+}
+#endif
 
 #endif

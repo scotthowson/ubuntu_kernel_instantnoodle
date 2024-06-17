@@ -16,9 +16,6 @@
 
 #include <linux/mm.h>
 #include <linux/sched/mm.h>
-#ifdef CONFIG_KSWAPD_LAZY_RECLAIM
-#include <linux/sched/debug.h>
-#endif
 #include <linux/module.h>
 #include <linux/gfp.h>
 #include <linux/kernel_stat.h>
@@ -90,6 +87,9 @@ struct scan_control {
 	/* Can pages be swapped as part of reclaim? */
 	unsigned int may_swap:1;
 
+	/* e.g. boosted watermark reclaim leaves slabs alone */
+	unsigned int may_shrinkslab:1;
+
 	/*
 	 * Cgroups are not reclaimed below their configured memory.low,
 	 * unless we threaten to OOM. If any cgroups are skipped due to
@@ -142,6 +142,13 @@ struct scan_control {
 	struct vm_area_struct *target_vma;
 };
 
+/*
+ * Number of active kswapd threads
+ */
+#define DEF_KSWAPD_THREADS_PER_NODE 1
+int kswapd_threads = DEF_KSWAPD_THREADS_PER_NODE;
+int kswapd_threads_current = DEF_KSWAPD_THREADS_PER_NODE;
+
 #ifdef ARCH_HAS_PREFETCH
 #define prefetch_prev_lru_page(_page, _base, _field)			\
 	do {								\
@@ -179,17 +186,6 @@ int vm_direct_swapiness = 60;
  * From 0 .. 100.  Higher means more swappy.
  */
 int vm_swappiness = 60;
-#endif
-
-#ifdef CONFIG_KSWAPD_LAZY_RECLAIM
-/*
- * time for kswapd to breath between each scanning loop
- */
-unsigned int vm_breath_period __read_mostly = 4000;
-/*
- * default adj for kswapd to perform lazy-reclaim
- */
-int vm_breath_priority __read_mostly = 500;
 #endif
 /*
  * The total number of pages which are beyond the high watermark within all
@@ -1332,8 +1328,6 @@ static unsigned long shrink_page_list(struct list_head *page_list,
 								    page_list))
 						goto activate_locked;
 				}
-
-				/* CONFIG_MEMPLUS add start by bin.zhong@.com */
 				memplus_set_private(page, sc->swp_bdv_type);
 				/* add end */
 				if (!add_to_swap(page)) {
@@ -1496,14 +1490,8 @@ static unsigned long shrink_page_list(struct list_head *page_list,
 			count_memcg_page_event(page, PGLAZYFREED);
 		} else if (!mapping || !__remove_mapping(mapping, page, true))
 			goto keep_locked;
-		/*
-		 * At this point, we have no other references and there is
-		 * no way to pick any more up (removed from LRU, removed
-		 * from pagecache). Can use non-atomic bitops now (and
-		 * we obviously don't have to worry about waking up a process
-		 * waiting on the page lock, because there are no references.
-		 */
-		__ClearPageLocked(page);
+
+		unlock_page(page);
 free_it:
 		nr_reclaimed++;
 
@@ -1591,7 +1579,8 @@ unsigned long reclaim_clean_pages_from_list(struct zone *zone,
 	mod_node_page_state(zone->zone_pgdat, NR_ISOLATED_FILE, -ret);
 	return ret;
 }
-/* bin.zhong@ASTI, 2019/10/11, add for CONFIG_SMART_BOOST */
+
+#ifdef CONFIG_MEMPLUS
 unsigned long coretech_reclaim_pagelist(struct list_head *page_list,
 	struct vm_area_struct *vma, void *sc)
 {
@@ -1629,7 +1618,6 @@ unsigned long coretech_reclaim_pagelist(struct list_head *page_list,
 	return nr_reclaimed;
 }
 
-#ifdef CONFIG_MEMPLUS
 unsigned long swapout_to_zram(struct list_head *page_list,
 	struct vm_area_struct *vma)
 {
@@ -1662,31 +1650,6 @@ unsigned long swapout_to_disk(struct list_head *page_list,
 	return coretech_reclaim_pagelist(page_list, vma, &sc);
 }
 #endif
-
-/* bin.zhong@ASTI add for CONFIG_SMART_BOOST */
-static void smart_boost_reclaim_pages(struct lruvec *lruvec,
-					struct pglist_data *pgdat,
-					struct scan_control *sc)
-{
-	LIST_HEAD(page_list);
-	unsigned long nr_isolate = 0;
-	struct page *page;
-
-	nr_isolate = smb_isolate_list_or_putbcak(&page_list,
-		lruvec, pgdat, sc->priority,
-		(sc->nr_reclaimed > sc->nr_to_reclaim));
-	if (!nr_isolate)
-		return;
-
-	sc->nr_reclaimed += shrink_page_list(&page_list, pgdat, sc,
-			TTU_IGNORE_ACCESS, NULL, true);
-
-	while (!list_empty(&page_list)) {
-		page = lru_to_page(&page_list);
-		list_del(&page->lru);
-		putback_lru_page(page);
-	}
-}
 
 #ifdef CONFIG_PROCESS_RECLAIM
 unsigned long reclaim_pages_from_list(struct list_head *page_list,
@@ -1879,7 +1842,6 @@ static unsigned long isolate_lru_pages(unsigned long nr_to_scan,
 		 */
 		scan++;
 
-		/* CONFIG_MEMPLUS add start by bin.zhong@ASTI */
 		if (memplus_check_isolate_page(page) &&
 				(BIT(lru) & LRU_ALL_ANON)) {
 			list_move(&page->lru, src);
@@ -2236,7 +2198,6 @@ static unsigned move_active_pages_to_lru(struct lruvec *lruvec,
 		page = lru_to_page(list);
 		lruvec = mem_cgroup_page_lruvec(page, pgdat);
 
-		/* bin.zhong@ASTI add CONFIG_MEMPLUS */
 		memplus_page_to_lru(lru, page);
 		VM_BUG_ON_PAGE(PageLRU(page), page);
 		SetPageLRU(page);
@@ -2370,8 +2331,6 @@ static void shrink_active_list(unsigned long nr_to_scan,
 	free_unref_page_list(&l_hold);
 	trace_mm_vmscan_lru_shrink_active(pgdat->node_id, nr_taken, nr_activate,
 			nr_deactivate, nr_rotated, sc->priority, file);
-	/* bin.zhong@ASTI, 2019/10/11, add for CONFIG_SMART_BOOST */
-	smart_boost_reclaim_pages(lruvec, pgdat, sc);
 }
 
 /*
@@ -2419,6 +2378,12 @@ static bool inactive_list_is_low(struct lruvec *lruvec, bool file,
 	 */
 	if (!file && !total_swap_pages)
 		return false;
+
+	if (!file) {
+		inactive_lru = MEMPLUS_PAGE_LRU;
+		active_lru = MEMPLUS_PAGE_LRU + LRU_ACTIVE;
+	}
+	/* add end */
 
 	inactive = lruvec_lru_size(lruvec, inactive_lru, sc->reclaim_idx);
 	active = lruvec_lru_size(lruvec, active_lru, sc->reclaim_idx);
@@ -2495,6 +2460,11 @@ static void get_scan_count(struct lruvec *lruvec, struct mem_cgroup *memcg,
 	if (!current_is_kswapd())
 		swappiness = vm_direct_swapiness;
 #endif
+
+	if (memplus_enabled()) {
+		scan_balance = SCAN_EQUAL;
+		goto out;
+	}
 
 	/* If we have no swap space, do not bother scanning anon pages. */
 	if (!sc->may_swap || mem_cgroup_get_nr_swap_pages(memcg) <= 0) {
@@ -2650,6 +2620,12 @@ out:
 		if (!scan && !mem_cgroup_online(memcg))
 			scan = min(size, SWAP_CLUSTER_MAX);
 
+		if (memplus_enabled() &&
+			(lru == LRU_INACTIVE_ANON || lru == LRU_ACTIVE_ANON)) {
+			size = 0;
+			scan = 0;
+		}
+
 		switch (scan_balance) {
 		case SCAN_EQUAL:
 			/* Scan lists relative to size */
@@ -2658,10 +2634,13 @@ out:
 			/*
 			 * Scan types proportional to swappiness and
 			 * their relative recent reclaim efficiency.
-			 * Make sure we don't miss the last page
-			 * because of a round-off error.
+			 * Make sure we don't miss the last page on
+			 * the offlined memory cgroups because of a
+			 * round-off error.
 			 */
-			scan = DIV64_U64_ROUND_UP(scan * fraction[file],
+			scan = mem_cgroup_online(memcg) ?
+			       div64_u64(scan * fraction[file], denominator) :
+			       DIV64_U64_ROUND_UP(scan * fraction[file],
 						  denominator);
 			break;
 		case SCAN_FILE:
@@ -2718,8 +2697,8 @@ static void shrink_node_memcg(struct pglist_data *pgdat, struct mem_cgroup *memc
 			 sc->priority == DEF_PRIORITY);
 
 	blk_start_plug(&plug);
-	while (nr[LRU_INACTIVE_ANON] || nr[LRU_ACTIVE_FILE] ||
-					nr[LRU_INACTIVE_FILE]) {
+	while (nr[MEMPLUS_PAGE_LRU] || nr[LRU_ACTIVE_FILE] ||
+			nr[LRU_INACTIVE_FILE]) {
 		unsigned long nr_anon, nr_file, percentage;
 		unsigned long nr_scanned;
 
@@ -2746,7 +2725,8 @@ static void shrink_node_memcg(struct pglist_data *pgdat, struct mem_cgroup *memc
 		 * proportional to the original scan target.
 		 */
 		nr_file = nr[LRU_INACTIVE_FILE] + nr[LRU_ACTIVE_FILE];
-		nr_anon = nr[LRU_INACTIVE_ANON] + nr[LRU_ACTIVE_ANON];
+		lru = MEMPLUS_PAGE_LRU;
+		nr_anon = nr[lru] + nr[lru + LRU_ACTIVE];
 
 		/*
 		 * It's just vindictive to attack the larger once the smaller
@@ -2777,7 +2757,8 @@ static void shrink_node_memcg(struct pglist_data *pgdat, struct mem_cgroup *memc
 		 * Recalculate the other LRU scan count based on its original
 		 * scan target and the percentage scanning already complete
 		 */
-		lru = (lru == LRU_FILE) ? LRU_BASE : LRU_FILE;
+
+		lru = (lru == LRU_FILE) ? MEMPLUS_PAGE_LRU : LRU_FILE;
 		nr_scanned = targets[lru] - nr[lru];
 		nr[lru] = targets[lru] * (100 - percentage) / 100;
 		nr[lru] -= min(nr[lru], nr_scanned);
@@ -2798,7 +2779,7 @@ static void shrink_node_memcg(struct pglist_data *pgdat, struct mem_cgroup *memc
 	 */
 	if (inactive_list_is_low(lruvec, false, sc, true))
 		shrink_active_list(SWAP_CLUSTER_MAX, lruvec,
-				   sc, LRU_ACTIVE_ANON);
+			sc, MEMPLUS_PAGE_LRU + LRU_ACTIVE);
 }
 
 /* Use reclaim/compaction for costly allocs or under memory pressure */
@@ -3432,6 +3413,7 @@ unsigned long try_to_free_pages(struct zonelist *zonelist, int order,
 		.may_writepage = !laptop_mode,
 		.may_unmap = 1,
 		.may_swap = 1,
+		.may_shrinkslab = 1,
 	};
 
 	/*
@@ -3476,6 +3458,7 @@ unsigned long mem_cgroup_shrink_node(struct mem_cgroup *memcg,
 		.may_unmap = 1,
 		.reclaim_idx = MAX_NR_ZONES - 1,
 		.may_swap = !noswap,
+		.may_shrinkslab = 1,
 	};
 	unsigned long lru_pages;
 
@@ -3522,6 +3505,7 @@ unsigned long try_to_free_mem_cgroup_pages(struct mem_cgroup *memcg,
 		.may_writepage = !laptop_mode,
 		.may_unmap = 1,
 		.may_swap = may_swap,
+		.may_shrinkslab = 1,
 	};
 
 	/*
@@ -3566,7 +3550,7 @@ static void age_active_anon(struct pglist_data *pgdat,
 
 		if (inactive_list_is_low(lruvec, false, sc, true))
 			shrink_active_list(SWAP_CLUSTER_MAX, lruvec,
-					   sc, LRU_ACTIVE_ANON);
+				sc, MEMPLUS_PAGE_LRU + LRU_ACTIVE);
 
 		memcg = mem_cgroup_iter(NULL, memcg, NULL);
 	} while (memcg);
@@ -3718,20 +3702,6 @@ static bool kswapd_shrink_node(pg_data_t *pgdat,
 
 	return sc->nr_scanned >= sc->nr_to_reclaim;
 }
-
-#ifdef CONFIG_KSWAPD_LAZY_RECLAIM
-void __sched usleep_range_interruptible(unsigned long min, unsigned long max)
-{
-	ktime_t kmin;
-	u64 delta;
-
-	__set_current_state(TASK_INTERRUPTIBLE);
-
-	kmin = ktime_set(0, min * NSEC_PER_USEC);
-	delta = (u64)(max - min) * NSEC_PER_USEC;
-	schedule_hrtimeout_range(&kmin, delta, HRTIMER_MODE_REL);
-}
-#endif
 
 /*
  * For kswapd, balance_pgdat() will reclaim pages across a node from zones
@@ -3909,18 +3879,8 @@ restart:
 		if (nr_boost_reclaim && !nr_reclaimed)
 			break;
 
-		if (raise_priority || !nr_reclaimed) {
+		if (raise_priority || !nr_reclaimed)
 			sc.priority--;
-#ifdef CONFIG_KSWAPD_LAZY_RECLAIM
-			if (vm_breath_period && nr_reclaimed &&
-						!atomic_read(&alloc_ongoing)) {
-				sc.priority++;
-				usleep_range_interruptible(vm_breath_period,
-							vm_breath_period << 1);
-			}
-#endif
-		}
-
 	} while (sc.priority >= 1);
 
 	if (!sc.nr_reclaimed)
@@ -4247,20 +4207,82 @@ unsigned long shrink_all_memory(unsigned long nr_to_reclaim)
    restore their cpu bindings. */
 static int kswapd_cpu_online(unsigned int cpu)
 {
-	int nid;
+	int nid, hid;
+	int nr_threads = kswapd_threads_current;
 
 	for_each_node_state(nid, N_MEMORY) {
 		pg_data_t *pgdat = NODE_DATA(nid);
 		const struct cpumask *mask;
 
 		mask = cpumask_of_node(pgdat->node_id);
-
-		if (cpumask_any_and(cpu_online_mask, mask) < nr_cpu_ids)
-			/* One of our CPUs online: restore mask */
-			set_cpus_allowed_ptr(pgdat->kswapd, mask);
+		if (cpumask_any_and(cpu_online_mask, mask) < nr_cpu_ids) {
+			for (hid = 0; hid < nr_threads; hid++) {
+				/* One of our CPUs online: restore mask */
+				set_cpus_allowed_ptr(pgdat->kswapd[hid], mask);
+			}
+		}
 	}
 	return 0;
 }
+
+static void update_kswapd_threads_node(int nid)
+{
+	pg_data_t *pgdat;
+	int drop, increase;
+	int last_idx, start_idx, hid;
+	int nr_threads = kswapd_threads_current;
+
+	pgdat = NODE_DATA(nid);
+	last_idx = nr_threads - 1;
+	if (kswapd_threads < nr_threads) {
+		drop = nr_threads - kswapd_threads;
+		for (hid = last_idx; hid > (last_idx - drop); hid--) {
+			if (pgdat->kswapd[hid]) {
+				kthread_stop(pgdat->kswapd[hid]);
+				pgdat->kswapd[hid] = NULL;
+			}
+		}
+	} else {
+		increase = kswapd_threads - nr_threads;
+		start_idx = last_idx + 1;
+		for (hid = start_idx; hid < (start_idx + increase); hid++) {
+			pgdat->kswapd[hid] = kthread_run(kswapd, pgdat,
+						"kswapd%d:%d", nid, hid);
+			if (IS_ERR(pgdat->kswapd[hid])) {
+				pr_err("Failed to start kswapd%d on node %d\n",
+					hid, nid);
+				pgdat->kswapd[hid] = NULL;
+				/*
+				 * We are out of resources. Do not start any
+				 * more threads.
+				 */
+				break;
+			}
+		}
+	}
+}
+
+void update_kswapd_threads(void)
+{
+	int nid;
+
+	if (kswapd_threads_current == kswapd_threads)
+		return;
+
+	/*
+	 * Hold the memory hotplug lock to avoid racing with memory
+	 * hotplug initiated updates
+	 */
+	mem_hotplug_begin();
+	for_each_node_state(nid, N_MEMORY)
+		update_kswapd_threads_node(nid);
+
+	pr_info("kswapd_thread count changed, old:%d new:%d\n",
+		kswapd_threads_current, kswapd_threads);
+	kswapd_threads_current = kswapd_threads;
+	mem_hotplug_done();
+}
+
 
 /*
  * This kswapd start function will be called by init and node-hot-add.
@@ -4270,18 +4292,25 @@ int kswapd_run(int nid)
 {
 	pg_data_t *pgdat = NODE_DATA(nid);
 	int ret = 0;
+	int hid, nr_threads;
 
-	if (pgdat->kswapd)
+	if (pgdat->kswapd[0])
 		return 0;
 
-	pgdat->kswapd = kthread_run(kswapd, pgdat, "kswapd%d", nid);
-	if (IS_ERR(pgdat->kswapd)) {
-		/* failure at boot is fatal */
-		BUG_ON(system_state < SYSTEM_RUNNING);
-		pr_err("Failed to start kswapd on node %d\n", nid);
-		ret = PTR_ERR(pgdat->kswapd);
-		pgdat->kswapd = NULL;
+	nr_threads = kswapd_threads;
+	for (hid = 0; hid < nr_threads; hid++) {
+		pgdat->kswapd[hid] = kthread_run(kswapd, pgdat, "kswapd%d:%d",
+							nid, hid);
+		if (IS_ERR(pgdat->kswapd[hid])) {
+			/* failure at boot is fatal */
+			BUG_ON(system_state < SYSTEM_RUNNING);
+			pr_err("Failed to start kswapd%d on node %d\n",
+				hid, nid);
+			ret = PTR_ERR(pgdat->kswapd[hid]);
+			pgdat->kswapd[hid] = NULL;
+		}
 	}
+	kswapd_threads_current = nr_threads;
 	return ret;
 }
 
@@ -4291,11 +4320,16 @@ int kswapd_run(int nid)
  */
 void kswapd_stop(int nid)
 {
-	struct task_struct *kswapd = NODE_DATA(nid)->kswapd;
+	struct task_struct *kswapd;
+	int hid;
+	int nr_threads = kswapd_threads_current;
 
-	if (kswapd) {
-		kthread_stop(kswapd);
-		NODE_DATA(nid)->kswapd = NULL;
+	for (hid = 0; hid < nr_threads; hid++) {
+		kswapd = NODE_DATA(nid)->kswapd[hid];
+		if (kswapd) {
+			kthread_stop(kswapd);
+			NODE_DATA(nid)->kswapd[hid] = NULL;
+		}
 	}
 }
 

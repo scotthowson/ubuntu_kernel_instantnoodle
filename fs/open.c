@@ -31,7 +31,6 @@
 #include <linux/ima.h>
 #include <linux/dnotify.h>
 #include <linux/compat.h>
-
 #ifdef CONFIG_FSC
 #include <linux/oem/fsc.h>
 #endif
@@ -1115,7 +1114,8 @@ long do_sys_open(int dfd, const char __user *filename, int flags, umode_t mode)
 			if (fsc_enable && fsc_allow_list_cur && tmp->name) {
 				size_t len = strlen(tmp->name);
 
-				if ((flags & O_CREAT || flags & O_TMPFILE) && len < FSC_PATH_MAX) {
+				if ((flags & O_CREAT || flags & O_TMPFILE) &&
+					len < FSC_PATH_MAX) {
 					const char *path = NULL;
 					char buf[FSC_PATH_MAX] = {0};
 					unsigned int hidx;

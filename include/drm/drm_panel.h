@@ -24,6 +24,7 @@
 #ifndef __DRM_PANEL_H__
 #define __DRM_PANEL_H__
 
+#include <linux/err.h>
 #include <linux/errno.h>
 #include <linux/list.h>
 #include <linux/notifier.h>
@@ -55,6 +56,7 @@ enum {
 	DRM_PANEL_BLANK_LP,
 	/* fps change */
 	DRM_PANEL_BLANK_FPS_CHANGE,
+	DRM_PANEL_BLANK_AOD,
 };
 
 struct drm_panel_notifier {

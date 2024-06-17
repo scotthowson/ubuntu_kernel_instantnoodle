@@ -139,14 +139,30 @@ static int calc_retran_syn_rtt(struct sk_buff *skb, struct nf_conn *ct)
 	if (op_sla_debug)
 		pr_info("[op_sla] %s: ct->mark:%x\n", __func__, ct->mark);
 
+#ifdef CONFIG_SLA_ALGO
+	if (is_syn_need_mark(ctmark)) {
+		ret = set_syn_skb_result();
+#else
 	if (ct->mark & CELLULAR_MARK) {
+#endif
 		skb->mark = ct->mark;
 		return ret;
 	}
 
+#ifdef CONFIG_SLA_ALGO
+	index = find_iface_index_by_mark(ctmark);
+#endif
+
 	if (index != -1) {
 		sla_rtt_write_lock();
+#ifdef CONFIG_SLA_ALGO
+		calc_rtt_by_dev_index(index, SYN_RETRAN_RTT);
+#endif
 		sla_rtt_write_unlock();
+#ifdef CONFIG_SLA_ALGO
+		ctmark = config_syn_retran(index, ctmark);
+		ret = set_syn_skb_result();
+#endif
 		ct->mark = ctmark;
 		skb->mark = ctmark;
 	}
@@ -169,6 +185,7 @@ static int syn_retransmits_packet_do_specail(struct sock *sk,
 	iph = ip_hdr(skb);
 	if (iph && iph->protocol == IPPROTO_TCP) {
 		th = tcp_hdr(skb);
+
 		//Only statistic syn retran packet,
 		//sometimes some rst packets also will be here
 		if (op_sla_debug) {
@@ -178,7 +195,12 @@ static int syn_retransmits_packet_do_specail(struct sock *sk,
 
 		if (th && th->syn && !th->ack && !th->rst && !th->fin) {
 			ret = calc_retran_syn_rtt(skb, ct);
+#ifdef CONFIG_SLA_ALGO
+			if (is_retran_second_mark(sla_mark)) {
+				ret = set_syn_skb_result();
+#else
 			if (sk->op_sla_mark & CELLULAR_MARK) {
+#endif
 				skb->mark = ct->mark;
 				return ret;
 			}
@@ -188,6 +210,10 @@ static int syn_retransmits_packet_do_specail(struct sock *sk,
 				//reset the tcp rto, so that can be
 				//faster to retrans to another dev
 				icsk->icsk_rto = TCP_RTO_MIN;
+#ifdef CONFIG_SLA_ALGO
+				sla_mark = config_syn_retan(sla_mark);
+				ret = set_syn_ack_skb_result();
+#endif
 				sk->op_sla_mark = sla_mark;
 
 				//Del the ct information, so that the
@@ -221,6 +247,9 @@ static int *make_game_vals(struct nf_conn *ct, int game_rtt,
 
 static void rx_interval_error_estimator(int game_type, int time_error)
 {
+#ifdef CONFIG_SLA_ALGO
+	op_rx_interval_error_estimator(game_type, time_error);
+#endif
 	if (op_sla_debug) {
 		pr_info("[op_sla] %s: time_error:%d error_count:%d\n",
 			__func__, time_error,
@@ -233,6 +262,9 @@ static void game_rtt_estimator(int game_type, int rtt, struct nf_conn *ct)
 	int *game_data;
 
 	game_data = make_game_vals(ct, rtt, game_type);
+#ifdef CONFIG_SLA_ALGO
+	op_game_rtt_estimator(game_data);
+#endif
 	if (op_sla_debug) {
 		pr_info("[op_sla] %s: rtt:%d averagertt:%d\n",
 			__func__, rtt,
@@ -247,9 +279,14 @@ static void game_app_switch_network(struct nf_conn *ct, struct sk_buff *skb)
 	int time_now = (int)(ktime_get_ns() / 1000000);
 	int gamelostcount = ct->op_game_lost_count;
 	int game_bp_info[4];
+#ifdef CONFIG_SLA_ALGO
+	int cell_quality_good = op_get_ct_cell_quality(game_type);
+	int wlan_bad = op_get_wlan_quality();
+#else
 	int cell_quality_good = (op_sla_info[CELLULAR_INDEX].cur_score
 				 >= CELL_SCORE_BAD) ? 1 : 0;
 	int wlan_bad = 0;
+#endif
 	int game_switch_interval = time_now -
 		op_sla_game_app_list.switch_time[game_type];
 
@@ -282,13 +319,29 @@ static void game_app_switch_network(struct nf_conn *ct, struct sk_buff *skb)
 			gamelostcount);
 	}
 
+#ifdef CONFIG_SLA_ALGO
+	if (is_ping_pong(game_type, time_now))
+		return;
+
+	if (switch_to_cell(cell_quality_good,
+			   game_rtt,
+			   gamelostcount,
+			   game_switch_interval,
+			   game_type) || fw_set_game_mark == 1) {
+#else
 	if (fw_set_game_mark == 1) {
+#endif
 		fw_set_game_mark = -1;
 		if (op_sla_debug) {
 			pr_info("[op_sla] %s: game switch to cellular...\n",
 				__func__);
 		}
 		init_rtt_queue_info();
+#ifdef CONFIG_SLA_ALGO
+		record_sla_game_cell_state(game_type,
+					   game_switch_interval,
+					   time_now);
+#endif
 		memset(game_bp_info, 0x0, sizeof(game_bp_info));
 		game_bp_info[0] = game_type;
 		game_bp_info[1] = CELLULAR_MARK;
@@ -300,13 +353,26 @@ static void game_app_switch_network(struct nf_conn *ct, struct sk_buff *skb)
 		return;
 	}
 
+#ifdef CONFIG_SLA_ALGO
+	if (switch_to_wifi(wlan_bad,
+			   game_rtt,
+			   gamelostcount,
+			   game_switch_interval,
+			   game_type) || fw_set_game_mark == 0) {
+#else
 	if (fw_set_game_mark == 0) {
+#endif
 		fw_set_game_mark = -1;
 		if (op_sla_debug) {
 			pr_info("[op_sla] %s: game switch to wlan...\n",
 				__func__);
 		}
 		init_rtt_queue_info();
+#ifdef CONFIG_SLA_ALGO
+		record_sla_game_wifi_state(game_type,
+					   game_switch_interval,
+					   time_now);
+#endif
 		memset(game_bp_info, 0x0, sizeof(game_bp_info));
 		game_bp_info[0] = game_type;
 		game_bp_info[1] = WLAN_MARK;
@@ -328,15 +394,27 @@ static void set_game_rtt_stream_up_info(struct nf_conn *ct, s64 now,
 	int game_lost_count;
 	int game_time_interval;
 
+#ifdef CONFIG_SLA_ALGO
+	game_lost_count_threshold = get_lost_count_threshold(game_type);
+#endif
 	if (!ct->op_game_timestamp && !game_rtt_wan_detect_flag) {
 		ct->op_game_timestamp = now;
 		game_interval = (int)(now - ct->op_game_last_timestamp);
 		ct->op_game_time_interval =
+#ifdef CONFIG_SLA_ALGO
+			get_game_interval(game_type,
+					  game_interval);
+#else
 			game_interval;
+#endif
 		ct->op_game_last_timestamp = now;
 		ct->op_game_lost_count = 0;
 		if (ct->op_game_time_interval >= 10000)
 			ct->op_game_timestamp = 0;
+#ifdef CONFIG_SLA_ALGO
+		if (check_wan_detect_flag(game_type))
+			return;
+#endif
 	} else {
 		ct->op_game_timestamp = now;
 		ct->op_game_last_timestamp = now;
@@ -347,7 +425,13 @@ static void set_game_rtt_stream_up_info(struct nf_conn *ct, s64 now,
 		}
 		game_lost_count = ct->op_game_lost_count;
 		game_time_interval = ct->op_game_time_interval;
+#ifdef CONFIG_SLA_ALGO
+		if (is_detect_game_lost(game_lost_count,
+					game_lost_count_threshold,
+					game_time_interval)) {
+#else
 		if (ct->op_game_lost_count >= game_lost_count_threshold) {
+#endif
 			game_rtt = MAX_GAME_RTT;
 			if (op_sla_debug) {
 				pr_info("[op_sla] %s: lost detect skb, game_type:%d\n",
@@ -369,6 +453,10 @@ static void detect_game_tx_stream(struct nf_conn *ct, struct sk_buff *skb,
 {
 	int game_type = ct->op_app_type;
 	int time_now = (int)(ktime_get_ns() / 1000000);
+#ifdef CONFIG_SLA_ALGO
+	int specialrxthreshold = 0;
+	int rtt_callback[3] = {0};
+#endif
 	int lastspecialrxtiming = 0;
 	int datastallthreshold = 5000;
 	int special_rx_pkt_last_timestamp =
@@ -385,8 +473,25 @@ static void detect_game_tx_stream(struct nf_conn *ct, struct sk_buff *skb,
 			__func__, rx_normal_time_record);
 	}
 
+#ifdef CONFIG_SLA_ALGO
+	if (is_support_detect_game_tx(game_type,
+				      special_rx_pkt_last_timestamp)) {
+		get_rx_pkt_threshold(game_type,
+				     time_now,
+				     special_rx_pkt_last_timestamp,
+				     rtt_callback);
+		specialrxthreshold = rtt_callback[0];
+		datastallthreshold = rtt_callback[1];
+		lastspecialrxtiming = rtt_callback[2];
+
+		if (data_stall_detect(lastspecialrxtiming,
+				      specialrxthreshold,
+				      datastalltimer,
+				      datastallthreshold)) {
+#else
 	if (game_type) {
 		if (datastalltimer >= datastallthreshold) {
+#endif
 			if (op_sla_debug) {
 				pr_info("[op_sla] %s: lastspecialrxtiming:%d\n",
 					__func__, lastspecialrxtiming);
@@ -412,6 +517,9 @@ static void detect_game_rtt_stream(struct nf_conn *ct, struct sk_buff *skb,
 	int skb_len = (int)skb->len;
 	int game_category = 0;
 
+#ifdef CONFIG_SLA_ALGO
+	game_category = get_game_tx_category(game_type, skb_len);
+#endif
 	if (game_category == 1) {
 		same_count_max = 6;
 	} else if (game_category == 2) {
@@ -466,6 +574,9 @@ static void detect_game_rtt_stream(struct nf_conn *ct, struct sk_buff *skb,
 
 		if (ct->op_game_down_count >= same_count_max &&
 		    ct->op_game_same_count >= same_count_max) {
+#ifdef CONFIG_SLA_ALGO
+			reset_sla_game_app_rtt(game_type);
+#endif
 			init_rtt_queue_info();
 			ct->op_game_last_timestamp = time_now;
 			ct->op_game_time_interval = time_interval;
@@ -483,6 +594,10 @@ static void detect_game_rtt_stream(struct nf_conn *ct, struct sk_buff *skb,
 		}
 		ct->op_game_up_count++;
 	} else if (ct->op_game_detect_status == GAME_RTT_DETECTED_STREAM) {
+#ifdef CONFIG_SLA_ALGO
+		if (drop_pkt_check(game_type, skb_len))
+			return;
+#endif
 		set_game_rtt_stream_up_info(ct, time_now, game_type);
 	}
 }
@@ -508,7 +623,11 @@ static int mark_game_app_skb(struct nf_conn *ct, struct sk_buff *skb,
 		    ((XT_STATE_BIT(ctinfo) &
 		      XT_STATE_BIT(IP_CT_ESTABLISHED)) ||
 		    (XT_STATE_BIT(ctinfo) & XT_STATE_BIT(IP_CT_RELATED)))) {
+#ifdef CONFIG_SLA_ALGO
+			if (is_support_game_mark(game_type)) {
+#else
 			if (game_type) {
+#endif
 				if (ct_mark == WLAN_MARK &&
 				    op_sla_info[WLAN_INDEX].cur_score > 40) {
 					return SLA_SKB_ACCEPT;
@@ -637,8 +756,13 @@ static void rtt_game_check(struct nf_conn *ct, struct sk_buff *skb)
 	int game_time_interval = (int)ct->op_game_time_interval;
 	int skb_len = skb->len;
 	int app_type = get_app_type(ct);
+	int game_rtt_info[2];
+#ifdef CONFIG_SLA_ALGO
+	int cell_quality_good = op_get_ct_cell_quality(game_type);
+#else
 	int cell_quality_good = (op_sla_info[CELLULAR_INDEX].cur_score
 				>= CELL_SCORE_BAD) ? 1 : 0;
+#endif
 
 	if (op_sla_debug) {
 		if (iph && iph->protocol == IPPROTO_UDP &&
@@ -658,7 +782,11 @@ static void rtt_game_check(struct nf_conn *ct, struct sk_buff *skb)
 		}
 	}
 
+#ifdef CONFIG_SLA_ALGO
+	if (is_support_rtt_wan_detect(game_type)) {
+#else
 	if (game_type) {
+#endif
 		if (iph && iph->protocol == IPPROTO_UDP)
 			game_rtt_wan_detect_flag = 0;
 	}
@@ -668,7 +796,14 @@ static void rtt_game_check(struct nf_conn *ct, struct sk_buff *skb)
 
 	if (!iph || iph->protocol != IPPROTO_UDP)
 		return;
+#ifdef CONFIG_SLA_ALGO
+	if (is_need_check_game_rtt(game_detect_status,
+				   game_timestamp,
+				   skb_len)) {
+		game_rtt = get_game_rtt(time_now, game_timestamp, game_type);
+#else
 	if (game_type) {
+#endif
 		if (game_rtt <= 0) {
 			if (op_sla_debug) {
 				pr_info("[op_sla] %s: invalid RTT:%dms\n",
@@ -676,9 +811,23 @@ static void rtt_game_check(struct nf_conn *ct, struct sk_buff *skb)
 			}
 			ct->op_game_timestamp = 0;
 			return;
+		} else {
+			memset(game_rtt_info, 0x0, sizeof(game_rtt_info));
+			game_rtt_info[0] = game_type;
+			game_rtt_info[1] = time_now - game_timestamp;
+			op_sla_send_to_user(SLA_NOTIFY_GAME_RTT,
+					    (char *)game_rtt_info,
+					    sizeof(game_rtt_info));
 		}
 		ct->op_game_timestamp = 0;
+#ifdef CONFIG_SLA_ALGO
+		if (is_skip_rx_rtt(game_type, game_time_interval))
+			return;
+
+		if (need_enable_sla(cell_quality_good)) {
+#else
 		if (cell_quality_good) {
+#endif
 			if (op_sla_debug) {
 				pr_info("[op_sla] %s: send SLA_ENABLE\n",
 					__func__);
@@ -706,8 +855,13 @@ static void rx_interval_error_check(struct nf_conn *ct, struct sk_buff *skb)
 	int skb_len = skb->len;
 	int rx_pkt_timestamp = (int)ct->op_game_special_rx_pkt_timestamp;
 	int app_type = get_app_type(ct);
+#ifdef CONFIG_SLA_ALGO
+	int game_category = get_game_rx_category(game_type, skb_len);
+	int cell_quality_good = op_get_ct_cell_quality(game_type);
+#else
 	int cell_quality_good = (op_sla_info[CELLULAR_INDEX].cur_score
 				>= CELL_SCORE_BAD) ? 1 : 0;
+#endif
 
 	if (app_type == GAME_TYPE)
 		ct->op_game_rx_normal_time_record = time_now;
@@ -715,12 +869,26 @@ static void rx_interval_error_check(struct nf_conn *ct, struct sk_buff *skb)
 	if (!iph || iph->protocol != IPPROTO_UDP)
 		return;
 
+#ifdef CONFIG_SLA_ALGO
+	if (game_category == 1) {
+#else
 	if (game_type) {
+#endif
 		if (rx_pkt_timestamp) {
+#ifdef CONFIG_SLA_ALGO
+			special_rx_interval_error =
+				get_rx_interval_error(game_category,
+						      time_now,
+						      rx_pkt_timestamp);
+#endif
 			sla_game_rx_error_write_lock();
 			rx_interval_error_estimator(game_type,
 						    special_rx_interval_error);
 			sla_game_rx_error_write_unlock();
+#ifdef CONFIG_SLA_ALGO
+		} else {
+			reset_sla_game_app_rx_error(game_type);
+#endif
 		}
 		ct->op_game_special_rx_pkt_timestamp = time_now;
 		if (op_sla_debug) {
@@ -729,7 +897,11 @@ static void rx_interval_error_check(struct nf_conn *ct, struct sk_buff *skb)
 			pr_info("[op_sla] %s: special_rx_interval_error:%dms\n",
 				__func__, special_rx_interval_error);
 		}
+#ifdef CONFIG_SLA_ALGO
+		if (need_enable_sla(cell_quality_good)) {
+#else
 		if (cell_quality_good) {
+#endif
 			if (op_sla_debug) {
 				pr_info("[op_sla] %s: send SLA_ENABLE\n",
 					__func__);
@@ -738,8 +910,20 @@ static void rx_interval_error_check(struct nf_conn *ct, struct sk_buff *skb)
 		}
 	}
 
+#ifdef CONFIG_SLA_ALGO
+	if (game_category == 2) {
+#else
 	if (game_type) {
+#endif
 		if (ct->op_game_special_rx_pkt_timestamp) {
+#ifdef CONFIG_SLA_ALGO
+			special_rx_interval_error =
+				get_rx_interval_error(game_category,
+						      time_now,
+						      rx_pkt_timestamp);
+		} else {
+			reset_sla_game_app_rx_error(game_type);
+#endif
 		}
 		ct->op_game_special_rx_pkt_timestamp = time_now;
 		if (op_sla_debug) {
@@ -748,7 +932,11 @@ static void rx_interval_error_check(struct nf_conn *ct, struct sk_buff *skb)
 			pr_info("[op_sla] %s: special_rx_interval_error:%dms\n",
 				__func__, special_rx_interval_error);
 		}
+#ifdef CONFIG_SLA_ALGO
+		if (need_enable_sla(cell_quality_good)) {
+#else
 		if (cell_quality_good) {
+#endif
 			if (op_sla_debug) {
 				pr_info("[op_sla] %s: send SLA_ENABLE\n",
 					__func__);
@@ -784,6 +972,9 @@ int is_response(const struct dnshdr *dnsh_)
 {
 	unsigned short response = ntohs(dnsh_->flags);
 
+#ifdef CONFIG_SLA_ALGO
+	response = get_dns_response(response);
+#endif
 	return response;
 }
 
@@ -791,6 +982,9 @@ int parser_reply_code(const struct dnshdr *dnsh_)
 {
 	unsigned short response = ntohs(dnsh_->flags);
 
+#ifdef CONFIG_SLA_ALGO
+	response = get_reply_code(response);
+#endif
 	return response;
 }
 
@@ -833,6 +1027,9 @@ static void parser_dns(struct sk_buff *skb)
 		dst_addr = iph->daddr;
 		wifiip = get_default_ipaddr_by_devname(op_sla_info[WLAN_INDEX].dev_name);
 		cellip = get_default_ipaddr_by_devname(op_sla_info[CELLULAR_INDEX].dev_name);
+#ifdef CONFIG_SLA_ALGO
+		update_sla_dns_info(rcode, dst_addr, wifiip, cellip);
+#endif
 	}
 }
 
@@ -872,7 +1069,13 @@ static void parser_dns_query(struct sk_buff *skb, unsigned long time_now)
 	wifiip = get_default_ipaddr_by_devname(op_sla_info[WLAN_INDEX].dev_name);
 	cellip = get_default_ipaddr_by_devname(op_sla_info[CELLULAR_INDEX].dev_name);
 	if (src_addr == wifiip) {
+#ifdef CONFIG_SLA_ALGO
+		record_dns_query_info(WLAN_INDEX, time_now);
+#endif
 	} else if (src_addr == cellip) {
+#ifdef CONFIG_SLA_ALGO
+		record_dns_query_info(CELLULAR_INDEX, time_now);
+#endif
 	}
 }
 
@@ -881,6 +1084,9 @@ static int dns_skb_need_sla(struct sk_buff *skb, struct nf_conn *ct)
 	int ret = SLA_SKB_CONTINUE;
 	struct iphdr *iph = NULL;
 	unsigned int skbmark = skb->mark;
+#ifdef CONFIG_SLA_ALGO
+	unsigned int dns_callback[2] = {0};
+#endif
 	unsigned long time_now = ktime_get_ns() / 1000000;
 
 	iph = ip_hdr(skb);
@@ -889,6 +1095,11 @@ static int dns_skb_need_sla(struct sk_buff *skb, struct nf_conn *ct)
 	    (ntohs(udp_hdr(skb)->dest) == 53)) {
 		ret = SLA_SKB_ACCEPT;
 		parser_dns_query(skb, time_now);
+#ifdef CONFIG_SLA_ALGO
+		update_dns_mark(dns_callback, time_now);
+		skbmark = dns_callback[0];
+		ret = (int)dns_callback[1];
+#endif
 		skb->mark = skbmark;
 	}
 	return ret;
@@ -922,6 +1133,9 @@ static void parser_icmp(struct sk_buff *skb)
 		wifiip = get_default_ipaddr_by_devname(op_sla_info[WLAN_INDEX].dev_name);
 		cellip = get_default_ipaddr_by_devname(op_sla_info[CELLULAR_INDEX].dev_name);
 		dst_addr = iph->daddr;
+#ifdef CONFIG_SLA_ALGO
+		update_sla_icmp_info(dst_addr, wifiip, cellip);
+#endif
 	}
 }
 
@@ -940,6 +1154,7 @@ static void parser_tcp(struct sk_buff *skb)
 	if (app_type != TOP_APP_TYPE)
 		return;
 
+	index = find_iface_index_by_mark(ct->mark);
 	if (index != -1)
 		op_sla_info[index].icmp_unreachable = 0;
 }
@@ -1024,16 +1239,24 @@ static int handle_top_app_skb(struct nf_conn *ct, struct sk_buff *skb,
 	struct inet_connection_sock *icsk;
 	struct iphdr *iph = NULL;
 	int ifaceindex = -1;
+	int i = 1;
 	unsigned int sla_mark;
 	unsigned int total_retrans;
 	unsigned int tcp_rtt;
 	unsigned int skbmark;
+#ifdef CONFIG_SLA_ALGO
+	unsigned int tcp_callback[1] = {0};
+	int cell_quality_good = op_get_cur_cell_quality();
+#else
 	int cell_quality_good = 1;
+#endif
+	unsigned long time_now = ktime_get_ns() / 1000000;
+	int top_app_type = ct->op_app_type;
 
 	if (op_sla_debug)
-		pr_info("[op_sla] %s: len:%d mark:%x port:%d op_sla_enable:%d sla_app_switch_enable:%d\n",
+		pr_info("[op_sla] %s: len:%d mark:%x port:%d\n",
 			__func__, skb->len, skb->mark,
-			ntohs(tcp_hdr(skb)->source), op_sla_enable, sla_app_switch_enable);
+			ntohs(tcp_hdr(skb)->source));
 
 	if (ctinfo == IP_CT_NEW) {
 		if (sk) {
@@ -1061,10 +1284,16 @@ static int handle_top_app_skb(struct nf_conn *ct, struct sk_buff *skb,
 					op_sla_send_to_user(SLA_NOTIFY_SWITCH_APP_NETWORK, NULL, 0);
 				return NF_ACCEPT;
 			} else if (ret == SLA_SKB_ACCEPT) {
+#ifdef CONFIG_SLA_ALGO
+				reset_mark = mark_force_reset_skb(sla_mark);
+#endif
 				if (reset_mark == 0)
 					return NF_ACCEPT;
 			}
 			sla_mark = sk->op_sla_mark;
+#ifdef CONFIG_SLA_ALGO
+			retran_mark = mark_retransmits_syn_skb(sla_mark);
+#endif
 			if (retran_mark) {
 				if (op_sla_debug)
 					pr_info("[op_sla] %s: retran mark:%x\n",
@@ -1084,7 +1313,30 @@ static int handle_top_app_skb(struct nf_conn *ct, struct sk_buff *skb,
 						reset_mark & MARK_MASK);
 				skb->mark = reset_mark;
 			} else {
+#ifdef CONFIG_SLA_ALGO
+				if (op_sla_debug)
+					pr_info("[op_sla] %s: index: %x , dr: %d , dqc: %d, dfqt: %lu, time: %d\n",
+						__func__,
+						WLAN_INDEX,
+						op_sla_info[WLAN_INDEX].dns_refuse,
+						op_sla_info[WLAN_INDEX].dns_query_counts,
+						op_sla_info[WLAN_INDEX].dns_first_query_time,
+						time_now);
+
+				if (op_sla_debug)
+					pr_info("[op_sla] %s: index: %x , dr: %d , dqc: %d, dfqt: %lu, time: %d\n",
+						__func__,
+						CELLULAR_INDEX,
+						op_sla_info[CELLULAR_INDEX].dns_refuse,
+						op_sla_info[CELLULAR_INDEX].dns_query_counts,
+						op_sla_info[CELLULAR_INDEX].dns_first_query_time,
+						time_now);
+
+				update_tcp_mark(tcp_callback, time_now);
+				skbmark = tcp_callback[0];
+#else
 				skbmark = skb->mark;
+#endif
 				skb->mark = skbmark;
 				if (skb->mark == CELLULAR_MARK) {
 					if (!sla_app_switch_enable) {
@@ -1118,6 +1370,9 @@ static int handle_top_app_skb(struct nf_conn *ct, struct sk_buff *skb,
 		if (tp && iph && iph->protocol == IPPROTO_TCP) {
 			total_retrans = tp->total_retrans;
 			tcp_rtt = (tp->srtt_us >> 3) / 1000;
+#ifdef CONFIG_SLA_ALGO
+			ifaceindex = update_sla_tcp_info(tcp_rtt, total_retrans, sla_mark);
+#endif
 			if (op_sla_debug && ifaceindex != -1)
 				pr_info("[op_sla] %s: index:%d avg_rtt:%d total_retrans:%d op_tcp_last_total_retrans:%d icmp_unreachable:%d op_tcp_continue_retrans:%d\n",
 					__func__,
@@ -1129,6 +1384,8 @@ static int handle_top_app_skb(struct nf_conn *ct, struct sk_buff *skb,
 					ct->op_tcp_continue_retrans);
 			if (total_retrans > ct->op_tcp_last_total_retrans) {
 				ct->op_tcp_continue_retrans++;
+				for (i = 1; i <= ct->op_tcp_continue_retrans; i++)
+					calc_rtt_by_dev_index(ifaceindex, TCP_RETRAN_RTT);
 				ct->op_tcp_last_total_retrans = total_retrans;
 			} else {
 				ct->op_tcp_continue_retrans = 0;
@@ -1137,7 +1394,7 @@ static int handle_top_app_skb(struct nf_conn *ct, struct sk_buff *skb,
 				if (!sla_app_switch_enable) {
 					op_sla_send_to_user(SLA_NOTIFY_SWITCH_APP_NETWORK, NULL, 0);
 				} else {
-					if (op_sla_enable) {
+					if (op_sla_enable && try_to_fast_reset(top_app_type)) {
 						ct->mark = 0x0;
 						icsk = inet_csk(sk);
 						icsk->icsk_rto = TCP_RTO_MIN;
@@ -1150,7 +1407,6 @@ static int handle_top_app_skb(struct nf_conn *ct, struct sk_buff *skb,
 			}
 			if (skb->mark == CELLULAR_MARK && sla_app_switch_enable && op_sla_enable)
 				notify_fw_network_switch();
-
 		}
 	}
 
@@ -1196,6 +1452,9 @@ static int sla_mark_skb(struct sk_buff *skb, const struct nf_hook_state *state)
 		return NF_ACCEPT;
 
 	sla_rtt_write_lock();
+#ifdef CONFIG_SLA_ALGO
+	calc_network_rtt();
+#endif
 	sla_rtt_write_unlock();
 
 	// when the wifi is poor,the dns request allways can not rcv respones,
@@ -1284,7 +1543,11 @@ static void init_game_online_info(void)
 		pr_info("[op_sla] %s\n", __func__);
 	sla_game_write_lock();
 	for (i = 0 + GAME_BASE; i < total; i++) {
+#ifdef CONFIG_SLA_ALGO
+		op_init_game_online_info(i, time_now);
+#else
 		op_sla_game_app_list.switch_time[i] = time_now;
+#endif
 	}
 	sla_game_write_unlock();
 }
@@ -1344,6 +1607,9 @@ static int disable_op_sla_module(void)
 			__func__, op_sla_enable);
 	sla_write_lock();
 	if (op_sla_enable) {
+#ifdef CONFIG_SLA_ALGO
+		reset_sla_info();
+#endif
 		init_game_online_info();
 		op_sla_send_to_user(SLA_DISABLED, NULL, 0);
 	}
@@ -1419,7 +1685,12 @@ static int op_sla_update_wlan_score(struct nlmsghdr *nlh)
 
 	op_sla_info[WLAN_INDEX].cur_score = *score;
 
+#ifdef CONFIG_SLA_ALGO
+	update_wlan_score();
+	if (need_enable_sla_for_wlan_score()) {
+#else
 	if (sla_screen_on) {
+#endif
 		if (op_sla_debug)
 			pr_info("[op_sla] %s: send SLA_ENABLE\n",
 				__func__);
@@ -1442,6 +1713,9 @@ static int op_sla_set_game_app_uid(struct nlmsghdr *nlh)
 	    op_sla_game_app_list.count <= GAME_NUM) {
 		for (i = 0 + GAME_BASE; i < total; i++) {
 			op_sla_game_app_list.uid[i] = info[i];
+#ifdef CONFIG_SLA_ALGO
+			set_sla_game_parameter(i);
+#endif
 			if (op_sla_debug)
 				pr_info("[op_sla] %s: index=%d uid=%d\n",
 					__func__,
@@ -1513,6 +1787,10 @@ static int op_sla_set_app_switch_state(struct nlmsghdr *nlh)
 	if (op_sla_debug)
 		pr_info("[op_sla] %s: sla app switch:%d\n",
 			__func__, sla_app_switch_enable);
+
+	if (sla_app_switch_enable)
+		reset_sla_mobile_info();
+
 	return 0;
 }
 
@@ -1664,7 +1942,11 @@ static void op_statistic_dev_rtt(struct sock *sk, long rtt)
 {
 	int index = -1;
 	int tmp_rtt = rtt / 1000; //us -> ms
+	u32 mark = sk->op_sla_mark & MARK_MASK;
 
+#ifdef CONFIG_SLA_ALGO
+	index = find_tcp_iface_index_by_mark(mark);
+#endif
 	if (index != -1) {
 		sk->op_sla_mark |= RTT_MARK;
 		if (op_sla_debug) {
@@ -1672,6 +1954,9 @@ static void op_statistic_dev_rtt(struct sock *sk, long rtt)
 				__func__, index, tmp_rtt);
 		}
 		sla_rtt_write_lock();
+#ifdef CONFIG_SLA_ALGO
+		calc_rtt_by_dev_index(index, tmp_rtt);
+#endif
 		sla_rtt_write_unlock();
 	}
 }

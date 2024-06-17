@@ -101,13 +101,13 @@
        qcom,clk-freq-out = <400000>;
        pixelworks@26 {  //i2c: 22, i3c: 26
                status = "ok";
-               compatible = "pixelworks,iris5";
+               compatible = "pixelworks,iris";
                reg = <0x26>;
         };
 
        pixelworks@22 {  //i2c: 22, i3c: 26
                status = "ok";
-               compatible = "pixelworks,iris5-i2c";
+               compatible = "pixelworks,iris-i2c";
                reg = <0x22>;
         };
 };
@@ -335,19 +335,19 @@
 };
 
 &pil_adsp_mem {
-	reg = <0x0 0x8a100000 0x0 0x2500000>;
+	reg = <0x0 0x8fe00000 0x0 0x2500000>;
 };
 
 &pil_spss_mem {
-	reg = <0x0 0x8c600000 0x0 0x100000>;
+	reg = <0x0 0x92300000 0x0 0x100000>;
 };
 
 &cdsp_secure_heap {
-	reg = <0x0 0x8c700000 0x0 0x4600000>;
+	reg = <0x0 0x92400000 0x0 0x4600000>;
 };
 
 &spss_utils {
-	qcom,pil-addr = <0x8C600000>; // backward compatible
+	qcom,pil-addr = <0x92300000>; // backward compatible
 };
 
 &wsa_spkr_en1 {
@@ -401,21 +401,13 @@
 &dai_mi2s2 {
 	qcom,msm-mi2s-rx-lines = <2>;
 	qcom,msm-mi2s-tx-lines = <1>;
-	pinctrl-names;
-	pinctrl-0;
-	pinctrl-1;
 };
 
-&q6core {
-	tert_mi2s_gpios: tert_mi2s_pinctrl {
-		compatible = "qcom,msm-cdc-pinctrl";
-		pinctrl-names = "aud_active", "aud_sleep";
-		pinctrl-0 = <&tert_mi2s_sck_active &tert_mi2s_ws_active
-				&tert_mi2s_sd0_active &tert_mi2s_sd1_active>;
-		pinctrl-1 = <&tert_mi2s_sck_sleep &tert_mi2s_ws_sleep
-				&tert_mi2s_sd0_sleep &tert_mi2s_sd1_sleep>;
-	};
-
+&cdc_tert_mi2s_gpios {
+	pinctrl-0 = <&tert_mi2s_sck_active &tert_mi2s_ws_active
+			&tert_mi2s_sd0_active &tert_mi2s_sd1_active>;
+	pinctrl-1 = <&tert_mi2s_sck_sleep &tert_mi2s_ws_sleep
+			&tert_mi2s_sd0_sleep &tert_mi2s_sd1_sleep>;
 };
 
 &fsa4480 {
@@ -429,6 +421,36 @@
 
 &swr0 {
 	status = "disabled";
+};
+
+&tlmm {
+	mbhc_en_output_high: mbhc_en_output_high {
+		mux {
+			pins = "gpio11";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio11";
+			drive-strength = <2>;
+			output-high;
+			bias-pull-down;
+		};
+	};
+
+	mbhc_en_output_low: mbhc_en_output_low {
+		mux {
+			pins = "gpio11";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio11";
+			drive-strength = <2>;
+			output-low;
+			bias-pull-down;
+		};
+	};
 };
 
 &kona_snd {
@@ -528,10 +550,13 @@
 	qcom,wsa-devs;
 	//qcom,codec-aux-devs = <-2>;
 
-	qcom,tert-mi2s-gpios = <&tert_mi2s_gpios>;
+	//qcom,tert-mi2s-gpios = <&tert_mi2s_gpios>;
 	qcom,msm-mbhc-usbc-audio-supported = <1>;
 	qcom,msm-mbhc-use-usbc-detect = <1>;
 	qcom,msm-mbhc-hs-mic-max-threshold-mv = <2550>;
+
+	pinctrl-names = "hs_det_default";
+	pinctrl-0 = <&mbhc_en_output_low>;
 };
 
 &reserved_memory {
@@ -566,19 +591,16 @@
 
 &qupv3_se1_i2c {
 	status = "ok";
-};
-&qupv3_se1_i2c {
+	qcom,clk-freq-out = <400000>;
+	#address-cells = <1>;
+	#size-cells = <0>;
 	nq@28 {
-		#qcom,nq-ven = <&tlmm 83 0x00>;
-		status = "disabled";
-	};
-	pn5xx@28 {
-		compatible = "nxp,pn544";
+		compatible = "qcom,nq-nci";
 		reg = <0x28>;
-		nxp,pn544-irq = <&tlmm 111 0x00>;
-		nxp,pn544-ven = <&tlmm 83 0x00>;
-		nxp,pn544-fw-dwnld = <&tlmm 110 0x00>;
-		#nxp,pn544-iso-pwr-rst = <&tlmm 7 0x00>;
+		qcom,nq-irq = <&tlmm 111 0x00>;
+		qcom,nq-ven = <&tlmm 83 0x00>;
+		qcom,nq-firm = <&tlmm 110 0x00>;
+		qcom,nq-clkreq = <&tlmm 7 0x00>;
 		interrupt-parent = <&tlmm>;
 		interrupts = <111 0>;
 		interrupt-names = "nfc_irq";
@@ -771,7 +793,6 @@
       };
 };
 
-/* @bsp, 2019/07/08 Battery & Charging porting STRAT */
 &qupv3_se16_i2c {
 	qcom,clk-freq-out = <100000>;
 	status = "ok";
@@ -795,16 +816,16 @@
 
 		pinctrl-names = "mux_fastchg_active",
 		"mux_fastchg_suspend",
-		"mcu_data_active",
-		"mcu_data_suspend";
+		"mcu_data_read",
+		"mcu_data_write";
 		pinctrl-0 = <&fastchg_active
 		&usb_sw_active
 		&ap_clk_active>;
 		pinctrl-1 = <&usb_sw_suspend
 		&fastchg_suspend
 		&ap_clk_suspend>;
-		pinctrl-2 =<&ap_data_active>;
-		pinctrl-3 =<&ap_data_suspend>;
+		pinctrl-2 =<&ap_data_read>;
+		pinctrl-3 =<&ap_data_write>;
 		op,fw-erase-count = <384>;
 		op,fw-addr-low = <0x88>;
 		op,fw-addr-high = <0>;
@@ -900,6 +921,7 @@
 	qcom,otg-cl-ua = <1500000>;
 	op,sw-iterm-ma = <310>;
 	op,sw-check-full-enable;
+	qcom,op-pps-usbpd-detection = <&pm8150b_pdphy>;
 	/*ffc temp region*/
 	ffc-pre-normal-decidegc = <120>;
 	ffc-normal-decidegc = <350>;
@@ -1088,7 +1110,7 @@
 			};
 		};
 
-		ap_data_active: ap_data_active {
+		ap_data_read: ap_data_read {
 			mux {
 				pins = "gpio129";
 				function = "gpio";
@@ -1101,7 +1123,7 @@
 			};
 		};
 
-		ap_data_suspend: ap_data_suspend {
+		ap_data_write: ap_data_write {
 			mux {
 				pins = "gpio129";
 				function = "gpio";
@@ -1115,9 +1137,7 @@
 		};
 	};
 };
-/* @bsp, 2019/07/08 Battery & Charging porting END */
 
-/* @bsp, 2019/08/30 Wireless Charging porting STRAT */
 &soc {
 	op_wlchg:oneplus_wlchg {
 		status = "disable";
@@ -1549,7 +1569,6 @@
 		};
 	};
 };
-/* @bsp, 2019/08/30 Wireless Charging porting END */
 
 &spmi_bus {
 	qcom,pm8150@0 {
@@ -1600,10 +1619,7 @@
 	qca,bt-vdd-rfa1-voltage-level = <1900000 2040000>;
 };
 
-/* @bsp, usb config START */
-/* @bsp, As QRD-DVT have this config, keep the same config
- * for ldo18 power suspend
- */
+
 &usb_qmp_dp_phy {
 	vdd-supply = <&pm8150_l18>;
 	qcom,vdd-voltage-level = <0 912000 912000>;
@@ -1618,7 +1634,6 @@
 		};
 	};
 };
-/* @bsp, usb config END */
 
 &wdog{
 	qcom,bark-time = <15000>;
@@ -1627,3 +1642,15 @@
 &pm8150b_qnovo {
 	status = "disabled";
 };
+
+&wdog{
+	qcom,bark-time = <15000>;
+};
+
+&ufshc_mem {
+	force-g4;
+};
+&sdhc_2 {
+        status = "disabled";
+};
+

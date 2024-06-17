@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
- * Copyright (c) 2017-2019, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2017-2020, The Linux Foundation. All rights reserved.
  */
 
 #include <linux/module.h>
@@ -62,6 +62,7 @@ enum dp_display_states {
 	DP_STATE_SUSPENDED              = BIT(7),
 	DP_STATE_ABORTED                = BIT(8),
 	DP_STATE_HDCP_ABORTED           = BIT(9),
+	DP_STATE_SRC_PWRDN              = BIT(10),
 };
 
 static char *dp_display_state_name(enum dp_display_states state)
@@ -110,6 +111,10 @@ static char *dp_display_state_name(enum dp_display_states state)
 	if (state & DP_STATE_HDCP_ABORTED)
 		len += scnprintf(buf + len, sizeof(buf) - len, "|%s|",
 			"HDCP_ABORTED");
+
+	if (state & DP_STATE_SRC_PWRDN)
+		len += scnprintf(buf + len, sizeof(buf) - len, "|%s|",
+			"SRC_PWRDN");
 
 	if (!strlen(buf))
 		return "DISCONNECTED";
@@ -396,6 +401,22 @@ static void dp_display_hdcp_deregister_stream(struct dp_display_private *dp,
 	}
 }
 
+static void dp_display_abort_hdcp(struct dp_display_private *dp,
+		bool abort)
+{
+	u32 i = HDCP_VERSION_2P2;
+	struct dp_hdcp_dev *dev = NULL;
+
+	while (i) {
+		dev = &dp->hdcp.dev[i];
+		i >>= 1;
+		if (!(dp->hdcp.source_cap & dev->ver))
+			continue;
+
+		dev->ops->abort(dev->fd, abort);
+	}
+}
+
 static void dp_display_hdcp_cb_work(struct work_struct *work)
 {
 	struct dp_display_private *dp;
@@ -660,6 +681,7 @@ static void dp_display_send_hpd_event(struct dp_display_private *dp)
 
 	if (dp->mst.mst_active) {
 		DP_DEBUG("skip notification for mst mode\n");
+		dp_display_state_remove(DP_STATE_DISCONNECT_NOTIFIED);
 		return;
 	}
 
@@ -846,6 +868,7 @@ static void dp_display_host_init(struct dp_display_private *dp)
 	dp->hpd->host_init(dp->hpd, &dp->catalog->hpd);
 	dp->ctrl->init(dp->ctrl, flip, reset);
 	enable_irq(dp->irq);
+	dp_display_abort_hdcp(dp, false);
 
 	dp_display_state_add(DP_STATE_INITIALIZED);
 
@@ -923,6 +946,7 @@ static void dp_display_host_deinit(struct dp_display_private *dp)
 		return;
 	}
 
+	dp_display_abort_hdcp(dp, true);
 	dp->ctrl->deinit(dp->ctrl);
 	dp->hpd->host_deinit(dp->hpd, &dp->catalog->hpd);
 	dp->power->deinit(dp->power);
@@ -952,6 +976,26 @@ static int dp_display_process_hpd_high(struct dp_display_private *dp)
 
 	dp->dp_display.max_pclk_khz = min(dp->parser->max_pclk_khz,
 					dp->debug->max_pclk_khz);
+
+	/*
+	 * If dp video session is not restored from a previous session teardown
+	 * by userspace, ensure the host_init is executed, in such a scenario,
+	 * so that all the required DP resources are enabled.
+	 *
+	 * Below is one of the sequences of events which describe the above
+	 * scenario:
+	 *  a. Source initiated power down resulting in host_deinit.
+	 *  b. Sink issues hpd low attention without physical cable disconnect.
+	 *  c. Source initiated power up sequence returns early because hpd is
+	 *     not high.
+	 *  d. Sink issues a hpd high attention event.
+	 */
+	if (dp_display_state_is(DP_STATE_SRC_PWRDN) &&
+			dp_display_state_is(DP_STATE_CONFIGURED)) {
+		dp_display_host_init(dp);
+		dp_display_state_remove(DP_STATE_SRC_PWRDN);
+	}
+
 	dp_display_host_ready(dp);
 
 	dp->link->psm_config(dp->link, &dp->panel->link_info, false);
@@ -1046,7 +1090,6 @@ static int dp_display_process_hpd_low(struct dp_display_private *dp)
 
 	dp_display_state_remove(DP_STATE_CONNECTED);
 	dp->process_hpd_connect = false;
-
 	dp_audio_enable(dp, false);
 	dp_display_process_mst_hpd_low(dp);
 
@@ -1228,7 +1271,6 @@ static int dp_display_usbpd_disconnect_cb(struct device *dev)
 
 	SDE_EVT32_EXTERNAL(SDE_EVTLOG_FUNC_ENTRY, dp->state,
 			dp->debug->psm_enabled);
-	dp_display_state_remove(DP_STATE_CONFIGURED);
 
 	if (dp->debug->psm_enabled && dp_display_state_is(DP_STATE_READY))
 		dp->link->psm_config(dp->link, &dp->panel->link_info, true);
@@ -1237,6 +1279,7 @@ static int dp_display_usbpd_disconnect_cb(struct device *dev)
 
 	mutex_lock(&dp->session_lock);
 	dp_display_host_deinit(dp);
+	dp_display_state_remove(DP_STATE_CONFIGURED);
 	mutex_unlock(&dp->session_lock);
 
 	if (!dp->debug->sim_mode && !dp->parser->no_aux_switch
@@ -1366,23 +1409,25 @@ static void dp_display_attention_work(struct work_struct *work)
 		mutex_unlock(&dp->session_lock);
 
 		if (dp->link->sink_request & (DP_TEST_LINK_PHY_TEST_PATTERN |
-			DP_TEST_LINK_TRAINING)) {
+			DP_TEST_LINK_TRAINING))
 			goto mst_attention;
-		} else {
-			/*
-			 * It is possible that the connect_work skipped sending
-			 * the HPD notification if the attention message was
-			 * already pending. Send the notification here to
-			 * account for that. This is not needed if this
-			 * attention work was handling a test request
-			 */
-			dp_display_send_hpd_notification(dp);
-		}
 	}
 
 cp_irq:
 	if (dp_display_is_hdcp_enabled(dp) && dp->hdcp.ops->cp_irq)
 		dp->hdcp.ops->cp_irq(dp->hdcp.data);
+
+	if (!dp->mst.mst_active) {
+		/*
+		 * It is possible that the connect_work skipped sending
+		 * the HPD notification if the attention message was
+		 * already pending. Send the notification here to
+		 * account for that. This is not needed if this
+		 * attention work was handling a test request
+		 */
+		dp_display_send_hpd_notification(dp);
+	}
+
 mst_attention:
 	dp_display_mst_attention(dp);
 	SDE_EVT32_EXTERNAL(SDE_EVTLOG_FUNC_EXIT, dp->state);
@@ -1532,6 +1577,7 @@ static int dp_init_sub_modules(struct dp_display_private *dp)
 	}
 
 	g_dp_display->is_mst_supported = dp->parser->has_mst;
+	g_dp_display->no_mst_encoder = dp->parser->no_mst_encoder;
 
 	dp->catalog = dp_catalog_get(dev, dp->parser);
 	if (IS_ERR(dp->catalog)) {
@@ -1783,6 +1829,20 @@ static int dp_display_prepare(struct dp_display *dp_display, void *panel)
 	mutex_lock(&dp->session_lock);
 
 	/*
+	 * If DP video session is restored by the userspace after display
+	 * disconnect notification from dongle i.e. typeC cable connected to
+	 * source but disconnected at the display side, the DP controller is
+	 * not restored to the desired configured state. So, ensure host_init
+	 * is executed in such a scenario so that all the DP controller
+	 * resources are enabled for the next connection event.
+	 */
+	if (dp_display_state_is(DP_STATE_SRC_PWRDN) &&
+			dp_display_state_is(DP_STATE_CONFIGURED)) {
+		dp_display_host_init(dp);
+		dp_display_state_remove(DP_STATE_SRC_PWRDN);
+	}
+
+	/*
 	 * If the physical connection to the sink is already lost by the time
 	 * we try to set up the connection, we can just skip all the steps
 	 * here safely.
@@ -1807,7 +1867,6 @@ static int dp_display_prepare(struct dp_display *dp_display, void *panel)
 	}
 
 	/* For supporting DP_PANEL_SRC_INITIATED_POWER_DOWN case */
-	dp_display_host_init(dp);
 	dp_display_host_ready(dp);
 
 	if (dp->debug->psm_enabled) {
@@ -1834,7 +1893,7 @@ end:
 	mutex_unlock(&dp->session_lock);
 
 	SDE_EVT32_EXTERNAL(SDE_EVTLOG_FUNC_EXIT, dp->state);
-	return 0;
+	return rc;
 }
 
 static int dp_display_set_stream_info(struct dp_display *dp_display,
@@ -2207,9 +2266,13 @@ static int dp_display_unprepare(struct dp_display *dp_display, void *panel)
 	 * Check if the power off sequence was triggered
 	 * by a source initialated action like framework
 	 * reboot or suspend-resume but not from normal
-	 * hot plug.
+	 * hot plug. If connector is in MST mode, skip
+	 * powering down host as aux needs to be kept
+	 * alive to handle hot-plug sideband message.
 	 */
-	if (dp_display_is_ready(dp))
+	if (dp_display_is_ready(dp) &&
+		(dp_display_state_is(DP_STATE_SUSPENDED) ||
+		!dp->mst.mst_active))
 		flags |= DP_PANEL_SRC_INITIATED_POWER_DOWN;
 
 	if (dp->active_stream_cnt)
@@ -2222,6 +2285,7 @@ static int dp_display_unprepare(struct dp_display *dp_display, void *panel)
 		dp->ctrl->off(dp->ctrl);
 		dp_display_host_unready(dp);
 		dp_display_host_deinit(dp);
+		dp_display_state_add(DP_STATE_SRC_PWRDN);
 	}
 
 	dp_display_state_remove(DP_STATE_ENABLED);
@@ -2475,6 +2539,11 @@ static int dp_display_config_hdr(struct dp_display *dp_display, void *panel,
 		return -EINVAL;
 	}
 
+	if (!dp_display_state_is(DP_STATE_ENABLED)) {
+		dp_display_state_show("[not enabled]");
+		return 0;
+	}
+
 	/*
 	 * In rare cases where HDR metadata is updated independently
 	 * flush the HDR metadata immediately instead of relying on
@@ -2496,10 +2565,18 @@ static int dp_display_setup_colospace(struct dp_display *dp_display,
 		u32 colorspace)
 {
 	struct dp_panel *dp_panel;
+	struct dp_display_private *dp;
 
 	if (!dp_display || !panel) {
 		pr_err("invalid input\n");
 		return -EINVAL;
+	}
+
+	dp = container_of(dp_display, struct dp_display_private, dp_display);
+
+	if (!dp_display_state_is(DP_STATE_ENABLED)) {
+		dp_display_state_show("[not enabled]");
+		return 0;
 	}
 
 	dp_panel = panel;
@@ -2834,6 +2911,11 @@ static int dp_display_update_pps(struct dp_display *dp_display,
 		return -EINVAL;
 	}
 
+	if (!dp_display_state_is(DP_STATE_ENABLED)) {
+		dp_display_state_show("[not enabled]");
+		return 0;
+	}
+
 	dp_panel = sde_conn->drv_panel;
 	dp_panel->update_pps(dp_panel, pps_cmd);
 	return 0;
@@ -3068,6 +3150,9 @@ int dp_display_get_num_of_displays(void)
 
 int dp_display_get_num_of_streams(void)
 {
+	if (g_dp_display->no_mst_encoder)
+		return 0;
+
 	return DP_STREAM_MAX;
 }
 

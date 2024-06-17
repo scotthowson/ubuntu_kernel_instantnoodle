@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
- * Copyright (c) 2018-2019 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2018-2020 The Linux Foundation. All rights reserved.
  */
 
 #ifndef __QG_REG_H__
@@ -20,6 +20,7 @@
 #define ESR_MEAS_DONE_BIT			BIT(4)
 
 #define QG_STATUS2_REG				0x09
+#define BATTERY_MISSING_BIT			BIT(3)
 #define GOOD_OCV_BIT				BIT(1)
 
 #define QG_STATUS3_REG				0x0A
@@ -47,6 +48,9 @@
 
 #define QG_MODE_CTL1_REG			0x43
 #define PARALLEL_IBAT_SENSE_EN_BIT		BIT(7)
+
+#define QG_MODE_CTL2_REG			0x44
+#define VI_MODE_BIT				BIT(0)
 
 #define QG_VBAT_EMPTY_THRESHOLD_REG		0x4B
 #define QG_VBAT_LOW_THRESHOLD_REG		0x4C
@@ -90,6 +94,7 @@
 #define QG_POST_ESR_I_DATA0_REG			0x7E
 
 #define QG_S2_NORMAL_AVG_V_DATA0_REG		0x80
+#define QG_S2_NORMAL_AVG_I_DATA0_REG		0x82
 
 #define QG_V_ACCUM_DATA0_RT_REG			0x88
 #define QG_I_ACCUM_DATA0_RT_REG			0x8B
@@ -123,6 +128,7 @@
 #define QG_SDAM_ESR_DISCHARGE_SF_OFFSET		0x74 /* 2-byte 0x74-0x75 */
 #define QG_SDAM_BATT_AGE_LEVEL_OFFSET		0x76 /* 1-byte 0x76 */
 #define QG_SDAM_MAGIC_OFFSET			0x80 /* 4-byte 0x80-0x83 */
+#define QG_SDAM_FLASH_OCV_OFFSET		0x84 /* 1-byte 0x84 */
 #define QG_SDAM_MAX_OFFSET			0xA4
 
 /* Below offset is used by PBS */

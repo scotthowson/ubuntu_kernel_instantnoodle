@@ -12,17 +12,17 @@
 				cooling-device =
 					<&CPU4 6 6>;
 			};
+
 			soctrip_cpu7 {
 				trip = <&soc_trip2>;
 				cooling-device =
-					<&CPU7 THERMAL_MAX_LIMIT
-					THERMAL_MAX_LIMIT>;
+					<&cpu7_isolate 1 1>;
 			};
+
 			soctrip_cpu6 {
 				trip = <&soc_trip>;
 				cooling-device =
-					<&CPU6 THERMAL_MAX_LIMIT
-					THERMAL_MAX_LIMIT>;
+					<&cpu6_isolate 1 1>;
 			};
 		};
 	};

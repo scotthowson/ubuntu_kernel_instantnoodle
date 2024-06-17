@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
- * Copyright (c) 2013-2015, 2017-2019, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2013-2015, 2017-2020, The Linux Foundation. All rights reserved.
  */
 
 #include <linux/delay.h>
@@ -429,13 +429,7 @@ static int mdm_handle_boot_fail(struct esoc_clink *esoc_clink, u8 *pon_trial)
 		break;
 	case BOOT_FAIL_ACTION_PANIC:
 		esoc_mdm_log("Calling panic!!\n");
-		if (get_small_board_1_absent() == 0 &&
-		    get_small_board_2_absent() == 0) {
-			send_msg_sync_mdm_dump();
-			get_mdm_umount_state();
-			panic("Panic requested on external modem boot failure\n");
-		} else
-			pr_err("Panic requested on external modem boot failure\n");
+		panic("Panic requested on external modem boot failure\n");
 		break;
 	case BOOT_FAIL_ACTION_NOP:
 		esoc_mdm_log("Leaving the modem in its curent state\n");
@@ -532,12 +526,10 @@ static int mdm_subsys_powerup(const struct subsys_desc *crashed_subsys)
 		} else if (mdm_drv->pon_state == PON_RETRY) {
 			esoc_mdm_log(
 			"Boot failed. Doing cleanup and attempting to retry\n");
-			pon_trial++;
 			mdm_subsys_retry_powerup_cleanup(esoc_clink, 0);
-			// oem sdx5x modem dump checkpoint
 			if (oem_get_download_mode() && oem_get_modemdump_mode()) {
-				pr_err("[MDM] Trigger oem twice modemdump\n");
-				esoc_mdm_log("[MDM] Trigger oem twice modemdump\n");
+				pr_err("[MDM] Trigger OEM TWICE modemdump\n");
+				esoc_mdm_log("[MDM] Trigger OEM TWICE modemdump\n");
 				oem_twice_modemdump_en = true;
 			}
 		} else if (mdm_drv->pon_state == PON_SUCCESS) {

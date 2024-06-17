@@ -258,7 +258,6 @@ slhc_compress(struct slcompress *comp, unsigned char *icp, int isize,
 			comp->sls_o_tcp++;
 		return isize;
 	}
-	/* Extract TCP header */
 
 	th = (struct tcphdr *)(((unsigned char *)ip) + ip->ihl*4);
 	hlen = ip->ihl*4 + th->doff*4;

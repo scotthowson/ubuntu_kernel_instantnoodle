@@ -16,18 +16,24 @@ static DEFINE_SPINLOCK(tb_render_group_lock);
 static struct list_head task_list_head = LIST_HEAD_INIT(task_list_head);
 
 /* default list, empty string means no need to check */
-static char target[IM_ID_MAX][64] = {
-	"surfaceflinger",
-	"",
-	"logd",
-	"logcat",
-	"",
-	"",
-	"",
-	"",
-	"composer-servic",
-	"HwBinder:",
-	"Binder:",
+static struct im_target {
+	char val[64];
+	const char* desc;
+} im_target [IM_ID_MAX] = {
+	{"surfaceflinger", "sf "},
+	{"", "kworker "},
+	{"logd", "logd "},
+	{"logcat", "logcat "},
+	{"", "main "},
+	{"", "enqueue "},
+	{"", "gl "},
+	{"", "vk "},
+	{"composer-servic", "hwc "},
+	{"HwBinder:", "hwbinder "},
+	{"Binder:", "binder "},
+	{"", "hwui "},
+	{"", "render "},
+	{"neplus.launcher", "launcher "},
 };
 
 /* ignore list, not set any im_flag */
@@ -41,21 +47,24 @@ static char target_ignore_prefix[IM_IG_MAX][64] = {
 	"LTM_THREAD",
 };
 
-static void do_render_grouping(struct task_struct *task,
-		int flag, bool insert, bool force)
+void im_to_str(int flag, char* desc, int size)
 {
+	char *base = desc;
+	int i;
 
-	if (im_render_grouping_enable())
-		im_set_op_group(task, flag, insert);
-	else {
-		if (!force)
-			return;
+	for (i = 0; i < IM_ID_MAX; ++i) {
+		if (flag & (1 << i)) {
+			size_t len = strlen(im_target[i].desc);
 
-		/*forced cache task*/
-		if (insert)
-			im_list_add_task(task);
-		else
-			im_list_del_task(task);
+			if (len) {
+				if (size <= base - desc + len) {
+					pr_warn("im tag desc too long\n");
+					return;
+				}
+				strncpy(base, im_target[i].desc, len);
+				base += len;
+			}
+		}
 	}
 }
 
@@ -83,7 +92,7 @@ static inline void im_tagging(struct task_struct *task, int idx)
 {
 	size_t tlen = 0, len = 0;
 
-	tlen = strlen(target[idx]);
+	tlen = strlen(im_target[idx].val);
 	if (tlen == 0)
 		return;
 
@@ -93,7 +102,9 @@ static inline void im_tagging(struct task_struct *task, int idx)
 	/* non restrict tagging for some prefixed tasks*/
 	if (len < tlen)
 		return;
-	if (!strncmp(task->comm, target[idx], tlen)) {
+
+	/* prefix cases */
+	if (!strncmp(task->comm, im_target[idx].val, tlen)) {
 		switch (idx) {
 		case IM_ID_HWBINDER:
 			task->im_flag |= IM_HWBINDER;
@@ -107,11 +118,11 @@ static inline void im_tagging(struct task_struct *task, int idx)
 	/* restrict tagging for specific identical tasks */
 	if (len != tlen)
 		return;
-	if (!strncmp(task->comm, target[idx], len)) {
+
+	if (!strncmp(task->comm, im_target[idx].val, len)) {
 		switch (idx) {
 		case IM_ID_SURFACEFLINGER:
 			task->im_flag |= IM_SURFACEFLINGER;
-			do_render_grouping(task, IM_SURFACEFLINGER, true, true);
 			break;
 		case IM_ID_LOGD:
 			task->im_flag |= IM_LOGD;
@@ -121,6 +132,9 @@ static inline void im_tagging(struct task_struct *task, int idx)
 			break;
 		case IM_ID_HWC:
 			task->im_flag |= IM_HWC;
+			break;
+		case IM_ID_LAUNCHER:
+			task->im_flag |= IM_LAUNCHER;
 			break;
 		}
 	}
@@ -159,39 +173,7 @@ void im_wmi(struct task_struct *task)
 
 void im_wmi_current(void)
 {
-	int i = 0;
-	struct task_struct *leader = current->group_leader;
-
-	/* check for ignore */
-	for (i = 0; i < IM_IG_MAX; ++i)
-		if (im_ignore(current, i))
-			return;
-
-	if (im_rendering(leader) && current->im_flag == leader->im_flag)
-		return;
-
-	if (im_hwc(current))
-		return;
-
-	/* do the check and initial */
-	current->im_flag = 0;
-	for (i = 0; i < IM_ID_MAX; ++i)
-		im_tagging(current, i);
-
-	/* for hwc cases */
-	if (im_hwc(leader)) {
-		struct task_struct *p;
-		rcu_read_lock();
-		for_each_thread(current, p) {
-			if (im_binder_related(p))
-				p->im_flag |= IM_HWC;
-		}
-		rcu_read_unlock();
-	}
-
-	/* for sf cases */
-	if (im_sf(leader) && im_binder_related(current))
-		current->im_flag |= IM_SURFACEFLINGER;
+	im_wmi(current);
 }
 
 void im_set_flag(struct task_struct *task, int flag)

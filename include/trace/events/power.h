@@ -172,8 +172,8 @@ TRACE_EVENT(cpu_frequency_limits,
 		  (unsigned long)__entry->max_freq,
 		  (unsigned long)__entry->cpu_id)
 );
-
-// rock.lin@ASTI, 2019/12/12, add for pccore CONFIG_PCCORE
+#ifdef CONFIG_PCCORE
+// 2020-05-11, add for pccore CONFIG_PCCORE
 TRACE_EVENT(find_freq,
 
 	TP_PROTO(unsigned int target_idx, unsigned int target_freq, unsigned int final_idx,
@@ -213,7 +213,7 @@ TRACE_EVENT(find_freq,
 		 __entry->op_enable, __entry->dp_level_mode, __entry->dp_level)
 );
 
-// rock.lin@ASTI, 2019/12/12, add for pccore CONFIG_PCCORE
+// 2020-05-11, add for pccore CONFIG_PCCORE
 TRACE_EVENT(cpu_frequency_select,
 
 	TP_PROTO(unsigned int target_freq, unsigned int final_freq,
@@ -243,6 +243,7 @@ TRACE_EVENT(cpu_frequency_select,
 		  (unsigned long)__entry->index,
 				 __entry->cpu, __entry->num)
 );
+#endif
 
 TRACE_EVENT(cpu_frequency_switch_start,
 
@@ -675,6 +676,33 @@ TRACE_EVENT(sugov_util_update,
 		      __entry->pl, __entry->rtgb, __entry->flags)
 );
 
+#ifdef CONFIG_CONTROL_CENTER
+TRACE_EVENT(sugov_next_freq,
+	    TP_PROTO(unsigned int cpu, unsigned long util, unsigned long max,
+		     unsigned int freq, unsigned int req_freq),
+	    TP_ARGS(cpu, util, max, freq, req_freq),
+	    TP_STRUCT__entry(
+		    __field(unsigned int, cpu)
+		    __field(unsigned long, util)
+		    __field(unsigned long, max)
+		    __field(unsigned int, freq)
+		    __field(unsigned int, req_freq)
+	    ),
+	    TP_fast_assign(
+		    __entry->cpu = cpu;
+		    __entry->util = util;
+		    __entry->max = max;
+		    __entry->freq = freq;
+		    __entry->req_freq = req_freq;
+	    ),
+	    TP_printk("cpu=%u util=%lu max=%lu freq=%u req_freq=%u",
+		      __entry->cpu,
+		      __entry->util,
+		      __entry->max,
+		      __entry->freq,
+		      __entry->req_freq)
+);
+#else
 TRACE_EVENT(sugov_next_freq,
 	    TP_PROTO(unsigned int cpu, unsigned long util, unsigned long max,
 		     unsigned int freq),
@@ -697,6 +725,7 @@ TRACE_EVENT(sugov_next_freq,
 		      __entry->max,
 		      __entry->freq)
 );
+#endif
 
 TRACE_EVENT(bw_hwmon_meas,
 
@@ -801,12 +830,11 @@ TRACE_EVENT(cache_hwmon_update,
 );
 
 TRACE_EVENT(memlat_dev_meas,
-
 	TP_PROTO(const char *name, unsigned int dev_id, unsigned long inst,
 		 unsigned long mem, unsigned long freq, unsigned int stall,
-		 unsigned int ratio),
+		 unsigned int wb, unsigned int ratio),
 
-	TP_ARGS(name, dev_id, inst, mem, freq, stall, ratio),
+	TP_ARGS(name, dev_id, inst, mem, freq, stall, wb, ratio),
 
 	TP_STRUCT__entry(
 		__string(name, name)
@@ -815,6 +843,7 @@ TRACE_EVENT(memlat_dev_meas,
 		__field(unsigned long, mem)
 		__field(unsigned long, freq)
 		__field(unsigned int, stall)
+		__field(unsigned int, wb)
 		__field(unsigned int, ratio)
 	),
 
@@ -825,16 +854,18 @@ TRACE_EVENT(memlat_dev_meas,
 		__entry->mem = mem;
 		__entry->freq = freq;
 		__entry->stall = stall;
+		__entry->wb = wb;
 		__entry->ratio = ratio;
 	),
 
-	TP_printk("dev: %s, id=%u, inst=%lu, mem=%lu, freq=%lu, stall=%u, ratio=%u",
+	TP_printk("dev: %s, id=%u, inst=%lu, mem=%lu, freq=%lu, stall=%u, wb=%u, ratio=%u",
 		__get_str(name),
 		__entry->dev_id,
 		__entry->inst,
 		__entry->mem,
 		__entry->freq,
 		__entry->stall,
+		__entry->wb,
 		__entry->ratio)
 );
 

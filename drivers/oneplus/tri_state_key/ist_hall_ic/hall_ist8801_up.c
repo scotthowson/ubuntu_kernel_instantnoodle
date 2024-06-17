@@ -1,5 +1,4 @@
 /************************************************************************************
-** VENDOR_EDIT
 ** File: ist8801.c
 **
 ** Description:
@@ -655,7 +654,7 @@ static irqreturn_t ist8801_up_irq_handler(int irq, void *dev_id)
 	}
 
 	disable_irq_nosync(g_ist8801_data->irq);
-	__pm_wakeup_event(&g_ist8801_data->source, 2000);
+	__pm_wakeup_event(g_ist8801_data->source, 2000);
 	oneplus_hall_irq_handler(0);
 
 	return IRQ_HANDLED;
@@ -1085,7 +1084,7 @@ static int ist8801_i2c_probe(struct i2c_client *client, const struct i2c_device_
 	err = ist8801_setup_eint(p_data);
 
 	oneplus_register_hall("hall_up",&ist8801_up_ops);
-	wakeup_source_init(&g_ist8801_data->source, "hall_up");
+	g_ist8801_data->source = wakeup_source_register(&client->dev, "hall_up");
 
 	ist8801_set_sensitivity("40mT");
 

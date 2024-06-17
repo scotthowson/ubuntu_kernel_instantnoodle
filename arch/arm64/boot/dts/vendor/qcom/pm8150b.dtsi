@@ -736,16 +736,15 @@
 };
 
 &spmi_bus {
+       #address-cells = <2>;
+       #size-cells = <0>;
+
        qcom,pmk8002@6 {
                compatible ="qcom,spmi-pmic";
-               reg = <0x0 0x6 0x0>; // Correct format for #address-cells = 2 and #size-cells = 0
-               #address-cells = <2>;
-               #size-cells = <0>;
+               reg = <0x0 0x6>;
        };
        qcom,pmk8002@7 {
                compatible = "qcom,spmi-pmic";
-               reg = <0x0 0x7 0x0>; // Correct format for #address-cells = 2 and #size-cells = 0
-               #address-cells = <2>;
-               #size-cells = <0>;
+               reg = <0x0 0x7>;
        };
 };

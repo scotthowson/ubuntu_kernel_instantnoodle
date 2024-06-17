@@ -48,7 +48,7 @@
 	qcom,clk-freq-out = <400000>;
 	ist8801@19 {
 		compatible = "oneplus,hall-ist8801,up";
-		reg = <0x0 0x19>;
+		reg = <0x0 0x19 0x1>;
 		dhall,id = <1>;
 		vdd-supply = <&pm8150a_l10>;
 		interrupt-parent = <&tlmm>;
@@ -59,7 +59,7 @@
 	};
 	ist8801@18 {
 		compatible = "oneplus,hall-ist8801,down";
-		reg = <0x0 0x18>;
+		reg = <0x0 0x18 0x1>;
 		dhall,id = <2>;
 		vdd-supply = <&pm8150a_l10>;
 		interrupt-parent = <&tlmm>;
@@ -68,13 +68,10 @@
 		pinctrl-names = "ist8801_hall_down_active";
 		pinctrl-0 = <&ist8801_hall_down_active>;
 	};
-};
-&qupv3_se1_i2c {
-	status = "ok";
-	qcom,clk-freq-out = <400000>;
+
 	magnachip@0D {
 		compatible = "tri_key_magnachip,tk_mxm1120,up";
-		reg = <0x0 0x0D>;
+		reg = <0x0 0x0D 0x1>;
 		vdd-supply = <&pm8150a_l10>;
 		magnachip,init-interval = <200>;
 		interrupt-parent = <&tlmm>;
@@ -85,7 +82,7 @@
 	};
 	magnachip@0C {
 		compatible = "tri_key_magnachip,tk_mxm1120,down";
-		reg = <0x0 0x0C>;
+		reg = <0x0 0x0C 0x1>;
 		vdd-supply = <&pm8150a_l10>;
 		magnachip,init-interval = <200>;
 		interrupt-parent = <&tlmm>;

@@ -532,31 +532,33 @@
 };
 
 &reserved_memory {
+	#address-cells = <2>;
+	#size-cells = <1>;
 
 	bootloader_log_mem: bootloader_log_mem@0x9FFF7000 {
-		reg = <0x0 0x9FFF7000 0x0 0x00009000>;
+		reg = <0x0 0x9FFF7000 0x00009000>;
 		label = "bootloader_log_mem";
 	};
 
 	param_mem: param_mem@ac200000 {
-		reg = <0x0 0xAC200000 0x0 0x00100000>;
+		reg = <0x0 0xAC200000 0x00100000>;
 		label = "param_mem";
 	};
 
 	/*after cdsp_secure_heap we add a offset to ignore change address need reconfig*/
 	ramoops: ramoops@0xA9800000 {
 		compatible = "ramoops";
-		reg = <0x0 0xA9800000 0x0 0x00400000>;
-		record-size =  <0x40000>; //256x1024
+		reg = <0x0 0xA9800000 0x00400000>;
+		record-size = <0x40000>; //256x1024
 		console-size = <0x40000>;
-		ftrace-size =  <0x40000>;
-		pmsg-size=	   <0x200000>;
-		devinfo-size=  <0x01000>;
-		ecc-size=	   <0x0>;
+		ftrace-size = <0x40000>;
+		pmsg-size = <0x200000>;
+		devinfo-size = <0x01000>;
+		ecc-size = <0x0>;
 	};
 
 	mtp_mem: mtp_mem@ac300000 {
-		reg = <0x0 0xAC300000 0x0 0x00B00000>;
+		reg = <0x0 0xAC300000 0x00B00000>;
 		label = "mtp_mem";
 	};
 };
@@ -571,7 +573,7 @@
 	};
 	pn5xx@28 {
 		compatible = "nxp,pn544";
-		reg = <0x28>;
+		reg = <0x0 0x28 0x0>;  // Added the size to match #size-cells = 1
 		nxp,pn544-irq = <&tlmm 111 0x00>;
 		nxp,pn544-ven = <&tlmm 83 0x00>;
 		nxp,pn544-fw-dwnld = <&tlmm 110 0x00>;
@@ -732,15 +734,15 @@
 
 &qupv3_se11_i2c {
 		status = "ok";
-		aw8697_haptic:aw8697_haptic@5A {
+		aw8697_haptic: aw8697_haptic@5A {
 		compatible = "awinic,aw8697_haptic";
-		reg = <0x5A>;
+		reg = <0x0 0x5A 0x0>;  // Added the size to match #size-cells = 1
 		reset-gpio = <&tlmm 72 0x00>;
 		irq-gpio = <&tlmm 118 0x00>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&aw_irq &aw_reset>;
 		status = "okay";
-   };
+	};
 };
 
 &tlmm {
@@ -772,18 +774,18 @@
 &qupv3_se16_i2c {
 	qcom,clk-freq-out = <100000>;
 	status = "ok";
-	bq27541_battery:bq27541-battery@55 {
+	bq27541_battery: bq27541-battery@55 {
 		status = "ok";
 		compatible = "ti,bq27541-battery";
-		reg = <0x55>;
+		reg = <0x0 0x55 0x0>;  // Added the size to match #size-cells = 1
 		qcom,modify-soc-smooth;
 		op,bat-4p45v;
 	};
 
-	oneplus_fastchg@26{
+	oneplus_fastchg@26 {
 		status = "ok";
 		compatible = "microchip,oneplus_fastchg";
-		reg = <0x26>;
+		reg = <0x0 0x26 0x0>;  // Added the size to match #size-cells = 1
 		microchip,mcu-en-gpio = <&tlmm 10 0x00>;
 		microchip,usb-sw-1-gpio = <&tlmm 50 0x00>;
 		microchip,usb-sw-2-gpio = <&tlmm 82 0x00>;
@@ -800,8 +802,8 @@
 		pinctrl-1 = <&usb_sw_suspend
 		&fastchg_suspend
 		&ap_clk_suspend>;
-		pinctrl-2 =<&ap_data_active>;
-		pinctrl-3 =<&ap_data_suspend>;
+		pinctrl-2 = <&ap_data_active>;
+		pinctrl-3 = <&ap_data_suspend>;
 		op,fw-erase-count = <384>;
 		op,fw-addr-low = <0x88>;
 		op,fw-addr-high = <0>;
@@ -1143,14 +1145,14 @@
 	status = "ok";
 	qcom,clk-freq-out = <400000>;
 
-	op_wlchg_rx:op,wlchg_rx@3b {
+	op_wlchg_rx: op,wlchg_rx@3b {
 		status = "disable";
 		compatible = "op,wlchg-rx-chip";
-		reg = <0x3b>;
+		reg = <0x0 0x3b 0x0>;
 		#address-cells = <1>;
 		#size-cells = <0>;
 
-		idt_p9415:idt,p9415 {
+		idt_p9415: idt,p9415 {
 			compatible = "op,p9415-charger";
 			qcom,idt_int-gpio = <&tlmm 162 0x00>;
 			qcom,idt_connect-gpio = <&tlmm 84 0x00>;
@@ -1178,10 +1180,10 @@
 	};
 
 	// ha7223
-	op_wlchg_cp1:chgpump-charger@19 {
+	op_wlchg_cp1: chgpump-charger@19 {
 		status = "disable";
 		compatible = "op,chgpump-charger";
-		reg = <0x19>;
+		reg = <0x0 0x19 0x0>;
 		qcom,cp_en-gpio = <&tlmm 114 0x00>;
 		pinctrl-names = "cp_en_active", "cp_en_sleep", "cp_en_default";
 		pinctrl-0 = <&cp_en_active>;
@@ -1189,10 +1191,10 @@
 		pinctrl-2 = <&cp_en_default>;
 	};
 	// bq25970
-	op_wlchg_cp2:chgpump-bq25970@66 {
+	op_wlchg_cp2: chgpump-bq25970@66 {
 		status = "disable";
 		compatible = "ti,bq2597x-standalone";
-		reg = <0x66>;
+		reg = <0x0 0x66 0x0>;
 		qcom,bq_int-gpio = <&tlmm 15 0x00>;
 		ti,bq2597x,bus-ocp-alarm-disable;
 		ti,bq2597x,bus-ovp-alarm-disable;

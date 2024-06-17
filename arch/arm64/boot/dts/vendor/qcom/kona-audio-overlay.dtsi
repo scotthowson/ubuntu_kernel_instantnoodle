@@ -24,7 +24,9 @@
 
 	tx_macro: tx-macro@3220000 {
 		compatible = "qcom,tx-macro";
-		reg = <0x0 0x3220000 0x1000>; // Assuming size is 0x1000
+		reg = <0x0 0x3220000 0x1000>;
+		#address-cells = <2>;
+		#size-cells = <1>;
 		clock-names = "tx_core_clk", "tx_npl_clk";
 		clocks = <&clock_audio_tx_1 0>,
 			 <&clock_audio_tx_2 0>;
@@ -40,7 +42,7 @@
 					<&lpass_audio_hw_vote 0>;
 			qcom,swr_master_id = <3>;
 			qcom,mipi-sdw-block-packing-mode = <1>;
-			swrm-io-base = <0x0 0x3230000 0x1000>; // Assuming size is 0x1000
+			swrm-io-base = <0x0 0x3230000 0x1000>;
 			interrupts-extended =
 				<&intc GIC_SPI 297 IRQ_TYPE_LEVEL_HIGH>,
 				<&pdc 109 IRQ_TYPE_LEVEL_HIGH>;

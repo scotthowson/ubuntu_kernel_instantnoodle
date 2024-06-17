@@ -24,7 +24,7 @@
 
 	tx_macro: tx-macro@3220000 {
 		compatible = "qcom,tx-macro";
-		reg = <0x0 0x3220000 0x1000>; // Assuming size is 0x1000
+		reg = <0x3220000 0x0>;
 		clock-names = "tx_core_clk", "tx_npl_clk";
 		clocks = <&clock_audio_tx_1 0>,
 			 <&clock_audio_tx_2 0>;
@@ -66,7 +66,7 @@
 
 	rx_macro: rx-macro@3200000 {
 		compatible = "qcom,rx-macro";
-		reg = <0x0 0x3200000 0x1000>; // Assuming size is 0x1000
+		reg = <0x3200000 0x0>;
 		clock-names = "rx_core_clk", "rx_npl_clk";
 		clocks = <&clock_audio_rx_1 0>,
 			 <&clock_audio_rx_2 0>;
@@ -104,7 +104,7 @@
 
 	wsa_macro: wsa-macro@3240000 {
 		compatible = "qcom,wsa-macro";
-		reg = <0x0 0x3240000 0x1000>; // Assuming size is 0x1000
+		reg = <0x3240000 0x0>;
 		clock-names = "wsa_core_clk", "wsa_npl_clk";
 		clocks = <&clock_audio_wsa_1 0>,
 			 <&clock_audio_wsa_2 0>;

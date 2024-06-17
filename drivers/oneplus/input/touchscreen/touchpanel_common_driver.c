@@ -25,7 +25,7 @@
 #include <linux/notifier.h>
 #endif
 
-//#ifdef CONFIG_DRM_MSM
+#ifdef CONFIG_DRM_MSM	
 //#include <linux/msm_drm_notify.h>
 #include <drm/drm_panel.h>
 //#endif

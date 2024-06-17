@@ -109,7 +109,7 @@
 	status = "ok";
 	sec-s6sy761@48 {
 		compatible = "sec-s6sy761";
-		z
+		reg = <0x48>;
 		project-name = "19811";
 		chip-name = "SY79x";
 		touchpanel,display-coords = <1439 3168>;

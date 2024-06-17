@@ -99,13 +99,13 @@
        pixelworks@26 {  //i2c: 22, i3c: 26
                status = "ok";
                compatible = "pixelworks,iris5";
-               reg = <0x26>;
+               reg = <0x0 0x26 0x1>;
         };
 
        pixelworks@22 {  //i2c: 22, i3c: 26
                status = "ok";
                compatible = "pixelworks,iris5-i2c";
-               reg = <0x22>;
+               reg = <0x0 0x22 0x1>;
         };
 };
 
@@ -231,59 +231,59 @@
 	status = "ok";
 	sec-s6sy761@48 {
 		compatible = "sec-s6sy761";
-		reg = <0x48>;
+		reg = <0x0 0x48 0x1>;
 		project-name = "19811";
 		chip-name = "SY761";
 		module_id = <7>;
 		reset-gpio = <&tlmm 38 0x00>;
 		irq-gpio = <&tlmm 39 0x2008>;
-		vdd_2v8-supply = <&pm8150_l13>;                 //set 3.3 by ldo
+		vdd_2v8-supply = <&pm8150_l13>; //set 3.3 by ldo
 		vdd_2v8_volt = <3008000>;
 		vcc_1v8-supply = <&pm8150a_l1>;
-	//	enable1v8_gpio = <&tlmm 119 0x00>;               //set 1.8v by
+		// enable1v8_gpio = <&tlmm 119 0x00>; //set 1.8v by
 		touchpanel,display-coords = <1439 3119>;
 		touchpanel,panel-coords = <1439 3119>;
 		touchpanel,tx-rx-num = <17 37>;
-		//edge_limit_support = <1>;
-		//spurious_fingerprint_support = <1>;
-		//charger_pump_support = <1>;
+		// edge_limit_support = <1>;
+		// spurious_fingerprint_support = <1>;
+		// charger_pump_support = <1>;
 		black_gesture_support = <1>;
-		//black_gesture_test_support = <1>;
+		// black_gesture_test_support = <1>;
 		game_switch_support = <1>;
 		face_detect_support = <1>;
 		touch_hold_support = <1>;
 		touchpanel,max-num-support = <10>;
 		charge_detect_support = <1>;
-		//lcd_trigger_fp_check = <1>;
+		// lcd_trigger_fp_check = <1>;
 		module_id_support = <1>;
 		pinctrl-names = "pin_set_high", "pin_set_low";
 		pinctrl-0 = <&tp_irq_active &tp_rst_active>;
 		pinctrl-1 = <&tp_rst_suspend>;
-		//touchpanel,int-mode = <1>;
+		// touchpanel,int-mode = <1>;
 	};
 };
 &qupv3_se13_i2c {
 	status = "ok";
 	synaptics-s3908@4B {
 		compatible = "synaptics-s3908";
-		reg = <0x4B>;
+		reg = <0x0 0x4B 0x1>;
 		project-name = "19821";
 		chip-name = "S3908";
 		module_id = <7>;
 		reset-gpio = <&tlmm 38 0x00>;
 		irq-gpio = <&tlmm 39 0x2008>;
-		vdd_2v8-supply = <&pm8150_l13>;                 //set 3.3 by ldo
+		vdd_2v8-supply = <&pm8150_l13>; //set 3.3 by ldo
 		vdd_2v8_volt = <3008000>;
 		vcc_1v8-supply = <&pm8150a_l1>;
 		touchpanel,display-coords = <1079 2399>;
 		touchpanel,panel-coords = <1079 2399>;
 		touchpanel,tx-rx-num = <16 36>;
-		//edge_limit_support = <1>;
-		//spurious_fingerprint_support = <1>;
-		//charger_pump_support = <1>;
+		// edge_limit_support = <1>;
+		// spurious_fingerprint_support = <1>;
+		// charger_pump_support = <1>;
 		black_gesture_support = <1>;
-		//black_gesture_test_support = <1>;
-		//game_switch_support = <1>;
+		// black_gesture_test_support = <1>;
+		// game_switch_support = <1>;
 		face_detect_support = <1>;
 		touch_hold_support = <1>;
 		touchpanel,max-num-support = <10>;
@@ -378,14 +378,14 @@
 &qupv3_se15_i2c {
 	tfa98xx_right: tfa98xx_right@34 {
 		compatible = "nxp,tfa98xx";
-		reg = <0x34>;
+		reg = <0x0 0x34 0x1>;
 		reset-gpio = <&tlmm 91 0>;
 		status = "ok";
 	};
 
 	tfa98xx_left: tfa98xx_left@35 {
 		compatible = "nxp,tfa98xx";
-		reg = <0x35>;
+		reg = <0x0 0x35 0x1>;
 		reset-gpio = <&tlmm 99 0>;
 		status = "ok";
 	};
@@ -534,19 +534,19 @@
 &reserved_memory {
 
 	bootloader_log_mem: bootloader_log_mem@0x9FFF7000 {
-		reg = <0 0x9FFF7000 0 0x00009000>;
+		reg = <0x0 0x9FFF7000 0x0 0x00009000>;
 		label = "bootloader_log_mem";
 	};
 
 	param_mem: param_mem@ac200000 {
-		reg = <0 0xAC200000 0 0x00100000>;
+		reg = <0x0 0xAC200000 0x0 0x00100000>;
 		label = "param_mem";
 	};
 
 	/*after cdsp_secure_heap we add a offset to ignore change address need reconfig*/
 	ramoops: ramoops@0xA9800000 {
 		compatible = "ramoops";
-		reg = <0 0xA9800000 0 0x00400000>;
+		reg = <0x0 0xA9800000 0x0 0x00400000>;
 		record-size =  <0x40000>; //256x1024
 		console-size = <0x40000>;
 		ftrace-size =  <0x40000>;
@@ -556,7 +556,7 @@
 	};
 
 	mtp_mem: mtp_mem@ac300000 {
-		reg = <0 0xAC300000 0 0x00B00000>;
+		reg = <0x0 0xAC300000 0x0 0x00B00000>;
 		label = "mtp_mem";
 	};
 };

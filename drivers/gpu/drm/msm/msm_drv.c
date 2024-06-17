@@ -17,7 +17,6 @@
  */
 
 #include <linux/kthread.h>
-#include <linux/string.h>
 #include <uapi/linux/sched/types.h>
 #include <drm/drm_of.h>
 

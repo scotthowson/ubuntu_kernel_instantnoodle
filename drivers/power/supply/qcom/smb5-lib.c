@@ -60,7 +60,13 @@
 #define CHG_VOLTAGE_NORMAL            5000
 #define BATT_REMOVE_TEMP              -400
 #define BATT_TEMP_HYST                20
+
+#if (defined(OEM_TARGET_PRODUCT_LEMONADES) || defined(OEM_TARGET_PRODUCT_KEBAB))
+#define DASH_VALID_TEMP_LOW_THRESHOLD	50
+#else
 #define DASH_VALID_TEMP_LOW_THRESHOLD	125
+#endif
+
 #define DASH_VALID_TEMP_HIG_THRESHOLD	430
 #define DASH_VALID_CAPACITY_HIG_THRESHOLD 90
 #define DASH_VALID_VBAT_LOW_THRE_MV 3450
@@ -106,6 +112,7 @@ static void pps_usbpd_connect_cb(struct usbpd_svid_handler *hdlr,
 static void pps_usbpd_disconnect_cb(struct usbpd_svid_handler *hdlr);
 static struct op_pps op_pps_chg;
 
+extern int connected_charger_type;
 module_param_call(sys_boot_complete, usb_enum_check, param_get_int, &sys_boot_complete, 0644);
 MODULE_PARM_DESC(sys_boot_complete, "sys_boot_complete");
 
@@ -730,6 +737,30 @@ static const struct apsd_result *smblib_get_apsd_result(struct smb_charger *chg)
 		if (result != &smblib_apsd_results[HVDCP3])
 			result = &smblib_apsd_results[HVDCP2];
 	}
+	switch (result->bit) {
+	case CDP_CHARGER_BIT:
+		connected_charger_type = CDP_CHARGER;
+		break;
+	case SDP_CHARGER_BIT:
+		connected_charger_type = SDP_CHARGER;
+		break;
+	case DCP_CHARGER_BIT:
+		connected_charger_type = DCP_CHARGER;
+		break;
+	case OCP_CHARGER_BIT:
+		connected_charger_type = OCP_CHARGER;
+		break;
+	case FLOAT_CHARGER_BIT:
+		connected_charger_type = FLOAT_CHARGER;
+		break;
+	case QC_2P0_BIT:
+	case QC_3P0_BIT:
+		connected_charger_type = QC_CHARGER;
+		break;
+	default:
+		connected_charger_type = UNKNOWN_CHARGER;
+		break;
+	}
 
 	return result;
 }
@@ -995,6 +1026,7 @@ static int op_set_wireless_fsw(struct smb_charger *chg, int voltage)
 	return rc;
 }
 
+/* @bsp, 2019/08/30 Wireless Charging porting */
 int op_wireless_high_vol_en(bool enable)
 {
 	int rc;
@@ -2243,6 +2275,7 @@ static int smblib_chg_disable_vote_callback(struct votable *votable, void *data,
 		return 0;
 	}
 #endif
+/* @bsp, 2019/07/05 Battery & Charging porting */
 	rc = smblib_masked_write(chg, CHARGING_ENABLE_CMD_REG,
 				 CHARGING_ENABLE_CMD_BIT,
 				 chg_disable ? 0 : CHARGING_ENABLE_CMD_BIT);
@@ -3531,6 +3564,9 @@ int smblib_disable_hw_jeita(struct smb_charger *chg, bool disable)
 		| JEITA_EN_COLD_SL_CCC_BIT,
 	rc = smblib_masked_write(chg, JEITA_EN_CFG_REG, mask,
 			disable ? 0 : mask);
+#ifdef OEM_TARGET_PRODUCT_EBBA
+	rc = smblib_write(chg, JEITA_EN_CFG_REG, 0);
+#endif /* OEM_TARGET_PRODUCT_EBBA */
 	if (rc < 0) {
 		dev_err(chg->dev, "Couldn't configure s/w jeita rc=%d\n",
 				rc);
@@ -5592,18 +5628,33 @@ int smblib_set_prop_pd_active(struct smb_charger *chg,
 		vote(chg->hdc_irq_disable_votable, CHARGER_TYPE_VOTER,
 				false, 0);
 
+		/*
+		 * Enforce 100mA for PD until the real vote comes in later.
+		 * It is guaranteed that pd_active is set prior to
+		 * pd_current_max
+		 */
+/* @bsp, 2019/09/20 Wireless Charge otg support */
 		if (!chg->wireless_present)
 			vote(chg->usb_icl_votable, PD_VOTER, true, USBIN_100MA);
 		vote(chg->usb_icl_votable, USB_PSY_VOTER, false, 0);
 		vote(chg->usb_icl_votable, SW_ICL_MAX_VOTER, false, 0);
 
+		/*
+		 * @bsp add to fix wrong charging current when boot with
+		 * pd cable connected, clear apsd current result.
+		 */
 		vote(chg->fcc_votable, FCC_STEPPER_VOTER, false, 0);
 		vote(chg->fcc_votable, HW_LIMIT_VOTER, false, 0);
 		vote(chg->usb_icl_votable, DCP_VOTER, false, 0);
 		vote(chg->fcc_votable, BATT_PROFILE_VOTER, false, 0);
+		/* @bsp, add to set allow read extern fg IIC */
 		set_property_on_fg(chg,
 			POWER_SUPPLY_PROP_SET_ALLOW_READ_EXTERN_FG_IIC, true);
 
+		/*
+		 * For PPS, Charge Pump is preferred over parallel charger if
+		 * present.
+		 */
 		if (chg->pd_active == POWER_SUPPLY_PD_PPS_ACTIVE
 						&& chg->sec_cp_present) {
 			rc = smblib_select_sec_charger(chg,
@@ -5614,11 +5665,10 @@ int smblib_set_prop_pd_active(struct smb_charger *chg,
 					rc);
 		}
 
-		if (!chg->swarp_online) {
-			op_usbpd_send_svdm(USBPD_SID, USBPD_SVDM_DISCOVER_IDENTITY,
-				SVDM_CMD_TYPE_INITIATOR, 0, NULL, 0);
-			pr_info("PPS type, Discover SVID!\n");
-		}
+		op_usbpd_send_svdm(USBPD_SID, USBPD_SVDM_DISCOVER_IDENTITY,
+			SVDM_CMD_TYPE_INITIATOR, 0, NULL, 0);
+		pr_info("PPS type, Discover SVID!\n");
+
 		schedule_delayed_work(&chg->pd_status_check_work,
 				msecs_to_jiffies(2000));
 	} else {
@@ -6517,16 +6567,20 @@ void smblib_usb_plugin_hard_reset_locked(struct smb_charger *chg)
 	chg->vbus_present = vbus_rising;
 
 	if (vbus_rising) {
+		/* Remove FCC_STEPPER 1.5A init vote to allow FCC ramp up */
 		if (chg->fcc_stepper_enable)
 			vote(chg->fcc_votable, FCC_STEPPER_VOTER, false, 0);
+		/* @bsp add to fix some pd temp not update issue */
 		if (gpio_is_valid(chg->vbus_ctrl))
 			schedule_delayed_work(&chg->connecter_check_work,
 				msecs_to_jiffies(200));
+		/* @bsp, 2019/09/20 Wireless Charge otg support */
 		if (chg->wireless_present) {
 			vote(chg->usb_icl_votable, OTG_VOTER, false, 0);
 			if (chg->pd_active)
 				vote(chg->usb_icl_votable, PD_VOTER, false, 0);
 		}
+		/* @bsp, 2019/09/20 Wireless Charge otg support end*/
 		if (chg->swarp_supported) {
 			chg->sw_aicl_prepared = false;
 			cancel_delayed_work(&chg->run_sw_aicl_work);
@@ -6551,6 +6605,7 @@ void smblib_usb_plugin_hard_reset_locked(struct smb_charger *chg)
 		if (chg->fcc_stepper_enable)
 			vote(chg->fcc_votable, FCC_STEPPER_VOTER,
 							true, 1500000);
+		/* @bsp, fix the suspend current issue */
 		if (!chg->wireless_present) {
 			rc = smblib_request_dpdm(chg, false);
 			if (rc < 0)
@@ -6559,6 +6614,7 @@ void smblib_usb_plugin_hard_reset_locked(struct smb_charger *chg)
 			if ((chg->sink_src_mode == SRC_MODE) && !chg->is_audio_adapter)
 				vote(chg->usb_icl_votable, OTG_VOTER, true, 0);
 		}
+		/* @bsp add for wake lock check*/
 		if (last_vbus_present != chg->vbus_present) {
 			pr_info("vbus_rising 0");
 			if (chg->swarp_online) {
@@ -6638,6 +6694,7 @@ void smblib_usb_plugin_locked(struct smb_charger *chg)
 
 	smblib_hvdcp_detect_enable(chg, false);
 
+/* @bsp, 2019/07/05 Battery & Charging porting */
 	chg->vbus_present = vbus_rising;
 	if (vbus_rising) {
 		cancel_delayed_work_sync(&chg->pr_swap_detach_work);
@@ -7892,6 +7949,9 @@ irqreturn_t typec_attach_detach_irq_handler(int irq, void *data)
 	bool attached = false;
 	int rc;
 
+	if (chg->connector_type == POWER_SUPPLY_CONNECTOR_MICRO_USB)
+		return IRQ_HANDLED;
+
 	smblib_dbg(chg, PR_INTERRUPT, "IRQ: %s\n", irq_data->name);
 
 	chg->dash_on = get_prop_fast_chg_started(chg);
@@ -8448,6 +8508,7 @@ irqreturn_t temp_change_irq_handler(int irq, void *data)
 	return IRQ_HANDLED;
 }
 
+/* @bsp, 2019/07/05 Battery & Charging porting START */
 static void op_get_aicl_work(struct work_struct *work)
 {
 	struct smb_charger *chg = container_of(work, struct smb_charger,
@@ -8464,6 +8525,7 @@ static void op_get_aicl_work(struct work_struct *work)
 	pr_err("AICL result=%dmA\n", settled_ua / 1000);
 }
 
+/* @bsp 2018/07/30 add usb connector temp detect */
 #define THIRD_LOOP_ENTER_MINI_THRESHOLD 35
 #define THIRD_LOOP_ENTER_MAX_THRESHOLD 60
 #define THIRD_INTERVAL_MINI_THRESHOLD 8
@@ -8630,6 +8692,7 @@ static void op_connecter_recovery_charge_work(struct work_struct *work)
 		msecs_to_jiffies(CONNECTER_RECOVERY_CHECK_INTERVAL));
 }
 
+/* @bsp, 2020/08/30 add pd/qc/warp30 skin thermal check */
 static void norchg_check_skin_thermal_temp(struct smb_charger *chg)
 {
 	bool call_on;
@@ -8910,6 +8973,7 @@ static void op_set_pd_active_work(struct work_struct *work)
 	}
 }
 
+/* @bsp, 2020/08/04, add to detect SVID */
 void op_set_swarp_charger(struct smb_charger *chg)
 {
 	chg->real_charger_type = POWER_SUPPLY_TYPE_DASH;
@@ -9158,8 +9222,8 @@ bool is_fastchg_allowed(struct smb_charger *chg)
 		pr_info("%s:check qc charger, return\n", __func__);
 		return false;
 	}
-	if (temp < DASH_VALID_TEMP_LOW_THRESHOLD
-			|| temp > DASH_VALID_TEMP_HIG_THRESHOLD) {
+	if (temp < DASH_VALID_TEMP_LOW_THRESHOLD ||
+	    temp > DASH_VALID_TEMP_HIG_THRESHOLD) {
 		if (temp != pre_temp)
 			pr_err("temp=%d is not allow to switch fastchg\n", temp);
 		pre_temp = temp;
@@ -9175,9 +9239,9 @@ bool is_fastchg_allowed(struct smb_charger *chg)
 	}
 
 	if (chg->swarp_online
-		&& cap > DASH_VALID_CAPACITY_HIG_THRESHOLD) {
+		&& cap > DASH_VALID_CAPACITY_HIG_THRESHOLD
+		&& (get_boot_mode() != MSM_BOOT_MODE_CHARGE)) {
 		pr_err("capacity high, swarp adapter.");
-		chg->dash_present = true;
 		return false;
 	}
 
@@ -9376,6 +9440,7 @@ static void op_handle_usb_removal(struct smb_charger *chg)
 	chg->hw_term_enabled = false;
 	chg->sw_aicl_prepared = false;
 	chg->pd_tried_warp_switch = false;
+	chg->cool_down = -1;
 	op_set_hw_term_charging(false);
 	cancel_delayed_work_sync(&chg->pd_status_check_work);
 
@@ -9932,10 +9997,8 @@ static void retrigger_dash_work(struct work_struct *work)
 			schedule_delayed_work(&chg->pd_status_check_work,
 					msecs_to_jiffies(2000));
 		}
-		if (chg->swarp_supported) {
+		if (chg->swarp_supported)
 			rerun_election(chg->usb_icl_votable);
-			recheck_asic_fw_status();
-		}
 		return;
 	}
 
@@ -10125,6 +10188,7 @@ static void op_check_allow_switch_dash_work(struct work_struct *work)
 		return;
 	if (chg->usb_enum_status)
 		return;
+/* @bsp, 2019/08/30 Wireless Charging porting */
 	if (chg->wireless_present)
 		return;
 	if (chg->apsd_delayed)
@@ -10215,6 +10279,7 @@ static int update_adapter_sid(unsigned int sid)
 	return 0;
 }
 
+/*yangfb@bsp, 20181023 icl set 1A if battery lower than 15%*/
 static void op_otg_icl_contrl(struct smb_charger *chg)
 {
 	int cap, rc;
@@ -11170,6 +11235,7 @@ void op_charge_info_init(struct smb_charger *chg)
 	chg->non_std_chg_present = false;
 	chg->is_audio_adapter = false;
 	chg->init_irq_done = false;
+/* @bsp, 2019/08/30 Wireless Charging porting */
 	chg->wireless_present = false;
 	chg->apsd_delayed = false;
 	chg->apsd_not_done = false;
@@ -11367,12 +11433,17 @@ static void op_check_charger_uovp(struct smb_charger *chg, int vchg_mv)
 	if (!chg->vbus_present)
 		return;
 
+/* @bsp, 2019/08/30 Wireless Charging porting */
 	if (chg->wireless_present)
 		return;
 
 	pr_err("charger_voltage=%d charger_ovp=%d pd_active=%d\n",
 			vchg_mv, chg->chg_ovp, chg->pd_active);
 
+/*
+	if (chg->pd_9vsupported && chg->pd_active)
+		return;
+*/
 #ifdef OP_SWARP_SUPPORTED
 	if (chg->swarp_supported)
 		v_allow_max = SWARP_CHG_SOFT_OVP_MV;
@@ -11638,11 +11709,14 @@ static int msm_drm_notifier_callback(struct notifier_block *self,
 			chip->oem_lcd_is_on = false;
 			chip->lcd_st_debounce_expire = jiffies + 60 * HZ; // 1min
 			op_dcdc_vph_track_sel(chip);
+			if (chip->video_call_on != NULL)
+				*chip->video_call_on = 0;
 		} else if (*blank == DRM_PANEL_BLANK_AOD) {
 			chip->oem_lcd_is_on = false;
 			pr_info("AOD is on, treat it as screen off.");
 		}
 
+		// dual-cell prj not change current according lcd on/off.
 		if (chip->swarp_supported) {
 			pr_info("dual-cell prj, not change with lcd status here.");
 			chip->need_check_icl_lcdon = true;
@@ -12110,6 +12184,7 @@ static void check_non_standard_charger_work(struct work_struct *work)
 		return;
 	}
 
+/* @bsp, 2019/08/30 Wireless Charging porting */
 	if (chg->wireless_present) {
 		pr_info("chk_non_std_chger,wireless_present\n");
 		chg->non_stand_chg_count = 0;
@@ -12452,20 +12527,94 @@ bool check_lcd_on_status(void)
 	return pre_lcd_status;
 }
 
+#define SMART_WARP_CHARGER_CURRENT_BIT0 0X01
+#define SMART_WARP_CHARGER_CURRENT_BIT1 0X02
+#define SMART_WARP_CHARGER_CURRENT_BIT2 0X04
+#define SMART_WARP_CHARGER_CURRENT_BIT3 0X08
+#define SMART_WARP_CHARGER_CURRENT_BIT4 0X10
+#define SMART_WARP_CHARGER_CURRENT_BIT5 0X20
+#define SMART_WARP_CHARGER_CURRENT_BIT6 0X40
+#define SMART_WARP_CHARGER_CURRENT_BIT7 0X80
+
+#define SMART_COMPATIBLE_WARP_CHARGER_CURRENT_BIT0 0X100
+
+#define SMART_NORMAL_CHARGER_500MA  0X1000
+#define SMART_NORMAL_CHARGER_900MA  0X2000
+#define SMART_NORMAL_CHARGER_1200MA 0X4000
+#define SMART_NORMAL_CHARGER_1500MA 0X8000
+
+void op_smart_charge_by_cool_down(struct smb_charger *chg, int val)
+{
+	int ua = 0;
+
+	if (!chg || !chg->en_temp_ctrl_center) {
+		pr_err("no smb_chg or not enable temp ctrl center.");
+		return;
+	}
+	if (!is_usb_present(chg)) {
+		pr_err("not in charging, return.");
+		return;
+	}
+
+	if (val & SMART_WARP_CHARGER_CURRENT_BIT0)
+		chg->cool_down = 1;
+	else if (val & SMART_WARP_CHARGER_CURRENT_BIT1)
+		chg->cool_down = 2;
+	else if (val & SMART_WARP_CHARGER_CURRENT_BIT2)
+		chg->cool_down = 3;
+	else if (val & SMART_WARP_CHARGER_CURRENT_BIT3)
+		chg->cool_down = 4;
+	else if (val & SMART_WARP_CHARGER_CURRENT_BIT4)
+		chg->cool_down = 5;
+	else if (val & SMART_WARP_CHARGER_CURRENT_BIT5)
+		chg->cool_down = 6;
+	else
+		chg->cool_down = -1;
+
+	// for normal charger path
+	if (val & SMART_NORMAL_CHARGER_500MA)
+		ua = 500000;
+	else if (val & SMART_NORMAL_CHARGER_900MA)
+		ua = 900000;
+	else if (val & SMART_NORMAL_CHARGER_1200MA)
+		ua = 1200000;
+	else if (val & SMART_NORMAL_CHARGER_1500MA)
+		ua = 1500000;
+	else
+		ua = 0;
+
+	if (ua != 0) {
+		vote(chg->fcc_votable, SKIN_THERMAL_FCC, true, ua);
+		pr_info("cool down set fcc to %duA", ua);
+	} else
+		vote(chg->fcc_votable, SKIN_THERMAL_FCC, false, 0);
+	if (!val) {
+		// not use cool down, use skin thermal strategy.
+		chg->cool_down = -1;
+		vote(chg->fcc_votable, SKIN_THERMAL_FCC, false, 0);
+	}
+	pr_info("val->intval = [%04x], set cool_down = [%d].\n", val, chg->cool_down);
+
+}
+int op_get_cool_down_value(void)
+{
+	if (!g_chg || !g_chg->en_temp_ctrl_center)
+		return -EINVAL;
+	return g_chg->cool_down;
+}
+
 int cur_max[] = {0x06, 0x05, 0x04, 0x03};
 int op_get_allowed_current_max(void)
 {
-	int cur_stage = 0;
+	int cur_stage = g_chg->reconnect_count;
 
-	if (!g_chg)
-		return cur_max[0];
-	cur_stage = g_chg->reconnect_count;
 	if (cur_stage > 3)
 		cur_stage = 3;
 	else if (cur_stage < 0)
 		cur_stage = 0;
 	return cur_max[cur_stage];
 }
+/* @bsp 2018/07/30 add usb connector temp detect and wr*/
 #define USB_CONNECTOR_DEFAULT_TEMP 25
 static int get_usb_temp(struct smb_charger *chg)
 {
@@ -12644,6 +12793,7 @@ static void op_otg_switch(struct work_struct *work)
 	usb_pluged = gpio_get_value(g_chg->plug_irq) ? false : true;
 	if (usb_pluged == g_chg->pre_cable_pluged) {
 		pr_info("same status,return;usb_present:%d\n", usb_pluged);
+		/* @bsp, add to disable CC detection after OTG detached */
 		if (usb_pluged) {
 			vote(g_chg->otg_toggle_votable, HW_DETECT_VOTER, 1, 0);
 			if (user_vote_enable && wireless_present)
@@ -12706,6 +12856,7 @@ static void op_heartbeat_work(struct work_struct *work)
 	int vbatdet_mv;
 	int rc;
 
+/*yangfb@bsp, 20181023 icl set 1A if battery lower than 15%*/
 	op_otg_icl_contrl(chg);
 #ifndef CONFIG_OP_DEBUG_CHG
 	op_check_charge_timeout(chg);
@@ -13270,6 +13421,7 @@ static int notify_usb_enumeration_function(int status)
 static struct notify_usb_enumeration_status usb_enumeration  = {
 	.notify_usb_enumeration		= notify_usb_enumeration_function,
 };
+/* @bsp, 2018/07/13 Battery & Charging porting ENDIF*/
 static void smblib_usbov_dbc_work(struct work_struct *work)
 {
 	struct smb_charger *chg = container_of(work, struct smb_charger,
@@ -13464,10 +13616,27 @@ static void smblib_uusb_otg_work(struct work_struct *work)
 		goto out;
 	}
 	otg = !!(stat & U_USB_GROUND_NOVBUS_BIT);
-	if (chg->otg_present != otg)
+	if (chg->otg_present != otg) {
+		if (otg) {
+			/* otg cable inserted */
+			if (chg->typec_port) {
+				typec_partner_register(chg);
+				typec_set_data_role(chg->typec_port,
+							TYPEC_HOST);
+				typec_set_pwr_role(chg->typec_port,
+							TYPEC_SOURCE);
+			}
+		} else if (chg->typec_port) {
+			/* otg cable removed */
+			typec_set_data_role(chg->typec_port, TYPEC_DEVICE);
+			typec_set_pwr_role(chg->typec_port, TYPEC_SINK);
+			typec_partner_unregister(chg);
+		}
+
 		smblib_notify_usb_host(chg, otg);
-	else
+	} else {
 		goto out;
+	}
 
 	chg->otg_present = otg;
 	if (!otg)
@@ -14462,6 +14631,7 @@ int smblib_init(struct smb_charger *chg)
 	chg->chg_wake_lock_on = false;
 	chg->cp_topo = -EINVAL;
 	chg->dr_mode = TYPEC_PORT_DRP;
+	chg->cool_down = -1;
 
 	switch (chg->mode) {
 	case PARALLEL_MASTER:

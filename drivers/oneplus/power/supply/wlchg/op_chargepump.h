@@ -1,5 +1,6 @@
 /************************************************************************************
 ** File:  op_chargepump.c
+** VENDOR_EDIT
 ** Copyright (C), 2008-2012, OP Mobile Comm Corp., Ltd
 **
 ** Description:
@@ -7,6 +8,12 @@
 **
 ** Version: 1.0
 ** Date created: 21:03:46,09/04/2019
+** Author: Lin Shangbo
+**
+** --------------------------- Revision History:
+*------------------------------------------------------------ <version> <date>
+*<author>              			<desc> Revision 1.0    2019-04-09    Lin
+*Shangbo    		Created for new charger
 ************************************************************************************************************/
 
 #ifndef __OP_CHARGEPUMP_H__

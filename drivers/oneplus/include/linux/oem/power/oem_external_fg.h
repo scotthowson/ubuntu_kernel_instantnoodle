@@ -50,8 +50,6 @@ struct external_battery_gauge {
 	bool (*is_usb_switch_on)(void);
 	int (*get_battery_status)(void);
 	int (*get_batt_remaining_capacity)(void);
-	int (*get_batt_full_available_capacity)(void);
-	int (*get_batt_full_available_capacity_filtered)(void);
 	int (*get_batt_full_chg_capacity)(void);
 	int (*get_batt_health)(void);
 	int (*get_batt_bq_soc)(void);
@@ -79,6 +77,7 @@ struct external_battery_gauge {
 	int (*fast_chg_started_status)(bool status);
 	bool (*get_fastchg_firmware_already_updated)(void);
 	int (*get_device_type)(void);
+	/* david.liu@bsp, 20161025 Add BQ27411 dash charging */
 	int (*wlchg_started_status)(bool status);
 	int (*get_time_to_full)(void);
 };
@@ -139,6 +138,16 @@ enum batt_status_type {
 	BATT_STATUS_INVALID_v1 = BATT_STATUS_REMOVED,
 	BATT_STATUS_INVALID
 };
+
+enum connected_charger_type {
+	UNKNOWN_CHARGER = 0,
+	CDP_CHARGER,
+	SDP_CHARGER,
+	DCP_CHARGER,
+	OCP_CHARGER,
+	FLOAT_CHARGER,
+	QC_CHARGER
+};
 void op_pm8998_regmap_register(struct regmap *regmap);
 void op_pm8150_regmap_register(struct regmap *regmap);
 void op_sdram_regmap_register(struct regmap *regmap);
@@ -181,5 +190,6 @@ bool check_lcd_on_status(void);
 void update_fast_switch_off_status(void);
 void update_disconnect_pd_status(bool en);
 int opchg_mcu_action(enum mcu_action_mode mode);
+int op_get_cool_down_value(void);
 int op_get_allowed_current_max(void);
 #endif

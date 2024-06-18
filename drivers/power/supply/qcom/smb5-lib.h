@@ -932,6 +932,8 @@ struct smb_charger {
 	int			qcpd_9v_vbat_thr;
 	unsigned int		adapter_sid;
 	unsigned long		lcd_st_debounce_expire;
+	int			cool_down;
+	bool		en_temp_ctrl_center;
 	int			reconnect_count;
 	bool		tried_fastchg;
 	bool		icon_debounce;
@@ -951,7 +953,6 @@ extern bool get_prop_fast_chg_started(struct smb_charger *chg);
 extern void mcu_en_gpio_set(int value);
 extern void switch_mode_to_normal(void);
 extern void enhance_dash_type_set(int type);
-extern void recheck_asic_fw_status(void);
 extern void notify_pd_in_to_wireless(void);
 extern struct smb_charger *g_chg;
 extern struct drm_panel *lcd_active_panel;
@@ -1227,5 +1228,6 @@ extern void op_release_usb_lock(void);
 bool is_op_chg_available(struct smb_charger *chg);
 bool is_charger_not_match(struct smb_charger *chg);
 #endif
+void op_smart_charge_by_cool_down(struct smb_charger *chg, int val);
 
 #endif /* __SMB5_CHARGER_H */

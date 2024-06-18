@@ -1,5 +1,6 @@
 /***************************************************
  * File:synaptics_common.h
+ * VENDOR_EDIT
  * Description:
  *             synaptics common driver
  * Version:1.0:

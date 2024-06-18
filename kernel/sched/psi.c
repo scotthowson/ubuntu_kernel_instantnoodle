@@ -127,6 +127,7 @@
  * sampling of the aggregate task states would be.
  */
 
+#include <linux/kthread.h>
 #include "../workqueue_internal.h"
 #include <linux/sched/loadavg.h>
 #include <linux/seq_file.h>

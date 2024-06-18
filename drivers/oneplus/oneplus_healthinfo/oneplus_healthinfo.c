@@ -6,6 +6,7 @@
 * Date       : 2019-04-24
 ***********************************************************************************/
 
+#include <linux/kthread.h>
 #include <linux/oem/oneplus_healthinfo.h>
 #include <asm/uaccess.h>
 #include <linux/kernel.h>

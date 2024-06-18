@@ -1,2 +1,0 @@
-obj-y += stub/ audio/ camera/
-header-y += stub/include/uapi/ audio/include/uapi/ camera/include/uapi/

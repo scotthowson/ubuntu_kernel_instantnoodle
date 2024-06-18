@@ -502,7 +502,6 @@ static int fuse_create_open(struct inode *dir, struct dentry *entry,
 	args.out.args[0].value = &outentry;
 	args.out.args[1].size = sizeof(outopen);
 	args.out.args[1].value = &outopen;
-	args.private_lower_rw_file = NULL;
 	iname = inode_name(dir);
 	if (iname) {
 		/* compose full path */
@@ -529,8 +528,7 @@ static int fuse_create_open(struct inode *dir, struct dentry *entry,
 	ff->fh = outopen.fh;
 	ff->nodeid = outentry.nodeid;
 	ff->open_flags = outopen.open_flags;
-	if (args.private_lower_rw_file != NULL)
-		ff->rw_lower_file = args.private_lower_rw_file;
+	ff->sct = args.sct;
 	inode = fuse_iget(dir->i_sb, outentry.nodeid, outentry.generation,
 			  &outentry.attr, entry_attr_timeout(&outentry), 0);
 	if (!inode) {

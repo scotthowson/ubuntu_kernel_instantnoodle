@@ -1,2 +1,0 @@
-source "drivers/data-kernel/rmnet/perf/Kconfig"
-source "drivers/data-kernel/rmnet/shs/Kconfig"

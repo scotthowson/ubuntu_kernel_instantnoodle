@@ -67,11 +67,7 @@ struct aead_req_ctx {
 	u8 backup_mac[MAX_MAC_SIZE];
 	u8 *backup_iv; /*store iv for generated IV flow*/
 	u8 *backup_giv; /*store iv for rfc3686(ctr) flow*/
-<<<<<<< Updated upstream
-	u32 assoclen;
-=======
 	u32 assoclen; /* internal assoclen */
->>>>>>> Stashed changes
 	dma_addr_t mac_buf_dma_addr; /* internal ICV DMA buffer */
 	/* buffer for internal ccm configurations */
 	dma_addr_t ccm_iv0_dma_addr;

@@ -955,20 +955,12 @@ struct reg_config_vars {
 	uint32_t enable_11d_support;
 	uint32_t scan_11d_interval;
 	uint32_t userspace_ctry_priority;
-<<<<<<< Updated upstream
-	enum band_info band_capability;
-=======
 	uint32_t band_capability;
->>>>>>> Stashed changes
 	uint32_t dfs_enabled;
 	uint32_t indoor_chan_enabled;
 	uint32_t force_ssc_disable_indoor_channel;
 	enum restart_beaconing_on_ch_avoid_rule restart_beaconing;
-<<<<<<< Updated upstream
-	bool enable_srd_chan_in_master_mode;
-=======
 	uint8_t enable_srd_chan_in_master_mode;
->>>>>>> Stashed changes
 	bool enable_11d_in_world_mode;
 	bool retain_nol_across_regdmn_update;
 };

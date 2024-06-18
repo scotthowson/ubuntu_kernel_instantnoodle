@@ -355,19 +355,6 @@ QDF_STATUS reg_get_current_cc(struct wlan_objmgr_pdev *pdev,
 			      struct cc_regdmn_s *rd);
 
 /**
-<<<<<<< Updated upstream
- * reg_get_curr_band() - Get current band
- * @pdev: Pdev pointer
- * @band: Pointer to save the current band
- *
- * Return: QDF_STATUS
- */
-QDF_STATUS reg_get_curr_band(struct wlan_objmgr_pdev *pdev,
-			     enum band_info *band);
-
-/**
-=======
->>>>>>> Stashed changes
  * reg_set_regdb_offloaded() - set/clear regulatory offloaded flag
  *
  * @psoc: psoc pointer
@@ -502,8 +489,6 @@ bool reg_is_24ghz_ch_freq(uint32_t freq);
  */
 bool reg_is_5ghz_ch_freq(uint32_t freq);
 
-<<<<<<< Updated upstream
-=======
 /**
  * reg_is_freq_indoor() - Check if the input frequency is an indoor frequency.
  * @pdev: Pointer to pdev.
@@ -513,7 +498,6 @@ bool reg_is_5ghz_ch_freq(uint32_t freq);
  */
 bool reg_is_freq_indoor(struct wlan_objmgr_pdev *pdev, qdf_freq_t freq);
 
->>>>>>> Stashed changes
 #ifdef CONFIG_BAND_6GHZ
 /**
  * reg_is_6ghz_chan_freq() - Check if the given channel frequency is 6GHz
@@ -1030,8 +1014,6 @@ QDF_STATUS
 reg_get_unii_5g_bitmap(struct wlan_objmgr_pdev *pdev, uint8_t *bitmap);
 #endif
 
-<<<<<<< Updated upstream
-=======
 #ifdef CONFIG_REG_CLIENT
 /**
  * reg_band_bitmap_to_band_info() - Convert the band_bitmap to a band_info enum.
@@ -1045,5 +1027,4 @@ reg_get_unii_5g_bitmap(struct wlan_objmgr_pdev *pdev, uint8_t *bitmap);
  */
 enum band_info reg_band_bitmap_to_band_info(uint32_t band_bitmap);
 #endif
->>>>>>> Stashed changes
 #endif

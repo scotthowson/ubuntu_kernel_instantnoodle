@@ -323,14 +323,8 @@ static const struct attribute_group mhi_sysfs_group = {
 	.attrs = mhi_sysfs_attrs,
 };
 
-void mhi_create_sysfs(struct mhi_controller *mhi_cntrl)
+int mhi_create_sysfs(struct mhi_controller *mhi_cntrl)
 {
-<<<<<<< Updated upstream
-	sysfs_create_group(&mhi_cntrl->mhi_dev->dev.kobj, &mhi_sysfs_group);
-	if (mhi_cntrl->mhi_tsync)
-		sysfs_create_group(&mhi_cntrl->mhi_dev->dev.kobj,
-				   &mhi_tsync_group);
-=======
 	int ret;
 
 	ret = sysfs_create_group(&mhi_cntrl->mhi_dev->dev.kobj,
@@ -347,7 +341,6 @@ void mhi_create_sysfs(struct mhi_controller *mhi_cntrl)
 	}
 
 	return ret;
->>>>>>> Stashed changes
 }
 
 void mhi_destroy_sysfs(struct mhi_controller *mhi_cntrl)
@@ -1591,12 +1584,7 @@ int of_register_mhi_controller(struct mhi_controller *mhi_cntrl)
 	INIT_WORK(&mhi_cntrl->st_worker, mhi_pm_st_worker);
 	init_swait_queue_head(&mhi_cntrl->state_event);
 
-<<<<<<< Updated upstream
-	mhi_cntrl->wq = alloc_ordered_workqueue("mhi_w",
-						WQ_MEM_RECLAIM | WQ_HIGHPRI);
-=======
 	mhi_cntrl->wq = alloc_ordered_workqueue("mhi_w", WQ_HIGHPRI);
->>>>>>> Stashed changes
 	if (!mhi_cntrl->wq)
 		goto error_alloc_cmd;
 
@@ -2027,11 +2015,7 @@ static int mhi_driver_remove(struct device *dev)
 		    ch_state[dir] != MHI_CH_STATE_DISABLED && !interrupted) {
 			MHI_ERR("Channel %s busy, wait for it to be reset\n",
 				mhi_dev->chan_name);
-<<<<<<< Updated upstream
-			ret = wait_event_interruptible(mhi_cntrl->state_event,
-=======
 			ret = swait_event_interruptible_exclusive(mhi_cntrl->state_event,
->>>>>>> Stashed changes
 				mhi_chan->ch_state == MHI_CH_STATE_DISABLED ||
 				MHI_PM_IN_ERROR_STATE(mhi_cntrl->pm_state));
 			if (unlikely(ret))

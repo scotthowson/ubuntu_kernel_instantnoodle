@@ -92,13 +92,9 @@ static void ion_page_pool_add(struct ion_page_pool *pool, struct page *page)
 	nr_total_pages += 1 << pool->order;
 	mod_node_page_state(page_pgdat(page), NR_KERNEL_MISC_RECLAIMABLE,
 							1 << pool->order);
-<<<<<<< Updated upstream
-	mutex_unlock(&pool->mutex);
-=======
 	mod_node_page_state(page_pgdat(page), NR_ION_HEAP_POOL,
 			    (1 << pool->order));
 	spin_unlock(&pool->lock);
->>>>>>> Stashed changes
 }
 
 void ion_page_pool_refill(struct ion_page_pool *pool)
@@ -144,11 +140,8 @@ static struct page *ion_page_pool_remove(struct ion_page_pool *pool, bool high)
 	nr_total_pages -= 1 << pool->order;
 	mod_node_page_state(page_pgdat(page), NR_KERNEL_MISC_RECLAIMABLE,
 							-(1 << pool->order));
-<<<<<<< Updated upstream
-=======
 	mod_node_page_state(page_pgdat(page), NR_ION_HEAP_POOL,
 			    -(1 << pool->order));
->>>>>>> Stashed changes
 	return page;
 }
 

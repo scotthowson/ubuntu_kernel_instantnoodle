@@ -1,10 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2018-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2018-2021 The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #ifndef __QG_CORE_H__
@@ -178,10 +174,7 @@ struct qpnp_qg {
 	int			max_fcc_limit_ma;
 	int			bsoc_bass_entry;
 	int			qg_v_ibat;
-<<<<<<< Updated upstream
-=======
 	int			qg_charge_counter;
->>>>>>> Stashed changes
 	u32			fifo_done_count;
 	u32			wa_flags;
 	u32			seq_no;

@@ -364,14 +364,8 @@ lim_cleanup_rx_path(struct mac_context *mac, tpDphHashNode sta,
 			 * Release our assigned AID back to the free pool
 			 */
 			if (LIM_IS_AP_ROLE(pe_session)) {
-<<<<<<< Updated upstream
-				lim_del_sta(mac, sta, false, pe_session);
-				lim_release_peer_idx(mac, sta->assocId,
-						     pe_session);
-=======
 				lim_del_sta(mac, sta, true, pe_session);
 				return retCode;
->>>>>>> Stashed changes
 			}
 			lim_delete_dph_hash_entry(mac, sta->staAddr,
 						  sta->assocId, pe_session);
@@ -1544,8 +1538,6 @@ static bool lim_check_valid_mcs_for_nss(struct pe_session *session,
 }
 #endif
 
-<<<<<<< Updated upstream
-=======
 /**
  * lim_remove_membership_selectors() - remove elements from rate set
  *
@@ -1581,7 +1573,6 @@ static void lim_remove_membership_selectors(tSirMacRateSet *rate_set)
 	rate_set->numRates -= selector_count;
 }
 
->>>>>>> Stashed changes
 QDF_STATUS lim_populate_peer_rate_set(struct mac_context *mac,
 				      struct supported_rates *pRates,
 				      uint8_t *pSupportedMCSSet,
@@ -1594,11 +1585,7 @@ QDF_STATUS lim_populate_peer_rate_set(struct mac_context *mac,
 {
 	tSirMacRateSet tempRateSet;
 	tSirMacRateSet tempRateSet2;
-<<<<<<< Updated upstream
-	uint32_t i, j, val, min, isArate = 0;
-=======
 	uint32_t i, j, val, min;
->>>>>>> Stashed changes
 	qdf_size_t val_len;
 	uint8_t aRateIndex = 0;
 	uint8_t bRateIndex = 0;
@@ -1634,13 +1621,10 @@ QDF_STATUS lim_populate_peer_rate_set(struct mac_context *mac,
 		}
 	} else
 		tempRateSet2.numRates = 0;
-<<<<<<< Updated upstream
-=======
 
 	lim_remove_membership_selectors(&tempRateSet);
 	lim_remove_membership_selectors(&tempRateSet2);
 
->>>>>>> Stashed changes
 	if ((tempRateSet.numRates + tempRateSet2.numRates) >
 	    WLAN_SUPPORTED_RATES_IE_MAX_LEN) {
 		pe_err("more than 12 rates in CFG");
@@ -1661,10 +1645,6 @@ QDF_STATUS lim_populate_peer_rate_set(struct mac_context *mac,
 	for (i = 0; i < tempRateSet.numRates; i++) {
 		min = 0;
 		val = 0xff;
-<<<<<<< Updated upstream
-		isArate = 0;
-=======
->>>>>>> Stashed changes
 		for (j = 0; (j < tempRateSet.numRates) &&
 		     (j < WLAN_SUPPORTED_RATES_IE_MAX_LEN); j++) {
 			if ((uint32_t)(tempRateSet.rate[j] & 0x7f) <
@@ -1673,11 +1653,6 @@ QDF_STATUS lim_populate_peer_rate_set(struct mac_context *mac,
 				min = j;
 			}
 		}
-<<<<<<< Updated upstream
-		if (sirIsArate(tempRateSet.rate[min] & 0x7f))
-			isArate = 1;
-=======
->>>>>>> Stashed changes
 		/*
 		 * HAL needs to know whether the rate is basic rate or not,
 		 * as it needs to update the response rate table accordingly.
@@ -1685,24 +1660,6 @@ QDF_STATUS lim_populate_peer_rate_set(struct mac_context *mac,
 		 * can be used for sending control frames. HAL updates the
 		 * response rate table whenever basic rate set is changed.
 		 */
-<<<<<<< Updated upstream
-		if (basicOnly) {
-			if (tempRateSet.rate[min] & 0x80) {
-				if (isArate)
-					pRates->llaRates[aRateIndex++] =
-						tempRateSet.rate[min];
-				else
-					pRates->llbRates[bRateIndex++] =
-						tempRateSet.rate[min];
-			}
-		} else {
-			if (isArate)
-				pRates->llaRates[aRateIndex++] =
-					tempRateSet.rate[min];
-			else
-				pRates->llbRates[bRateIndex++] =
-					tempRateSet.rate[min];
-=======
 		if (basicOnly && !(tempRateSet.rate[min] & 0x80)) {
 			pe_debug("Invalid basic rate");
 		} else if (sirIsArate(tempRateSet.rate[min] & 0x7f)) {
@@ -1730,7 +1687,6 @@ QDF_STATUS lim_populate_peer_rate_set(struct mac_context *mac,
 		} else {
 			pe_debug("%d is neither 11a nor 11b rate",
 				 tempRateSet.rate[min]);
->>>>>>> Stashed changes
 		}
 		tempRateSet.rate[min] = 0xff;
 	}
@@ -1825,13 +1781,8 @@ QDF_STATUS lim_populate_peer_rate_set(struct mac_context *mac,
  * the rate sets received in the Assoc request on AP
  * or Beacon/Probe Response from peer in IBSS.
  *
-<<<<<<< Updated upstream
- * 1. It makes the intersection between our own rate Sat
- *    and extemcded rate set and the ones received in the
-=======
  * 1. It makes the intersection between our own rate set
  *    and extended rate set and the ones received in the
->>>>>>> Stashed changes
  *    association request.
  * 2. It creates a combined rate set of 12 rates max which
  *    comprised the basic and extended rates
@@ -1881,15 +1832,6 @@ QDF_STATUS lim_populate_matching_rate_set(struct mac_context *mac_ctx,
 		temp_rate_set2.numRates = 0;
 	}
 
-<<<<<<< Updated upstream
-	/*
-	 * absolute sum of both num_rates should be less than 12. following
-	 * 16-bit sum avoids false codition where 8-bit arthematic overflow
-	 * might have caused total sum to be less than 12
-	 */
-	if (((uint16_t)temp_rate_set.numRates +
-		(uint16_t)temp_rate_set2.numRates) > 12) {
-=======
 	lim_remove_membership_selectors(&temp_rate_set);
 	lim_remove_membership_selectors(&temp_rate_set2);
 
@@ -1900,7 +1842,6 @@ QDF_STATUS lim_populate_matching_rate_set(struct mac_context *mac_ctx,
 	 */
 	if (((uint16_t)temp_rate_set.numRates +
 	    (uint16_t)temp_rate_set2.numRates) > SIR_MAC_MAX_NUMBER_OF_RATES) {
->>>>>>> Stashed changes
 		pe_err("more than 12 rates in CFG");
 		return QDF_STATUS_E_FAILURE;
 	}
@@ -2229,18 +2170,12 @@ lim_add_sta(struct mac_context *mac_ctx,
 	/* Update VHT/HT Capability */
 	if (LIM_IS_AP_ROLE(session_entry) ||
 	    LIM_IS_IBSS_ROLE(session_entry)) {
-<<<<<<< Updated upstream
-		add_sta_params->htCapable = sta_ds->mlmStaContext.htCapability;
-		add_sta_params->vhtCapable =
-			 sta_ds->mlmStaContext.vhtCapability;
-=======
 		add_sta_params->htCapable =
 				sta_ds->mlmStaContext.htCapability &&
 				session_entry->htCapability;;
 		add_sta_params->vhtCapable =
 				sta_ds->mlmStaContext.vhtCapability &&
 				session_entry->vhtCapability;
->>>>>>> Stashed changes
 	}
 #ifdef FEATURE_WLAN_TDLS
 	/* SystemRole shouldn't be matter if staType is TDLS peer */
@@ -2560,17 +2495,11 @@ lim_add_sta(struct mac_context *mac_ctx,
 			assoc_req =
 			(tpSirAssocReq) session_entry->parsedAssocReq[aid];
 
-<<<<<<< Updated upstream
-			add_sta_params->wpa_rsn = assoc_req->rsnPresent;
-			add_sta_params->wpa_rsn |=
-				(assoc_req->wpaPresent << 1);
-=======
 			if (assoc_req) {
 				add_sta_params->wpa_rsn = assoc_req->rsnPresent;
 				add_sta_params->wpa_rsn |=
 					(assoc_req->wpaPresent << 1);
 			}
->>>>>>> Stashed changes
 		}
 	}
 

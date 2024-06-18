@@ -1,9 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0-only
-<<<<<<< Updated upstream
-/* Copyright (c) 2016-2018, 2020, The Linux Foundation. All rights reserved.
-=======
 /* Copyright (c) 2016-2018, 2020-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -385,11 +381,7 @@ static int __msm_sdw_reg_read(struct msm_sdw_priv *msm_sdw, unsigned short reg,
 			((u8 *)dest)[i] = temp;
 		}
 		msm_sdw->int_mclk1_enabled = true;
-<<<<<<< Updated upstream
-		schedule_delayed_work(&msm_sdw->disable_int_mclk1_work, 50);
-=======
 		queue_delayed_work(system_power_efficient_wq, &msm_sdw->disable_int_mclk1_work, 50);
->>>>>>> Stashed changes
 		goto unlock_exit;
 	}
 	for (i = 0; i < bytes; i++)  {
@@ -432,11 +424,7 @@ static int __msm_sdw_reg_write(struct msm_sdw_priv *msm_sdw, unsigned short reg,
 			ret = msm_sdw_ahb_write_device(msm_sdw, reg + (4 * i),
 						       &((u8 *)src)[i]);
 		msm_sdw->int_mclk1_enabled = true;
-<<<<<<< Updated upstream
-		schedule_delayed_work(&msm_sdw->disable_int_mclk1_work, 50);
-=======
 		queue_delayed_work(system_power_efficient_wq, &msm_sdw->disable_int_mclk1_work, 50);
->>>>>>> Stashed changes
 		goto unlock_exit;
 	}
 	for (i = 0; i < bytes; i++)
@@ -1823,13 +1811,9 @@ static int msm_sdw_notifier_service_cb(struct notifier_block *nb,
 			initial_boot = false;
 			break;
 		}
-<<<<<<< Updated upstream
-		msm_sdw->int_mclk1_enabled = false;
-=======
 		mutex_lock(&msm_sdw->cdc_int_mclk1_mutex);
 		msm_sdw->int_mclk1_enabled = false;
 		mutex_unlock(&msm_sdw->cdc_int_mclk1_mutex);
->>>>>>> Stashed changes
 		msm_sdw->dev_up = false;
 		for (i = 0; i < msm_sdw->nr; i++)
 			swrm_wcd_notify(msm_sdw->sdw_ctrl_data[i].sdw_pdev,
@@ -2020,12 +2004,8 @@ static int msm_sdw_probe(struct platform_device *pdev)
 	int adsp_state;
 
 	adsp_state = apr_get_subsys_state();
-<<<<<<< Updated upstream
-	if (adsp_state != APR_SUBSYS_LOADED) {
-=======
 	if (adsp_state != APR_SUBSYS_LOADED ||
 		!q6core_is_adsp_ready()) {
->>>>>>> Stashed changes
 		dev_err(&pdev->dev, "Adsp is not loaded yet %d\n",
 				adsp_state);
 		return -EPROBE_DEFER;

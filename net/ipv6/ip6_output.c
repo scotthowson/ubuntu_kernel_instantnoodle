@@ -1404,11 +1404,7 @@ emsgsize:
 			unsigned int datalen;
 			unsigned int fraglen;
 			unsigned int fraggap;
-<<<<<<< Updated upstream
-			unsigned int alloclen;
-=======
 			unsigned int alloclen, alloc_extra;
->>>>>>> Stashed changes
 			unsigned int pagedlen;
 alloc_new_skb:
 			/* There's no room in the current skb */
@@ -1434,8 +1430,6 @@ alloc_new_skb:
 				datalen = maxfraglen - fragheaderlen - rt->dst.trailer_len;
 			fraglen = datalen + fragheaderlen;
 			pagedlen = 0;
-<<<<<<< Updated upstream
-=======
 
 			alloc_extra = hh_len;
 			alloc_extra += dst_exthdrlen;
@@ -1446,7 +1440,6 @@ alloc_new_skb:
 			 * (without MSG_MORE) fits into the MTU.
 			 */
 			alloc_extra += sizeof(struct frag_hdr);
->>>>>>> Stashed changes
 
 			if ((flags & MSG_MORE) &&
 			    !(rt->dst.dev->features&NETIF_F_SG))

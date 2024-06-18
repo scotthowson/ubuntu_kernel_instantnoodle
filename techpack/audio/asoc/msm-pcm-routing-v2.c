@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
-<<<<<<< Updated upstream
-/* Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
-=======
 /* Copyright (c) 2012-2021, The Linux Foundation. All rights reserved.
  * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include <linux/init.h>
@@ -1171,12 +1167,6 @@ done:
 EXPORT_SYMBOL(msm_pcm_routing_get_stream_app_type_cfg);
 
 static struct cal_block_data *msm_routing_find_topology_by_path(int path,
-<<<<<<< Updated upstream
-								int cal_index)
-{
-	struct list_head		*ptr, *next;
-	struct cal_block_data		*cal_block = NULL;
-=======
 								int cal_index,
 								int app_type,
 								int acdb_id)
@@ -1184,7 +1174,6 @@ static struct cal_block_data *msm_routing_find_topology_by_path(int path,
 	struct list_head		*ptr, *next;
 	struct cal_block_data		*cal_block = NULL;
 	struct audio_cal_info_adm_top *cal_info;
->>>>>>> Stashed changes
 	pr_debug("%s\n", __func__);
 
 	list_for_each_safe(ptr, next,
@@ -1195,17 +1184,11 @@ static struct cal_block_data *msm_routing_find_topology_by_path(int path,
 
 		if (cal_utils_is_cal_stale(cal_block))
 			continue;
-<<<<<<< Updated upstream
-
-		if (((struct audio_cal_info_adm_top *)cal_block
-			->cal_info)->path == path) {
-=======
 		cal_info = (struct audio_cal_info_adm_top *)
                       	 	 cal_block->cal_info;
 		if ((cal_info->path == path)  &&
 			(cal_info->app_type == app_type) &&
 			(cal_info->acdb_id == acdb_id)) {
->>>>>>> Stashed changes
 			return cal_block;
 		}
 	}
@@ -1246,13 +1229,9 @@ static struct cal_block_data *msm_routing_find_topology(int path,
 		 "acdb_id %d %s\n",  __func__, path, app_type, acdb_id,
 		 exact ? "fail" : "defaulting to search by path");
 	return exact ? NULL : msm_routing_find_topology_by_path(path,
-<<<<<<< Updated upstream
-								cal_index);
-=======
 								cal_index,
 								app_type,
 								acdb_id);
->>>>>>> Stashed changes
 }
 
 static int msm_routing_find_topology_on_index(int session_type, int app_type,
@@ -1287,12 +1266,6 @@ static int msm_routing_get_adm_topology(int fedai_id, int session_type,
 	pr_debug("%s: fedai_id %d, session_type %d, be_id %d\n",
 	       __func__, fedai_id, session_type, be_id);
 
-<<<<<<< Updated upstream
-	if (cal_data == NULL)
-		goto done;
-
-=======
->>>>>>> Stashed changes
 	app_type = fe_dai_app_type_cfg[fedai_id][session_type][be_id].app_type;
 	acdb_dev_id =
 		fe_dai_app_type_cfg[fedai_id][session_type][be_id].acdb_dev_id;
@@ -1316,10 +1289,6 @@ static int msm_routing_get_adm_topology(int fedai_id, int session_type,
 			pr_debug("%s: Force using topology %d\n", __func__, topology);
 		}
 	}
-<<<<<<< Updated upstream
-done:
-=======
->>>>>>> Stashed changes
 	pr_debug("%s: Using topology %d\n", __func__, topology);
 	return topology;
 }
@@ -1797,14 +1766,11 @@ static int msm_pcm_routing_channel_mixer_v2(int fe_id, bool perf_mode,
 	}
 
 	be_id = channel_mixer_v2[fe_id][sess_type].port_idx - 1;
-<<<<<<< Updated upstream
-=======
 	if (be_id < 0 || be_id >= MSM_BACKEND_DAI_MAX) {
 		pr_err("%s: Received out of bounds be_id %d\n",
 				__func__, be_id);
 		return -EINVAL;
 	}
->>>>>>> Stashed changes
 	channel_mixer_v2[fe_id][sess_type].input_channels[0] =
 		channel_mixer_v2[fe_id][sess_type].input_channel;
 
@@ -1869,14 +1835,11 @@ static int msm_pcm_routing_channel_mixer(int fe_id, bool perf_mode,
 	for (i = 0; i < ADM_MAX_CHANNELS && channel_input[fe_id][i] > 0;
 		++i) {
 		be_id = channel_input[fe_id][i] - 1;
-<<<<<<< Updated upstream
-=======
 		if (be_id < 0 || be_id >= MSM_BACKEND_DAI_MAX) {
 			pr_err("%s: Received out of bounds be_id %d\n",
 					__func__, be_id);
 			return -EINVAL;
 		}
->>>>>>> Stashed changes
 		channel_mixer[fe_id].input_channels[i] =
 						msm_bedais[be_id].channel;
 
@@ -2530,14 +2493,11 @@ static void msm_pcm_routing_process_voice(u16 reg, u16 val, int set)
 
 	session_id = msm_pcm_routing_get_voc_sessionid(val);
 
-<<<<<<< Updated upstream
-=======
 	if (!session_id) {
 		pr_err("%s: Invalid session_id %x\n", __func__, session_id);
 		return;
 	}
 
->>>>>>> Stashed changes
 	pr_debug("%s: FE DAI 0x%x session_id 0x%x\n",
 		__func__, val, session_id);
 
@@ -3202,10 +3162,7 @@ static int msm_routing_lsm_port_put(struct snd_kcontrol *kcontrol,
 	struct soc_enum *e = (struct soc_enum *)kcontrol->private_value;
 	int mux = ucontrol->value.enumerated.item[0];
 	int lsm_port = AFE_PORT_ID_SLIMBUS_MULTI_CHAN_5_TX;
-<<<<<<< Updated upstream
-=======
 	int lsm_port_idx = 0;
->>>>>>> Stashed changes
 	u8 fe_idx = 0;
 
 	if (mux >= e->items) {
@@ -3215,10 +3172,7 @@ static int msm_routing_lsm_port_put(struct snd_kcontrol *kcontrol,
 
 	pr_debug("%s: LSM enable %ld\n", __func__,
 			ucontrol->value.integer.value[0]);
-<<<<<<< Updated upstream
-=======
 	lsm_port_idx = ucontrol->value.integer.value[0];
->>>>>>> Stashed changes
 	switch (ucontrol->value.integer.value[0]) {
 	case 1:
 		lsm_port = AFE_PORT_ID_SLIMBUS_MULTI_CHAN_0_TX;
@@ -3275,13 +3229,10 @@ static int msm_routing_lsm_port_put(struct snd_kcontrol *kcontrol,
 	set_lsm_port(lsm_port);
 	msm_routing_get_lsm_fe_idx(kcontrol, &fe_idx);
 	lsm_port_index[fe_idx] = ucontrol->value.integer.value[0];
-<<<<<<< Updated upstream
-=======
         /* Set the default AFE LSM Port to 0xffff */
 	if(lsm_port_idx <= 0 || lsm_port_idx >= ARRAY_SIZE(lsm_port_text))
 		lsm_port = 0xffff;
 	afe_set_lsm_afe_port_id(fe_idx, lsm_port);
->>>>>>> Stashed changes
 
 	return 0;
 }
@@ -3648,18 +3599,11 @@ static int msm_pcm_get_out_chs(struct snd_kcontrol *kcontrol,
 static int msm_pcm_put_out_chs(struct snd_kcontrol *kcontrol,
 				struct snd_ctl_elem_value *ucontrol)
 {
-<<<<<<< Updated upstream
-	u16 fe_id = 0;
-
-	fe_id = ((struct soc_multi_mixer_control *)
-			kcontrol->private_value)->shift;
-=======
 	u16 fe_id = 0, out_ch = 0;
 
 	fe_id = ((struct soc_multi_mixer_control *)
 			kcontrol->private_value)->shift;
 	out_ch = ucontrol->value.integer.value[0];
->>>>>>> Stashed changes
 	if (fe_id >= MSM_FRONTEND_DAI_MM_SIZE) {
 		pr_err("%s: invalid FE %d\n", __func__, fe_id);
 		return -EINVAL;
@@ -3668,15 +3612,12 @@ static int msm_pcm_put_out_chs(struct snd_kcontrol *kcontrol,
 	pr_debug("%s: fe_id is %d, output channels = %d\n", __func__,
 			fe_id,
 			(unsigned int)(ucontrol->value.integer.value[0]));
-<<<<<<< Updated upstream
-=======
 	if (out_ch < 0 ||
 		out_ch > ADM_MAX_CHANNELS) {
 		pr_err("%s: invalid output channel %d\n", __func__,
 				out_ch);
 		return -EINVAL;
 	}
->>>>>>> Stashed changes
 	channel_mixer[fe_id].output_channel =
 			(unsigned int)(ucontrol->value.integer.value[0]);
 
@@ -8532,10 +8473,7 @@ static const struct snd_kcontrol_new slimbus_6_rx_mixer_controls[] = {
 	msm_routing_put_audio_mixer),
 };
 
-<<<<<<< Updated upstream
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 static const struct snd_kcontrol_new wsa_cdc_dma_rx_0_mixer_controls[] = {
 	SOC_DOUBLE_EXT("MultiMedia1", SND_SOC_NOPM,
 	MSM_BACKEND_DAI_WSA_CDC_DMA_RX_0,
@@ -9245,10 +9183,7 @@ static const struct snd_kcontrol_new rx_cdc_dma_rx_7_mixer_controls[] = {
 	MSM_FRONTEND_DAI_MULTIMEDIA26, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
 };
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 
 static const struct snd_kcontrol_new slimbus_7_rx_mixer_controls[] = {
 	SOC_DOUBLE_EXT("MultiMedia1", SND_SOC_NOPM,
@@ -11827,8 +11762,6 @@ static const struct snd_kcontrol_new quat_tdm_tx_0_mixer_controls[] = {
 	MSM_BACKEND_DAI_QUAT_TDM_TX_0,
 	MSM_FRONTEND_DAI_MULTIMEDIA16, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
-<<<<<<< Updated upstream
-=======
 	SOC_DOUBLE_EXT("MultiMedia18", SND_SOC_NOPM,
 	MSM_BACKEND_DAI_QUAT_TDM_TX_0,
 	MSM_FRONTEND_DAI_MULTIMEDIA18, 1, 0, msm_routing_get_audio_mixer,
@@ -11837,7 +11770,6 @@ static const struct snd_kcontrol_new quat_tdm_tx_0_mixer_controls[] = {
 	MSM_BACKEND_DAI_QUAT_TDM_TX_0,
 	MSM_FRONTEND_DAI_MULTIMEDIA19, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
->>>>>>> Stashed changes
 	SOC_DOUBLE_EXT("MultiMedia23", SND_SOC_NOPM,
 	MSM_BACKEND_DAI_QUAT_TDM_TX_0,
 	MSM_FRONTEND_DAI_MULTIMEDIA23, 1, 0, msm_routing_get_audio_mixer,
@@ -11850,8 +11782,6 @@ static const struct snd_kcontrol_new quat_tdm_tx_0_mixer_controls[] = {
 	MSM_BACKEND_DAI_QUAT_TDM_TX_0,
 	MSM_FRONTEND_DAI_MULTIMEDIA25, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
-<<<<<<< Updated upstream
-=======
 	SOC_DOUBLE_EXT("MultiMedia28", SND_SOC_NOPM,
 	MSM_BACKEND_DAI_QUAT_TDM_TX_0,
 	MSM_FRONTEND_DAI_MULTIMEDIA28, 1, 0, msm_routing_get_audio_mixer,
@@ -11860,7 +11790,6 @@ static const struct snd_kcontrol_new quat_tdm_tx_0_mixer_controls[] = {
 	MSM_BACKEND_DAI_QUAT_TDM_TX_0,
 	MSM_FRONTEND_DAI_MULTIMEDIA29, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
->>>>>>> Stashed changes
 };
 
 static const struct snd_kcontrol_new quat_tdm_rx_1_mixer_controls[] = {
@@ -11928,8 +11857,6 @@ static const struct snd_kcontrol_new quat_tdm_rx_1_mixer_controls[] = {
 	MSM_BACKEND_DAI_QUAT_TDM_RX_1,
 	MSM_FRONTEND_DAI_MULTIMEDIA16, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
-<<<<<<< Updated upstream
-=======
 	SOC_DOUBLE_EXT("MultiMedia18", SND_SOC_NOPM,
 	MSM_BACKEND_DAI_QUAT_TDM_RX_1,
 	MSM_FRONTEND_DAI_MULTIMEDIA18, 1, 0, msm_routing_get_audio_mixer,
@@ -11938,7 +11865,6 @@ static const struct snd_kcontrol_new quat_tdm_rx_1_mixer_controls[] = {
 	MSM_BACKEND_DAI_QUAT_TDM_RX_1,
 	MSM_FRONTEND_DAI_MULTIMEDIA19, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
->>>>>>> Stashed changes
 	SOC_DOUBLE_EXT("MultiMedia20", SND_SOC_NOPM,
 	MSM_BACKEND_DAI_QUAT_TDM_RX_1,
 	MSM_FRONTEND_DAI_MULTIMEDIA20, 1, 0, msm_routing_get_audio_mixer,
@@ -11963,8 +11889,6 @@ static const struct snd_kcontrol_new quat_tdm_rx_1_mixer_controls[] = {
 	MSM_BACKEND_DAI_QUAT_TDM_RX_1,
 	MSM_FRONTEND_DAI_MULTIMEDIA25, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
-<<<<<<< Updated upstream
-=======
 	SOC_DOUBLE_EXT("MultiMedia28", SND_SOC_NOPM,
 	MSM_BACKEND_DAI_QUAT_TDM_RX_1,
 	MSM_FRONTEND_DAI_MULTIMEDIA28, 1, 0, msm_routing_get_audio_mixer,
@@ -11973,7 +11897,6 @@ static const struct snd_kcontrol_new quat_tdm_rx_1_mixer_controls[] = {
 	MSM_BACKEND_DAI_QUAT_TDM_RX_1,
 	MSM_FRONTEND_DAI_MULTIMEDIA29, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
->>>>>>> Stashed changes
 };
 
 static const struct snd_kcontrol_new quat_tdm_rx_2_mixer_controls[] = {
@@ -12041,8 +11964,6 @@ static const struct snd_kcontrol_new quat_tdm_rx_2_mixer_controls[] = {
 	MSM_BACKEND_DAI_QUAT_TDM_RX_2,
 	MSM_FRONTEND_DAI_MULTIMEDIA16, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
-<<<<<<< Updated upstream
-=======
 	SOC_DOUBLE_EXT("MultiMedia18", SND_SOC_NOPM,
 	MSM_BACKEND_DAI_QUAT_TDM_RX_2,
 	MSM_FRONTEND_DAI_MULTIMEDIA18, 1, 0, msm_routing_get_audio_mixer,
@@ -12051,7 +11972,6 @@ static const struct snd_kcontrol_new quat_tdm_rx_2_mixer_controls[] = {
 	MSM_BACKEND_DAI_QUAT_TDM_RX_2,
 	MSM_FRONTEND_DAI_MULTIMEDIA19, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
->>>>>>> Stashed changes
 	SOC_DOUBLE_EXT("MultiMedia20", SND_SOC_NOPM,
 	MSM_BACKEND_DAI_QUAT_TDM_RX_2,
 	MSM_FRONTEND_DAI_MULTIMEDIA20, 1, 0, msm_routing_get_audio_mixer,
@@ -12076,8 +11996,6 @@ static const struct snd_kcontrol_new quat_tdm_rx_2_mixer_controls[] = {
 	MSM_BACKEND_DAI_QUAT_TDM_RX_2,
 	MSM_FRONTEND_DAI_MULTIMEDIA25, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
-<<<<<<< Updated upstream
-=======
 	SOC_DOUBLE_EXT("MultiMedia28", SND_SOC_NOPM,
 	MSM_BACKEND_DAI_QUAT_TDM_RX_2,
 	MSM_FRONTEND_DAI_MULTIMEDIA28, 1, 0, msm_routing_get_audio_mixer,
@@ -12086,7 +12004,6 @@ static const struct snd_kcontrol_new quat_tdm_rx_2_mixer_controls[] = {
 	MSM_BACKEND_DAI_QUAT_TDM_RX_2,
 	MSM_FRONTEND_DAI_MULTIMEDIA29, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
->>>>>>> Stashed changes
 };
 
 static const struct snd_kcontrol_new quat_tdm_rx_3_mixer_controls[] = {
@@ -12154,8 +12071,6 @@ static const struct snd_kcontrol_new quat_tdm_rx_3_mixer_controls[] = {
 	MSM_BACKEND_DAI_QUAT_TDM_RX_3,
 	MSM_FRONTEND_DAI_MULTIMEDIA16, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
-<<<<<<< Updated upstream
-=======
 	SOC_DOUBLE_EXT("MultiMedia18", SND_SOC_NOPM,
 	MSM_BACKEND_DAI_QUAT_TDM_RX_3,
 	MSM_FRONTEND_DAI_MULTIMEDIA18, 1, 0, msm_routing_get_audio_mixer,
@@ -12164,7 +12079,6 @@ static const struct snd_kcontrol_new quat_tdm_rx_3_mixer_controls[] = {
 	MSM_BACKEND_DAI_QUAT_TDM_RX_3,
 	MSM_FRONTEND_DAI_MULTIMEDIA19, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
->>>>>>> Stashed changes
 	SOC_DOUBLE_EXT("MultiMedia20", SND_SOC_NOPM,
 	MSM_BACKEND_DAI_QUAT_TDM_RX_3,
 	MSM_FRONTEND_DAI_MULTIMEDIA20, 1, 0, msm_routing_get_audio_mixer,
@@ -12189,8 +12103,6 @@ static const struct snd_kcontrol_new quat_tdm_rx_3_mixer_controls[] = {
 	MSM_BACKEND_DAI_QUAT_TDM_RX_3,
 	MSM_FRONTEND_DAI_MULTIMEDIA25, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
-<<<<<<< Updated upstream
-=======
 	SOC_DOUBLE_EXT("MultiMedia28", SND_SOC_NOPM,
 	MSM_BACKEND_DAI_QUAT_TDM_RX_3,
 	MSM_FRONTEND_DAI_MULTIMEDIA28, 1, 0, msm_routing_get_audio_mixer,
@@ -12199,7 +12111,6 @@ static const struct snd_kcontrol_new quat_tdm_rx_3_mixer_controls[] = {
 	MSM_BACKEND_DAI_QUAT_TDM_RX_3,
 	MSM_FRONTEND_DAI_MULTIMEDIA29, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
->>>>>>> Stashed changes
 };
 
 static const struct snd_kcontrol_new quin_tdm_rx_0_mixer_controls[] = {
@@ -12911,8 +12822,6 @@ static const struct snd_kcontrol_new sen_tdm_rx_0_mixer_controls[] = {
 	MSM_BACKEND_DAI_SEN_TDM_RX_0,
 	MSM_FRONTEND_DAI_MULTIMEDIA16, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
-<<<<<<< Updated upstream
-=======
 	SOC_DOUBLE_EXT("MultiMedia18", SND_SOC_NOPM,
 	MSM_BACKEND_DAI_SEN_TDM_RX_0,
 	MSM_FRONTEND_DAI_MULTIMEDIA18, 1, 0, msm_routing_get_audio_mixer,
@@ -12921,7 +12830,6 @@ static const struct snd_kcontrol_new sen_tdm_rx_0_mixer_controls[] = {
 	MSM_BACKEND_DAI_SEN_TDM_RX_0,
 	MSM_FRONTEND_DAI_MULTIMEDIA19, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
->>>>>>> Stashed changes
 	SOC_DOUBLE_EXT("MultiMedia20", SND_SOC_NOPM,
 	MSM_BACKEND_DAI_SEN_TDM_RX_0,
 	MSM_FRONTEND_DAI_MULTIMEDIA20, 1, 0, msm_routing_get_audio_mixer,
@@ -12930,8 +12838,6 @@ static const struct snd_kcontrol_new sen_tdm_rx_0_mixer_controls[] = {
 	MSM_BACKEND_DAI_SEN_TDM_RX_0,
 	MSM_FRONTEND_DAI_MULTIMEDIA21, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
-<<<<<<< Updated upstream
-=======
 	SOC_DOUBLE_EXT("MultiMedia28", SND_SOC_NOPM,
 	MSM_BACKEND_DAI_SEN_TDM_RX_0,
 	MSM_FRONTEND_DAI_MULTIMEDIA28, 1, 0, msm_routing_get_audio_mixer,
@@ -12940,7 +12846,6 @@ static const struct snd_kcontrol_new sen_tdm_rx_0_mixer_controls[] = {
 	MSM_BACKEND_DAI_SEN_TDM_RX_0,
 	MSM_FRONTEND_DAI_MULTIMEDIA29, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
->>>>>>> Stashed changes
 };
 
 static const struct snd_kcontrol_new sen_tdm_tx_0_mixer_controls[] = {
@@ -13008,8 +12913,6 @@ static const struct snd_kcontrol_new sen_tdm_tx_0_mixer_controls[] = {
 	MSM_BACKEND_DAI_SEN_TDM_TX_0,
 	MSM_FRONTEND_DAI_MULTIMEDIA16, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
-<<<<<<< Updated upstream
-=======
 	SOC_DOUBLE_EXT("MultiMedia18", SND_SOC_NOPM,
 	MSM_BACKEND_DAI_SEN_TDM_TX_0,
 	MSM_FRONTEND_DAI_MULTIMEDIA18, 1, 0, msm_routing_get_audio_mixer,
@@ -13026,7 +12929,6 @@ static const struct snd_kcontrol_new sen_tdm_tx_0_mixer_controls[] = {
 	MSM_BACKEND_DAI_SEN_TDM_TX_0,
 	MSM_FRONTEND_DAI_MULTIMEDIA29, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
->>>>>>> Stashed changes
 };
 
 static const struct snd_kcontrol_new sen_tdm_rx_1_mixer_controls[] = {
@@ -13094,8 +12996,6 @@ static const struct snd_kcontrol_new sen_tdm_rx_1_mixer_controls[] = {
 	MSM_BACKEND_DAI_SEN_TDM_RX_1,
 	MSM_FRONTEND_DAI_MULTIMEDIA16, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
-<<<<<<< Updated upstream
-=======
 	SOC_DOUBLE_EXT("MultiMedia18", SND_SOC_NOPM,
 	MSM_BACKEND_DAI_SEN_TDM_RX_1,
 	MSM_FRONTEND_DAI_MULTIMEDIA18, 1, 0, msm_routing_get_audio_mixer,
@@ -13104,7 +13004,6 @@ static const struct snd_kcontrol_new sen_tdm_rx_1_mixer_controls[] = {
 	MSM_BACKEND_DAI_SEN_TDM_RX_1,
 	MSM_FRONTEND_DAI_MULTIMEDIA19, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
->>>>>>> Stashed changes
 	SOC_DOUBLE_EXT("MultiMedia20", SND_SOC_NOPM,
 	MSM_BACKEND_DAI_SEN_TDM_RX_1,
 	MSM_FRONTEND_DAI_MULTIMEDIA20, 1, 0, msm_routing_get_audio_mixer,
@@ -13113,8 +13012,6 @@ static const struct snd_kcontrol_new sen_tdm_rx_1_mixer_controls[] = {
 	MSM_BACKEND_DAI_SEN_TDM_RX_1,
 	MSM_FRONTEND_DAI_MULTIMEDIA21, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
-<<<<<<< Updated upstream
-=======
 	SOC_DOUBLE_EXT("MultiMedia28", SND_SOC_NOPM,
 	MSM_BACKEND_DAI_SEN_TDM_RX_1,
 	MSM_FRONTEND_DAI_MULTIMEDIA28, 1, 0, msm_routing_get_audio_mixer,
@@ -13123,7 +13020,6 @@ static const struct snd_kcontrol_new sen_tdm_rx_1_mixer_controls[] = {
 	MSM_BACKEND_DAI_SEN_TDM_RX_1,
 	MSM_FRONTEND_DAI_MULTIMEDIA29, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
->>>>>>> Stashed changes
 };
 
 static const struct snd_kcontrol_new sen_tdm_rx_2_mixer_controls[] = {
@@ -13191,8 +13087,6 @@ static const struct snd_kcontrol_new sen_tdm_rx_2_mixer_controls[] = {
 	MSM_BACKEND_DAI_SEN_TDM_RX_2,
 	MSM_FRONTEND_DAI_MULTIMEDIA16, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
-<<<<<<< Updated upstream
-=======
 	SOC_DOUBLE_EXT("MultiMedia18", SND_SOC_NOPM,
 	MSM_BACKEND_DAI_SEN_TDM_RX_2,
 	MSM_FRONTEND_DAI_MULTIMEDIA18, 1, 0, msm_routing_get_audio_mixer,
@@ -13201,7 +13095,6 @@ static const struct snd_kcontrol_new sen_tdm_rx_2_mixer_controls[] = {
 	MSM_BACKEND_DAI_SEN_TDM_RX_2,
 	MSM_FRONTEND_DAI_MULTIMEDIA19, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
->>>>>>> Stashed changes
 	SOC_DOUBLE_EXT("MultiMedia20", SND_SOC_NOPM,
 	MSM_BACKEND_DAI_SEN_TDM_RX_2,
 	MSM_FRONTEND_DAI_MULTIMEDIA20, 1, 0, msm_routing_get_audio_mixer,
@@ -13210,8 +13103,6 @@ static const struct snd_kcontrol_new sen_tdm_rx_2_mixer_controls[] = {
 	MSM_BACKEND_DAI_SEN_TDM_RX_2,
 	MSM_FRONTEND_DAI_MULTIMEDIA21, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
-<<<<<<< Updated upstream
-=======
 	SOC_DOUBLE_EXT("MultiMedia28", SND_SOC_NOPM,
 	MSM_BACKEND_DAI_SEN_TDM_RX_2,
 	MSM_FRONTEND_DAI_MULTIMEDIA28, 1, 0, msm_routing_get_audio_mixer,
@@ -13220,7 +13111,6 @@ static const struct snd_kcontrol_new sen_tdm_rx_2_mixer_controls[] = {
 	MSM_BACKEND_DAI_SEN_TDM_RX_2,
 	MSM_FRONTEND_DAI_MULTIMEDIA29, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
->>>>>>> Stashed changes
 };
 
 static const struct snd_kcontrol_new sen_tdm_rx_3_mixer_controls[] = {
@@ -13288,8 +13178,6 @@ static const struct snd_kcontrol_new sen_tdm_rx_3_mixer_controls[] = {
 	MSM_BACKEND_DAI_SEN_TDM_RX_3,
 	MSM_FRONTEND_DAI_MULTIMEDIA16, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
-<<<<<<< Updated upstream
-=======
 	SOC_DOUBLE_EXT("MultiMedia18", SND_SOC_NOPM,
 	MSM_BACKEND_DAI_SEN_TDM_RX_3,
 	MSM_FRONTEND_DAI_MULTIMEDIA18, 1, 0, msm_routing_get_audio_mixer,
@@ -13298,7 +13186,6 @@ static const struct snd_kcontrol_new sen_tdm_rx_3_mixer_controls[] = {
 	MSM_BACKEND_DAI_SEN_TDM_RX_3,
 	MSM_FRONTEND_DAI_MULTIMEDIA19, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
->>>>>>> Stashed changes
 	SOC_DOUBLE_EXT("MultiMedia20", SND_SOC_NOPM,
 	MSM_BACKEND_DAI_SEN_TDM_RX_3,
 	MSM_FRONTEND_DAI_MULTIMEDIA20, 1, 0, msm_routing_get_audio_mixer,
@@ -13307,8 +13194,6 @@ static const struct snd_kcontrol_new sen_tdm_rx_3_mixer_controls[] = {
 	MSM_BACKEND_DAI_SEN_TDM_RX_3,
 	MSM_FRONTEND_DAI_MULTIMEDIA21, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
-<<<<<<< Updated upstream
-=======
 	SOC_DOUBLE_EXT("MultiMedia28", SND_SOC_NOPM,
 	MSM_BACKEND_DAI_SEN_TDM_RX_3,
 	MSM_FRONTEND_DAI_MULTIMEDIA28, 1, 0, msm_routing_get_audio_mixer,
@@ -13317,7 +13202,6 @@ static const struct snd_kcontrol_new sen_tdm_rx_3_mixer_controls[] = {
 	MSM_BACKEND_DAI_SEN_TDM_RX_3,
 	MSM_FRONTEND_DAI_MULTIMEDIA29, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
->>>>>>> Stashed changes
 };
 
 static const struct snd_kcontrol_new quat_tdm_rx_2_voice_mixer_controls[] = {
@@ -18123,13 +18007,10 @@ static const struct snd_kcontrol_new mmul8_mixer_controls[] = {
 	MSM_BACKEND_DAI_SLIMBUS_7_TX,
 	MSM_FRONTEND_DAI_MULTIMEDIA8, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
-<<<<<<< Updated upstream
-=======
 	SOC_DOUBLE_EXT("SLIM_8_TX", SND_SOC_NOPM,
 	MSM_BACKEND_DAI_SLIMBUS_8_TX,
 	MSM_FRONTEND_DAI_MULTIMEDIA8, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
->>>>>>> Stashed changes
 	SOC_DOUBLE_EXT("USB_AUDIO_TX", SND_SOC_NOPM,
 	MSM_BACKEND_DAI_USB_TX,
 	MSM_FRONTEND_DAI_MULTIMEDIA8, 1, 0, msm_routing_get_audio_mixer,
@@ -19010,8 +18891,6 @@ static const struct snd_kcontrol_new mmul18_mixer_controls[] = {
 	MSM_BACKEND_DAI_AFE_LOOPBACK_TX,
 	MSM_FRONTEND_DAI_MULTIMEDIA18, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
-<<<<<<< Updated upstream
-=======
 	SOC_DOUBLE_EXT("QUAT_TDM_TX_0", SND_SOC_NOPM,
 	MSM_BACKEND_DAI_QUAT_TDM_TX_0,
 	MSM_FRONTEND_DAI_MULTIMEDIA18, 1, 0, msm_routing_get_audio_mixer,
@@ -19044,7 +18923,6 @@ static const struct snd_kcontrol_new mmul18_mixer_controls[] = {
 	MSM_BACKEND_DAI_SEN_TDM_TX_3,
 	MSM_FRONTEND_DAI_MULTIMEDIA18, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
->>>>>>> Stashed changes
 };
 
 static const struct snd_kcontrol_new mmul19_mixer_controls[] = {
@@ -19164,8 +19042,6 @@ static const struct snd_kcontrol_new mmul19_mixer_controls[] = {
 	MSM_BACKEND_DAI_AFE_LOOPBACK_TX,
 	MSM_FRONTEND_DAI_MULTIMEDIA19, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
-<<<<<<< Updated upstream
-=======
 	SOC_DOUBLE_EXT("QUAT_TDM_TX_0", SND_SOC_NOPM,
 	MSM_BACKEND_DAI_QUAT_TDM_TX_0,
 	MSM_FRONTEND_DAI_MULTIMEDIA19, 1, 0, msm_routing_get_audio_mixer,
@@ -19198,7 +19074,6 @@ static const struct snd_kcontrol_new mmul19_mixer_controls[] = {
 	MSM_BACKEND_DAI_SEN_TDM_TX_3,
 	MSM_FRONTEND_DAI_MULTIMEDIA19, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
->>>>>>> Stashed changes
 };
 
 static const struct snd_kcontrol_new mmul20_mixer_controls[] = {
@@ -20075,8 +19950,6 @@ static const struct snd_kcontrol_new mmul28_mixer_controls[] = {
 	MSM_BACKEND_DAI_AFE_LOOPBACK_TX,
 	MSM_FRONTEND_DAI_MULTIMEDIA28, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
-<<<<<<< Updated upstream
-=======
 	SOC_DOUBLE_EXT("QUAT_TDM_TX_0", SND_SOC_NOPM,
 	MSM_BACKEND_DAI_QUAT_TDM_TX_0,
 	MSM_FRONTEND_DAI_MULTIMEDIA28, 1, 0, msm_routing_get_audio_mixer,
@@ -20109,7 +19982,6 @@ static const struct snd_kcontrol_new mmul28_mixer_controls[] = {
 	MSM_BACKEND_DAI_SEN_TDM_TX_3,
 	MSM_FRONTEND_DAI_MULTIMEDIA28, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
->>>>>>> Stashed changes
 };
 
 static const struct snd_kcontrol_new mmul29_mixer_controls[] = {
@@ -20229,8 +20101,6 @@ static const struct snd_kcontrol_new mmul29_mixer_controls[] = {
 	MSM_BACKEND_DAI_AFE_LOOPBACK_TX,
 	MSM_FRONTEND_DAI_MULTIMEDIA29, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
-<<<<<<< Updated upstream
-=======
 	SOC_DOUBLE_EXT("QUAT_TDM_TX_0", SND_SOC_NOPM,
 	MSM_BACKEND_DAI_QUAT_TDM_TX_0,
 	MSM_FRONTEND_DAI_MULTIMEDIA29, 1, 0, msm_routing_get_audio_mixer,
@@ -20263,7 +20133,6 @@ static const struct snd_kcontrol_new mmul29_mixer_controls[] = {
 	MSM_BACKEND_DAI_SEN_TDM_TX_3,
 	MSM_FRONTEND_DAI_MULTIMEDIA29, 1, 0, msm_routing_get_audio_mixer,
 	msm_routing_put_audio_mixer),
->>>>>>> Stashed changes
 };
 
 static const struct snd_kcontrol_new mmul30_mixer_controls[] = {
@@ -22084,13 +21953,10 @@ static const struct snd_kcontrol_new wsa_cdc_dma_rx_0_port_mixer_controls[] = {
 	MSM_BACKEND_DAI_WSA_CDC_DMA_RX_0,
 	MSM_BACKEND_DAI_SLIMBUS_8_TX, 1, 0, msm_routing_get_port_mixer,
 	msm_routing_put_port_mixer),
-<<<<<<< Updated upstream
-=======
 	SOC_DOUBLE_EXT("SLIM_7_TX", SND_SOC_NOPM,
 	MSM_BACKEND_DAI_WSA_CDC_DMA_RX_0,
 	MSM_BACKEND_DAI_SLIMBUS_7_TX, 1, 0, msm_routing_get_port_mixer,
 	msm_routing_put_port_mixer),
->>>>>>> Stashed changes
 	SOC_DOUBLE_EXT("TERT_MI2S_TX", SND_SOC_NOPM,
 	MSM_BACKEND_DAI_WSA_CDC_DMA_RX_0,
 	MSM_BACKEND_DAI_TERTIARY_MI2S_TX, 1, 0, msm_routing_get_port_mixer,
@@ -23332,15 +23198,9 @@ static int msm_routing_put_app_type_cfg_control(struct snd_kcontrol *kcontrol,
 
 	memset(app_type_cfg, 0, MAX_APP_TYPES*
 				sizeof(struct msm_pcm_routing_app_type_data));
-<<<<<<< Updated upstream
-	if (num_app_types > MAX_APP_TYPES) {
-		pr_err("%s: number of app types exceed the max supported\n",
-			__func__);
-=======
 	if (num_app_types > MAX_APP_TYPES || num_app_types < 0) {
 		pr_err("%s: number of app types %d is invalid\n",
 			__func__, num_app_types);
->>>>>>> Stashed changes
 		return -EINVAL;
 	}
 	for (j = 0; j < num_app_types; j++) {
@@ -23544,16 +23404,10 @@ static int msm_routing_put_lsm_app_type_cfg_control(
 	int i = 0, j;
 
 	mutex_lock(&routing_lock);
-<<<<<<< Updated upstream
-	if (ucontrol->value.integer.value[0] > MAX_APP_TYPES) {
-		pr_err("%s: number of app types exceed the max supported\n",
-			__func__);
-=======
 	if (ucontrol->value.integer.value[0] < 0 ||
 	    ucontrol->value.integer.value[0] > MAX_APP_TYPES) {
 		pr_err("%s: number of app types %ld is invalid\n",
 			__func__, ucontrol->value.integer.value[0]);
->>>>>>> Stashed changes
 		mutex_unlock(&routing_lock);
 		return -EINVAL;
 	}
@@ -24614,20 +24468,14 @@ static const struct snd_soc_dapm_widget msm_qdsp6_widgets[] = {
 		0, 0, 0, 0),
 	SND_SOC_DAPM_AIF_OUT("SLIM0_UL_HL", "SLIMBUS0_HOSTLESS Capture",
 		0, 0, 0, 0),
-<<<<<<< Updated upstream
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	SND_SOC_DAPM_AIF_IN("CDC_DMA_DL_HL", "CDC_DMA_HOSTLESS Playback",
 		0, 0, 0, 0),
 	SND_SOC_DAPM_AIF_OUT("CDC_DMA_UL_HL", "CDC_DMA_HOSTLESS Capture",
 		0, 0, 0, 0),
 	SND_SOC_DAPM_AIF_OUT("TX3_CDC_DMA_UL_HL",
 		"TX3_CDC_DMA_HOSTLESS Capture", 0, 0, 0, 0),
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 	SND_SOC_DAPM_AIF_OUT("CPE_LSM_UL_HL", "CPE LSM capture",
 		0, 0, 0, 0),
 	SND_SOC_DAPM_AIF_IN("SLIM1_DL_HL", "SLIMBUS1_HOSTLESS Playback",
@@ -24721,10 +24569,7 @@ static const struct snd_soc_dapm_widget msm_qdsp6_widgets[] = {
 				0, 0, 0, 0),
 	SND_SOC_DAPM_AIF_IN("PCM_TX", "AFE Capture",
 				0, 0, 0, 0),
-<<<<<<< Updated upstream
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	SND_SOC_DAPM_AIF_OUT("WSA_CDC_DMA_RX_0", "WSA CDC DMA0 Playback",
 				0, 0, 0, 0),
 	SND_SOC_DAPM_AIF_IN("WSA_CDC_DMA_TX_0", "WSA CDC DMA0 Capture",
@@ -24769,10 +24614,7 @@ static const struct snd_soc_dapm_widget msm_qdsp6_widgets[] = {
 				0, 0, 0, 0),
 	SND_SOC_DAPM_AIF_OUT("RX_CDC_DMA_RX_7", "RX CDC DMA7 Playback",
 				0, 0, 0, 0),
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 	/* incall */
 	SND_SOC_DAPM_AIF_OUT("VOICE_PLAYBACK_TX", "Voice Farend Playback",
 				0, 0, 0, 0),
@@ -24848,20 +24690,14 @@ static const struct snd_soc_dapm_widget msm_qdsp6_widgets[] = {
 				&usb_switch_mixer_controls),
 	SND_SOC_DAPM_SWITCH("A2DP_SLIM7_UL_HL", SND_SOC_NOPM, 0, 0,
 				&a2dp_slim7_switch_mixer_controls),
-<<<<<<< Updated upstream
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	SND_SOC_DAPM_SWITCH("WSA_CDC_DMA_RX_0_DL_HL", SND_SOC_NOPM, 0, 0,
 				&cdc_dma_wsa_switch_mixer_controls),
 	SND_SOC_DAPM_SWITCH("RX_CDC_DMA_RX_0_DL_HL", SND_SOC_NOPM, 0, 0,
 				&cdc_dma_rx_switch_mixer_controls),
 	SND_SOC_DAPM_SWITCH("RX_CDC_DMA_RX_1_DL_HL", SND_SOC_NOPM, 0, 0,
 				&cdc_dma_rx_1_switch_mixer_controls),
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 
 	/* Mixer definitions */
 	SND_SOC_DAPM_MIXER("SLIMBUS_0_RX Audio Mixer", SND_SOC_NOPM, 0, 0,
@@ -24886,12 +24722,8 @@ static const struct snd_soc_dapm_widget msm_qdsp6_widgets[] = {
 	pri_spdif_rx_mixer_controls, ARRAY_SIZE(pri_spdif_rx_mixer_controls)),
 	SND_SOC_DAPM_MIXER("SEC_SPDIF_RX Audio Mixer", SND_SOC_NOPM, 0, 0,
 	sec_spdif_rx_mixer_controls, ARRAY_SIZE(sec_spdif_rx_mixer_controls)),
-<<<<<<< Updated upstream
-		SND_SOC_DAPM_MIXER("WSA_CDC_DMA_RX_0 Audio Mixer", SND_SOC_NOPM, 0, 0,
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
 	SND_SOC_DAPM_MIXER("WSA_CDC_DMA_RX_0 Audio Mixer", SND_SOC_NOPM, 0, 0,
->>>>>>> Stashed changes
 				wsa_cdc_dma_rx_0_mixer_controls,
 				ARRAY_SIZE(wsa_cdc_dma_rx_0_mixer_controls)),
 	SND_SOC_DAPM_MIXER("WSA_CDC_DMA_RX_1 Audio Mixer", SND_SOC_NOPM, 0, 0,
@@ -24921,10 +24753,7 @@ static const struct snd_soc_dapm_widget msm_qdsp6_widgets[] = {
 	SND_SOC_DAPM_MIXER("RX_CDC_DMA_RX_7 Audio Mixer", SND_SOC_NOPM, 0, 0,
 				rx_cdc_dma_rx_7_mixer_controls,
 				ARRAY_SIZE(rx_cdc_dma_rx_7_mixer_controls)),
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 	SND_SOC_DAPM_MIXER("MultiMedia1 Mixer", SND_SOC_NOPM, 0, 0,
 	mmul1_mixer_controls, ARRAY_SIZE(mmul1_mixer_controls)),
 	SND_SOC_DAPM_MIXER("MultiMedia2 Mixer", SND_SOC_NOPM, 0, 0,
@@ -25004,26 +24833,17 @@ static const struct snd_soc_dapm_widget msm_qdsp6_widgets[] = {
 				SND_SOC_NOPM, 0, 0,
 				hdmi_rx_voice_mixer_controls,
 				ARRAY_SIZE(hdmi_rx_voice_mixer_controls)),
-<<<<<<< Updated upstream
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	SND_SOC_DAPM_MIXER("WSA_CDC_DMA_RX_0_Voice Mixer",
 			   SND_SOC_NOPM, 0, 0,
 			   wsa_cdc_dma_rx_0_voice_mixer_controls,
 			   ARRAY_SIZE(wsa_cdc_dma_rx_0_voice_mixer_controls)),
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 	SND_SOC_DAPM_MIXER("PROXY_RX_Voice Mixer",
 			   SND_SOC_NOPM, 0, 0,
 			   proxy_rx_voice_mixer_controls,
 			   ARRAY_SIZE(proxy_rx_voice_mixer_controls)),
-<<<<<<< Updated upstream
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	SND_SOC_DAPM_MIXER("RX_CDC_DMA_RX_0_Voice Mixer",
 			   SND_SOC_NOPM, 0, 0,
 			   rx_cdc_dma_rx_0_voice_mixer_controls,
@@ -25032,10 +24852,7 @@ static const struct snd_soc_dapm_widget msm_qdsp6_widgets[] = {
 			   SND_SOC_NOPM, 0, 0,
 			   rx_cdc_dma_rx_1_voice_mixer_controls,
 			   ARRAY_SIZE(rx_cdc_dma_rx_1_voice_mixer_controls)),
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 	SND_SOC_DAPM_MIXER("Voip_Tx Mixer",
 				SND_SOC_NOPM, 0, 0, tx_voip_mixer_controls,
 				ARRAY_SIZE(tx_voip_mixer_controls)),
@@ -25108,10 +24925,7 @@ static const struct snd_soc_dapm_widget msm_qdsp6_widgets[] = {
 	SND_SOC_DAPM_MIXER("SLIMBUS_6_RX Port Mixer",
 	SND_SOC_NOPM, 0, 0, sbus_6_rx_port_mixer_controls,
 	ARRAY_SIZE(sbus_6_rx_port_mixer_controls)),
-<<<<<<< Updated upstream
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	SND_SOC_DAPM_MIXER("WSA_CDC_DMA_RX_0 Port Mixer", SND_SOC_NOPM, 0, 0,
 	wsa_cdc_dma_rx_0_port_mixer_controls,
 	ARRAY_SIZE(wsa_cdc_dma_rx_0_port_mixer_controls)),
@@ -25121,10 +24935,7 @@ static const struct snd_soc_dapm_widget msm_qdsp6_widgets[] = {
 	SND_SOC_DAPM_MIXER("RX_CDC_DMA_RX_1 Port Mixer", SND_SOC_NOPM, 0, 0,
 	rx_cdc_dma_rx_1_port_mixer_controls,
 	ARRAY_SIZE(rx_cdc_dma_rx_1_port_mixer_controls)),
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 	SND_SOC_DAPM_MIXER("QCHAT_Tx Mixer",
 	SND_SOC_NOPM, 0, 0, tx_qchat_mixer_controls,
 	ARRAY_SIZE(tx_qchat_mixer_controls)),
@@ -25534,13 +25345,10 @@ static const struct snd_soc_dapm_widget msm_qdsp6_widgets_mi2s[] = {
 				SND_SOC_NOPM, 0, 0,
 				quin_mi2s_rx_voice_mixer_controls,
 				ARRAY_SIZE(quin_mi2s_rx_voice_mixer_controls)),
-<<<<<<< Updated upstream
-=======
 	SND_SOC_DAPM_MIXER("SEN_MI2S_RX_Voice Mixer",
 				SND_SOC_NOPM, 0, 0,
 				sen_mi2s_rx_voice_mixer_controls,
 				ARRAY_SIZE(sen_mi2s_rx_voice_mixer_controls)),
->>>>>>> Stashed changes
 	/* port mixer */
 	SND_SOC_DAPM_MIXER("SEC_I2S_RX Port Mixer",
 	SND_SOC_NOPM, 0, 0, sec_i2s_rx_port_mixer_controls,
@@ -26200,13 +26008,6 @@ static const struct snd_soc_dapm_widget msm_qdsp6_widgets_tdm[] = {
 				SND_SOC_NOPM, 0, 0,
 				pri_tdm_rx_3_voice_mixer_controls,
 				ARRAY_SIZE(pri_tdm_rx_3_voice_mixer_controls)),
-<<<<<<< Updated upstream
-	SND_SOC_DAPM_MIXER("SEN_MI2S_RX_Voice Mixer",
-				SND_SOC_NOPM, 0, 0,
-				sen_mi2s_rx_voice_mixer_controls,
-				ARRAY_SIZE(sen_mi2s_rx_voice_mixer_controls)),
-=======
->>>>>>> Stashed changes
 	SND_SOC_DAPM_MIXER("QUAT_TDM_RX_2_Voice Mixer",
 				SND_SOC_NOPM, 0, 0,
 				quat_tdm_rx_2_voice_mixer_controls,
@@ -26360,10 +26161,7 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"SLIMBUS_5_RX Audio Mixer", "MultiMedia26", "MM_DL26"},
 	{"SLIMBUS_5_RX", NULL, "SLIMBUS_5_RX Audio Mixer"},
 
-<<<<<<< Updated upstream
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	{"WSA_CDC_DMA_RX_0 Audio Mixer", "MultiMedia1", "MM_DL1"},
 	{"WSA_CDC_DMA_RX_0 Audio Mixer", "MultiMedia2", "MM_DL2"},
 	{"WSA_CDC_DMA_RX_0 Audio Mixer", "MultiMedia3", "MM_DL3"},
@@ -26553,10 +26351,7 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"RX_CDC_DMA_RX_7 Audio Mixer", "MultiMedia16", "MM_DL16"},
 	{"RX_CDC_DMA_RX_7 Audio Mixer", "MultiMedia26", "MM_DL26"},
 	{"RX_CDC_DMA_RX_7", NULL, "RX_CDC_DMA_RX_7 Audio Mixer"},
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 
 	{"HDMI Mixer", "MultiMedia1", "MM_DL1"},
 	{"HDMI Mixer", "MultiMedia2", "MM_DL2"},
@@ -26781,10 +26576,7 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"MultiMedia1 Mixer", "SLIM_9_TX", "SLIMBUS_9_TX"},
 	{"MultiMedia8 Mixer", "SLIM_6_TX", "SLIMBUS_6_TX"},
 	{"MultiMedia8 Mixer", "SLIM_7_TX", "SLIMBUS_7_TX"},
-<<<<<<< Updated upstream
-=======
 	{"MultiMedia8 Mixer", "SLIM_8_TX", "SLIMBUS_8_TX"},
->>>>>>> Stashed changes
 	{"MultiMedia8 Mixer", "SLIM_9_TX", "SLIMBUS_9_TX"},
 	{"MultiMedia4 Mixer", "SLIM_0_TX", "SLIMBUS_0_TX"},
 	{"MultiMedia4 Mixer", "SLIM_1_TX", "SLIMBUS_1_TX"},
@@ -26838,10 +26630,7 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"MultiMedia6 Mixer", "SLIM_1_TX", "SLIMBUS_1_TX"},
 
 	{"MultiMedia1 Mixer", "AFE_LOOPBACK_TX", "AFE_LOOPBACK_TX"},
-<<<<<<< Updated upstream
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	{"MultiMedia1 Mixer", "WSA_CDC_DMA_TX_0", "WSA_CDC_DMA_TX_0"},
 	{"MultiMedia1 Mixer", "WSA_CDC_DMA_TX_1", "WSA_CDC_DMA_TX_1"},
 	{"MultiMedia1 Mixer", "WSA_CDC_DMA_TX_2", "WSA_CDC_DMA_TX_2"},
@@ -26854,18 +26643,12 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"MultiMedia1 Mixer", "TX_CDC_DMA_TX_3", "TX_CDC_DMA_TX_3"},
 	{"MultiMedia1 Mixer", "TX_CDC_DMA_TX_4", "TX_CDC_DMA_TX_4"},
 	{"MultiMedia1 Mixer", "TX_CDC_DMA_TX_5", "TX_CDC_DMA_TX_5"},
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 	{"MultiMedia1 Mixer", "PRI_SPDIF_TX", "PRI_SPDIF_TX"},
 	{"MultiMedia1 Mixer", "SEC_SPDIF_TX", "SEC_SPDIF_TX"},
 
 	{"MultiMedia2 Mixer", "AFE_LOOPBACK_TX", "AFE_LOOPBACK_TX"},
-<<<<<<< Updated upstream
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	{"MultiMedia2 Mixer", "WSA_CDC_DMA_TX_0", "WSA_CDC_DMA_TX_0"},
 	{"MultiMedia2 Mixer", "WSA_CDC_DMA_TX_1", "WSA_CDC_DMA_TX_1"},
 	{"MultiMedia2 Mixer", "WSA_CDC_DMA_TX_2", "WSA_CDC_DMA_TX_2"},
@@ -26878,18 +26661,12 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"MultiMedia2 Mixer", "TX_CDC_DMA_TX_3", "TX_CDC_DMA_TX_3"},
 	{"MultiMedia2 Mixer", "TX_CDC_DMA_TX_4", "TX_CDC_DMA_TX_4"},
 	{"MultiMedia2 Mixer", "TX_CDC_DMA_TX_5", "TX_CDC_DMA_TX_5"},
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 	{"MultiMedia2 Mixer", "PRI_SPDIF_TX", "PRI_SPDIF_TX"},
 	{"MultiMedia2 Mixer", "SEC_SPDIF_TX", "SEC_SPDIF_TX"},
 
 	{"MultiMedia3 Mixer", "AFE_LOOPBACK_TX", "AFE_LOOPBACK_TX"},
-<<<<<<< Updated upstream
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	{"MultiMedia3 Mixer", "WSA_CDC_DMA_TX_0", "WSA_CDC_DMA_TX_0"},
 	{"MultiMedia3 Mixer", "WSA_CDC_DMA_TX_1", "WSA_CDC_DMA_TX_1"},
 	{"MultiMedia3 Mixer", "WSA_CDC_DMA_TX_2", "WSA_CDC_DMA_TX_2"},
@@ -26902,18 +26679,12 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"MultiMedia3 Mixer", "TX_CDC_DMA_TX_3", "TX_CDC_DMA_TX_3"},
 	{"MultiMedia3 Mixer", "TX_CDC_DMA_TX_4", "TX_CDC_DMA_TX_4"},
 	{"MultiMedia3 Mixer", "TX_CDC_DMA_TX_5", "TX_CDC_DMA_TX_5"},
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 	{"MultiMedia3 Mixer", "PRI_SPDIF_TX", "PRI_SPDIF_TX"},
 	{"MultiMedia3 Mixer", "SEC_SPDIF_TX", "SEC_SPDIF_TX"},
 
 	{"MultiMedia4 Mixer", "AFE_LOOPBACK_TX", "AFE_LOOPBACK_TX"},
-<<<<<<< Updated upstream
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	{"MultiMedia4 Mixer", "WSA_CDC_DMA_TX_0", "WSA_CDC_DMA_TX_0"},
 	{"MultiMedia4 Mixer", "WSA_CDC_DMA_TX_1", "WSA_CDC_DMA_TX_1"},
 	{"MultiMedia4 Mixer", "WSA_CDC_DMA_TX_2", "WSA_CDC_DMA_TX_2"},
@@ -26926,18 +26697,12 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"MultiMedia4 Mixer", "TX_CDC_DMA_TX_3", "TX_CDC_DMA_TX_3"},
 	{"MultiMedia4 Mixer", "TX_CDC_DMA_TX_4", "TX_CDC_DMA_TX_4"},
 	{"MultiMedia4 Mixer", "TX_CDC_DMA_TX_5", "TX_CDC_DMA_TX_5"},
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 	{"MultiMedia4 Mixer", "PRI_SPDIF_TX", "PRI_SPDIF_TX"},
 	{"MultiMedia4 Mixer", "SEC_SPDIF_TX", "SEC_SPDIF_TX"},
 
 	{"MultiMedia5 Mixer", "AFE_LOOPBACK_TX", "AFE_LOOPBACK_TX"},
-<<<<<<< Updated upstream
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	{"MultiMedia5 Mixer", "WSA_CDC_DMA_TX_0", "WSA_CDC_DMA_TX_0"},
 	{"MultiMedia5 Mixer", "WSA_CDC_DMA_TX_1", "WSA_CDC_DMA_TX_1"},
 	{"MultiMedia5 Mixer", "WSA_CDC_DMA_TX_2", "WSA_CDC_DMA_TX_2"},
@@ -26950,18 +26715,12 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"MultiMedia5 Mixer", "TX_CDC_DMA_TX_3", "TX_CDC_DMA_TX_3"},
 	{"MultiMedia5 Mixer", "TX_CDC_DMA_TX_4", "TX_CDC_DMA_TX_4"},
 	{"MultiMedia5 Mixer", "TX_CDC_DMA_TX_5", "TX_CDC_DMA_TX_5"},
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 	{"MultiMedia5 Mixer", "PRI_SPDIF_TX", "PRI_SPDIF_TX"},
 	{"MultiMedia5 Mixer", "SEC_SPDIF_TX", "SEC_SPDIF_TX"},
 
 	{"MultiMedia6 Mixer", "AFE_LOOPBACK_TX", "AFE_LOOPBACK_TX"},
-<<<<<<< Updated upstream
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	{"MultiMedia6 Mixer", "WSA_CDC_DMA_TX_0", "WSA_CDC_DMA_TX_0"},
 	{"MultiMedia6 Mixer", "WSA_CDC_DMA_TX_1", "WSA_CDC_DMA_TX_1"},
 	{"MultiMedia6 Mixer", "WSA_CDC_DMA_TX_2", "WSA_CDC_DMA_TX_2"},
@@ -26974,18 +26733,12 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"MultiMedia6 Mixer", "TX_CDC_DMA_TX_3", "TX_CDC_DMA_TX_3"},
 	{"MultiMedia6 Mixer", "TX_CDC_DMA_TX_4", "TX_CDC_DMA_TX_4"},
 	{"MultiMedia6 Mixer", "TX_CDC_DMA_TX_5", "TX_CDC_DMA_TX_5"},
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 	{"MultiMedia6 Mixer", "PRI_SPDIF_TX", "PRI_SPDIF_TX"},
 	{"MultiMedia6 Mixer", "SEC_SPDIF_TX", "SEC_SPDIF_TX"},
 
 	{"MultiMedia8 Mixer", "AFE_LOOPBACK_TX", "AFE_LOOPBACK_TX"},
-<<<<<<< Updated upstream
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	{"MultiMedia8 Mixer", "WSA_CDC_DMA_TX_0", "WSA_CDC_DMA_TX_0"},
 	{"MultiMedia8 Mixer", "WSA_CDC_DMA_TX_1", "WSA_CDC_DMA_TX_1"},
 	{"MultiMedia8 Mixer", "WSA_CDC_DMA_TX_2", "WSA_CDC_DMA_TX_2"},
@@ -26998,18 +26751,12 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"MultiMedia8 Mixer", "TX_CDC_DMA_TX_3", "TX_CDC_DMA_TX_3"},
 	{"MultiMedia8 Mixer", "TX_CDC_DMA_TX_4", "TX_CDC_DMA_TX_4"},
 	{"MultiMedia8 Mixer", "TX_CDC_DMA_TX_5", "TX_CDC_DMA_TX_5"},
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 	{"MultiMedia8 Mixer", "PRI_SPDIF_TX", "PRI_SPDIF_TX"},
 	{"MultiMedia8 Mixer", "SEC_SPDIF_TX", "SEC_SPDIF_TX"},
 
 	{"MultiMedia9 Mixer", "SLIM_1_TX", "SLIMBUS_1_TX"},
-<<<<<<< Updated upstream
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	{"MultiMedia9 Mixer", "WSA_CDC_DMA_TX_0", "WSA_CDC_DMA_TX_0"},
 	{"MultiMedia9 Mixer", "WSA_CDC_DMA_TX_1", "WSA_CDC_DMA_TX_1"},
 	{"MultiMedia9 Mixer", "WSA_CDC_DMA_TX_2", "WSA_CDC_DMA_TX_2"},
@@ -27022,28 +26769,19 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"MultiMedia9 Mixer", "TX_CDC_DMA_TX_3", "TX_CDC_DMA_TX_3"},
 	{"MultiMedia9 Mixer", "TX_CDC_DMA_TX_4", "TX_CDC_DMA_TX_4"},
 	{"MultiMedia9 Mixer", "TX_CDC_DMA_TX_5", "TX_CDC_DMA_TX_5"},
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 	{"MultiMedia9 Mixer", "PRI_SPDIF_TX", "PRI_SPDIF_TX"},
 	{"MultiMedia9 Mixer", "SEC_SPDIF_TX", "SEC_SPDIF_TX"},
 	{"MultiMedia9 Mixer", "AFE_LOOPBACK_TX", "AFE_LOOPBACK_TX"},
 
-<<<<<<< Updated upstream
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	{"MultiMedia10 Mixer", "TX_CDC_DMA_TX_0", "TX_CDC_DMA_TX_0"},
 	{"MultiMedia10 Mixer", "TX_CDC_DMA_TX_1", "TX_CDC_DMA_TX_1"},
 	{"MultiMedia10 Mixer", "TX_CDC_DMA_TX_2", "TX_CDC_DMA_TX_2"},
 	{"MultiMedia10 Mixer", "TX_CDC_DMA_TX_3", "TX_CDC_DMA_TX_3"},
 	{"MultiMedia10 Mixer", "TX_CDC_DMA_TX_4", "TX_CDC_DMA_TX_4"},
 	{"MultiMedia10 Mixer", "TX_CDC_DMA_TX_5", "TX_CDC_DMA_TX_5"},
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 	{"MultiMedia10 Mixer", "AFE_LOOPBACK_TX", "AFE_LOOPBACK_TX"},
 
 	{"MultiMedia20 Mixer", "PRI_MI2S_TX", "PRI_MI2S_TX"},
@@ -27052,10 +26790,7 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"MultiMedia20 Mixer", "QUAT_MI2S_TX", "QUAT_MI2S_TX"},
 	{"MultiMedia20 Mixer", "QUIN_MI2S_TX", "QUIN_MI2S_TX"},
 	{"MultiMedia20 Mixer", "SENARY_MI2S_TX", "SENARY_MI2S_TX"},
-<<<<<<< Updated upstream
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	{"MultiMedia20 Mixer", "WSA_CDC_DMA_TX_0", "WSA_CDC_DMA_TX_0"},
 	{"MultiMedia20 Mixer", "WSA_CDC_DMA_TX_1", "WSA_CDC_DMA_TX_1"},
 	{"MultiMedia20 Mixer", "WSA_CDC_DMA_TX_2", "WSA_CDC_DMA_TX_2"},
@@ -27068,18 +26803,12 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"MultiMedia20 Mixer", "TX_CDC_DMA_TX_3", "TX_CDC_DMA_TX_3"},
 	{"MultiMedia20 Mixer", "TX_CDC_DMA_TX_4", "TX_CDC_DMA_TX_4"},
 	{"MultiMedia20 Mixer", "TX_CDC_DMA_TX_5", "TX_CDC_DMA_TX_5"},
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 	{"MultiMedia20 Mixer", "PRI_SPDIF_TX", "PRI_SPDIF_TX"},
 	{"MultiMedia20 Mixer", "SEC_SPDIF_TX", "SEC_SPDIF_TX"},
 	{"MultiMedia20 Mixer", "AFE_LOOPBACK_TX", "AFE_LOOPBACK_TX"},
 
-<<<<<<< Updated upstream
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	{"MultiMedia21 Mixer", "WSA_CDC_DMA_TX_0", "WSA_CDC_DMA_TX_0"},
 	{"MultiMedia21 Mixer", "WSA_CDC_DMA_TX_1", "WSA_CDC_DMA_TX_1"},
 	{"MultiMedia21 Mixer", "WSA_CDC_DMA_TX_2", "WSA_CDC_DMA_TX_2"},
@@ -27092,10 +26821,7 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"MultiMedia21 Mixer", "TX_CDC_DMA_TX_3", "TX_CDC_DMA_TX_3"},
 	{"MultiMedia21 Mixer", "TX_CDC_DMA_TX_4", "TX_CDC_DMA_TX_4"},
 	{"MultiMedia21 Mixer", "TX_CDC_DMA_TX_5", "TX_CDC_DMA_TX_5"},
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 	{"MultiMedia21 Mixer", "PRI_SPDIF_TX", "PRI_SPDIF_TX"},
 	{"MultiMedia21 Mixer", "SEC_SPDIF_TX", "SEC_SPDIF_TX"},
 	{"MultiMedia21 Mixer", "AFE_LOOPBACK_TX", "AFE_LOOPBACK_TX"},
@@ -27118,10 +26844,7 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"MultiMedia10 Mixer", "USB_AUDIO_TX", "USB_AUDIO_TX"},
 
 	{"MultiMedia16 Mixer", "USB_AUDIO_TX", "USB_AUDIO_TX"},
-<<<<<<< Updated upstream
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	{"MultiMedia16 Mixer", "WSA_CDC_DMA_TX_0", "WSA_CDC_DMA_TX_0"},
 	{"MultiMedia16 Mixer", "WSA_CDC_DMA_TX_1", "WSA_CDC_DMA_TX_1"},
 	{"MultiMedia16 Mixer", "WSA_CDC_DMA_TX_2", "WSA_CDC_DMA_TX_2"},
@@ -27134,45 +26857,28 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"MultiMedia16 Mixer", "TX_CDC_DMA_TX_3", "TX_CDC_DMA_TX_3"},
 	{"MultiMedia16 Mixer", "TX_CDC_DMA_TX_4", "TX_CDC_DMA_TX_4"},
 	{"MultiMedia16 Mixer", "TX_CDC_DMA_TX_5", "TX_CDC_DMA_TX_5"},
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 	{"MultiMedia16 Mixer", "PRI_SPDIF_TX", "PRI_SPDIF_TX"},
 	{"MultiMedia16 Mixer", "SEC_SPDIF_TX", "SEC_SPDIF_TX"},
 	{"MultiMedia16 Mixer", "AFE_LOOPBACK_TX", "AFE_LOOPBACK_TX"},
 
-<<<<<<< Updated upstream
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	{"MultiMedia17 Mixer", "TX_CDC_DMA_TX_0", "TX_CDC_DMA_TX_0"},
 	{"MultiMedia17 Mixer", "TX_CDC_DMA_TX_1", "TX_CDC_DMA_TX_1"},
 	{"MultiMedia17 Mixer", "TX_CDC_DMA_TX_2", "TX_CDC_DMA_TX_2"},
 	{"MultiMedia17 Mixer", "TX_CDC_DMA_TX_3", "TX_CDC_DMA_TX_3"},
 	{"MultiMedia17 Mixer", "TX_CDC_DMA_TX_4", "TX_CDC_DMA_TX_4"},
 	{"MultiMedia17 Mixer", "TX_CDC_DMA_TX_5", "TX_CDC_DMA_TX_5"},
-<<<<<<< Updated upstream
-	{"MultiMedia17 Mixer", "AFE_LOOPBACK_TX", "AFE_LOOPBACK_TX"},
-
-=======
 #endif
 	{"MultiMedia17 Mixer", "AFE_LOOPBACK_TX", "AFE_LOOPBACK_TX"},
 
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	{"MultiMedia18 Mixer", "TX_CDC_DMA_TX_0", "TX_CDC_DMA_TX_0"},
 	{"MultiMedia18 Mixer", "TX_CDC_DMA_TX_1", "TX_CDC_DMA_TX_1"},
 	{"MultiMedia18 Mixer", "TX_CDC_DMA_TX_2", "TX_CDC_DMA_TX_2"},
 	{"MultiMedia18 Mixer", "TX_CDC_DMA_TX_3", "TX_CDC_DMA_TX_3"},
 	{"MultiMedia18 Mixer", "TX_CDC_DMA_TX_4", "TX_CDC_DMA_TX_4"},
 	{"MultiMedia18 Mixer", "TX_CDC_DMA_TX_5", "TX_CDC_DMA_TX_5"},
-<<<<<<< Updated upstream
-	{"MultiMedia18 Mixer", "AFE_LOOPBACK_TX", "AFE_LOOPBACK_TX"},
-	{"MultiMedia18 Mixer", "VA_CDC_DMA_TX_0", "VA_CDC_DMA_TX_0"},
-	{"MultiMedia18 Mixer", "VA_CDC_DMA_TX_1", "VA_CDC_DMA_TX_1"},
-
-=======
 	{"MultiMedia18 Mixer", "VA_CDC_DMA_TX_0", "VA_CDC_DMA_TX_0"},
 	{"MultiMedia18 Mixer", "VA_CDC_DMA_TX_1", "VA_CDC_DMA_TX_1"},
 #endif
@@ -27190,19 +26896,12 @@ static const struct snd_soc_dapm_route intercon[] = {
 #endif
 
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	{"MultiMedia19 Mixer", "TX_CDC_DMA_TX_0", "TX_CDC_DMA_TX_0"},
 	{"MultiMedia19 Mixer", "TX_CDC_DMA_TX_1", "TX_CDC_DMA_TX_1"},
 	{"MultiMedia19 Mixer", "TX_CDC_DMA_TX_2", "TX_CDC_DMA_TX_2"},
 	{"MultiMedia19 Mixer", "TX_CDC_DMA_TX_3", "TX_CDC_DMA_TX_3"},
 	{"MultiMedia19 Mixer", "TX_CDC_DMA_TX_4", "TX_CDC_DMA_TX_4"},
 	{"MultiMedia19 Mixer", "TX_CDC_DMA_TX_5", "TX_CDC_DMA_TX_5"},
-<<<<<<< Updated upstream
-	{"MultiMedia19 Mixer", "AFE_LOOPBACK_TX", "AFE_LOOPBACK_TX"},
-	{"MultiMedia19 Mixer", "VA_CDC_DMA_TX_0", "VA_CDC_DMA_TX_0"},
-	{"MultiMedia19 Mixer", "VA_CDC_DMA_TX_1", "VA_CDC_DMA_TX_1"},
-
-=======
 
 	{"MultiMedia19 Mixer", "VA_CDC_DMA_TX_0", "VA_CDC_DMA_TX_0"},
 	{"MultiMedia19 Mixer", "VA_CDC_DMA_TX_1", "VA_CDC_DMA_TX_1"},
@@ -27221,19 +26920,12 @@ static const struct snd_soc_dapm_route intercon[] = {
 #endif
 
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	{"MultiMedia28 Mixer", "TX_CDC_DMA_TX_0", "TX_CDC_DMA_TX_0"},
 	{"MultiMedia28 Mixer", "TX_CDC_DMA_TX_1", "TX_CDC_DMA_TX_1"},
 	{"MultiMedia28 Mixer", "TX_CDC_DMA_TX_2", "TX_CDC_DMA_TX_2"},
 	{"MultiMedia28 Mixer", "TX_CDC_DMA_TX_3", "TX_CDC_DMA_TX_3"},
 	{"MultiMedia28 Mixer", "TX_CDC_DMA_TX_4", "TX_CDC_DMA_TX_4"},
 	{"MultiMedia28 Mixer", "TX_CDC_DMA_TX_5", "TX_CDC_DMA_TX_5"},
-<<<<<<< Updated upstream
-	{"MultiMedia28 Mixer", "AFE_LOOPBACK_TX", "AFE_LOOPBACK_TX"},
-	{"MultiMedia28 Mixer", "VA_CDC_DMA_TX_0", "VA_CDC_DMA_TX_0"},
-	{"MultiMedia28 Mixer", "VA_CDC_DMA_TX_1", "VA_CDC_DMA_TX_1"},
-
-=======
 	{"MultiMedia28 Mixer", "VA_CDC_DMA_TX_0", "VA_CDC_DMA_TX_0"},
 	{"MultiMedia28 Mixer", "VA_CDC_DMA_TX_1", "VA_CDC_DMA_TX_1"},
 #endif
@@ -27251,19 +26943,12 @@ static const struct snd_soc_dapm_route intercon[] = {
 #endif
 
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	{"MultiMedia29 Mixer", "TX_CDC_DMA_TX_0", "TX_CDC_DMA_TX_0"},
 	{"MultiMedia29 Mixer", "TX_CDC_DMA_TX_1", "TX_CDC_DMA_TX_1"},
 	{"MultiMedia29 Mixer", "TX_CDC_DMA_TX_2", "TX_CDC_DMA_TX_2"},
 	{"MultiMedia29 Mixer", "TX_CDC_DMA_TX_3", "TX_CDC_DMA_TX_3"},
 	{"MultiMedia29 Mixer", "TX_CDC_DMA_TX_4", "TX_CDC_DMA_TX_4"},
 	{"MultiMedia29 Mixer", "TX_CDC_DMA_TX_5", "TX_CDC_DMA_TX_5"},
-<<<<<<< Updated upstream
-	{"MultiMedia29 Mixer", "AFE_LOOPBACK_TX", "AFE_LOOPBACK_TX"},
-	{"MultiMedia29 Mixer", "VA_CDC_DMA_TX_0", "VA_CDC_DMA_TX_0"},
-	{"MultiMedia29 Mixer", "VA_CDC_DMA_TX_1", "VA_CDC_DMA_TX_1"},
-
-=======
 	{"MultiMedia29 Mixer", "VA_CDC_DMA_TX_0", "VA_CDC_DMA_TX_0"},
 	{"MultiMedia29 Mixer", "VA_CDC_DMA_TX_1", "VA_CDC_DMA_TX_1"},
 #endif
@@ -27281,23 +26966,16 @@ static const struct snd_soc_dapm_route intercon[] = {
 #endif
 
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	{"MultiMedia30 Mixer", "TX_CDC_DMA_TX_0", "TX_CDC_DMA_TX_0"},
 	{"MultiMedia30 Mixer", "TX_CDC_DMA_TX_1", "TX_CDC_DMA_TX_1"},
 	{"MultiMedia30 Mixer", "TX_CDC_DMA_TX_2", "TX_CDC_DMA_TX_2"},
 	{"MultiMedia30 Mixer", "TX_CDC_DMA_TX_3", "TX_CDC_DMA_TX_3"},
 	{"MultiMedia30 Mixer", "TX_CDC_DMA_TX_4", "TX_CDC_DMA_TX_4"},
 	{"MultiMedia30 Mixer", "TX_CDC_DMA_TX_5", "TX_CDC_DMA_TX_5"},
-<<<<<<< Updated upstream
-	{"MultiMedia30 Mixer", "AFE_LOOPBACK_TX", "AFE_LOOPBACK_TX"},
-	{"MultiMedia30 Mixer", "VA_CDC_DMA_TX_0", "VA_CDC_DMA_TX_0"},
-	{"MultiMedia30 Mixer", "VA_CDC_DMA_TX_1", "VA_CDC_DMA_TX_1"},
-=======
 	{"MultiMedia30 Mixer", "VA_CDC_DMA_TX_0", "VA_CDC_DMA_TX_0"},
 	{"MultiMedia30 Mixer", "VA_CDC_DMA_TX_1", "VA_CDC_DMA_TX_1"},
 #endif
 	{"MultiMedia30 Mixer", "AFE_LOOPBACK_TX", "AFE_LOOPBACK_TX"},
->>>>>>> Stashed changes
 
 	{"INTERNAL_BT_SCO_RX Audio Mixer", "MultiMedia1", "MM_DL1"},
 	{"INTERNAL_BT_SCO_RX Audio Mixer", "MultiMedia2", "MM_DL2"},
@@ -27495,18 +27173,12 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"HDMI", NULL, "HDMI_RX_Voice Mixer"},
 	{"HDMI", NULL, "HDMI_DL_HL"},
 
-<<<<<<< Updated upstream
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	{"WSA_CDC_DMA_RX_0_Voice Mixer", "Voip", "VOIP_DL"},
 	{"WSA_CDC_DMA_RX_0_Voice Mixer", "VoiceMMode1", "VOICEMMODE1_DL"},
 	{"WSA_CDC_DMA_RX_0_Voice Mixer", "VoiceMMode2", "VOICEMMODE2_DL"},
 	{"WSA_CDC_DMA_RX_0", NULL, "WSA_CDC_DMA_RX_0_Voice Mixer"},
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 
 	{"PROXY_RX_Voice Mixer", "VoiceMMode1", "VOICEMMODE1_DL"},
 	{"PROXY_RX", NULL, "PROXY_RX_Voice Mixer"},
@@ -27514,10 +27186,7 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"PROXY_RX_Voice Mixer", "VoiceMMode2", "VOICEMMODE2_DL"},
 	{"PROXY_RX", NULL, "PROXY_RX_Voice Mixer"},
 
-<<<<<<< Updated upstream
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	{"RX_CDC_DMA_RX_0_Voice Mixer", "Voip", "VOIP_DL"},
 	{"RX_CDC_DMA_RX_0_Voice Mixer", "VoiceMMode1", "VOICEMMODE1_DL"},
 	{"RX_CDC_DMA_RX_0_Voice Mixer", "VoiceMMode2", "VOICEMMODE2_DL"},
@@ -27528,10 +27197,7 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"RX_CDC_DMA_RX_1_Voice Mixer", "VoiceMMode1", "VOICEMMODE1_DL"},
 	{"RX_CDC_DMA_RX_1_Voice Mixer", "VoiceMMode2", "VOICEMMODE2_DL"},
 	{"RX_CDC_DMA_RX_1", NULL, "RX_CDC_DMA_RX_1_Voice Mixer"},
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 
 	{"VOC_EXT_EC MUX", "SLIM_1_TX",    "SLIMBUS_1_TX"},
 	{"VOIP_UL", NULL, "VOC_EXT_EC MUX"},
@@ -27573,20 +27239,14 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"VoiceMMode1_Tx Mixer", "USB_AUDIO_TX_MMode1", "USB_AUDIO_TX"},
 	{"VoiceMMode1_Tx Mixer", "INT_BT_SCO_TX_MMode1", "INT_BT_SCO_TX"},
 	{"VoiceMMode1_Tx Mixer", "AFE_PCM_TX_MMode1", "PCM_TX"},
-<<<<<<< Updated upstream
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	{"VoiceMMode1_Tx Mixer", "TX_CDC_DMA_TX_0_MMode1", "TX_CDC_DMA_TX_0"},
 	{"VoiceMMode1_Tx Mixer", "TX_CDC_DMA_TX_1_MMode1", "TX_CDC_DMA_TX_1"},
 	{"VoiceMMode1_Tx Mixer", "TX_CDC_DMA_TX_2_MMode1", "TX_CDC_DMA_TX_2"},
 	{"VoiceMMode1_Tx Mixer", "TX_CDC_DMA_TX_3_MMode1", "TX_CDC_DMA_TX_3"},
 	{"VoiceMMode1_Tx Mixer", "TX_CDC_DMA_TX_4_MMode1", "TX_CDC_DMA_TX_4"},
 	{"VoiceMMode1_Tx Mixer", "TX_CDC_DMA_TX_5_MMode1", "TX_CDC_DMA_TX_5"},
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 	{"VoiceMMode1_Tx Mixer", "PROXY_TX_MMode1", "PROXY_TX"},
 	{"VOICEMMODE1_UL", NULL, "VoiceMMode1_Tx Mixer"},
 
@@ -27597,20 +27257,14 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"VoiceMMode2_Tx Mixer", "INT_BT_SCO_TX_MMode2", "INT_BT_SCO_TX"},
 	{"VoiceMMode2_Tx Mixer", "AFE_PCM_TX_MMode2", "PCM_TX"},
 
-<<<<<<< Updated upstream
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	{"VoiceMMode2_Tx Mixer", "TX_CDC_DMA_TX_0_MMode2", "TX_CDC_DMA_TX_0"},
 	{"VoiceMMode2_Tx Mixer", "TX_CDC_DMA_TX_1_MMode2", "TX_CDC_DMA_TX_1"},
 	{"VoiceMMode2_Tx Mixer", "TX_CDC_DMA_TX_2_MMode2", "TX_CDC_DMA_TX_2"},
 	{"VoiceMMode2_Tx Mixer", "TX_CDC_DMA_TX_3_MMode2", "TX_CDC_DMA_TX_3"},
 	{"VoiceMMode2_Tx Mixer", "TX_CDC_DMA_TX_4_MMode2", "TX_CDC_DMA_TX_4"},
 	{"VoiceMMode2_Tx Mixer", "TX_CDC_DMA_TX_5_MMode2", "TX_CDC_DMA_TX_5"},
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 	{"VoiceMMode2_Tx Mixer", "PROXY_TX_MMode2", "PROXY_TX"},
 	{"VOICEMMODE2_UL", NULL, "VoiceMMode2_Tx Mixer"},
 
@@ -27622,24 +27276,17 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"Voip_Tx Mixer", "AFE_PCM_TX_Voip", "PCM_TX"},
 
 	{"Voip_Tx Mixer", "PRI_MI2S_TX_Voip", "PRI_MI2S_TX"},
-<<<<<<< Updated upstream
-	{"Voip_Tx Mixer", "PRI_TDM_TX_3_Voip", "PRI_TDM_TX_3"},
-=======
 #ifndef CONFIG_TDM_DISABLE
 	{"Voip_Tx Mixer", "PRI_TDM_TX_3_Voip", "PRI_TDM_TX_3"},
 #endif
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	{"Voip_Tx Mixer", "TX_CDC_DMA_TX_0_Voip", "TX_CDC_DMA_TX_0"},
 	{"Voip_Tx Mixer", "TX_CDC_DMA_TX_1_Voip", "TX_CDC_DMA_TX_1"},
 	{"Voip_Tx Mixer", "TX_CDC_DMA_TX_2_Voip", "TX_CDC_DMA_TX_2"},
 	{"Voip_Tx Mixer", "TX_CDC_DMA_TX_3_Voip", "TX_CDC_DMA_TX_3"},
 	{"Voip_Tx Mixer", "TX_CDC_DMA_TX_4_Voip", "TX_CDC_DMA_TX_4"},
 	{"Voip_Tx Mixer", "TX_CDC_DMA_TX_5_Voip", "TX_CDC_DMA_TX_5"},
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 	{"VOIP_UL", NULL, "Voip_Tx Mixer"},
 
 	{"SLIMBUS_DL_HL", "Switch", "SLIM0_DL_HL"},
@@ -27659,10 +27306,7 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"SLIM3_UL_HL", NULL, "SLIMBUS_3_TX"},
 	{"SLIM4_UL_HL", NULL, "SLIMBUS_4_TX"},
 	{"SLIM8_UL_HL", NULL, "SLIMBUS_8_TX"},
-<<<<<<< Updated upstream
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	{"WSA_CDC_DMA_RX_0_DL_HL", "Switch", "CDC_DMA_DL_HL"},
 	{"WSA_CDC_DMA_RX_0", NULL, "WSA_CDC_DMA_RX_0_DL_HL"},
 	{"CDC_DMA_UL_HL", NULL, "VA_CDC_DMA_TX_0"},
@@ -27671,27 +27315,18 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"RX_CDC_DMA_RX_1_DL_HL", "Switch", "CDC_DMA_DL_HL"},
 	{"RX_CDC_DMA_RX_1", NULL, "RX_CDC_DMA_RX_1_DL_HL"},
 	{"TX3_CDC_DMA_UL_HL", NULL, "TX_CDC_DMA_TX_3"},
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 	{"LSM1 Mixer", "SLIMBUS_0_TX", "SLIMBUS_0_TX"},
 	{"LSM1 Mixer", "SLIMBUS_1_TX", "SLIMBUS_1_TX"},
 	{"LSM1 Mixer", "SLIMBUS_3_TX", "SLIMBUS_3_TX"},
 	{"LSM1 Mixer", "SLIMBUS_4_TX", "SLIMBUS_4_TX"},
 	{"LSM1 Mixer", "SLIMBUS_5_TX", "SLIMBUS_5_TX"},
-<<<<<<< Updated upstream
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	{"LSM1 Mixer", "VA_CDC_DMA_TX_0", "VA_CDC_DMA_TX_0"},
 	{"LSM1 Mixer", "VA_CDC_DMA_TX_1", "VA_CDC_DMA_TX_1"},
 	{"LSM1 Mixer", "VA_CDC_DMA_TX_2", "VA_CDC_DMA_TX_2"},
 	{"LSM1 Mixer", "TX_CDC_DMA_TX_3", "TX_CDC_DMA_TX_3"},
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 	{"LSM1_UL_HL", NULL, "LSM1 Mixer"},
 
 	{"LSM2 Mixer", "SLIMBUS_0_TX", "SLIMBUS_0_TX"},
@@ -27699,18 +27334,12 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"LSM2 Mixer", "SLIMBUS_3_TX", "SLIMBUS_3_TX"},
 	{"LSM2 Mixer", "SLIMBUS_4_TX", "SLIMBUS_4_TX"},
 	{"LSM2 Mixer", "SLIMBUS_5_TX", "SLIMBUS_5_TX"},
-<<<<<<< Updated upstream
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	{"LSM2 Mixer", "VA_CDC_DMA_TX_0", "VA_CDC_DMA_TX_0"},
 	{"LSM2 Mixer", "VA_CDC_DMA_TX_1", "VA_CDC_DMA_TX_1"},
 	{"LSM2 Mixer", "VA_CDC_DMA_TX_2", "VA_CDC_DMA_TX_2"},
 	{"LSM2 Mixer", "TX_CDC_DMA_TX_3", "TX_CDC_DMA_TX_3"},
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 	{"LSM2_UL_HL", NULL, "LSM2 Mixer"},
 
 
@@ -27719,18 +27348,12 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"LSM3 Mixer", "SLIMBUS_3_TX", "SLIMBUS_3_TX"},
 	{"LSM3 Mixer", "SLIMBUS_4_TX", "SLIMBUS_4_TX"},
 	{"LSM3 Mixer", "SLIMBUS_5_TX", "SLIMBUS_5_TX"},
-<<<<<<< Updated upstream
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	{"LSM3 Mixer", "VA_CDC_DMA_TX_0", "VA_CDC_DMA_TX_0"},
 	{"LSM3 Mixer", "VA_CDC_DMA_TX_1", "VA_CDC_DMA_TX_1"},
 	{"LSM3 Mixer", "VA_CDC_DMA_TX_2", "VA_CDC_DMA_TX_2"},
 	{"LSM3 Mixer", "TX_CDC_DMA_TX_3", "TX_CDC_DMA_TX_3"},
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 	{"LSM3_UL_HL", NULL, "LSM3 Mixer"},
 
 
@@ -27739,18 +27362,12 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"LSM4 Mixer", "SLIMBUS_3_TX", "SLIMBUS_3_TX"},
 	{"LSM4 Mixer", "SLIMBUS_4_TX", "SLIMBUS_4_TX"},
 	{"LSM4 Mixer", "SLIMBUS_5_TX", "SLIMBUS_5_TX"},
-<<<<<<< Updated upstream
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	{"LSM4 Mixer", "VA_CDC_DMA_TX_0", "VA_CDC_DMA_TX_0"},
 	{"LSM4 Mixer", "VA_CDC_DMA_TX_1", "VA_CDC_DMA_TX_1"},
 	{"LSM4 Mixer", "VA_CDC_DMA_TX_2", "VA_CDC_DMA_TX_2"},
 	{"LSM4 Mixer", "TX_CDC_DMA_TX_3", "TX_CDC_DMA_TX_3"},
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 	{"LSM4_UL_HL", NULL, "LSM4 Mixer"},
 
 	{"LSM5 Mixer", "SLIMBUS_0_TX", "SLIMBUS_0_TX"},
@@ -27758,18 +27375,12 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"LSM5 Mixer", "SLIMBUS_3_TX", "SLIMBUS_3_TX"},
 	{"LSM5 Mixer", "SLIMBUS_4_TX", "SLIMBUS_4_TX"},
 	{"LSM5 Mixer", "SLIMBUS_5_TX", "SLIMBUS_5_TX"},
-<<<<<<< Updated upstream
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	{"LSM5 Mixer", "VA_CDC_DMA_TX_0", "VA_CDC_DMA_TX_0"},
 	{"LSM5 Mixer", "VA_CDC_DMA_TX_1", "VA_CDC_DMA_TX_1"},
 	{"LSM5 Mixer", "VA_CDC_DMA_TX_2", "VA_CDC_DMA_TX_2"},
 	{"LSM5 Mixer", "TX_CDC_DMA_TX_3", "TX_CDC_DMA_TX_3"},
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 	{"LSM5_UL_HL", NULL, "LSM5 Mixer"},
 
 	{"LSM6 Mixer", "SLIMBUS_0_TX", "SLIMBUS_0_TX"},
@@ -27777,18 +27388,12 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"LSM6 Mixer", "SLIMBUS_3_TX", "SLIMBUS_3_TX"},
 	{"LSM6 Mixer", "SLIMBUS_4_TX", "SLIMBUS_4_TX"},
 	{"LSM6 Mixer", "SLIMBUS_5_TX", "SLIMBUS_5_TX"},
-<<<<<<< Updated upstream
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	{"LSM6 Mixer", "VA_CDC_DMA_TX_0", "VA_CDC_DMA_TX_0"},
 	{"LSM6 Mixer", "VA_CDC_DMA_TX_1", "VA_CDC_DMA_TX_1"},
 	{"LSM6 Mixer", "VA_CDC_DMA_TX_2", "VA_CDC_DMA_TX_2"},
 	{"LSM6 Mixer", "TX_CDC_DMA_TX_3", "TX_CDC_DMA_TX_3"},
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 	{"LSM6_UL_HL", NULL, "LSM6 Mixer"},
 
 	{"LSM7 Mixer", "SLIMBUS_0_TX", "SLIMBUS_0_TX"},
@@ -27796,18 +27401,12 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"LSM7 Mixer", "SLIMBUS_3_TX", "SLIMBUS_3_TX"},
 	{"LSM7 Mixer", "SLIMBUS_4_TX", "SLIMBUS_4_TX"},
 	{"LSM7 Mixer", "SLIMBUS_5_TX", "SLIMBUS_5_TX"},
-<<<<<<< Updated upstream
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	{"LSM7 Mixer", "VA_CDC_DMA_TX_0", "VA_CDC_DMA_TX_0"},
 	{"LSM7 Mixer", "VA_CDC_DMA_TX_1", "VA_CDC_DMA_TX_1"},
 	{"LSM7 Mixer", "VA_CDC_DMA_TX_2", "VA_CDC_DMA_TX_2"},
 	{"LSM7 Mixer", "TX_CDC_DMA_TX_3", "TX_CDC_DMA_TX_3"},
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 	{"LSM7_UL_HL", NULL, "LSM7 Mixer"},
 
 	{"LSM8 Mixer", "SLIMBUS_0_TX", "SLIMBUS_0_TX"},
@@ -27815,18 +27414,12 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"LSM8 Mixer", "SLIMBUS_3_TX", "SLIMBUS_3_TX"},
 	{"LSM8 Mixer", "SLIMBUS_4_TX", "SLIMBUS_4_TX"},
 	{"LSM8 Mixer", "SLIMBUS_5_TX", "SLIMBUS_5_TX"},
-<<<<<<< Updated upstream
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	{"LSM8 Mixer", "VA_CDC_DMA_TX_0", "VA_CDC_DMA_TX_0"},
 	{"LSM8 Mixer", "VA_CDC_DMA_TX_1", "VA_CDC_DMA_TX_1"},
 	{"LSM8 Mixer", "VA_CDC_DMA_TX_2", "VA_CDC_DMA_TX_2"},
 	{"LSM8 Mixer", "TX_CDC_DMA_TX_3", "TX_CDC_DMA_TX_3"},
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 	{"LSM8_UL_HL", NULL, "LSM8 Mixer"},
 
 
@@ -27851,18 +27444,12 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"PCM_RX_DL_HL", "Switch", "SLIM0_DL_HL"},
 	{"PCM_RX", NULL, "PCM_RX_DL_HL"},
 
-<<<<<<< Updated upstream
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	/* connect to INT4_MI2S_DL_HL since same pcm_id */
 	{"WSA_CDC_DMA_RX_0 Port Mixer", "VA_CDC_DMA_TX_0", "VA_CDC_DMA_TX_0"},
 	{"WSA_CDC_DMA_RX_0 Port Mixer", "TX_CDC_DMA_TX_3", "TX_CDC_DMA_TX_3"},
 	{"WSA_CDC_DMA_RX_0 Port Mixer", "SLIM_8_TX", "SLIMBUS_8_TX"},
-<<<<<<< Updated upstream
-=======
 	{"WSA_CDC_DMA_RX_0 Port Mixer", "SLIM_7_TX", "SLIMBUS_7_TX"},
->>>>>>> Stashed changes
 	{"WSA_CDC_DMA_RX_0", NULL, "WSA_CDC_DMA_RX_0 Port Mixer"},
 
 	{"RX_CDC_DMA_RX_0 Port Mixer", "TX_CDC_DMA_TX_3", "TX_CDC_DMA_TX_3"},
@@ -27873,10 +27460,7 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"RX_CDC_DMA_RX_1 Port Mixer", "TX_CDC_DMA_TX_3", "TX_CDC_DMA_TX_3"},
 	{"RX_CDC_DMA_RX_1 Port Mixer", "SLIM_8_TX", "SLIMBUS_8_TX"},
 	{"RX_CDC_DMA_RX_1", NULL, "RX_CDC_DMA_RX_1 Port Mixer"},
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 
 	{"SLIMBUS_0_RX Port Mixer", "INTERNAL_FM_TX", "INT_FM_TX"},
 	{"SLIMBUS_0_RX Port Mixer", "SLIM_0_TX", "SLIMBUS_0_TX"},
@@ -27910,13 +27494,9 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"VoLTE Stub Tx Mixer", "STUB_TX_HL", "STUB_TX"},
 	{"VoLTE Stub Tx Mixer", "SLIM_1_TX", "SLIMBUS_1_TX"},
 	{"VoLTE Stub Tx Mixer", "STUB_1_TX_HL", "STUB_1_TX"},
-<<<<<<< Updated upstream
-	{"VoLTE Stub Tx Mixer", "AUX_PCM_UL_TX", "AUX_PCM_TX"},
-=======
 #ifndef CONFIG_AUXPCM_DISABLE
 	{"VoLTE Stub Tx Mixer", "AUX_PCM_UL_TX", "AUX_PCM_TX"},
 #endif
->>>>>>> Stashed changes
 	{"VoLTE Stub Tx Mixer", "SLIM_0_TX", "SLIMBUS_0_TX"},
 	{"VoLTE Stub Tx Mixer", "SLIM_3_TX", "SLIMBUS_3_TX"},
 	{"VoLTE Stub Tx Mixer", "SLIM_7_TX", "SLIMBUS_7_TX"},
@@ -28022,10 +27602,7 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"BE_OUT", NULL, "SLIMBUS_3_RX"},
 	{"BE_OUT", NULL, "VOICE_PLAYBACK_TX"},
 	{"BE_OUT", NULL, "VOICE2_PLAYBACK_TX"},
-<<<<<<< Updated upstream
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	{"BE_OUT", NULL, "WSA_CDC_DMA_RX_0"},
 	{"BE_OUT", NULL, "WSA_CDC_DMA_RX_1"},
 	{"BE_OUT", NULL, "RX_CDC_DMA_RX_0"},
@@ -28036,10 +27613,7 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"BE_OUT", NULL, "RX_CDC_DMA_RX_5"},
 	{"BE_OUT", NULL, "RX_CDC_DMA_RX_6"},
 	{"BE_OUT", NULL, "RX_CDC_DMA_RX_7"},
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 	{"BE_OUT", NULL, "PROXY_RX"},
 
 	{"SLIMBUS_0_TX", NULL, "BE_IN" },
@@ -28059,23 +27633,13 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"BE_OUT", NULL, "STUB_RX"},
 	{"STUB_TX", NULL, "BE_IN"},
 	{"STUB_1_TX", NULL, "BE_IN"},
-<<<<<<< Updated upstream
-	{"BE_OUT", NULL, "AUX_PCM_RX"},
-=======
 #ifndef CONFIG_AUXPCM_DISABLE
 	{"BE_OUT", NULL, "AUX_PCM_RX"},
 #endif
->>>>>>> Stashed changes
 	{"INCALL_RECORD_TX", NULL, "BE_IN"},
 	{"INCALL_RECORD_RX", NULL, "BE_IN"},
 	{"SLIM0_RX_VI_FB_LCH_MUX", "SLIM4_TX", "SLIMBUS_4_TX"},
 	{"SLIM0_RX_VI_FB_RCH_MUX", "SLIM4_TX", "SLIMBUS_4_TX"},
-<<<<<<< Updated upstream
-	{"WSA_RX_0_VI_FB_LCH_MUX", "WSA_CDC_DMA_TX_0", "WSA_CDC_DMA_TX_0"},
-	{"WSA_RX_0_VI_FB_RCH_MUX", "WSA_CDC_DMA_TX_0", "WSA_CDC_DMA_TX_0"},
-	{"SLIMBUS_0_RX", NULL, "SLIM0_RX_VI_FB_LCH_MUX"},
-	{"SLIMBUS_0_RX", NULL, "SLIM0_RX_VI_FB_RCH_MUX"},
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
 	{"WSA_RX_0_VI_FB_LCH_MUX", "WSA_CDC_DMA_TX_0", "WSA_CDC_DMA_TX_0"},
 	{"WSA_RX_0_VI_FB_RCH_MUX", "WSA_CDC_DMA_TX_0", "WSA_CDC_DMA_TX_0"},
@@ -28083,7 +27647,6 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"SLIMBUS_0_RX", NULL, "SLIM0_RX_VI_FB_LCH_MUX"},
 	{"SLIMBUS_0_RX", NULL, "SLIM0_RX_VI_FB_RCH_MUX"},
 #ifndef CONFIG_CDC_DMA_DISABLE
->>>>>>> Stashed changes
 	{"WSA_CDC_DMA_RX_0", NULL, "WSA_RX_0_VI_FB_LCH_MUX"},
 	{"WSA_CDC_DMA_RX_0", NULL, "WSA_RX_0_VI_FB_RCH_MUX"},
 	{"WSA_CDC_DMA_TX_0", NULL, "BE_IN"},
@@ -28098,10 +27661,7 @@ static const struct snd_soc_dapm_route intercon[] = {
 	{"TX_CDC_DMA_TX_3", NULL, "BE_IN"},
 	{"TX_CDC_DMA_TX_4", NULL, "BE_IN"},
 	{"TX_CDC_DMA_TX_5", NULL, "BE_IN"},
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 	{"PRI_SPDIF_TX", NULL, "BE_IN"},
 	{"SEC_SPDIF_TX", NULL, "BE_IN"},
 	{"PROXY_TX", NULL, "BE_IN"},
@@ -30924,17 +30484,11 @@ static const struct snd_soc_dapm_route intercon_mi2s[] = {
 	{"MI2S_UL_HL", NULL, "MI2S_TX"},
 
 	/* connect to INT4_MI2S_DL_HL since same pcm_id */
-<<<<<<< Updated upstream
-	{"WSA_CDC_DMA_RX_0 Port Mixer", "TERT_MI2S_TX", "TERT_MI2S_TX"},
-	{"RX_CDC_DMA_RX_0 Port Mixer", "TERT_MI2S_TX", "TERT_MI2S_TX"},
-	{"RX_CDC_DMA_RX_1 Port Mixer", "TERT_MI2S_TX", "TERT_MI2S_TX"},
-=======
 #ifndef CONFIG_CDC_DMA_DISABLE
 	{"WSA_CDC_DMA_RX_0 Port Mixer", "TERT_MI2S_TX", "TERT_MI2S_TX"},
 	{"RX_CDC_DMA_RX_0 Port Mixer", "TERT_MI2S_TX", "TERT_MI2S_TX"},
 	{"RX_CDC_DMA_RX_1 Port Mixer", "TERT_MI2S_TX", "TERT_MI2S_TX"},
 #endif
->>>>>>> Stashed changes
 
 	{"SLIMBUS_0_RX Port Mixer", "MI2S_TX", "MI2S_TX"},
 	{"SLIMBUS_0_RX Port Mixer", "PRI_MI2S_TX", "PRI_MI2S_TX"},
@@ -31854,8 +31408,6 @@ static const struct snd_kcontrol_new
 	},
 };
 
-<<<<<<< Updated upstream
-=======
 static int msm_routing_put_mclk_src_cfg(struct snd_kcontrol *kcontrol,
 					struct snd_ctl_elem_value *ucontrol)
 {
@@ -31900,7 +31452,6 @@ static const struct snd_kcontrol_new mclk_src_controls[] = {
 					NULL, msm_routing_put_mclk_src_cfg),
 };
 
->>>>>>> Stashed changes
 static int msm_routing_stereo_channel_reverse_control_get(
 			struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
@@ -32218,11 +31769,8 @@ static int msm_routing_probe(struct snd_soc_component *component)
 
 	snd_soc_add_component_controls(component, pll_clk_drift_controls,
 				      ARRAY_SIZE(pll_clk_drift_controls));
-<<<<<<< Updated upstream
-=======
 	snd_soc_add_component_controls(component, mclk_src_controls,
 				      ARRAY_SIZE(mclk_src_controls));
->>>>>>> Stashed changes
 	snd_soc_add_component_controls(component,
 			enginerrMode_singleMic_test,
 			ARRAY_SIZE(enginerrMode_singleMic_test));

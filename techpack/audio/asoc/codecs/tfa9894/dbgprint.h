@@ -19,11 +19,7 @@
 
 /* Debugging macro's. */
 #   ifndef DEBUG
-<<<<<<< Updated upstream
-#      define DEBUG
-=======
 //#      define DEBUG
->>>>>>> Stashed changes
 #   endif
 
 #   ifndef ASSERT

@@ -683,12 +683,9 @@ static int mtk_pcie_startup_port_v2(struct mtk_pcie_port *port)
 		writew(val, port->base + PCIE_CONF_CLASS_ID);
 	}
 
-<<<<<<< Updated upstream
-=======
 	if (soc->need_fix_device_id)
 		writew(soc->device_id, port->base + PCIE_CONF_DEVICE_ID);
 
->>>>>>> Stashed changes
 	/* 100ms timeout value should be enough for Gen1/2 training */
 	err = readl_poll_timeout(port->base + PCIE_LINK_STATUS_V2, val,
 				 !!(val & PCIE_PORT_LINKUP_V2), 20,

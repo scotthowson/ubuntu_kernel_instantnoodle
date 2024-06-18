@@ -75,16 +75,9 @@
 #include <asm/tlbflush.h>
 #include <asm/div64.h>
 #include "internal.h"
-<<<<<<< Updated upstream
-#include <oneplus/defrag/defrag_helper.h>
-#ifdef CONFIG_ONEPLUS_MEM_MONITOR
-#include <linux/oem/memory_monitor.h>
-#endif
-=======
 
 atomic_long_t kswapd_waiters = ATOMIC_LONG_INIT(0);
 atomic_long_t kshrinkd_waiters = ATOMIC_LONG_INIT(0);
->>>>>>> Stashed changes
 
 /* prevent >1 _updater_ of zone percpu pageset ->high and ->batch fields */
 static DEFINE_MUTEX(pcp_batch_high_lock);
@@ -1096,16 +1089,11 @@ static void kernel_init_free_pages(struct page *page, int numpages)
 {
 	int i;
 
-<<<<<<< Updated upstream
-	for (i = 0; i < numpages; i++)
-		clear_highpage(page + i);
-=======
 	/* s390's use of memset() could override KASAN redzones. */
 	kasan_disable_current();
 	for (i = 0; i < numpages; i++)
 		clear_highpage(page + i);
 	kasan_enable_current();
->>>>>>> Stashed changes
 }
 
 static __always_inline bool free_pages_prepare(struct page *page,
@@ -2130,12 +2118,6 @@ static int fallbacks[MIGRATE_TYPES][4] = {
 #ifdef CONFIG_CMA
 	[MIGRATE_CMA]         = { MIGRATE_TYPES }, /* Never used */
 #endif
-<<<<<<< Updated upstream
-#ifdef CONFIG_DEFRAG
-	[MIGRATE_UNMOVABLE_DEFRAG_POOL]		=  {MIGRATE_TYPES},
-#endif
-=======
->>>>>>> Stashed changes
 #ifdef CONFIG_MEMORY_ISOLATION
 	[MIGRATE_ISOLATE]     = { MIGRATE_TYPES }, /* Never used */
 #endif
@@ -2421,12 +2403,6 @@ static void reserve_highatomic_pageblock(struct page *page, struct zone *zone,
 
 	/* Yoink! */
 	mt = get_pageblock_migratetype(page);
-<<<<<<< Updated upstream
-	if (is_migrate_defrag(mt))
-		goto out_unlock;
-
-=======
->>>>>>> Stashed changes
 	if (!is_migrate_highatomic(mt) && !is_migrate_isolate(mt)
 	    && !is_migrate_cma(mt)) {
 		zone->nr_reserved_highatomic += pageblock_nr_pages;
@@ -2611,12 +2587,7 @@ __rmqueue(struct zone *zone, unsigned int order, int migratetype)
 retry:
 	page = __rmqueue_smallest(zone, order, migratetype);
 
-<<<<<<< Updated upstream
-	if (unlikely(!page) && __rmqueue_fallback(zone, order, migratetype,
-						  alloc_flags))
-=======
 	if (unlikely(!page) && __rmqueue_fallback(zone, order, migratetype))
->>>>>>> Stashed changes
 		goto retry;
 
 	trace_mm_page_alloc_zone_locked(page, order, migratetype);
@@ -3285,15 +3256,7 @@ struct page *rmqueue(struct zone *preferred_zone,
 	 * allocate greater than order-1 page units with __GFP_NOFAIL.
 	 */
 	WARN_ON_ONCE((gfp_flags & __GFP_NOFAIL) && (order > 1));
-<<<<<<< Updated upstream
-	page = defrag_alloc(zone, flags, migratetype, order);
-	if (page)
-		goto out;
-
-	spin_lock_irqsave(&zone->lock, flags);
-=======
 	local_spin_lock_irqsave(pa_lock, &zone->lock, flags);
->>>>>>> Stashed changes
 
 	do {
 		page = NULL;
@@ -3465,17 +3428,6 @@ bool __zone_watermark_ok(struct zone *z, unsigned int order, unsigned long mark,
 			min -= min / 4;
 	}
 
-<<<<<<< Updated upstream
-
-#ifdef CONFIG_CMA
-	/* If allocation can't use CMA areas don't use free CMA pages */
-	if (!(alloc_flags & ALLOC_CMA))
-		free_pages -= zone_page_state(z, NR_FREE_CMA_PAGES);
-#endif
-	free_pages -= defrag_calc(z, order, alloc_flags);
-
-=======
->>>>>>> Stashed changes
 	/*
 	 * Check watermarks for an order-0 allocation request. If these
 	 * are not met, then a high-order request also cannot go ahead
@@ -3515,13 +3467,6 @@ bool __zone_watermark_ok(struct zone *z, unsigned int order, unsigned long mark,
 			return true;
 		}
 #endif
-<<<<<<< Updated upstream
-		if (defrag_check_alloc_flag(alloc_flags, order) &&
-				IS_NOT_DEFRAG_POOL_EMPTY(area))
-			return true;
-
-=======
->>>>>>> Stashed changes
 		if (alloc_harder &&
 			!list_empty(&area->free_list[MIGRATE_HIGHATOMIC]))
 			return true;
@@ -3541,16 +3486,7 @@ static inline bool zone_watermark_fast(struct zone *z, unsigned int order,
 {
 	long free_pages;
 
-<<<<<<< Updated upstream
-#ifdef CONFIG_CMA
-	/* If allocation can't use CMA areas don't use free CMA pages */
-	if (!(alloc_flags & ALLOC_CMA))
-		cma_pages = zone_page_state(z, NR_FREE_CMA_PAGES);
-#endif
-	cma_pages += defrag_zone_free_size(z);
-=======
 	free_pages = zone_page_state(z, NR_FREE_PAGES);
->>>>>>> Stashed changes
 
 	/*
 	 * Fast check for order-0 only. If this fails then the reserves
@@ -4255,8 +4191,6 @@ static void wake_all_kswapds(unsigned int order, gfp_t gfp_mask,
 		if (last_pgdat != zone->zone_pgdat)
 			wakeup_kswapd(zone, gfp_mask, order, high_zoneidx);
 		last_pgdat = zone->zone_pgdat;
-<<<<<<< Updated upstream
-=======
 	}
 }
 
@@ -4278,7 +4212,6 @@ static void wake_all_kshrinkds(const struct alloc_context *ac)
 		if (last_pgdat != p && waitqueue_active(&p->kshrinkd_wait))
 			wake_up_interruptible(&p->kshrinkd_wait);
 		last_pgdat = p;
->>>>>>> Stashed changes
 	}
 }
 
@@ -4318,13 +4251,6 @@ gfp_to_alloc_flags(gfp_t gfp_mask)
 				(gfp_mask & __GFP_CMA))
 		alloc_flags |= ALLOC_CMA;
 #endif
-<<<<<<< Updated upstream
-
-	defrag_migrate_to_alloc_flag(alloc_flags,
-		gfpflags_to_migratetype(gfp_mask));
-
-=======
->>>>>>> Stashed changes
 	return alloc_flags;
 }
 
@@ -4658,13 +4584,6 @@ retry:
 	if (current->flags & PF_MEMALLOC)
 		goto nopage;
 
-<<<<<<< Updated upstream
-	if (fatal_signal_pending(current) && !(gfp_mask & __GFP_NOFAIL) &&
-			(gfp_mask & __GFP_FS))
-		goto nopage;
-
-=======
->>>>>>> Stashed changes
 	/* Try direct reclaim and then allocating */
 	if (!used_vmpressure)
 		used_vmpressure = vmpressure_inc_users(order);
@@ -4838,11 +4757,6 @@ static inline bool prepare_alloc_pages(gfp_t gfp_mask, unsigned int order,
 	if (IS_ENABLED(CONFIG_CMA) && ac->migratetype == MIGRATE_MOVABLE &&
 			(gfp_mask & __GFP_CMA))
 		*alloc_flags |= ALLOC_CMA;
-<<<<<<< Updated upstream
-
-	defrag_migrate_to_alloc_flag(*alloc_flags, ac->migratetype);
-=======
->>>>>>> Stashed changes
 
 	return true;
 }
@@ -4890,24 +4804,10 @@ __alloc_pages_nodemask(gfp_t gfp_mask, unsigned int order, int preferred_nid,
 
 	finalise_ac(gfp_mask, &ac);
 
-<<<<<<< Updated upstream
-	ADD_ORDER_USAGE(order);
-	/*
-	 * Forbid the first pass from falling back to types that fragment
-	 * memory until all local zones are considered.
-	 */
-	alloc_flags |= alloc_flags_nofragment(ac.preferred_zoneref->zone, gfp_mask);
-
-=======
->>>>>>> Stashed changes
 	/* First allocation attempt */
 	page = get_page_from_freelist(alloc_mask, order, alloc_flags, &ac);
 	if (likely(page))
 		goto out;
-<<<<<<< Updated upstream
-	ADD_ORDER_FAIL(order);
-=======
->>>>>>> Stashed changes
 
 	/*
 	 * Apply scoped allocation constraints. This is mainly about GFP_NOFS
@@ -5374,12 +5274,6 @@ static void show_migration_types(unsigned char type)
 #ifdef CONFIG_MEMORY_ISOLATION
 		[MIGRATE_ISOLATE]	= 'I',
 #endif
-<<<<<<< Updated upstream
-#ifdef CONFIG_DEFRAG
-		[MIGRATE_UNMOVABLE_DEFRAG_POOL] = 'D',
-#endif
-=======
->>>>>>> Stashed changes
 	};
 	char tmp[MIGRATE_TYPES + 1];
 	char *p = tmp;
@@ -7624,11 +7518,6 @@ unsigned long free_reserved_area(void *start, void *end, int poison, char *s)
 		pr_info("Freeing %s memory: %ldK\n",
 			s, pages << (PAGE_SHIFT - 10));
 
-#ifdef CONFIG_HAVE_MEMBLOCK
-		memblock_dbg("memblock_free: [%#016llx-%#016llx] %pS\n",
-			(u64)__pa(start), (u64)__pa(end), (void *)_RET_IP_);
-#endif
-
 	return pages;
 }
 EXPORT_SYMBOL(free_reserved_area);
@@ -7995,36 +7884,6 @@ int min_free_kbytes_sysctl_handler(struct ctl_table *table, int write,
 	return 0;
 }
 
-<<<<<<< Updated upstream
-int watermark_boost_factor_sysctl_handler(struct ctl_table *table, int write,
-	void __user *buffer, size_t *length, loff_t *ppos)
-{
-	int rc;
-
-	rc = proc_dointvec_minmax(table, write, buffer, length, ppos);
-	if (rc)
-		return rc;
-
-	return 0;
-}
-
-int kswapd_threads_sysctl_handler(struct ctl_table *table, int write,
-	void __user *buffer, size_t *length, loff_t *ppos)
-{
-	int rc;
-
-	rc = proc_dointvec_minmax(table, write, buffer, length, ppos);
-	if (rc)
-		return rc;
-
-	if (write)
-		update_kswapd_threads();
-
-	return 0;
-}
-
-=======
->>>>>>> Stashed changes
 int watermark_scale_factor_sysctl_handler(struct ctl_table *table, int write,
 	void __user *buffer, size_t *length, loff_t *ppos)
 {

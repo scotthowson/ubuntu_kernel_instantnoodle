@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2016-2017, 2019-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2016-2017, 2019-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include <linux/bitops.h>
@@ -1754,11 +1750,7 @@ static struct clk_branch gcc_gpu_cfg_ahb_clk = {
 
 static struct clk_branch gpll0_out_msscc = {
 	.halt_reg = 0x5200c,
-<<<<<<< Updated upstream
-	.halt_check = BRANCH_HALT,
-=======
 	.halt_check = BRANCH_HALT_DELAY,
->>>>>>> Stashed changes
 	.clkr = {
 		.enable_reg = 0x5200c,
 		.enable_mask = BIT(2),
@@ -1909,10 +1901,7 @@ static struct clk_branch gcc_mss_cfg_ahb_clk = {
 
 static struct clk_branch gcc_mss_mnoc_bimc_axi_clk = {
 	.halt_reg = 0x8a004,
-<<<<<<< Updated upstream
-=======
 	.halt_check = BRANCH_VOTED,
->>>>>>> Stashed changes
 	.clkr = {
 		.enable_reg = 0x8a004,
 		.enable_mask = BIT(0),
@@ -2261,11 +2250,7 @@ static struct clk_branch gcc_ufs_phy_aux_hw_ctl_clk = {
 
 static struct clk_branch gcc_ufs_rx_symbol_0_clk = {
 	.halt_reg = 0x75014,
-<<<<<<< Updated upstream
-	.halt_check = BRANCH_HALT,
-=======
 	.halt_check = BRANCH_HALT_DELAY,
->>>>>>> Stashed changes
 	.clkr = {
 		.enable_reg = 0x75014,
 		.enable_mask = BIT(0),
@@ -2278,11 +2263,7 @@ static struct clk_branch gcc_ufs_rx_symbol_0_clk = {
 
 static struct clk_branch gcc_ufs_rx_symbol_1_clk = {
 	.halt_reg = 0x7605c,
-<<<<<<< Updated upstream
-	.halt_check = BRANCH_HALT,
-=======
 	.halt_check = BRANCH_HALT_DELAY,
->>>>>>> Stashed changes
 	.clkr = {
 		.enable_reg = 0x7605c,
 		.enable_mask = BIT(0),
@@ -2295,11 +2276,7 @@ static struct clk_branch gcc_ufs_rx_symbol_1_clk = {
 
 static struct clk_branch gcc_ufs_tx_symbol_0_clk = {
 	.halt_reg = 0x75010,
-<<<<<<< Updated upstream
-	.halt_check = BRANCH_HALT,
-=======
 	.halt_check = BRANCH_HALT_DELAY,
->>>>>>> Stashed changes
 	.clkr = {
 		.enable_reg = 0x75010,
 		.enable_mask = BIT(0),

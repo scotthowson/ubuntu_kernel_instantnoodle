@@ -469,11 +469,7 @@ static int ov2680_power_on(struct ov2680_dev *sensor)
 
 	ret = clk_prepare_enable(sensor->xvclk);
 	if (ret < 0)
-<<<<<<< Updated upstream
-		return ret;
-=======
 		goto err_disable_regulators;
->>>>>>> Stashed changes
 
 	sensor->is_enabled = true;
 
@@ -483,13 +479,10 @@ static int ov2680_power_on(struct ov2680_dev *sensor)
 	ov2680_stream_disable(sensor);
 
 	return 0;
-<<<<<<< Updated upstream
-=======
 
 err_disable_regulators:
 	regulator_bulk_disable(OV2680_NUM_SUPPLIES, sensor->supplies);
 	return ret;
->>>>>>> Stashed changes
 }
 
 static int ov2680_s_power(struct v4l2_subdev *sd, int on)
@@ -507,17 +500,7 @@ static int ov2680_s_power(struct v4l2_subdev *sd, int on)
 	if (on && ret == 0)
 		ret = ov2680_mode_restore(sensor);
 
-<<<<<<< Updated upstream
-	if (on && ret == 0) {
-		ret = v4l2_ctrl_handler_setup(&sensor->ctrls.handler);
-		if (ret < 0)
-			return ret;
-
-		ret = ov2680_mode_restore(sensor);
-	}
-=======
 	mutex_unlock(&sensor->lock);
->>>>>>> Stashed changes
 
 	return ret;
 }

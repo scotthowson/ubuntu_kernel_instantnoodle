@@ -99,11 +99,6 @@ void ucfg_ipa_reg_send_to_nw_cb(struct wlan_objmgr_pdev *pdev,
 				wlan_ipa_send_to_nw cb)
 {
 	return ipa_reg_send_to_nw_cb(pdev, cb);
-<<<<<<< Updated upstream
-
-}
-
-=======
 }
 
 #ifdef IPA_LAN_RX_NAPI_SUPPORT
@@ -114,7 +109,6 @@ void ucfg_ipa_reg_rps_enable_cb(struct wlan_objmgr_pdev *pdev,
 }
 #endif
 
->>>>>>> Stashed changes
 void ucfg_ipa_set_mcc_mode(struct wlan_objmgr_pdev *pdev, bool mcc_mode)
 {
 	return ipa_set_mcc_mode(pdev, mcc_mode);

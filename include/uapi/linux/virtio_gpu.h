@@ -40,10 +40,6 @@
 
 #include <linux/types.h>
 
-<<<<<<< Updated upstream
-#define VIRTIO_GPU_F_VIRGL 0
-#define VIRTIO_GPU_F_EDID  1
-=======
 /*
  * VIRTIO_GPU_CMD_CTX_*
  * VIRTIO_GPU_CMD_*_3D
@@ -54,7 +50,6 @@
  * VIRTIO_GPU_CMD_GET_EDID
  */
 #define VIRTIO_GPU_F_EDID                1
->>>>>>> Stashed changes
 
 enum virtio_gpu_ctrl_type {
 	VIRTIO_GPU_UNDEFINED = 0,

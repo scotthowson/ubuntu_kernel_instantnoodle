@@ -1,9 +1,5 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2017-2018 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2017-2018, 2021 The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -25,10 +21,7 @@
  */
 #ifndef _WLAN_CRYPTO_MAIN_H_
 #define _WLAN_CRYPTO_MAIN_H_
-<<<<<<< Updated upstream
-=======
 #include "wlan_crypto_global_def.h"
->>>>>>> Stashed changes
 
 /**
  * wlan_crypto_init - Init the crypto service with object manager
@@ -46,8 +39,6 @@ QDF_STATUS wlan_crypto_init(void);
  */
 QDF_STATUS wlan_crypto_deinit(void);
 
-<<<<<<< Updated upstream
-=======
 #ifdef CRYPTO_SET_KEY_CONVERGED
 /**
  * wlan_crypto_psoc_enable: psoc enable API for wlan crypto component
@@ -75,6 +66,5 @@ static inline QDF_STATUS wlan_crypto_psoc_disable(struct wlan_objmgr_psoc *psoc)
 	return QDF_STATUS_SUCCESS;
 }
 #endif
->>>>>>> Stashed changes
 
 #endif /* end of _WLAN_CRYPTO_MAIN_H_ */

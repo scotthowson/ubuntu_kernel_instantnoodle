@@ -12,21 +12,6 @@
 #include <trace/events/sched.h>
 
 #include "walt.h"
-<<<<<<< Updated upstream
-#ifdef CONFIG_CONTROL_CENTER
-#include <linux/oem/control_center.h>
-#endif
-#ifdef CONFIG_IM
-#include <linux/oem/im.h>
-#endif
-#ifdef CONFIG_ONEPLUS_HEALTHINFO
-#include <linux/oem/oneplus_healthinfo.h>
-#endif/**/
-#ifdef CONFIG_OPCHAIN
-#include <oneplus/uxcore/opchain_helper.h>
-#endif
-=======
->>>>>>> Stashed changes
 
 int sched_rr_timeslice = RR_TIMESLICE;
 int sysctl_sched_rr_timeslice = (MSEC_PER_SEC / HZ) * RR_TIMESLICE;
@@ -1101,11 +1086,6 @@ static void update_curr_rt(struct rq *rq)
 	u64 delta_exec;
 	u64 now;
 
-#ifdef CONFIG_ONEPLUS_TASKLOAD_INFO
-	u64 window_index = sample_window.window_index;
-	bool index = ODD(window_index);
-#endif
-
 	if (curr->sched_class != &rt_sched_class)
 		return;
 
@@ -1119,37 +1099,6 @@ static void update_curr_rt(struct rq *rq)
 
 	curr->se.sum_exec_runtime += delta_exec;
 	account_group_exec_runtime(curr, delta_exec);
-#ifdef CONFIG_ONEPLUS_HEALTHINFO
-	if (ohm_rtinfo_ctrl == true)
-		rt_total_record(delta_exec, cpu_of(rq));
-#endif
-
-#ifdef CONFIG_ONEPLUS_TASKLOAD_INFO
-	curr->tli[index].tli_overload_flag |= TASK_RT_THREAD_FLAG;
-	if (window_index != curr->tli[index].task_sample_index) {
-		curr->tli[index].task_sample_index = window_index;
-		curr->tli[index].write_bytes = 0;
-		curr->tli[index].read_bytes = 0;
-		if (current_is_fg()) {
-			curr->tli[index].runtime[1] = delta_exec;
-			curr->tli[index].runtime[0] = 0;
-		} else {
-			curr->tli[index].runtime[0] = delta_exec;
-			curr->tli[index].runtime[1] = 0;
-		}
-		curr->tli[index].tli_overload_flag = 0;
-	} else {
-		if (current_is_fg()) {
-			curr->tli[index].runtime[1] += delta_exec;
-			if (curr->tli[index].runtime[1] > ohm_runtime_thresh_fg)
-				curr->tli[index].tli_overload_flag |= TASK_CPU_OVERLOAD_FG_FLAG;
-		} else {
-			curr->tli[index].runtime[0] += delta_exec;
-			if (curr->tli[index].runtime[0] > ohm_runtime_thresh_bg)
-				curr->tli[index].tli_overload_flag |= TASK_CPU_OVERLOAD_BG_FLAG;
-			}
-	}
-#endif
 
 	curr->se.exec_start = now;
 	cgroup_account_cputime(curr, delta_exec);
@@ -1168,15 +1117,8 @@ static void update_curr_rt(struct rq *rq)
 			if (exceeded)
 				resched_curr(rq);
 			raw_spin_unlock(&rt_rq->rt_runtime_lock);
-<<<<<<< Updated upstream
-#ifdef CONFIG_ONEPLUS_HEALTHINFO
-			if (ohm_rtinfo_ctrl == true)
-				rt_info_record(rt_rq, cpu_of(rq_of_rt_rq(rt_rq)));
-#endif
-=======
 			if (exceeded)
 				do_start_rt_bandwidth(sched_rt_bandwidth(rt_rq));
->>>>>>> Stashed changes
 		}
 	}
 }
@@ -1541,9 +1483,6 @@ static void dequeue_task_rt(struct rq *rq, struct task_struct *p, int flags)
 	schedtune_dequeue_task(p, cpu_of(rq));
 
 	update_curr_rt(rq);
-#ifdef CONFIG_ONEPLUS_HEALTHINFO
-	p->rtend_time = rq_clock_task(rq);
-#endif
 	dequeue_rt_entity(rt_se, flags);
 	walt_dec_cumulative_runnable_avg(rq, p);
 
@@ -1700,11 +1639,8 @@ select_task_rq_rt(struct task_struct *p, int cpu, int sd_flag, int flags,
 		    p->prio < cpu_rq(target)->rt.highest_prio.curr))
 			cpu = target;
 	}
-<<<<<<< Updated upstream
-=======
 
 out_unlock:
->>>>>>> Stashed changes
 	rcu_read_unlock();
 
 out:
@@ -1802,9 +1738,7 @@ static struct task_struct *_pick_next_task_rt(struct rq *rq)
 
 	p = rt_task_of(rt_se);
 	p->se.exec_start = rq_clock_task(rq);
-#ifdef CONFIG_ONEPLUS_HEALTHINFO
-	p->rtstart_time = rq_clock_task(rq);
-#endif /*CONFIG_ONEPLUS_HEALTHINFO*/
+
 	return p;
 }
 
@@ -1928,15 +1862,6 @@ static int rt_energy_aware_wake_cpu(struct task_struct *task)
 	int best_cpu_idle_idx = INT_MAX;
 	int cpu_idle_idx = -1;
 	bool boost_on_big = rt_boost_on_big();
-<<<<<<< Updated upstream
-#ifdef CONFIG_OPCHAIN
-	bool best_cpu_is_claimed = false;
-#endif
-	/* For surfaceflinger with util > 90, prefer to use big core */
-	if (task->compensate_need == 2 && tutil > 90)
-		boost_on_big = true;
-=======
->>>>>>> Stashed changes
 
 	rcu_read_lock();
 
@@ -1948,15 +1873,6 @@ static int rt_energy_aware_wake_cpu(struct task_struct *task)
 	if (!sd)
 		goto unlock;
 
-<<<<<<< Updated upstream
-#if defined(CONFIG_CONTROL_CENTER) && defined(CONFIG_IM)
-	boost_on_big = boost_on_big |
-		im_hwc(task) | // HWC select big core first
-		(im_sf(task) && ccdm_get_hint(CCDM_TB_PLACE_BOOST));
-#endif
-
-=======
->>>>>>> Stashed changes
 retry:
 	sg = sd->groups;
 	do {
@@ -1972,19 +1888,7 @@ retry:
 		}
 
 		for_each_cpu_and(cpu, lowest_mask, sched_group_span(sg)) {
-<<<<<<< Updated upstream
-#ifdef CONFIG_UXCHAIN
-			struct rq *rq = cpu_rq(cpu);
-			struct task_struct *tsk = rq->curr;
 
-			if (tsk->static_ux && tsk == tsk->group_leader &&
-				sysctl_launcher_boost_enabled && sysctl_uxchain_enabled)
-				continue;
-#endif
-
-=======
-
->>>>>>> Stashed changes
 			trace_sched_cpu_util(cpu);
 
 			if (cpu_isolated(cpu))
@@ -1995,19 +1899,6 @@ retry:
 
 			if (__cpu_overutilized(cpu, tutil))
 				continue;
-<<<<<<< Updated upstream
-#ifdef CONFIG_OPCHAIN
-			if (best_cpu_is_claimed) {
-				best_cpu_idle_idx = cpu_idle_idx;
-				best_cpu_util_cum = util_cum;
-				best_cpu_util = util;
-				best_cpu = cpu;
-				best_cpu_is_claimed = false;
-				continue;
-			}
-#endif
-=======
->>>>>>> Stashed changes
 
 			util = cpu_util(cpu);
 
@@ -2042,17 +1933,6 @@ retry:
 					continue;
 			}
 
-<<<<<<< Updated upstream
-#ifdef CONFIG_OPCHAIN
-			if (opc_get_claim_on_cpu(cpu)) {
-				if (best_cpu != -1)
-					continue;
-				else
-					best_cpu_is_claimed = true;
-			}
-#endif
-=======
->>>>>>> Stashed changes
 			best_cpu_idle_idx = cpu_idle_idx;
 			best_cpu_util_cum = util_cum;
 			best_cpu_util = util;

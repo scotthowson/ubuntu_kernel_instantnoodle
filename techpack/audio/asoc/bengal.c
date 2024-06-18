@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2016-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2016-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include <linux/clk.h>
@@ -559,10 +555,7 @@ static struct snd_soc_codec_conf *msm_codec_conf;
 static struct snd_soc_card snd_soc_card_bengal_msm;
 static int dmic_0_1_gpio_cnt;
 static int dmic_2_3_gpio_cnt;
-<<<<<<< Updated upstream
-=======
 static u32 wcd_datalane_mismatch;
->>>>>>> Stashed changes
 
 static void *def_wcd_mbhc_cal(void);
 static void *def_rouleur_mbhc_cal(void);
@@ -4338,15 +4331,11 @@ static int msm_int_audrx_init(struct snd_soc_pcm_runtime *rtd)
 				data = (char*) of_device_get_match_data(
 								&pdev->dev);
 			if (data != NULL) {
-<<<<<<< Updated upstream
-				if (!strncmp(data, "wcd937x",
-=======
 				if (wcd_datalane_mismatch) {
 					bolero_set_port_map(component,
 						ARRAY_SIZE(sm_port_map_khaje),
 						sm_port_map_khaje);
 				} else if (!strncmp(data, "wcd937x",
->>>>>>> Stashed changes
 						sizeof("wcd937x"))) {
 					bolero_set_port_map(component,
 						ARRAY_SIZE(sm_port_map),
@@ -6751,13 +6740,10 @@ static int msm_asoc_machine_probe(struct platform_device *pdev)
 	if (ret)
 		goto err;
 
-<<<<<<< Updated upstream
-=======
 	ret = of_property_read_u32(pdev->dev.of_node,
 			"qcom,wcd-datalane-mismatch",
 			&wcd_datalane_mismatch);
 
->>>>>>> Stashed changes
 	ret = devm_snd_soc_register_card(&pdev->dev, card);
 	if (ret == -EPROBE_DEFER) {
 		if (codec_reg_done)

@@ -17,13 +17,9 @@
 #include "fscrypt_private.h"
 
 /**
-<<<<<<< Updated upstream
- * fscrypt_policies_equal - check whether two encryption policies are the same
-=======
  * fscrypt_policies_equal() - check whether two encryption policies are the same
  * @policy1: the first policy
  * @policy2: the second policy
->>>>>>> Stashed changes
  *
  * Return: %true if equal, else %false
  */
@@ -33,9 +29,6 @@ bool fscrypt_policies_equal(const union fscrypt_policy *policy1,
 	if (policy1->version != policy2->version)
 		return false;
 
-<<<<<<< Updated upstream
-	return !memcmp(policy1, policy2, fscrypt_policy_size(policy1));
-=======
 	if (fscrypt_policy_contents_mode(policy1) == FSCRYPT_MODE_PRIVATE)
 		return(!memcmp(policy1->v1.master_key_descriptor,
 		       policy2->v1.master_key_descriptor,
@@ -50,7 +43,6 @@ bool fscrypt_policies_equal(const union fscrypt_policy *policy1,
 			~FSCRYPT_POLICY_FLAG_IV_INO_LBLK_32));
 	else
 		return !memcmp(policy1, policy2, fscrypt_policy_size(policy1));
->>>>>>> Stashed changes
 }
 
 static bool fscrypt_valid_enc_modes(u32 contents_mode, u32 filenames_mode)
@@ -103,8 +95,6 @@ static bool supported_iv_ino_lblk_policy(const struct fscrypt_policy_v2 *policy,
 	int ino_bits = 64, lblk_bits = 64;
 
 	/*
-<<<<<<< Updated upstream
-=======
 	 * IV_INO_LBLK_* exist only because of hardware limitations, and
 	 * currently the only known use case for them involves AES-256-XTS.
 	 * That's also all we test currently.  For these reasons, for now only
@@ -119,7 +109,6 @@ static bool supported_iv_ino_lblk_policy(const struct fscrypt_policy_v2 *policy,
 	}
 
 	/*
->>>>>>> Stashed changes
 	 * It's unsafe to include inode numbers in the IVs if the filesystem can
 	 * potentially renumber inodes, e.g. via filesystem shrinking.
 	 */
@@ -160,12 +149,8 @@ static bool fscrypt_supported_v1_policy(const struct fscrypt_policy_v1 *policy,
 	}
 
 	if (policy->flags & ~(FSCRYPT_POLICY_FLAGS_PAD_MASK |
-<<<<<<< Updated upstream
-			      FSCRYPT_POLICY_FLAG_DIRECT_KEY)) {
-=======
 			      FSCRYPT_POLICY_FLAG_DIRECT_KEY |
 			      FSCRYPT_POLICY_FLAG_IV_INO_LBLK_32)) {
->>>>>>> Stashed changes
 		fscrypt_warn(inode, "Unsupported encryption flags (0x%02x)",
 			     policy->flags);
 		return false;
@@ -225,12 +210,6 @@ static bool fscrypt_supported_v2_policy(const struct fscrypt_policy_v2 *policy,
 					  32, 32))
 		return false;
 
-<<<<<<< Updated upstream
-	if ((policy->flags & FSCRYPT_POLICY_FLAG_IV_INO_LBLK_32) &&
-	    /* This uses hashed inode numbers, so ino_bits doesn't matter. */
-	    !supported_iv_ino_lblk_policy(policy, inode, "IV_INO_LBLK_32",
-					  INT_MAX, 32))
-=======
 	/*
 	 * IV_INO_LBLK_32 hashes the inode number, so in principle it can
 	 * support any ino_bits.  However, currently the inode number is gotten
@@ -240,7 +219,6 @@ static bool fscrypt_supported_v2_policy(const struct fscrypt_policy_v2 *policy,
 	if ((policy->flags & FSCRYPT_POLICY_FLAG_IV_INO_LBLK_32) &&
 	    !supported_iv_ino_lblk_policy(policy, inode, "IV_INO_LBLK_32",
 					  32, 32))
->>>>>>> Stashed changes
 		return false;
 
 	if (memchr_inv(policy->__reserved, 0, sizeof(policy->__reserved))) {
@@ -252,13 +230,9 @@ static bool fscrypt_supported_v2_policy(const struct fscrypt_policy_v2 *policy,
 }
 
 /**
-<<<<<<< Updated upstream
- * fscrypt_supported_policy - check whether an encryption policy is supported
-=======
  * fscrypt_supported_policy() - check whether an encryption policy is supported
  * @policy_u: the encryption policy
  * @inode: the inode on which the policy will be used
->>>>>>> Stashed changes
  *
  * Given an encryption policy, check whether all its encryption modes and other
  * settings are supported by this kernel on the given inode.  (But we don't
@@ -280,14 +254,10 @@ bool fscrypt_supported_policy(const union fscrypt_policy *policy_u,
 }
 
 /**
-<<<<<<< Updated upstream
- * fscrypt_new_context_from_policy - create a new fscrypt_context from a policy
-=======
  * fscrypt_new_context_from_policy() - create a new fscrypt_context from
  *				       an fscrypt_policy
  * @ctx_u: output context
  * @policy_u: input policy
->>>>>>> Stashed changes
  *
  * Create an fscrypt_context for an inode that is being assigned the given
  * encryption policy.  A new nonce is randomly generated.
@@ -337,15 +307,11 @@ static int fscrypt_new_context_from_policy(union fscrypt_context *ctx_u,
 }
 
 /**
-<<<<<<< Updated upstream
- * fscrypt_policy_from_context - convert an fscrypt_context to an fscrypt_policy
-=======
  * fscrypt_policy_from_context() - convert an fscrypt_context to
  *				   an fscrypt_policy
  * @policy_u: output policy
  * @ctx_u: input context
  * @ctx_size: size of input context in bytes
->>>>>>> Stashed changes
  *
  * Given an fscrypt_context, build the corresponding fscrypt_policy.
  *
@@ -718,10 +684,6 @@ int fscrypt_inherit_context(struct inode *parent, struct inode *child,
 	if (ci == NULL)
 		return -ENOKEY;
 
-<<<<<<< Updated upstream
-	ctxsize = fscrypt_new_context_from_policy(&ctx, &ci->ci_policy);
-
-=======
 	file_system_type = ci->ci_inode->i_sb->s_type->name;
 	if (!file_system_type)
 		return -EINVAL;
@@ -733,7 +695,6 @@ int fscrypt_inherit_context(struct inode *parent, struct inode *child,
 		if (res)
 			return res;
 	}
->>>>>>> Stashed changes
 	BUILD_BUG_ON(sizeof(ctx) != FSCRYPT_SET_CONTEXT_MAX_SIZE);
 	res = parent->i_sb->s_cop->set_context(child, &ctx, ctxsize, fs_data);
 	if (res)

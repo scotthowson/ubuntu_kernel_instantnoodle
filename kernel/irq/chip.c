@@ -513,34 +513,10 @@ static bool irq_check_poll(struct irq_desc *desc)
 
 static bool irq_may_run(struct irq_desc *desc)
 {
-<<<<<<< Updated upstream
-	unsigned int mask = IRQD_IRQ_INPROGRESS | IRQD_WAKEUP_ARMED;
-
-	/*
-	 * If the interrupt is not in progress and is not an armed
-	 * wakeup interrupt, proceed.
-	 */
-	if (!irqd_has_set(&desc->irq_data, mask)) {
-#ifdef CONFIG_PM_SLEEP
-		if (unlikely(desc->no_suspend_depth &&
-			     irqd_is_wakeup_set(&desc->irq_data))) {
-			unsigned int irq = irq_desc_get_irq(desc);
-			const char *name = "(unnamed)";
-
-			if (desc->action && desc->action->name)
-				name = desc->action->name;
-
-			log_abnormal_wakeup_reason("misconfigured IRQ %u %s",
-						   irq, name);
-		}
-#endif
-=======
 	/* Proceed if the IRQ isn't in progress and isn't a wakeup interrupt */
 	if (!irqd_has_set(&desc->irq_data, IRQD_IRQ_INPROGRESS |
 			  IRQD_WAKEUP_ARMED | IRQD_WAKEUP_STATE))
->>>>>>> Stashed changes
 		return true;
-	}
 
 	/*
 	 * If the interrupt is an armed wakeup source, mark it pending

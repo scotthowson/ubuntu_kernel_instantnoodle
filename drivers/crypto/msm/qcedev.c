@@ -2036,13 +2036,9 @@ static inline long qcedev_ioctl(struct file *file,
 				goto exit_free_qcedev_areq;
 			}
 
-<<<<<<< Updated upstream
-			if (map_buf.num_fds > QCEDEV_MAX_BUFFERS) {
-=======
 			if (map_buf.num_fds > ARRAY_SIZE(map_buf.fd)) {
 				pr_err("%s: err: num_fds = %d exceeds max value\n",
 				__func__, map_buf.num_fds);
->>>>>>> Stashed changes
 				err = -EINVAL;
 				goto exit_free_qcedev_areq;
 			}

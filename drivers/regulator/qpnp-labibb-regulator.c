@@ -618,10 +618,7 @@ struct qpnp_labibb {
 	bool				notify_lab_vreg_ok_sts;
 	bool				detect_lab_sc;
 	bool				sc_detected;
-<<<<<<< Updated upstream
-=======
 	 /* Tracks the secure UI mode entry/exit */
->>>>>>> Stashed changes
 	bool				secure_mode;
 	u32				swire_2nd_cmd_delay;
 	u32				swire_ibb_ps_enable_delay;

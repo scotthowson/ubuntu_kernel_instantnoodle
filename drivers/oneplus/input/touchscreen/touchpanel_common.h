@@ -62,20 +62,6 @@
 #define Sgestrue            14  // S
 #define FingerprintDown     16
 #define FingerprintUp       17
-<<<<<<< Updated upstream
-
-#define KEY_GESTURE_W               246
-#define KEY_GESTURE_M               247
-#define KEY_GESTURE_S               248
-#define KEY_DOUBLE_TAP              KEY_WAKEUP
-#define KEY_GESTURE_CIRCLE          250
-#define KEY_GESTURE_TWO_SWIPE       251
-#define KEY_GESTURE_DOWN_ARROW        252
-#define KEY_GESTURE_LEFT_ARROW      253
-#define KEY_GESTURE_RIGHT_ARROW     254
-#define KEY_GESTURE_SINGLE_TAP      255
-=======
->>>>>>> Stashed changes
 
 #define BIT0 (0x1 << 0)
 #define BIT1 (0x1 << 1)
@@ -166,15 +152,6 @@ typedef enum {
 }work_mode;
 
 typedef enum {
-        HEALTH_NONE,
-        HEALTH_INTERACTIVE_CLEAR = 1, /*INTERACTIVE SW CLAR DATA*/
-        HEALTH_FORMAL_CLEAR,          /*FORMAL SW CLAR DATA*/
-        HEALTH_UPDATARP,              /*trigger chip to update those data*/
-        HEALTH_INFO_GET,              /*health_monitor node show*/
-        HEALTH_LASTEXCP_GET,          /*health_monitor node show*/
-} health_ctl;
-
-typedef enum {
 	FW_NORMAL,     /*fw might update, depend on the fw id*/
 	FW_ABNORMAL,   /*fw abnormal, need update*/
 }fw_check_state;
@@ -201,7 +178,6 @@ typedef enum IRQ_TRIGGER_REASON {
 	IRQ_EXCEPTION   = 0x08,
 	IRQ_FW_CONFIG   = 0x10,
 	IRQ_DATA_LOGGER = 0x20,
-	IRQ_FW_HEALTH	= 0x20,
 	IRQ_FW_AUTO_RESET = 0x40,
 	IRQ_FACE_STATE = 0x80,
 	IRQ_IGNORE      = 0x00,
@@ -291,8 +267,6 @@ struct point_info {
 	uint8_t  touch_major;
 	uint8_t  status;
 	touch_area type;
-	uint8_t tx_press;
-	uint8_t rx_press;
 };
 
 /* add haptic audio tp mask */
@@ -419,42 +393,6 @@ struct black_gesture_test {
 	bool flag;                                         /* indicate do black gesture test or not*/
 	char *message;                                 /* failure information if gesture test failed */
 };
-struct monitor_data {
-    unsigned long monitor_down;
-    unsigned long monitor_up;
-    health_ctl    ctl_type;
-
-    int bootup_test;
-    int repeat_finger;
-    int miss_irq;
-    int grip_report;
-    int baseline_err;
-    int noise_count;
-    int shield_palm;
-    int shield_edge;
-    int shield_metal;
-    int shield_water;
-    int shield_esd;
-    int hard_rst;
-    int inst_rst;
-    int parity_rst;
-    int wd_rst;
-    int other_rst;
-    int reserve1;
-    int reserve2;
-    int reserve3;
-    int reserve4;
-    int reserve5;
-
-    int fw_download_retry;
-    int fw_download_fail;
-
-    int eli_size;
-    int eli_ver_range;
-    int eli_hor_range;
-    int *eli_ver_pos;
-    int *eli_hor_pos;
-};
 
 struct debug_info_proc_operations;
 struct earsense_proc_operations;
@@ -488,7 +426,6 @@ struct touchpanel_data {
 	bool has_callback;                                  /*whether have callback method to invoke common*/
 	bool use_resume_notify;                             /*notify speed resume process*/
 	bool fw_update_app_support;                         /*bspFwUpdate is used*/
-	bool health_monitor_support;
 	bool in_test_process;                               /*flag whether in test process*/
 	u8   vk_bitmap ;                                     /*every bit declear one state of key "reserve(keycode)|home(keycode)|menu(keycode)|back(keycode)"*/
 	vk_type  vk_type;                                   /*virtual_key type*/
@@ -545,24 +482,15 @@ struct touchpanel_data {
 	u8 touchold_event;									/*0 is touchhold down 1 is up*/
 	bool reverse_charge_status;							/*reverse charge status*/
 	bool wet_mode_status;								/*wet mode status*/
-<<<<<<< Updated upstream
-	bool kernel_grip_support;								/* just defined to pass compilation */
-	bool kernel_grip_support_special;
-	bool report_flow_unlock_support;                    /*report flow is unlock, need to lock when all touch release*/
-	bool game_mode_status;                              /*status of game mode*/	
-	bool glass_mode_status;								/*status of glass mode*/
-=======
 	bool report_flow_unlock_support;						/*report flow is unlock, need to lock when all touch release*/
 	bool game_mode_status;
 	bool glass_mode_status;
->>>>>>> Stashed changes
 #if defined(TPD_USE_EINT)
 	struct hrtimer         timer;                       /*using polling instead of IRQ*/
 #endif
 	//#if defined(CONFIG_FB)
 	struct notifier_block fb_notif;                     /*register to control suspend/resume*/
 	//#endif
-	struct monitor_data    monitor_data;
 	struct notifier_block reverse_charge_notif;         /*register to control noise mode when reverse_charge*/
 	struct notifier_block tp_delta_print_notif;         /*register to print tp delta*/
 	struct mutex           mutex;                       /*mutex for lock i2c related flow*/
@@ -619,11 +547,6 @@ struct touchpanel_data {
 };
 
 struct touchpanel_operations {
-	int  (*ftm_process)                      (void *chip_data);
-	void (*ftm_process_extra)    (void);
-	void (*get_util_vendor)      (struct hw_resource *hw_res,struct panel_info *panel_data);
-	void (*gt_health_report)        (void *chip_data, struct monitor_data *mon_data); 
-	void (*health_report_1)        (void *chip_data, struct monitor_data *mon_data);
 	int  (*get_chip_info)        (void *chip_data);                                           /*return 0:success;other:failed*/
 	int  (*mode_switch)          (void *chip_data, work_mode mode, bool flag);                /*return 0:success;other:failed*/
 	int  (*get_touch_points)     (void *chip_data, struct point_info *points, int max_num);   /*return point bit-map*/
@@ -734,13 +657,10 @@ extern int gf_opticalfp_irq_handler(int event);
 #ifdef CONFIG_ONEPLUS_WIRELESSCHG
 extern int register_reverse_charge_notifier(struct notifier_block *nb);
 extern int unregister_reverse_charge_notifier(struct notifier_block *nb);
-<<<<<<< Updated upstream
-=======
 #else
 static inline int register_reverse_charge_notifier(struct notifier_block *nb){ return 0; }
 static inline int unregister_reverse_charge_notifier(struct notifier_block *nb){ return 0; }
 #endif
->>>>>>> Stashed changes
 extern int register_tp_delta_print_notifier(struct notifier_block *nb);
 extern int unregister_tp_delta_print_notifier(struct notifier_block *nb);
 

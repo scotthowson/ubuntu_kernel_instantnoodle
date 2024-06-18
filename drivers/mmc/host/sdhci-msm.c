@@ -1,11 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2012-2021, The Linux Foundation. All rights reserved.
  * Copyright (c) 2021-2022 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * drivers/mmc/host/sdhci-msm.c - Qualcomm Technologies, Inc. MSM SDHCI Platform
  * driver source file
@@ -1347,16 +1343,8 @@ void sdhci_msm_enter_dbg_mode(struct sdhci_host *host)
 	struct sdhci_msm_host *msm_host = pltfm_host->priv;
 	struct platform_device *pdev = msm_host->pdev;
 	u32 enable_dbg_feature = 0;
-<<<<<<< Updated upstream
-	u32 minor;
-
-	minor = IPCAT_MINOR_MASK(readl_relaxed(host->ioaddr +
-				SDCC_IP_CATALOG));
-	if (minor < 2 || msm_host->debug_mode_enabled)
-=======
 
 	if (msm_host->minor < 2 || msm_host->debug_mode_enabled)
->>>>>>> Stashed changes
 		return;
 	if (!(host->quirks2 & SDHCI_QUIRK2_USE_DBG_FEATURE))
 		return;
@@ -1370,11 +1358,7 @@ void sdhci_msm_enter_dbg_mode(struct sdhci_host *host)
 			SDCC_TESTBUS_CONFIG) | TESTBUS_EN),
 			host->ioaddr + SDCC_TESTBUS_CONFIG);
 
-<<<<<<< Updated upstream
-	if (minor >= 2)
-=======
 	if (msm_host->minor >= 2)
->>>>>>> Stashed changes
 		enable_dbg_feature |= FSM_HISTORY |
 			AUTO_RECOVERY_DISABLE |
 			MM_TRIGGER_DISABLE |
@@ -1401,16 +1385,8 @@ void sdhci_msm_exit_dbg_mode(struct sdhci_host *host)
 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
 	struct sdhci_msm_host *msm_host = pltfm_host->priv;
 	struct platform_device *pdev = msm_host->pdev;
-<<<<<<< Updated upstream
-	u32 minor;
-
-	minor = IPCAT_MINOR_MASK(readl_relaxed(host->ioaddr +
-				SDCC_IP_CATALOG));
-	if (minor < 2 || !msm_host->debug_mode_enabled)
-=======
 
 	if (msm_host->minor  < 2 || !msm_host->debug_mode_enabled)
->>>>>>> Stashed changes
 		return;
 	if (!(host->quirks2 & SDHCI_QUIRK2_USE_DBG_FEATURE))
 		return;
@@ -2220,8 +2196,6 @@ skip_hsr:
 	return ret;
 }
 
-<<<<<<< Updated upstream
-=======
 int sdhci_msm_parse_reset_data(struct device *dev,
 			struct sdhci_msm_host *msm_host)
 {
@@ -2239,7 +2213,6 @@ int sdhci_msm_parse_reset_data(struct device *dev,
 	return ret;
 }
 
->>>>>>> Stashed changes
 static int sdhci_msm_parse_regulator_info(struct device *dev,
 					struct sdhci_msm_pltfm_data *pdata)
 {
@@ -2265,40 +2238,11 @@ static int sdhci_msm_parse_regulator_info(struct device *dev,
 		goto out;
 	}
 
-<<<<<<< Updated upstream
-	if (sdhci_msm_dt_parse_vreg_info(dev,
-					 &pdata->vreg_data->vdd_io_bias_data,
-					 "vdd-io-bias")) {
-		dev_err(dev, "No vdd-io-bias regulator data\n");
-	}
-
-=======
->>>>>>> Stashed changes
 	return ret;
 out:
 	return -EINVAL;
 }
 
-<<<<<<< Updated upstream
-int sdhci_msm_parse_reset_data(struct device *dev,
-			struct sdhci_msm_host *msm_host)
-{
-	int ret = 0;
-
-	msm_host->core_reset = devm_reset_control_get(dev,
-					"core_reset");
-	if (IS_ERR(msm_host->core_reset)) {
-		ret = PTR_ERR(msm_host->core_reset);
-		dev_err(dev, "core_reset unavailable,err = %d\n",
-				ret);
-		msm_host->core_reset = NULL;
-	}
-
-	return ret;
-}
-
-=======
->>>>>>> Stashed changes
 /* Parse platform data */
 static
 struct sdhci_msm_pltfm_data *sdhci_msm_populate_pdata(struct device *dev,
@@ -2394,10 +2338,7 @@ struct sdhci_msm_pltfm_data *sdhci_msm_populate_pdata(struct device *dev,
 					MMC_SCALING_LOWER_DDR52_MODE;
 	}
 
-<<<<<<< Updated upstream
-=======
 	/* Add func to avoid merge warnings*/
->>>>>>> Stashed changes
 	if (sdhci_msm_parse_regulator_info(dev, pdata))
 		goto out;
 
@@ -2951,7 +2892,7 @@ static int sdhci_msm_setup_vreg(struct sdhci_msm_pltfm_data *pdata,
 {
 	int ret = 0, i;
 	struct sdhci_msm_slot_reg_data *curr_slot;
-	struct sdhci_msm_reg_data *vreg_table[3];
+	struct sdhci_msm_reg_data *vreg_table[2];
 
 	curr_slot = pdata->vreg_data;
 	if (!curr_slot) {
@@ -2962,7 +2903,6 @@ static int sdhci_msm_setup_vreg(struct sdhci_msm_pltfm_data *pdata,
 
 	vreg_table[0] = curr_slot->vdd_data;
 	vreg_table[1] = curr_slot->vdd_io_data;
-	vreg_table[2] = curr_slot->vdd_io_bias_data;
 
 	for (i = 0; i < ARRAY_SIZE(vreg_table); i++) {
 		if (vreg_table[i]) {
@@ -2985,8 +2925,7 @@ static int sdhci_msm_vreg_init(struct device *dev,
 {
 	int ret = 0;
 	struct sdhci_msm_slot_reg_data *curr_slot;
-	struct sdhci_msm_reg_data *curr_vdd_reg, *curr_vdd_io_reg,
-				  *curr_vdd_io_bias_reg;
+	struct sdhci_msm_reg_data *curr_vdd_reg, *curr_vdd_io_reg;
 
 	curr_slot = pdata->vreg_data;
 	if (!curr_slot)
@@ -2994,11 +2933,10 @@ static int sdhci_msm_vreg_init(struct device *dev,
 
 	curr_vdd_reg = curr_slot->vdd_data;
 	curr_vdd_io_reg = curr_slot->vdd_io_data;
-	curr_vdd_io_bias_reg = curr_slot->vdd_io_bias_data;
 
 	if (!is_init)
 		/* Deregister all regulators from regulator framework */
-		goto vdd_io_bias_reg_deinit;
+		goto vdd_io_reg_deinit;
 
 	/*
 	 * Get the regulator handle from voltage regulator framework
@@ -3014,19 +2952,11 @@ static int sdhci_msm_vreg_init(struct device *dev,
 		if (ret)
 			goto vdd_reg_deinit;
 	}
-	if (curr_vdd_io_bias_reg) {
-		ret = sdhci_msm_vreg_init_reg(dev, curr_vdd_io_bias_reg);
-		if (ret)
-			goto vdd_io_reg_deinit;
-	}
 
 	if (ret)
 		dev_err(dev, "vreg reset failed (%d)\n", ret);
 	goto out;
 
-vdd_io_bias_reg_deinit:
-	if (curr_vdd_io_bias_reg)
-		sdhci_msm_vreg_deinit_reg(curr_vdd_io_bias_reg);
 vdd_io_reg_deinit:
 	if (curr_vdd_io_reg)
 		sdhci_msm_vreg_deinit_reg(curr_vdd_io_reg);
@@ -3250,8 +3180,6 @@ static irqreturn_t sdhci_msm_pwr_irq(int irq, void *data)
 	int ret = 0;
 	int pwr_state = 0, io_level = 0;
 	unsigned long flags;
-	struct sdhci_msm_reg_data *vreg_io_bias =
-			msm_host->pdata->vreg_data->vdd_io_bias_data;
 
 	irq_status = sdhci_msm_readb_relaxed(host,
 		msm_host_offset->CORE_PWRCTL_STATUS);
@@ -3309,8 +3237,6 @@ static irqreturn_t sdhci_msm_pwr_irq(int irq, void *data)
 	if (irq_status & CORE_PWRCTL_IO_LOW) {
 		/* Switch voltage Low */
 		ret = sdhci_msm_set_vdd_io_vol(msm_host->pdata, VDD_IO_LOW, 0);
-		if (!ret && vreg_io_bias)
-			ret = sdhci_msm_vreg_disable(vreg_io_bias);
 		if (ret)
 			irq_ack |= CORE_PWRCTL_IO_FAIL;
 		else
@@ -4511,43 +4437,6 @@ static void sdhci_msm_reset(struct sdhci_host *host, u8 mask)
 	sdhci_reset(host, mask);
 	if ((host->mmc->caps2 & MMC_CAP2_CQE) && (mask & SDHCI_RESET_ALL))
 		cqhci_suspend(host->mmc);
-<<<<<<< Updated upstream
-}
-
-/*
- * sdhci_msm_enhanced_strobe_mask :-
- * Before running CMDQ transfers in HS400 Enhanced Strobe mode,
- * SW should write 3 to
- * HC_VENDOR_SPECIFIC_FUNC3.CMDEN_HS400_INPUT_MASK_CNT register.
- * The default reset value of this register is 2.
- */
-static void sdhci_msm_enhanced_strobe_mask(struct sdhci_host *host, bool set)
-{
-	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
-	struct sdhci_msm_host *msm_host = pltfm_host->priv;
-	const struct sdhci_msm_offset *msm_host_offset =
-					msm_host->offset;
-
-	if (!msm_host->enhanced_strobe ||
-			!mmc_card_strobe(msm_host->mmc->card)) {
-		pr_debug("%s: host/card does not support hs400 enhanced strobe\n",
-				mmc_hostname(host->mmc));
-		return;
-	}
-
-	if (set) {
-		writel_relaxed((readl_relaxed(host->ioaddr +
-			msm_host_offset->CORE_VENDOR_SPEC3)
-			| CORE_CMDEN_HS400_INPUT_MASK_CNT),
-			host->ioaddr + msm_host_offset->CORE_VENDOR_SPEC3);
-	} else {
-		writel_relaxed((readl_relaxed(host->ioaddr +
-			msm_host_offset->CORE_VENDOR_SPEC3)
-			& ~CORE_CMDEN_HS400_INPUT_MASK_CNT),
-			host->ioaddr + msm_host_offset->CORE_VENDOR_SPEC3);
-	}
-=======
->>>>>>> Stashed changes
 }
 
 static void sdhci_msm_clear_set_dumpregs(struct sdhci_host *host, bool set)
@@ -5442,7 +5331,6 @@ static int sdhci_msm_probe(struct platform_device *pdev)
 	void __iomem *tlmm_mem;
 	unsigned long flags;
 	bool force_probe;
-	u32 minor;
 
 	pr_debug("%s: Enter %s\n", dev_name(&pdev->dev), __func__);
 	msm_host = devm_kzalloc(&pdev->dev, sizeof(struct sdhci_msm_host),
@@ -5743,11 +5631,7 @@ static int sdhci_msm_probe(struct platform_device *pdev)
 	if (host->quirks2 & SDHCI_QUIRK2_ALWAYS_USE_BASE_CLOCK)
 		host->quirks2 |= SDHCI_QUIRK2_DIVIDE_TOUT_BY_4;
 
-<<<<<<< Updated upstream
-	minor = IPCAT_MINOR_MASK(readl_relaxed(host->ioaddr +
-=======
 	msm_host->minor = IPCAT_MINOR_MASK(readl_relaxed(host->ioaddr +
->>>>>>> Stashed changes
 				SDCC_IP_CATALOG));
 
 	host_version = readw_relaxed((host->ioaddr + SDHCI_HOST_VERSION));
@@ -5947,11 +5831,7 @@ static int sdhci_msm_probe(struct platform_device *pdev)
 		device_remove_file(&pdev->dev, &msm_host->auto_cmd21_attr);
 	}
 
-<<<<<<< Updated upstream
-	if (minor >= 2) {
-=======
 	if (msm_host->minor >= 2) {
->>>>>>> Stashed changes
 		msm_host->mask_and_match.show = show_mask_and_match;
 		msm_host->mask_and_match.store = store_mask_and_match;
 		sysfs_attr_init(&msm_host->mask_and_match.attr);

@@ -94,46 +94,6 @@ static int devbw_get_dev_status(struct device *dev,
 	return 0;
 }
 
-<<<<<<< Updated upstream
-static int devfreq_qos_handler(struct notifier_block *b, unsigned long val,
-				void *v)
-{
-	unsigned int max_devfreq_index, min_devfreq_index;
-	unsigned int index_max = 0, index_min = 0;
-
-	max_devfreq_index = (unsigned int)pm_qos_request(PM_QOS_DEVFREQ_MAX);
-	min_devfreq_index = (unsigned int)pm_qos_request(PM_QOS_DEVFREQ_MIN);
-
-	if (max_devfreq_index & MASK_CPUFREQ) {
-		index_max = MAX_CPUFREQ - max_devfreq_index;
-		if (index_max > qos_request_value.max_state)
-			index_max = 0;
-		index_max = qos_request_value.max_state - index_max;
-	} else {
-		if (max_devfreq_index > qos_request_value.max_state)
-			index_max = qos_request_value.max_state;
-	}
-	if (min_devfreq_index & MASK_CPUFREQ) {
-		index_min = MAX_CPUFREQ - min_devfreq_index;
-		if (index_min > (qos_request_value.max_state-1))
-			index_min = 0;
-		index_min = qos_request_value.max_state - 1 - index_min;
-	} else {
-		if (min_devfreq_index > qos_request_value.max_state)
-			index_min = qos_request_value.max_state - 1;
-	}
-
-	qos_request_value.min_devfreq = index_min;
-	qos_request_value.max_devfreq = index_max;
-
-	return NOTIFY_OK;
-}
-static struct notifier_block devfreq_qos_notifier = {
-	.notifier_call = devfreq_qos_handler,
-};
-
-=======
->>>>>>> Stashed changes
 #define PROP_PORTS "qcom,src-dst-ports"
 #define PROP_ACTIVE "qcom,active-only"
 
@@ -276,18 +236,6 @@ static struct platform_driver devbw_driver = {
 	},
 };
 
-<<<<<<< Updated upstream
-static int __init devbw_init(void)
-{
-	cpubw_flag = false;
-	pm_qos_add_notifier(PM_QOS_DEVFREQ_MAX, &devfreq_qos_notifier);
-	pm_qos_add_notifier(PM_QOS_DEVFREQ_MIN, &devfreq_qos_notifier);
-	platform_driver_register(&devbw_driver);
-	return 0;
-}
-device_initcall(devbw_init);
-=======
 module_platform_driver(devbw_driver);
->>>>>>> Stashed changes
 MODULE_DESCRIPTION("Device DDR bandwidth voting driver MSM SoCs");
 MODULE_LICENSE("GPL v2");

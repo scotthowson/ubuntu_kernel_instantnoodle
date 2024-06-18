@@ -4249,8 +4249,6 @@ static int btrfs_log_prealloc_extents(struct btrfs_trans_handle *trans,
 	if (ret < 0)
 		goto out;
 
-<<<<<<< Updated upstream
-=======
 	/*
 	 * We must check if there is a prealloc extent that starts before the
 	 * i_size and crosses the i_size boundary. This is to ensure later we
@@ -4259,7 +4257,6 @@ static int btrfs_log_prealloc_extents(struct btrfs_trans_handle *trans,
 	 * replay and with an implicit hole if there is another prealloc extent
 	 * that starts at an offset beyond i_size.
 	 */
->>>>>>> Stashed changes
 	ret = btrfs_previous_item(root, path, ino, BTRFS_EXTENT_DATA_KEY);
 	if (ret < 0)
 		goto out;

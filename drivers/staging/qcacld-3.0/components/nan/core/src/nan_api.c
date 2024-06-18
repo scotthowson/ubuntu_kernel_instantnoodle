@@ -1,9 +1,5 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2016-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2016-2021 The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -34,10 +30,7 @@
 #include "wlan_objmgr_pdev_obj.h"
 #include "wlan_objmgr_vdev_obj.h"
 #include "nan_ucfg_api.h"
-<<<<<<< Updated upstream
-=======
 #include <wlan_mlme_api.h>
->>>>>>> Stashed changes
 
 static QDF_STATUS nan_psoc_obj_created_notification(
 		struct wlan_objmgr_psoc *psoc, void *arg_list)
@@ -422,8 +415,6 @@ QDF_STATUS nan_psoc_disable(struct wlan_objmgr_psoc *psoc)
 
 	return QDF_STATUS_SUCCESS;
 }
-<<<<<<< Updated upstream
-=======
 
 bool wlan_is_nan_allowed_on_freq(struct wlan_objmgr_pdev *pdev, uint32_t freq)
 {
@@ -445,4 +436,3 @@ bool wlan_is_nan_allowed_on_freq(struct wlan_objmgr_pdev *pdev, uint32_t freq)
 
 	return nan_allowed;
 }
->>>>>>> Stashed changes

@@ -30,11 +30,7 @@ struct dev_node {
 
 struct pld_context {
 	struct pld_driver_ops *ops;
-<<<<<<< Updated upstream
-	spinlock_t pld_lock;
-=======
 	raw_spinlock_t pld_lock;
->>>>>>> Stashed changes
 	struct list_head dev_list;
 	uint32_t pld_driver_state;
 };

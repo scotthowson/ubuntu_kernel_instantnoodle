@@ -247,11 +247,7 @@ static int tce_buildmulti_pSeriesLP(struct iommu_table *tbl, long tcenum,
 		tcep = (__be64 *)__get_free_page(GFP_ATOMIC);
 		/* If allocation fails, fall back to the loop implementation */
 		if (!tcep) {
-<<<<<<< Updated upstream
-			local_irq_restore(flags);
-=======
 			local_unlock_irqrestore(tcp_page_lock, flags);
->>>>>>> Stashed changes
 			return tce_build_pSeriesLP(tbl->it_index, tcenum,
 					tbl->it_page_shift,
 					npages, uaddr, direction, attrs);
@@ -457,12 +453,8 @@ static int tce_setrange_multi_pSeriesLP(unsigned long start_pfn,
 				DMA_BIDIRECTIONAL, 0);
 	}
 
-<<<<<<< Updated upstream
-	local_irq_disable();	/* to protect tcep and the page behind it */
-=======
 	/* to protect tcep and the page behind it */
 	local_lock_irq(tcp_page_lock);
->>>>>>> Stashed changes
 	tcep = __this_cpu_read(tce_page);
 
 	if (!tcep) {

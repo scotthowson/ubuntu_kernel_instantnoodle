@@ -48,12 +48,9 @@ static LIST_HEAD(wait_for_suppliers);
 static DEFINE_MUTEX(wfs_lock);
 static LIST_HEAD(deferred_sync);
 static unsigned int defer_sync_state_count = 1;
-<<<<<<< Updated upstream
-=======
 static unsigned int defer_fw_devlink_count;
 static LIST_HEAD(deferred_fw_devlink);
 static DEFINE_MUTEX(defer_fw_devlink_lock);
->>>>>>> Stashed changes
 
 #ifdef CONFIG_SRCU
 static DEFINE_MUTEX(device_links_lock);
@@ -309,12 +306,8 @@ struct device_link *device_link_add(struct device *consumer,
 {
 	struct device_link *link;
 
-<<<<<<< Updated upstream
-	if (!consumer || !supplier || flags & ~DL_ADD_VALID_FLAGS ||
-=======
 	if (!consumer || !supplier || consumer == supplier ||
 	    flags & ~DL_ADD_VALID_FLAGS ||
->>>>>>> Stashed changes
 	    (flags & DL_FLAG_STATELESS && flags & DL_MANAGED_LINK_FLAGS) ||
 	    (flags & DL_FLAG_SYNC_STATE_ONLY &&
 	     flags != DL_FLAG_SYNC_STATE_ONLY) ||
@@ -378,10 +371,7 @@ struct device_link *device_link_add(struct device *consumer,
 				link->flags |= DL_FLAG_STATELESS;
 				goto reorder;
 			} else {
-<<<<<<< Updated upstream
-=======
 				link->flags |= DL_FLAG_STATELESS;
->>>>>>> Stashed changes
 				goto out;
 			}
 		}
@@ -450,22 +440,16 @@ struct device_link *device_link_add(struct device *consumer,
 	    flags & DL_FLAG_PM_RUNTIME)
 		pm_runtime_resume(supplier);
 
-<<<<<<< Updated upstream
-=======
 	list_add_tail_rcu(&link->s_node, &supplier->links.consumers);
 	list_add_tail_rcu(&link->c_node, &consumer->links.suppliers);
 
->>>>>>> Stashed changes
 	if (flags & DL_FLAG_SYNC_STATE_ONLY) {
 		dev_dbg(consumer,
 			"Linked as a sync state only consumer to %s\n",
 			dev_name(supplier));
 		goto out;
 	}
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
 reorder:
 	/*
 	 * Move the consumer and all of the devices depending on it to the end
@@ -714,12 +698,7 @@ int device_links_check_suppliers(struct device *dev)
 	device_links_write_lock();
 
 	list_for_each_entry(link, &dev->links.suppliers, c_node) {
-<<<<<<< Updated upstream
-		if (!(link->flags & DL_FLAG_MANAGED) ||
-		    link->flags & DL_FLAG_SYNC_STATE_ONLY)
-=======
 		if (!(link->flags & DL_FLAG_MANAGED))
->>>>>>> Stashed changes
 			continue;
 
 		if (link->status != DL_STATE_AVAILABLE &&
@@ -759,11 +738,8 @@ static void __device_links_queue_sync_state(struct device *dev,
 {
 	struct device_link *link;
 
-<<<<<<< Updated upstream
-=======
 	if (!dev_has_sync_state(dev))
 		return;
->>>>>>> Stashed changes
 	if (dev->state_synced)
 		return;
 
@@ -781,19 +757,11 @@ static void __device_links_queue_sync_state(struct device *dev,
 	 */
 	dev->state_synced = true;
 
-<<<<<<< Updated upstream
-	if (WARN_ON(!list_empty(&dev->links.defer_sync)))
-		return;
-
-	get_device(dev);
-	list_add_tail(&dev->links.defer_sync, list);
-=======
 	if (WARN_ON(!list_empty(&dev->links.defer_hook)))
 		return;
 
 	get_device(dev);
 	list_add_tail(&dev->links.defer_hook, list);
->>>>>>> Stashed changes
 }
 
 /**
@@ -811,13 +779,8 @@ static void device_links_flush_sync_list(struct list_head *list,
 {
 	struct device *dev, *tmp;
 
-<<<<<<< Updated upstream
-	list_for_each_entry_safe(dev, tmp, list, links.defer_sync) {
-		list_del_init(&dev->links.defer_sync);
-=======
 	list_for_each_entry_safe(dev, tmp, list, links.defer_hook) {
 		list_del_init(&dev->links.defer_hook);
->>>>>>> Stashed changes
 
 		if (dev != dont_lock_dev)
 			device_lock(dev);
@@ -855,21 +818,12 @@ void device_links_supplier_sync_state_resume(void)
 	if (defer_sync_state_count)
 		goto out;
 
-<<<<<<< Updated upstream
-	list_for_each_entry_safe(dev, tmp, &deferred_sync, links.defer_sync) {
-		/*
-		 * Delete from deferred_sync list before queuing it to
-		 * sync_list because defer_sync is used for both lists.
-		 */
-		list_del_init(&dev->links.defer_sync);
-=======
 	list_for_each_entry_safe(dev, tmp, &deferred_sync, links.defer_hook) {
 		/*
 		 * Delete from deferred_sync list before queuing it to
 		 * sync_list because defer_hook is used for both lists.
 		 */
 		list_del_init(&dev->links.defer_hook);
->>>>>>> Stashed changes
 		__device_links_queue_sync_state(dev, &sync_list);
 	}
 out:
@@ -887,10 +841,6 @@ late_initcall(sync_state_resume_initcall);
 
 static void __device_links_supplier_defer_sync(struct device *sup)
 {
-<<<<<<< Updated upstream
-	if (list_empty(&sup->links.defer_sync))
-		list_add_tail(&sup->links.defer_sync, &deferred_sync);
-=======
 	if (list_empty(&sup->links.defer_hook) && dev_has_sync_state(sup))
 		list_add_tail(&sup->links.defer_hook, &deferred_sync);
 }
@@ -900,7 +850,6 @@ static void device_link_drop_managed(struct device_link *link)
 	link->flags &= ~DL_FLAG_MANAGED;
 	WRITE_ONCE(link->status, DL_STATE_NONE);
 	kref_put(&link->kref, __device_link_del);
->>>>>>> Stashed changes
 }
 
 /**
@@ -916,11 +865,7 @@ static void device_link_drop_managed(struct device_link *link)
  */
 void device_links_driver_bound(struct device *dev)
 {
-<<<<<<< Updated upstream
-	struct device_link *link;
-=======
 	struct device_link *link, *ln;
->>>>>>> Stashed changes
 	LIST_HEAD(sync_list);
 
 	/*
@@ -960,20 +905,6 @@ void device_links_driver_bound(struct device *dev)
 	else
 		__device_links_queue_sync_state(dev, &sync_list);
 
-<<<<<<< Updated upstream
-	list_for_each_entry(link, &dev->links.suppliers, c_node) {
-		if (!(link->flags & DL_FLAG_MANAGED))
-			continue;
-
-		WARN_ON(link->status != DL_STATE_CONSUMER_PROBE);
-		WRITE_ONCE(link->status, DL_STATE_ACTIVE);
-
-		if (defer_sync_state_count)
-			__device_links_supplier_defer_sync(link->supplier);
-		else
-			__device_links_queue_sync_state(link->supplier,
-							&sync_list);
-=======
 	list_for_each_entry_safe(link, ln, &dev->links.suppliers, c_node) {
 		struct device *supplier;
 
@@ -1003,7 +934,6 @@ void device_links_driver_bound(struct device *dev)
 			__device_links_supplier_defer_sync(supplier);
 		else
 			__device_links_queue_sync_state(supplier, &sync_list);
->>>>>>> Stashed changes
 	}
 
 	dev->links.status = DL_DEV_DRIVER_BOUND;
@@ -1011,16 +941,6 @@ void device_links_driver_bound(struct device *dev)
 	device_links_write_unlock();
 
 	device_links_flush_sync_list(&sync_list, dev);
-<<<<<<< Updated upstream
-}
-
-static void device_link_drop_managed(struct device_link *link)
-{
-	link->flags &= ~DL_FLAG_MANAGED;
-	WRITE_ONCE(link->status, DL_STATE_NONE);
-	kref_put(&link->kref, __device_link_del);
-=======
->>>>>>> Stashed changes
 }
 
 /**
@@ -1043,12 +963,6 @@ static void __device_links_no_driver(struct device *dev)
 		if (!(link->flags & DL_FLAG_MANAGED))
 			continue;
 
-<<<<<<< Updated upstream
-		if (link->flags & DL_FLAG_AUTOREMOVE_CONSUMER)
-			device_link_drop_managed(link);
-		else if (link->status == DL_STATE_CONSUMER_PROBE ||
-			 link->status == DL_STATE_ACTIVE)
-=======
 		if (link->flags & DL_FLAG_AUTOREMOVE_CONSUMER) {
 			device_link_drop_managed(link);
 			continue;
@@ -1059,7 +973,6 @@ static void __device_links_no_driver(struct device *dev)
 			continue;
 
 		if (link->supplier->links.status == DL_DEV_DRIVER_BOUND) {
->>>>>>> Stashed changes
 			WRITE_ONCE(link->status, DL_STATE_AVAILABLE);
 		} else {
 			WARN_ON(!(link->flags & DL_FLAG_SYNC_STATE_ONLY));
@@ -1142,11 +1055,7 @@ void device_links_driver_cleanup(struct device *dev)
 		WRITE_ONCE(link->status, DL_STATE_DORMANT);
 	}
 
-<<<<<<< Updated upstream
-	list_del_init(&dev->links.defer_sync);
-=======
 	list_del_init(&dev->links.defer_hook);
->>>>>>> Stashed changes
 	__device_links_no_driver(dev);
 
 	device_links_write_unlock();
@@ -1254,11 +1163,7 @@ static void device_links_purge(struct device *dev)
 	struct device_link *link, *ln;
 
 	mutex_lock(&wfs_lock);
-<<<<<<< Updated upstream
-	list_del(&dev->links.needs_suppliers);
-=======
 	list_del_init(&dev->links.needs_suppliers);
->>>>>>> Stashed changes
 	mutex_unlock(&wfs_lock);
 
 	/*
@@ -2230,11 +2135,7 @@ void device_initialize(struct device *dev)
 	INIT_LIST_HEAD(&dev->links.consumers);
 	INIT_LIST_HEAD(&dev->links.suppliers);
 	INIT_LIST_HEAD(&dev->links.needs_suppliers);
-<<<<<<< Updated upstream
-	INIT_LIST_HEAD(&dev->links.defer_sync);
-=======
 	INIT_LIST_HEAD(&dev->links.defer_hook);
->>>>>>> Stashed changes
 	dev->links.status = DL_DEV_NO_DRIVER;
 	INIT_LIST_HEAD(&dev->iommu_map_list);
 	mutex_init(&dev->iommu_map_lock);
@@ -2620,7 +2521,7 @@ int device_add(struct device *dev)
 	struct device *parent;
 	struct kobject *kobj;
 	struct class_interface *class_intf;
-	int error = -EINVAL, fw_ret;
+	int error = -EINVAL;
 	struct kobject *glue_dir = NULL;
 
 	dev = get_device(dev);
@@ -2718,12 +2619,6 @@ int device_add(struct device *dev)
 
 	kobject_uevent(&dev->kobj, KOBJ_ADD);
 
-<<<<<<< Updated upstream
-	if (dev->fwnode && !dev->fwnode->dev)
-		dev->fwnode->dev = dev;
-
-=======
->>>>>>> Stashed changes
 	/*
 	 * Check if any of the other devices (consumers) have been waiting for
 	 * this device (supplier) to be added so that they can create a device
@@ -2732,20 +2627,6 @@ int device_add(struct device *dev)
 	 * This needs to happen after device_pm_add() because device_link_add()
 	 * requires the supplier be registered before it's called.
 	 *
-<<<<<<< Updated upstream
-	 * But this also needs to happe before bus_probe_device() to make sure
-	 * waiting consumers can link to it before the driver is bound to the
-	 * device and the driver sync_state callback is called for this device.
-	 */
-	device_link_add_missing_supplier_links();
-
-	if (fwnode_has_op(dev->fwnode, add_links)) {
-		fw_ret = fwnode_call_int_op(dev->fwnode, add_links, dev);
-		if (fw_ret == -ENODEV)
-			device_link_wait_for_mandatory_supplier(dev);
-		else if (fw_ret)
-			device_link_wait_for_optional_supplier(dev);
-=======
 	 * But this also needs to happen before bus_probe_device() to make sure
 	 * waiting consumers can link to it before the driver is bound to the
 	 * device and the driver sync_state callback is called for this device.
@@ -2753,7 +2634,6 @@ int device_add(struct device *dev)
 	if (dev->fwnode && !dev->fwnode->dev) {
 		dev->fwnode->dev = dev;
 		fw_devlink_link_device(dev);
->>>>>>> Stashed changes
 	}
 
 	bus_probe_device(dev);

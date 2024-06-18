@@ -27,11 +27,8 @@
 
 #define NFT_MODULE_AUTOLOAD_LIMIT (MODULE_NAME_LEN - sizeof("nft-expr-255-"))
 
-<<<<<<< Updated upstream
-=======
 unsigned int nf_tables_net_id __read_mostly;
 
->>>>>>> Stashed changes
 static LIST_HEAD(nf_tables_expressions);
 static LIST_HEAD(nf_tables_objects);
 static LIST_HEAD(nf_tables_flowtables);
@@ -556,20 +553,13 @@ __nf_tables_chain_type_lookup(const struct nlattr *nla, u8 family)
 static void nft_request_module(struct net *net, const char *fmt, ...)
 {
 	char module_name[MODULE_NAME_LEN];
-<<<<<<< Updated upstream
-=======
 	struct nftables_pernet *nft_net;
->>>>>>> Stashed changes
 	LIST_HEAD(commit_list);
 	va_list args;
 	int ret;
 
-<<<<<<< Updated upstream
-	list_splice_init(&net->nft.commit_list, &commit_list);
-=======
 	nft_net = net_generic(net, nf_tables_net_id);
 	list_splice_init(&nft_net->commit_list, &commit_list);
->>>>>>> Stashed changes
 
 	va_start(args, fmt);
 	ret = vsnprintf(module_name, MODULE_NAME_LEN, fmt, args);
@@ -579,17 +569,10 @@ static void nft_request_module(struct net *net, const char *fmt, ...)
 
 	mutex_unlock(&nft_net->commit_mutex);
 	request_module("%s", module_name);
-<<<<<<< Updated upstream
-	mutex_lock(&net->nft.commit_mutex);
-
-	WARN_ON_ONCE(!list_empty(&net->nft.commit_list));
-	list_splice(&commit_list, &net->nft.commit_list);
-=======
 	mutex_lock(&nft_net->commit_mutex);
 
 	WARN_ON_ONCE(!list_empty(&nft_net->commit_list));
 	list_splice(&commit_list, &nft_net->commit_list);
->>>>>>> Stashed changes
 }
 #endif
 
@@ -2712,12 +2695,6 @@ static int nf_tables_newrule(struct net *net, struct sock *nlsk,
 			return -EINVAL;
 		handle = nf_tables_alloc_handle(table);
 
-<<<<<<< Updated upstream
-		if (chain->use == UINT_MAX)
-			return -EOVERFLOW;
-
-=======
->>>>>>> Stashed changes
 		if (nla[NFTA_RULE_POSITION]) {
 			pos_handle = be64_to_cpu(nla_get_be64(nla[NFTA_RULE_POSITION]));
 			old_rule = __nft_rule_lookup(chain, pos_handle);
@@ -4302,15 +4279,6 @@ static int nft_get_set_elem(struct nft_ctx *ctx, struct nft_set *set,
 	if (err < 0)
 		return err;
 
-<<<<<<< Updated upstream
-	err = -EINVAL;
-	if (desc.type != NFT_DATA_VALUE || desc.len != set->klen) {
-		nft_data_release(&elem.key.val, desc.type);
-		return err;
-	}
-
-=======
->>>>>>> Stashed changes
 	priv = set->ops->get(ctx->net, set, &elem, flags);
 	if (IS_ERR(priv))
 		return PTR_ERR(priv);
@@ -4540,8 +4508,6 @@ static int nft_add_set_elem(struct nft_ctx *ctx, struct nft_set *set,
 			return -EINVAL;
 	}
 
-<<<<<<< Updated upstream
-=======
 	if (set->flags & NFT_SET_OBJECT) {
 		if (!nla[NFTA_SET_ELEM_OBJREF] &&
 		    !(flags & NFT_SET_ELEM_INTERVAL_END))
@@ -4551,7 +4517,6 @@ static int nft_add_set_elem(struct nft_ctx *ctx, struct nft_set *set,
 			return -EINVAL;
 	}
 
->>>>>>> Stashed changes
 	if ((flags & NFT_SET_ELEM_INTERVAL_END) &&
 	     (nla[NFTA_SET_ELEM_DATA] ||
 	      nla[NFTA_SET_ELEM_OBJREF] ||

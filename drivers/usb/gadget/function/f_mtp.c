@@ -1025,16 +1025,6 @@ static void receive_file_work(struct work_struct *data)
 		r = -EIO;
 		goto fail;
 	}
-<<<<<<< Updated upstream
-	if (delayed_work_pending(&cpu_freq_qos_work))
-		cancel_delayed_work(&cpu_freq_qos_work);
-
-	pm_qos_update_request(&devfreq_mtp_request, MAX_CPUFREQ - 1);
-	pm_qos_update_request(&little_cpu_mtp_freq, MAX_CPUFREQ);
-	pm_qos_update_request(&big_cpu_mtp_freq, MAX_CPUFREQ);
-	pm_qos_update_request(&big_plus_cpu_mtp_freq, MAX_CPUFREQ);
-=======
->>>>>>> Stashed changes
 	while (count > 0 || write_req) {
 		if (count > 0) {
 			/* queue a request */
@@ -1119,27 +1109,11 @@ static void receive_file_work(struct work_struct *data)
 	}
 fail:
 	mutex_unlock(&dev->read_mutex);
-<<<<<<< Updated upstream
-	queue_delayed_work(cpu_freq_qos_queue, &cpu_freq_qos_work,
-		msecs_to_jiffies(1000)*3);
-=======
->>>>>>> Stashed changes
 	mtp_log("returning %d\n", r);
 	/* write the result */
 	dev->xfer_result = r;
 	smp_wmb();
 }
-<<<<<<< Updated upstream
-
-static void update_qos_request(struct work_struct *data)
-{
-	pm_qos_update_request(&devfreq_mtp_request, MIN_CPUFREQ);
-	pm_qos_update_request(&little_cpu_mtp_freq, MIN_CPUFREQ);
-	pm_qos_update_request(&big_cpu_mtp_freq, MIN_CPUFREQ);
-	pm_qos_update_request(&big_plus_cpu_mtp_freq, MIN_CPUFREQ);
-}
-=======
->>>>>>> Stashed changes
 
 static int mtp_send_event(struct mtp_dev *dev, struct mtp_event *event)
 {
@@ -1243,10 +1217,6 @@ static long mtp_send_receive_ioctl(struct file *fp, unsigned int code,
 		flush_workqueue(dev->wq);
 		if (mtp_receive_flag) {
 			mtp_receive_flag = false;
-<<<<<<< Updated upstream
-			msm_cpuidle_set_sleep_disable(false);
-=======
->>>>>>> Stashed changes
 		}
 		/* read the result */
 		smp_rmb();
@@ -1396,18 +1366,6 @@ static int mtp_release(struct inode *ip, struct file *fp)
 
 	if (mtp_receive_flag) {
 		mtp_receive_flag = false;
-<<<<<<< Updated upstream
-		pm_qos_update_request_timeout(&devfreq_mtp_request,
-		MAX_CPUFREQ - 1, PM_QOS_TIMEOUT);
-		pm_qos_update_request_timeout(&little_cpu_mtp_freq,
-		MAX_CPUFREQ, PM_QOS_TIMEOUT);
-		pm_qos_update_request_timeout(&big_cpu_mtp_freq,
-		MAX_CPUFREQ, PM_QOS_TIMEOUT);
-		pm_qos_update_request_timeout(&big_plus_cpu_mtp_freq,
-		MAX_CPUFREQ, PM_QOS_TIMEOUT);
-		msm_cpuidle_set_sleep_disable(false);
-=======
->>>>>>> Stashed changes
 	}
 	mtp_unlock(&_mtp_dev->open_excl);
 	return 0;

@@ -3,11 +3,7 @@
  * Copyright 2006-2007	Jiri Benc <jbenc@suse.cz>
  * Copyright 2013-2014  Intel Mobile Communications GmbH
  * Copyright (C) 2015 - 2017 Intel Deutschland GmbH
-<<<<<<< Updated upstream
- * Copyright (C) 2018-2020 Intel Corporation
-=======
  * Copyright (C) 2018-2021 Intel Corporation
->>>>>>> Stashed changes
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -998,11 +994,7 @@ static void __sta_info_destroy_part2(struct sta_info *sta)
 	might_sleep();
 	lockdep_assert_held(&local->sta_mtx);
 
-<<<<<<< Updated upstream
-	while (sta->sta_state == IEEE80211_STA_AUTHORIZED) {
-=======
 	if (sta->sta_state == IEEE80211_STA_AUTHORIZED) {
->>>>>>> Stashed changes
 		ret = sta_info_move_state(sta, IEEE80211_STA_ASSOC);
 		WARN_ON_ONCE(ret);
 	}

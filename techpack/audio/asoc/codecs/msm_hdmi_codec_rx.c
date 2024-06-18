@@ -1,9 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0-only
-<<<<<<< Updated upstream
-/* Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
-=======
 /* Copyright (c) 2012-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 #include <linux/platform_device.h>
 #include <linux/slab.h>
@@ -226,15 +222,9 @@ static int msm_ext_disp_audio_type_get(struct snd_kcontrol *kcontrol,
 	rc = msm_ext_disp_select_audio_codec(codec_data->ext_disp_core_pdev,
 						 &codec_info);
 
-<<<<<<< Updated upstream
-	if (!codec_data->ext_disp_ops.get_audio_edid_blk ||
-	    !codec_data->ext_disp_ops.get_intf_id || rc) {
-		dev_err(component->dev, "%s: get_audio_edid_blk() or get_intf_id is NULL\n",
-=======
 	if (!codec_data->ext_disp_ops.cable_status ||
 	    !codec_data->ext_disp_ops.get_intf_id || rc) {
 		dev_err(component->dev, "%s: cable_status() or get_intf_id is NULL\n",
->>>>>>> Stashed changes
 			__func__);
 		rc = -EINVAL;
 		goto cable_err;
@@ -745,13 +735,10 @@ static int msm_ext_disp_audio_codec_rx_probe(
 {
 	struct msm_ext_disp_audio_codec_rx_data *codec_data;
 	struct device_node *of_node_parent = NULL;
-<<<<<<< Updated upstream
-=======
 	struct msm_ext_disp_codec_id codec_info;
 	int dai_id = DP_DAI1;
 	int type;
 	int rc = 0;
->>>>>>> Stashed changes
 
 	codec_data = kzalloc(sizeof(struct msm_ext_disp_audio_codec_rx_data),
 		GFP_KERNEL);
@@ -792,8 +779,6 @@ static int msm_ext_disp_audio_codec_rx_probe(
 	dev_dbg(component->dev, "%s(): registered %s with ext disp core\n",
 		__func__, component->name);
 
-<<<<<<< Updated upstream
-=======
 	mutex_lock(&codec_data->dp_ops_lock);
 
 	/*Find a connected ext device to notify DisPlay*/
@@ -819,7 +804,6 @@ static int msm_ext_disp_audio_codec_rx_probe(
 
 	mutex_unlock(&codec_data->dp_ops_lock);
 
->>>>>>> Stashed changes
 	return 0;
 }
 

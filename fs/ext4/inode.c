@@ -3608,11 +3608,7 @@ retry:
 		if (ret < 0)
 			return ret;
 	}
-<<<<<<< Updated upstream
-
-=======
 out:
->>>>>>> Stashed changes
 	/*
 	 * Writes that span EOF might trigger an I/O size update on completion,
 	 * so consider them to be dirty for the purposes of O_DSYNC, even if

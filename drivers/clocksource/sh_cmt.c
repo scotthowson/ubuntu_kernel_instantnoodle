@@ -239,11 +239,8 @@ static const struct sh_cmt_info sh_cmt_info[] = {
 #define CMCNT 1 /* channel register */
 #define CMCOR 2 /* channel register */
 
-<<<<<<< Updated upstream
-=======
 #define CMCLKE	0x1000	/* CLK Enable Register (R-Car Gen2) */
 
->>>>>>> Stashed changes
 static inline u32 sh_cmt_read_cmstr(struct sh_cmt_channel *ch)
 {
 	if (ch->iostart)
@@ -618,14 +615,7 @@ static struct sh_cmt_channel *cs_to_sh_cmt(struct clocksource *cs)
 static u64 sh_cmt_clocksource_read(struct clocksource *cs)
 {
 	struct sh_cmt_channel *ch = cs_to_sh_cmt(cs);
-<<<<<<< Updated upstream
-	unsigned long flags;
 	u32 has_wrapped;
-	u64 value;
-	u32 raw;
-=======
-	u32 has_wrapped;
->>>>>>> Stashed changes
 
 	if (ch->cmt->num_channels == 1) {
 		unsigned long flags;
@@ -706,11 +696,7 @@ static int sh_cmt_register_clocksource(struct sh_cmt_channel *ch,
 	cs->disable = sh_cmt_clocksource_disable;
 	cs->suspend = sh_cmt_clocksource_suspend;
 	cs->resume = sh_cmt_clocksource_resume;
-<<<<<<< Updated upstream
-	cs->mask = CLOCKSOURCE_MASK(sizeof(u64) * 8);
-=======
 	cs->mask = CLOCKSOURCE_MASK(ch->cmt->info->width);
->>>>>>> Stashed changes
 	cs->flags = CLOCK_SOURCE_IS_CONTINUOUS;
 
 	dev_info(&ch->cmt->pdev->dev, "ch%u: used as clock source\n",

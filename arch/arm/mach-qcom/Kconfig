@@ -42,8 +42,6 @@ config ARCH_MDM9615
 	select CLKSRC_OF
 	select COMMON_CLK
 
-<<<<<<< Updated upstream
-=======
 config ARCH_QM215
 	bool "Enable support for QM215"
 	select CPU_V7
@@ -58,7 +56,6 @@ config ARCH_QM215
 	select COMMON_CLK_QCOM
 	select ARM_GIC
 
->>>>>>> Stashed changes
 config ARCH_SDM660
 	bool "Enable Support for Qualcomm Technologies, Inc. SDM660"
 	select CLKDEV_LOOKUP
@@ -120,8 +117,6 @@ config ARCH_BENGAL
 	  This enables support for the BENGAL chipset. If you do not
 	  wish to build a kernel that runs on this chipset, say 'N' here.
 
-<<<<<<< Updated upstream
-=======
 config ARCH_MSM8917
 	bool "Enable support for MSM8917"
 	select CPU_V7
@@ -171,7 +166,6 @@ config ARCH_SDM429
 	select HAVE_CLK_PREPARE
 	select COMMON_CLK_QCOM
 
->>>>>>> Stashed changes
 config ARCH_SCUBA
 	bool "Enable Support for Qualcomm Technologies, Inc. SCUBA"
 	select COMMON_CLK_QCOM
@@ -195,8 +189,6 @@ config ARCH_SCUBA
 	  This enables support for the SCUBA chipset. If you do not
 	  wish to build a kernel that runs on this chipset, say 'N' here.
 
-<<<<<<< Updated upstream
-=======
 config ARCH_MSM8953
 	bool "Enable support for MSM8953"
 	select CPU_V7
@@ -219,6 +211,5 @@ config ARCH_SDM450
 	select COMMON_CLK_QCOM
 	select QCOM_GDSC
 
->>>>>>> Stashed changes
 endmenu
 endif

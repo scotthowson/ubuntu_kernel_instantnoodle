@@ -93,17 +93,6 @@ static int msm_digcdc_clock_control(bool flag)
 				       __func__);
 				/*
 				 * Avoid access to lpass register
-<<<<<<< Updated upstream
-				 * as clock enable failed during SSR.
-				 */
-				if (ret == -ENODEV)
-					msm_dig_cdc->regmap->cache_only = true;
-				return ret;
-			}
-			pr_debug("enabled digital codec core clk\n");
-			atomic_set(&pdata->int_mclk0_enabled, true);
-			schedule_delayed_work(&pdata->disable_int_mclk0_work,
-=======
 				 * as clock enable failed during SSR/PDR.
 				 */
 				msm_dig_cdc->regmap->cache_only = true;
@@ -114,7 +103,6 @@ static int msm_digcdc_clock_control(bool flag)
 			pr_debug("enabled digital codec core clk\n");
 			atomic_set(&pdata->int_mclk0_enabled, true);
 			queue_delayed_work(system_power_efficient_wq,&pdata->disable_int_mclk0_work,
->>>>>>> Stashed changes
 					      50);
 		}
 	} else {
@@ -1004,21 +992,13 @@ static int msm_dig_cdc_codec_enable_dec(struct snd_soc_dapm_widget *w,
 		snd_soc_component_update_bits(component, tx_mux_ctl_reg,
 						0x08, 0x00);
 
-<<<<<<< Updated upstream
-		schedule_delayed_work(
-=======
 		queue_delayed_work(system_power_efficient_wq,
->>>>>>> Stashed changes
 			    &msm_dig_cdc->tx_mute_dwork[decimator - 1].dwork,
 			    msecs_to_jiffies(tx_unmute_delay));
 		if (tx_hpf_work[decimator - 1].tx_hpf_cut_of_freq !=
 				CF_MIN_3DB_150HZ) {
 
-<<<<<<< Updated upstream
-			schedule_delayed_work(&tx_hpf_work[decimator - 1].dwork,
-=======
 			queue_delayed_work(system_power_efficient_wq, &tx_hpf_work[decimator - 1].dwork,
->>>>>>> Stashed changes
 					msecs_to_jiffies(300));
 		}
 		/* apply the digital gain after the decimator is enabled*/

@@ -3722,11 +3722,7 @@ static int bcmgenet_suspend(struct device *d)
 
 	netif_device_detach(dev);
 
-<<<<<<< Updated upstream
-	bcmgenet_netif_stop(dev);
-=======
 	bcmgenet_netif_stop(dev, true);
->>>>>>> Stashed changes
 
 	if (!device_may_wakeup(d))
 		phy_suspend(dev->phydev);

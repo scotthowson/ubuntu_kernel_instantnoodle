@@ -1358,11 +1358,7 @@ static void _ipmi_destroy_user(struct ipmi_user *user)
 
 	owner = intf->owner;
 	kref_put(&intf->refcount, intf_free);
-<<<<<<< Updated upstream
-	module_put(intf->owner);
-=======
 	module_put(owner);
->>>>>>> Stashed changes
 }
 
 int ipmi_destroy_user(struct ipmi_user *user)

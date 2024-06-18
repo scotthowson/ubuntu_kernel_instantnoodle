@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2017-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2017-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include <linux/firmware.h>
@@ -93,11 +89,6 @@ static u32 a6xx_ifpc_pwrup_reglist[] = {
 };
 
 /* Applicable to a620 and a650 */
-<<<<<<< Updated upstream
-static u32 a650_pwrup_reglist[] = {
-	A6XX_RBBM_GBIF_CLIENT_QOS_CNTL,
-	A6XX_CP_PROTECT_REG + 47,         /* Programmed for infinite span */
-=======
 static u32 a650_ifpc_pwrup_reglist[] = {
 	A6XX_CP_PROTECT_REG+32,
 	A6XX_CP_PROTECT_REG+33,
@@ -119,7 +110,6 @@ static u32 a650_ifpc_pwrup_reglist[] = {
 
 static u32 a650_pwrup_reglist[] = {
 	A6XX_RBBM_GBIF_CLIENT_QOS_CNTL,
->>>>>>> Stashed changes
 	A6XX_TPL1_BICUBIC_WEIGHTS_TABLE_0,
 	A6XX_TPL1_BICUBIC_WEIGHTS_TABLE_1,
 	A6XX_TPL1_BICUBIC_WEIGHTS_TABLE_2,
@@ -1177,13 +1167,9 @@ static int a6xx_reset(struct kgsl_device *device, int fault)
 	if (!gmu_core_isenabled(device))
 		return adreno_reset(device, fault);
 
-<<<<<<< Updated upstream
-	device->pwrctrl.ctrl_flags = 0;
-=======
 	/* Clear ctrl_flags to ensure clocks and regulators are turned off */
 	device->pwrctrl.ctrl_flags = 0;
 
->>>>>>> Stashed changes
 	/* Transition from ACTIVE to RESET state */
 	kgsl_pwrctrl_change_state(device, KGSL_STATE_RESET);
 
@@ -1438,23 +1424,15 @@ static void a6xx_cp_callback(struct adreno_device *adreno_dev, int bit)
 	adreno_dispatcher_schedule(device);
 }
 
-<<<<<<< Updated upstream
-=======
 /*
  * a6xx_gpc_err_int_callback() - Isr for GPC error interrupts
  * @adreno_dev: Pointer to device
  * @bit: Interrupt bit
  */
->>>>>>> Stashed changes
 static void a6xx_gpc_err_int_callback(struct adreno_device *adreno_dev, int bit)
 {
 	struct kgsl_device *device = KGSL_DEVICE(adreno_dev);
 
-<<<<<<< Updated upstream
-	dev_crit_ratelimited(device->dev, "RBBM: GPC error\n");
-	adreno_irqctrl(adreno_dev, 0);
-
-=======
 	/*
 	 * GPC error is typically the result of mistake SW programming.
 	 * Force GPU fault for this interrupt so that we can debug it
@@ -1465,7 +1443,6 @@ static void a6xx_gpc_err_int_callback(struct adreno_device *adreno_dev, int bit)
 	adreno_irqctrl(adreno_dev, 0);
 
 	/* Trigger a fault in the dispatcher - this will effect a restart */
->>>>>>> Stashed changes
 	adreno_set_gpu_fault(adreno_dev, ADRENO_SOFT_FAULT);
 	adreno_dispatcher_schedule(device);
 }

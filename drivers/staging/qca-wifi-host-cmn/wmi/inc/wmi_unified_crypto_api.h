@@ -1,9 +1,5 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2019 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2019, 2021 The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -38,8 +34,6 @@ typedef enum {
 	PMK_USAGE           = 0x04, /* PMK cache */
 } KEY_USAGE;
 
-<<<<<<< Updated upstream
-=======
 /**
  * wmi_extract_install_key_comp_event() - extract params of install key complete
  *                                        from event
@@ -54,6 +48,5 @@ QDF_STATUS
 wmi_extract_install_key_comp_event(wmi_unified_t wmi_handle,
 				   void *evt_buf, uint32_t len,
 				   struct wmi_install_key_comp_event *param);
->>>>>>> Stashed changes
 #endif
 

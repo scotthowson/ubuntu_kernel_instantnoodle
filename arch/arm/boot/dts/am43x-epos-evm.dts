@@ -839,11 +839,7 @@
 	pinctrl-names = "default", "sleep";
 	pinctrl-0 = <&spi0_pins_default>;
 	pinctrl-1 = <&spi0_pins_sleep>;
-<<<<<<< Updated upstream
-	ti,pindir-d0-out-d1-in = <1>;
-=======
 	ti,pindir-d0-out-d1-in;
->>>>>>> Stashed changes
 };
 
 &spi1 {
@@ -851,11 +847,7 @@
 	pinctrl-names = "default", "sleep";
 	pinctrl-0 = <&spi1_pins_default>;
 	pinctrl-1 = <&spi1_pins_sleep>;
-<<<<<<< Updated upstream
-	ti,pindir-d0-out-d1-in = <1>;
-=======
 	ti,pindir-d0-out-d1-in;
->>>>>>> Stashed changes
 };
 
 &usb2_phy1 {

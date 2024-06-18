@@ -9,11 +9,6 @@
 #include <linux/slab.h>
 #include <linux/types.h>
 #include <linux/msm-bus.h>
-<<<<<<< Updated upstream
-#define CREATE_TRACE_POINTS
-#include <trace/events/trace_msm_bus.h>
-=======
->>>>>>> Stashed changes
 
 struct node_vote_info {
 	int id;

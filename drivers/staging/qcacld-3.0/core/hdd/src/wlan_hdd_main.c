@@ -1,10 +1,6 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2012-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
  * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -167,11 +163,8 @@
 #include "wlan_mlme_ucfg_api.h"
 #include "wlan_fwol_ucfg_api.h"
 #include "wlan_policy_mgr_ucfg.h"
-<<<<<<< Updated upstream
-=======
 #include "qdf_func_tracker.h"
 
->>>>>>> Stashed changes
 #ifdef CNSS_GENL
 #include <net/cnss_nl.h>
 #endif
@@ -195,12 +188,9 @@
 #include <wlan_hdd_hang_event.h>
 #include <cdp_txrx_ctrl.h>
 #include "wlan_global_lmac_if_api.h"
-<<<<<<< Updated upstream
-=======
 #ifdef WLAN_FEATURE_DYNAMIC_RX_AGGREGATION
 #include <net/pkt_cls.h>
 #endif
->>>>>>> Stashed changes
 
 #ifdef MODULE
 #define WLAN_MODULE_NAME  module_name(THIS_MODULE)
@@ -226,8 +216,6 @@
 #define PANIC_ON_BUG_STR ""
 #endif
 
-<<<<<<< Updated upstream
-=======
 #define MAX_NET_DEV_REF_LEAK_ITERATIONS 10
 #define NET_DEV_REF_LEAK_ITERATION_SLEEP_TIME_MS 10
 
@@ -237,7 +225,6 @@
 #define TSO_FEATURE_FLAGS 0
 #endif
 
->>>>>>> Stashed changes
 int wlan_start_ret_val;
 static DECLARE_COMPLETION(wlan_start_comp);
 static qdf_atomic_t wlan_hdd_state_fops_ref;
@@ -247,36 +234,6 @@ static struct class *class;
 static dev_t device;
 static bool hdd_loaded = false;
 
-<<<<<<< Updated upstream
-#if 0
-static struct gwlan_loader *wlan_loader;
-static ssize_t wlan_boot_cb(struct kobject *kobj,
-			    struct kobj_attribute *attr,
-			    const char *buf, size_t count);
-struct gwlan_loader {
-	bool loaded_state;
-	struct kobject *boot_wlan_obj;
-	struct attribute_group *attr_group;
-};
-
-static struct kobj_attribute wlan_boot_attribute =
-	__ATTR(boot_wlan, 0220, NULL, wlan_boot_cb);
-
-static struct attribute *attrs[] = {
-	&wlan_boot_attribute.attr,
-	NULL,
-};
-#define MODULE_INITIALIZED 1
-
-#ifdef MULTI_IF_NAME
-#define WLAN_LOADER_NAME "boot_" MULTI_IF_NAME
-#else
-#define WLAN_LOADER_NAME "boot_wlan"
-#endif
-#endif
-
-=======
->>>>>>> Stashed changes
 /* the Android framework expects this param even though we don't use it */
 #define BUF_LEN 20
 static char fwpath_buffer[BUF_LEN];
@@ -387,10 +344,7 @@ static const struct category_info cinfo[MAX_SUPPORTED_CATEGORY] = {
 	[QDF_MODULE_ID_PKT_CAPTURE] = {QDF_TRACE_LEVEL_ALL},
 	[QDF_MODULE_ID_FTM_TIME_SYNC] = {QDF_TRACE_LEVEL_ALL},
 	[QDF_MODULE_ID_CFR] = {QDF_TRACE_LEVEL_ALL},
-<<<<<<< Updated upstream
-=======
 	[QDF_MODULE_ID_GPIO] = {QDF_TRACE_LEVEL_ALL},
->>>>>>> Stashed changes
 };
 
 struct notifier_block hdd_netdev_notifier;
@@ -640,12 +594,6 @@ void hdd_start_complete(int ret)
  */
 static void hdd_set_rps_cpu_mask(struct hdd_context *hdd_ctx)
 {
-<<<<<<< Updated upstream
-	struct hdd_adapter *adapter;
-
-	hdd_for_each_adapter(hdd_ctx, adapter)
-		hdd_send_rps_ind(adapter);
-=======
 	struct hdd_adapter *adapter, *next_adapter = NULL;
 
 	hdd_for_each_adapter_dev_held_safe(hdd_ctx, adapter, next_adapter,
@@ -654,7 +602,6 @@ static void hdd_set_rps_cpu_mask(struct hdd_context *hdd_ctx)
 		hdd_adapter_dev_put_debug(adapter,
 					  NET_DEV_HOLD_SET_RPS_CPU_MASK);
 	}
->>>>>>> Stashed changes
 }
 
 #ifdef QCA_HL_NETDEV_FLOW_CONTROL
@@ -1607,12 +1554,8 @@ void hdd_indicate_active_ndp_cnt(struct wlan_objmgr_psoc *psoc,
 
 	adapter = wlan_hdd_get_adapter_from_vdev(psoc, vdev_id);
 	if (adapter && cfg_nan_is_roam_config_disabled(psoc)) {
-<<<<<<< Updated upstream
-		hdd_debug("vdev_id:%d ndp active sessions %d", vdev_id, cnt);
-=======
 		hdd_debug("vdev_id:%d%s active ndp sessions present", vdev_id,
 			  cnt ? "" : " no more");
->>>>>>> Stashed changes
 		if (!cnt)
 			wlan_hdd_enable_roaming(adapter, RSO_NDP_CON_ON_NDI);
 		else
@@ -2239,8 +2182,6 @@ static void hdd_component_cfg_chan_to_freq(struct wlan_objmgr_pdev *pdev)
 	ucfg_mlme_cfg_chan_to_freq(pdev);
 }
 
-<<<<<<< Updated upstream
-=======
 static uint32_t hdd_update_band_cap_from_dot11mode(
 		struct hdd_context *hdd_ctx, uint32_t band_capability)
 {
@@ -2264,16 +2205,11 @@ static uint32_t hdd_update_band_cap_from_dot11mode(
 	return band_capability;
 }
 
->>>>>>> Stashed changes
 int hdd_update_tgt_cfg(hdd_handle_t hdd_handle, struct wma_tgt_cfg *cfg)
 {
 	int ret;
 	struct hdd_context *hdd_ctx = hdd_handle_to_context(hdd_handle);
-<<<<<<< Updated upstream
-	uint8_t temp_band_cap, band_capability;
-=======
 	uint32_t temp_band_cap, band_capability;
->>>>>>> Stashed changes
 	struct cds_config_info *cds_cfg = cds_get_ini_config();
 	uint8_t antenna_mode;
 	uint8_t sub_20_chan_width;
@@ -2354,12 +2290,9 @@ int hdd_update_tgt_cfg(hdd_handle_t hdd_handle, struct wma_tgt_cfg *cfg)
 		goto pdev_close;
 	}
 
-<<<<<<< Updated upstream
-=======
 	band_capability =
 		hdd_update_band_cap_from_dot11mode(hdd_ctx, band_capability);
 
->>>>>>> Stashed changes
 	/* first store the INI band capability */
 	temp_band_cap = band_capability;
 
@@ -2371,19 +2304,6 @@ int hdd_update_tgt_cfg(hdd_handle_t hdd_handle, struct wma_tgt_cfg *cfg)
 			cfg->services.is_11k_offload_supported;
 
 	/*
-<<<<<<< Updated upstream
-	 * now overwrite the target band capability with INI
-	 * setting if INI setting is a subset
-	 */
-	if ((band_capability == BAND_ALL) &&
-	    (temp_band_cap != BAND_ALL))
-		band_capability = temp_band_cap;
-	else if ((band_capability != BAND_ALL) &&
-		 (temp_band_cap != BAND_ALL) &&
-		 (band_capability != temp_band_cap)) {
-		hdd_warn("ini BandCapability not supported by the target");
-	}
-=======
 	 * merge the target band capability with INI setting if the merge has
 	 * at least 1 band enabled
 	 */
@@ -2392,7 +2312,6 @@ int hdd_update_tgt_cfg(hdd_handle_t hdd_handle, struct wma_tgt_cfg *cfg)
 		hdd_warn("ini BandCapability not supported by the target");
 	else
 		band_capability = temp_band_cap;
->>>>>>> Stashed changes
 
 	status = ucfg_mlme_set_band_capability(hdd_ctx->psoc, band_capability);
 	if (QDF_IS_STATUS_ERROR(status)) {
@@ -2569,8 +2488,6 @@ int hdd_update_tgt_cfg(hdd_handle_t hdd_handle, struct wma_tgt_cfg *cfg)
 	if (QDF_IS_STATUS_ERROR(status))
 		hdd_err("Failed to set WNI_CFG_OBSS_COLOR_COLLISION_OFFLOAD");
 
-<<<<<<< Updated upstream
-=======
 	if (!cfg->obss_color_collision_offloaded) {
 		status = ucfg_mlme_set_bss_color_collision_det_sta(
 				hdd_ctx->psoc,
@@ -2579,7 +2496,6 @@ int hdd_update_tgt_cfg(hdd_handle_t hdd_handle, struct wma_tgt_cfg *cfg)
 			hdd_err("Failed to set CFG_BSS_CLR_COLLISION_DET_STA");
 	}
 
->>>>>>> Stashed changes
 	ucfg_mlme_get_bcast_twt(hdd_ctx->psoc, &bval);
 	if (bval)
 		ucfg_mlme_set_bcast_twt(hdd_ctx->psoc, cfg->bcast_twt_support);
@@ -2600,11 +2516,7 @@ exit:
 
 bool hdd_dfs_indicate_radar(struct hdd_context *hdd_ctx)
 {
-<<<<<<< Updated upstream
-	struct hdd_adapter *adapter;
-=======
 	struct hdd_adapter *adapter, *next_adapter = NULL;
->>>>>>> Stashed changes
 	struct hdd_ap_ctx *ap_ctx;
 	bool dfs_disable_channel_switch = false;
 
@@ -2621,12 +2533,8 @@ bool hdd_dfs_indicate_radar(struct hdd_context *hdd_ctx)
 		return true;
 	}
 
-<<<<<<< Updated upstream
-	hdd_for_each_adapter(hdd_ctx, adapter) {
-=======
 	hdd_for_each_adapter_dev_held_safe(hdd_ctx, adapter, next_adapter,
 					   NET_DEV_HOLD_DFS_INDICATE_RADAR) {
->>>>>>> Stashed changes
 		ap_ctx = WLAN_HDD_GET_AP_CTX_PTR(adapter);
 
 		if ((QDF_SAP_MODE == adapter->device_mode ||
@@ -2642,11 +2550,8 @@ bool hdd_dfs_indicate_radar(struct hdd_context *hdd_ctx)
 					cds_get_context(QDF_MODULE_ID_SOC),
 					adapter->vdev_id);
 		}
-<<<<<<< Updated upstream
-=======
 		hdd_adapter_dev_put_debug(adapter,
 					  NET_DEV_HOLD_DFS_INDICATE_RADAR);
->>>>>>> Stashed changes
 	}
 
 	return true;
@@ -2872,14 +2777,11 @@ wlan_hdd_update_dbs_scan_and_fw_mode_config(void)
 	if (!policy_mgr_find_if_fw_supports_dbs(hdd_ctx->psoc))
 		return QDF_STATUS_SUCCESS;
 
-<<<<<<< Updated upstream
-=======
 	if (hdd_ctx->is_dual_mac_cfg_updated) {
 		hdd_debug("dual mac config has already been updated, skip");
 		return QDF_STATUS_SUCCESS;
 	}
 
->>>>>>> Stashed changes
 	cfg.scan_config = 0;
 	cfg.fw_mode_config = 0;
 	cfg.set_dual_mac_cb = policy_mgr_soc_set_dual_mac_cfg_cb;
@@ -2917,23 +2819,6 @@ wlan_hdd_update_dbs_scan_and_fw_mode_config(void)
 	hdd_debug("send scan_cfg: 0x%x fw_mode_cfg: 0x%x to fw",
 		cfg.scan_config, cfg.fw_mode_config);
 
-<<<<<<< Updated upstream
-	status = policy_mgr_reset_dual_mac_configuration(hdd_ctx->psoc);
-	if (QDF_IS_STATUS_ERROR(status))
-		return status;
-
-	status = sme_soc_set_dual_mac_config(cfg);
-	if (QDF_IS_STATUS_SUCCESS(status)) {
-		/* wait for sme_soc_set_dual_mac_config to complete */
-		status =
-		    policy_mgr_wait_for_dual_mac_configuration(hdd_ctx->psoc);
-	} else {
-		hdd_err("sme_soc_set_dual_mac_config failed %d", status);
-		return status;
-	}
-
-	return status;
-=======
 	status = sme_soc_set_dual_mac_config(cfg);
 	if (QDF_IS_STATUS_ERROR(status)) {
 		hdd_err("sme_soc_set_dual_mac_config failed %d", status);
@@ -2942,7 +2827,6 @@ wlan_hdd_update_dbs_scan_and_fw_mode_config(void)
 	hdd_ctx->is_dual_mac_cfg_updated = true;
 
 	return QDF_STATUS_SUCCESS;
->>>>>>> Stashed changes
 }
 
 /**
@@ -3299,12 +3183,6 @@ static enum policy_mgr_con_mode wlan_hdd_get_mode_for_non_connected_vdev(
  */
 static bool hdd_is_chan_switch_in_progress(void)
 {
-<<<<<<< Updated upstream
-	struct hdd_adapter *adapter = NULL;
-	struct hdd_context *hdd_ctx = cds_get_context(QDF_MODULE_ID_HDD);
-
-	hdd_for_each_adapter(hdd_ctx, adapter) {
-=======
 	struct hdd_adapter *adapter = NULL, *next_adapter = NULL;
 	struct hdd_context *hdd_ctx = cds_get_context(QDF_MODULE_ID_HDD);
 	wlan_net_dev_ref_dbgid dbgid =
@@ -3312,16 +3190,11 @@ static bool hdd_is_chan_switch_in_progress(void)
 
 	hdd_for_each_adapter_dev_held_safe(hdd_ctx, adapter, next_adapter,
 					   dbgid) {
->>>>>>> Stashed changes
 		if ((adapter->device_mode == QDF_SAP_MODE ||
 		     adapter->device_mode == QDF_P2P_GO_MODE) &&
 		    qdf_atomic_read(&adapter->ch_switch_in_progress)) {
 			hdd_debug("channel switch progress for vdev_id %d",
 				  adapter->vdev_id);
-<<<<<<< Updated upstream
-			return true;
-		}
-=======
 			hdd_adapter_dev_put_debug(adapter, dbgid);
 			if (next_adapter)
 				hdd_adapter_dev_put_debug(next_adapter,
@@ -3329,7 +3202,6 @@ static bool hdd_is_chan_switch_in_progress(void)
 			return true;
 		}
 		hdd_adapter_dev_put_debug(adapter, dbgid);
->>>>>>> Stashed changes
 	}
 
 	return false;
@@ -3986,11 +3858,8 @@ int hdd_wlan_start_modules(struct hdd_context *hdd_ctx, bool reinit)
 	hdd_ctx->driver_status = DRIVER_MODULES_ENABLED;
 	hdd_nofl_debug("Wlan transitioned (now ENABLED)");
 
-<<<<<<< Updated upstream
-=======
 	ucfg_ipa_reg_rps_enable_cb(hdd_ctx->pdev,
 				   hdd_adapter_set_rps);
->>>>>>> Stashed changes
 	hdd_exit();
 
 	return 0;
@@ -4915,21 +4784,15 @@ static int hdd_set_features(struct net_device *net_dev,
 	return errno;
 }
 
-<<<<<<< Updated upstream
-=======
 #define HDD_NETDEV_FEATURES_UPDATE_MAX_WAIT_COUNT	10
 #define HDD_NETDEV_FEATURES_UPDATE_WAIT_INTERVAL_MS	20
 
->>>>>>> Stashed changes
 void hdd_netdev_update_features(struct hdd_adapter *adapter)
 {
 	struct net_device *net_dev = adapter->dev;
 	ol_txrx_soc_handle soc = cds_get_context(QDF_MODULE_ID_SOC);
 	bool request_feature_update = false;
-<<<<<<< Updated upstream
-=======
 	int wait_count = HDD_NETDEV_FEATURES_UPDATE_MAX_WAIT_COUNT;
->>>>>>> Stashed changes
 
 	if (!soc) {
 		hdd_err("soc handle is NULL");
@@ -4951,13 +4814,6 @@ void hdd_netdev_update_features(struct hdd_adapter *adapter)
 	if (request_feature_update) {
 		hdd_debug("Update net_dev features for device mode %d",
 			  adapter->device_mode);
-<<<<<<< Updated upstream
-		rtnl_lock();
-		adapter->handle_feature_update = true;
-		netdev_update_features(net_dev);
-		adapter->handle_feature_update = false;
-		rtnl_unlock();
-=======
 		while (!adapter->delete_in_progress) {
 			if (rtnl_trylock()) {
 				adapter->handle_feature_update = true;
@@ -4983,7 +4839,6 @@ void hdd_netdev_update_features(struct hdd_adapter *adapter)
 				break;
 			}
 		}
->>>>>>> Stashed changes
 	}
 }
 
@@ -5089,10 +4944,7 @@ hdd_alloc_station_adapter(struct hdd_context *hdd_ctx, tSirMacAddr mac_addr,
 	struct hdd_adapter *adapter;
 	struct hdd_station_ctx *sta_ctx;
 	QDF_STATUS qdf_status;
-<<<<<<< Updated upstream
-=======
 	uint8_t latency_level;
->>>>>>> Stashed changes
 
 	/* cfg80211 initialization and registration */
 	dev = alloc_netdev_mq(sizeof(*adapter), name,
@@ -5157,8 +5009,6 @@ hdd_alloc_station_adapter(struct hdd_context *hdd_ctx, tSirMacAddr mac_addr,
 	dev->tx_queue_len = HDD_NETDEV_TX_QUEUE_LEN;
 	adapter->wdev.wiphy = hdd_ctx->wiphy;
 	adapter->wdev.netdev = dev;
-<<<<<<< Updated upstream
-=======
 	qdf_status = ucfg_mlme_cfg_get_wlm_level(hdd_ctx->psoc, &latency_level);
 	if (QDF_IS_STATUS_ERROR(qdf_status)) {
 		hdd_debug("Can't get latency level");
@@ -5166,7 +5016,6 @@ hdd_alloc_station_adapter(struct hdd_context *hdd_ctx, tSirMacAddr mac_addr,
 			QCA_WLAN_VENDOR_ATTR_CONFIG_LATENCY_LEVEL_NORMAL;
 	}
 	adapter->latency_level = latency_level;
->>>>>>> Stashed changes
 
 	/* set dev's parent to underlying device */
 	SET_NETDEV_DEV(dev, hdd_ctx->parent_dev);
@@ -5319,12 +5168,8 @@ int hdd_vdev_destroy(struct hdd_adapter *adapter)
 	     policy_mgr_mode_specific_connection_count(hdd_ctx->psoc,
 		policy_mgr_convert_device_mode_to_qdf_type(
 			adapter->device_mode), NULL) == 1) ||
-<<<<<<< Updated upstream
-	    !policy_mgr_get_connection_count(hdd_ctx->psoc))
-=======
 	    (!policy_mgr_get_connection_count(hdd_ctx->psoc) &&
 	     !hdd_is_any_sta_connecting(hdd_ctx)))
->>>>>>> Stashed changes
 		policy_mgr_check_and_stop_opportunistic_timer(hdd_ctx->psoc,
 							      adapter->vdev_id);
 
@@ -5519,13 +5364,10 @@ int hdd_vdev_create(struct hdd_adapter *adapter)
 	}
 	hdd_store_nss_chains_cfg_in_vdev(adapter);
 
-<<<<<<< Updated upstream
-=======
 	/* Configure vdev params */
 	ucfg_fwol_configure_vdev_params(hdd_ctx->psoc, hdd_ctx->pdev,
 					adapter->device_mode, adapter->vdev_id);
 
->>>>>>> Stashed changes
 	hdd_nofl_debug("vdev %d created successfully", adapter->vdev_id);
 
 	return 0;
@@ -5639,8 +5481,6 @@ error_init_txrx:
 	return status;
 }
 
-<<<<<<< Updated upstream
-=======
 static char *net_dev_ref_debug_string_from_id(wlan_net_dev_ref_dbgid dbgid)
 {
 	static const char *strings[] = {
@@ -5737,7 +5577,6 @@ static void hdd_check_for_net_dev_ref_leak(struct hdd_adapter *adapter)
 	}
 }
 
->>>>>>> Stashed changes
 /**
  * hdd_deinit_station_mode() - De-initialize the station adapter
  * @hdd_ctx: global hdd context
@@ -5830,14 +5669,6 @@ void hdd_cleanup_conn_info(struct hdd_adapter *adapter)
 
 void hdd_sta_destroy_ctx_all(struct hdd_context *hdd_ctx)
 {
-<<<<<<< Updated upstream
-	struct hdd_adapter *adapter;
-
-	hdd_for_each_adapter_dev_held(hdd_ctx, adapter) {
-		if (adapter->device_mode == QDF_STA_MODE)
-			hdd_cleanup_conn_info(adapter);
-		dev_put(adapter->dev);
-=======
 	struct hdd_adapter *adapter, *next_adapter = NULL;
 
 	hdd_for_each_adapter_dev_held_safe(hdd_ctx, adapter, next_adapter,
@@ -5846,7 +5677,6 @@ void hdd_sta_destroy_ctx_all(struct hdd_context *hdd_ctx)
 			hdd_cleanup_conn_info(adapter);
 		hdd_adapter_dev_put_debug(adapter,
 					  NET_DEV_HOLD_STA_DESTROY_CTX_ALL);
->>>>>>> Stashed changes
 	}
 }
 #endif
@@ -5905,15 +5735,6 @@ static void hdd_cleanup_adapter(struct hdd_context *hdd_ctx,
 static QDF_STATUS hdd_check_for_existing_macaddr(struct hdd_context *hdd_ctx,
 						 tSirMacAddr mac_addr)
 {
-<<<<<<< Updated upstream
-	struct hdd_adapter *adapter;
-
-	hdd_for_each_adapter(hdd_ctx, adapter) {
-		if (!qdf_mem_cmp(adapter->mac_addr.bytes,
-				 mac_addr, sizeof(tSirMacAddr))) {
-			return QDF_STATUS_E_FAILURE;
-		}
-=======
 	struct hdd_adapter *adapter, *next_adapter = NULL;
 	wlan_net_dev_ref_dbgid dbgid = NET_DEV_HOLD_CHECK_FOR_EXISTING_MACADDR;
 
@@ -5928,7 +5749,6 @@ static QDF_STATUS hdd_check_for_existing_macaddr(struct hdd_context *hdd_ctx,
 			return QDF_STATUS_E_FAILURE;
 		}
 		hdd_adapter_dev_put_debug(adapter, dbgid);
->>>>>>> Stashed changes
 	}
 
 	return QDF_STATUS_SUCCESS;
@@ -6395,14 +6215,6 @@ static void wlan_hdd_cfg80211_scan_block_cb(struct work_struct *work)
 static u8 hdd_get_mode_specific_interface_count(struct hdd_context *hdd_ctx,
 						enum QDF_OPMODE mode)
 {
-<<<<<<< Updated upstream
-	struct hdd_adapter *adapter = NULL;
-	u8 intf_count = 0;
-
-	hdd_for_each_adapter(hdd_ctx, adapter) {
-		if (adapter->device_mode == mode)
-			intf_count++;
-=======
 	struct hdd_adapter *adapter = NULL, *next_adapter = NULL;
 	u8 intf_count = 0;
 	wlan_net_dev_ref_dbgid dbgid =
@@ -6415,7 +6227,6 @@ static u8 hdd_get_mode_specific_interface_count(struct hdd_context *hdd_ctx,
 			intf_count++;
 
 		hdd_adapter_dev_put_debug(adapter, dbgid);
->>>>>>> Stashed changes
 	}
 	return intf_count;
 }
@@ -6444,10 +6255,7 @@ struct hdd_adapter *hdd_open_adapter(struct hdd_context *hdd_ctx, uint8_t sessio
 	struct hdd_adapter *adapter = NULL;
 	u8 intf_count = 0;
 	QDF_STATUS status = QDF_STATUS_E_FAILURE;
-<<<<<<< Updated upstream
-=======
 	uint32_t i;
->>>>>>> Stashed changes
 
 	if (hdd_ctx->current_intf_count >= WLAN_MAX_VDEVS) {
 		/*
@@ -6671,14 +6479,11 @@ struct hdd_adapter *hdd_open_adapter(struct hdd_context *hdd_ctx, uint8_t sessio
 	qdf_event_create(&adapter->peer_cleanup_done);
 	hdd_sta_info_init(&adapter->sta_info_list);
 	hdd_sta_info_init(&adapter->cache_sta_info_list);
-<<<<<<< Updated upstream
-=======
 	qdf_atomic_init(&adapter->gro_disallowed);
 
 	for (i = 0; i < NET_DEV_HOLD_ID_MAX; i++)
 		qdf_atomic_init(
 			&adapter->net_dev_hold_ref_count[NET_DEV_HOLD_ID_MAX]);
->>>>>>> Stashed changes
 
 	/* Add it to the hdd's session list. */
 	status = hdd_add_adapter_back(hdd_ctx, adapter);
@@ -6752,10 +6557,7 @@ void hdd_close_adapter(struct hdd_context *hdd_ctx,
 	 */
 	hdd_bus_bw_compute_timer_stop(hdd_ctx);
 
-<<<<<<< Updated upstream
-=======
 	hdd_check_for_net_dev_ref_leak(adapter);
->>>>>>> Stashed changes
 	hdd_remove_adapter(hdd_ctx, adapter);
 	__hdd_close_adapter(hdd_ctx, adapter, rtnl_held);
 
@@ -6770,15 +6572,10 @@ void hdd_close_all_adapters(struct hdd_context *hdd_ctx, bool rtnl_held)
 
 	hdd_enter();
 
-<<<<<<< Updated upstream
-	while (QDF_IS_STATUS_SUCCESS(hdd_remove_front_adapter(hdd_ctx,
-							      &adapter))) {
-=======
 	while (QDF_IS_STATUS_SUCCESS(hdd_get_front_adapter(
 							hdd_ctx, &adapter))) {
 		hdd_check_for_net_dev_ref_leak(adapter);
 		hdd_remove_front_adapter(hdd_ctx, &adapter);
->>>>>>> Stashed changes
 		vdev_sync = osif_vdev_sync_unregister(adapter->dev);
 		if (vdev_sync)
 			osif_vdev_sync_wait_for_ops(vdev_sync);
@@ -6882,8 +6679,6 @@ hdd_peer_cleanup(struct hdd_context *hdd_ctx, struct hdd_adapter *adapter)
 		hdd_debug("peer_cleanup_done wait fail");
 }
 
-<<<<<<< Updated upstream
-=======
 #ifdef FUNC_CALL_MAP
 
 /**
@@ -6914,7 +6709,6 @@ static inline void hdd_dump_func_call_map(void)
 }
 #endif
 
->>>>>>> Stashed changes
 QDF_STATUS hdd_stop_adapter(struct hdd_context *hdd_ctx,
 			    struct hdd_adapter *adapter)
 {
@@ -7232,11 +7026,8 @@ QDF_STATUS hdd_stop_adapter(struct hdd_context *hdd_ctx,
 		adapter->scan_info.default_scan_ies_len = 0;
 	}
 
-<<<<<<< Updated upstream
-=======
 	/* This function should be invoked at the end of this api*/
 	hdd_dump_func_call_map();
->>>>>>> Stashed changes
 	hdd_exit();
 
 	return QDF_STATUS_SUCCESS;
@@ -7250,14 +7041,6 @@ QDF_STATUS hdd_stop_adapter(struct hdd_context *hdd_ctx,
  */
 void  hdd_deinit_all_adapters(struct hdd_context *hdd_ctx, bool rtnl_held)
 {
-<<<<<<< Updated upstream
-	struct hdd_adapter *adapter;
-
-	hdd_enter();
-
-	hdd_for_each_adapter(hdd_ctx, adapter)
-		hdd_deinit_adapter(hdd_ctx, adapter, rtnl_held);
-=======
 	struct hdd_adapter *adapter, *next_adapter = NULL;
 
 	hdd_enter();
@@ -7268,35 +7051,25 @@ void  hdd_deinit_all_adapters(struct hdd_context *hdd_ctx, bool rtnl_held)
 		hdd_adapter_dev_put_debug(adapter,
 					  NET_DEV_HOLD_DEINIT_ALL_ADAPTERS);
 	}
->>>>>>> Stashed changes
 
 	hdd_exit();
 }
 
 QDF_STATUS hdd_stop_all_adapters(struct hdd_context *hdd_ctx)
 {
-<<<<<<< Updated upstream
-	struct hdd_adapter *adapter;
-=======
 	struct hdd_adapter *adapter, *next_adapter = NULL;
->>>>>>> Stashed changes
 
 	hdd_enter();
 
 	if (hdd_ctx->sap_pre_cac_work.fn)
 		cds_flush_work(&hdd_ctx->sap_pre_cac_work);
 
-<<<<<<< Updated upstream
-	hdd_for_each_adapter(hdd_ctx, adapter)
-		hdd_stop_adapter(hdd_ctx, adapter);
-=======
 	hdd_for_each_adapter_dev_held_safe(hdd_ctx, adapter, next_adapter,
 					   NET_DEV_HOLD_STOP_ALL_ADAPTERS) {
 		hdd_stop_adapter(hdd_ctx, adapter);
 		hdd_adapter_dev_put_debug(adapter,
 					  NET_DEV_HOLD_STOP_ALL_ADAPTERS);
 	}
->>>>>>> Stashed changes
 
 	hdd_exit();
 
@@ -7369,15 +7142,10 @@ void hdd_set_netdev_flags(struct hdd_adapter *adapter)
 			(NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM);
 
 	if (cdp_cfg_get(soc, cfg_dp_tso_enable) && enable_csum)
-<<<<<<< Updated upstream
-		adapter->dev->features |=
-			 (NETIF_F_TSO | NETIF_F_TSO6 | NETIF_F_SG);
-=======
 		adapter->dev->features |= TSO_FEATURE_FLAGS;
 
 	if (cdp_cfg_get(soc, cfg_dp_sg_enable))
 		adapter->dev->features |= NETIF_F_SG;
->>>>>>> Stashed changes
 
 	adapter->dev->features |= NETIF_F_RXCSUM;
 	temp = (uint64_t)adapter->dev->features;
@@ -7446,11 +7214,7 @@ static void hdd_adapter_abort_tx_flow(struct hdd_adapter *adapter)
 
 QDF_STATUS hdd_reset_all_adapters(struct hdd_context *hdd_ctx)
 {
-<<<<<<< Updated upstream
-	struct hdd_adapter *adapter;
-=======
 	struct hdd_adapter *adapter, *next_adapter = NULL;
->>>>>>> Stashed changes
 	bool value;
 	struct wlan_objmgr_vdev *vdev;
 
@@ -7459,12 +7223,8 @@ QDF_STATUS hdd_reset_all_adapters(struct hdd_context *hdd_ctx)
 	ucfg_mlme_get_sap_internal_restart(hdd_ctx->psoc, &value);
 
 
-<<<<<<< Updated upstream
-	hdd_for_each_adapter(hdd_ctx, adapter) {
-=======
 	hdd_for_each_adapter_dev_held_safe(hdd_ctx, adapter, next_adapter,
 					   NET_DEV_HOLD_RESET_ALL_ADAPTERS) {
->>>>>>> Stashed changes
 		hdd_info("[SSR] reset adapter with device mode %s(%d)",
 			 qdf_opmode_str(adapter->device_mode),
 			 adapter->device_mode);
@@ -7517,11 +7277,8 @@ QDF_STATUS hdd_reset_all_adapters(struct hdd_context *hdd_ctx)
 			hdd_set_disconnect_status(adapter, false);
 
 		hdd_stop_adapter(hdd_ctx, adapter);
-<<<<<<< Updated upstream
-=======
 		hdd_adapter_dev_put_debug(adapter,
 					  NET_DEV_HOLD_RESET_ALL_ADAPTERS);
->>>>>>> Stashed changes
 	}
 
 	hdd_exit();
@@ -7531,24 +7288,14 @@ QDF_STATUS hdd_reset_all_adapters(struct hdd_context *hdd_ctx)
 
 bool hdd_is_any_interface_open(struct hdd_context *hdd_ctx)
 {
-<<<<<<< Updated upstream
-	struct hdd_adapter *adapter;
-=======
 	struct hdd_adapter *adapter, *next_adapter = NULL;
 	wlan_net_dev_ref_dbgid dbgid = NET_DEV_HOLD_IS_ANY_INTERFACE_OPEN;
->>>>>>> Stashed changes
 
 	if (hdd_get_conparam() == QDF_GLOBAL_FTM_MODE) {
 		hdd_info("FTM mode, don't close the module");
 		return true;
 	}
 
-<<<<<<< Updated upstream
-	hdd_for_each_adapter(hdd_ctx, adapter) {
-		if (test_bit(DEVICE_IFACE_OPENED, &adapter->event_flags) ||
-		    test_bit(SME_SESSION_OPENED, &adapter->event_flags))
-			return true;
-=======
 	hdd_for_each_adapter_dev_held_safe(hdd_ctx, adapter, next_adapter,
 					   dbgid) {
 		if (test_bit(DEVICE_IFACE_OPENED, &adapter->event_flags) ||
@@ -7560,7 +7307,6 @@ bool hdd_is_any_interface_open(struct hdd_context *hdd_ctx)
 			return true;
 		}
 		hdd_adapter_dev_put_debug(adapter, dbgid);
->>>>>>> Stashed changes
 	}
 
 	return false;
@@ -8243,18 +7989,6 @@ static void hdd_delete_sta(struct hdd_adapter *adapter)
 
 QDF_STATUS hdd_start_all_adapters(struct hdd_context *hdd_ctx)
 {
-<<<<<<< Updated upstream
-	struct hdd_adapter *adapter;
-	eConnectionState conn_state;
-	bool value;
-
-	hdd_enter();
-
-	hdd_for_each_adapter(hdd_ctx, adapter) {
-		if (!hdd_is_interface_up(adapter) &&
-		    adapter->device_mode != QDF_NDI_MODE)
-			continue;
-=======
 	struct hdd_adapter *adapter, *next_adapter = NULL;
 	eConnectionState conn_state;
 	bool value;
@@ -8269,7 +8003,6 @@ QDF_STATUS hdd_start_all_adapters(struct hdd_context *hdd_ctx)
 			hdd_adapter_dev_put_debug(adapter, dbgid);
 			continue;
 		}
->>>>>>> Stashed changes
 
 		hdd_debug("[SSR] start adapter with device mode %s(%d)",
 			  qdf_opmode_str(adapter->device_mode),
@@ -8392,16 +8125,6 @@ QDF_STATUS hdd_start_all_adapters(struct hdd_context *hdd_ctx)
 		 * applicable to all interfaces
 		 */
 		wlan_hdd_cfg80211_register_frames(adapter);
-<<<<<<< Updated upstream
-	}
-
-	hdd_for_each_adapter(hdd_ctx, adapter) {
-		if (!hdd_is_interface_up(adapter))
-			continue;
-
-		if (adapter->device_mode == QDF_P2P_GO_MODE)
-			hdd_stop_p2p_go(adapter);
-=======
 		hdd_adapter_dev_put_debug(adapter, dbgid);
 	}
 
@@ -8416,7 +8139,6 @@ QDF_STATUS hdd_start_all_adapters(struct hdd_context *hdd_ctx)
 			hdd_stop_p2p_go(adapter);
 
 		hdd_adapter_dev_put_debug(adapter, dbgid);
->>>>>>> Stashed changes
 	}
 
 	hdd_exit();
@@ -8424,8 +8146,6 @@ QDF_STATUS hdd_start_all_adapters(struct hdd_context *hdd_ctx)
 	return QDF_STATUS_SUCCESS;
 }
 
-<<<<<<< Updated upstream
-=======
 void hdd_adapter_dev_hold_debug(struct hdd_adapter *adapter,
 				wlan_net_dev_ref_dbgid dbgid)
 {
@@ -8455,7 +8175,6 @@ void hdd_adapter_dev_put_debug(struct hdd_adapter *adapter,
 	dev_put(adapter->dev);
 }
 
->>>>>>> Stashed changes
 QDF_STATUS hdd_get_front_adapter(struct hdd_context *hdd_ctx,
 				 struct hdd_adapter **out_adapter)
 {
@@ -8643,26 +8362,16 @@ QDF_STATUS hdd_adapter_iterate(hdd_adapter_iterate_cb cb, void *context)
 struct hdd_adapter *hdd_get_adapter_by_rand_macaddr(
 	struct hdd_context *hdd_ctx, tSirMacAddr mac_addr)
 {
-<<<<<<< Updated upstream
-	struct hdd_adapter *adapter;
-
-	hdd_for_each_adapter(hdd_ctx, adapter) {
-=======
 	struct hdd_adapter *adapter, *next_adapter = NULL;
 	wlan_net_dev_ref_dbgid dbgid =
 				NET_DEV_HOLD_GET_ADAPTER_BY_RAND_MACADDR;
 
 	hdd_for_each_adapter_dev_held_safe(hdd_ctx, adapter, next_adapter,
 					   dbgid) {
->>>>>>> Stashed changes
 		if ((adapter->device_mode == QDF_STA_MODE ||
 		     adapter->device_mode == QDF_P2P_CLIENT_MODE ||
 		     adapter->device_mode == QDF_P2P_DEVICE_MODE) &&
 		    ucfg_p2p_check_random_mac(hdd_ctx->psoc,
-<<<<<<< Updated upstream
-					      adapter->vdev_id, mac_addr))
-			return adapter;
-=======
 					      adapter->vdev_id, mac_addr)) {
 			hdd_adapter_dev_put_debug(adapter, dbgid);
 			if (next_adapter)
@@ -8671,7 +8380,6 @@ struct hdd_adapter *hdd_get_adapter_by_rand_macaddr(
 			return adapter;
 		}
 		hdd_adapter_dev_put_debug(adapter, dbgid);
->>>>>>> Stashed changes
 	}
 
 	return NULL;
@@ -8680,14 +8388,6 @@ struct hdd_adapter *hdd_get_adapter_by_rand_macaddr(
 struct hdd_adapter *hdd_get_adapter_by_macaddr(struct hdd_context *hdd_ctx,
 					       tSirMacAddr mac_addr)
 {
-<<<<<<< Updated upstream
-	struct hdd_adapter *adapter;
-
-	hdd_for_each_adapter(hdd_ctx, adapter) {
-		if (!qdf_mem_cmp(adapter->mac_addr.bytes,
-				 mac_addr, sizeof(tSirMacAddr)))
-			return adapter;
-=======
 	struct hdd_adapter *adapter, *next_adapter = NULL;
 	wlan_net_dev_ref_dbgid dbgid = NET_DEV_HOLD_GET_ADAPTER_BY_MACADDR;
 
@@ -8702,7 +8402,6 @@ struct hdd_adapter *hdd_get_adapter_by_macaddr(struct hdd_context *hdd_ctx,
 			return adapter;
 		}
 		hdd_adapter_dev_put_debug(adapter, dbgid);
->>>>>>> Stashed changes
 	}
 
 	return NULL;
@@ -8711,13 +8410,6 @@ struct hdd_adapter *hdd_get_adapter_by_macaddr(struct hdd_context *hdd_ctx,
 struct hdd_adapter *hdd_get_adapter_by_vdev(struct hdd_context *hdd_ctx,
 					    uint32_t vdev_id)
 {
-<<<<<<< Updated upstream
-	struct hdd_adapter *adapter;
-
-	hdd_for_each_adapter(hdd_ctx, adapter) {
-		if (adapter->vdev_id == vdev_id)
-			return adapter;
-=======
 	struct hdd_adapter *adapter, *next_adapter = NULL;
 	wlan_net_dev_ref_dbgid dbgid = NET_DEV_HOLD_GET_ADAPTER_BY_VDEV;
 
@@ -8731,7 +8423,6 @@ struct hdd_adapter *hdd_get_adapter_by_vdev(struct hdd_context *hdd_ctx,
 			return adapter;
 		}
 		hdd_adapter_dev_put_debug(adapter, dbgid);
->>>>>>> Stashed changes
 	}
 
 	return NULL;
@@ -8740,15 +8431,6 @@ struct hdd_adapter *hdd_get_adapter_by_vdev(struct hdd_context *hdd_ctx,
 struct hdd_adapter *hdd_adapter_get_by_reference(struct hdd_context *hdd_ctx,
 						 struct hdd_adapter *reference)
 {
-<<<<<<< Updated upstream
-	struct hdd_adapter *adapter;
-
-	hdd_for_each_adapter(hdd_ctx, adapter) {
-		if (adapter == reference) {
-			dev_hold(adapter->dev);
-			break;
-		}
-=======
 	struct hdd_adapter *adapter, *next_adapter = NULL;
 	wlan_net_dev_ref_dbgid dbgid = NET_DEV_HOLD_ADAPTER_GET_BY_REFERENCE;
 
@@ -8763,7 +8445,6 @@ struct hdd_adapter *hdd_adapter_get_by_reference(struct hdd_context *hdd_ctx,
 			break;
 		}
 		hdd_adapter_dev_put_debug(adapter, dbgid);
->>>>>>> Stashed changes
 	}
 
 	return adapter;
@@ -8777,13 +8458,6 @@ void hdd_adapter_put(struct hdd_adapter *adapter)
 struct hdd_adapter *hdd_get_adapter_by_iface_name(struct hdd_context *hdd_ctx,
 					     const char *iface_name)
 {
-<<<<<<< Updated upstream
-	struct hdd_adapter *adapter;
-
-	hdd_for_each_adapter(hdd_ctx, adapter) {
-		if (!qdf_str_cmp(adapter->dev->name, iface_name))
-			return adapter;
-=======
 	struct hdd_adapter *adapter, *next_adapter = NULL;
 	wlan_net_dev_ref_dbgid dbgid = NET_DEV_HOLD_GET_ADAPTER_BY_IFACE_NAME;
 
@@ -8797,7 +8471,6 @@ struct hdd_adapter *hdd_get_adapter_by_iface_name(struct hdd_context *hdd_ctx,
 			return adapter;
 		}
 		hdd_adapter_dev_put_debug(adapter, dbgid);
->>>>>>> Stashed changes
 	}
 
 	return NULL;
@@ -8816,13 +8489,6 @@ struct hdd_adapter *hdd_get_adapter_by_iface_name(struct hdd_context *hdd_ctx,
 struct hdd_adapter *hdd_get_adapter(struct hdd_context *hdd_ctx,
 			enum QDF_OPMODE mode)
 {
-<<<<<<< Updated upstream
-	struct hdd_adapter *adapter;
-
-	hdd_for_each_adapter(hdd_ctx, adapter) {
-		if (adapter->device_mode == mode)
-			return adapter;
-=======
 	struct hdd_adapter *adapter, *next_adapter = NULL;
 	wlan_net_dev_ref_dbgid dbgid = NET_DEV_HOLD_GET_ADAPTER;
 
@@ -8836,7 +8502,6 @@ struct hdd_adapter *hdd_get_adapter(struct hdd_context *hdd_ctx,
 			return adapter;
 		}
 		hdd_adapter_dev_put_debug(adapter, dbgid);
->>>>>>> Stashed changes
 	}
 
 	return NULL;
@@ -8865,17 +8530,6 @@ enum QDF_OPMODE hdd_get_device_mode(uint32_t vdev_id)
 uint32_t hdd_get_operating_chan_freq(struct hdd_context *hdd_ctx,
 				     enum QDF_OPMODE mode)
 {
-<<<<<<< Updated upstream
-	struct hdd_adapter *adapter;
-	uint32_t oper_chan_freq = 0;
-
-	hdd_for_each_adapter(hdd_ctx, adapter) {
-		if (mode == adapter->device_mode) {
-			oper_chan_freq =
-				hdd_get_adapter_home_channel(adapter);
-			break;
-		}
-=======
 	struct hdd_adapter *adapter, *next_adapter = NULL;
 	uint32_t oper_chan_freq = 0;
 	wlan_net_dev_ref_dbgid dbgid = NET_DEV_HOLD_GET_OPERATING_CHAN_FREQ;
@@ -8892,7 +8546,6 @@ uint32_t hdd_get_operating_chan_freq(struct hdd_context *hdd_ctx,
 			break;
 		}
 		hdd_adapter_dev_put_debug(adapter, dbgid);
->>>>>>> Stashed changes
 	}
 
 	return oper_chan_freq;
@@ -8901,13 +8554,6 @@ uint32_t hdd_get_operating_chan_freq(struct hdd_context *hdd_ctx,
 static inline QDF_STATUS hdd_unregister_wext_all_adapters(struct hdd_context *
 							  hdd_ctx)
 {
-<<<<<<< Updated upstream
-	struct hdd_adapter *adapter;
-
-	hdd_enter();
-
-	hdd_for_each_adapter(hdd_ctx, adapter) {
-=======
 	struct hdd_adapter *adapter, *next_adapter = NULL;
 	wlan_net_dev_ref_dbgid dbgid =
 				NET_DEV_HOLD_UNREGISTER_WEXT_ALL_ADAPTERS;
@@ -8916,7 +8562,6 @@ static inline QDF_STATUS hdd_unregister_wext_all_adapters(struct hdd_context *
 
 	hdd_for_each_adapter_dev_held_safe(hdd_ctx, adapter, next_adapter,
 					   dbgid) {
->>>>>>> Stashed changes
 		if (adapter->device_mode == QDF_STA_MODE ||
 		    adapter->device_mode == QDF_P2P_CLIENT_MODE ||
 		    adapter->device_mode == QDF_IBSS_MODE ||
@@ -8925,10 +8570,7 @@ static inline QDF_STATUS hdd_unregister_wext_all_adapters(struct hdd_context *
 		    adapter->device_mode == QDF_P2P_GO_MODE) {
 			hdd_unregister_wext(adapter->dev);
 		}
-<<<<<<< Updated upstream
-=======
 		hdd_adapter_dev_put_debug(adapter, dbgid);
->>>>>>> Stashed changes
 	}
 
 	hdd_exit();
@@ -8938,13 +8580,6 @@ static inline QDF_STATUS hdd_unregister_wext_all_adapters(struct hdd_context *
 
 QDF_STATUS hdd_abort_mac_scan_all_adapters(struct hdd_context *hdd_ctx)
 {
-<<<<<<< Updated upstream
-	struct hdd_adapter *adapter;
-
-	hdd_enter();
-
-	hdd_for_each_adapter(hdd_ctx, adapter) {
-=======
 	struct hdd_adapter *adapter, *next_adapter = NULL;
 	wlan_net_dev_ref_dbgid dbgid =
 				NET_DEV_HOLD_ABORT_MAC_SCAN_ALL_ADAPTERS;
@@ -8953,7 +8588,6 @@ QDF_STATUS hdd_abort_mac_scan_all_adapters(struct hdd_context *hdd_ctx)
 
 	hdd_for_each_adapter_dev_held_safe(hdd_ctx, adapter, next_adapter,
 					   dbgid) {
->>>>>>> Stashed changes
 		if (adapter->device_mode == QDF_STA_MODE ||
 		    adapter->device_mode == QDF_P2P_CLIENT_MODE ||
 		    adapter->device_mode == QDF_IBSS_MODE ||
@@ -8964,10 +8598,7 @@ QDF_STATUS hdd_abort_mac_scan_all_adapters(struct hdd_context *hdd_ctx)
 					adapter->vdev_id, INVALID_SCAN_ID,
 					true);
 		}
-<<<<<<< Updated upstream
-=======
 		hdd_adapter_dev_put_debug(adapter, dbgid);
->>>>>>> Stashed changes
 	}
 
 	hdd_exit();
@@ -8984,12 +8615,6 @@ QDF_STATUS hdd_abort_mac_scan_all_adapters(struct hdd_context *hdd_ctx)
  */
 static QDF_STATUS hdd_abort_sched_scan_all_adapters(struct hdd_context *hdd_ctx)
 {
-<<<<<<< Updated upstream
-	struct hdd_adapter *adapter;
-	int err;
-
-	hdd_for_each_adapter(hdd_ctx, adapter) {
-=======
 	struct hdd_adapter *adapter, *next_adapter = NULL;
 	int err;
 	wlan_net_dev_ref_dbgid dbgid =
@@ -8997,7 +8622,6 @@ static QDF_STATUS hdd_abort_sched_scan_all_adapters(struct hdd_context *hdd_ctx)
 
 	hdd_for_each_adapter_dev_held_safe(hdd_ctx, adapter, next_adapter,
 					   dbgid) {
->>>>>>> Stashed changes
 		if (adapter->device_mode == QDF_STA_MODE ||
 		    adapter->device_mode == QDF_P2P_CLIENT_MODE ||
 		    adapter->device_mode == QDF_IBSS_MODE ||
@@ -9008,10 +8632,7 @@ static QDF_STATUS hdd_abort_sched_scan_all_adapters(struct hdd_context *hdd_ctx)
 			if (err)
 				hdd_err("Unable to stop scheduled scan");
 		}
-<<<<<<< Updated upstream
-=======
 		hdd_adapter_dev_put_debug(adapter, dbgid);
->>>>>>> Stashed changes
 	}
 
 	return QDF_STATUS_SUCCESS;
@@ -9275,12 +8896,9 @@ void hdd_wlan_exit(struct hdd_context *hdd_ctx)
 #ifdef FEATURE_WLAN_CH_AVOID
 	mutex_destroy(&hdd_ctx->avoid_freq_lock);
 #endif
-<<<<<<< Updated upstream
-=======
 
 	/* This function should be invoked at the end of this api*/
 	hdd_dump_func_call_map();
->>>>>>> Stashed changes
 }
 
 /**
@@ -9343,13 +8961,6 @@ QDF_STATUS hdd_post_cds_enable_config(struct hdd_context *hdd_ctx)
 
 struct hdd_adapter *hdd_get_first_valid_adapter(struct hdd_context *hdd_ctx)
 {
-<<<<<<< Updated upstream
-	struct hdd_adapter *adapter;
-
-	hdd_for_each_adapter(hdd_ctx, adapter) {
-		if (adapter && adapter->magic == WLAN_HDD_ADAPTER_MAGIC)
-			return adapter;
-=======
 	struct hdd_adapter *adapter, *next_adapter = NULL;
 	wlan_net_dev_ref_dbgid dbgid = NET_DEV_HOLD_GET_FIRST_VALID_ADAPTER;
 
@@ -9363,7 +8974,6 @@ struct hdd_adapter *hdd_get_first_valid_adapter(struct hdd_context *hdd_ctx)
 			return adapter;
 		}
 		hdd_adapter_dev_put_debug(adapter, dbgid);
->>>>>>> Stashed changes
 	}
 
 	return NULL;
@@ -9626,12 +9236,6 @@ static void hdd_display_periodic_stats(struct hdd_context *hdd_ctx,
  */
 static void hdd_clear_rps_cpu_mask(struct hdd_context *hdd_ctx)
 {
-<<<<<<< Updated upstream
-	struct hdd_adapter *adapter;
-
-	hdd_for_each_adapter(hdd_ctx, adapter)
-		hdd_send_rps_disable_ind(adapter);
-=======
 	struct hdd_adapter *adapter, *next_adapter = NULL;
 
 	hdd_for_each_adapter_dev_held_safe(hdd_ctx, adapter, next_adapter,
@@ -9640,7 +9244,6 @@ static void hdd_clear_rps_cpu_mask(struct hdd_context *hdd_ctx)
 		hdd_adapter_dev_put_debug(adapter,
 					  NET_DEV_HOLD_CLEAR_RPS_CPU_MASK);
 	}
->>>>>>> Stashed changes
 }
 
 #if defined(CLD_PM_QOS) && \
@@ -10122,11 +9725,6 @@ void hdd_set_vdev_bundle_require_flag(uint16_t vdev_id,
 #endif
 
 #define HDD_BW_GET_DIFF(_x, _y) (unsigned long)((ULONG_MAX - (_y)) + (_x) + 1)
-<<<<<<< Updated upstream
-static void __hdd_bus_bw_work_handler(struct hdd_context *hdd_ctx)
-{
-	struct hdd_adapter *adapter = NULL, *con_sap_adapter = NULL;
-=======
 
 #ifdef WLAN_FEATURE_DYNAMIC_RX_AGGREGATION
 static enum qdisc_filter_status
@@ -10276,7 +9874,6 @@ static void __hdd_bus_bw_work_handler(struct hdd_context *hdd_ctx)
 {
 	struct hdd_adapter *adapter = NULL, *next_adapter = NULL,
 		*con_sap_adapter = NULL;
->>>>>>> Stashed changes
 	uint64_t tx_packets = 0, rx_packets = 0, tx_bytes = 0;
 	uint64_t fwd_tx_packets = 0, fwd_rx_packets = 0;
 	uint64_t fwd_tx_packets_diff = 0, fwd_rx_packets_diff = 0;
@@ -10285,10 +9882,7 @@ static void __hdd_bus_bw_work_handler(struct hdd_context *hdd_ctx)
 	bool connected = false;
 	uint32_t ipa_tx_packets = 0, ipa_rx_packets = 0;
 	uint64_t sta_tx_bytes = 0, sap_tx_bytes = 0;
-<<<<<<< Updated upstream
-=======
 	wlan_net_dev_ref_dbgid dbgid = NET_DEV_HOLD_BUS_BW_WORK_HANDLER;
->>>>>>> Stashed changes
 
 	if (wlan_hdd_validate_context(hdd_ctx))
 		goto stop_work;
@@ -10296,47 +9890,28 @@ static void __hdd_bus_bw_work_handler(struct hdd_context *hdd_ctx)
 	if (hdd_ctx->is_wiphy_suspended)
 		return;
 
-<<<<<<< Updated upstream
-	hdd_for_each_adapter(hdd_ctx, adapter) {
-=======
 	hdd_for_each_adapter_dev_held_safe(hdd_ctx, adapter, next_adapter,
 					   dbgid) {
->>>>>>> Stashed changes
 		/*
 		 * Validate magic so we don't end up accessing
 		 * an invalid adapter.
 		 */
-<<<<<<< Updated upstream
-		if (adapter->magic != WLAN_HDD_ADAPTER_MAGIC)
-			continue;
-=======
 		if (adapter->magic != WLAN_HDD_ADAPTER_MAGIC) {
 			hdd_adapter_dev_put_debug(adapter, dbgid);
 			continue;
 		}
->>>>>>> Stashed changes
 
 		if ((adapter->device_mode == QDF_STA_MODE ||
 		     adapter->device_mode == QDF_P2P_CLIENT_MODE) &&
 		    WLAN_HDD_GET_STATION_CTX_PTR(adapter)->conn_info.conn_state
 		    != eConnectionState_Associated) {
-<<<<<<< Updated upstream
-
-=======
 			hdd_adapter_dev_put_debug(adapter, dbgid);
->>>>>>> Stashed changes
 			continue;
 		}
 
 		if ((adapter->device_mode == QDF_SAP_MODE ||
 		     adapter->device_mode == QDF_P2P_GO_MODE) &&
 		    WLAN_HDD_GET_AP_CTX_PTR(adapter)->ap_active == false) {
-<<<<<<< Updated upstream
-
-			continue;
-		}
-
-=======
 			hdd_adapter_dev_put_debug(adapter, dbgid);
 			continue;
 		}
@@ -10345,7 +9920,6 @@ static void __hdd_bus_bw_work_handler(struct hdd_context *hdd_ctx)
 		    hdd_ctx->ol_enable == CFG_DYNAMIC_GRO_ENABLED)
 			hdd_rx_check_qdisc_for_adapter(adapter);
 
->>>>>>> Stashed changes
 		tx_packets += HDD_BW_GET_DIFF(adapter->stats.tx_packets,
 					      adapter->prev_tx_packets);
 		rx_packets += HDD_BW_GET_DIFF(adapter->stats.rx_packets,
@@ -10397,10 +9971,7 @@ static void __hdd_bus_bw_work_handler(struct hdd_context *hdd_ctx)
 		adapter->prev_tx_bytes = adapter->stats.tx_bytes;
 		qdf_spin_unlock_bh(&hdd_ctx->bus_bw_lock);
 		connected = true;
-<<<<<<< Updated upstream
-=======
 		hdd_adapter_dev_put_debug(adapter, dbgid);
->>>>>>> Stashed changes
 	}
 
 	if (!connected) {
@@ -10706,13 +10277,9 @@ hdd_display_netif_queue_history_compact(struct hdd_context *hdd_ctx)
 	char temp_str[20 * WLAN_REASON_TYPE_MAX];
 	char *comb_log_str;
 	uint32_t comb_log_str_size;
-<<<<<<< Updated upstream
-	struct hdd_adapter *adapter = NULL;
-=======
 	struct hdd_adapter *adapter = NULL, *next_adapter = NULL;
 	wlan_net_dev_ref_dbgid dbgid =
 			NET_DEV_HOLD_DISPLAY_NETIF_QUEUE_HISTORY_COMPACT;
->>>>>>> Stashed changes
 
 	comb_log_str_size = (ADAP_NETIFQ_LOG_LEN * WLAN_MAX_VDEVS) + 1;
 	comb_log_str = qdf_mem_malloc(comb_log_str_size);
@@ -10721,12 +10288,8 @@ hdd_display_netif_queue_history_compact(struct hdd_context *hdd_ctx)
 
 	bytes_written = 0;
 
-<<<<<<< Updated upstream
-	hdd_for_each_adapter_dev_held(hdd_ctx, adapter) {
-=======
 	hdd_for_each_adapter_dev_held_safe(hdd_ctx, adapter, next_adapter,
 					   dbgid) {
->>>>>>> Stashed changes
 		curr_time = qdf_system_ticks();
 		total = curr_time - adapter->start_time;
 		delta = curr_time - adapter->last_time;
@@ -10771,11 +10334,7 @@ hdd_display_netif_queue_history_compact(struct hdd_context *hdd_ctx)
 
 		adapter_num++;
 		/* dev_put has to be done here */
-<<<<<<< Updated upstream
-		dev_put(adapter->dev);
-=======
 		hdd_adapter_dev_put_debug(adapter, dbgid);
->>>>>>> Stashed changes
 	}
 
 	/* using QDF_TRACE to avoid printing function name */
@@ -10889,38 +10448,24 @@ void
 wlan_hdd_display_netif_queue_history(struct hdd_context *hdd_ctx,
 				     enum qdf_stats_verbosity_level verb_lvl)
 {
-<<<<<<< Updated upstream
-	struct hdd_adapter *adapter = NULL;
-=======
 	struct hdd_adapter *adapter = NULL, *next_adapter = NULL;
 	wlan_net_dev_ref_dbgid dbgid =
 				NET_DEV_HOLD_DISPLAY_NETIF_QUEUE_HISTORY;
->>>>>>> Stashed changes
 
 	if (verb_lvl == QDF_STATS_VERBOSITY_LEVEL_LOW) {
 		hdd_display_netif_queue_history_compact(hdd_ctx);
 		return;
 	}
 
-<<<<<<< Updated upstream
-	hdd_for_each_adapter_dev_held(hdd_ctx, adapter) {
-		if (adapter->vdev_id == CDP_INVALID_VDEV_ID) {
-			dev_put(adapter->dev);
-=======
 	hdd_for_each_adapter_dev_held_safe(hdd_ctx, adapter, next_adapter,
 					   dbgid) {
 		if (adapter->vdev_id == CDP_INVALID_VDEV_ID) {
 			hdd_adapter_dev_put_debug(adapter, dbgid);
->>>>>>> Stashed changes
 			continue;
 		}
 		wlan_hdd_display_adapter_netif_queue_stats(adapter);
 		/* dev_put has to be done here */
-<<<<<<< Updated upstream
-		dev_put(adapter->dev);
-=======
 		hdd_adapter_dev_put_debug(adapter, dbgid);
->>>>>>> Stashed changes
 	}
 }
 
@@ -10932,17 +10477,11 @@ wlan_hdd_display_netif_queue_history(struct hdd_context *hdd_ctx,
  */
 void wlan_hdd_clear_netif_queue_history(struct hdd_context *hdd_ctx)
 {
-<<<<<<< Updated upstream
-	struct hdd_adapter *adapter = NULL;
-
-	hdd_for_each_adapter(hdd_ctx, adapter) {
-=======
 	struct hdd_adapter *adapter = NULL, *next_adapter = NULL;
 	wlan_net_dev_ref_dbgid dbgid = NET_DEV_HOLD_CLEAR_NETIF_QUEUE_HISTORY;
 
 	hdd_for_each_adapter_dev_held_safe(hdd_ctx, adapter, next_adapter,
 					   dbgid) {
->>>>>>> Stashed changes
 		qdf_mem_zero(adapter->queue_oper_stats,
 					sizeof(adapter->queue_oper_stats));
 		qdf_mem_zero(adapter->queue_oper_history,
@@ -10951,10 +10490,7 @@ void wlan_hdd_clear_netif_queue_history(struct hdd_context *hdd_ctx)
 		adapter->start_time = adapter->last_time = qdf_system_ticks();
 		adapter->total_pause_time = 0;
 		adapter->total_unpause_time = 0;
-<<<<<<< Updated upstream
-=======
 		hdd_adapter_dev_put_debug(adapter, dbgid);
->>>>>>> Stashed changes
 	}
 }
 
@@ -11203,11 +10739,7 @@ hdd_store_sap_restart_channel(uint8_t restart_chan, uint8_t *restart_chan_store)
  */
 void hdd_unsafe_channel_restart_sap(struct hdd_context *hdd_ctxt)
 {
-<<<<<<< Updated upstream
-	struct hdd_adapter *adapter;
-=======
 	struct hdd_adapter *adapter, *next_adapter = NULL;
->>>>>>> Stashed changes
 	uint32_t i;
 	bool found = false;
 	uint8_t restart_chan_store[SAP_MAX_NUM_SESSION] = {0};
@@ -11219,16 +10751,6 @@ void hdd_unsafe_channel_restart_sap(struct hdd_context *hdd_ctxt)
 	bool is_acs_support_for_dfs_ltecoex = cfg_default(CFG_USER_ACS_DFS_LTE);
 	bool is_vendor_acs_support =
 		cfg_default(CFG_USER_AUTO_CHANNEL_SELECTION);
-<<<<<<< Updated upstream
-
-	hdd_for_each_adapter(hdd_ctxt, adapter) {
-		if (!(adapter->device_mode == QDF_SAP_MODE &&
-		    adapter->session.ap.sap_config.acs_cfg.acs_mode)) {
-			hdd_debug("skip device mode:%d acs:%d",
-				  adapter->device_mode,
-				  adapter->session.ap.sap_config.
-				  acs_cfg.acs_mode);
-=======
 	wlan_net_dev_ref_dbgid dbgid = NET_DEV_HOLD_UNSAFE_CHANNEL_RESTART_SAP;
 
 	hdd_for_each_adapter_dev_held_safe(hdd_ctxt, adapter, next_adapter,
@@ -11239,7 +10761,6 @@ void hdd_unsafe_channel_restart_sap(struct hdd_context *hdd_ctxt)
 				     adapter->device_mode,
 			adapter->session.ap.sap_config.acs_cfg.acs_mode);
 			hdd_adapter_dev_put_debug(adapter, dbgid);
->>>>>>> Stashed changes
 			continue;
 		}
 
@@ -11283,10 +10804,7 @@ void hdd_unsafe_channel_restart_sap(struct hdd_context *hdd_ctxt)
 				restart_chan_store);
 			hdd_debug("ch:%d is safe. no need to change channel",
 				  ap_chan);
-<<<<<<< Updated upstream
-=======
 			hdd_adapter_dev_put_debug(adapter, dbgid);
->>>>>>> Stashed changes
 			continue;
 		}
 
@@ -11305,10 +10823,7 @@ void hdd_unsafe_channel_restart_sap(struct hdd_context *hdd_ctxt)
 		if (is_vendor_acs_support && is_acs_support_for_dfs_ltecoex) {
 			hdd_update_acs_timer_reason(adapter,
 				QCA_WLAN_VENDOR_ACS_SELECT_REASON_LTE_COEX);
-<<<<<<< Updated upstream
-=======
 			hdd_adapter_dev_put_debug(adapter, dbgid);
->>>>>>> Stashed changes
 			continue;
 		}
 
@@ -11352,13 +10867,10 @@ void hdd_unsafe_channel_restart_sap(struct hdd_context *hdd_ctxt)
 						CSA_REASON_UNSAFE_CHANNEL);
 				hdd_switch_sap_channel(adapter, restart_chan,
 						       true);
-<<<<<<< Updated upstream
-=======
 				hdd_adapter_dev_put_debug(adapter, dbgid);
 				if (next_adapter)
 					hdd_adapter_dev_put_debug(next_adapter,
 								  dbgid);
->>>>>>> Stashed changes
 				return;
 			}
 			else {
@@ -11366,11 +10878,6 @@ void hdd_unsafe_channel_restart_sap(struct hdd_context *hdd_ctxt)
 				wlan_hdd_send_svc_nlink_msg(
 						hdd_ctxt->radio_index,
 						WLAN_SVC_LTE_COEX_IND, NULL, 0);
-<<<<<<< Updated upstream
-				return;
-			}
-		}
-=======
 				hdd_adapter_dev_put_debug(adapter, dbgid);
 				if (next_adapter)
 					hdd_adapter_dev_put_debug(next_adapter,
@@ -11380,7 +10887,6 @@ void hdd_unsafe_channel_restart_sap(struct hdd_context *hdd_ctxt)
 		}
 		/* dev_put has to be done here */
 		hdd_adapter_dev_put_debug(adapter, dbgid);
->>>>>>> Stashed changes
 	}
 }
 
@@ -11553,21 +11059,14 @@ wlan_hdd_get_adapter_by_vdev_id_from_objmgr(struct hdd_context *hdd_ctx,
 void hdd_indicate_mgmt_frame(tSirSmeMgmtFrameInd *frame_ind)
 {
 	struct hdd_context *hdd_ctx = NULL;
-<<<<<<< Updated upstream
-	struct hdd_adapter *adapter = NULL;
-=======
 	struct hdd_adapter *adapter = NULL, *next_adapter = NULL;
->>>>>>> Stashed changes
 	int i, num_adapters;
 	uint8_t vdev_id[WLAN_MAX_VDEVS];
 	struct ieee80211_mgmt *mgmt =
 		(struct ieee80211_mgmt *)frame_ind->frameBuf;
 	QDF_STATUS status;
 	struct wlan_objmgr_vdev *vdev;
-<<<<<<< Updated upstream
-=======
 	wlan_net_dev_ref_dbgid dbgid = NET_DEV_HOLD_INDICATE_MGMT_FRAME;
->>>>>>> Stashed changes
 
 	hdd_ctx = cds_get_context(QDF_MODULE_ID_HDD);
 	if (wlan_hdd_validate_context(hdd_ctx))
@@ -11587,20 +11086,12 @@ void hdd_indicate_mgmt_frame(tSirSmeMgmtFrameInd *frame_ind)
 		}
 	} else if (SME_SESSION_ID_BROADCAST == frame_ind->sessionId) {
 		num_adapters = 0;
-<<<<<<< Updated upstream
-		hdd_for_each_adapter_dev_held(hdd_ctx, adapter) {
-			vdev_id[num_adapters] = adapter->vdev_id;
-			num_adapters++;
-			/* dev_put has to be done here */
-			dev_put(adapter->dev);
-=======
 		hdd_for_each_adapter_dev_held_safe(hdd_ctx, adapter,
 						   next_adapter, dbgid) {
 			vdev_id[num_adapters] = adapter->vdev_id;
 			num_adapters++;
 			/* dev_put has to be done here */
 			hdd_adapter_dev_put_debug(adapter, dbgid);
->>>>>>> Stashed changes
 		}
 
 		adapter = NULL;
@@ -12299,12 +11790,9 @@ static void hdd_cfg_params_init(struct hdd_context *hdd_ctx)
 		      cfg_get(psoc,
 			      CFG_ACTION_OUI_DISABLE_AGGRESSIVE_EDCA),
 			      ACTION_OUI_MAX_STR_LEN);
-<<<<<<< Updated upstream
-=======
 	qdf_str_lcopy(config->action_oui_str[ACTION_OUI_DISABLE_TWT],
 		      cfg_get(psoc, CFG_ACTION_OUI_DISABLE_TWT),
 			      ACTION_OUI_MAX_STR_LEN);
->>>>>>> Stashed changes
 	qdf_str_lcopy(config->action_oui_str[ACTION_OUI_HOST_RECONN],
 		      cfg_get(psoc, CFG_ACTION_OUI_RECONN_ASSOCTIMEOUT),
 			      ACTION_OUI_MAX_STR_LEN);
@@ -12362,13 +11850,10 @@ struct hdd_context *hdd_context_create(struct device *dev)
 	}
 
 	status = cfg_parse(WLAN_INI_FILE);
-<<<<<<< Updated upstream
-=======
 	if (!QDF_IS_STATUS_ERROR(status))
 		goto cfg_done;
 
 	status = cfg_parse(WLAN_INI_FILE_DEF);
->>>>>>> Stashed changes
 	if (QDF_IS_STATUS_ERROR(status)) {
 		hdd_err("Failed to parse cfg %s; status:%d\n",
 			WLAN_INI_FILE, status);
@@ -12376,10 +11861,7 @@ struct hdd_context *hdd_context_create(struct device *dev)
 		goto err_free_config;
 	}
 
-<<<<<<< Updated upstream
-=======
 cfg_done:
->>>>>>> Stashed changes
 	ret = hdd_objmgr_create_and_store_psoc(hdd_ctx, DEFAULT_PSOC_ID);
 	if (ret) {
 		QDF_DEBUG_PANIC("Psoc creation fails!");
@@ -12462,10 +11944,7 @@ int hdd_start_station_adapter(struct hdd_adapter *adapter)
 	QDF_STATUS status;
 	struct hdd_context *hdd_ctx = WLAN_HDD_GET_CTX(adapter);
 	int ret;
-<<<<<<< Updated upstream
-=======
 	bool reset;
->>>>>>> Stashed changes
 
 	hdd_enter_dev(adapter->dev);
 	if (test_bit(SME_SESSION_OPENED, &adapter->event_flags)) {
@@ -12494,13 +11973,6 @@ int hdd_start_station_adapter(struct hdd_adapter *adapter)
 	hdd_register_hl_netdev_fc_timer(adapter,
 					hdd_tx_resume_timer_expired_handler);
 
-<<<<<<< Updated upstream
-	status = sme_set_wlm_latency_level(hdd_ctx->mac_handle,
-					   adapter->vdev_id,
-					   adapter->latency_level);
-	if (QDF_IS_STATUS_ERROR(status))
-		hdd_warn("set latency level failed, %u", status);
-=======
 	status = ucfg_mlme_cfg_get_wlm_reset(hdd_ctx->psoc, &reset);
 	if (QDF_IS_STATUS_ERROR(status)) {
 		hdd_err("could not get the wlm reset flag");
@@ -12516,7 +11988,6 @@ int hdd_start_station_adapter(struct hdd_adapter *adapter)
 		else
 			hdd_debug("set wlm mode %d", adapter->latency_level);
 	}
->>>>>>> Stashed changes
 
 	hdd_exit();
 
@@ -12656,10 +12127,7 @@ static int hdd_update_cds_config(struct hdd_context *hdd_ctx)
 	struct cds_config_info *cds_cfg;
 	int value;
 	uint8_t band_capability;
-<<<<<<< Updated upstream
-=======
 	uint32_t band_bitmap;
->>>>>>> Stashed changes
 	uint8_t ito_repeat_count;
 	bool crash_inject;
 	bool self_recovery;
@@ -12725,18 +12193,11 @@ static int hdd_update_cds_config(struct hdd_context *hdd_ctx)
 
 	cds_cfg->ito_repeat_count = ito_repeat_count;
 
-<<<<<<< Updated upstream
-	status = ucfg_mlme_get_band_capability(hdd_ctx->psoc, &band_capability);
-	if (QDF_IS_STATUS_ERROR(status))
-		goto exit;
-
-=======
 	status = ucfg_mlme_get_band_capability(hdd_ctx->psoc, &band_bitmap);
 	if (QDF_IS_STATUS_ERROR(status))
 		goto exit;
 
 	band_capability = wlan_reg_band_bitmap_to_band_info(band_bitmap);
->>>>>>> Stashed changes
 	cds_cfg->bandcapability = band_capability;
 	cds_cfg->num_vdevs = hdd_ctx->config->num_vdevs;
 	cds_cfg->enable_tx_compl_tsf64 =
@@ -12762,18 +12223,11 @@ static int hdd_update_user_config(struct hdd_context *hdd_ctx)
 {
 	struct wlan_objmgr_psoc_user_config *user_config;
 	uint8_t band_capability;
-<<<<<<< Updated upstream
-	QDF_STATUS status;
-	bool value = false;
-
-	status = ucfg_mlme_get_band_capability(hdd_ctx->psoc, &band_capability);
-=======
 	uint32_t band_bitmap;
 	QDF_STATUS status;
 	bool value = false;
 
 	status = ucfg_mlme_get_band_capability(hdd_ctx->psoc, &band_bitmap);
->>>>>>> Stashed changes
 	if (QDF_IS_STATUS_ERROR(status))
 		return -EIO;
 
@@ -12792,10 +12246,7 @@ static int hdd_update_user_config(struct hdd_context *hdd_ctx)
 	if (!QDF_IS_STATUS_SUCCESS(status))
 		hdd_err("Invalid 11h_enable flag");
 	user_config->is_11h_support_enabled = value;
-<<<<<<< Updated upstream
-=======
 	band_capability = wlan_reg_band_bitmap_to_band_info(band_bitmap);
->>>>>>> Stashed changes
 	user_config->band_capability = band_capability;
 	wlan_objmgr_psoc_set_user_config(hdd_ctx->psoc, user_config);
 
@@ -13433,14 +12884,11 @@ static int hdd_pre_enable_configure(struct hdd_context *hdd_ctx)
 	if (ret)
 		goto out;
 
-<<<<<<< Updated upstream
-=======
 	/* Configure global firmware params */
 	ret = ucfg_fwol_configure_global_params(hdd_ctx->psoc, hdd_ctx->pdev);
 	if (ret)
 		goto out;
 
->>>>>>> Stashed changes
 	status = hdd_set_sme_chan_list(hdd_ctx);
 	if (status != QDF_STATUS_SUCCESS) {
 		hdd_err("Failed to init channel list: %d", status);
@@ -14428,10 +13876,7 @@ int hdd_wlan_stop_modules(struct hdd_context *hdd_ctx, bool ftm_mode)
 
 	/* Once the firmware sequence is completed reset this flag */
 	hdd_ctx->imps_enabled = false;
-<<<<<<< Updated upstream
-=======
 	hdd_ctx->is_dual_mac_cfg_updated = false;
->>>>>>> Stashed changes
 	hdd_ctx->driver_status = DRIVER_MODULES_CLOSED;
 	hdd_debug("Wlan transitioned (now CLOSED)");
 
@@ -14457,16 +13902,10 @@ static void hdd_state_info_dump(char **buf_ptr, uint16_t *size)
 {
 	struct hdd_context *hdd_ctx;
 	struct hdd_station_ctx *hdd_sta_ctx;
-<<<<<<< Updated upstream
-	struct hdd_adapter *adapter;
-	uint16_t len = 0;
-	char *buf = *buf_ptr;
-=======
 	struct hdd_adapter *adapter, *next_adapter = NULL;
 	uint16_t len = 0;
 	char *buf = *buf_ptr;
 	wlan_net_dev_ref_dbgid dbgid = NET_DEV_HOLD_STATE_INFO_DUMP;
->>>>>>> Stashed changes
 
 	hdd_ctx = cds_get_context(QDF_MODULE_ID_HDD);
 	if (!hdd_ctx) {
@@ -14482,19 +13921,12 @@ static void hdd_state_info_dump(char **buf_ptr, uint16_t *size)
 		"\n is_scheduler_suspended %d",
 		hdd_ctx->is_scheduler_suspended);
 
-<<<<<<< Updated upstream
-	hdd_for_each_adapter(hdd_ctx, adapter) {
-		if (adapter->dev)
-			len += scnprintf(buf + len, *size - len,
-				"\n device name: %s", adapter->dev->name);
-=======
 	hdd_for_each_adapter_dev_held_safe(hdd_ctx, adapter, next_adapter,
 					   dbgid) {
 		if (adapter->dev)
 			len += scnprintf(buf + len, *size - len,
 					 "\n device name: %s",
 					 adapter->dev->name);
->>>>>>> Stashed changes
 		len += scnprintf(buf + len, *size - len,
 				"\n device_mode: %d", adapter->device_mode);
 		switch (adapter->device_mode) {
@@ -14509,10 +13941,7 @@ static void hdd_state_info_dump(char **buf_ptr, uint16_t *size)
 		default:
 			break;
 		}
-<<<<<<< Updated upstream
-=======
 		hdd_adapter_dev_put_debug(adapter, dbgid);
->>>>>>> Stashed changes
 	}
 
 	*size -= len;
@@ -15401,26 +14830,16 @@ void wlan_hdd_disable_roaming(struct hdd_adapter *cur_adapter,
 			      uint32_t mlme_operation_requestor)
 {
 	struct hdd_context *hdd_ctx = WLAN_HDD_GET_CTX(cur_adapter);
-<<<<<<< Updated upstream
-	struct hdd_adapter *adapter = NULL;
-	struct csr_roam_profile *roam_profile;
-	struct hdd_station_ctx *sta_ctx;
-=======
 	struct csr_roam_profile *roam_profile;
 	struct hdd_adapter *adapter = NULL, *next_adapter = NULL;
 	struct hdd_station_ctx *sta_ctx;
 	wlan_net_dev_ref_dbgid dbgid = NET_DEV_HOLD_DISABLE_ROAMING;
->>>>>>> Stashed changes
 
 	if (!policy_mgr_is_sta_active_connection_exists(hdd_ctx->psoc))
 		return;
 
-<<<<<<< Updated upstream
-	hdd_for_each_adapter(hdd_ctx, adapter) {
-=======
 	hdd_for_each_adapter_dev_held_safe(hdd_ctx, adapter, next_adapter,
 					   dbgid) {
->>>>>>> Stashed changes
 		roam_profile = hdd_roam_profile(adapter);
 		sta_ctx = WLAN_HDD_GET_STATION_CTX_PTR(adapter);
 
@@ -15433,10 +14852,7 @@ void wlan_hdd_disable_roaming(struct hdd_adapter *cur_adapter,
 					 REASON_DRIVER_DISABLED,
 					 mlme_operation_requestor);
 		}
-<<<<<<< Updated upstream
-=======
 		hdd_adapter_dev_put_debug(adapter, dbgid);
->>>>>>> Stashed changes
 	}
 }
 
@@ -15444,26 +14860,16 @@ void wlan_hdd_enable_roaming(struct hdd_adapter *cur_adapter,
 			     uint32_t mlme_operation_requestor)
 {
 	struct hdd_context *hdd_ctx = WLAN_HDD_GET_CTX(cur_adapter);
-<<<<<<< Updated upstream
-	struct hdd_adapter *adapter = NULL;
-	struct csr_roam_profile *roam_profile;
-	struct hdd_station_ctx *sta_ctx;
-=======
 	struct csr_roam_profile *roam_profile;
 	struct hdd_adapter *adapter = NULL, *next_adapter = NULL;
 	struct hdd_station_ctx *sta_ctx;
 	wlan_net_dev_ref_dbgid dbgid = NET_DEV_HOLD_ENABLE_ROAMING;
->>>>>>> Stashed changes
 
 	if (!policy_mgr_is_sta_active_connection_exists(hdd_ctx->psoc))
 		return;
 
-<<<<<<< Updated upstream
-	hdd_for_each_adapter(hdd_ctx, adapter) {
-=======
 	hdd_for_each_adapter_dev_held_safe(hdd_ctx, adapter, next_adapter,
 					   dbgid) {
->>>>>>> Stashed changes
 		roam_profile = hdd_roam_profile(adapter);
 		sta_ctx = WLAN_HDD_GET_STATION_CTX_PTR(adapter);
 
@@ -15476,10 +14882,7 @@ void wlan_hdd_enable_roaming(struct hdd_adapter *cur_adapter,
 					  REASON_DRIVER_ENABLED,
 					  mlme_operation_requestor);
 		}
-<<<<<<< Updated upstream
-=======
 		hdd_adapter_dev_put_debug(adapter, dbgid);
->>>>>>> Stashed changes
 	}
 }
 
@@ -15601,16 +15004,10 @@ void wlan_hdd_auto_shutdown_cb(void)
 
 void wlan_hdd_auto_shutdown_enable(struct hdd_context *hdd_ctx, bool enable)
 {
-<<<<<<< Updated upstream
-	struct hdd_adapter *adapter;
-	bool ap_connected = false, sta_connected = false;
-	mac_handle_t mac_handle;
-=======
 	struct hdd_adapter *adapter, *next_adapter = NULL;
 	bool ap_connected = false, sta_connected = false;
 	mac_handle_t mac_handle;
 	wlan_net_dev_ref_dbgid dbgid = NET_DEV_HOLD_AUTO_SHUTDOWN_ENABLE;
->>>>>>> Stashed changes
 
 	mac_handle = hdd_ctx->mac_handle;
 	if (!mac_handle)
@@ -15631,26 +15028,19 @@ void wlan_hdd_auto_shutdown_enable(struct hdd_context *hdd_ctx, bool enable)
 
 	/* To enable shutdown timer check conncurrency */
 	if (policy_mgr_concurrent_open_sessions_running(hdd_ctx->psoc)) {
-<<<<<<< Updated upstream
-		hdd_for_each_adapter(hdd_ctx, adapter) {
-=======
 		hdd_for_each_adapter_dev_held_safe(hdd_ctx, adapter,
 						   next_adapter, dbgid) {
->>>>>>> Stashed changes
 			if (adapter->device_mode == QDF_STA_MODE) {
 				if (WLAN_HDD_GET_STATION_CTX_PTR(adapter)->
 				    conn_info.conn_state ==
 				    eConnectionState_Associated) {
 					sta_connected = true;
-<<<<<<< Updated upstream
-=======
 					hdd_adapter_dev_put_debug(adapter,
 								  dbgid);
 					if (next_adapter)
 						hdd_adapter_dev_put_debug(
 								next_adapter,
 								dbgid);
->>>>>>> Stashed changes
 					break;
 				}
 			}
@@ -15659,11 +15049,6 @@ void wlan_hdd_auto_shutdown_enable(struct hdd_context *hdd_ctx, bool enable)
 				if (WLAN_HDD_GET_AP_CTX_PTR(adapter)->
 				    ap_active == true) {
 					ap_connected = true;
-<<<<<<< Updated upstream
-					break;
-				}
-			}
-=======
 					hdd_adapter_dev_put_debug(adapter,
 								  dbgid);
 					if (next_adapter)
@@ -15674,7 +15059,6 @@ void wlan_hdd_auto_shutdown_enable(struct hdd_context *hdd_ctx, bool enable)
 				}
 			}
 			hdd_adapter_dev_put_debug(adapter, dbgid);
->>>>>>> Stashed changes
 		}
 	}
 
@@ -15698,13 +15082,6 @@ hdd_get_con_sap_adapter(struct hdd_adapter *this_sap_adapter,
 			bool check_start_bss)
 {
 	struct hdd_context *hdd_ctx = WLAN_HDD_GET_CTX(this_sap_adapter);
-<<<<<<< Updated upstream
-	struct hdd_adapter *adapter, *con_sap_adapter;
-
-	con_sap_adapter = NULL;
-
-	hdd_for_each_adapter(hdd_ctx, adapter) {
-=======
 	struct hdd_adapter *adapter, *con_sap_adapter, *next_adapter = NULL;
 	wlan_net_dev_ref_dbgid dbgid = NET_DEV_HOLD_GET_CON_SAP_ADAPTER;
 
@@ -15712,7 +15089,6 @@ hdd_get_con_sap_adapter(struct hdd_adapter *this_sap_adapter,
 
 	hdd_for_each_adapter_dev_held_safe(hdd_ctx, adapter, next_adapter,
 					   dbgid) {
->>>>>>> Stashed changes
 		if (adapter && ((adapter->device_mode == QDF_SAP_MODE) ||
 				(adapter->device_mode == QDF_P2P_GO_MODE)) &&
 						adapter != this_sap_adapter) {
@@ -15720,24 +15096,16 @@ hdd_get_con_sap_adapter(struct hdd_adapter *this_sap_adapter,
 				if (test_bit(SOFTAP_BSS_STARTED,
 						&adapter->event_flags)) {
 					con_sap_adapter = adapter;
-<<<<<<< Updated upstream
-=======
 					hdd_adapter_dev_put_debug(adapter,
 								  dbgid);
 					if (next_adapter)
 						hdd_adapter_dev_put_debug(
 								next_adapter,
 								dbgid);
->>>>>>> Stashed changes
 					break;
 				}
 			} else {
 				con_sap_adapter = adapter;
-<<<<<<< Updated upstream
-				break;
-			}
-		}
-=======
 				hdd_adapter_dev_put_debug(adapter, dbgid);
 				if (next_adapter)
 					hdd_adapter_dev_put_debug(next_adapter,
@@ -15746,7 +15114,6 @@ hdd_get_con_sap_adapter(struct hdd_adapter *this_sap_adapter,
 			}
 		}
 		hdd_adapter_dev_put_debug(adapter, dbgid);
->>>>>>> Stashed changes
 	}
 
 	return con_sap_adapter;
@@ -15766,14 +15133,6 @@ static inline bool hdd_adapter_is_ap(struct hdd_adapter *adapter)
 
 bool hdd_is_any_adapter_connected(struct hdd_context *hdd_ctx)
 {
-<<<<<<< Updated upstream
-	struct hdd_adapter *adapter;
-
-	hdd_for_each_adapter(hdd_ctx, adapter) {
-		if (hdd_adapter_is_sta(adapter) &&
-		    WLAN_HDD_GET_STATION_CTX_PTR(adapter)->
-			conn_info.conn_state == eConnectionState_Associated) {
-=======
 	struct hdd_adapter *adapter, *next_adapter = NULL;
 	wlan_net_dev_ref_dbgid dbgid = NET_DEV_HOLD_IS_ANY_ADAPTER_CONNECTED;
 
@@ -15786,28 +15145,20 @@ bool hdd_is_any_adapter_connected(struct hdd_context *hdd_ctx)
 			if (next_adapter)
 				hdd_adapter_dev_put_debug(next_adapter,
 							  dbgid);
->>>>>>> Stashed changes
 			return true;
 		}
 
 		if (hdd_adapter_is_ap(adapter) &&
 		    WLAN_HDD_GET_AP_CTX_PTR(adapter)->ap_active) {
-<<<<<<< Updated upstream
-=======
 			hdd_adapter_dev_put_debug(adapter, dbgid);
 			if (next_adapter)
 				hdd_adapter_dev_put_debug(next_adapter,
 							  dbgid);
->>>>>>> Stashed changes
 			return true;
 		}
 
 		if (adapter->device_mode == QDF_NDI_MODE &&
 		    WLAN_HDD_GET_STATION_CTX_PTR(adapter)->
-<<<<<<< Updated upstream
-		    conn_info.conn_state == eConnectionState_NdiConnected)
-			return true;
-=======
 		    conn_info.conn_state == eConnectionState_NdiConnected) {
 			hdd_adapter_dev_put_debug(adapter, dbgid);
 			if (next_adapter)
@@ -15816,7 +15167,6 @@ bool hdd_is_any_adapter_connected(struct hdd_context *hdd_ctx)
 			return true;
 		}
 		hdd_adapter_dev_put_debug(adapter, dbgid);
->>>>>>> Stashed changes
 	}
 
 	return false;
@@ -16031,11 +15381,7 @@ void wlan_hdd_start_sap(struct hdd_adapter *ap_adapter, bool reinit)
 		goto end;
 
 	hdd_debug("Waiting for SAP to start");
-<<<<<<< Updated upstream
-	qdf_status = qdf_wait_for_event_completion(&hostapd_state->qdf_event,
-=======
 	qdf_status = qdf_wait_single_event(&hostapd_state->qdf_event,
->>>>>>> Stashed changes
 					SME_CMD_START_BSS_TIMEOUT);
 	if (!QDF_IS_STATUS_SUCCESS(qdf_status)) {
 		hdd_err("SAP Start failed");
@@ -16178,8 +15524,6 @@ void hdd_deinit(void)
 #define HDD_WLAN_START_WAIT_TIME (CDS_WMA_TIMEOUT + 5000)
 #endif
 
-<<<<<<< Updated upstream
-=======
 static void hdd_set_adapter_wlm_def_level(struct hdd_context *hdd_ctx)
 {
 	struct hdd_adapter *adapter, *next_adapter = NULL;
@@ -16212,7 +15556,6 @@ static void hdd_set_adapter_wlm_def_level(struct hdd_context *hdd_ctx)
 	}
 }
 
->>>>>>> Stashed changes
 static int wlan_hdd_state_ctrl_param_open(struct inode *inode,
 					  struct file *file)
 {
@@ -16248,10 +15591,7 @@ static void hdd_inform_wifi_off(void)
 	if (ret)
 		return;
 
-<<<<<<< Updated upstream
-=======
 	hdd_set_adapter_wlm_def_level(hdd_ctx);
->>>>>>> Stashed changes
 	__hdd_inform_wifi_off();
 
 	osif_psoc_sync_op_stop(psoc_sync);
@@ -16262,8 +15602,6 @@ void hdd_init_start_completion(void)
 	INIT_COMPLETION(wlan_start_comp);
 }
 
-<<<<<<< Updated upstream
-=======
 #if defined CFG80211_USER_HINT_CELL_BASE_SELF_MANAGED || \
                     (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 18, 0))
 static void hdd_inform_wifi_on(void)
@@ -16294,7 +15632,6 @@ static void hdd_inform_wifi_on(void)
 }
 #endif
 
->>>>>>> Stashed changes
 static int hdd_driver_load(void);
 static ssize_t wlan_hdd_state_ctrl_param_write(struct file *filp,
 						const char __user *user_buf,
@@ -16307,10 +15644,7 @@ static ssize_t wlan_hdd_state_ctrl_param_write(struct file *filp,
 	int ret;
 	unsigned long rc;
 	struct hdd_context *hdd_ctx = cds_get_context(QDF_MODULE_ID_HDD);
-<<<<<<< Updated upstream
-=======
 	bool turning_on = false;
->>>>>>> Stashed changes
 
 	if (copy_from_user(buf, user_buf, 3)) {
 		pr_err("Failed to read buffer\n");
@@ -16318,24 +15652,15 @@ static ssize_t wlan_hdd_state_ctrl_param_write(struct file *filp,
 	}
 
 	if (strncmp(buf, wlan_off_str, strlen(wlan_off_str)) == 0) {
-<<<<<<< Updated upstream
-		pr_debug("Wifi turning off from UI\n");
-=======
 		hdd_info("Wifi turning off from UI\n");
->>>>>>> Stashed changes
 		hdd_inform_wifi_off();
 		goto exit;
 	}
 
-<<<<<<< Updated upstream
-	if (strncmp(buf, wlan_on_str, strlen(wlan_on_str)) == 0)
-		pr_info("Wifi Turning On from UI\n");
-=======
 	if (strncmp(buf, wlan_on_str, strlen(wlan_on_str)) == 0) {
 		hdd_info("Wifi Turning On from UI\n");
 		turning_on = true;
 	}
->>>>>>> Stashed changes
 
 	if (strncmp(buf, wlan_on_str, strlen(wlan_on_str)) != 0) {
 		pr_err("Invalid value received from framework");
@@ -16365,15 +15690,10 @@ static ssize_t wlan_hdd_state_ctrl_param_write(struct file *filp,
 	 */
 	if (hdd_ctx)
 		hdd_psoc_idle_timer_stop(hdd_ctx);
-<<<<<<< Updated upstream
-
-exit:
-=======
 exit:
 	if (turning_on)
 		hdd_inform_wifi_on();
 
->>>>>>> Stashed changes
 	return count;
 }
 
@@ -17355,135 +16675,6 @@ static void hdd_driver_unload(void)
 	hdd_qdf_deinit();
 }
 
-<<<<<<< Updated upstream
-#if 0
-/**
- * wlan_boot_cb() - Wlan boot callback
- * @kobj:      object whose directory we're creating the link in.
- * @attr:      attribute the user is interacting with
- * @buff:      the buffer containing the user data
- * @count:     number of bytes in the buffer
- *
- * This callback is invoked when the fs is ready to start the
- * wlan driver initialization.
- *
- * Return: 'count' on success or a negative error code in case of failure
- */
-static ssize_t wlan_boot_cb(struct kobject *kobj,
-			    struct kobj_attribute *attr,
-			    const char *buf,
-			    size_t count)
-{
-
-	if (wlan_loader->loaded_state) {
-		hdd_err("wlan driver already initialized");
-		return -EALREADY;
-	}
-
-	if (hdd_driver_load())
-		return -EIO;
-
-	wlan_loader->loaded_state = MODULE_INITIALIZED;
-
-	return count;
-}
-
-/**
- * hdd_sysfs_cleanup() - cleanup sysfs
- *
- * Return: None
- *
- */
-static void hdd_sysfs_cleanup(void)
-{
-	/* remove from group */
-	if (wlan_loader->boot_wlan_obj && wlan_loader->attr_group)
-		sysfs_remove_group(wlan_loader->boot_wlan_obj,
-				   wlan_loader->attr_group);
-
-	/* unlink the object from parent */
-	kobject_del(wlan_loader->boot_wlan_obj);
-
-	/* free the object */
-	kobject_put(wlan_loader->boot_wlan_obj);
-
-	kfree(wlan_loader->attr_group);
-	kfree(wlan_loader);
-
-	wlan_loader = NULL;
-}
-
-/**
- * wlan_init_sysfs() - Creates the sysfs to be invoked when the fs is
- * ready
- *
- * This is creates the syfs entry boot_wlan. Which shall be invoked
- * when the filesystem is ready.
- *
- * QDF API cannot be used here since this function is called even before
- * initializing WLAN driver.
- *
- * Return: 0 for success, errno on failure
- */
-static int wlan_init_sysfs(void)
-{
-	int ret = -ENOMEM;
-
-	wlan_loader = kzalloc(sizeof(*wlan_loader), GFP_KERNEL);
-	if (!wlan_loader)
-		return -ENOMEM;
-
-	wlan_loader->boot_wlan_obj = NULL;
-	wlan_loader->attr_group = kzalloc(sizeof(*(wlan_loader->attr_group)),
-					  GFP_KERNEL);
-	if (!wlan_loader->attr_group)
-		goto error_return;
-
-	wlan_loader->loaded_state = 0;
-	wlan_loader->attr_group->attrs = attrs;
-
-	wlan_loader->boot_wlan_obj = kobject_create_and_add(WLAN_LOADER_NAME,
-							    kernel_kobj);
-	if (!wlan_loader->boot_wlan_obj) {
-		hdd_err("sysfs create and add failed");
-		goto error_return;
-	}
-
-	ret = sysfs_create_group(wlan_loader->boot_wlan_obj,
-				 wlan_loader->attr_group);
-	if (ret) {
-		hdd_err("sysfs create group failed; errno:%d", ret);
-		goto error_return;
-	}
-
-	return 0;
-
-error_return:
-	hdd_sysfs_cleanup();
-
-	return ret;
-}
-
-/**
- * wlan_deinit_sysfs() - Removes the sysfs created to initialize the wlan
- *
- * Return: 0 on success or errno on failure
- */
-static int wlan_deinit_sysfs(void)
-{
-	if (!wlan_loader) {
-		hdd_err("wlan_loader is null");
-		return -EINVAL;
-	}
-
-	hdd_sysfs_cleanup();
-	return 0;
-}
-
-#endif /* MODULE */
-
-=======
->>>>>>> Stashed changes
 /**
  * hdd_module_init() - Module init helper
  *
@@ -18397,11 +17588,7 @@ void hdd_restart_sap(struct hdd_adapter *ap_adapter)
 
 		hdd_info("Waiting for SAP to start");
 		qdf_status =
-<<<<<<< Updated upstream
-			qdf_wait_for_event_completion(&hostapd_state->qdf_event,
-=======
 			qdf_wait_single_event(&hostapd_state->qdf_event,
->>>>>>> Stashed changes
 					SME_CMD_START_BSS_TIMEOUT);
 		wlansap_reset_sap_config_add_ie(sap_config,
 				eUPDATE_IE_ALL);

@@ -1,9 +1,5 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2012-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -2248,19 +2244,11 @@ void lim_process_assoc_req_frame(struct mac_context *mac_ctx, uint8_t *rx_pkt_in
 	hdr = WMA_GET_RX_MAC_HEADER(rx_pkt_info);
 	frame_len = WMA_GET_RX_PAYLOAD_LEN(rx_pkt_info);
 
-<<<<<<< Updated upstream
-	pe_nofl_debug("Assoc req RX: subtype %d vdev %d sys role %d lim state %d rssi %d from " QDF_MAC_ADDR_FMT,
-		      sub_type, session->vdev_id, GET_LIM_SYSTEM_ROLE(session),
-		      session->limMlmState,
-		      WMA_GET_RX_RSSI_NORMALIZED(rx_pkt_info),
-		      QDF_MAC_ADDR_REF(hdr->sa));
-=======
 	pe_nofl_rl_debug("Assoc req RX: subtype %d vdev %d sys role %d lim state %d rssi %d from " QDF_MAC_ADDR_FMT,
 			 sub_type, session->vdev_id,
 			 GET_LIM_SYSTEM_ROLE(session), session->limMlmState,
 			 WMA_GET_RX_RSSI_NORMALIZED(rx_pkt_info),
 			 QDF_MAC_ADDR_REF(hdr->sa));
->>>>>>> Stashed changes
 
 	if (LIM_IS_STA_ROLE(session)) {
 		pe_err("Rcvd unexpected ASSOC REQ, sessionid: %d sys sub_type: %d for role: %d from: "
@@ -2972,25 +2960,9 @@ bool lim_fill_lim_assoc_ind_params(
 	return true;
 }
 
-<<<<<<< Updated upstream
-/**
- * lim_send_mlm_assoc_ind() - Sends assoc indication to SME
- * @mac_ctx: Global Mac context
- * @sta_ds: Station DPH hash entry
- * @session_entry: PE session entry
- *
- * This function sends either LIM_MLM_ASSOC_IND
- * or LIM_MLM_REASSOC_IND to SME.
- *
- * Return: None
- */
-void lim_send_mlm_assoc_ind(struct mac_context *mac_ctx,
-	tpDphHashNode sta_ds, struct pe_session *session_entry)
-=======
 QDF_STATUS lim_send_mlm_assoc_ind(struct mac_context *mac_ctx,
 				  tpDphHashNode sta_ds,
 				  struct pe_session *session_entry)
->>>>>>> Stashed changes
 {
 	tpLimMlmAssocInd assoc_ind;
 	tpSirAssocReq assoc_req;
@@ -3000,11 +2972,7 @@ QDF_STATUS lim_send_mlm_assoc_ind(struct mac_context *mac_ctx,
 
 	if (!session_entry->parsedAssocReq) {
 		pe_err(" Parsed Assoc req is NULL");
-<<<<<<< Updated upstream
-		return;
-=======
 		return QDF_STATUS_E_INVAL;
->>>>>>> Stashed changes
 	}
 
 	/* Get a copy of the already parsed Assoc Request */
@@ -3013,11 +2981,7 @@ QDF_STATUS lim_send_mlm_assoc_ind(struct mac_context *mac_ctx,
 
 	if (!assoc_req) {
 		pe_err("assoc req for assoc_id:%d is NULL", sta_ds->assocId);
-<<<<<<< Updated upstream
-		return;
-=======
 		return QDF_STATUS_E_INVAL;
->>>>>>> Stashed changes
 	}
 
 	/* Get the phy_mode */
@@ -3041,29 +3005,17 @@ QDF_STATUS lim_send_mlm_assoc_ind(struct mac_context *mac_ctx,
 		if (!assoc_ind) {
 			lim_release_peer_idx(mac_ctx, sta_ds->assocId,
 					     session_entry);
-<<<<<<< Updated upstream
-			return;
-=======
 			return QDF_STATUS_E_INVAL;
->>>>>>> Stashed changes
 		}
 		if (!lim_fill_lim_assoc_ind_params(assoc_ind, mac_ctx,
 						   sta_ds, session_entry)) {
 			qdf_mem_free(assoc_ind);
-<<<<<<< Updated upstream
-			return;
-=======
 			return QDF_STATUS_E_INVAL;
->>>>>>> Stashed changes
 		}
 		lim_post_sme_message(mac_ctx, LIM_MLM_ASSOC_IND,
 				     (uint32_t *)assoc_ind);
 		qdf_mem_free(assoc_ind);
 	}
 
-<<<<<<< Updated upstream
-	return;
-=======
 	return QDF_STATUS_SUCCESS;
->>>>>>> Stashed changes
 }

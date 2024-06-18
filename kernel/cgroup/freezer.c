@@ -78,81 +78,8 @@ void cgroup_update_frozen(struct cgroup *cgrp)
 	cgroup_propagate_frozen(cgrp, frozen);
 }
 
-<<<<<<< Updated upstream
-static int freezer_read(struct seq_file *m, void *v)
-{
-	struct cgroup_subsys_state *css = seq_css(m), *pos;
-
-	mutex_lock(&freezer_mutex);
-	rcu_read_lock();
-
-	/* update states bottom-up */
-	css_for_each_descendant_post(pos, css) {
-		if (!css_tryget_online(pos))
-			continue;
-		rcu_read_unlock();
-
-		update_if_frozen(pos);
-
-		rcu_read_lock();
-		css_put(pos);
-	}
-
-	rcu_read_unlock();
-	mutex_unlock(&freezer_mutex);
-
-	seq_puts(m, freezer_state_strs(css_freezer(css)->state));
-	seq_putc(m, '\n');
-	return 0;
-}
-
-static void freeze_cgroup(struct freezer *freezer)
-{
-	struct css_task_iter it;
-	struct task_struct *task;
-
-	css_task_iter_start(&freezer->css, 0, &it);
-	while ((task = css_task_iter_next(&it)))
-		freeze_cgroup_task(task);
-	css_task_iter_end(&it);
-}
-
-static void unfreeze_cgroup(struct freezer *freezer)
-{
-	struct css_task_iter it;
-	struct task_struct *task;
-	struct task_struct *g, *p;
-	uid_t tmp_uid_val = -1;
-
-	css_task_iter_start(&freezer->css, 0, &it);
-	while ((task = css_task_iter_next(&it))) {
-		if (task->real_cred)
-			tmp_uid_val = task->real_cred->uid.val;
-		__thaw_task(task);
-	}
-	css_task_iter_end(&it);
-
-	read_lock(&tasklist_lock);
-	do_each_thread(g, p) {
-		if (p->real_cred &&
-			p->real_cred->uid.val == tmp_uid_val)
-			__thaw_task(p);
-	} while_each_thread(g, p);
-	read_unlock(&tasklist_lock);
-}
-
-/**
- * freezer_apply_state - apply state change to a single cgroup_freezer
- * @freezer: freezer to apply state change to
- * @freeze: whether to freeze or unfreeze
- * @state: CGROUP_FREEZING_* flag to set or clear
- *
- * Set or clear @state on @cgroup according to @freeze, and perform
- * freezing or thawing as necessary.
-=======
 /*
  * Increment cgroup's nr_frozen_tasks.
->>>>>>> Stashed changes
  */
 static void cgroup_inc_frozen_cnt(struct cgroup *cgrp)
 {

@@ -1363,8 +1363,6 @@ static const struct dmi_system_id gpiolib_acpi_quirks[] = {
 		},
 	},
 	{
-<<<<<<< Updated upstream
-=======
 		/*
 		 * The Dell Venue 10 Pro 5055, with Bay Trail SoC + TI PMIC uses an
 		 * external embedded-controller connected via I2C + an ACPI GPIO
@@ -1391,7 +1389,6 @@ static const struct dmi_system_id gpiolib_acpi_quirks[] = {
 		 * to press the power-button to wakeup the system. The
 		 * alternative is suspend simply not working, which is worse.
 		 */
->>>>>>> Stashed changes
 		.matches = {
 			DMI_MATCH(DMI_SYS_VENDOR, "HP"),
 			DMI_MATCH(DMI_PRODUCT_NAME, "HP x2 Detachable 10-p0XX"),
@@ -1401,14 +1398,11 @@ static const struct dmi_system_id gpiolib_acpi_quirks[] = {
 		},
 	},
 	{
-<<<<<<< Updated upstream
-=======
 		/*
 		 * HP X2 10 models with Bay Trail SoC + AXP288 PMIC use an
 		 * external embedded-controller connected via I2C + an ACPI GPIO
 		 * event handler on INT33FC:02 pin 28, causing spurious wakeups.
 		 */
->>>>>>> Stashed changes
 		.matches = {
 			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
 			DMI_MATCH(DMI_PRODUCT_NAME, "HP Pavilion x2 Detachable"),
@@ -1419,14 +1413,11 @@ static const struct dmi_system_id gpiolib_acpi_quirks[] = {
 		},
 	},
 	{
-<<<<<<< Updated upstream
-=======
 		/*
 		 * HP X2 10 models with Cherry Trail SoC + AXP288 PMIC use an
 		 * external embedded-controller connected via I2C + an ACPI GPIO
 		 * event handler on INT33FF:01 pin 0, causing spurious wakeups.
 		 */
->>>>>>> Stashed changes
 		.matches = {
 			DMI_MATCH(DMI_SYS_VENDOR, "HP"),
 			DMI_MATCH(DMI_PRODUCT_NAME, "HP Pavilion x2 Detachable"),

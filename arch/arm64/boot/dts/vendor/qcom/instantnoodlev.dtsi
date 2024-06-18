@@ -103,19 +103,6 @@
 		wake-capable-sensor;
 		trips {
 			skin_therm_usr_trip0: skin_therm_usr_trip0 {
-<<<<<<< Updated upstream
-				temperature = <52000>;
-				hysteresis = <6000>;
-				type = "passive";
-			};
-			skin_therm_usr_trip1: skin_therm_usr_trip1 {
-				temperature = <54000>;
-				hysteresis = <7000>;
-				type = "passive";
-			};
-			skin_therm_usr_trip3: skin_therm_usr_trip3 {
-=======
->>>>>>> Stashed changes
 				temperature = <58000>;
 				hysteresis = <7000>;
 				type = "passive";

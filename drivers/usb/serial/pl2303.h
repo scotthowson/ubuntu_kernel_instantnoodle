@@ -129,10 +129,7 @@
 #define HP_TD620_PRODUCT_ID	0x0956
 #define HP_LD960_PRODUCT_ID	0x0b39
 #define HP_LD381_PRODUCT_ID	0x0f7f
-<<<<<<< Updated upstream
-=======
 #define HP_LM930_PRODUCT_ID	0x0f9b
->>>>>>> Stashed changes
 #define HP_LCM220_PRODUCT_ID	0x3139
 #define HP_LCM960_PRODUCT_ID	0x3239
 #define HP_LD220_PRODUCT_ID	0x3524

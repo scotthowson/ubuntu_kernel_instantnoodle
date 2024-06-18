@@ -1256,12 +1256,6 @@ int pm8001_abort_task(struct sas_task *task)
 				 */
 				PM8001_MSG_DBG(pm8001_ha,
 				pm8001_printk("Waiting for Port reset\n"));
-<<<<<<< Updated upstream
-			wait_for_completion(&completion_reset);
-			if (phy->port_reset_status) {
-				pm8001_dev_gone_notify(dev);
-				goto out;
-=======
 				ret = wait_for_completion_timeout(
 					&completion_reset,
 					PM8001_TASK_TIMEOUT * HZ);
@@ -1273,7 +1267,6 @@ int pm8001_abort_task(struct sas_task *task)
 					pm8001_dev_gone_notify(dev);
 					goto out;
 				}
->>>>>>> Stashed changes
 			}
 
 			/*

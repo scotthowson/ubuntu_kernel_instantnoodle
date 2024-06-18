@@ -626,11 +626,7 @@ void wait_for_kprobe_optimizer(void)
 	mutex_unlock(&kprobe_mutex);
 }
 
-<<<<<<< Updated upstream
-static bool optprobe_queued_unopt(struct optimized_kprobe *op)
-=======
 bool optprobe_queued_unopt(struct optimized_kprobe *op)
->>>>>>> Stashed changes
 {
 	struct optimized_kprobe *_op;
 

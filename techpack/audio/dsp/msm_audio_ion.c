@@ -1,11 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2013-2019, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2013-2020, The Linux Foundation. All rights reserved.
  * Copyright (c) 2023, Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include <linux/init.h>
@@ -68,19 +64,12 @@ static void msm_audio_ion_add_allocation(
 	mutex_unlock(&(msm_audio_ion_data->list_mutex));
 }
 
-<<<<<<< Updated upstream
-=======
 /* This function is called with ion_data list mutex lock */
->>>>>>> Stashed changes
 static int msm_audio_dma_buf_map(struct dma_buf *dma_buf,
 				 dma_addr_t *addr, size_t *len)
 {
 
-<<<<<<< Updated upstream
-	struct msm_audio_alloc_data *alloc_data;
-=======
 	struct msm_audio_alloc_data *alloc_data = NULL;
->>>>>>> Stashed changes
 	struct device *cb_dev;
 	unsigned long ionflag = 0;
 	int rc = 0;
@@ -146,10 +135,7 @@ detach_dma_buf:
 		       alloc_data->attach);
 free_alloc_data:
 	kfree(alloc_data);
-<<<<<<< Updated upstream
-=======
 	alloc_data = NULL;
->>>>>>> Stashed changes
 
 	return rc;
 }
@@ -167,10 +153,6 @@ static int msm_audio_dma_buf_unmap(struct dma_buf *dma_buf)
 	 * should be explicitly acquired to avoid race condition
 	 * on adding elements to the list.
 	 */
-<<<<<<< Updated upstream
-	mutex_lock(&(msm_audio_ion_data.list_mutex));
-=======
->>>>>>> Stashed changes
 	list_for_each_safe(ptr, next,
 			    &(msm_audio_ion_data.alloc_list)) {
 
@@ -190,17 +172,10 @@ static int msm_audio_dma_buf_unmap(struct dma_buf *dma_buf)
 
 			list_del(&(alloc_data->list));
 			kfree(alloc_data);
-<<<<<<< Updated upstream
-			break;
-		}
-	}
-	mutex_unlock(&(msm_audio_ion_data.list_mutex));
-=======
 			alloc_data = NULL;
 			break;
 		}
 	}
->>>>>>> Stashed changes
 
 	if (!found) {
 		dev_err(cb_dev,
@@ -255,10 +230,7 @@ int msm_audio_ion_get_smmu_info(struct device **cb_dev,
 	return 0;
 }
 
-<<<<<<< Updated upstream
-=======
 /* This function is called with ion_data list mutex lock */
->>>>>>> Stashed changes
 static void *msm_audio_ion_map_kernel(struct dma_buf *dma_buf)
 {
 	int rc = 0;
@@ -307,10 +279,6 @@ static int msm_audio_ion_unmap_kernel(struct dma_buf *dma_buf)
 	 * TBD: remove the below section once new API
 	 * for unmapping kernel virtual address is available.
 	 */
-<<<<<<< Updated upstream
-	mutex_lock(&(msm_audio_ion_data.list_mutex));
-=======
->>>>>>> Stashed changes
 	list_for_each_entry(alloc_data, &(msm_audio_ion_data.alloc_list),
 			    list) {
 		if (alloc_data->dma_buf == dma_buf) {
@@ -318,10 +286,6 @@ static int msm_audio_ion_unmap_kernel(struct dma_buf *dma_buf)
 			break;
 		}
 	}
-<<<<<<< Updated upstream
-	mutex_unlock(&(msm_audio_ion_data.list_mutex));
-=======
->>>>>>> Stashed changes
 
 	if (!vaddr) {
 		dev_err(cb_dev,
@@ -344,24 +308,17 @@ err:
 	return rc;
 }
 
-<<<<<<< Updated upstream
-static int msm_audio_ion_map_buf(struct dma_buf *dma_buf, dma_addr_t *paddr,
-=======
 /* This function is called with ion_data list mutex lock */
 static int msm_audio_ion_buf_map(struct dma_buf *dma_buf, dma_addr_t *paddr,
->>>>>>> Stashed changes
 				 size_t *plen, void **vaddr)
 {
 	int rc = 0;
 
-<<<<<<< Updated upstream
-=======
 	if (!dma_buf || !paddr || !vaddr || !plen) {
 		pr_err("%s: Invalid params\n", __func__);
 		return -EINVAL;
 	}
 
->>>>>>> Stashed changes
 	rc = msm_audio_ion_get_phys(dma_buf, paddr, plen);
 	if (rc) {
 		pr_err("%s: ION Get Physical for AUDIO failed, rc = %d\n",
@@ -374,14 +331,10 @@ static int msm_audio_ion_buf_map(struct dma_buf *dma_buf, dma_addr_t *paddr,
 	if (IS_ERR_OR_NULL(*vaddr)) {
 		pr_err("%s: ION memory mapping for AUDIO failed\n", __func__);
 		rc = -ENOMEM;
-<<<<<<< Updated upstream
-		msm_audio_dma_buf_unmap(dma_buf);
-=======
 		mutex_lock(&(msm_audio_ion_data.list_mutex));
 		msm_audio_dma_buf_unmap(dma_buf);
 		mutex_unlock(&(msm_audio_ion_data.list_mutex));
 
->>>>>>> Stashed changes
 		goto err;
 	}
 
@@ -440,11 +393,7 @@ int msm_audio_ion_alloc(struct dma_buf **dma_buf, size_t bufsz,
 		goto err;
 	}
 
-<<<<<<< Updated upstream
-	rc = msm_audio_ion_map_buf(*dma_buf, paddr, plen, vaddr);
-=======
 	rc = msm_audio_ion_buf_map(*dma_buf, paddr, plen, vaddr);
->>>>>>> Stashed changes
 	if (rc) {
 		pr_err("%s: failed to map ION buf, rc = %d\n", __func__, rc);
 		goto err;
@@ -544,11 +493,7 @@ int msm_audio_ion_import(struct dma_buf **dma_buf, int fd,
 		}
 	}
 
-<<<<<<< Updated upstream
-	rc = msm_audio_ion_map_buf(*dma_buf, paddr, plen, vaddr);
-=======
 	rc = msm_audio_ion_buf_map(*dma_buf, paddr, plen, vaddr);
->>>>>>> Stashed changes
 	if (rc) {
 		pr_err("%s: failed to map ION buf, rc = %d\n", __func__, rc);
 		goto err;
@@ -574,10 +519,7 @@ EXPORT_SYMBOL(msm_audio_ion_import);
  *
  * Returns 0 on success or error on failure
  */
-<<<<<<< Updated upstream
-=======
 /* This funtion is called with ion_data list mutex lock */
->>>>>>> Stashed changes
 int msm_audio_ion_free(struct dma_buf *dma_buf)
 {
 	int ret = 0;
@@ -587,13 +529,6 @@ int msm_audio_ion_free(struct dma_buf *dma_buf)
 		return -EINVAL;
 	}
 
-<<<<<<< Updated upstream
-	ret = msm_audio_ion_unmap_kernel(dma_buf);
-	if (ret)
-		return ret;
-
-	msm_audio_dma_buf_unmap(dma_buf);
-=======
 	mutex_lock(&(msm_audio_ion_data.list_mutex));
 	ret = msm_audio_ion_unmap_kernel(dma_buf);
 	if (ret) {
@@ -603,7 +538,6 @@ int msm_audio_ion_free(struct dma_buf *dma_buf)
 
 	msm_audio_dma_buf_unmap(dma_buf);
 	mutex_unlock(&(msm_audio_ion_data.list_mutex));
->>>>>>> Stashed changes
 
 	return 0;
 }

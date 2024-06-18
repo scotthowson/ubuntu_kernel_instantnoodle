@@ -461,7 +461,6 @@ static int fuse_create_open(struct inode *dir, struct dentry *entry,
 	struct fuse_open_out outopen;
 	struct fuse_entry_out outentry;
 	struct fuse_file *ff;
-	char *iname;
 
 	/* Userspace expects S_IFREG in create mode */
 	BUG_ON((mode & S_IFMT) != S_IFREG);
@@ -480,8 +479,6 @@ static int fuse_create_open(struct inode *dir, struct dentry *entry,
 		mode &= ~current_umask();
 
 	flags &= ~O_NOCTTY;
-	if (fc->writeback_cache)
-		flags &= ~O_APPEND;
 	memset(&inarg, 0, sizeof(inarg));
 	memset(&outentry, 0, sizeof(outentry));
 	inarg.flags = flags;
@@ -499,21 +496,7 @@ static int fuse_create_open(struct inode *dir, struct dentry *entry,
 	args.out.args[0].value = &outentry;
 	args.out.args[1].size = sizeof(outopen);
 	args.out.args[1].value = &outopen;
-	iname = inode_name(dir);
-	if (iname) {
-		/* compose full path */
-		if ((strlen(iname) + entry->d_name.len + 2) <= PATH_MAX) {
-			strlcat(iname, "/", PATH_MAX);
-			strlcat(iname, entry->d_name.name, PATH_MAX);
-		} else {
-			__putname(iname);
-			iname = NULL;
-		}
-	}
-	args.iname = iname;
 	err = fuse_simple_request(fc, &args);
-	if (args.iname)
-		__putname(args.iname);
 	if (err)
 		goto out_free_ff;
 
@@ -525,11 +508,7 @@ static int fuse_create_open(struct inode *dir, struct dentry *entry,
 	ff->fh = outopen.fh;
 	ff->nodeid = outentry.nodeid;
 	ff->open_flags = outopen.open_flags;
-<<<<<<< Updated upstream
-	ff->sct = args.sct;
-=======
 	fuse_passthrough_setup(fc, ff, &outopen);
->>>>>>> Stashed changes
 	inode = fuse_iget(dir->i_sb, outentry.nodeid, outentry.generation,
 			  &outentry.attr, entry_attr_timeout(&outentry), 0);
 	if (!inode) {
@@ -1016,11 +995,7 @@ static int fuse_do_getattr(struct inode *inode, struct kstat *stat,
 	if (!err) {
 		if (fuse_invalid_attr(&outarg.attr) ||
 		    (inode->i_mode ^ outarg.attr.mode) & S_IFMT) {
-<<<<<<< Updated upstream
-			make_bad_inode(inode);
-=======
 			fuse_make_bad(inode);
->>>>>>> Stashed changes
 			err = -EIO;
 		} else {
 			fuse_change_attributes(inode, &outarg.attr,
@@ -1816,11 +1791,7 @@ int fuse_do_setattr(struct dentry *dentry, struct iattr *attr,
 
 	if (fuse_invalid_attr(&outarg.attr) ||
 	    (inode->i_mode ^ outarg.attr.mode) & S_IFMT) {
-<<<<<<< Updated upstream
-		make_bad_inode(inode);
-=======
 		fuse_make_bad(inode);
->>>>>>> Stashed changes
 		err = -EIO;
 		goto error;
 	}

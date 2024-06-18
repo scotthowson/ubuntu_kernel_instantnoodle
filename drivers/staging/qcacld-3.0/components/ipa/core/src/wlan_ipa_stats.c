@@ -965,10 +965,6 @@ QDF_STATUS wlan_ipa_uc_op_metering(struct wlan_ipa_priv *ipa_ctx,
 	struct ipa_uc_quota_rsp *uc_quota_rsp;
 	struct ipa_uc_quota_ind *uc_quota_ind;
 	struct wlan_ipa_iface_context *iface_ctx;
-<<<<<<< Updated upstream
-	uint32_t ifindex;
-=======
->>>>>>> Stashed changes
 	uint64_t quota_bytes;
 
 	if (msg->op_code == WLAN_IPA_UC_OPCODE_SHARING_STATS) {
@@ -999,19 +995,11 @@ QDF_STATUS wlan_ipa_uc_op_metering(struct wlan_ipa_priv *ipa_ctx,
 
 		/* send quota exceeded indication to IPA */
 		iface_ctx = wlan_ipa_get_iface(ipa_ctx, QDF_STA_MODE);
-<<<<<<< Updated upstream
-		ifindex = iface_ctx->dev->ifindex;
-		quota_bytes = uc_quota_ind->quota_bytes;
-		if (iface_ctx)
-			qdf_ipa_broadcast_wdi_quota_reach_ind(ifindex,
-							      quota_bytes);
-=======
 		quota_bytes = uc_quota_ind->quota_bytes;
 		if (iface_ctx)
 			qdf_ipa_broadcast_wdi_quota_reach_ind(
 							iface_ctx->dev->ifindex,
 							quota_bytes);
->>>>>>> Stashed changes
 		else
 			ipa_err("Failed quota_reach_ind: NULL interface");
 	} else {

@@ -1,9 +1,5 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2011-2019 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2011-2021 The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -111,8 +107,6 @@ htt_get_first_packet_after_wow_wakeup(uint32_t *msg_word, qdf_nbuf_t buf)
 	}
 }
 
-<<<<<<< Updated upstream
-=======
 /**
  * htt_rx_ring_smmu_mapped() - check if rx ring is smmu mapped or not
  * @pdev: HTT pdev handle
@@ -129,7 +123,6 @@ static inline bool htt_rx_ring_smmu_mapped(htt_pdev_handle pdev)
 		return false;
 }
 
->>>>>>> Stashed changes
 static inline qdf_nbuf_t htt_rx_netbuf_pop(htt_pdev_handle pdev)
 {
 	int idx;
@@ -398,20 +391,9 @@ static int htt_rx_ring_fill_n(struct htt_pdev_t *pdev, int num)
 	int filled = 0;
 	int debt_served = 0;
 	qdf_mem_info_t mem_map_table = {0};
-<<<<<<< Updated upstream
-	bool ipa_smmu = false;
 
 	idx = *pdev->rx_ring.alloc_idx.vaddr;
 
-	if (qdf_mem_smmu_s1_enabled(pdev->osdev) && pdev->is_ipa_uc_enabled &&
-	    pdev->rx_ring.smmu_map)
-		ipa_smmu = true;
-
-=======
-
-	idx = *pdev->rx_ring.alloc_idx.vaddr;
-
->>>>>>> Stashed changes
 	if ((idx < 0) || (idx > pdev->rx_ring.size_mask) ||
 	    (num > pdev->rx_ring.size))  {
 		QDF_TRACE(QDF_MODULE_ID_HTT,
@@ -505,19 +487,12 @@ moretofill:
 			pdev->rx_ring.buf.netbufs_ring[idx] = rx_netbuf;
 		}
 
-<<<<<<< Updated upstream
-		if (ipa_smmu) {
-			qdf_update_mem_map_table(pdev->osdev, &mem_map_table,
-						 paddr, HTT_RX_BUF_SIZE);
-			cds_smmu_map_unmap(true, 1, &mem_map_table);
-=======
 		/* Caller already protected this function with refill_lock */
 		if (qdf_nbuf_is_rx_ipa_smmu_map(rx_netbuf)) {
 			qdf_update_mem_map_table(pdev->osdev, &mem_map_table,
 						 paddr, HTT_RX_BUF_SIZE);
 			qdf_assert_always(
 				!cds_smmu_map_unmap(true, 1, &mem_map_table));
->>>>>>> Stashed changes
 		}
 
 		pdev->rx_ring.buf.paddrs_ring[idx] = paddr_marked;
@@ -1179,8 +1154,6 @@ htt_rx_hash_list_insert(struct htt_pdev_t *pdev,
 	RX_HASH_LOG(qdf_print("rx hash: paddr 0x%x netbuf %pK bucket %d\n",
 			      paddr, netbuf, (int)i));
 
-<<<<<<< Updated upstream
-=======
 	if (htt_rx_ring_smmu_mapped(pdev)) {
 		if (qdf_unlikely(qdf_nbuf_is_rx_ipa_smmu_map(netbuf))) {
 			qdf_err("Already smmu mapped, nbuf: %pK",
@@ -1190,7 +1163,6 @@ htt_rx_hash_list_insert(struct htt_pdev_t *pdev,
 		qdf_nbuf_set_rx_ipa_smmu_map(netbuf, true);
 	}
 
->>>>>>> Stashed changes
 	HTT_RX_HASH_COUNT_INCR(pdev->rx_ring.hash_table[i]);
 	HTT_RX_HASH_COUNT_PRINT(pdev->rx_ring.hash_table[i]);
 
@@ -1253,8 +1225,6 @@ qdf_nbuf_t htt_rx_hash_list_lookup(struct htt_pdev_t *pdev,
 		}
 	}
 
-<<<<<<< Updated upstream
-=======
 	if (netbuf && htt_rx_ring_smmu_mapped(pdev)) {
 		if (qdf_unlikely(!qdf_nbuf_is_rx_ipa_smmu_map(netbuf))) {
 			qdf_err("smmu not mapped nbuf: %pK", netbuf);
@@ -1262,7 +1232,6 @@ qdf_nbuf_t htt_rx_hash_list_lookup(struct htt_pdev_t *pdev,
 		}
 	}
 
->>>>>>> Stashed changes
 	RX_HASH_LOG(qdf_print("rx hash: paddr 0x%llx, netbuf %pK, bucket %d\n",
 			      (unsigned long long)paddr, netbuf, (int)i));
 	HTT_RX_HASH_COUNT_PRINT(pdev->rx_ring.hash_table[i]);
@@ -1370,16 +1339,8 @@ static void htt_rx_hash_deinit(struct htt_pdev_t *pdev)
 	if (!pdev->rx_ring.hash_table)
 		return;
 
-<<<<<<< Updated upstream
-	if (qdf_mem_smmu_s1_enabled(pdev->osdev) && pdev->is_ipa_uc_enabled &&
-	    pdev->rx_ring.smmu_map)
-		ipa_smmu = true;
-
-	qdf_spin_lock_bh(&pdev->rx_ring.rx_hash_lock);
-=======
 	qdf_spin_lock_bh(&pdev->rx_ring.rx_hash_lock);
 	ipa_smmu = htt_rx_ring_smmu_mapped(pdev);
->>>>>>> Stashed changes
 	hash_table = pdev->rx_ring.hash_table;
 	pdev->rx_ring.hash_table = NULL;
 	qdf_spin_unlock_bh(&pdev->rx_ring.rx_hash_lock);
@@ -1394,8 +1355,6 @@ static void htt_rx_hash_deinit(struct htt_pdev_t *pdev)
 							     listnode_offset);
 			if (hash_entry->netbuf) {
 				if (ipa_smmu) {
-<<<<<<< Updated upstream
-=======
 					if (qdf_unlikely(
 						!qdf_nbuf_is_rx_ipa_smmu_map(
 							hash_entry->netbuf))) {
@@ -1406,22 +1365,16 @@ static void htt_rx_hash_deinit(struct htt_pdev_t *pdev)
 					qdf_nbuf_set_rx_ipa_smmu_map(
 							hash_entry->netbuf,
 							false);
->>>>>>> Stashed changes
 					qdf_update_mem_map_table(pdev->osdev,
 						&mem_map_table,
 						QDF_NBUF_CB_PADDR(
 							hash_entry->netbuf),
 						HTT_RX_BUF_SIZE);
 
-<<<<<<< Updated upstream
-					cds_smmu_map_unmap(false, 1,
-							   &mem_map_table);
-=======
 					qdf_assert_always(
 						!cds_smmu_map_unmap(
 							false, 1,
 							&mem_map_table));
->>>>>>> Stashed changes
 				}
 #ifdef DEBUG_DMA_DONE
 				qdf_nbuf_unmap(pdev->osdev, hash_entry->netbuf,
@@ -1533,10 +1486,6 @@ htt_rx_amsdu_rx_in_order_pop_ll(htt_pdev_handle pdev,
 	qdf_dma_addr_t paddr;
 	qdf_mem_info_t mem_map_table = {0};
 	int ret = 1;
-<<<<<<< Updated upstream
-	bool ipa_smmu = false;
-=======
->>>>>>> Stashed changes
 	struct htt_host_rx_desc_base *timestamp_rx_desc = NULL;
 
 	HTT_ASSERT1(htt_rx_in_order_ring_elems(pdev) != 0);
@@ -1554,13 +1503,6 @@ htt_rx_amsdu_rx_in_order_pop_ll(htt_pdev_handle pdev,
 	msdu_count = HTT_RX_IN_ORD_PADDR_IND_MSDU_CNT_GET(*(msg_word + 1));
 	HTT_RX_CHECK_MSDU_COUNT(msdu_count);
 
-<<<<<<< Updated upstream
-	if (qdf_mem_smmu_s1_enabled(pdev->osdev) && pdev->is_ipa_uc_enabled &&
-	    pdev->rx_ring.smmu_map)
-		ipa_smmu = true;
-
-=======
->>>>>>> Stashed changes
 	ol_rx_update_histogram_stats(msdu_count, frag_ind, offload_ind);
 	htt_rx_dbg_rxbuf_httrxind(pdev, msdu_count);
 
@@ -1586,13 +1528,6 @@ htt_rx_amsdu_rx_in_order_pop_ll(htt_pdev_handle pdev,
 	}
 
 	while (msdu_count > 0) {
-<<<<<<< Updated upstream
-		if (ipa_smmu) {
-			qdf_update_mem_map_table(pdev->osdev, &mem_map_table,
-						 QDF_NBUF_CB_PADDR(msdu),
-						 HTT_RX_BUF_SIZE);
-			cds_smmu_map_unmap(false, 1, &mem_map_table);
-=======
 		if (qdf_nbuf_is_rx_ipa_smmu_map(msdu)) {
 			/*
 			 * nbuf was already detached from hash_entry,
@@ -1611,7 +1546,6 @@ htt_rx_amsdu_rx_in_order_pop_ll(htt_pdev_handle pdev,
 						 HTT_RX_BUF_SIZE);
 			qdf_assert_always(
 				!cds_smmu_map_unmap(false, 1, &mem_map_table));
->>>>>>> Stashed changes
 		}
 
 		/*
@@ -2329,22 +2263,13 @@ fail1:
 void htt_rx_detach(struct htt_pdev_t *pdev)
 {
 	bool ipa_smmu = false;
-<<<<<<< Updated upstream
-=======
 	qdf_nbuf_t nbuf;
->>>>>>> Stashed changes
 
 	qdf_timer_stop(&pdev->rx_ring.refill_retry_timer);
 	qdf_timer_free(&pdev->rx_ring.refill_retry_timer);
 	htt_rx_dbg_rxbuf_deinit(pdev);
 
-<<<<<<< Updated upstream
-	if (qdf_mem_smmu_s1_enabled(pdev->osdev) && pdev->is_ipa_uc_enabled &&
-	    pdev->rx_ring.smmu_map)
-		ipa_smmu = true;
-=======
 	ipa_smmu = htt_rx_ring_smmu_mapped(pdev);
->>>>>>> Stashed changes
 
 	if (pdev->cfg.is_full_reorder_offload) {
 		qdf_mem_free_consistent(pdev->osdev, pdev->osdev->dev,
@@ -2361,31 +2286,6 @@ void htt_rx_detach(struct htt_pdev_t *pdev)
 		qdf_mem_info_t mem_map_table = {0};
 
 		while (sw_rd_idx != *pdev->rx_ring.alloc_idx.vaddr) {
-<<<<<<< Updated upstream
-			if (ipa_smmu) {
-				qdf_update_mem_map_table(pdev->osdev,
-					&mem_map_table,
-					QDF_NBUF_CB_PADDR(
-						pdev->rx_ring.buf.
-						netbufs_ring[sw_rd_idx]),
-					HTT_RX_BUF_SIZE);
-				cds_smmu_map_unmap(false, 1,
-						   &mem_map_table);
-			}
-#ifdef DEBUG_DMA_DONE
-			qdf_nbuf_unmap(pdev->osdev,
-				       pdev->rx_ring.buf.
-				       netbufs_ring[sw_rd_idx],
-				       QDF_DMA_BIDIRECTIONAL);
-#else
-			qdf_nbuf_unmap(pdev->osdev,
-				       pdev->rx_ring.buf.
-				       netbufs_ring[sw_rd_idx],
-				       QDF_DMA_FROM_DEVICE);
-#endif
-			qdf_nbuf_free(pdev->rx_ring.buf.
-				      netbufs_ring[sw_rd_idx]);
-=======
 			nbuf = pdev->rx_ring.buf.netbufs_ring[sw_rd_idx];
 			if (ipa_smmu) {
 				if (qdf_unlikely(
@@ -2411,7 +2311,6 @@ void htt_rx_detach(struct htt_pdev_t *pdev)
 				       QDF_DMA_FROM_DEVICE);
 #endif
 			qdf_nbuf_free(nbuf);
->>>>>>> Stashed changes
 			sw_rd_idx++;
 			sw_rd_idx &= pdev->rx_ring.size_mask;
 		}
@@ -2446,10 +2345,7 @@ static QDF_STATUS htt_rx_hash_smmu_map(bool map, struct htt_pdev_t *pdev)
 	struct htt_rx_hash_bucket **hash_table;
 	struct htt_list_node *list_iter = NULL;
 	qdf_mem_info_t mem_map_table = {0};
-<<<<<<< Updated upstream
-=======
 	qdf_nbuf_t nbuf;
->>>>>>> Stashed changes
 	int ret;
 
 	qdf_spin_lock_bh(&pdev->rx_ring.rx_hash_lock);
@@ -2463,13 +2359,6 @@ static QDF_STATUS htt_rx_hash_smmu_map(bool map, struct htt_pdev_t *pdev)
 				(struct htt_rx_hash_entry *)((char *)list_iter -
 							     pdev->rx_ring.
 							     listnode_offset);
-<<<<<<< Updated upstream
-			if (hash_entry->netbuf) {
-				qdf_update_mem_map_table(pdev->osdev,
-						&mem_map_table,
-						QDF_NBUF_CB_PADDR(
-							hash_entry->netbuf),
-=======
 			nbuf = hash_entry->netbuf;
 			if (nbuf) {
 				if (qdf_unlikely(map ==
@@ -2483,18 +2372,14 @@ static QDF_STATUS htt_rx_hash_smmu_map(bool map, struct htt_pdev_t *pdev)
 				qdf_update_mem_map_table(pdev->osdev,
 						&mem_map_table,
 						QDF_NBUF_CB_PADDR(nbuf),
->>>>>>> Stashed changes
 						HTT_RX_BUF_SIZE);
 				ret = cds_smmu_map_unmap(map, 1,
 							 &mem_map_table);
 				if (ret) {
-<<<<<<< Updated upstream
-=======
 					qdf_nbuf_set_rx_ipa_smmu_map(nbuf,
 								     !map);
 					qdf_err("map: %d failure, nbuf: %pK",
 						map, nbuf);
->>>>>>> Stashed changes
 					qdf_spin_unlock_bh(
 						&pdev->rx_ring.rx_hash_lock);
 					return QDF_STATUS_E_FAILURE;
@@ -2504,10 +2389,7 @@ static QDF_STATUS htt_rx_hash_smmu_map(bool map, struct htt_pdev_t *pdev)
 		}
 	}
 
-<<<<<<< Updated upstream
-=======
 	pdev->rx_ring.smmu_map = map;
->>>>>>> Stashed changes
 	qdf_spin_unlock_bh(&pdev->rx_ring.rx_hash_lock);
 
 	return QDF_STATUS_SUCCESS;
@@ -2524,10 +2406,6 @@ QDF_STATUS htt_rx_update_smmu_map(struct htt_pdev_t *pdev, bool map)
 		return QDF_STATUS_SUCCESS;
 
 	qdf_spin_lock_bh(&pdev->rx_ring.refill_lock);
-<<<<<<< Updated upstream
-	pdev->rx_ring.smmu_map = map;
-=======
->>>>>>> Stashed changes
 	status = htt_rx_hash_smmu_map(map, pdev);
 	qdf_spin_unlock_bh(&pdev->rx_ring.refill_lock);
 

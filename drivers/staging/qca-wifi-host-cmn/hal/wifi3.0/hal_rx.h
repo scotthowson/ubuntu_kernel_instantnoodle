@@ -471,13 +471,10 @@ enum hal_rx_ret_buf_manager {
 		RX_MSDU_DESC_INFO_0_DA_IDX_TIMEOUT_OFFSET)) &	\
 		RX_MSDU_DESC_INFO_0_DA_IDX_TIMEOUT_MASK)
 
-<<<<<<< Updated upstream
-=======
 #define HAL_RX_REO_MSDU_REO_DST_IND_GET(reo_desc)	\
 	(HAL_RX_MSDU_REO_DST_IND_GET(&		\
 	(((struct reo_destination_ring *)	\
 	   reo_desc)->rx_msdu_desc_info_details)))
->>>>>>> Stashed changes
 
 #define HAL_RX_MSDU_FLAGS_GET(msdu_info_ptr) \
 	(HAL_RX_FIRST_MSDU_IN_MPDU_FLAG_GET(msdu_info_ptr) | \
@@ -3293,8 +3290,6 @@ hal_rx_msdu_flow_idx_get(hal_soc_handle_t hal_soc_hdl,
 }
 
 /**
-<<<<<<< Updated upstream
-=======
  * hal_rx_msdu_get_reo_destination_indication: API to get reo
  * destination index from rx_msdu_end TLV
  * @buf: pointer to the start of RX PKT TLV headers
@@ -3321,7 +3316,6 @@ hal_rx_msdu_get_reo_destination_indication(hal_soc_handle_t hal_soc_hdl,
 }
 
 /**
->>>>>>> Stashed changes
  * hal_rx_msdu_flow_idx_timeout: API to get flow index timeout
  * from rx_msdu_end TLV
  * @buf: pointer to the start of RX PKT TLV headers
@@ -3788,8 +3782,6 @@ bool hal_rx_is_buf_addr_info_valid(
 	return (HAL_RX_BUFFER_ADDR_31_0_GET(buf_addr_info) == 0) ?
 						false : true;
 }
-<<<<<<< Updated upstream
-=======
 
 #define HAL_RX_ATTN_MSDU_LEN_ERR_GET(_rx_attn)		\
 	(_HAL_MS((*_OFFSET_TO_WORD_PTR(_rx_attn,	\
@@ -3812,5 +3804,4 @@ hal_rx_attn_msdu_len_err_get(uint8_t *buf)
 
 	return HAL_RX_ATTN_MSDU_LEN_ERR_GET(rx_attn);
 }
->>>>>>> Stashed changes
 #endif /* _HAL_RX_H */

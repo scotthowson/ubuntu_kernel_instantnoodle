@@ -374,8 +374,6 @@ static const struct dmi_system_id i2c_hid_dmi_desc_override_table[] = {
 		.driver_data = (void *)&sipodev_desc
 	},
 	{
-<<<<<<< Updated upstream
-=======
 		.ident = "Mediacom FlexBook edge 13",
 		.matches = {
 			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "MEDIACOM"),
@@ -384,7 +382,6 @@ static const struct dmi_system_id i2c_hid_dmi_desc_override_table[] = {
 		.driver_data = (void *)&sipodev_desc
 	},
 	{
->>>>>>> Stashed changes
 		.ident = "Odys Winbook 13",
 		.matches = {
 			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "AXDIA International GmbH"),
@@ -392,8 +389,6 @@ static const struct dmi_system_id i2c_hid_dmi_desc_override_table[] = {
 		},
 		.driver_data = (void *)&sipodev_desc
 	},
-<<<<<<< Updated upstream
-=======
 	{
 		.ident = "Schneider SCL142ALM",
 		.matches = {
@@ -410,7 +405,6 @@ static const struct dmi_system_id i2c_hid_dmi_desc_override_table[] = {
 		},
 		.driver_data = (void *)&sipodev_desc
 	},
->>>>>>> Stashed changes
 	{ }	/* Terminate list */
 };
 

@@ -1,10 +1,6 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2012-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
  * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -232,8 +228,6 @@ static QDF_STATUS cds_wmi_send_recv_qmi(void *buf, uint32_t len, void * cb_ctx,
 	return QDF_STATUS_SUCCESS;
 }
 
-<<<<<<< Updated upstream
-=======
 /**
  * cds_update_recovery_reason() - update the recovery reason code
  * @reason: recovery reason
@@ -250,7 +244,6 @@ static void cds_update_recovery_reason(enum qdf_hang_reason recovery_reason)
 	gp_cds_context->recovery_reason = recovery_reason;
 }
 
->>>>>>> Stashed changes
 QDF_STATUS cds_init(void)
 {
 	QDF_STATUS status;
@@ -274,11 +267,8 @@ QDF_STATUS cds_init(void)
 	qdf_register_drv_connected_callback(cds_is_drv_connected);
 	qdf_register_drv_supported_callback(cds_is_drv_supported);
 	qdf_register_wmi_send_recv_qmi_callback(cds_wmi_send_recv_qmi);
-<<<<<<< Updated upstream
-=======
 	qdf_register_recovery_reason_update(cds_update_recovery_reason);
 	qdf_register_get_bus_reg_dump(pld_get_bus_reg_dump);
->>>>>>> Stashed changes
 
 	return QDF_STATUS_SUCCESS;
 
@@ -300,11 +290,8 @@ void cds_deinit(void)
 	if (!gp_cds_context)
 		return;
 
-<<<<<<< Updated upstream
-=======
 	qdf_register_get_bus_reg_dump(NULL);
 	qdf_register_recovery_reason_update(NULL);
->>>>>>> Stashed changes
 	qdf_register_recovering_state_query_callback(NULL);
 	qdf_register_fw_down_callback(NULL);
 	qdf_register_is_driver_unloading_callback(NULL);
@@ -450,10 +437,7 @@ static void cds_cdp_cfg_attach(struct wlan_objmgr_psoc *psoc)
 	struct txrx_pdev_cfg_param_t cdp_cfg = {0};
 	void *soc = cds_get_context(QDF_MODULE_ID_SOC);
 	struct hdd_context *hdd_ctx = gp_cds_context->hdd_context;
-<<<<<<< Updated upstream
-=======
 	uint32_t gro_bit_set;
->>>>>>> Stashed changes
 
 	cdp_cfg.is_full_reorder_offload =
 		cfg_get(psoc, CFG_DP_REORDER_OFFLOAD_SUPPORT);
@@ -478,11 +462,6 @@ static void cds_cdp_cfg_attach(struct wlan_objmgr_psoc *psoc)
 		cfg_get(psoc, CFG_DP_CE_CLASSIFY_ENABLE);
 	cdp_cfg.tso_enable = cfg_get(psoc, CFG_DP_TSO);
 	cdp_cfg.lro_enable = cfg_get(psoc, CFG_DP_LRO);
-<<<<<<< Updated upstream
-	cdp_cfg.enable_data_stall_detection =
-		cfg_get(psoc, CFG_DP_ENABLE_DATA_STALL_DETECTION);
-	cdp_cfg.gro_enable = cfg_get(psoc, CFG_DP_GRO);
-=======
 	cdp_cfg.sg_enable = cfg_get(psoc, CFG_DP_SG);
 	cdp_cfg.enable_data_stall_detection =
 		cfg_get(psoc, CFG_DP_ENABLE_DATA_STALL_DETECTION);
@@ -493,7 +472,6 @@ static void cds_cdp_cfg_attach(struct wlan_objmgr_psoc *psoc)
 			cdp_cfg.tc_based_dyn_gro = true;
 	}
 	cdp_cfg.tc_ingress_prio = cfg_get(psoc, CFG_DP_TC_INGRESS_PRIO);
->>>>>>> Stashed changes
 	cdp_cfg.enable_flow_steering =
 		cfg_get(psoc, CFG_DP_FLOW_STEERING_ENABLED);
 	cdp_cfg.disable_intra_bss_fwd =
@@ -638,13 +616,6 @@ static int cds_hang_event_notifier_call(struct notifier_block *block,
 
 	cmd->recovery_reason = gp_cds_context->recovery_reason;
 
-<<<<<<< Updated upstream
-	qdf_mem_copy(&cmd->driver_version, QWLAN_VERSIONSTR,
-		     DRIVER_VER_LEN);
-
-	qdf_mem_copy(&cmd->hang_event_version, QDF_HANG_EVENT_VERSION,
-		     HANG_EVENT_VER_LEN);
-=======
 	/* userspace expects a fixed format */
 	qdf_mem_set(&cmd->driver_version, DRIVER_VER_LEN, ' ');
 	qdf_mem_copy(&cmd->driver_version, QWLAN_VERSIONSTR,
@@ -656,7 +627,6 @@ static int cds_hang_event_notifier_call(struct notifier_block *block,
 	qdf_mem_copy(&cmd->hang_event_version, QDF_HANG_EVENT_VERSION,
 		     qdf_min(sizeof(QDF_HANG_EVENT_VERSION) - 1,
 			     (size_t)HANG_EVENT_VER_LEN));
->>>>>>> Stashed changes
 
 	cds_hang_data->offset += total_len;
 	return NOTIFY_OK;
@@ -944,8 +914,6 @@ QDF_STATUS cds_dp_open(struct wlan_objmgr_psoc *psoc)
 {
 	QDF_STATUS qdf_status;
 	struct dp_txrx_config dp_config;
-<<<<<<< Updated upstream
-=======
 	struct hdd_context *hdd_ctx;
 
 	hdd_ctx = gp_cds_context->hdd_context;
@@ -953,7 +921,6 @@ QDF_STATUS cds_dp_open(struct wlan_objmgr_psoc *psoc)
 		cds_err("HDD context is null");
 		return QDF_STATUS_E_FAILURE;
 	}
->>>>>>> Stashed changes
 
 	qdf_status = cdp_pdev_attach(cds_get_context(QDF_MODULE_ID_SOC),
 				     gp_cds_context->htc_ctx,
@@ -987,8 +954,6 @@ QDF_STATUS cds_dp_open(struct wlan_objmgr_psoc *psoc)
 
 	cds_debug("CDS successfully Opened");
 
-<<<<<<< Updated upstream
-=======
 	if (cdp_cfg_get(gp_cds_context->dp_soc, cfg_dp_tc_based_dyn_gro_enable))
 		hdd_ctx->dp_agg_param.tc_based_dyn_gro = true;
 	else
@@ -997,7 +962,6 @@ QDF_STATUS cds_dp_open(struct wlan_objmgr_psoc *psoc)
 	hdd_ctx->dp_agg_param.tc_ingress_prio =
 		    cdp_cfg_get(gp_cds_context->dp_soc, cfg_dp_tc_ingress_prio);
 
->>>>>>> Stashed changes
 	return 0;
 
 intr_close:
@@ -2862,13 +2826,9 @@ uint32_t cds_get_arp_stats_gw_ip(void *context)
 void cds_incr_arp_stats_tx_tgt_delivered(void)
 {
 	struct hdd_context *hdd_ctx;
-<<<<<<< Updated upstream
-	struct hdd_adapter *adapter = NULL;
-=======
 	struct hdd_adapter *adapter, *next_adapter = NULL;
 	wlan_net_dev_ref_dbgid dbgid =
 			NET_DEV_HOLD_CDS_INCR_ARP_STATS_TX_TGT_DELIVERED;
->>>>>>> Stashed changes
 
 	hdd_ctx = gp_cds_context->hdd_context;
 	if (!hdd_ctx) {
@@ -2876,11 +2836,6 @@ void cds_incr_arp_stats_tx_tgt_delivered(void)
 		return;
 	}
 
-<<<<<<< Updated upstream
-	hdd_for_each_adapter(hdd_ctx, adapter) {
-		if (QDF_STA_MODE == adapter->device_mode)
-			break;
-=======
 	hdd_for_each_adapter_dev_held_safe(hdd_ctx, adapter, next_adapter,
 					   dbgid) {
 		if (adapter->device_mode == QDF_STA_MODE) {
@@ -2890,7 +2845,6 @@ void cds_incr_arp_stats_tx_tgt_delivered(void)
 			break;
 		}
 		hdd_adapter_dev_put_debug(adapter, dbgid);
->>>>>>> Stashed changes
 	}
 
 	if (adapter)
@@ -2905,13 +2859,9 @@ void cds_incr_arp_stats_tx_tgt_delivered(void)
 void cds_incr_arp_stats_tx_tgt_acked(void)
 {
 	struct hdd_context *hdd_ctx;
-<<<<<<< Updated upstream
-	struct hdd_adapter *adapter = NULL;
-=======
 	struct hdd_adapter *adapter, *next_adapter = NULL;
 	wlan_net_dev_ref_dbgid dbgid =
 			NET_DEV_HOLD_CDS_INCR_ARP_STATS_TX_TGT_ACKED;
->>>>>>> Stashed changes
 
 	hdd_ctx = gp_cds_context->hdd_context;
 	if (!hdd_ctx) {
@@ -2919,11 +2869,6 @@ void cds_incr_arp_stats_tx_tgt_acked(void)
 		return;
 	}
 
-<<<<<<< Updated upstream
-	hdd_for_each_adapter(hdd_ctx, adapter) {
-		if (QDF_STA_MODE == adapter->device_mode)
-			break;
-=======
 	hdd_for_each_adapter_dev_held_safe(hdd_ctx, adapter, next_adapter,
 					   dbgid) {
 		if (adapter->device_mode == QDF_STA_MODE) {
@@ -2933,7 +2878,6 @@ void cds_incr_arp_stats_tx_tgt_acked(void)
 			break;
 		}
 		hdd_adapter_dev_put_debug(adapter, dbgid);
->>>>>>> Stashed changes
 	}
 
 	if (adapter)

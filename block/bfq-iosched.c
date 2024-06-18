@@ -3663,21 +3663,6 @@ static bool bfq_better_to_idle(struct bfq_queue *bfqq)
 	 * there is no active group, then the primary expectation for
 	 * this device is probably a high throughput.
 	 *
-<<<<<<< Updated upstream
-	 * According to the above considerations, the next variable is
-	 * true (only) if sub-condition (i) holds. To compute the
-	 * value of this variable, we not only use the return value of
-	 * the function bfq_symmetric_scenario(), but also check
-	 * whether bfqq is being weight-raised, because
-	 * bfq_symmetric_scenario() does not take into account also
-	 * weight-raised queues (see comments on
-	 * bfq_weights_tree_add()). In particular, if bfqq is being
-	 * weight-raised, it is important to idle only if there are
-	 * other, non-weight-raised queues that may steal throughput
-	 * to bfqq. Actually, we should be even more precise, and
-	 * differentiate between interactive weight raising and
-	 * soft real-time weight raising.
-=======
 	 * We are now left only with explaining the additional
 	 * compound condition that is checked below for deciding
 	 * whether the scenario is asymmetric. To explain this
@@ -3693,7 +3678,6 @@ static bool bfq_better_to_idle(struct bfq_queue *bfqq)
 	 * weight-raised. Actually, we should be even more precise
 	 * here, and differentiate between interactive weight raising
 	 * and soft real-time weight raising.
->>>>>>> Stashed changes
 	 *
 	 * As a side note, it is worth considering that the above
 	 * device-idling countermeasures may however fail in the

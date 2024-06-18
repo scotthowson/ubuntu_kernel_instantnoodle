@@ -1,9 +1,6 @@
 #include "lito-v2.dtsi"
 #include "pmk8350.dtsi"
-<<<<<<< Updated upstream
-=======
 #include "magnus.dtsi"
->>>>>>> Stashed changes
 
 / {
 	model = "Qualcomm Technologies, Inc. Orchid";
@@ -13,10 +10,7 @@
 
 &sde_dp {
 	/delete-property/ qcom,mst-enable;
-<<<<<<< Updated upstream
-=======
 	qcom,no-mst-encoder;
->>>>>>> Stashed changes
 };
 
 &mdss_dsi1 {
@@ -31,17 +25,6 @@
 	status = "disabled";
 };
 
-<<<<<<< Updated upstream
-&pm8008_regulators {
-	vdd_l6-supply = <&BOB>;
-};
-
-&apps_rsc {
-	/delete-node/ rpmh-regulator-ldoa7;
-};
-
-=======
->>>>>>> Stashed changes
 &mdss_mdp {
 	qcom,sde-intf-off = <0x6b000 0x6b800>;
 	qcom,sde-intf-type = "dp", "dsi";
@@ -58,14 +41,6 @@
 					 <0x2c4 8>;
 };
 
-<<<<<<< Updated upstream
-&rpmhcc {
-	compatible = "qcom,litomagnus-rpmh-clk";
-	#clock-cells = <1>;
-};
-
-=======
->>>>>>> Stashed changes
 &llcc {
 	compatible = "qcom,llcc-v2";
 };

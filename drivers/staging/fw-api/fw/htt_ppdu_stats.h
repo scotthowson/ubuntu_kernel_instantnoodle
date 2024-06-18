@@ -1,10 +1,6 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2017-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2017-2021 The Linux Foundation. All rights reserved.
  * Copyright (c) 2021-2023 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -56,13 +52,10 @@ enum htt_ppdu_stats_tlv_tag {
     HTT_PPDU_STATS_USERS_INFO_TLV,                /* htt_ppdu_stats_users_info_tlv */
     HTT_PPDU_STATS_USR_MPDU_ENQ_BITMAP_1024_TLV,  /* htt_ppdu_stats_enq_mpdu_bitmap_1024_tlv */
     HTT_PPDU_STATS_USR_COMPLTN_BA_BITMAP_1024_TLV,/* htt_ppdu_stats_user_compltn_ba_bitmap_1024_tlv */
-<<<<<<< Updated upstream
-=======
     HTT_PPDU_STATS_RX_MGMTCTRL_PAYLOAD_TLV,       /* htt_ppdu_stats_rx_mgmtctrl_payload_tlv */
     HTT_PPDU_STATS_FOR_SMU_TLV,                   /* htt_ppdu_stats_for_smu_tlv */
     HTT_PPDU_STATS_MLO_TX_RESP_TLV,               /* htt_ppdu_stats_mlo_tx_resp_tlv */
     HTT_PPDU_STATS_MLO_TX_NOTIFICATION_TLV,       /* htt_ppdu_stats_mlo_tx_notification_tlv */
->>>>>>> Stashed changes
 
     /* New TLV's are added above to this line */
     HTT_PPDU_STATS_MAX_TAG,
@@ -220,12 +213,6 @@ PREPACK struct htt_tx_ppdu_stats_info {
     A_UINT32 tx_ratecode:       8,
              is_ampdu:          1,
              ba_ack_failed:     2,
-<<<<<<< Updated upstream
-             /*  0: 20 MHz
-                 1: 40 MHz
-                 2: 80 MHz
-                 3: 160 MHz or 80+80 MHz */
-=======
              /* bw
               *  0: 20 MHz
               *  1: 40 MHz
@@ -233,7 +220,6 @@ PREPACK struct htt_tx_ppdu_stats_info {
               *  3: 160 MHz or 80+80 MHz
               *  4: 320 MHz
               */
->>>>>>> Stashed changes
              bw:                3,
              sgi:               1,
              skipped_rate_ctrl: 1,
@@ -395,8 +381,6 @@ enum HTT_STATS_FTYPE {
     HTT_STATS_FTYPE_TIDQ_DATA_MU,
     HTT_STATS_FTYPE_SGEN_UL_BSR_RESP,
     HTT_STATS_FTYPE_SGEN_QOS_NULL,
-<<<<<<< Updated upstream
-=======
     HTT_STATS_FTYPE_SGEN_BE_NDPA,
     HTT_STATS_FTYPE_SGEN_BE_NDP,
     HTT_STATS_FTYPE_SGEN_BE_MU_TRIG,
@@ -404,7 +388,6 @@ enum HTT_STATS_FTYPE {
     HTT_STATS_FTYPE_SGEN_BE_MU_BRP,
     HTT_STATS_FTYPE_SGEN_BE_MU_RTS,
     HTT_STATS_FTYPE_SGEN_BE_MU_BSRP,
->>>>>>> Stashed changes
     HTT_STATS_FTYPE_MAX,
 };
 typedef enum HTT_STATS_FTYPE HTT_STATS_FTYPE;
@@ -446,11 +429,8 @@ enum HTT_PPDU_STATS_BW {
     HTT_PPDU_STATS_BANDWIDTH_80MHZ  = 4,
     HTT_PPDU_STATS_BANDWIDTH_160MHZ = 5, /* includes 80+80 */
     HTT_PPDU_STATS_BANDWIDTH_DYN    = 6,
-<<<<<<< Updated upstream
-=======
     HTT_PPDU_STATS_BANDWIDTH_DYN_PATTERNS = 7,
     HTT_PPDU_STATS_BANDWIDTH_320MHZ = 8,
->>>>>>> Stashed changes
 };
 typedef enum HTT_PPDU_STATS_BW HTT_PPDU_STATS_BW;
 
@@ -468,18 +448,6 @@ typedef enum HTT_PPDU_STATS_BW HTT_PPDU_STATS_BW;
      } while (0)
 
 enum HTT_PPDU_STATS_SEQ_TYPE {
-<<<<<<< Updated upstream
-    HTT_SEQTYPE_UNSPECIFIED     = 0,
-    HTT_SEQTYPE_SU              = 1,
-    HTT_SEQTYPE_AC_MU_MIMO      = 2,
-    HTT_SEQTYPE_AX_MU_MIMO      = 3,
-    HTT_SEQTYPE_MU_OFDMA        = 4,
-    HTT_SEQTYPE_UL_TRIG         = 5,
-    HTT_SEQTYPE_BURST_BCN       = 6,
-    HTT_SEQTYPE_UL_BSR_RESP     = 7,
-    HTT_SEQTYPE_UL_BSR_TRIG     = 8,
-    HTT_SEQTYPE_UL_RESP         = 9,
-=======
     HTT_SEQTYPE_UNSPECIFIED         = 0,
     HTT_SEQTYPE_SU                  = 1,
     HTT_SEQTYPE_AC_MU_MIMO          = 2,
@@ -497,7 +465,6 @@ enum HTT_PPDU_STATS_SEQ_TYPE {
     HTT_SEQTYPE_BE_UL_MU_OFDMA_TRIG = 13,
     HTT_SEQTYPE_BE_UL_MU_MIMO_TRIG  = 14,
     HTT_SEQTYPE_BE_UL_BSR_TRIG      = 15,
->>>>>>> Stashed changes
 };
 typedef enum HTT_PPDU_STATS_SEQ_TYPE HTT_PPDU_STATS_SEQ_TYPE;
 
@@ -645,8 +612,6 @@ typedef enum HTT_PPDU_STATS_SPATIAL_REUSE HTT_PPDU_STATS_SPATIAL_REUSE;
             ((_var) |= ((_val) << HTT_PPDU_STATS_COMMON_TLV_BSS_COLOR_ID_S)); \
     } while (0)
 
-<<<<<<< Updated upstream
-=======
 #define HTT_PPDU_STATS_COMMON_TLV_BACKOFF_AC_VALID_M     0x00020000
 #define HTT_PPDU_STATS_COMMON_TLV_BACKOFF_AC_VALID_S             17
 
@@ -699,7 +664,6 @@ typedef enum HTT_PPDU_STATS_SPATIAL_REUSE HTT_PPDU_STATS_SPATIAL_REUSE;
         ((_var) |= ((_val) << HTT_PPDU_STATS_COMMON_TLV_NUM_UL_USER_RESPONSES_S)); \
     } while (0)
 
->>>>>>> Stashed changes
 #define HTT_PPDU_STATS_COMMON_TRIG_COOKIE_M    0x0000ffff
 #define HTT_PPDU_STATS_COMMON_TRIG_COOKIE_S    0
 
@@ -707,14 +671,11 @@ typedef enum HTT_PPDU_STATS_SPATIAL_REUSE HTT_PPDU_STATS_SPATIAL_REUSE;
         (((_val) & HTT_PPDU_STATS_COMMON_TRIG_COOKIE_M) >> \
          HTT_PPDU_STATS_COMMON_TRIG_COOKIE_S)
 
-<<<<<<< Updated upstream
-=======
 enum HTT_SEQ_TYPE {
     WAL_PPDU_SEQ_TYPE = 0,
     HTT_PPDU_SEQ_TYPE = 1,
 };
 
->>>>>>> Stashed changes
 typedef struct {
     htt_tlv_hdr_t tlv_hdr;
 
@@ -851,11 +812,6 @@ typedef struct {
      *               by which SRG/Non-SRG based spatial reuse opportunity
      *               was created.
      * BIT [16:16] - PPDU transmitted using PSR opportunity
-<<<<<<< Updated upstream
-     * BIT [31:17] - reserved
-     */
-    union {
-=======
      * BIT [17:17] - backoff_ac_valid
      * BIT [19:18] - backoff_ac: WMM ACI Value of the backoff engine used for
      *               this transmission. Only valid if backoff_ac_valid is set
@@ -872,19 +828,10 @@ typedef struct {
      */
     union {
         A_UINT32 reserved__num_ul_user_responses__num_ul_user_responses_valid__backoff_ac__backoff_ac_valid__psr_tx__aborted_obss_rssi__srg_tx__non_srg_tx__bss_color_id;
->>>>>>> Stashed changes
         A_UINT32 reserved__psr_tx__aborted_obss_rssi__srg_tx__non_srg_tx___bss_color_id;
         A_UINT32 reserved__aborted_obss_rssi__srg_tx__non_srg_tx___bss_color_id;
         A_UINT32 reserved__bss_color_id;
         struct {
-<<<<<<< Updated upstream
-            A_UINT32 bss_color_id:       6,
-                     non_srg_tx:         1,
-                     srg_tx:             1,
-                     aborted_obss_rssi:  8,
-                     psr_tx:             1,
-                     reserved2:         15;
-=======
             A_UINT32 bss_color_id:                6,
                      non_srg_tx:                  1,
                      srg_tx:                      1,
@@ -895,7 +842,6 @@ typedef struct {
                      num_ul_user_responses_valid: 1,
                      num_ul_user_responses:       8,
                      reserved2:                   3;
->>>>>>> Stashed changes
         };
     };
 
@@ -908,8 +854,6 @@ typedef struct {
                      trig_cookie_valid: 1;
         };
     };
-<<<<<<< Updated upstream
-=======
 
     /*
      * BIT [0 : 0] - htt_seq_type field is added for backward compatibility
@@ -942,7 +886,6 @@ typedef struct {
      * part of existing DL/UL data sequence
      */
     A_UINT32 is_combined_ul_bsrp_trigger;
->>>>>>> Stashed changes
 } htt_ppdu_stats_common_tlv;
 
 #define HTT_PPDU_STATS_USER_COMMON_TLV_TID_NUM_M     0x000000ff
@@ -1088,8 +1031,6 @@ typedef struct {
          ((_var) |= ((_val) << HTT_PPDU_STATS_USER_COMMON_TLV_QOS_CTRL_S)); \
      } while (0)
 
-<<<<<<< Updated upstream
-=======
 #define HTT_PPDU_STATS_USER_COMMON_TLV_TX_PWR_MULTIPLIER_M 0x000000ff
 #define HTT_PPDU_STATS_USER_COMMON_TLV_TX_PWR_MULTIPLIER_S          0
 
@@ -1151,7 +1092,6 @@ typedef struct {
             ~(0xff << (((chain_idx)%HTT_PPDU_STATS_USER_COMMON_TLV_TX_PWR_CHAINS_PER_U32)*8)) | \
             (((value)<<((chain_idx)%HTT_PPDU_STATS_USER_COMMON_TLV_TX_PWR_CHAINS_PER_U32)*8))
 
->>>>>>> Stashed changes
 typedef struct {
     htt_tlv_hdr_t tlv_hdr;
 
@@ -1222,33 +1162,24 @@ typedef struct {
      * is_buffer_addr_info_valid : This will be set whenever a MSDU is sent as
      * a singleton (single-MSDU PPDU) for FW use-cases or as indicated by host
      * via send_as_standalone in TCL_DATA_CMD.
-<<<<<<< Updated upstream
-=======
      *
      * The fields is_sw_rts_enabled, is_hw_rts_enabled, is_sfm_war_enabled
      * indicate whether SW RTS, HW RTS, SFM WAR are enabled for the
      * current Tx-sequence respectively.
->>>>>>> Stashed changes
      */
     A_UINT32 host_opaque_cookie:        16,
              is_host_opaque_valid:       1,
              is_standalone:              1,
              is_buffer_addr_info_valid:  1,
-<<<<<<< Updated upstream
-             reserved1:                 13;
-=======
              is_sw_rts_enabled:          1,
              is_hw_rts_enabled:          1,
              is_sfm_war_enabled:         1,
              reserved1:                 10;
->>>>>>> Stashed changes
 
     /* qdepth bytes : Contains Number of bytes of TIDQ depth */
     A_UINT32 qdepth_bytes;
     A_UINT32 full_aid : 12,
              reserved : 20;
-<<<<<<< Updated upstream
-=======
 
     /* data_frm_ppdu_id:
      * Note - this is valid in case delayed BA processing specifically for
@@ -1351,7 +1282,6 @@ typedef struct {
      * correspond to the default UDP msduq.
      */
     A_UINT32 msduq_bitmap;
->>>>>>> Stashed changes
 } htt_ppdu_stats_user_common_tlv;
 
 #define HTT_PPDU_STATS_USER_RATE_TLV_TID_NUM_M     0x000000ff
@@ -1757,8 +1687,6 @@ typedef enum HTT_PPDU_STATS_RESP_PPDU_TYPE HTT_PPDU_STATS_RESP_PPDU_TYPE;
          ((_var) |= ((_val) << HTT_PPDU_STATS_USER_RATE_TLV_RESP_PPDU_TYPE_S)); \
      } while (0)
 
-<<<<<<< Updated upstream
-=======
 #define HTT_PPDU_STATS_USER_RATE_TLV_RU_FORMAT_M        0x0000f000
 #define HTT_PPDU_STATS_USER_RATE_TLV_RU_FORMAT_S                12
 
@@ -1941,7 +1869,6 @@ typedef enum HTT_PPDU_STATS_RU_SIZE {
     HTT_PPDU_STATS_RU_996x3_484,
     HTT_PPDU_STATS_RU_996x4,
 } HTT_PPDU_STATS_RU_SIZE;
->>>>>>> Stashed changes
 
 typedef struct {
     htt_tlv_hdr_t tlv_hdr;
@@ -1961,43 +1888,14 @@ typedef struct {
 
     /* BIT [ 3 :   0]   :- user_pos
      * BIT [ 11:   4]   :- mu_group_id
-<<<<<<< Updated upstream
-     * BIT [ 31:  12]   :- reserved1
-=======
      * BIT [ 15:  12]   :- ru_format
      * BIT [ 31:  16]   :- reserved1
->>>>>>> Stashed changes
      */
     union {
         A_UINT32 mu_group_id__user_pos;
         struct {
             A_UINT32 user_pos:           4,
                      mu_group_id:        8,
-<<<<<<< Updated upstream
-                     reserved1:         20;
-        };
-    };
-
-    /* BIT [ 15 :   0]   :- ru_end
-     * BIT [ 31 :  16]   :- ru_start
-     */
-    union {
-        A_UINT32 ru_start__ru_end;
-        struct {
-            A_UINT32 ru_end:            16,
-                     ru_start:          16;
-        };
-    };
-
-    /* BIT [ 15 :   0]   :- ru_end
-     * BIT [ 31 :  16]   :- ru_start
-     */
-    union {
-        A_UINT32 resp_ru_start__ru_end;
-        struct {
-            A_UINT32 resp_ru_end:       16,
-                     resp_ru_start:     16;
-=======
                      ru_format:          4,
                      reserved1:         16;
         };
@@ -2052,7 +1950,6 @@ typedef struct {
         struct {
             A_UINT32 resp_ru_index: 16,
                      resp_ru_size:  16;
->>>>>>> Stashed changes
         };
     };
 
@@ -2137,12 +2034,6 @@ typedef struct {
     };
 
     /*
-<<<<<<< Updated upstream
-     * This is an unused word that can be safely renamed / used
-     * by any future feature.
-     */
-    A_UINT32 reserved4;
-=======
      * BIT [15:0]  :- Punctured BW bitmap pattern to indicate which BWs are
      *                punctured.
      * BIT 16      :- flag showing whether EHT extra LTF is applied
@@ -2152,7 +2043,6 @@ typedef struct {
              extra_eht_ltf:       1,
              is_min_rate:         1,
              reserved4:           14;
->>>>>>> Stashed changes
 } htt_ppdu_stats_user_rate_tlv;
 
 #define HTT_PPDU_STATS_USR_RATE_VALID_M     0x80000000
@@ -2549,13 +2439,8 @@ typedef struct {
      * BIT [ 8 :   8]   :- is_ampdu
      * BIT [ 12:   9]   :- resp_type
      * BIT [ 15:  13]   :- medium protection type
-<<<<<<< Updated upstream
-     * BIT [ 16:  16]   :- rts_success
-     * BIT [ 17:  17]   :- rts_failure
-=======
      * BIT [ 16:  16]   :- rts_success (HW RTS)
      * BIT [ 17:  17]   :- rts_failure (HW RTS)
->>>>>>> Stashed changes
      * BIT [ 18:  18]   :- pream_punc_tx
      * BIT [ 31:  19]   :- reserved
      */
@@ -2600,19 +2485,13 @@ typedef struct {
 
     /*
      * Max rates configured per BW:
-<<<<<<< Updated upstream
-     * for BW supported by Smart Antenna - 20MHZ, 40MHZ and 80MHZ and 160MHZ
-=======
      * for BW supported by Smart Antenna - 20MHZ, 40MHZ, 80MHZ and 160MHZ
->>>>>>> Stashed changes
      * (Note: 160 MHz is currently not supported by Smart Antenna)
      */
     A_UINT32 max_rates[HTT_STATS_NUM_SUPPORTED_BW_SMART_ANTENNA];
 
     /* PER of the last transmission to the peer-TID (in percent) */
     A_UINT32 current_rate_per;
-<<<<<<< Updated upstream
-=======
 
     /*
      * For SW RTS
@@ -2638,7 +2517,6 @@ typedef struct {
      * hw protection frame's FES duration in micro seconds.
      */
     A_UINT32 hw_prot_dur_us;
->>>>>>> Stashed changes
 } htt_ppdu_stats_user_cmpltn_common_tlv;
 
 #define HTT_PPDU_STATS_USER_CMPLTN_BA_BITMAP_TLV_TID_NUM_M     0x000000ff
@@ -3008,18 +2886,12 @@ typedef struct {
      * The size of the actual mgmt payload (in bytes) can be obtained from
      * the frame_length field.
      * The size of entire payload including the padding for alignment
-<<<<<<< Updated upstream
-     * (in bytes) can be derived from the length in tlv parametes,
-=======
      * (in bytes) can be derived from the length in tlv parameters,
->>>>>>> Stashed changes
      * minus the 12 bytes of the above fields.
      */
     A_UINT32 payload[1];
 } htt_ppdu_stats_tx_mgmtctrl_payload_tlv;
 
-<<<<<<< Updated upstream
-=======
 #define HTT_PPDU_STATS_RX_MGMTCTRL_TLV_FRAME_LENGTH_M     0x0000ffff
 #define HTT_PPDU_STATS_RX_MGMTCTRL_TLV_FRAME_LENGTH_S              0
 
@@ -3062,7 +2934,6 @@ typedef struct {
     A_UINT32 payload[1];
 } htt_ppdu_stats_rx_mgmtctrl_payload_tlv;
 
->>>>>>> Stashed changes
 #define HTT_PPDU_STATS_USERS_INFO_TLV_MAX_USERS_M   0x000000ff
 #define HTT_PPDU_STATS_USERS_INFO_TLV_MAX_USERS_S            0
 
@@ -3107,8 +2978,6 @@ typedef struct {
     };
 } htt_ppdu_stats_users_info_tlv;
 
-<<<<<<< Updated upstream
-=======
 typedef struct {
     htt_tlv_hdr_t tlv_hdr;
     A_UINT32 ppdu_id;
@@ -3244,6 +3113,5 @@ typedef struct {
              ppdu_duration_us                                        : 16;
 } htt_ppdu_stats_mlo_tx_notification_tlv;
 
->>>>>>> Stashed changes
 
 #endif //__HTT_PPDU_STATS_H__

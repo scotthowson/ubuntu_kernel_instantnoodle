@@ -206,8 +206,6 @@ static void emulate_monitor_status_change(struct intel_vgpu *vgpu)
 				SKL_FUSE_PG_DIST_STATUS(SKL_PG0) |
 				SKL_FUSE_PG_DIST_STATUS(SKL_PG1) |
 				SKL_FUSE_PG_DIST_STATUS(SKL_PG2);
-<<<<<<< Updated upstream
-=======
 		/*
 		 * Only 1 PIPE enabled in current vGPU display and PIPE_A is
 		 *  tied to TRANSCODER_A in HW, so it's safe to assume PIPE_A,
@@ -216,7 +214,6 @@ static void emulate_monitor_status_change(struct intel_vgpu *vgpu)
 		 *   so we fixed to DPLL0 here.
 		 * Setup DPLL0: DP link clk 1620 MHz, non SSC, DP Mode
 		 */
->>>>>>> Stashed changes
 		vgpu_vreg_t(vgpu, DPLL_CTRL1) =
 			DPLL_CTRL1_OVERRIDE(DPLL_ID_SKL_DPLL0);
 		vgpu_vreg_t(vgpu, DPLL_CTRL1) |=
@@ -224,15 +221,12 @@ static void emulate_monitor_status_change(struct intel_vgpu *vgpu)
 		vgpu_vreg_t(vgpu, LCPLL1_CTL) =
 			LCPLL_PLL_ENABLE | LCPLL_PLL_LOCK;
 		vgpu_vreg_t(vgpu, DPLL_STATUS) = DPLL_LOCK(DPLL_ID_SKL_DPLL0);
-<<<<<<< Updated upstream
-=======
 		/*
 		 * Golden M/N are calculated based on:
 		 *   24 bpp, 4 lanes, 154000 pixel clk (from virtual EDID),
 		 *   DP link clk 1620 MHz and non-constant_n.
 		 * TODO: calculate DP link symbol clk and stream clk m/n.
 		 */
->>>>>>> Stashed changes
 		vgpu_vreg_t(vgpu, PIPE_DATA_M1(TRANSCODER_A)) = 63 << TU_SIZE_SHIFT;
 		vgpu_vreg_t(vgpu, PIPE_DATA_M1(TRANSCODER_A)) |= 0x5b425e;
 		vgpu_vreg_t(vgpu, PIPE_DATA_N1(TRANSCODER_A)) = 0x800000;

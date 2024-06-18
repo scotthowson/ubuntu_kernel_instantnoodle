@@ -1941,9 +1941,6 @@ void lim_process_ap_mlm_add_sta_rsp(struct mac_context *mac,
 	 * 2) PE receives eWNI_SME_ASSOC_CNF from SME
 	 * 3) BTAMP-AP sends Re/Association Response to BTAMP-STA
 	 */
-<<<<<<< Updated upstream
-	lim_send_mlm_assoc_ind(mac, sta, pe_session);
-=======
 	if (lim_send_mlm_assoc_ind(mac, sta, pe_session) != QDF_STATUS_SUCCESS)
 		lim_reject_association(mac, sta->staAddr,
 				       sta->mlmStaContext.subType,
@@ -1952,7 +1949,6 @@ void lim_process_ap_mlm_add_sta_rsp(struct mac_context *mac,
 				       eSIR_MAC_UNSPEC_FAILURE_STATUS,
 				       pe_session);
 
->>>>>>> Stashed changes
 	/* fall though to reclaim the original Add STA Response message */
 end:
 	if (0 != limMsgQ->bodyptr) {

@@ -117,15 +117,9 @@ struct padata_cpumask {
  * @reorder_objects: Number of objects waiting in the reorder queues.
  * @refcnt: Number of objects holding a reference on this parallel_data.
  * @max_seq_nr:  Maximal used sequence number.
-<<<<<<< Updated upstream
-
- * @cpumask: The cpumasks in use for parallel and serial workers.
-
-=======
  * @cpu: Next CPU to be processed.
  * @cpumask: The cpumasks in use for parallel and serial workers.
  * @reorder_work: work struct for reordering.
->>>>>>> Stashed changes
  * @lock: Reorder lock.
  */
 struct parallel_data {

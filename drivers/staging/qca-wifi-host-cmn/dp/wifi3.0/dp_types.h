@@ -1,9 +1,6 @@
 /*
  * Copyright (c) 2016-2020 The Linux Foundation. All rights reserved.
-<<<<<<< Updated upstream
-=======
  * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -288,11 +285,6 @@ enum dp_cpu_ring_map_types {
 /**
  * enum dp_ctxt - context type
  * @DP_PDEV_TYPE: PDEV context
-<<<<<<< Updated upstream
- */
-enum dp_ctxt_type {
-	DP_PDEV_TYPE
-=======
  * @DP_RX_RING_HIST_TYPE: Datapath rx ring history
  * @DP_RX_ERR_RING_HIST_TYPE: Datapath rx error ring history
  * @DP_RX_REINJECT_RING_HIST_TYPE: Datapath reinject ring history
@@ -302,7 +294,6 @@ enum dp_ctxt_type {
 	DP_RX_RING_HIST_TYPE,
 	DP_RX_ERR_RING_HIST_TYPE,
 	DP_RX_REINJECT_RING_HIST_TYPE,
->>>>>>> Stashed changes
 };
 
 /**
@@ -596,10 +587,7 @@ struct dp_rx_tid {
 	uint8_t pn_size;
 	/* REO TID queue descriptors */
 	void *hw_qdesc_vaddr_unaligned;
-<<<<<<< Updated upstream
-=======
 	void *hw_qdesc_vaddr_aligned;
->>>>>>> Stashed changes
 	qdf_dma_addr_t hw_qdesc_paddr_unaligned;
 	qdf_dma_addr_t hw_qdesc_paddr;
 	uint32_t hw_qdesc_alloc_size;
@@ -881,8 +869,6 @@ struct dp_soc_stats {
 			uint32_t nbuf_sanity_fail;
 			/* Duplicate link desc refilled */
 			uint32_t dup_refill_link_desc;
-<<<<<<< Updated upstream
-=======
 			/* EAPOL drop count in intrabss scenario */
 			uint32_t intrabss_eapol_drop;
 			/* Non Eapol pkt drop cnt due to peer not authorized */
@@ -891,7 +877,6 @@ struct dp_soc_stats {
 			uint32_t msdu_len_err;
 			/* Rx invalid tid count */
 			uint32_t rx_invalid_tid_err;
->>>>>>> Stashed changes
 		} err;
 
 		/* packet count per core - per ring */
@@ -1346,11 +1331,8 @@ struct dp_soc {
 		void *ipa_wbm_ring_base_vaddr;
 		uint32_t ipa_wbm_ring_size;
 		qdf_dma_addr_t ipa_wbm_tp_paddr;
-<<<<<<< Updated upstream
-=======
 		/* WBM2SW HP shadow paddr */
 		qdf_dma_addr_t ipa_wbm_hp_shadow_paddr;
->>>>>>> Stashed changes
 
 		/* TX buffers populated into the WBM ring */
 		void **tx_buf_pool_vaddr_unaligned;
@@ -1438,13 +1420,10 @@ struct dp_soc {
 #endif /* WLAN_SUPPORT_RX_FLOW_TAG || WLAN_SUPPORT_RX_FISA */
 	/* Save recent operation related variable */
 	struct dp_last_op_info last_op_info;
-<<<<<<< Updated upstream
-=======
 #ifdef FEATURE_RUNTIME_PM
 	/* Dp runtime refcount */
 	qdf_atomic_t dp_runtime_refcount;
 #endif
->>>>>>> Stashed changes
 };
 
 #ifdef IPA_OFFLOAD
@@ -2516,10 +2495,7 @@ struct dp_fisa_rx_sw_ft {
 	uint32_t last_hal_aggr_count;
 	uint32_t cur_aggr_gso_size;
 	struct udphdr *head_skb_udp_hdr;
-<<<<<<< Updated upstream
-=======
 	uint32_t reo_dest_indication;
->>>>>>> Stashed changes
 };
 
 #define DP_RX_GET_SW_FT_ENTRY_SIZE sizeof(struct dp_fisa_rx_sw_ft)

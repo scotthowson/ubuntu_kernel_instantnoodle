@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2012-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include <linux/bitops.h>

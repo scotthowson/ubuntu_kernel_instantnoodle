@@ -1,10 +1,6 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2016-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2016-2021 The Linux Foundation. All rights reserved.
  * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -291,12 +287,9 @@ static inline void dp_peer_ast_cleanup(struct dp_soc *soc,
 	txrx_ast_free_cb cb = ast->callback;
 	void *cookie = ast->cookie;
 
-<<<<<<< Updated upstream
-=======
 	dp_debug("mac_addr: " QDF_MAC_ADDR_FMT ", cb: %pK, cookie: %pK",
 		 QDF_MAC_ADDR_REF(ast->mac_addr.raw), cb, cookie);
 
->>>>>>> Stashed changes
 	/* Call the callbacks to free up the cookie */
 	if (cb) {
 		ast->callback = NULL;
@@ -325,11 +318,8 @@ static void dp_peer_ast_hash_detach(struct dp_soc *soc)
 	if (!soc->ast_hash.bins)
 		return;
 
-<<<<<<< Updated upstream
-=======
 	dp_debug("%pK: num_ast_entries: %u", soc, soc->num_ast_entries);
 
->>>>>>> Stashed changes
 	qdf_spin_lock_bh(&soc->ast_lock);
 	for (index = 0; index <= soc->ast_hash.mask; index++) {
 		if (!TAILQ_EMPTY(&soc->ast_hash.bins[index])) {
@@ -406,12 +396,9 @@ void dp_peer_ast_hash_remove(struct dp_soc *soc,
 	/* Check if tail is not empty before delete*/
 	QDF_ASSERT(!TAILQ_EMPTY(&soc->ast_hash.bins[index]));
 
-<<<<<<< Updated upstream
-=======
 	dp_debug("ast_idx: %u idx: %u mac_addr: " QDF_MAC_ADDR_FMT,
 		 ase->ast_idx, index, QDF_MAC_ADDR_REF(ase->mac_addr.raw));
 
->>>>>>> Stashed changes
 	TAILQ_FOREACH(tmpase, &soc->ast_hash.bins[index], hash_list_elem) {
 		if (tmpase == ase) {
 			found = 1;
@@ -903,13 +890,10 @@ void dp_peer_free_ast_entry(struct dp_soc *soc,
 	 * NOTE: Ensure that call to this API is done
 	 * after soc->ast_lock is taken
 	 */
-<<<<<<< Updated upstream
-=======
 	dp_debug("type: %d ast_idx: %u mac_addr: " QDF_MAC_ADDR_FMT,
 		 ast_entry->type, ast_entry->ast_idx,
 		 QDF_MAC_ADDR_REF(ast_entry->mac_addr.raw));
 
->>>>>>> Stashed changes
 	ast_entry->callback = NULL;
 	ast_entry->cookie = NULL;
 
@@ -975,13 +959,10 @@ void dp_peer_del_ast(struct dp_soc *soc, struct dp_ast_entry *ast_entry)
 	if (ast_entry->delete_in_progress)
 		return;
 
-<<<<<<< Updated upstream
-=======
 	dp_debug("call by %ps: ast_idx: %u mac_addr: " QDF_MAC_ADDR_FMT,
 		 (void *)_RET_IP_, ast_entry->ast_idx,
 		 QDF_MAC_ADDR_REF(ast_entry->mac_addr.raw));
 
->>>>>>> Stashed changes
 	ast_entry->delete_in_progress = true;
 
 	peer = ast_entry->peer;
@@ -2034,10 +2015,7 @@ try_desc_alloc:
 	} else {
 		hw_qdesc_vaddr = rx_tid->hw_qdesc_vaddr_unaligned;
 	}
-<<<<<<< Updated upstream
-=======
 	rx_tid->hw_qdesc_vaddr_aligned = hw_qdesc_vaddr;
->>>>>>> Stashed changes
 
 	/* TODO: Ensure that sec_type is set before ADDBA is received.
 	 * Currently this is set based on htt indication
@@ -2907,12 +2885,8 @@ int dp_addba_requestprocess_wifi3(struct cdp_soc_t *cdp_soc,
 {
 	QDF_STATUS status = QDF_STATUS_SUCCESS;
 	struct dp_rx_tid *rx_tid = NULL;
-<<<<<<< Updated upstream
-	struct dp_peer *peer = dp_peer_find_hash_find((struct dp_soc *)cdp_soc,
-=======
 	struct dp_soc *soc = (struct dp_soc *)cdp_soc;
 	struct dp_peer *peer = dp_peer_find_hash_find(soc,
->>>>>>> Stashed changes
 						       peer_mac, 0, vdev_id);
 
 	if (!peer || peer->delete_in_progress) {
@@ -2940,15 +2914,12 @@ int dp_addba_requestprocess_wifi3(struct cdp_soc_t *cdp_soc,
 		goto fail;
 	}
 
-<<<<<<< Updated upstream
-=======
 	if (wlan_cfg_is_dp_force_rx_64_ba(soc->wlan_cfg_ctx)) {
 		QDF_TRACE(QDF_MODULE_ID_DP, QDF_TRACE_LEVEL_INFO,
 			  "force use BA64 scheme");
 		buffersize = qdf_min((uint16_t)64, buffersize);
 	}
 
->>>>>>> Stashed changes
 	if (rx_tid->rx_ba_win_size_override == DP_RX_BA_SESSION_DISABLE) {
 		QDF_TRACE(QDF_MODULE_ID_DP, QDF_TRACE_LEVEL_INFO,
 			  "%s disable BA session",
@@ -3542,11 +3513,8 @@ QDF_STATUS dp_peer_state_update(struct cdp_soc_t *soc_hdl, uint8_t *peer_mac,
 	}
 	peer->state = state;
 
-<<<<<<< Updated upstream
-=======
 	peer->authorize = (state == OL_TXRX_PEER_STATE_AUTH) ? 1 : 0;
 
->>>>>>> Stashed changes
 	dp_info("peer %pK state %d", peer, peer->state);
 	/* ref_cnt is incremented inside dp_peer_find_hash_find().
 	 * Decrement it here.
@@ -3900,8 +3868,6 @@ bool dp_peer_find_by_id_valid(struct dp_soc *soc, uint16_t peer_id)
 
 	return false;
 }
-<<<<<<< Updated upstream
-=======
 
 void dp_peer_flush_frags(struct cdp_soc_t *soc_hdl, uint8_t vdev_id,
 			 uint8_t *peer_mac)
@@ -4011,4 +3977,3 @@ void dp_get_rx_reo_queue_info(
 	dp_send_cache_flush_for_rx_tid(soc, peer);
 }
 #endif /* DUMP_REO_QUEUE_INFO_IN_DDR */
->>>>>>> Stashed changes

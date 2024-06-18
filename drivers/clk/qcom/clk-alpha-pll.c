@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2015, 2018-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2015, 2018-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include <linux/kernel.h>
@@ -34,10 +30,7 @@
 #define PLL_VOTE_FSM_RESET	BIT(21)
 #define PLL_UPDATE		BIT(22)
 #define PLL_UPDATE_BYPASS	BIT(23)
-<<<<<<< Updated upstream
-=======
 #define PLL_FSM_LEGACY_MODE	BIT(24)
->>>>>>> Stashed changes
 #define PLL_ALPHA_EN		BIT(24)
 #define PLL_OFFLINE_ACK		BIT(28)
 #define ALPHA_PLL_ACK_LATCH	BIT(29)
@@ -314,10 +307,7 @@ void clk_alpha_pll_configure(struct clk_alpha_pll *pll, struct regmap *regmap,
 		regmap_update_bits(regmap, PLL_USER_CTL(pll), mask, val);
 	}
 
-<<<<<<< Updated upstream
-=======
 	/* Do not bypass the latch interface */
->>>>>>> Stashed changes
 	if (pll->flags & SUPPORTS_SLEW)
 		regmap_update_bits(regmap, PLL_USER_CTL_U(pll),
 		PLL_LATCH_INTERFACE, (u32)~PLL_LATCH_INTERFACE);
@@ -615,27 +605,18 @@ static int clk_alpha_pll_dynamic_update(struct clk_alpha_pll *pll)
 {
 	int ret;
 
-<<<<<<< Updated upstream
-	regmap_update_bits(pll->clkr.regmap, PLL_MODE(pll),
-				PLL_UPDATE, PLL_UPDATE);
-
-=======
 	/* Latch the input to the PLL */
 	regmap_update_bits(pll->clkr.regmap, PLL_MODE(pll),
 				PLL_UPDATE, PLL_UPDATE);
 
 	/* Wait for 2 reference cycle before checking ACK bit */
->>>>>>> Stashed changes
 	udelay(1);
 
 	ret = wait_for_pll_latch_ack(pll);
 	if (ret)
 		return ret;
 
-<<<<<<< Updated upstream
-=======
 	/* Return latch input to 0 */
->>>>>>> Stashed changes
 	regmap_update_bits(pll->clkr.regmap, PLL_MODE(pll),
 				PLL_UPDATE, (u32)~PLL_UPDATE);
 
@@ -2744,12 +2725,7 @@ static int clk_alpha_pll_calibrate(struct clk_hw *hw)
 	 * So slew pll to the previously set frequency.
 	 */
 	freq_hz = alpha_pll_round_rate(clk_hw_get_rate(hw),
-<<<<<<< Updated upstream
-			clk_hw_get_rate(parent), &l, &a, alpha_width);
-
-=======
 				clk_hw_get_rate(parent), &l, &a, alpha_width);
->>>>>>> Stashed changes
 
 	pr_debug("pll %s: setting back to required rate %lu, freq_hz %ld\n",
 				hw->init->name, clk_hw_get_rate(hw), freq_hz);

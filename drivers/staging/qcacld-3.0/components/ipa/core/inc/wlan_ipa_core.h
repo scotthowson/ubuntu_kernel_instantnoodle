@@ -1,9 +1,5 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2013-2019 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2013-2019, 2021 The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -558,8 +554,6 @@ void wlan_ipa_reg_send_to_nw_cb(struct wlan_ipa_priv *ipa_ctx,
 	ipa_ctx->send_to_nw = cb;
 }
 
-<<<<<<< Updated upstream
-=======
 #ifdef IPA_LAN_RX_NAPI_SUPPORT
 /**
  * wlan_ipa_reg_rps_enable_cb() - Register callback to enable RPS
@@ -636,7 +630,6 @@ void wlan_ipa_handle_multiple_sap_evt(struct wlan_ipa_priv *ipa_ctx,
 
 #endif
 
->>>>>>> Stashed changes
 /**
  * wlan_ipa_set_mcc_mode() - Set MCC mode
  * @ipa_ctx: IPA context

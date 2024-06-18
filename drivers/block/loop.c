@@ -895,16 +895,6 @@ static void loop_config_discard(struct loop_device *lo)
 		granularity = backingq->limits.discard_granularity ?:
 			queue_physical_block_size(backingq);
 
-	if (S_ISBLK(inode->i_mode) && !lo->lo_encrypt_key_size) {
-		struct request_queue *backingq;
-
-		backingq = bdev_get_queue(inode->i_bdev);
-		blk_queue_max_discard_sectors(q,
-			backingq->limits.max_write_zeroes_sectors);
-
-		blk_queue_max_write_zeroes_sectors(q,
-			backingq->limits.max_write_zeroes_sectors);
-
 	/*
 	 * We use punch hole to reclaim the free space used by the
 	 * image a.k.a. discard. However we do not support discard if
@@ -912,8 +902,6 @@ static void loop_config_discard(struct loop_device *lo)
 	 * useful information.
 	 */
 	} else if (!file->f_op->fallocate || lo->lo_encrypt_key_size) {
-<<<<<<< Updated upstream
-=======
 		max_discard_sectors = 0;
 		granularity = 0;
 
@@ -928,29 +916,12 @@ static void loop_config_discard(struct loop_device *lo)
 		blk_queue_max_write_zeroes_sectors(q, max_discard_sectors);
 		blk_queue_flag_set(QUEUE_FLAG_DISCARD, q);
 	} else {
->>>>>>> Stashed changes
 		q->limits.discard_granularity = 0;
 		blk_queue_max_discard_sectors(q, 0);
 		blk_queue_max_write_zeroes_sectors(q, 0);
-<<<<<<< Updated upstream
-
-	} else {
-		q->limits.discard_granularity = inode->i_sb->s_blocksize;
-		q->limits.discard_alignment = 0;
-
-		blk_queue_max_discard_sectors(q, UINT_MAX >> 9);
-		blk_queue_max_write_zeroes_sectors(q, UINT_MAX >> 9);
-	}
-
-	if (q->limits.max_write_zeroes_sectors)
-		blk_queue_flag_set(QUEUE_FLAG_DISCARD, q);
-	else
-		blk_queue_flag_clear(QUEUE_FLAG_DISCARD, q);
-=======
 		blk_queue_flag_clear(QUEUE_FLAG_DISCARD, q);
 	}
 	q->limits.discard_alignment = 0;
->>>>>>> Stashed changes
 }
 
 static void loop_unprepare_queue(struct loop_device *lo)
@@ -976,115 +947,6 @@ static int loop_prepare_queue(struct loop_device *lo)
 	return 0;
 }
 
-<<<<<<< Updated upstream
-static int loop_set_fd(struct loop_device *lo, fmode_t mode,
-		       struct block_device *bdev, unsigned int arg)
-{
-	struct file	*file;
-	struct inode	*inode;
-	struct address_space *mapping;
-	int		lo_flags = 0;
-	int		error;
-	loff_t		size;
-	bool		partscan;
-
-	/* This is safe, since we have a reference from open(). */
-	__module_get(THIS_MODULE);
-
-	error = -EBADF;
-	file = fget(arg);
-	if (!file)
-		goto out;
-
-	error = mutex_lock_killable(&loop_ctl_mutex);
-	if (error)
-		goto out_putf;
-
-	error = -EBUSY;
-	if (lo->lo_state != Lo_unbound)
-		goto out_unlock;
-
-	error = loop_validate_file(file, bdev);
-	if (error)
-		goto out_unlock;
-
-	mapping = file->f_mapping;
-	inode = mapping->host;
-
-	if (!(file->f_mode & FMODE_WRITE) || !(mode & FMODE_WRITE) ||
-	    !file->f_op->write_iter)
-		lo_flags |= LO_FLAGS_READ_ONLY;
-
-	error = -EFBIG;
-	size = get_loop_size(lo, file);
-	if ((loff_t)(sector_t)size != size)
-		goto out_unlock;
-	error = loop_prepare_queue(lo);
-	if (error)
-		goto out_unlock;
-
-	error = 0;
-
-	set_device_ro(bdev, (lo_flags & LO_FLAGS_READ_ONLY) != 0);
-
-	lo->use_dio = false;
-	lo->lo_device = bdev;
-	lo->lo_flags = lo_flags;
-	lo->lo_backing_file = file;
-	lo->transfer = NULL;
-	lo->ioctl = NULL;
-	lo->lo_sizelimit = 0;
-	lo->old_gfp_mask = mapping_gfp_mask(mapping);
-	mapping_set_gfp_mask(mapping, lo->old_gfp_mask & ~(__GFP_IO|__GFP_FS));
-
-	if (!(lo_flags & LO_FLAGS_READ_ONLY) && file->f_op->fsync)
-		blk_queue_write_cache(lo->lo_queue, true, false);
-
-	if (io_is_direct(lo->lo_backing_file) && inode->i_sb->s_bdev) {
-		unsigned short bsize = bdev_logical_block_size(
-			inode->i_sb->s_bdev);
-
-		blk_queue_logical_block_size(lo->lo_queue, bsize);
-		blk_queue_physical_block_size(lo->lo_queue, bsize);
-		blk_queue_io_min(lo->lo_queue, bsize);
-	}
-
-	loop_update_dio(lo);
-	set_capacity(lo->lo_disk, size);
-	bd_set_size(bdev, size << 9);
-	loop_sysfs_init(lo);
-	/* let user-space know about the new size */
-	kobject_uevent(&disk_to_dev(bdev->bd_disk)->kobj, KOBJ_CHANGE);
-
-	set_blocksize(bdev, S_ISBLK(inode->i_mode) ?
-		      block_size(inode->i_bdev) : PAGE_SIZE);
-
-	lo->lo_state = Lo_bound;
-	if (part_shift)
-		lo->lo_flags |= LO_FLAGS_PARTSCAN;
-	partscan = lo->lo_flags & LO_FLAGS_PARTSCAN;
-
-	/* Grab the block_device to prevent its destruction after we
-	 * put /dev/loopXX inode. Later in __loop_clr_fd() we bdput(bdev).
-	 */
-	bdgrab(bdev);
-	mutex_unlock(&loop_ctl_mutex);
-	if (partscan)
-		loop_reread_partitions(lo, bdev);
-	return 0;
-
-out_unlock:
-	mutex_unlock(&loop_ctl_mutex);
-out_putf:
-	fput(file);
-out:
-	/* This is safe: open() is still holding a reference. */
-	module_put(THIS_MODULE);
-	return error;
-}
-
-=======
->>>>>>> Stashed changes
 static int
 loop_release_xfer(struct loop_device *lo)
 {
@@ -1728,19 +1590,11 @@ static int loop_set_block_size(struct loop_device *lo, unsigned long arg)
 		return 0;
 
 	sync_blockdev(lo->lo_device);
-<<<<<<< Updated upstream
-	kill_bdev(lo->lo_device);
-
-	blk_mq_freeze_queue(lo->lo_queue);
-
-	/* kill_bdev should have truncated all the pages */
-=======
 	invalidate_bdev(lo->lo_device);
 
 	blk_mq_freeze_queue(lo->lo_queue);
 
 	/* invalidate_bdev should have truncated all the pages */
->>>>>>> Stashed changes
 	if (lo->lo_device->bd_inode->i_mapping->nrpages) {
 		err = -EAGAIN;
 		pr_warn("%s: loop%d (%s) has still dirty pages (nrpages=%lu)\n",

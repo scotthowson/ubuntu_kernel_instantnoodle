@@ -1,9 +1,5 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2014-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2014-2021 The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -55,8 +51,6 @@ static bool is_initial_mem_debug_disabled;
 #define QDF_MEM_WARN_THRESHOLD 300 /* ms */
 #define QDF_DEBUG_STRING_SIZE 512
 
-<<<<<<< Updated upstream
-=======
 /**
  * struct __qdf_mem_stat - qdf memory statistics
  * @kmalloc:	total kmalloc allocations
@@ -69,7 +63,6 @@ static struct __qdf_mem_stat {
 	qdf_atomic_t skb;
 } qdf_mem_stat;
 
->>>>>>> Stashed changes
 #ifdef MEMORY_DEBUG
 #include "qdf_debug_domain.h"
 #include <qdf_list.h>
@@ -93,23 +86,6 @@ struct major_alloc_priv {
 	uint32_t threshold;
 };
 
-<<<<<<< Updated upstream
-static struct major_alloc_priv mem_priv = {
-	/* List type set to mem */
-	LIST_TYPE_MEM,
-	/* initial threshold to list APIs which allocates mem >= 50 times */
-	50
-};
-
-static struct major_alloc_priv dma_priv = {
-	/* List type set to DMA */
-	LIST_TYPE_DMA,
-	/* initial threshold to list APIs which allocates dma >= 50 times */
-	50
-};
-
-=======
->>>>>>> Stashed changes
 static qdf_list_t qdf_mem_domains[QDF_DEBUG_DOMAIN_COUNT];
 static qdf_spinlock_t qdf_mem_list_lock;
 
@@ -301,93 +277,17 @@ qdf_mem_header_assert_valid(struct qdf_mem_header *header,
 
 	QDF_MEMDEBUG_PANIC("Fatal memory error detected @ %s:%d", func, line);
 }
-<<<<<<< Updated upstream
-#endif /* MEMORY_DEBUG */
-
-u_int8_t prealloc_disabled = 1;
-qdf_declare_param(prealloc_disabled, byte);
-qdf_export_symbol(prealloc_disabled);
-
-#if defined WLAN_DEBUGFS
-
-/* Debugfs root directory for qdf_mem */
-static struct dentry *qdf_mem_debugfs_root;
-
-/**
- * struct __qdf_mem_stat - qdf memory statistics
- * @kmalloc:	total kmalloc allocations
- * @dma:	total dma allocations
- * @skb:	total skb allocations
- */
-static struct __qdf_mem_stat {
-	qdf_atomic_t kmalloc;
-	qdf_atomic_t dma;
-	qdf_atomic_t skb;
-} qdf_mem_stat;
-
-void qdf_mem_kmalloc_inc(qdf_size_t size)
-{
-	qdf_atomic_add(size, &qdf_mem_stat.kmalloc);
-}
-
-static void qdf_mem_dma_inc(qdf_size_t size)
-{
-	qdf_atomic_add(size, &qdf_mem_stat.dma);
-}
-=======
->>>>>>> Stashed changes
 
 void qdf_mem_skb_inc(qdf_size_t size)
 {
 	qdf_atomic_add(size, &qdf_mem_stat.skb);
 }
 
-<<<<<<< Updated upstream
-void qdf_mem_kmalloc_dec(qdf_size_t size)
-{
-	qdf_atomic_sub(size, &qdf_mem_stat.kmalloc);
-}
-
-static inline void qdf_mem_dma_dec(qdf_size_t size)
-{
-	qdf_atomic_sub(size, &qdf_mem_stat.dma);
-}
-
-=======
->>>>>>> Stashed changes
 void qdf_mem_skb_dec(qdf_size_t size)
 {
 	qdf_atomic_sub(size, &qdf_mem_stat.skb);
 }
 
-<<<<<<< Updated upstream
-#ifdef MEMORY_DEBUG
-static int qdf_err_printer(void *priv, const char *fmt, ...)
-{
-	va_list args;
-
-	va_start(args, fmt);
-	QDF_VTRACE(QDF_MODULE_ID_QDF, QDF_TRACE_LEVEL_ERROR, (char *)fmt, args);
-	va_end(args);
-
-	return 0;
-}
-
-static int seq_printf_printer(void *priv, const char *fmt, ...)
-{
-	struct seq_file *file = priv;
-	va_list args;
-
-	va_start(args, fmt);
-	seq_vprintf(file, fmt, args);
-	seq_puts(file, "\n");
-	va_end(args);
-
-	return 0;
-}
-
-=======
->>>>>>> Stashed changes
 /**
  * struct __qdf_mem_info - memory statistics
  * @func: the function which allocated memory
@@ -436,84 +336,6 @@ static void qdf_mem_debug_print_header(qdf_abstract_print print,
 }
 
 /**
-<<<<<<< Updated upstream
- * qdf_mem_meta_table_print() - memory metadata table print logic
- * @table: the memory metadata table to print
- * @print: the print adapter function
- * @print_priv: the private data to be consumed by @print
- * @threshold: the threshold value set by user to list top allocations
- *
- * Return: None
- */
-static void qdf_mem_meta_table_print(struct __qdf_mem_info *table,
-				     qdf_abstract_print print,
-				     void *print_priv,
-				     uint32_t threshold)
-{
-	int i;
-	char debug_str[QDF_DEBUG_STRING_SIZE];
-	size_t len = 0;
-	char *debug_prefix = "WLAN_BUG_RCA: memory leak detected";
-
-	len += qdf_scnprintf(debug_str, sizeof(debug_str) - len,
-			     "%s", debug_prefix);
-
-	for (i = 0; i < QDF_MEM_STAT_TABLE_SIZE; i++) {
-		if (!table[i].count)
-			break;
-
-		print(print_priv,
-		      "%6u x %5u = %7uB @ %s:%u   %pS %llu",
-		      table[i].count,
-		      table[i].size,
-		      table[i].count * table[i].size,
-		      table[i].func,
-		      table[i].line, table[i].caller,
-		      table[i].time);
-		len += qdf_scnprintf(debug_str + len,
-				     sizeof(debug_str) - len,
-				     " @ %s:%u %pS",
-				     table[i].func,
-				     table[i].line,
-				     table[i].caller);
-	}
-	print(print_priv, "%s", debug_str);
-}
-
-/**
- * qdf_print_major_alloc() - memory metadata table print logic
- * @table: the memory metadata table to print
- * @print: the print adapter function
- * @print_priv: the private data to be consumed by @print
- * @threshold: the threshold value set by uset to list top allocations
- *
- * Return: None
- */
-static void qdf_print_major_alloc(struct __qdf_mem_info *table,
-				  qdf_abstract_print print,
-				  void *print_priv,
-				  uint32_t threshold)
-{
-	int i;
-
-	for (i = 0; i < QDF_MEM_STAT_TABLE_SIZE; i++) {
-		if (!table[i].count)
-			break;
-		if (table[i].count >= threshold)
-			print(print_priv,
-			      "%6u x %5u = %7uB @ %s:%u   %pS %llu",
-			      table[i].count,
-			      table[i].size,
-			      table[i].count * table[i].size,
-			      table[i].func,
-			      table[i].line, table[i].caller,
-			      table[i].time);
-	}
-}
-
-/**
-=======
->>>>>>> Stashed changes
  * qdf_mem_meta_table_insert() - insert memory metadata into the given table
  * @table: the memory metadata table to insert into
  * @meta: the memory metadata to insert
@@ -598,8 +420,6 @@ static void qdf_mem_domain_print(qdf_list_t *domain,
 }
 
 /**
-<<<<<<< Updated upstream
-=======
  * qdf_mem_meta_table_print() - memory metadata table print logic
  * @table: the memory metadata table to print
  * @print: the print adapter function
@@ -721,7 +541,6 @@ static void qdf_print_major_alloc(struct __qdf_mem_info *table,
 }
 
 /**
->>>>>>> Stashed changes
  * qdf_mem_seq_start() - sequential callback to start
  * @seq: seq_file handle
  * @pos: The start position of the sequence
@@ -903,8 +722,6 @@ static const struct file_operations fops_qdf_mem_debugfs = {
 	.release = seq_release,
 };
 
-<<<<<<< Updated upstream
-=======
 static struct major_alloc_priv mem_priv = {
 	/* List type set to mem */
 	LIST_TYPE_MEM,
@@ -919,7 +736,6 @@ static struct major_alloc_priv dma_priv = {
 	50
 };
 
->>>>>>> Stashed changes
 static QDF_STATUS qdf_mem_debug_debugfs_init(void)
 {
 	if (is_initial_mem_debug_disabled)
@@ -1008,12 +824,6 @@ static QDF_STATUS qdf_mem_debugfs_init(void)
 
 #else /* WLAN_DEBUGFS */
 
-<<<<<<< Updated upstream
-static inline void qdf_mem_dma_inc(qdf_size_t size) {}
-static inline void qdf_mem_dma_dec(qdf_size_t size) {}
-
-=======
->>>>>>> Stashed changes
 static QDF_STATUS qdf_mem_debugfs_init(void)
 {
 	return QDF_STATUS_E_NOSUPPORT;
@@ -1033,8 +843,6 @@ static QDF_STATUS qdf_mem_debug_debugfs_exit(void)
 
 #endif /* WLAN_DEBUGFS */
 
-<<<<<<< Updated upstream
-=======
 static void qdf_mem_dma_inc(qdf_size_t size)
 {
 	qdf_atomic_add(size, &qdf_mem_stat.dma);
@@ -1045,7 +853,6 @@ static inline void qdf_mem_dma_dec(qdf_size_t size)
 	qdf_atomic_sub(size, &qdf_mem_stat.dma);
 }
 
->>>>>>> Stashed changes
 /**
  * __qdf_mempool_init() - Create and initialize memory pool
  *

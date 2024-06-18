@@ -1385,12 +1385,7 @@ out:
 		put_page(pages[i]);
 	}
 	btrfs_delalloc_release_space(inode, data_reserved,
-<<<<<<< Updated upstream
-			start_index << PAGE_SHIFT,
-			page_cnt << PAGE_SHIFT, true);
-=======
 			start, page_cnt << PAGE_SHIFT, true);
->>>>>>> Stashed changes
 	btrfs_delalloc_release_extents(BTRFS_I(inode), page_cnt << PAGE_SHIFT);
 	extent_changeset_free(data_reserved);
 	return ret;

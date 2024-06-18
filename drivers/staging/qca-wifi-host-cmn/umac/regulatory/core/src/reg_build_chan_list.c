@@ -253,20 +253,6 @@ static void reg_modify_chan_list_for_indoor_channels(
 	}
 }
 
-<<<<<<< Updated upstream
-/**
- * reg_modify_chan_list_for_band() - Based on the input band value, either
- * disable 2GHz or 5GHz channels.
- * @chan_list: Pointer to regulatory channel list.
- * @band_val: Input band value.
- */
-static void reg_modify_chan_list_for_band(struct regulatory_channel *chan_list,
-					  enum band_info band_val)
-{
-	enum channel_enum chan_enum;
-
-	if (band_val == BAND_2G) {
-=======
 #ifdef CONFIG_BAND_6GHZ
 static void reg_modify_chan_list_for_band_6G(
 					struct regulatory_channel *chan_list)
@@ -304,7 +290,6 @@ static void reg_modify_chan_list_for_band(struct regulatory_channel *chan_list,
 
 	if (!(band_bitmap & BIT(REG_BAND_5G))) {
 		reg_debug("disabling 5G");
->>>>>>> Stashed changes
 		for (chan_enum = MIN_5GHZ_CHANNEL;
 		     chan_enum <= MAX_5GHZ_CHANNEL; chan_enum++) {
 			chan_list[chan_enum].chan_flags |=
@@ -313,12 +298,8 @@ static void reg_modify_chan_list_for_band(struct regulatory_channel *chan_list,
 		}
 	}
 
-<<<<<<< Updated upstream
-	if (band_val == BAND_5G) {
-=======
 	if (!(band_bitmap & BIT(REG_BAND_2G))) {
 		reg_debug("disabling 2G");
->>>>>>> Stashed changes
 		for (chan_enum = MIN_24GHZ_CHANNEL;
 		     chan_enum <= MAX_24GHZ_CHANNEL; chan_enum++) {
 			chan_list[chan_enum].chan_flags |=
@@ -326,13 +307,10 @@ static void reg_modify_chan_list_for_band(struct regulatory_channel *chan_list,
 			chan_list[chan_enum].state = CHANNEL_STATE_DISABLE;
 		}
 	}
-<<<<<<< Updated upstream
-=======
 
 	if (!(band_bitmap & BIT(REG_BAND_6G)))
 		reg_modify_chan_list_for_band_6G(chan_list);
 
->>>>>>> Stashed changes
 }
 
 /**

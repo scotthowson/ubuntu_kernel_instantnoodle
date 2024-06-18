@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2017-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2017-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include <linux/debugfs.h>
@@ -1439,8 +1435,6 @@ int ipa_pm_exceptions_stat(char *buf, int size)
 
 	return cnt;
 }
-<<<<<<< Updated upstream
-=======
 
 /**
  * ipa_pm_add_dummy_clients() - add 2 dummy clients for modem and apps
@@ -1449,7 +1443,6 @@ int ipa_pm_exceptions_stat(char *buf, int size)
  *
  * Returns: 0 on success, negative on failure
  */
->>>>>>> Stashed changes
 int ipa_pm_add_dummy_clients(s8 power_plan)
 {
 	int rc = 0;

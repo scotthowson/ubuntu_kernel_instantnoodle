@@ -142,13 +142,6 @@ static void cpu_v7_spectre_v2_init(void)
 		state = SPECTRE_UNAFFECTED;
 		break;
 
-<<<<<<< Updated upstream
-#ifdef CONFIG_ARM_PSCI
-	case ARM_CPU_PART_BRAHMA_B53:
-		/* Requires no workaround */
-		break;
-=======
->>>>>>> Stashed changes
 	default:
 		/* Other ARM CPUs require no workaround */
 		if (read_cpuid_implementor() == ARM_CPU_IMP_ARM) {

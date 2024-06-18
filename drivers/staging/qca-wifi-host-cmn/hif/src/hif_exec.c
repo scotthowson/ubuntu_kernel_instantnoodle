@@ -43,8 +43,6 @@ int hif_get_next_record_index(qdf_atomic_t *table_index,
 	return record_index & (array_size - 1);
 }
 
-<<<<<<< Updated upstream
-=======
 /**
  * hif_hist_is_prev_record() - Check if index is the immediate
  *  previous record wrt curr_index
@@ -128,7 +126,6 @@ hif_hist_skip_event_record(struct hif_event_history *hist_ev,
 	return false;
 }
 
->>>>>>> Stashed changes
 void hif_hist_record_event(struct hif_opaque_softc *hif_ctx,
 			   struct hif_event_record *event, uint8_t intr_grp_id)
 {
@@ -153,25 +150,19 @@ void hif_hist_record_event(struct hif_opaque_softc *hif_ctx,
 	hif_ext_group = hif_state->hif_ext_group[intr_grp_id];
 	hist_ev = hif_ext_group->evt_hist;
 
-<<<<<<< Updated upstream
-=======
 	if (hif_hist_skip_event_record(hist_ev, event))
 		return;
 
->>>>>>> Stashed changes
 	record_index = hif_get_next_record_index(
 			&hist_ev->index, HIF_EVENT_HIST_MAX);
 
 	record = &hist_ev->event[record_index];
 
-<<<<<<< Updated upstream
-=======
 	if (event->type == HIF_EVENT_IRQ_TRIGGER) {
 		hist_ev->misc.last_irq_index = record_index;
 		hist_ev->misc.last_irq_ts = qdf_get_log_timestamp();
 	}
 
->>>>>>> Stashed changes
 	record->hal_ring_id = event->hal_ring_id;
 	record->hp = event->hp;
 	record->tp = event->tp;
@@ -840,8 +831,6 @@ uint32_t hif_configure_ext_group_interrupts(struct hif_opaque_softc *hif_ctx)
 
 qdf_export_symbol(hif_configure_ext_group_interrupts);
 
-<<<<<<< Updated upstream
-=======
 void hif_deconfigure_ext_group_interrupts(struct hif_opaque_softc *hif_ctx)
 {
 	struct hif_softc *scn = HIF_GET_SOFTC(hif_ctx);
@@ -857,7 +846,6 @@ void hif_deconfigure_ext_group_interrupts(struct hif_opaque_softc *hif_ctx)
 
 qdf_export_symbol(hif_deconfigure_ext_group_interrupts);
 
->>>>>>> Stashed changes
 #ifdef WLAN_SUSPEND_RESUME_TEST
 /**
  * hif_check_and_trigger_ut_resume() - check if unit-test command was used to

@@ -231,8 +231,6 @@ static void cam_cci_dump_registers(struct cci_device *cci_dev,
 	uint32_t read_val = 0;
 	uint32_t i = 0;
 	uint32_t reg_offset = 0;
-	uint32_t read_buf_level = 0;
-	uint32_t read_data_reg_offset = 0x0;
 	void __iomem *base = cci_dev->soc_info.reg_map[0].mem_base;
 
 	CAM_INFO(CAM_CCI, "**** CCI:%d register dump ****",
@@ -250,22 +248,11 @@ static void cam_cci_dump_registers(struct cci_device *cci_dev,
 	/* CCI Master registers */
 	CAM_INFO(CAM_CCI, "****CCI MASTER %d Registers ****",
 		master);
-	read_buf_level = cam_io_r_mb(base +
-			CCI_I2C_M0_READ_BUF_LEVEL_ADDR + master * 0x100);
-	read_data_reg_offset = CCI_I2C_M0_READ_DATA_ADDR + master * 0x100;
 	for (i = 0; i < DEBUG_MASTER_REG_COUNT; i++) {
 		if ((i * 4) == 0x18)
 			continue;
 
 		reg_offset = DEBUG_MASTER_REG_START + master*0x100 + i * 4;
-		/*
-		 * Don't read from READ_DATA_ADDR if
-		 * i2c read fifo is empty, this may lead to
-		 * read underflow status bits getting set
-		 */
-		if ((read_buf_level == 0) &&
-			(reg_offset == read_data_reg_offset))
-			continue;
 		read_val = cam_io_r_mb(base + reg_offset);
 		CAM_INFO(CAM_CCI, "offset = 0x%X value = 0x%X",
 			reg_offset, read_val);
@@ -397,12 +384,6 @@ static uint32_t cam_cci_wait(struct cci_device *cci_dev,
 		cam_cci_dump_registers(cci_dev, master, queue);
 #endif
 		CAM_ERR(CAM_CCI, "wait for queue: %d", queue);
-<<<<<<< Updated upstream
-		if (rc == 0){
-			rc = -ETIMEDOUT;
-			cam_cci_flush_queue(cci_dev, master);
-			return rc;
-=======
 		if (rc == 0) {
 			rc = cam_cci_retry(cci_dev, master, queue);
 			if (!rc)
@@ -411,7 +392,6 @@ static uint32_t cam_cci_wait(struct cci_device *cci_dev,
 					soc_info->index, master, queue);
 			else
 				return rc;
->>>>>>> Stashed changes
 		}
 	}
 
@@ -1099,13 +1079,10 @@ static int32_t cam_cci_burst_read(struct v4l2_subdev *sd,
 
 	mutex_lock(&cci_dev->cci_master_info[master].mutex_q[queue]);
 	reinit_completion(&cci_dev->cci_master_info[master].report_q[queue]);
-<<<<<<< Updated upstream
-=======
 
 	soc_info = &cci_dev->soc_info;
 	base = soc_info->reg_map[0].mem_base;
 
->>>>>>> Stashed changes
 	/*
 	 * Call validate queue to make sure queue is empty before starting.
 	 * If this call fails, don't proceed with i2c_read call. This is to
@@ -1362,18 +1339,11 @@ static int32_t cam_cci_read(struct v4l2_subdev *sd,
 	}
 
 	mutex_lock(&cci_dev->cci_master_info[master].mutex_q[queue]);
-<<<<<<< Updated upstream
-
-	reinit_completion(&cci_dev->cci_master_info[master].report_q[queue]);
-	// read operation done only in Q1
-	//reinit_completion(&cci_dev->cci_master_info[master].rd_done);
-=======
 	reinit_completion(&cci_dev->cci_master_info[master].report_q[queue]);
 
 	soc_info = &cci_dev->soc_info;
 	base = soc_info->reg_map[0].mem_base;
 
->>>>>>> Stashed changes
 	/*
 	 * Call validate queue to make sure queue is empty before starting.
 	 * If this call fails, don't proceed with i2c_read call. This is to
@@ -1564,11 +1534,6 @@ static int32_t cam_cci_i2c_write(struct v4l2_subdev *sd,
 		CAM_ERR(CAM_CCI, "cam_cci_set_clk_param failed rc = %d", rc);
 		return rc;
 	}
-<<<<<<< Updated upstream
-	mutex_unlock(&cci_dev->cci_master_info[master].mutex);
-
-=======
->>>>>>> Stashed changes
 	reinit_completion(&cci_dev->cci_master_info[master].report_q[queue]);
 	/*
 	 * Call validate queue to make sure queue is empty before starting.
@@ -1944,8 +1909,7 @@ int32_t cam_cci_core_cfg(struct v4l2_subdev *sd,
 	}
 
 	cci_ctrl->status = rc;
-	if(rc == 0)
-		CAM_DBG(CAM_CCI, "master = %d, cmd = %d successful", master, cci_ctrl->cmd);
+
 	return rc;
 }
 

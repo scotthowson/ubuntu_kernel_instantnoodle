@@ -1,11 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2017-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2017-2021, The Linux Foundation. All rights reserved.
  * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #define pr_fmt(fmt) "icnss2_qmi: " fmt
@@ -33,10 +29,7 @@
 #include "main.h"
 #include "qmi.h"
 #include "debug.h"
-<<<<<<< Updated upstream
-=======
 #include "genl.h"
->>>>>>> Stashed changes
 
 #define WLFW_SERVICE_WCN_INS_ID_V01	3
 #define WLFW_SERVICE_INS_ID_V01		0
@@ -52,14 +45,10 @@
 #define REGDB_FILE_NAME			"regdb.bin"
 #define DUMMY_BDF_FILE_NAME		"bdwlan.dmy"
 
-<<<<<<< Updated upstream
-#define DEVICE_BAR_SIZE			0x200000
-=======
 #define QDSS_TRACE_CONFIG_FILE "qdss_trace_config.cfg"
 
 #define DEVICE_BAR_SIZE			0x200000
 #define M3_SEGMENT_ADDR_MASK		0xFFFFFFFF
->>>>>>> Stashed changes
 
 #ifdef CONFIG_ICNSS2_DEBUG
 bool ignore_fw_timeout;
@@ -346,8 +335,6 @@ int wlfw_device_info_send_msg(struct icnss_priv *priv)
 		goto out;
 	}
 
-<<<<<<< Updated upstream
-=======
 	if (resp->mhi_state_info_addr_valid)
 		priv->mhi_state_info_pa = resp->mhi_state_info_addr;
 
@@ -357,7 +344,6 @@ int wlfw_device_info_send_msg(struct icnss_priv *priv)
 	if (!priv->mhi_state_info_pa)
 		icnss_pr_err("Fail to get MHI info address\n");
 
->>>>>>> Stashed changes
 	kfree(resp);
 	kfree(req);
 	return 0;
@@ -567,11 +553,8 @@ int wlfw_ind_register_send_sync_msg(struct icnss_priv *priv)
 		req->qdss_trace_free_enable = 1;
 		req->respond_get_info_enable_valid = 1;
 		req->respond_get_info_enable = 1;
-<<<<<<< Updated upstream
-=======
 		req->m3_dump_upload_segments_req_enable_valid = 1;
 		req->m3_dump_upload_segments_req_enable = 1;
->>>>>>> Stashed changes
 	}
 
 	priv->stats.ind_register_req++;
@@ -679,14 +662,6 @@ int wlfw_cap_send_sync_msg(struct icnss_priv *priv)
 				    ret);
 		goto out;
 	} else if (resp->resp.result != QMI_RESULT_SUCCESS_V01) {
-<<<<<<< Updated upstream
-		icnss_qmi_fatal_err(
-			"QMI Capability request rejected, result:%d error:%d\n",
-			resp->resp.result, resp->resp.error);
-		ret = -resp->resp.result;
-		if (resp->resp.error == QMI_ERR_PLAT_CCPM_CLK_INIT_FAILED)
-			icnss_qmi_fatal_err("RF card not present\n");
-=======
 		ret = -resp->resp.result;
 		if (resp->resp.error == QMI_ERR_PLAT_CCPM_CLK_INIT_FAILED) {
 			icnss_pr_err("RF card not present\n");
@@ -695,7 +670,6 @@ int wlfw_cap_send_sync_msg(struct icnss_priv *priv)
 		icnss_qmi_fatal_err(
 			"QMI Capability request rejected, result:%d error:%d\n",
 			resp->resp.result, resp->resp.error);
->>>>>>> Stashed changes
 		goto out;
 	}
 
@@ -922,8 +896,6 @@ err_req_fw:
 	return ret;
 }
 
-<<<<<<< Updated upstream
-=======
 int icnss_wlfw_qdss_data_send_sync(struct icnss_priv *priv, char *file_name,
 				   u32 total_size)
 {
@@ -1156,7 +1128,6 @@ err_req_fw:
 	return ret;
 }
 
->>>>>>> Stashed changes
 int wlfw_wlan_mode_send_sync_msg(struct icnss_priv *priv,
 		enum wlfw_driver_mode_enum_v01 mode)
 {
@@ -1246,10 +1217,6 @@ out:
 	return ret;
 }
 
-<<<<<<< Updated upstream
-int wlfw_wlan_cfg_send_sync_msg(struct icnss_priv *priv,
-		struct wlfw_wlan_cfg_req_msg_v01 *data)
-=======
 static int wlfw_send_qdss_trace_mode_req
 		(struct icnss_priv *priv,
 		 enum wlfw_qdss_trace_mode_enum_v01 mode,
@@ -1340,7 +1307,6 @@ int wlfw_qdss_trace_stop(struct icnss_priv *priv, unsigned long long option)
 
 int wlfw_wlan_cfg_send_sync_msg(struct icnss_priv *priv,
 				struct wlfw_wlan_cfg_req_msg_v01 *data)
->>>>>>> Stashed changes
 {
 	int ret;
 	struct wlfw_wlan_cfg_req_msg_v01 *req;
@@ -1932,8 +1898,6 @@ out:
 	return ret;
 }
 
-<<<<<<< Updated upstream
-=======
 int icnss_wlfw_m3_dump_upload_done_send_sync(struct icnss_priv *priv,
 					     u32 pdev_id, int status)
 {
@@ -1995,7 +1959,6 @@ out:
 	return ret;
 }
 
->>>>>>> Stashed changes
 static void fw_ready_ind_cb(struct qmi_handle *qmi, struct sockaddr_qrtr *sq,
 			    struct qmi_txn *txn, const void *data)
 {
@@ -2178,13 +2141,10 @@ static void fw_init_done_ind_cb(struct qmi_handle *qmi,
 				struct qmi_txn *txn, const void *data)
 {
 	struct icnss_priv *priv = container_of(qmi, struct icnss_priv, qmi);
-<<<<<<< Updated upstream
-=======
 	struct device *dev = &priv->pdev->dev;
 	const struct wlfw_fw_init_done_ind_msg_v01 *ind_msg = data;
 	uint64_t msa_base_addr = priv->msa_pa;
 	phys_addr_t hang_data_phy_addr;
->>>>>>> Stashed changes
 
 	icnss_pr_dbg("Received QMI WLFW FW initialization done indication\n");
 
@@ -2193,10 +2153,6 @@ static void fw_init_done_ind_cb(struct qmi_handle *qmi,
 		return;
 	}
 
-<<<<<<< Updated upstream
-	icnss_driver_event_post(priv, ICNSS_DRIVER_EVENT_FW_INIT_DONE_IND,
-				0, NULL);
-=======
 	/* Check if the length is valid &
 	 * the length should not be 0 and
 	 * should be <=  WLFW_MAX_HANG_EVENT_DATA_SIZE(400)
@@ -2254,7 +2210,6 @@ post:
 	icnss_driver_event_post(priv, ICNSS_DRIVER_EVENT_FW_INIT_DONE_IND,
 				0, NULL);
 
->>>>>>> Stashed changes
 }
 
 static void wlfw_qdss_trace_req_mem_ind_cb(struct qmi_handle *qmi,
@@ -2315,12 +2270,6 @@ static void wlfw_qdss_trace_save_ind_cb(struct qmi_handle *qmi,
 		     ind_msg->source, ind_msg->total_size,
 		     ind_msg->file_name_valid, ind_msg->file_name);
 
-<<<<<<< Updated upstream
-	if (ind_msg->source == 1)
-		return;
-
-=======
->>>>>>> Stashed changes
 	event_data = kzalloc(sizeof(*event_data), GFP_KERNEL);
 	if (!event_data)
 		return;
@@ -2348,14 +2297,6 @@ static void wlfw_qdss_trace_save_ind_cb(struct qmi_handle *qmi,
 	if (ind_msg->file_name_valid)
 		strlcpy(event_data->file_name, ind_msg->file_name,
 			QDSS_TRACE_FILE_NAME_MAX + 1);
-<<<<<<< Updated upstream
-	else
-		strlcpy(event_data->file_name, "qdss_trace",
-			QDSS_TRACE_FILE_NAME_MAX + 1);
-
-	icnss_driver_event_post(priv, ICNSS_DRIVER_EVENT_QDSS_TRACE_SAVE,
-				0, event_data);
-=======
 
 	if (ind_msg->source == 1) {
 		if (!ind_msg->file_name_valid)
@@ -2370,7 +2311,6 @@ static void wlfw_qdss_trace_save_ind_cb(struct qmi_handle *qmi,
 	icnss_driver_event_post(priv, ICNSS_DRIVER_EVENT_QDSS_TRACE_SAVE,
 				0, event_data);
 	}
->>>>>>> Stashed changes
 
 	return;
 
@@ -2398,11 +2338,6 @@ static void icnss_wlfw_respond_get_info_ind_cb(struct qmi_handle *qmi,
 	struct icnss_priv *priv = container_of(qmi, struct icnss_priv, qmi);
 	const struct wlfw_respond_get_info_ind_msg_v01 *ind_msg = data;
 
-<<<<<<< Updated upstream
-	icnss_pr_vdbg("Received QMI WLFW respond get info indication\n");
-
-=======
->>>>>>> Stashed changes
 	if (!txn) {
 		icnss_pr_err("Spurious indication\n");
 		return;
@@ -2418,8 +2353,6 @@ static void icnss_wlfw_respond_get_info_ind_cb(struct qmi_handle *qmi,
 				       ind_msg->data_len);
 }
 
-<<<<<<< Updated upstream
-=======
 static void icnss_wlfw_m3_dump_upload_segs_req_ind_cb(struct qmi_handle *qmi,
 						      struct sockaddr_qrtr *sq,
 						      struct qmi_txn *txn,
@@ -2492,7 +2425,6 @@ out:
 	kfree(event_data);
 }
 
->>>>>>> Stashed changes
 static struct qmi_msg_handler wlfw_msg_handlers[] = {
 	{
 		.type = QMI_INDICATION,
@@ -2569,8 +2501,6 @@ static struct qmi_msg_handler wlfw_msg_handlers[] = {
 		sizeof(struct wlfw_respond_get_info_ind_msg_v01),
 		.fn = icnss_wlfw_respond_get_info_ind_cb
 	},
-<<<<<<< Updated upstream
-=======
 	{
 		.type = QMI_INDICATION,
 		.msg_id = QMI_WLFW_M3_DUMP_UPLOAD_SEGMENTS_REQ_IND_V01,
@@ -2579,7 +2509,6 @@ static struct qmi_msg_handler wlfw_msg_handlers[] = {
 		sizeof(struct wlfw_m3_dump_upload_segments_req_ind_msg_v01),
 		.fn = icnss_wlfw_m3_dump_upload_segs_req_ind_cb
 	},
->>>>>>> Stashed changes
 	{}
 };
 
@@ -3007,12 +2936,6 @@ int icnss_wlfw_get_info_send_sync(struct icnss_priv *plat_priv, int type,
 	struct qmi_txn txn;
 	int ret = 0;
 
-<<<<<<< Updated upstream
-	icnss_pr_dbg("Sending get info message, type: %d, cmd length: %d, state: 0x%lx\n",
-		     type, cmd_len, plat_priv->state);
-
-=======
->>>>>>> Stashed changes
 	if (cmd_len > QMI_WLFW_MAX_DATA_SIZE_V01)
 		return -EINVAL;
 

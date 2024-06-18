@@ -1611,11 +1611,8 @@ static void __msm_console_write(struct uart_port *port, const char *s,
 			num_newlines++;
 	count += num_newlines;
 
-<<<<<<< Updated upstream
-=======
 	local_irq_save(flags);
 
->>>>>>> Stashed changes
 	if (port->sysrq)
 		locked = 0;
 	else if (oops_in_progress)
@@ -1661,11 +1658,8 @@ static void __msm_console_write(struct uart_port *port, const char *s,
 
 	if (locked)
 		spin_unlock(&port->lock);
-<<<<<<< Updated upstream
-=======
 
 	local_irq_restore(flags);
->>>>>>> Stashed changes
 }
 
 static void msm_console_write(struct console *co, const char *s,

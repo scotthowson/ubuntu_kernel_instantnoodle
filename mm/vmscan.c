@@ -87,9 +87,6 @@ struct scan_control {
 	/* Can pages be swapped as part of reclaim? */
 	unsigned int may_swap:1;
 
-	/* e.g. boosted watermark reclaim leaves slabs alone */
-	unsigned int may_shrinkslab:1;
-
 	/*
 	 * Cgroups are not reclaimed below their configured memory.low,
 	 * unless we threaten to OOM. If any cgroups are skipped due to
@@ -132,13 +129,6 @@ struct scan_control {
 	} nr;
 };
 
-/*
- * Number of active kswapd threads
- */
-#define DEF_KSWAPD_THREADS_PER_NODE 1
-int kswapd_threads = DEF_KSWAPD_THREADS_PER_NODE;
-int kswapd_threads_current = DEF_KSWAPD_THREADS_PER_NODE;
-
 #ifdef ARCH_HAS_PREFETCH
 #define prefetch_prev_lru_page(_page, _base, _field)			\
 	do {								\
@@ -171,10 +161,6 @@ int kswapd_threads_current = DEF_KSWAPD_THREADS_PER_NODE;
  * From 0 .. 100.  Higher means more swappy.
  */
 int vm_swappiness = 60;
-<<<<<<< Updated upstream
-#endif
-=======
->>>>>>> Stashed changes
 /*
  * The total number of pages which are beyond the high watermark within all
  * zones.
@@ -1314,11 +1300,6 @@ static unsigned long shrink_page_list(struct list_head *page_list,
 								    page_list))
 						goto activate_locked;
 				}
-<<<<<<< Updated upstream
-				memplus_set_private(page, sc->swp_bdv_type);
-				/* add end */
-=======
->>>>>>> Stashed changes
 				if (!add_to_swap(page)) {
 					if (!PageTransHuge(page))
 						goto activate_locked;
@@ -1561,14 +1542,8 @@ unsigned long reclaim_clean_pages_from_list(struct zone *zone,
 	return ret;
 }
 
-<<<<<<< Updated upstream
-#ifdef CONFIG_MEMPLUS
-unsigned long coretech_reclaim_pagelist(struct list_head *page_list,
-	struct vm_area_struct *vma, void *sc)
-=======
 #ifdef CONFIG_PROCESS_RECLAIM
 unsigned long reclaim_pages(struct list_head *page_list)
->>>>>>> Stashed changes
 {
 	unsigned long nr_reclaimed;
 	struct page *page;
@@ -1609,76 +1584,8 @@ unsigned long reclaim_pages(struct list_head *page_list)
 		putback_lru_page(page);
 	}
 
-<<<<<<< Updated upstream
-	return nr_reclaimed;
-}
-
-unsigned long swapout_to_zram(struct list_head *page_list,
-	struct vm_area_struct *vma)
-{
-	struct scan_control sc = {
-		.gfp_mask = GFP_KERNEL,
-		.priority = DEF_PRIORITY,
-		.may_writepage = 1,
-		.may_unmap = 1,
-		.may_swap = 1,
-		.target_vma = vma,
-		.swp_bdv_type = 1,
-	};
-
-	return coretech_reclaim_pagelist(page_list, vma, &sc);
-}
-
-unsigned long swapout_to_disk(struct list_head *page_list,
-	struct vm_area_struct *vma)
-{
-	struct scan_control sc = {
-		.gfp_mask = GFP_KERNEL,
-		.priority = DEF_PRIORITY,
-		.may_writepage = 1,
-		.may_unmap = 1,
-		.may_swap = 1,
-		.target_vma = vma,
-		.swp_bdv_type = 0,
-	};
-
-	return coretech_reclaim_pagelist(page_list, vma, &sc);
-}
-#endif
-
-#ifdef CONFIG_PROCESS_RECLAIM
-unsigned long reclaim_pages_from_list(struct list_head *page_list,
-					struct vm_area_struct *vma)
-{
-	struct scan_control sc = {
-		.gfp_mask = GFP_KERNEL,
-		.priority = DEF_PRIORITY,
-		.may_writepage = 1,
-		.may_unmap = 1,
-		.may_swap = 1,
-		.target_vma = vma,
-	};
-
-	unsigned long nr_reclaimed;
-	struct page *page;
-
-	list_for_each_entry(page, page_list, lru)
-		ClearPageActive(page);
-
-	nr_reclaimed = shrink_page_list(page_list, NULL, &sc,
-			TTU_IGNORE_ACCESS, NULL, true);
-
-	while (!list_empty(page_list)) {
-		page = lru_to_page(page_list);
-		list_del(&page->lru);
-		dec_node_page_state(page, NR_ISOLATED_ANON +
-				page_is_file_cache(page));
-		putback_lru_page(page);
-	}
-=======
 	mod_node_page_state(pgdat, NR_ISOLATED_ANON, -nr_isolated[0]);
 	mod_node_page_state(pgdat, NR_ISOLATED_FILE, -nr_isolated[1]);
->>>>>>> Stashed changes
 
 	return nr_reclaimed;
 }
@@ -1840,17 +1747,6 @@ static unsigned long isolate_lru_pages(unsigned long nr_to_scan,
 		 * pages, triggering a premature OOM.
 		 */
 		scan++;
-<<<<<<< Updated upstream
-
-		if (memplus_check_isolate_page(page) &&
-				(BIT(lru) & LRU_ALL_ANON)) {
-			list_move(&page->lru, src);
-			continue;
-		}
-		/* add end */
-
-=======
->>>>>>> Stashed changes
 		switch (__isolate_lru_page(page, mode)) {
 		case 0:
 			nr_pages = hpage_nr_pages(page);
@@ -2200,10 +2096,6 @@ static unsigned move_active_pages_to_lru(struct lruvec *lruvec,
 		page = lru_to_page(list);
 		lruvec = mem_cgroup_page_lruvec(page, pgdat);
 
-<<<<<<< Updated upstream
-		memplus_page_to_lru(lru, page);
-=======
->>>>>>> Stashed changes
 		VM_BUG_ON_PAGE(PageLRU(page), page);
 		SetPageLRU(page);
 
@@ -2384,12 +2276,6 @@ static bool inactive_list_is_low(struct lruvec *lruvec, bool file,
 	if (!file && !total_swap_pages)
 		return false;
 
-	if (!file) {
-		inactive_lru = MEMPLUS_PAGE_LRU;
-		active_lru = MEMPLUS_PAGE_LRU + LRU_ACTIVE;
-	}
-	/* add end */
-
 	inactive = lruvec_lru_size(lruvec, inactive_lru, sc->reclaim_idx);
 	active = lruvec_lru_size(lruvec, active_lru, sc->reclaim_idx);
 
@@ -2461,19 +2347,6 @@ static void get_scan_count(struct lruvec *lruvec, struct mem_cgroup *memcg,
 	unsigned long ap, fp;
 	enum lru_list lru;
 
-<<<<<<< Updated upstream
-#ifdef CONFIG_DIRECT_SWAPPINESS
-	if (!current_is_kswapd())
-		swappiness = vm_direct_swapiness;
-#endif
-
-	if (memplus_enabled()) {
-		scan_balance = SCAN_EQUAL;
-		goto out;
-	}
-
-=======
->>>>>>> Stashed changes
 	/* If we have no swap space, do not bother scanning anon pages. */
 	if (!sc->may_swap || mem_cgroup_get_nr_swap_pages(memcg) <= 0) {
 		scan_balance = SCAN_FILE;
@@ -2628,12 +2501,6 @@ out:
 		if (!scan && !mem_cgroup_online(memcg))
 			scan = min(size, SWAP_CLUSTER_MAX);
 
-		if (memplus_enabled() &&
-			(lru == LRU_INACTIVE_ANON || lru == LRU_ACTIVE_ANON)) {
-			size = 0;
-			scan = 0;
-		}
-
 		switch (scan_balance) {
 		case SCAN_EQUAL:
 			/* Scan lists relative to size */
@@ -2705,8 +2572,8 @@ static void shrink_node_memcg(struct pglist_data *pgdat, struct mem_cgroup *memc
 			 sc->priority == DEF_PRIORITY);
 
 	blk_start_plug(&plug);
-	while (nr[MEMPLUS_PAGE_LRU] || nr[LRU_ACTIVE_FILE] ||
-			nr[LRU_INACTIVE_FILE]) {
+	while (nr[LRU_INACTIVE_ANON] || nr[LRU_ACTIVE_FILE] ||
+					nr[LRU_INACTIVE_FILE]) {
 		unsigned long nr_anon, nr_file, percentage;
 		unsigned long nr_scanned;
 
@@ -2733,8 +2600,7 @@ static void shrink_node_memcg(struct pglist_data *pgdat, struct mem_cgroup *memc
 		 * proportional to the original scan target.
 		 */
 		nr_file = nr[LRU_INACTIVE_FILE] + nr[LRU_ACTIVE_FILE];
-		lru = MEMPLUS_PAGE_LRU;
-		nr_anon = nr[lru] + nr[lru + LRU_ACTIVE];
+		nr_anon = nr[LRU_INACTIVE_ANON] + nr[LRU_ACTIVE_ANON];
 
 		/*
 		 * It's just vindictive to attack the larger once the smaller
@@ -2765,8 +2631,7 @@ static void shrink_node_memcg(struct pglist_data *pgdat, struct mem_cgroup *memc
 		 * Recalculate the other LRU scan count based on its original
 		 * scan target and the percentage scanning already complete
 		 */
-
-		lru = (lru == LRU_FILE) ? MEMPLUS_PAGE_LRU : LRU_FILE;
+		lru = (lru == LRU_FILE) ? LRU_BASE : LRU_FILE;
 		nr_scanned = targets[lru] - nr[lru];
 		nr[lru] = targets[lru] * (100 - percentage) / 100;
 		nr[lru] -= min(nr[lru], nr_scanned);
@@ -2787,7 +2652,7 @@ static void shrink_node_memcg(struct pglist_data *pgdat, struct mem_cgroup *memc
 	 */
 	if (inactive_list_is_low(lruvec, false, sc, true))
 		shrink_active_list(SWAP_CLUSTER_MAX, lruvec,
-			sc, MEMPLUS_PAGE_LRU + LRU_ACTIVE);
+				   sc, LRU_ACTIVE_ANON);
 }
 
 /* Use reclaim/compaction for costly allocs or under memory pressure */
@@ -3433,7 +3298,6 @@ unsigned long try_to_free_pages(struct zonelist *zonelist, int order,
 		.may_writepage = !laptop_mode,
 		.may_unmap = 1,
 		.may_swap = 1,
-		.may_shrinkslab = 1,
 	};
 
 	/*
@@ -3478,7 +3342,6 @@ unsigned long mem_cgroup_shrink_node(struct mem_cgroup *memcg,
 		.may_unmap = 1,
 		.reclaim_idx = MAX_NR_ZONES - 1,
 		.may_swap = !noswap,
-		.may_shrinkslab = 1,
 	};
 	unsigned long lru_pages;
 
@@ -3525,7 +3388,6 @@ unsigned long try_to_free_mem_cgroup_pages(struct mem_cgroup *memcg,
 		.may_writepage = !laptop_mode,
 		.may_unmap = 1,
 		.may_swap = may_swap,
-		.may_shrinkslab = 1,
 	};
 
 	/*
@@ -3570,7 +3432,7 @@ static void age_active_anon(struct pglist_data *pgdat,
 
 		if (inactive_list_is_low(lruvec, false, sc, true))
 			shrink_active_list(SWAP_CLUSTER_MAX, lruvec,
-				sc, MEMPLUS_PAGE_LRU + LRU_ACTIVE);
+					   sc, LRU_ACTIVE_ANON);
 
 		memcg = mem_cgroup_iter(NULL, memcg, NULL);
 	} while (memcg);
@@ -3817,19 +3679,6 @@ static int balance_pgdat(pg_data_t *pgdat, int order, int classzone_idx)
 		 * progress in reclaiming pages
 		 */
 		nr_reclaimed = sc.nr_reclaimed - nr_reclaimed;
-<<<<<<< Updated upstream
-		nr_boost_reclaim -= min(nr_boost_reclaim, nr_reclaimed);
-
-		/*
-		 * If reclaim made no progress for a boost, stop reclaim as
-		 * IO cannot be queued and it could be an infinite loop in
-		 * extreme circumstances.
-		 */
-		if (nr_boost_reclaim && !nr_reclaimed)
-			break;
-
-=======
->>>>>>> Stashed changes
 		if (raise_priority || !nr_reclaimed)
 			sc.priority--;
 	} while (sc.priority >= 1);
@@ -4179,82 +4028,20 @@ unsigned long shrink_all_memory(unsigned long nr_to_reclaim)
    restore their cpu bindings. */
 static int kswapd_cpu_online(unsigned int cpu)
 {
-	int nid, hid;
-	int nr_threads = kswapd_threads_current;
+	int nid;
 
 	for_each_node_state(nid, N_MEMORY) {
 		pg_data_t *pgdat = NODE_DATA(nid);
 		const struct cpumask *mask;
 
 		mask = cpumask_of_node(pgdat->node_id);
-		if (cpumask_any_and(cpu_online_mask, mask) < nr_cpu_ids) {
-			for (hid = 0; hid < nr_threads; hid++) {
-				/* One of our CPUs online: restore mask */
-				set_cpus_allowed_ptr(pgdat->kswapd[hid], mask);
-			}
-		}
+
+		if (cpumask_any_and(cpu_online_mask, mask) < nr_cpu_ids)
+			/* One of our CPUs online: restore mask */
+			set_cpus_allowed_ptr(pgdat->kswapd, mask);
 	}
 	return 0;
 }
-
-static void update_kswapd_threads_node(int nid)
-{
-	pg_data_t *pgdat;
-	int drop, increase;
-	int last_idx, start_idx, hid;
-	int nr_threads = kswapd_threads_current;
-
-	pgdat = NODE_DATA(nid);
-	last_idx = nr_threads - 1;
-	if (kswapd_threads < nr_threads) {
-		drop = nr_threads - kswapd_threads;
-		for (hid = last_idx; hid > (last_idx - drop); hid--) {
-			if (pgdat->kswapd[hid]) {
-				kthread_stop(pgdat->kswapd[hid]);
-				pgdat->kswapd[hid] = NULL;
-			}
-		}
-	} else {
-		increase = kswapd_threads - nr_threads;
-		start_idx = last_idx + 1;
-		for (hid = start_idx; hid < (start_idx + increase); hid++) {
-			pgdat->kswapd[hid] = kthread_run(kswapd, pgdat,
-						"kswapd%d:%d", nid, hid);
-			if (IS_ERR(pgdat->kswapd[hid])) {
-				pr_err("Failed to start kswapd%d on node %d\n",
-					hid, nid);
-				pgdat->kswapd[hid] = NULL;
-				/*
-				 * We are out of resources. Do not start any
-				 * more threads.
-				 */
-				break;
-			}
-		}
-	}
-}
-
-void update_kswapd_threads(void)
-{
-	int nid;
-
-	if (kswapd_threads_current == kswapd_threads)
-		return;
-
-	/*
-	 * Hold the memory hotplug lock to avoid racing with memory
-	 * hotplug initiated updates
-	 */
-	mem_hotplug_begin();
-	for_each_node_state(nid, N_MEMORY)
-		update_kswapd_threads_node(nid);
-
-	pr_info("kswapd_thread count changed, old:%d new:%d\n",
-		kswapd_threads_current, kswapd_threads);
-	kswapd_threads_current = kswapd_threads;
-	mem_hotplug_done();
-}
-
 
 /*
  * This kswapd start function will be called by init and node-hot-add.
@@ -4264,25 +4051,10 @@ int kswapd_run(int nid)
 {
 	pg_data_t *pgdat = NODE_DATA(nid);
 	int ret = 0;
-	int hid, nr_threads;
 
-	if (pgdat->kswapd[0])
+	if (pgdat->kswapd)
 		return 0;
 
-<<<<<<< Updated upstream
-	nr_threads = kswapd_threads;
-	for (hid = 0; hid < nr_threads; hid++) {
-		pgdat->kswapd[hid] = kthread_run(kswapd, pgdat, "kswapd%d:%d",
-							nid, hid);
-		if (IS_ERR(pgdat->kswapd[hid])) {
-			/* failure at boot is fatal */
-			BUG_ON(system_state < SYSTEM_RUNNING);
-			pr_err("Failed to start kswapd%d on node %d\n",
-				hid, nid);
-			ret = PTR_ERR(pgdat->kswapd[hid]);
-			pgdat->kswapd[hid] = NULL;
-		}
-=======
 	pgdat->kshrinkd = kthread_run(kshrinkd, pgdat, "kshrinkd%d", nid);
 	if (IS_ERR(pgdat->kshrinkd)) {
 		/* failure at boot is fatal */
@@ -4303,9 +4075,7 @@ int kswapd_run(int nid)
 		kthread_stop(pgdat->kshrinkd);
 		pgdat->kshrinkd = NULL;
 		return ret;
->>>>>>> Stashed changes
 	}
-	kswapd_threads_current = nr_threads;
 	return ret;
 }
 
@@ -4315,21 +4085,12 @@ int kswapd_run(int nid)
  */
 void kswapd_stop(int nid)
 {
-<<<<<<< Updated upstream
-	struct task_struct *kswapd;
-	int hid;
-	int nr_threads = kswapd_threads_current;
-=======
 	struct task_struct *kswapd = NODE_DATA(nid)->kswapd;
 	struct task_struct *kshrinkd = NODE_DATA(nid)->kshrinkd;
->>>>>>> Stashed changes
 
-	for (hid = 0; hid < nr_threads; hid++) {
-		kswapd = NODE_DATA(nid)->kswapd[hid];
-		if (kswapd) {
-			kthread_stop(kswapd);
-			NODE_DATA(nid)->kswapd[hid] = NULL;
-		}
+	if (kswapd) {
+		kthread_stop(kswapd);
+		NODE_DATA(nid)->kswapd = NULL;
 	}
 	if (kshrinkd) {
 		kthread_stop(kshrinkd);

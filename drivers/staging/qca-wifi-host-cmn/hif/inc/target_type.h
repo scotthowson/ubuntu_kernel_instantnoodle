@@ -1,9 +1,5 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2013-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2013-2021 The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -68,8 +64,6 @@ extern "C" {
 #define TARGET_TYPE_QCA6750 28
 #endif
 
-<<<<<<< Updated upstream
-=======
 #ifndef TARGET_TYPE_QCA5018
 #define TARGET_TYPE_QCA5018   29
 #endif
@@ -78,7 +72,6 @@ extern "C" {
 #define TARGET_TYPE_QCN6122   30
 #endif
 
->>>>>>> Stashed changes
 #ifdef __cplusplus
 }
 #endif

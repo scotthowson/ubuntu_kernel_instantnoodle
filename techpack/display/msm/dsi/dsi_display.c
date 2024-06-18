@@ -5826,21 +5826,8 @@ static int dsi_display_set_mode_sub(struct dsi_display *display,
 				ctrl = &display->ctrl[i];
 				rc = dsi_phy_set_timing_params(ctrl->phy,
 						priv_info->phy_timing_val,
-<<<<<<< Updated upstream
-						priv_info->phy_timing_len);
-					pr_info("[%s] Force commit PHY timing params "
-						"for seamless DMS usecase\n",
-						display->name);
-				} else {
-					rc = dsi_phy_set_timing_params(ctrl->phy,
-						priv_info->phy_timing_val,
 						priv_info->phy_timing_len,
 						commit_phy_timing);
-				}
-=======
-						priv_info->phy_timing_len,
-						commit_phy_timing);
->>>>>>> Stashed changes
 				if (rc)
 					DSI_ERR("Fail to add timing params\n");
 			}
@@ -8382,15 +8369,6 @@ int dsi_display_prepare(struct dsi_display *display)
 		    display->config.panel_mode == DSI_OP_VIDEO_MODE) {
 			DSI_ERR("DMS not supported on first frame\n");
 			rc = -EINVAL;
-			goto error;
-		}
-
-		if (!display->is_cont_splash_enabled) {
-			/* update dsi ctrl for new mode */
-			rc = dsi_display_pre_switch(display);
-			if (rc)
-				DSI_ERR("[%s] panel pre-switch failed, rc=%d\n",
-					display->name, rc);
 			goto error;
 		}
 

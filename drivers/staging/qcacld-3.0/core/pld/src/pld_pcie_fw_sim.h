@@ -97,15 +97,12 @@ static inline int pld_pcie_fw_sim_request_irq(struct device *dev, int irq,
 	return 0;
 }
 
-<<<<<<< Updated upstream
-=======
 static inline int pld_pcie_fw_sim_read_config_word(struct device *dev,
 						   int offset, uint16_t *val)
 {
 	return 0;
 }
 
->>>>>>> Stashed changes
 static inline int pld_pcie_fw_sim_free_irq(struct device *dev,
 					   unsigned int ce_id, void *ctx)
 {
@@ -178,15 +175,12 @@ static inline int pld_pcie_fw_sim_request_irq(struct device *dev, int irq,
 				       irqflags, devname, dev_data);
 }
 
-<<<<<<< Updated upstream
-=======
 static inline int pld_pcie_fw_sim_read_config_word(struct device *dev,
 						   int offset, uint16_t *val)
 {
 	return cnss_fw_sim_read_config_word(dev, offset, val);
 }
 
->>>>>>> Stashed changes
 static inline int pld_pcie_fw_sim_free_irq(struct device *dev,
 					   int irq, void *dev_data)
 {

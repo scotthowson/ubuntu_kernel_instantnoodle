@@ -1,9 +1,5 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2017-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2017-2021 The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -236,10 +232,7 @@ static ssize_t __show_device_power_stats(struct hdd_context *hdd_ctx,
 	ret_cnt = osif_request_wait_for_response(request);
 	if (ret_cnt) {
 		hdd_err("Target response timed out Power stats");
-<<<<<<< Updated upstream
-=======
 		sme_reset_power_debug_stats_cb(hdd_ctx->mac_handle);
->>>>>>> Stashed changes
 		ret_cnt = -ETIMEDOUT;
 		goto cleanup;
 	}
@@ -702,10 +695,7 @@ void hdd_sysfs_destroy_powerstats_interface(void)
 	}
 	sysfs_remove_file(driver_kobject, &power_stats_attribute.attr);
 }
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 
 void hdd_sysfs_create_driver_root_obj(void)
 {
@@ -735,10 +725,6 @@ void hdd_sysfs_destroy_driver_root_obj(void)
 		driver_kobject = NULL;
 	}
 }
-<<<<<<< Updated upstream
-#endif
-=======
->>>>>>> Stashed changes
 
 #ifdef WLAN_FEATURE_BEACON_RECEPTION_STATS
 static int hdd_sysfs_create_bcn_reception_interface(struct hdd_adapter

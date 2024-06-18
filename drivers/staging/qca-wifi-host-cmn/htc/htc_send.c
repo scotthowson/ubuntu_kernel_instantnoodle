@@ -170,8 +170,6 @@ static void log_packet_info(HTC_TARGET *target, HTC_PACKET *pPacket)
 		qdf_nbuf_push_head(netbuf, sizeof(HTC_FRAME_HDR));
 	}
 }
-<<<<<<< Updated upstream
-=======
 
 /**
  * htc_inc_runtime_cnt: Increment htc runtime count
@@ -184,19 +182,15 @@ void htc_inc_runtime_cnt(HTC_TARGET *target)
 {
 	qdf_atomic_inc(&target->htc_runtime_cnt);
 }
->>>>>>> Stashed changes
 #else
 static void log_packet_info(HTC_TARGET *target, HTC_PACKET *pPacket)
 {
 }
-<<<<<<< Updated upstream
-=======
 
 static inline
 void htc_inc_runtime_cnt(HTC_TARGET *target)
 {
 }
->>>>>>> Stashed changes
 #endif
 
 void htc_send_complete_check_cleanup(void *context)
@@ -733,11 +727,8 @@ static QDF_STATUS htc_issue_packets(HTC_TARGET *target,
 	uint8_t *buf = NULL;
 	int (*update_ep_padding_credit)(void *, int);
 	void *ctx = NULL;
-<<<<<<< Updated upstream
-=======
 	bool rt_put_in_resp;
 	int32_t sys_state = HIF_SYSTEM_PM_STATE_ON;
->>>>>>> Stashed changes
 
 	update_ep_padding_credit =
 			pEndpoint->EpCallBacks.ep_padding_credit_update;
@@ -748,10 +739,7 @@ static QDF_STATUS htc_issue_packets(HTC_TARGET *target,
 			("+htc_issue_packets: Queue: %pK, Pkts %d\n", pPktQueue,
 			 HTC_PACKET_QUEUE_DEPTH(pPktQueue)));
 	while (true) {
-<<<<<<< Updated upstream
-=======
 		rt_put_in_resp = false;
->>>>>>> Stashed changes
 		if (HTC_TX_BUNDLE_ENABLED(target) &&
 		    HTC_PACKET_QUEUE_DEPTH(pPktQueue) >=
 		    HTC_MIN_MSG_PER_BUNDLE) {
@@ -855,14 +843,11 @@ static QDF_STATUS htc_issue_packets(HTC_TARGET *target,
 					pEndpoint->UL_PipeID, false);
 		}
 
-<<<<<<< Updated upstream
-=======
 		if (pPacket->PktInfo.AsTx.Tag == HTC_TX_PACKET_SYSTEM_SUSPEND) {
 			sys_state = hif_system_pm_get_state(target->hif_dev);
 			hif_system_pm_set_state_suspending(target->hif_dev);
 		}
 
->>>>>>> Stashed changes
 		htc_packet_set_magic_cookie(pPacket, HTC_PACKET_MAGIC_COOKIE);
 		/*
 		 * For HTT messages without a response from fw,
@@ -871,15 +856,12 @@ static QDF_STATUS htc_issue_packets(HTC_TARGET *target,
 		 */
 		if (pPacket->PktInfo.AsTx.Tag == HTC_TX_PACKET_TAG_RUNTIME_PUT)
 			rt_put = true;
-<<<<<<< Updated upstream
-=======
 		else if (pPacket->PktInfo.AsTx.Tag ==
 			 HTC_TX_PACKET_TAG_RTPM_PUT_RC) {
 			rt_put_in_resp = true;
 			htc_inc_runtime_cnt(target);
 		}
 
->>>>>>> Stashed changes
 #if DEBUG_BUNDLE
 		qdf_print(" Send single EP%d buffer size:0x%x, total:0x%x.",
 			  pEndpoint->Id,
@@ -898,8 +880,6 @@ static QDF_STATUS htc_issue_packets(HTC_TARGET *target,
 				       netbuf, data_attr);
 
 		if (status != QDF_STATUS_SUCCESS) {
-<<<<<<< Updated upstream
-=======
 			if (rt_put_in_resp)
 				htc_dec_return_runtime_cnt((void *)target);
 
@@ -908,7 +888,6 @@ static QDF_STATUS htc_issue_packets(HTC_TARGET *target,
 				__hif_system_pm_set_state(target->hif_dev,
 							  sys_state);
 
->>>>>>> Stashed changes
 			if (pEndpoint->EpCallBacks.ep_padding_credit_update) {
 				if (used_extra_tx_credit) {
 					ctx = pEndpoint->EpCallBacks.pContext;
@@ -1066,8 +1045,6 @@ htc_send_pkts_rtpm_dbgid_get(HTC_SERVICE_ID service_id)
 	return rtpm_dbgid;
 }
 
-<<<<<<< Updated upstream
-=======
 #ifdef SYSTEM_PM_CHECK
 /**
  * extract_htc_system_resume_pkts(): Move system pm resume packets from endpoint
@@ -1103,7 +1080,6 @@ void extract_htc_system_resume_pkts(HTC_ENDPOINT *endpoint,
 }
 #endif
 
->>>>>>> Stashed changes
 /**
  * get_htc_send_packets_credit_based() - get packets based on available credits
  * @target: HTC target on which packets need to be sent
@@ -1129,11 +1105,8 @@ static void get_htc_send_packets_credit_based(HTC_TARGET *target,
 	bool do_pm_get = false;
 	wlan_rtpm_dbgid rtpm_dbgid = 0;
 	int ret;
-<<<<<<< Updated upstream
-=======
 	HTC_PACKET_QUEUE sys_pm_queue;
 	bool sys_pm_check = false;
->>>>>>> Stashed changes
 
 	/*** NOTE : the TX lock is held when this function is called ***/
 	AR_DEBUG_PRINTF(ATH_DEBUG_SEND,
@@ -1142,10 +1115,6 @@ static void get_htc_send_packets_credit_based(HTC_TARGET *target,
 	INIT_HTC_PACKET_QUEUE(&pm_queue);
 	extract_htc_pm_packets(pEndpoint, &pm_queue);
 	if (HTC_QUEUE_EMPTY(&pm_queue)) {
-<<<<<<< Updated upstream
-		tx_queue = &pEndpoint->TxQueue;
-		do_pm_get = true;
-=======
 		do_pm_get = true;
 
 		INIT_HTC_PACKET_QUEUE(&sys_pm_queue);
@@ -1156,7 +1125,6 @@ static void get_htc_send_packets_credit_based(HTC_TARGET *target,
 		} else {
 			tx_queue = &sys_pm_queue;
 		}
->>>>>>> Stashed changes
 	} else {
 		tx_queue = &pm_queue;
 	}
@@ -1192,8 +1160,6 @@ static void get_htc_send_packets_credit_based(HTC_TARGET *target,
 			break;
 		}
 
-<<<<<<< Updated upstream
-=======
 		if (sys_pm_check &&
 		    hif_system_pm_state_check(target->hif_dev)) {
 			if (do_pm_get)
@@ -1201,7 +1167,6 @@ static void get_htc_send_packets_credit_based(HTC_TARGET *target,
 			break;
 		}
 
->>>>>>> Stashed changes
 		AR_DEBUG_PRINTF(ATH_DEBUG_SEND,
 				(" Got head packet:%pK , Queue Depth: %d\n",
 				 pPacket,
@@ -1341,8 +1306,6 @@ static void get_htc_send_packets(HTC_TARGET *target,
 			}
 		}
 
-<<<<<<< Updated upstream
-=======
 		ret = hif_system_pm_state_check(target->hif_dev);
 		if (ret) {
 			if (do_pm_get)
@@ -1350,17 +1313,13 @@ static void get_htc_send_packets(HTC_TARGET *target,
 			break;
 		}
 
->>>>>>> Stashed changes
 		pPacket = htc_packet_dequeue(tx_queue);
 		if (!pPacket) {
 			if (do_pm_get)
 				hif_pm_runtime_put(target->hif_dev, rtpm_dbgid);
 			break;
 		}
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
 		AR_DEBUG_PRINTF(ATH_DEBUG_SEND,
 				(" Got packet:%pK , New Queue Depth: %d\n",
 				 pPacket,
@@ -2765,8 +2724,6 @@ struct ol_ath_htc_stats *ieee80211_ioctl_get_htc_stats(HTC_HANDLE HTCHandle)
 
 	return &(target->htc_pkt_stats);
 }
-<<<<<<< Updated upstream
-=======
 
 #ifdef SYSTEM_PM_CHECK
 void htc_system_resume(HTC_HANDLE htc)
@@ -2788,4 +2745,3 @@ void htc_system_resume(HTC_HANDLE htc)
 	}
 }
 #endif
->>>>>>> Stashed changes

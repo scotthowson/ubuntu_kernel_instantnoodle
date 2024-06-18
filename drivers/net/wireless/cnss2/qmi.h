@@ -73,10 +73,7 @@ int cnss_wlfw_qdss_trace_mem_info_send_sync(struct cnss_plat_data *plat_priv);
 int cnss_register_ims_service(struct cnss_plat_data *plat_priv);
 void cnss_unregister_ims_service(struct cnss_plat_data *plat_priv);
 void cnss_ignore_qmi_failure(bool ignore);
-<<<<<<< Updated upstream
-=======
 int cnss_wlfw_send_pcie_gen_speed_sync(struct cnss_plat_data *plat_priv);
->>>>>>> Stashed changes
 #else
 #define QMI_WLFW_TIMEOUT_MS		10000
 
@@ -232,12 +229,9 @@ static inline
 void cnss_unregister_ims_service(struct cnss_plat_data *plat_priv) {}
 
 void cnss_ignore_qmi_failure(bool ignore) {};
-<<<<<<< Updated upstream
-=======
 static inline
 int cnss_wlfw_send_pcie_gen_speed_sync(struct cnss_plat_data *plat_priv) {}
 
->>>>>>> Stashed changes
 #endif /* CONFIG_CNSS2_QMI */
 
 #endif /* _CNSS_QMI_H */

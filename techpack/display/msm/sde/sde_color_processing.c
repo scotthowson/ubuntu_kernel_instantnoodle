@@ -1,11 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2016-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
  * Copyright (c) 2016-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #define pr_fmt(fmt)	"%s: " fmt, __func__
@@ -1455,13 +1451,8 @@ static void sde_cp_crtc_setfeature(struct sde_cp_node *prop_node,
 			set_crtc_feature_wrappers[prop_node->feature] == NULL) {
 		ret = -EINVAL;
 	} else {
-<<<<<<< Updated upstream
-		set_feature_wrapper set_feature =
-			crtc_feature_wrappers[prop_node->feature];
-=======
 		feature_wrapper set_feature =
 			set_crtc_feature_wrappers[prop_node->feature];
->>>>>>> Stashed changes
 		catalog = get_kms(&sde_crtc->base)->catalog;
 		hw_cfg.broadcast_disabled = catalog->dma_cfg.broadcast_disabled;
 
@@ -3942,8 +3933,6 @@ void sde_cp_mode_switch_prop_dirty(struct drm_crtc *crtc_drm)
 	}
 	mutex_unlock(&crtc->crtc_cp_lock);
 }
-<<<<<<< Updated upstream
-=======
 
 static void rc_caps_update(struct sde_crtc *crtc, struct sde_kms_info *info)
 {
@@ -4013,4 +4002,3 @@ void sde_cp_crtc_disable(struct drm_crtc *drm_crtc)
 	mutex_unlock(&crtc->crtc_cp_lock);
 	vfree(info);
 }
->>>>>>> Stashed changes

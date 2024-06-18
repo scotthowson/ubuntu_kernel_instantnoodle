@@ -646,18 +646,6 @@ config ZSMALLOC_STAT
 	  information to userspace via debugfs.
 	  If unsure, say N.
 
-<<<<<<< Updated upstream
-config VMAP_LAZY_PURGING_FACTOR
-	int "multiplier to the size of purged vmap areas"
-	default "8" if ARM
-	default "32"
-	help
-	  It is used as a multiplier to the max VA pages purged in a
-	  single attempt. For 32-bit in order to reduce fragmentation
-	  of vmalloc space, we decrease the default value to "8".
-
-=======
->>>>>>> Stashed changes
 config MM_EVENT_STAT
 	bool "Track per-process MM event"
 	depends on MMU
@@ -856,42 +844,3 @@ config ARCH_HAS_PTE_SPECIAL
 	bool
 
 endmenu
-<<<<<<< Updated upstream
-
-config PROCESS_RECLAIM
-	bool "Enable process reclaim"
-	depends on PROC_FS
-	default y
-	help
-	 It allows to reclaim pages of the process by /proc/pid/reclaim.
-
-	 (echo file > /proc/PID/reclaim) reclaims file-backed pages only.
-	 (echo anon > /proc/PID/reclaim) reclaims anonymous pages only.
-	 (echo all > /proc/PID/reclaim) reclaims all pages.
-
-	 (echo addr size-byte > /proc/PID/reclaim) reclaims pages in
-	 (addr, addr + size-bytes) of the process.
-
-	 Any other value is ignored.
-
-config DIRECT_SWAPPINESS
-	bool "direct swappiness"
-	default n
-	help
-	  set direct swappiness rate, higher means more swap and slowly.
-	  echo ratio > proc/sys/vm/direct_swapiness  default_value 60
-	  cat /sys/module/memplus_core/parameters/memory_plus_enabled
-	  default_value 0
-
-config FORCE_ALLOC_FROM_DMA_ZONE
-	bool "Force certain memory allocators to always return ZONE_DMA32 memory"
-	depends on ZONE_DMA32
-	help
-	  Ensure certain memory allocators always return memory from ZONE_DMA32.
-	  This option helps ensure that clients who require ZONE_DMA32 memory are
-	  always using ZONE_DMA32 memory.
-
-	  If unsure, say "n".
-
-=======
->>>>>>> Stashed changes

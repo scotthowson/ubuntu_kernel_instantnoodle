@@ -95,14 +95,6 @@ static __init int kernel_exit_sysctls_init(void)
 }
 late_initcall(kernel_exit_sysctls_init);
 #endif
-<<<<<<< Updated upstream
-#ifdef CONFIG_HOUSTON
-#include <oneplus/houston/houston_helper.h>
-#endif
-
-#ifdef CONFIG_TPD
-#include <linux/oem/tpd.h>
-=======
 
 static atomic_t oops_count = ATOMIC_INIT(0);
 
@@ -121,7 +113,6 @@ static __init int kernel_exit_sysfs_init(void)
 	return 0;
 }
 late_initcall(kernel_exit_sysfs_init);
->>>>>>> Stashed changes
 #endif
 
 static void __unhash_process(struct task_struct *p, bool group_dead)
@@ -232,15 +223,6 @@ static void delayed_put_task_struct(struct rcu_head *rhp)
 {
 	struct task_struct *tsk = container_of(rhp, struct task_struct, rcu);
 
-#ifdef CONFIG_CONTROL_CENTER
-	cc_tsk_free((void *) tsk);
-#endif
-
-#ifdef CONFIG_TPD
-       tpd_tglist_del(tsk);
-#endif
-
-
 	perf_event_delayed_put(tsk);
 	trace_sched_process_free(tsk);
 	put_task_struct(tsk);
@@ -251,18 +233,6 @@ void release_task(struct task_struct *p)
 {
 	struct task_struct *leader;
 	int zap_leader;
-<<<<<<< Updated upstream
-#ifdef CONFIG_HOUSTON
-	ht_rtg_list_del(p);
-#endif
-	if (p->fpack) {
-		if (p->fpack->iname)
-			__putname(p->fpack->iname);
-		kfree(p->fpack);
-		p->fpack = NULL;
-	}
-=======
->>>>>>> Stashed changes
 repeat:
 	/* don't need to get the RCU readlock here - the process is dead and
 	 * can't be modifying its own credentials. But shut RCU-lockdep up */
@@ -981,16 +951,6 @@ void __noreturn do_exit(long code)
 	exit_task_namespaces(tsk);
 	exit_task_work(tsk);
 	exit_thread(tsk);
-<<<<<<< Updated upstream
-#ifdef CONFIG_CONTROL_CENTER
-	cc_tsk_disable((void *) tsk);
-#endif
-
-#ifdef CONFIG_HOUSTON
-	ht_perf_event_release(tsk);
-#endif
-=======
->>>>>>> Stashed changes
 
 	/*
 	 * Flush inherited counters to the parent - before the parent

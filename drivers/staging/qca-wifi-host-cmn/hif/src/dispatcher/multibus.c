@@ -58,10 +58,7 @@ static void hif_initialize_default_ops(struct hif_softc *hif_sc)
 	bus_ops->hif_bus_late_resume = &hif_dummy_bus_resume;
 	bus_ops->hif_map_ce_to_irq = &hif_dummy_map_ce_to_irq;
 	bus_ops->hif_grp_irq_configure = &hif_dummy_grp_irq_configure;
-<<<<<<< Updated upstream
-=======
 	bus_ops->hif_grp_irq_deconfigure = &hif_dummy_grp_irq_deconfigure;
->>>>>>> Stashed changes
 	bus_ops->hif_config_irq_affinity =
 		&hif_dummy_config_irq_affinity;
 }
@@ -335,14 +332,11 @@ int hif_grp_irq_configure(struct hif_softc *hif_sc,
 	return hif_sc->bus_ops.hif_grp_irq_configure(hif_sc, hif_exec);
 }
 
-<<<<<<< Updated upstream
-=======
 void hif_grp_irq_deconfigure(struct hif_softc *hif_sc)
 {
 	hif_sc->bus_ops.hif_grp_irq_deconfigure(hif_sc);
 }
 
->>>>>>> Stashed changes
 int hif_dump_registers(struct hif_opaque_softc *hif_hdl)
 {
 	struct hif_softc *hif_sc = HIF_GET_SOFTC(hif_hdl);
@@ -546,13 +540,6 @@ void hif_config_irq_affinity(struct hif_softc *hif_sc)
 }
 
 #ifdef HIF_BUS_LOG_INFO
-<<<<<<< Updated upstream
-void hif_log_bus_info(struct hif_softc *hif_sc, uint8_t *data,
-		      unsigned int *offset)
-{
-	if (hif_sc->bus_ops.hif_log_bus_info)
-		hif_sc->bus_ops.hif_log_bus_info(hif_sc, data, offset);
-=======
 bool hif_log_bus_info(struct hif_softc *hif_sc, uint8_t *data,
 		      unsigned int *offset)
 {
@@ -560,6 +547,5 @@ bool hif_log_bus_info(struct hif_softc *hif_sc, uint8_t *data,
 		return hif_sc->bus_ops.hif_log_bus_info(hif_sc, data, offset);
 
 	return false;
->>>>>>> Stashed changes
 }
 #endif

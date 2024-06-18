@@ -1,9 +1,6 @@
 /*
  * Copyright (c) 2012-2020 The Linux Foundation. All rights reserved.
-<<<<<<< Updated upstream
-=======
  * Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -1391,24 +1388,12 @@ QDF_STATUS policy_mgr_check_conn_with_mode_and_vdev_id(
 	return qdf_status;
 }
 
-<<<<<<< Updated upstream
-void policy_mgr_soc_set_dual_mac_cfg_cb(struct wlan_objmgr_psoc *psoc,
-					enum set_hw_mode_status status,
-					uint32_t scan_config,
-					uint32_t fw_mode_config)
-{
-	policy_mgr_debug("Status:%d for scan_config:%x fw_mode_config:%x",
-			 status, scan_config, fw_mode_config);
-
-	policy_mgr_dual_mac_configuration_complete(psoc);
-=======
 void policy_mgr_soc_set_dual_mac_cfg_cb(enum set_hw_mode_status status,
 		uint32_t scan_config,
 		uint32_t fw_mode_config)
 {
 	policy_mgr_debug("Status:%d for scan_config:%x fw_mode_config:%x",
 			 status, scan_config, fw_mode_config);
->>>>>>> Stashed changes
 }
 
 void policy_mgr_set_dual_mac_scan_config(struct wlan_objmgr_psoc *psoc,
@@ -2107,11 +2092,7 @@ uint32_t policy_mgr_get_mode_specific_conn_info(
 		policy_mgr_err("Invalid Context");
 		return count;
 	}
-<<<<<<< Updated upstream
-	if (!ch_freq_list || !vdev_id) {
-=======
 	if (!vdev_id) {
->>>>>>> Stashed changes
 		policy_mgr_err("Null pointer error");
 		return count;
 	}
@@ -2120,25 +2101,16 @@ uint32_t policy_mgr_get_mode_specific_conn_info(
 				psoc, mode, list);
 	qdf_mutex_acquire(&pm_ctx->qdf_conc_list_lock);
 	if (count == 1) {
-<<<<<<< Updated upstream
-		*ch_freq_list = pm_conc_connection_list[list[index]].freq;
-=======
 		if (ch_freq_list)
 			*ch_freq_list =
 				pm_conc_connection_list[list[index]].freq;
->>>>>>> Stashed changes
 		*vdev_id =
 			pm_conc_connection_list[list[index]].vdev_id;
 	} else {
 		for (index = 0; index < count; index++) {
-<<<<<<< Updated upstream
-			ch_freq_list[index] = pm_conc_connection_list[
-						      list[index]].freq;
-=======
 			if (ch_freq_list)
 				ch_freq_list[index] =
 				pm_conc_connection_list[list[index]].freq;
->>>>>>> Stashed changes
 
 			vdev_id[index] =
 			pm_conc_connection_list[list[index]].vdev_id;
@@ -3178,8 +3150,6 @@ bool policy_mgr_is_multiple_active_sta_sessions(struct wlan_objmgr_psoc *psoc)
 		psoc, PM_STA_MODE, NULL) > 1;
 }
 
-<<<<<<< Updated upstream
-=======
 bool policy_mgr_is_sta_present_on_dfs_channel(struct wlan_objmgr_psoc *psoc,
 					      uint8_t *vdev_id,
 					      qdf_freq_t *ch_freq,
@@ -3217,7 +3187,6 @@ bool policy_mgr_is_sta_present_on_dfs_channel(struct wlan_objmgr_psoc *psoc,
 	return status;
 }
 
->>>>>>> Stashed changes
 /**
  * policy_mgr_is_sta_active_connection_exists() - Check if a STA
  * connection is active
@@ -3929,8 +3898,6 @@ bool policy_mgr_is_sta_connected_2g(struct wlan_objmgr_psoc *psoc)
 	return ret;
 }
 
-<<<<<<< Updated upstream
-=======
 bool
 policy_mgr_is_connected_sta_5g(struct wlan_objmgr_psoc *psoc, qdf_freq_t *freq)
 {
@@ -3960,7 +3927,6 @@ policy_mgr_is_connected_sta_5g(struct wlan_objmgr_psoc *psoc, qdf_freq_t *freq)
 	return ret;
 }
 
->>>>>>> Stashed changes
 uint32_t policy_mgr_get_connection_info(struct wlan_objmgr_psoc *psoc,
 					struct connection_info *info)
 {

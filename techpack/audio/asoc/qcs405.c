@@ -1,9 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0-only
-<<<<<<< Updated upstream
-/* Copyright (c) 2018-2020, The Linux Foundation. All rights reserved.
-=======
 /* Copyright (c) 2018-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 #include <linux/clk.h>
 #include <linux/delay.h>
@@ -38,10 +34,7 @@
 #include <dt-bindings/sound/audio-codec-port-types.h>
 #include "codecs/bolero/bolero-cdc.h"
 #include "codecs/bolero/wsa-macro.h"
-<<<<<<< Updated upstream
-=======
 #include "codecs/ep92/ep92.h"
->>>>>>> Stashed changes
 
 #define DRV_NAME "qcs405-asoc-snd"
 
@@ -72,13 +65,9 @@
 #define WSA8810_NAME_2 "wsa881x.20170212"
 #define WCN_CDC_SLIM_RX_CH_MAX 2
 #define WCN_CDC_SLIM_TX_CH_MAX 4
-<<<<<<< Updated upstream
-#define TDM_CHANNEL_MAX 8
-=======
 #define TDM_CHANNEL_MAX 32
 #define TDM_SLOT_OFFSET_MAX 32
 #define TDM_MAX_CLK_FREQ 24576000
->>>>>>> Stashed changes
 #define BT_SLIM_TX SLIM_TX_9
 
 #define ADSP_STATE_READY_TIMEOUT_MS 3000
@@ -196,8 +185,6 @@ struct dev_config {
 	u32 data_format;
 };
 
-<<<<<<< Updated upstream
-=======
 struct ext_mclk_cfg {
 	u32 clk_freq;
 	u32 div2x;
@@ -216,7 +203,6 @@ struct ext_mclk_cfg_info {
 	u32 num_mclk_cfg;
 };
 
->>>>>>> Stashed changes
 struct msm_wsa881x_dev_info {
 	struct device_node *of_node;
 	u32 index;
@@ -235,11 +221,8 @@ struct msm_asoc_mach_data {
 	struct device_node *dmic_67_gpio_p; /* used by pinctrl API */
 	struct device_node *lineout_booster_gpio_p; /* used by pinctrl API */
 	struct device_node *mi2s_gpio_p[MI2S_MAX]; /* used by pinctrl API */
-<<<<<<< Updated upstream
-=======
 	struct device_node *ext_mclk_gpio_p; /* used by pinctrl API */
 	u32 ext_mclk_en_count;
->>>>>>> Stashed changes
 	int dmic_01_gpio_cnt;
 	int dmic_23_gpio_cnt;
 	int dmic_45_gpio_cnt;
@@ -259,11 +242,8 @@ struct msm_asoc_wcd93xx_codec {
 static const char *const pin_states[] = {"sleep", "i2s-active",
 					 "tdm-active"};
 
-<<<<<<< Updated upstream
-=======
 const char *clk_src_name[CLK_SRC_MAX];
 
->>>>>>> Stashed changes
 enum {
 	TDM_0 = 0,
 	TDM_1,
@@ -282,10 +262,7 @@ enum {
 	TDM_TERT,
 	TDM_QUAT,
 	TDM_QUIN,
-<<<<<<< Updated upstream
-=======
 	TDM_SEN,
->>>>>>> Stashed changes
 	TDM_INTERFACE_MAX,
 };
 
@@ -345,8 +322,6 @@ static struct dev_config tdm_rx_cfg[TDM_INTERFACE_MAX][TDM_PORT_MAX] = {
 		{SAMPLING_RATE_48KHZ, SNDRV_PCM_FORMAT_S16_LE, 1}, /* RX_5 */
 		{SAMPLING_RATE_48KHZ, SNDRV_PCM_FORMAT_S16_LE, 1}, /* RX_6 */
 		{SAMPLING_RATE_48KHZ, SNDRV_PCM_FORMAT_S16_LE, 1}, /* RX_7 */
-<<<<<<< Updated upstream
-=======
 	},
 	{ /* SEN TDM */
 		{SAMPLING_RATE_48KHZ, SNDRV_PCM_FORMAT_S16_LE, 1}, /* RX_0 */
@@ -357,7 +332,6 @@ static struct dev_config tdm_rx_cfg[TDM_INTERFACE_MAX][TDM_PORT_MAX] = {
 		{SAMPLING_RATE_48KHZ, SNDRV_PCM_FORMAT_S16_LE, 1}, /* RX_5 */
 		{SAMPLING_RATE_48KHZ, SNDRV_PCM_FORMAT_S16_LE, 1}, /* RX_6 */
 		{SAMPLING_RATE_48KHZ, SNDRV_PCM_FORMAT_S16_LE, 1}, /* RX_7 */
->>>>>>> Stashed changes
 	}
 };
 
@@ -412,10 +386,6 @@ static struct dev_config tdm_tx_cfg[TDM_INTERFACE_MAX][TDM_PORT_MAX] = {
 		{SAMPLING_RATE_48KHZ, SNDRV_PCM_FORMAT_S16_LE, 1}, /* TX_5 */
 		{SAMPLING_RATE_48KHZ, SNDRV_PCM_FORMAT_S16_LE, 1}, /* TX_6 */
 		{SAMPLING_RATE_48KHZ, SNDRV_PCM_FORMAT_S16_LE, 1}, /* TX_7 */
-<<<<<<< Updated upstream
-	}
-};
-=======
 	},
 	{ /* SEN TDM */
 		{SAMPLING_RATE_48KHZ, SNDRV_PCM_FORMAT_S16_LE, 1}, /* TX_0 */
@@ -429,7 +399,6 @@ static struct dev_config tdm_tx_cfg[TDM_INTERFACE_MAX][TDM_PORT_MAX] = {
 	}
 };
 
->>>>>>> Stashed changes
 static struct dev_config ext_hdmi_rx_cfg[] = {
 	[HDMI_RX_IDX] =   {SAMPLING_RATE_48KHZ, SNDRV_PCM_FORMAT_S16_LE, 2},
 };
@@ -551,8 +520,6 @@ static struct dev_config afe_lb_tx_cfg = {
 	.channels = 2,
 };
 
-<<<<<<< Updated upstream
-=======
 /* TDM default slot config */
 struct tdm_slot_cfg {
 	u32 width;
@@ -606,7 +573,6 @@ static unsigned int tdm_tx_slot_offset
 	{0, 4, 8, 12, 16, 20, 24, 0xFFFF}
 };
 
->>>>>>> Stashed changes
 static int msm_vi_feed_tx_ch = 2;
 static const char *const slim_rx_ch_text[] = {"One", "Two"};
 static const char *const slim_tx_ch_text[] = {"One", "Two", "Three", "Four",
@@ -651,14 +617,6 @@ static char const *ext_hdmi_sample_rate_text[] = {"KHZ_48", "KHZ_96",
 static char const *ext_hdmi_bit_format_text[] = {"S16_LE", "S24_LE",
 					"S24_3LE"};
 
-<<<<<<< Updated upstream
-static char const *tdm_ch_text[] = {"One", "Two", "Three", "Four",
-				    "Five", "Six", "Seven", "Eight"};
-static char const *tdm_bit_format_text[] = {"S16_LE", "S24_LE", "S32_LE"};
-static char const *tdm_sample_rate_text[] = {"KHZ_8", "KHZ_16", "KHZ_32",
-					     "KHZ_48", "KHZ_176P4",
-					     "KHZ_352P8"};
-=======
 static char const *tdm_ch_text[] = {
 		"One", "Two", "Three", "Four", "Five", "Six", "Seven",
 		"Eight", "Nine", "Ten", "Eleven", "Twelve", "Thirteen",
@@ -676,7 +634,6 @@ static char const *tdm_sample_rate_text[] = {"KHZ_8", "KHZ_11P025",
 static const char *const tdm_slot_num_text[] = {"One", "Two", "Four",
 					"Eight", "Sixteen", "ThirtyTwo"};
 static const char *const tdm_slot_width_text[] = {"16", "24", "32"};
->>>>>>> Stashed changes
 static const char *const auxpcm_rate_text[] = {"KHZ_8", "KHZ_16"};
 static char const *mi2s_rate_text[] = {"KHZ_8", "KHZ_11P025", "KHZ_16",
 				      "KHZ_22P05", "KHZ_32", "KHZ_44P1",
@@ -748,11 +705,8 @@ static SOC_ENUM_SINGLE_EXT_DECL(tdm_tx_sample_rate, tdm_sample_rate_text);
 static SOC_ENUM_SINGLE_EXT_DECL(tdm_rx_chs, tdm_ch_text);
 static SOC_ENUM_SINGLE_EXT_DECL(tdm_rx_format, tdm_bit_format_text);
 static SOC_ENUM_SINGLE_EXT_DECL(tdm_rx_sample_rate, tdm_sample_rate_text);
-<<<<<<< Updated upstream
-=======
 static SOC_ENUM_SINGLE_EXT_DECL(tdm_slot_num, tdm_slot_num_text);
 static SOC_ENUM_SINGLE_EXT_DECL(tdm_slot_width, tdm_slot_width_text);
->>>>>>> Stashed changes
 static SOC_ENUM_SINGLE_EXT_DECL(prim_aux_pcm_rx_sample_rate, auxpcm_rate_text);
 static SOC_ENUM_SINGLE_EXT_DECL(sec_aux_pcm_rx_sample_rate, auxpcm_rate_text);
 static SOC_ENUM_SINGLE_EXT_DECL(tert_aux_pcm_rx_sample_rate, auxpcm_rate_text);
@@ -916,8 +870,6 @@ static struct mi2s_conf mi2s_intf_conf[MI2S_MAX];
 
 static struct meta_mi2s_conf meta_mi2s_intf_conf[META_MI2S_MAX];
 
-<<<<<<< Updated upstream
-=======
 static struct ext_mclk_cfg_info msm_ext_mclk_cfg[MCLK_FREQ_MAX] = {
 	[MCLK_FREQ_11P2896_MHZ] = {11289600, "ext-mclk-1-cfg-11p2896", NULL, 0},
 	[MCLK_FREQ_12P288_MHZ]  = {12288000, "ext-mclk-1-cfg-12p288",  NULL, 0},
@@ -1048,7 +1000,6 @@ static int qcs405_enable_and_get_mclk_cfg(void *private_data, uint32_t enable,
 	return ret;
 }
 
->>>>>>> Stashed changes
 static int msm_island_vad_get_portid_from_beid(int32_t be_id, int *port_id)
 {
 	*port_id = 0xFFFF;
@@ -2651,22 +2602,6 @@ static int tdm_get_sample_rate(int value)
 		sample_rate = SAMPLING_RATE_8KHZ;
 		break;
 	case 1:
-<<<<<<< Updated upstream
-		sample_rate = SAMPLING_RATE_16KHZ;
-		break;
-	case 2:
-		sample_rate = SAMPLING_RATE_32KHZ;
-		break;
-	case 3:
-		sample_rate = SAMPLING_RATE_48KHZ;
-		break;
-	case 4:
-		sample_rate = SAMPLING_RATE_176P4KHZ;
-		break;
-	case 5:
-		sample_rate = SAMPLING_RATE_352P8KHZ;
-		break;
-=======
 		sample_rate = SAMPLING_RATE_11P025KHZ;
 		break;
 	case 2:
@@ -2702,7 +2637,6 @@ static int tdm_get_sample_rate(int value)
 	case 12:
 		sample_rate = SAMPLING_RATE_384KHZ;
 		break;
->>>>>>> Stashed changes
 	default:
 		sample_rate = SAMPLING_RATE_48KHZ;
 		break;
@@ -2734,25 +2668,6 @@ static int tdm_get_sample_rate_val(int sample_rate)
 	case SAMPLING_RATE_8KHZ:
 		sample_rate_val = 0;
 		break;
-<<<<<<< Updated upstream
-	case SAMPLING_RATE_16KHZ:
-		sample_rate_val = 1;
-		break;
-	case SAMPLING_RATE_32KHZ:
-		sample_rate_val = 2;
-		break;
-	case SAMPLING_RATE_48KHZ:
-		sample_rate_val = 3;
-		break;
-	case SAMPLING_RATE_176P4KHZ:
-		sample_rate_val = 4;
-		break;
-	case SAMPLING_RATE_352P8KHZ:
-		sample_rate_val = 5;
-		break;
-	default:
-		sample_rate_val = 3;
-=======
 	case SAMPLING_RATE_11P025KHZ:
 		sample_rate_val = 1;
 		break;
@@ -2791,7 +2706,6 @@ static int tdm_get_sample_rate_val(int sample_rate)
 		break;
 	default:
 		sample_rate_val = 6;
->>>>>>> Stashed changes
 		break;
 	}
 	return sample_rate_val;
@@ -2813,8 +2727,6 @@ static int aux_pcm_get_sample_rate_val(int sample_rate)
 	return sample_rate_val;
 }
 
-<<<<<<< Updated upstream
-=======
 static int tdm_get_mode(struct snd_kcontrol *kcontrol)
 {
 	int mode;
@@ -2845,38 +2757,13 @@ static int tdm_get_mode(struct snd_kcontrol *kcontrol)
 	return mode;
 }
 
->>>>>>> Stashed changes
 static int tdm_get_port_idx(struct snd_kcontrol *kcontrol,
 			    struct tdm_port *port)
 {
 	if (port) {
-<<<<<<< Updated upstream
-		if (strnstr(kcontrol->id.name, "PRI",
-		    sizeof(kcontrol->id.name))) {
-			port->mode = TDM_PRI;
-		} else if (strnstr(kcontrol->id.name, "SEC",
-		    sizeof(kcontrol->id.name))) {
-			port->mode = TDM_SEC;
-		} else if (strnstr(kcontrol->id.name, "TERT",
-		    sizeof(kcontrol->id.name))) {
-			port->mode = TDM_TERT;
-		} else if (strnstr(kcontrol->id.name, "QUAT",
-		    sizeof(kcontrol->id.name))) {
-			port->mode = TDM_QUAT;
-		} else if (strnstr(kcontrol->id.name, "QUIN",
-		    sizeof(kcontrol->id.name))) {
-			port->mode = TDM_QUIN;
-		} else {
-			pr_err("%s: unsupported mode in: %s",
-				__func__, kcontrol->id.name);
-			return -EINVAL;
-		}
-
-=======
 		port->mode = tdm_get_mode(kcontrol);
 		if (port->mode < 0)
 			return port->mode;
->>>>>>> Stashed changes
 		if (strnstr(kcontrol->id.name, "RX_0",
 		    sizeof(kcontrol->id.name)) ||
 		    strnstr(kcontrol->id.name, "TX_0",
@@ -2918,11 +2805,7 @@ static int tdm_get_port_idx(struct snd_kcontrol *kcontrol,
 			   sizeof(kcontrol->id.name))) {
 			port->channel = TDM_7;
 		} else {
-<<<<<<< Updated upstream
-			pr_err("%s: unsupported channel in: %s",
-=======
 			pr_err("%s: unsupported channel in: %s\n",
->>>>>>> Stashed changes
 				__func__, kcontrol->id.name);
 			return -EINVAL;
 		}
@@ -3214,8 +3097,6 @@ static int tdm_tx_ch_put(struct snd_kcontrol *kcontrol,
 	return ret;
 }
 
-<<<<<<< Updated upstream
-=======
 static int tdm_get_slot_num_val(int slot_num)
 {
 	int slot_num_val;
@@ -3474,7 +3355,6 @@ static int tdm_tx_slot_mapping_put(struct snd_kcontrol *kcontrol,
 	return 0;
 }
 
->>>>>>> Stashed changes
 static int aux_pcm_get_port_idx(struct snd_kcontrol *kcontrol)
 {
 	int idx;
@@ -5004,8 +4884,6 @@ static const struct snd_kcontrol_new msm_snd_controls[] = {
 	SOC_ENUM_EXT("QUIN_TDM_TX_0 Channels", tdm_tx_chs,
 			tdm_tx_ch_get,
 			tdm_tx_ch_put),
-<<<<<<< Updated upstream
-=======
 	SOC_ENUM_EXT("SEN_TDM_RX_0 SampleRate", tdm_rx_sample_rate,
 			tdm_rx_sample_rate_get,
 			tdm_rx_sample_rate_put),
@@ -5085,7 +4963,6 @@ static const struct snd_kcontrol_new msm_snd_controls[] = {
 		SND_SOC_NOPM, 0, 0xFFFF, 0, TDM_SLOT_OFFSET_MAX,
 		tdm_tx_slot_mapping_get, tdm_tx_slot_mapping_put),
 
->>>>>>> Stashed changes
 	SOC_ENUM_EXT("PRIM_AUX_PCM_RX SampleRate", prim_aux_pcm_rx_sample_rate,
 			aux_pcm_rx_sample_rate_get,
 			aux_pcm_rx_sample_rate_put),
@@ -5831,8 +5708,6 @@ static int msm_be_hw_params_fixup(struct snd_soc_pcm_runtime *rtd,
 		rate->min = rate->max = tdm_tx_cfg[TDM_QUIN][TDM_0].sample_rate;
 		break;
 
-<<<<<<< Updated upstream
-=======
 	case MSM_BACKEND_DAI_SEN_TDM_RX_0:
 		channels->min = channels->max =
 				tdm_rx_cfg[TDM_SEN][TDM_0].channels;
@@ -5849,7 +5724,6 @@ static int msm_be_hw_params_fixup(struct snd_soc_pcm_runtime *rtd,
 		rate->min = rate->max = tdm_tx_cfg[TDM_SEN][TDM_0].sample_rate;
 		break;
 
->>>>>>> Stashed changes
 	case MSM_BACKEND_DAI_AUXPCM_RX:
 		param_set_mask(params, SNDRV_PCM_HW_PARAM_FORMAT,
 			aux_pcm_rx_cfg[PRIM_AUX_PCM].bit_format);
@@ -6942,8 +6816,6 @@ static int msm_tdm_be_hw_params_fixup(struct snd_soc_pcm_runtime *rtd,
 		param_set_mask(params, SNDRV_PCM_HW_PARAM_FORMAT,
 			       tdm_rx_cfg[TDM_QUIN][TDM_0].bit_format);
 		rate->min = rate->max = tdm_rx_cfg[TDM_QUIN][TDM_0].sample_rate;
-<<<<<<< Updated upstream
-=======
 	} else if (cpu_dai->id == AFE_PORT_ID_SENARY_TDM_RX) {
 		channels->min = channels->max =
 				tdm_rx_cfg[TDM_SEN][TDM_0].channels;
@@ -6951,7 +6823,6 @@ static int msm_tdm_be_hw_params_fixup(struct snd_soc_pcm_runtime *rtd,
 			       tdm_rx_cfg[TDM_SEN][TDM_0].bit_format);
 		rate->min = rate->max =
 				tdm_rx_cfg[TDM_SEN][TDM_0].sample_rate;
->>>>>>> Stashed changes
 	} else {
 		pr_err("%s: dai id 0x%x not supported\n",
 			__func__, cpu_dai->id);
@@ -6974,13 +6845,9 @@ static int qcs405_tdm_snd_hw_params(struct snd_pcm_substream *substream,
 	int slot_width = 32;
 	int channels, slots = 8;
 	unsigned int slot_mask, rate, clk_freq;
-<<<<<<< Updated upstream
-	unsigned int slot_offset[8] = {0, 4, 8, 12, 16, 20, 24, 28};
-=======
 	unsigned int *slot_offset;
 	int offset_channels = 0;
 	int i;
->>>>>>> Stashed changes
 
 	pr_debug("%s: dai id = 0x%x\n", __func__, cpu_dai->id);
 
@@ -6988,35 +6855,6 @@ static int qcs405_tdm_snd_hw_params(struct snd_pcm_substream *substream,
 	switch (cpu_dai->id) {
 	case AFE_PORT_ID_PRIMARY_TDM_RX:
 		channels = tdm_rx_cfg[TDM_PRI][TDM_0].channels;
-<<<<<<< Updated upstream
-		break;
-	case AFE_PORT_ID_SECONDARY_TDM_RX:
-		channels = tdm_rx_cfg[TDM_SEC][TDM_0].channels;
-		break;
-	case AFE_PORT_ID_TERTIARY_TDM_RX:
-		channels = tdm_rx_cfg[TDM_TERT][TDM_0].channels;
-		break;
-	case AFE_PORT_ID_QUATERNARY_TDM_RX:
-		channels = tdm_rx_cfg[TDM_QUAT][TDM_0].channels;
-		break;
-	case AFE_PORT_ID_QUINARY_TDM_RX:
-		channels = tdm_rx_cfg[TDM_QUIN][TDM_0].channels;
-		break;
-	case AFE_PORT_ID_PRIMARY_TDM_TX:
-		channels = tdm_tx_cfg[TDM_PRI][TDM_0].channels;
-		break;
-	case AFE_PORT_ID_SECONDARY_TDM_TX:
-		channels = tdm_tx_cfg[TDM_SEC][TDM_0].channels;
-		break;
-	case AFE_PORT_ID_TERTIARY_TDM_TX:
-		channels = tdm_tx_cfg[TDM_TERT][TDM_0].channels;
-		break;
-	case AFE_PORT_ID_QUATERNARY_TDM_TX:
-		channels = tdm_tx_cfg[TDM_QUAT][TDM_0].channels;
-		break;
-	case AFE_PORT_ID_QUINARY_TDM_TX:
-		channels = tdm_tx_cfg[TDM_QUIN][TDM_0].channels;
-=======
 		slots = tdm_slot[TDM_PRI].num;
 		slot_width = tdm_slot[TDM_PRI].width;
 		slot_offset = tdm_rx_slot_offset[TDM_PRI];
@@ -7086,7 +6924,6 @@ static int qcs405_tdm_snd_hw_params(struct snd_pcm_substream *substream,
 		slots = tdm_slot[TDM_SEN].num;
 		slot_width = tdm_slot[TDM_SEN].width;
 		slot_offset = tdm_tx_slot_offset[TDM_SEN];
->>>>>>> Stashed changes
 		break;
 	default:
 		pr_err("%s: dai id 0x%x not supported\n",
@@ -7094,11 +6931,6 @@ static int qcs405_tdm_snd_hw_params(struct snd_pcm_substream *substream,
 		return -EINVAL;
 	}
 
-<<<<<<< Updated upstream
-	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
-		/*2 slot config - bits 0 and 1 set for the first two slots */
-		slot_mask = 0x0000FFFF >> (16-channels);
-=======
 	for (i = 0; i < TDM_SLOT_OFFSET_MAX; i++) {
 		if (slot_offset[i] != AFE_SLOT_MAPPING_OFFSET_INVALID)
 			offset_channels++;
@@ -7121,7 +6953,6 @@ static int qcs405_tdm_snd_hw_params(struct snd_pcm_substream *substream,
 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
 		/*2 slot config - bits 0 and 1 set for the first two slots */
 		slot_mask = 0xFFFFFFFF >> (32 - channels);
->>>>>>> Stashed changes
 
 		pr_debug("%s: tdm rx slot_width %d slots %d\n",
 			__func__, slot_width, slots);
@@ -7143,11 +6974,7 @@ static int qcs405_tdm_snd_hw_params(struct snd_pcm_substream *substream,
 		}
 	} else if (substream->stream == SNDRV_PCM_STREAM_CAPTURE) {
 		/*2 slot config - bits 0 and 1 set for the first two slots */
-<<<<<<< Updated upstream
-		slot_mask = 0x0000FFFF >> (16-channels);
-=======
 		slot_mask = 0xFFFFFFFF >> (32 - channels);
->>>>>>> Stashed changes
 
 		pr_debug("%s: tdm tx slot_width %d slots %d\n",
 			__func__, slot_width, slots);
@@ -7176,15 +7003,12 @@ static int qcs405_tdm_snd_hw_params(struct snd_pcm_substream *substream,
 
 	rate = params_rate(params);
 	clk_freq = rate * slot_width * slots;
-<<<<<<< Updated upstream
-=======
 	if (clk_freq > TDM_MAX_CLK_FREQ) {
 		ret = -EINVAL;
 		pr_err("%s: clk frequency > 24.576MHz %d\n",
 			__func__, clk_freq);
 		goto end;
 	}
->>>>>>> Stashed changes
 	ret = snd_soc_dai_set_sysclk(cpu_dai, 0, clk_freq, SND_SOC_CLOCK_OUT);
 	if (ret < 0)
 		pr_err("%s: failed to set tdm clk, err:%d\n",
@@ -7219,13 +7043,10 @@ static int msm_get_tdm_mode(u32 port_id)
 	case AFE_PORT_ID_QUINARY_TDM_TX:
 		tdm_mode = TDM_QUIN;
 		break;
-<<<<<<< Updated upstream
-=======
 	case AFE_PORT_ID_SENARY_TDM_RX:
 	case AFE_PORT_ID_SENARY_TDM_TX:
 		tdm_mode = TDM_SEN;
 		break;
->>>>>>> Stashed changes
 	default:
 		pr_err("%s: Invalid port id: %d\n", __func__, port_id);
 		tdm_mode = -EINVAL;
@@ -7651,12 +7472,6 @@ static int msm_meta_mi2s_snd_startup(struct snd_pcm_substream *substream)
 
 		if (i == 0) {
 			port_id = msm_get_port_id(rtd->dai_link->id);
-<<<<<<< Updated upstream
-			ret = afe_set_clk_id(port_id,
-					     mi2s_clk[member_port].clk_id);
-			if (ret < 0)
-				pr_err("%s: afe_set_clk_id fail %d\n",
-=======
 			if (meta_mi2s_rx_cfg[index].sample_rate
 					% SAMPLING_RATE_8KHZ) {
 				if (clk_src_name[CLK_SRC_FRACT] != NULL)
@@ -7668,7 +7483,6 @@ static int msm_meta_mi2s_snd_startup(struct snd_pcm_substream *substream)
 			}
 			if (ret < 0)
 				pr_err("%s: afe_set_source_name fail %d\n",
->>>>>>> Stashed changes
 					 __func__, ret);
 
 			ret = snd_soc_dai_set_fmt(cpu_dai, fmt);
@@ -8936,8 +8750,6 @@ static struct snd_soc_dai_link msm_common_be_dai_links[] = {
 		.ops = &qcs405_tdm_be_ops,
 		.ignore_suspend = 1,
 	},
-<<<<<<< Updated upstream
-=======
 	{
 		.name = LPASS_BE_SEN_TDM_RX_0,
 		.stream_name = "Senary TDM0 Playback",
@@ -8967,7 +8779,6 @@ static struct snd_soc_dai_link msm_common_be_dai_links[] = {
 		.ops = &qcs405_tdm_be_ops,
 		.ignore_suspend = 1,
 	},
->>>>>>> Stashed changes
 };
 
 static struct snd_soc_dai_link msm_tasha_be_dai_links[] = {
@@ -10851,8 +10662,6 @@ static int msm_detect_ep92_dev(struct platform_device *pdev,
 	return 0;
 }
 
-<<<<<<< Updated upstream
-=======
 static int msm_parse_ext_mclk_cfg_one(struct snd_soc_card *card,
 					enum afe_mclk_freq freq)
 {
@@ -10979,7 +10788,6 @@ err:
 	return ret;
 }
 
->>>>>>> Stashed changes
 static int msm_asoc_machine_probe(struct platform_device *pdev)
 {
 	struct snd_soc_card *card;
@@ -10990,11 +10798,8 @@ static int msm_asoc_machine_probe(struct platform_device *pdev)
 	const char *micb_supply_str1 = "tdm-vdd-micb";
 	const char *micb_voltage_str = "qcom,tdm-vdd-micb-voltage";
 	const char *micb_current_str = "qcom,tdm-vdd-micb-current";
-<<<<<<< Updated upstream
-=======
 	const char *clk_src_name_str_integ = "qcom,clk-src-name-integ";
 	const char *clk_src_name_str_fract = "qcom,clk-src-name-fract";
->>>>>>> Stashed changes
 	u32 v_base_addr;
 
 	if (!pdev->dev.of_node) {
@@ -11007,8 +10812,6 @@ static int msm_asoc_machine_probe(struct platform_device *pdev)
 	if (!pdata)
 		return -ENOMEM;
 
-<<<<<<< Updated upstream
-=======
 	ret = of_property_read_string_index(pdev->dev.of_node,
 			clk_src_name_str_integ, 0,
 			&clk_src_name[CLK_SRC_INTEGRAL]);
@@ -11026,7 +10829,6 @@ static int msm_asoc_machine_probe(struct platform_device *pdev)
 	if (clk_src_name[CLK_SRC_INTEGRAL] != NULL &&
 			clk_src_name[CLK_SRC_FRACT] != NULL)
 		afe_set_clk_src_array(clk_src_name);
->>>>>>> Stashed changes
 	ret = of_property_read_u32(
 		pdev->dev.of_node, "tcsr_i2s_dsd_prim", &v_base_addr);
 	if (ret) {
@@ -11128,11 +10930,8 @@ static int msm_asoc_machine_probe(struct platform_device *pdev)
 					"qcom,quat-mi2s-gpios", 0);
 	pdata->mi2s_gpio_p[QUIN_MI2S] = of_parse_phandle(pdev->dev.of_node,
 					"qcom,quin-mi2s-gpios", 0);
-<<<<<<< Updated upstream
-=======
 	pdata->mi2s_gpio_p[SEN_MI2S] = of_parse_phandle(pdev->dev.of_node,
 					"qcom,sen-mi2s-gpios", 0);
->>>>>>> Stashed changes
 
 	if (of_parse_phandle(pdev->dev.of_node, micb_supply_str, 0)) {
 		pdata->tdm_micb_supply = devm_regulator_get(&pdev->dev,
@@ -11163,8 +10962,6 @@ static int msm_asoc_machine_probe(struct platform_device *pdev)
 		}
 	}
 
-<<<<<<< Updated upstream
-=======
 	ret = qcs405_ext_mclk_cfg_init(card);
 	if (ret) {
 		dev_err(&pdev->dev, "mclk cfg from DT failed: %d\n", ret);
@@ -11174,7 +10971,6 @@ static int msm_asoc_machine_probe(struct platform_device *pdev)
 	pdata->ext_mclk_gpio_p = of_parse_phandle(pdev->dev.of_node,
 					"qcom,ext-mclk-gpio", 0);
 
->>>>>>> Stashed changes
 	ret = devm_snd_soc_register_card(&pdev->dev, card);
 	if (ret == -EPROBE_DEFER) {
 		if (codec_reg_done)
@@ -11205,14 +11001,11 @@ err:
 
 static int msm_asoc_machine_remove(struct platform_device *pdev)
 {
-<<<<<<< Updated upstream
-=======
 	struct snd_soc_card *card = NULL;
 
 	card = (struct snd_soc_card *)platform_get_drvdata(pdev);
 	qcs405_ext_mclk_cfg_deinit(card);
 
->>>>>>> Stashed changes
 	audio_notifier_deregister("qcs405");
 	msm_i2s_auxpcm_deinit();
 	msm_mdf_mem_deinit();

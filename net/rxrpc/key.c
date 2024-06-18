@@ -1140,8 +1140,6 @@ static long rxrpc_read(const struct key *key,
 		memcpy(xdr, (s), _l);					\
 		if (_l & 3)						\
 			memcpy((u8 *)xdr + _l, &zero, 4 - (_l & 3));	\
-<<<<<<< Updated upstream
-=======
 		xdr += (_l + 3) >> 2;					\
 	} while(0)
 #define ENCODE_BYTES(l, s)						\
@@ -1150,7 +1148,6 @@ static long rxrpc_read(const struct key *key,
 		memcpy(xdr, (s), _l);					\
 		if (_l & 3)						\
 			memcpy((u8 *)xdr + _l, &zero, 4 - (_l & 3));	\
->>>>>>> Stashed changes
 		xdr += (_l + 3) >> 2;					\
 	} while(0)
 #define ENCODE64(x)					\

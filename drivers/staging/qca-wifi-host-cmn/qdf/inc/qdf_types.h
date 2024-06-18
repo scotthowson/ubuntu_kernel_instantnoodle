@@ -1,10 +1,6 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2014-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2014-2021 The Linux Foundation. All rights reserved.
  * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -389,10 +385,7 @@ typedef bool (*qdf_irqlocked_func_t)(void *);
  * @QDF_MODULE_ID_FTM_TIME_SYNC: FTM Time sync module ID
  * @QDF_MODULE_ID_PKT_CAPTURE: PACKET CAPTURE module ID
  * @QDF_MODULE_ID_MON_FILTER: Monitor filter related config module ID
-<<<<<<< Updated upstream
-=======
  * @QDF_MODULE_ID_GPIO: GPIO configuration module ID
->>>>>>> Stashed changes
  * @QDF_MODULE_ID_ANY: anything
  * @QDF_MODULE_ID_MAX: Max place holder module ID
  */
@@ -515,10 +508,7 @@ typedef enum {
 	QDF_MODULE_ID_FTM_TIME_SYNC,
 	QDF_MODULE_ID_PKT_CAPTURE,
 	QDF_MODULE_ID_MON_FILTER,
-<<<<<<< Updated upstream
-=======
 	QDF_MODULE_ID_GPIO = 123,
->>>>>>> Stashed changes
 	QDF_MODULE_ID_ANY,
 	QDF_MODULE_ID_MAX,
 } QDF_MODULE_ID;
@@ -1050,8 +1040,6 @@ struct qdf_ipv6_addr {
 QDF_STATUS qdf_ipv6_parse(const char *ipv6_str, struct qdf_ipv6_addr *out_addr);
 
 /**
-<<<<<<< Updated upstream
-=======
  * qdf_uint32_array_parse() - parse the given string as uint32 array
  * @in_str: the input string to parse
  * @out_array: the output uint32 array, populated on success
@@ -1068,7 +1056,6 @@ QDF_STATUS qdf_uint32_array_parse(const char *in_str, uint32_t *out_array,
 				  qdf_size_t array_size, qdf_size_t *out_size);
 
 /**
->>>>>>> Stashed changes
  * qdf_uint16_array_parse() - parse the given string as uint16 array
  * @in_str: the input string to parse
  * @out_array: the output uint16 array, populated on success
@@ -1346,10 +1333,7 @@ enum qdf_suspend_type {
  * @QDF_WMI_BUF_SEQUENCE_MISMATCH: WMI Tx completion buffer sequence mismatch
  * @QDF_HAL_REG_WRITE_FAILURE: HAL register writing failures
  * @QDF_SUSPEND_NO_CREDIT: host lack of credit after suspend
-<<<<<<< Updated upstream
-=======
  * @QCA_HANG_BUS_FAILURE: Bus failure
->>>>>>> Stashed changes
  */
 enum qdf_hang_reason {
 	QDF_REASON_UNSPECIFIED,
@@ -1375,10 +1359,7 @@ enum qdf_hang_reason {
 	QDF_WMI_BUF_SEQUENCE_MISMATCH,
 	QDF_HAL_REG_WRITE_FAILURE,
 	QDF_SUSPEND_NO_CREDIT,
-<<<<<<< Updated upstream
-=======
 	QCA_HANG_BUS_FAILURE,
->>>>>>> Stashed changes
 };
 
 /**

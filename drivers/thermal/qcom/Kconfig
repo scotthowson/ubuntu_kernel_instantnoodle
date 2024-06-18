@@ -102,8 +102,6 @@ config REGULATOR_COOLING_DEVICE
 
 	  If you want this support, you should say Y here.
 
-<<<<<<< Updated upstream
-=======
 config QTI_RPM_SMD_COOLING_DEVICE
 	bool "Qualcomm Technologies Inc. RPM SMD cooling device driver"
 	depends on MSM_RPM_SMD && THERMAL_OF
@@ -115,7 +113,6 @@ config QTI_RPM_SMD_COOLING_DEVICE
 
 	  If you want this support, you should say Y here.
 
->>>>>>> Stashed changes
 config MSM_BCL_PERIPHERAL_CTL
 	bool "BCL driver to control the PMIC BCL peripheral"
 	depends on SPMI && THERMAL_OF

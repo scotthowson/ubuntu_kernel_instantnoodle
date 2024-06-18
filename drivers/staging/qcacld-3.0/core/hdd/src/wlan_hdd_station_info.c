@@ -56,12 +56,9 @@
 #define STATION_MAX \
 	QCA_WLAN_VENDOR_ATTR_GET_STATION_MAX
 
-<<<<<<< Updated upstream
-=======
 #define STA_INFO_CONNECT_FAIL_REASON_CODE \
 	QCA_WLAN_VENDOR_ATTR_GET_STA_INFO_CONNECT_FAIL_REASON_CODE
 
->>>>>>> Stashed changes
 /* define short names for get station info attributes */
 #define LINK_INFO_STANDARD_NL80211_ATTR \
 	QCA_WLAN_VENDOR_ATTR_GET_STATION_INFO_LINK_STANDARD_NL80211_ATTR
@@ -157,15 +154,12 @@ hdd_get_station_policy[STATION_MAX + 1] = {
 	[STATION_REMOTE] = {.type = NLA_BINARY, .len = QDF_MAC_ADDR_SIZE},
 };
 
-<<<<<<< Updated upstream
-=======
 const struct nla_policy
 hdd_get_sta_policy[QCA_WLAN_VENDOR_ATTR_GET_STA_INFO_MAX + 1] = {
 	[QCA_WLAN_VENDOR_ATTR_GET_STA_INFO_MAC] = {.type = NLA_BINARY,
 						   .len = QDF_MAC_ADDR_SIZE},
 };
 
->>>>>>> Stashed changes
 static int hdd_get_sta_congestion(struct hdd_adapter *adapter,
 				  uint32_t *congestion)
 {
@@ -1620,8 +1614,6 @@ int32_t hdd_cfg80211_get_station_cmd(struct wiphy *wiphy,
 	return errno;
 }
 
-<<<<<<< Updated upstream
-=======
 static uint32_t
 hdd_get_connect_fail_reason_code_len(struct hdd_adapter *adapter)
 {
@@ -1834,4 +1826,3 @@ int32_t hdd_cfg80211_get_sta_info_cmd(struct wiphy *wiphy,
 	return errno;
 }
 
->>>>>>> Stashed changes

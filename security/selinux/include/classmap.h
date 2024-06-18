@@ -115,12 +115,8 @@ struct security_class_mapping secclass_map[] = {
 	  { COMMON_IPC_PERMS, NULL } },
 	{ "netlink_route_socket",
 	  { COMMON_SOCK_PERMS,
-<<<<<<< Updated upstream
-	    "nlmsg_read", "nlmsg_write", "nlmsg_readpriv", NULL } },
-=======
 	    "nlmsg_read", "nlmsg_write", "nlmsg_readpriv", "nlmsg_getneigh",
 	    NULL } },
->>>>>>> Stashed changes
 	{ "netlink_tcpdiag_socket",
 	  { COMMON_SOCK_PERMS,
 	    "nlmsg_read", "nlmsg_write", NULL } },
@@ -250,11 +246,7 @@ struct security_class_mapping secclass_map[] = {
 	{ "xdp_socket",
 	  { COMMON_SOCK_PERMS, NULL } },
 	{ "perf_event",
-<<<<<<< Updated upstream
-	  {"open", "cpu", "kernel", "tracepoint", "read", "write"} },
-=======
 	  { "open", "cpu", "kernel", "tracepoint", "read", "write", NULL } },
->>>>>>> Stashed changes
 	{ NULL }
   };
 

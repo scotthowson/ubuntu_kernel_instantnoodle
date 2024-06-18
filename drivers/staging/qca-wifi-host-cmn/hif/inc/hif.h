@@ -322,8 +322,6 @@ enum hif_event_type {
 	HIF_EVENT_BH_SCHED,
 	HIF_EVENT_SRNG_ACCESS_START,
 	HIF_EVENT_SRNG_ACCESS_END,
-<<<<<<< Updated upstream
-=======
 	/* Do check hif_hist_skip_event_record when adding new events */
 };
 
@@ -341,7 +339,6 @@ enum hif_system_pm_state {
 	HIF_SYSTEM_PM_STATE_BUS_RESUMING,
 	HIF_SYSTEM_PM_STATE_BUS_SUSPENDING,
 	HIF_SYSTEM_PM_STATE_BUS_SUSPENDED,
->>>>>>> Stashed changes
 };
 
 #ifdef WLAN_FEATURE_DP_EVENT_HISTORY
@@ -373,8 +370,6 @@ struct hif_event_record {
 };
 
 /**
-<<<<<<< Updated upstream
-=======
  * struct hif_event_misc - history related misc info
  * @last_irq_index: last irq event index in history
  * @last_irq_ts: last irq timestamp
@@ -385,7 +380,6 @@ struct hif_event_misc {
 };
 
 /**
->>>>>>> Stashed changes
  * struct hif_event_history - history for one interrupt group
  * @index: index to store new event
  * @event: event entry
@@ -395,10 +389,7 @@ struct hif_event_misc {
  */
 struct hif_event_history {
 	qdf_atomic_t index;
-<<<<<<< Updated upstream
-=======
 	struct hif_event_misc misc;
->>>>>>> Stashed changes
 	struct hif_event_record event[HIF_EVENT_HIST_MAX];
 };
 
@@ -970,10 +961,6 @@ static inline char *rtpm_string_from_dbgid(wlan_rtpm_dbgid id)
 	return (char *)strings[id];
 }
 
-<<<<<<< Updated upstream
-#ifdef FEATURE_RUNTIME_PM
-struct hif_pm_runtime_lock;
-=======
 /**
  * enum hif_pm_link_state - hif link state
  * HIF_PM_LINK_STATE_DOWN: hif link state is down
@@ -987,7 +974,6 @@ enum hif_pm_link_state {
 #ifdef FEATURE_RUNTIME_PM
 struct hif_pm_runtime_lock;
 
->>>>>>> Stashed changes
 void hif_fastpath_resume(struct hif_opaque_softc *hif_ctx);
 int hif_pm_runtime_get_sync(struct hif_opaque_softc *hif_ctx,
 			    wlan_rtpm_dbgid rtpm_dbgid);
@@ -1020,8 +1006,6 @@ void hif_pm_runtime_mark_dp_rx_busy(struct hif_opaque_softc *hif_ctx);
 int hif_pm_runtime_is_dp_rx_busy(struct hif_opaque_softc *hif_ctx);
 qdf_time_t hif_pm_runtime_get_dp_rx_busy_mark(struct hif_opaque_softc *hif_ctx);
 int hif_pm_runtime_sync_resume(struct hif_opaque_softc *hif_ctx);
-<<<<<<< Updated upstream
-=======
 
 /**
  * hif_pm_set_link_state() - set link state during RTPM
@@ -1038,7 +1022,6 @@ void hif_pm_set_link_state(struct hif_opaque_softc *hif_handle, uint8_t val);
  * Return: 1 link is up, 0 link is down
  */
 uint8_t hif_pm_get_link_state(struct hif_opaque_softc *hif_handle);
->>>>>>> Stashed changes
 #else
 struct hif_pm_runtime_lock {
 	const char *name;
@@ -1107,13 +1090,10 @@ hif_pm_runtime_get_dp_rx_busy_mark(struct hif_opaque_softc *hif_ctx)
 { return 0; }
 static inline int hif_pm_runtime_sync_resume(struct hif_opaque_softc *hif_ctx)
 { return 0; }
-<<<<<<< Updated upstream
-=======
 static inline
 void hif_pm_set_link_state(struct hif_opaque_softc *hif_handle, uint8_t val)
 {}
 
->>>>>>> Stashed changes
 #endif
 
 void hif_enable_power_management(struct hif_opaque_softc *hif_ctx,
@@ -1286,10 +1266,7 @@ int32_t hif_get_int_ctx_irq_num(struct hif_opaque_softc *softc,
 				uint8_t id);
 
 uint32_t hif_configure_ext_group_interrupts(struct hif_opaque_softc *hif_ctx);
-<<<<<<< Updated upstream
-=======
 void hif_deconfigure_ext_group_interrupts(struct hif_opaque_softc *hif_ctx);
->>>>>>> Stashed changes
 uint32_t  hif_register_ext_group(struct hif_opaque_softc *hif_ctx,
 		uint32_t numirq, uint32_t irq[], ext_intr_handler handler,
 		void *cb_ctx, const char *context_name,
@@ -1553,8 +1530,6 @@ void hif_log_ce_info(struct hif_softc *scn, uint8_t *data,
 {
 }
 #endif
-<<<<<<< Updated upstream
-=======
 
 #ifdef SYSTEM_PM_CHECK
 /**
@@ -1669,5 +1644,4 @@ static inline int hif_system_pm_state_check(struct hif_opaque_softc *hif)
 	return 0;
 }
 #endif
->>>>>>> Stashed changes
 #endif /* _HIF_H_ */

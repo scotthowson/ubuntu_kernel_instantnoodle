@@ -73,16 +73,6 @@
 
 /*
  * <ini>
-<<<<<<< Updated upstream
- * etsi13_srd_chan_in_master_mode - Enable/disable ETSI SRD channels in
- * master mode PCL and ACS functionality
- * @Min: 0
- * @Max: 1
- * @Default: 0
- *
- * etsi13_srd_chan_in_master_mode is to enable/disable ETSI SRD channels in
- * master mode PCL and ACS functionality
-=======
  * etsi_srd_chan_in_master_mode - Enable/disable ETSI SRD channels in
  * master mode PCL and ACS functionality
  * @Min: 0
@@ -97,7 +87,6 @@
  * BIT 2:- Enable/Disable SRD channels for NAN.
  * Rest of the bits are currently reserved for future SRD channel support for
  * other vdevs.
->>>>>>> Stashed changes
  *
  * Related: None
  *
@@ -107,13 +96,6 @@
  *
  * </ini>
  */
-<<<<<<< Updated upstream
-#define CFG_ETSI13_SRD_CHAN_IN_MASTER_MODE CFG_INI_BOOL( \
-	"etsi13_srd_chan_in_master_mode", \
-	0, \
-	"enable/disable ETSI SRD channels in master mode")
-
-=======
 #define CFG_ETSI_SRD_CHAN_IN_MASTER_MODE CFG_INI_UINT( \
 	"etsi13_srd_chan_in_master_mode", \
 	0, \
@@ -145,7 +127,6 @@
 	0, \
 	"enable/disable indoor channels for NAN")
 
->>>>>>> Stashed changes
 #ifdef SAP_AVOID_ACS_FREQ_LIST
 #define SAP_AVOID_ACS_FREQ_LIST_DEFAULT ""
 
@@ -375,12 +356,8 @@
 	CFG(CFG_SELF_GEN_FRM_PWR) \
 	CFG(CFG_ENABLE_PENDING_CHAN_LIST_REQ) \
 	CFG(CFG_ENABLE_11D_IN_WORLD_MODE) \
-<<<<<<< Updated upstream
-	CFG(CFG_ETSI13_SRD_CHAN_IN_MASTER_MODE) \
-=======
 	CFG(CFG_ETSI_SRD_CHAN_IN_MASTER_MODE) \
 	CFG(CFG_INDOOR_CHANNEL_SUPPORT_FOR_NAN) \
->>>>>>> Stashed changes
 	CFG(CFG_RESTART_BEACONING_ON_CH_AVOID) \
 	CFG(CFG_INDOOR_CHANNEL_SUPPORT) \
 	CFG(CFG_SCAN_11D_INTERVAL) \

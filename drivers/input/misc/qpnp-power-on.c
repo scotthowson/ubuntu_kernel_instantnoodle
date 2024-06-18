@@ -319,7 +319,6 @@ static const char * const qpnp_poff_reason[] = {
 	[39] = "Triggered by (OTST3 Over-temperature Stage 3)",
 };
 
-static bool is_black_screen;
 static int
 qpnp_pon_masked_write(struct qpnp_pon *pon, u16 addr, u8 mask, u8 val)
 {
@@ -958,29 +957,6 @@ static int qpnp_pon_input_dispatch(struct qpnp_pon *pon, u32 pon_type)
 	switch (cfg->pon_type) {
 	case PON_KPDPWR:
 		pon_rt_bit = QPNP_PON_KPDPWR_N_SET;
-<<<<<<< Updated upstream
-		if ((pon_rt_sts & pon_rt_bit) == 0) {
-			pr_info("Power-Key UP\n");
-			set_pwr_status(KEY_RELEASED);
-			schedule_work(&pon->up_work);
-			cancel_delayed_work(&pon->press_work);
-			cancel_delayed_work(&pon->press_pwr);
-#ifdef CONFIG_KEY_FLUSH
-			cancel_delayed_work(&pon->press_work_flush);
-			panic_flush_device_cache_circled_off();
-#endif
-		} else {
-			pr_info("Power-Key DOWN\n");
-			is_black_screen =  dsi_panel_backlight_get() != 0 ?
-					   false : true;
-			schedule_delayed_work(&pon->press_work, msecs_to_jiffies(4000));
-			schedule_delayed_work(&pon->press_pwr, msecs_to_jiffies(6000));
-#ifdef CONFIG_KEY_FLUSH
-			schedule_delayed_work(&pon->press_work_flush, msecs_to_jiffies(7000));
-#endif
-		}
-=======
->>>>>>> Stashed changes
 		break;
 	case PON_RESIN:
 		pon_rt_bit = QPNP_PON_RESIN_N_SET;
@@ -995,7 +971,7 @@ static int qpnp_pon_input_dispatch(struct qpnp_pon *pon, u32 pon_type)
 		return -EINVAL;
 	}
 
-	pr_err("PMIC input: code=%d, status=0x%02X\n", cfg->key_code,
+	pr_debug("PMIC input: code=%d, status=0x%02X\n", cfg->key_code,
 		pon_rt_sts);
 	key_status = pon_rt_sts & pon_rt_bit;
 
@@ -1170,172 +1146,6 @@ static void bark_work_func(struct work_struct *work)
 	}
 }
 
-<<<<<<< Updated upstream
-int check_powerkey_count(int press)
-{
-	int ret = 0;
-	int param_poweroff_count = 0;
-
-	ret = get_param_by_index_and_offset(13, 0x30, &param_poweroff_count,
-	      sizeof(param_poweroff_count));
-
-	if (press)
-		param_poweroff_count++;
-	else
-		param_poweroff_count--;
-
-	ret = set_param_by_index_and_offset(13, 0x30, &param_poweroff_count,
-	      sizeof(param_poweroff_count));
-	pr_info("param_poweroff_count=%d\n", param_poweroff_count);
-	return 0;
-}
-
-int qpnp_powerkey_state_check(struct qpnp_pon *pon, int up)
-{
-	int rc = 0;
-
-	if (get_boot_mode() !=  MSM_BOOT_MODE_NORMAL)
-		return 0;
-
-	if (up) {
-		rc = atomic_read(&pon->press_count);
-		if (rc < 1) {
-			atomic_inc(&pon->press_count);
-			check_powerkey_count(1);
-		}
-	} else {
-		rc = atomic_read(&pon->press_count);
-		if (rc > 0) {
-			atomic_dec(&pon->press_count);
-			check_powerkey_count(0);
-		}
-	}
-	return 0;
-}
-
-static void up_work_func(struct work_struct *work)
-{
-	struct qpnp_pon *pon =
-		container_of(work, struct qpnp_pon, up_work);
-
-	qpnp_powerkey_state_check(pon, 0);
-}
-
-static void press_work_func(struct work_struct *work)
-{
-	int boot_mode;
-	bool is_black_screen_now;
-	bool black_screen_detected = false;
-	int rc;
-	uint pon_rt_sts = 0;
-	struct qpnp_pon_config *cfg;
-	struct qpnp_pon *pon =
-	container_of(work, struct qpnp_pon, press_work.work);
-
-	cfg = qpnp_get_cfg(pon, PON_KPDPWR);
-	if (!cfg) {
-		dev_err(pon->dev, "Invalid config pointer\n");
-		goto err_return;
-	}
-	/* check the RT status to get the current status of the line */
-	rc = regmap_read(pon->regmap, QPNP_PON_RT_STS(pon), &pon_rt_sts);
-	if (rc) {
-		dev_err(pon->dev, "Unable to read PON RT status\n");
-		goto err_return;
-	}
-	if ((pon_rt_sts & QPNP_PON_KPDPWR_N_SET) == 1) {
-		qpnp_powerkey_state_check(pon, 1);
-		dev_err(pon->dev, "after 4s Power-Key is still DOWN\n");
-		is_black_screen_now =  dsi_panel_backlight_get() != 0 ? false : true;
-		if (is_black_screen == true && is_black_screen_now == true)
-			black_screen_detected = true;
-		pr_info("bl_screen=%d bl_screen_now=%d, bl_screen_det=%d\n",
-			 is_black_screen, is_black_screen_now, black_screen_detected);
-		boot_mode = get_boot_mode();
-		if (black_screen_detected == true && boot_mode == MSM_BOOT_MODE_NORMAL) {
-			pr_info(" ============== BLACK SCREEN DETECTED ==========");
-			oem_force_minidump_mode();
-			get_init_sched_info();
-			show_state_filter(TASK_UNINTERRUPTIBLE);
-			dump_runqueue();
-			dump_workqueue();
-			send_sig_to_get_trace("system_server");
-			send_sig_to_get_tombstone("surfaceflinger");
-			ksys_sync();
-			panic("power key still pressed\n");
-		}
-	}
-	msleep(20);
-	ksys_sync();
-err_return:
-	return;
-}
-
-static void press_pwr_func(struct work_struct *work)
-{
-	int rc;
-	uint pon_rt_sts = 0;
-	struct qpnp_pon_config *cfg;
-	struct qpnp_pon *pon =
-		container_of(work, struct qpnp_pon, press_pwr.work);
-
-	cfg = qpnp_get_cfg(pon, PON_KPDPWR);
-	if (!cfg) {
-		dev_err(pon->dev, "Invalid config pointer\n");
-		goto err_return;
-	}
-	/* check the RT status to get the current status of the line */
-	rc = regmap_read(pon->regmap, QPNP_PON_RT_STS(pon), &pon_rt_sts);
-	if (rc) {
-		dev_err(pon->dev, "Unable to read PON RT status\n");
-		goto err_return;
-	}
-
-	if ((pon_rt_sts & QPNP_PON_KPDPWR_N_SET) == 1) {
-		qpnp_powerkey_state_check(pon, 1);
-		dev_err(pon->dev, "after 6s Power-Key is still DOWN\n");
-		set_pwr_status(KEY_PRESSED);
-		compound_key_to_get_trace("system_server");
-		compound_key_to_get_tombstone("surfaceflinger");
-	}
-	msleep(20);
-	ksys_sync();
-err_return:
-	return;
-}
-
-#ifdef CONFIG_KEY_FLUSH
-static void press_work_flush_func(struct work_struct *work)
-{
-	int rc;
-	uint pon_rt_sts = 0;
-	struct qpnp_pon_config *cfg;
-	struct qpnp_pon *pon =
-	container_of(work, struct qpnp_pon, press_work_flush.work);
-
-	cfg = qpnp_get_cfg(pon, PON_KPDPWR);
-	if (!cfg) {
-		dev_err(pon->dev, "Invalid config pointer\n");
-		goto err_return;
-	}
-	/* check the RT status to get the current status of the line */
-	rc = regmap_read(pon->regmap, QPNP_PON_RT_STS(pon), &pon_rt_sts);
-	if (rc) {
-		dev_err(pon->dev, "Unable to read PON RT status\n");
-		goto err_return;
-	}
-	if ((pon_rt_sts & QPNP_PON_KPDPWR_N_SET) == 1) {
-		qpnp_powerkey_state_check(pon, 1);
-		panic_flush_device_cache_circled_on();
-		dev_err(pon->dev, "after 7s Pwr-Key is still DOWN, circle flush\n");
-	}
-err_return:
-	return;
-}
-#endif
-
-=======
->>>>>>> Stashed changes
 static irqreturn_t qpnp_resin_bark_irq(int irq, void *_pon)
 {
 	struct qpnp_pon *pon = _pon;
@@ -2857,8 +2667,6 @@ static int qpnp_pon_probe(struct platform_device *pdev)
 	}
 	if (to_spmi_device(dev->parent)->usid == 10)
 		op_pm8998_regmap_register(pon->regmap);
-	if (to_spmi_device(dev->parent)->usid == 0)
-		op_pm8150_regmap_register(pon->regmap);
 	/* Get the total number of pon configurations and regulators */
 	for_each_available_child_of_node(dev->of_node, node) {
 		if (of_find_property(node, "regulator-name", NULL)) {
@@ -2889,15 +2697,6 @@ static int qpnp_pon_probe(struct platform_device *pdev)
 	dev_set_drvdata(dev, pon);
 
 	INIT_DELAYED_WORK(&pon->bark_work, bark_work_func);
-<<<<<<< Updated upstream
-	INIT_DELAYED_WORK(&pon->press_work, press_work_func);
-	INIT_DELAYED_WORK(&pon->press_pwr, press_pwr_func);
-#ifdef CONFIG_KEY_FLUSH
-	INIT_DELAYED_WORK(&pon->press_work_flush, press_work_flush_func);
-#endif
-	INIT_WORK(&pon->up_work, up_work_func);
-=======
->>>>>>> Stashed changes
 
 	rc = qpnp_pon_parse_dt_power_off_config(pon);
 	if (rc)

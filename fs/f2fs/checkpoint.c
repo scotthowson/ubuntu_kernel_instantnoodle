@@ -13,10 +13,7 @@
 #include <linux/f2fs_fs.h>
 #include <linux/pagevec.h>
 #include <linux/swap.h>
-<<<<<<< Updated upstream
-=======
 #include <linux/kthread.h>
->>>>>>> Stashed changes
 
 #include "f2fs.h"
 #include "node.h"
@@ -155,11 +152,7 @@ static bool __is_bitmap_valid(struct f2fs_sb_info *sbi, block_t blkaddr,
 	se = get_seg_entry(sbi, segno);
 
 	exist = f2fs_test_bit(offset, se->cur_valid_map);
-<<<<<<< Updated upstream
-	if (!exist && type == DATA_GENERIC_ENHANCE) {
-=======
 	if (exist && type == DATA_GENERIC_ENHANCE_UPDATE) {
->>>>>>> Stashed changes
 		f2fs_err(sbi, "Inconsistent error blkaddr:%u, sit bitmap:%d",
 			 blkaddr, exist);
 		set_sbi_flag(sbi, SBI_NEED_FSCK);
@@ -907,14 +900,9 @@ static struct page *validate_checkpoint(struct f2fs_sb_info *sbi,
 	if (err)
 		return NULL;
 
-<<<<<<< Updated upstream
-	if (le32_to_cpu(cp_block->cp_pack_total_block_count) >
-					sbi->blocks_per_seg) {
-=======
 	cp_blocks = le32_to_cpu(cp_block->cp_pack_total_block_count);
 
 	if (cp_blocks > sbi->blocks_per_seg || cp_blocks <= F2FS_CP_PACKS) {
->>>>>>> Stashed changes
 		f2fs_warn(sbi, "invalid cp_pack_total_block_count:%u",
 			  le32_to_cpu(cp_block->cp_pack_total_block_count));
 		goto invalid_cp;
@@ -1204,12 +1192,8 @@ static bool __need_flush_quota(struct f2fs_sb_info *sbi)
 	if (!is_journalled_quota(sbi))
 		return false;
 
-<<<<<<< Updated upstream
-	down_write(&sbi->quota_sem);
-=======
 	if (!f2fs_down_write_trylock(&sbi->quota_sem))
 		return true;
->>>>>>> Stashed changes
 	if (is_sbi_flag_set(sbi, SBI_QUOTA_SKIP_FLUSH)) {
 		ret = false;
 	} else if (is_sbi_flag_set(sbi, SBI_QUOTA_NEED_REPAIR)) {
@@ -1220,11 +1204,7 @@ static bool __need_flush_quota(struct f2fs_sb_info *sbi)
 	} else if (get_pages(sbi, F2FS_DIRTY_QDATA)) {
 		ret = true;
 	}
-<<<<<<< Updated upstream
-	up_write(&sbi->quota_sem);
-=======
 	f2fs_up_write(&sbi->quota_sem);
->>>>>>> Stashed changes
 	return ret;
 }
 
@@ -1281,11 +1261,7 @@ retry_flush_dents:
 	 * POR: we should ensure that there are no dirty node pages
 	 * until finishing nat/sit flush. inode->i_blocks can be updated.
 	 */
-<<<<<<< Updated upstream
-	down_write(&sbi->node_change);
-=======
 	f2fs_down_write(&sbi->node_change);
->>>>>>> Stashed changes
 
 	if (get_pages(sbi, F2FS_DIRTY_IMETA)) {
 		f2fs_up_write(&sbi->node_change);
@@ -1319,11 +1295,7 @@ retry_flush_nodes:
 	 * dirty node blocks and some checkpoint values by block allocation.
 	 */
 	__prepare_cp_block(sbi);
-<<<<<<< Updated upstream
-	up_write(&sbi->node_change);
-=======
 	f2fs_up_write(&sbi->node_change);
->>>>>>> Stashed changes
 	return err;
 }
 
@@ -1352,19 +1324,6 @@ void f2fs_wait_on_all_pages(struct f2fs_sb_info *sbi, int type)
 			f2fs_submit_merged_write(sbi, DATA);
 
 		prepare_to_wait(&sbi->cp_wait, &wait, TASK_UNINTERRUPTIBLE);
-<<<<<<< Updated upstream
-
-		if (!get_pages(sbi, type))
-			break;
-
-		if (unlikely(f2fs_cp_error(sbi)))
-			break;
-
-		if (type == F2FS_DIRTY_META)
-			f2fs_sync_meta_pages(sbi, META, LONG_MAX,
-							FS_CP_META_IO);
-=======
->>>>>>> Stashed changes
 		io_schedule_timeout(DEFAULT_IO_TIMEOUT);
 	}
 	finish_wait(&sbi->cp_wait, &wait);
@@ -1481,12 +1440,6 @@ static void commit_checkpoint(struct f2fs_sb_info *sbi,
 	f2fs_submit_merged_write(sbi, META_FLUSH);
 }
 
-<<<<<<< Updated upstream
-#ifdef CONFIG_F2FS_BD_STAT
-static int do_checkpoint(struct f2fs_sb_info *sbi,
-	struct cp_control *cpc, u64 *cp_flush_meta_time)
-#else
-=======
 static inline u64 get_sectors_written(struct block_device *bdev)
 {
 	return (u64)part_stat_read(bdev->bd_part, sectors[STAT_WRITE]);
@@ -1507,7 +1460,6 @@ u64 f2fs_get_sectors_written(struct f2fs_sb_info *sbi)
 	return get_sectors_written(sbi->sb->s_bdev);
 }
 
->>>>>>> Stashed changes
 static int do_checkpoint(struct f2fs_sb_info *sbi, struct cp_control *cpc)
 {
 	struct f2fs_checkpoint *ckpt = F2FS_CKPT(sbi);
@@ -1524,12 +1476,6 @@ static int do_checkpoint(struct f2fs_sb_info *sbi, struct cp_control *cpc)
 
 	/* Flush all the NAT/SIT pages */
 	f2fs_sync_meta_pages(sbi, META, LONG_MAX, FS_CP_META_IO);
-<<<<<<< Updated upstream
-#ifdef CONFIG_F2FS_BD_STAT
-	*cp_flush_meta_time += local_clock() - cp_flush_meta_begin;
-#endif
-=======
->>>>>>> Stashed changes
 	if (get_pages(sbi, F2FS_DIRTY_META) && !f2fs_cp_error(sbi)) {
 		WARN_ON(1);
 		set_sbi_flag(sbi, SBI_NEED_FSCK);
@@ -1660,16 +1606,10 @@ static int do_checkpoint(struct f2fs_sb_info *sbi, struct cp_control *cpc)
 
 	/*
 	 * invalidate intermediate page cache borrowed from meta inode which are
-<<<<<<< Updated upstream
-	 * used for migration of encrypted or verity inode's blocks.
-	 */
-	if (f2fs_sb_has_encrypt(sbi) || f2fs_sb_has_verity(sbi))
-=======
 	 * used for migration of encrypted, verity or compressed inode's blocks.
 	 */
 	if (f2fs_sb_has_encrypt(sbi) || f2fs_sb_has_verity(sbi) ||
 		f2fs_sb_has_compression(sbi))
->>>>>>> Stashed changes
 		invalidate_mapping_pages(META_MAPPING(sbi),
 				MAIN_BLKADDR(sbi), MAX_BLKADDR(sbi) - 1);
 
@@ -1714,12 +1654,8 @@ int f2fs_write_checkpoint(struct f2fs_sb_info *sbi, struct cp_control *cpc)
 			return 0;
 		f2fs_warn(sbi, "Start checkpoint disabled!");
 	}
-<<<<<<< Updated upstream
-	mutex_lock(&sbi->cp_mutex);
-=======
 	if (cpc->reason != CP_RESIZE)
 		f2fs_down_write(&sbi->cp_global_sem);
->>>>>>> Stashed changes
 
 	if (!is_sbi_flag_set(sbi, SBI_IS_DIRTY) &&
 		((cpc->reason & CP_FASTBOOT) || (cpc->reason & CP_SYNC) ||
@@ -1732,13 +1668,6 @@ int f2fs_write_checkpoint(struct f2fs_sb_info *sbi, struct cp_control *cpc)
 
 	trace_f2fs_write_checkpoint(sbi->sb, cpc->reason, "start block_ops");
 
-<<<<<<< Updated upstream
-#ifdef CONFIG_F2FS_BD_STAT
-	cp_begin = local_clock();
-#endif
-
-=======
->>>>>>> Stashed changes
 	err = block_operations(sbi);
 	if (err)
 		goto out;
@@ -1806,24 +1735,8 @@ stop:
 	f2fs_update_time(sbi, CP_TIME);
 	trace_f2fs_write_checkpoint(sbi->sb, cpc->reason, "finish checkpoint");
 out:
-<<<<<<< Updated upstream
-	mutex_unlock(&sbi->cp_mutex);
-#ifdef CONFIG_F2FS_BD_STAT
-	if (!err && cp_begin) {
-		cp_end = local_clock();
-		bd_lock(sbi);
-		bd_inc_val(sbi, cp_success_count, 1);
-		bd_max_val(sbi, max_cp_submit_time, cp_submit_end - cp_begin);
-		bd_inc_val(sbi, cp_time, cp_end - cp_begin);
-		bd_max_val(sbi, max_cp_time, cp_end - cp_begin);
-		bd_max_val(sbi, max_cp_flush_meta_time, cp_flush_meta_time);
-		bd_unlock(sbi);
-	}
-#endif
-=======
 	if (cpc->reason != CP_RESIZE)
 		f2fs_up_write(&sbi->cp_global_sem);
->>>>>>> Stashed changes
 	return err;
 }
 

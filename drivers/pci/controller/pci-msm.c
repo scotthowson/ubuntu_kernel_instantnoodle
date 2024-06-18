@@ -1,9 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0-only
-<<<<<<< Updated upstream
-/* Copyright (c) 2014-2020, The Linux Foundation. All rights reserved.*/
-=======
 /* Copyright (c) 2014-2021, The Linux Foundation. All rights reserved.*/
->>>>>>> Stashed changes
 
 #include <dt-bindings/regulator/qcom,rpmh-regulator-levels.h>
 #include <linux/bitops.h>
@@ -5441,11 +5437,6 @@ static irqreturn_t handle_wake_irq(int irq, void *data)
 	return IRQ_HANDLED;
 }
 
-<<<<<<< Updated upstream
-static void msm_pcie_handle_linkdown(struct msm_pcie_dev_t *dev)
-{
-	int i;
-=======
 /* Attempt to recover link, return 0 if success */
 static int msm_pcie_linkdown_recovery(struct msm_pcie_dev_t *dev)
 {
@@ -5497,7 +5488,6 @@ static int msm_pcie_linkdown_recovery(struct msm_pcie_dev_t *dev)
 static void msm_pcie_handle_linkdown(struct msm_pcie_dev_t *dev)
 {
 	int i, ret;
->>>>>>> Stashed changes
 
 	if (dev->link_status == MSM_PCIE_LINK_DOWN)
 		return;
@@ -5512,8 +5502,6 @@ static void msm_pcie_handle_linkdown(struct msm_pcie_dev_t *dev)
 	pcie_parf_dump(dev);
 	pcie_dm_core_dump(dev);
 
-<<<<<<< Updated upstream
-=======
 	/* Attempt link-down recovery instead of PERST if supported */
 	if (dev->linkdown_recovery_enable) {
 		ret = msm_pcie_linkdown_recovery(dev);
@@ -5522,7 +5510,6 @@ static void msm_pcie_handle_linkdown(struct msm_pcie_dev_t *dev)
 			return;
 	}
 
->>>>>>> Stashed changes
 	/* assert PERST */
 	if (!(msm_pcie_keep_resources_on & BIT(dev->rc_idx)))
 		gpio_set_value(dev->gpio[MSM_PCIE_GPIO_PERST].num,
@@ -6731,13 +6718,10 @@ int msm_pcie_set_target_link_speed(u32 rc_idx, u32 target_link_speed)
 		return -EPROBE_DEFER;
 	}
 
-<<<<<<< Updated upstream
-=======
 	/*
 	 * Reject the request if it exceeds what PCIe RC is capable or if
 	 * it's greater than what was specified in DT (if present)
 	 */
->>>>>>> Stashed changes
 	if (target_link_speed > pcie_dev->bw_gen_max ||
 		(pcie_dev->dt_target_link_speed &&
 		target_link_speed > pcie_dev->dt_target_link_speed)) {
@@ -6749,14 +6733,11 @@ int msm_pcie_set_target_link_speed(u32 rc_idx, u32 target_link_speed)
 
 	pcie_dev->target_link_speed = target_link_speed;
 
-<<<<<<< Updated upstream
-=======
 	/*
 	 * The request 0 will reset maximum GEN speed to default. Default will
 	 * be devicetree specified GEN speed if present else it will be whatever
 	 * the PCIe root complex is capable of.
 	 */
->>>>>>> Stashed changes
 	if (!target_link_speed)
 		pcie_dev->target_link_speed = pcie_dev->dt_target_link_speed ?
 			pcie_dev->dt_target_link_speed : pcie_dev->bw_gen_max;

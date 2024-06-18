@@ -3038,8 +3038,6 @@ retry_root_backup:
 	fs_info->generation = generation;
 	fs_info->last_trans_committed = generation;
 
-<<<<<<< Updated upstream
-=======
 	/*
 	 * If we have a uuid root and we're not being told to rescan we need to
 	 * check the generation here so we can set the
@@ -3048,7 +3046,6 @@ retry_root_backup:
 	 * uuid generation, and then if we crash we would rescan the uuid tree,
 	 * even though it was perfectly fine.
 	 */
->>>>>>> Stashed changes
 	if (fs_info->uuid_root && !btrfs_test_opt(fs_info, RESCAN_UUID_TREE) &&
 	    fs_info->generation == btrfs_super_uuid_tree_generation(disk_super))
 		set_bit(BTRFS_FS_UPDATE_UUID_TREE_GEN, &fs_info->flags);
@@ -4006,9 +4003,6 @@ void close_ctree(struct btrfs_fs_info *fs_info)
 		 */
 		btrfs_delete_unused_bgs(fs_info);
 
-<<<<<<< Updated upstream
-		btrfs_flush_workqueue(fs_info->delayed_workers);
-=======
 		/*
 		 * There might be existing delayed inode workers still running
 		 * and holding an empty delayed inode item. We must wait for
@@ -4022,7 +4016,6 @@ void close_ctree(struct btrfs_fs_info *fs_info)
 		 */
 		btrfs_flush_workqueue(fs_info->delayed_workers);
 
->>>>>>> Stashed changes
 		ret = btrfs_commit_super(fs_info);
 		if (ret)
 			btrfs_err(fs_info, "commit super ret %d", ret);

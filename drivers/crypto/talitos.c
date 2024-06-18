@@ -1070,19 +1070,12 @@ static void ipsec_esp_decrypt_hwauth_done(struct device *dev,
  */
 static int sg_to_link_tbl_offset(struct scatterlist *sg, int sg_count,
 				 unsigned int offset, int datalen, int elen,
-<<<<<<< Updated upstream
-				 struct talitos_ptr *link_tbl_ptr)
-=======
 				 struct talitos_ptr *link_tbl_ptr, int align)
->>>>>>> Stashed changes
 {
 	int n_sg = elen ? sg_count + 1 : sg_count;
 	int count = 0;
 	int cryptlen = datalen + elen;
-<<<<<<< Updated upstream
-=======
 	int padding = ALIGN(cryptlen, align) - cryptlen;
->>>>>>> Stashed changes
 
 	while (cryptlen && sg && n_sg--) {
 		unsigned int len = sg_dma_len(sg);
@@ -1129,11 +1122,7 @@ static int talitos_sg_map_ext(struct device *dev, struct scatterlist *src,
 			      unsigned int len, struct talitos_edesc *edesc,
 			      struct talitos_ptr *ptr, int sg_count,
 			      unsigned int offset, int tbl_off, int elen,
-<<<<<<< Updated upstream
-			      bool force)
-=======
 			      bool force, int align)
->>>>>>> Stashed changes
 {
 	struct talitos_private *priv = dev_get_drvdata(dev);
 	bool is_sec1 = has_ftr_sec1(priv);
@@ -1145,11 +1134,7 @@ static int talitos_sg_map_ext(struct device *dev, struct scatterlist *src,
 	}
 	to_talitos_ptr_ext_set(ptr, elen, is_sec1);
 	if (sg_count == 1 && !force) {
-<<<<<<< Updated upstream
-		to_talitos_ptr(ptr, sg_dma_address(src) + offset, len, is_sec1);
-=======
 		to_talitos_ptr(ptr, sg_dma_address(src) + offset, aligned_len, is_sec1);
->>>>>>> Stashed changes
 		return sg_count;
 	}
 	if (is_sec1) {
@@ -1157,11 +1142,7 @@ static int talitos_sg_map_ext(struct device *dev, struct scatterlist *src,
 		return sg_count;
 	}
 	sg_count = sg_to_link_tbl_offset(src, sg_count, offset, len, elen,
-<<<<<<< Updated upstream
-					 &edesc->link_tbl[tbl_off]);
-=======
 					 &edesc->link_tbl[tbl_off], align);
->>>>>>> Stashed changes
 	if (sg_count == 1 && !force) {
 		/* Only one segment now, so no link tbl needed*/
 		copy_talitos_ptr(ptr, &edesc->link_tbl[tbl_off], is_sec1);
@@ -1180,11 +1161,7 @@ static int talitos_sg_map(struct device *dev, struct scatterlist *src,
 			  unsigned int offset, int tbl_off)
 {
 	return talitos_sg_map_ext(dev, src, len, edesc, ptr, sg_count, offset,
-<<<<<<< Updated upstream
-				  tbl_off, 0, false);
-=======
 				  tbl_off, 0, false, 1);
->>>>>>> Stashed changes
 }
 
 /*
@@ -1253,11 +1230,7 @@ static int ipsec_esp(struct talitos_edesc *edesc, struct aead_request *areq,
 
 	ret = talitos_sg_map_ext(dev, areq->src, cryptlen, edesc, &desc->ptr[4],
 				 sg_count, areq->assoclen, tbl_off, elen,
-<<<<<<< Updated upstream
-				 false);
-=======
 				 false, 1);
->>>>>>> Stashed changes
 
 	if (ret > 1) {
 		tbl_off += ret;
@@ -1277,11 +1250,7 @@ static int ipsec_esp(struct talitos_edesc *edesc, struct aead_request *areq,
 		elen = 0;
 	ret = talitos_sg_map_ext(dev, areq->dst, cryptlen, edesc, &desc->ptr[5],
 				 sg_count, areq->assoclen, tbl_off, elen,
-<<<<<<< Updated upstream
-				 is_ipsec_esp && !encrypt);
-=======
 				 is_ipsec_esp && !encrypt, 1);
->>>>>>> Stashed changes
 	tbl_off += ret;
 
 	/* ICV data */

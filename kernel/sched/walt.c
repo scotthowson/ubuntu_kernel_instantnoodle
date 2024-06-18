@@ -14,13 +14,6 @@
 
 #include <trace/events/sched.h>
 
-<<<<<<< Updated upstream
-#ifdef CONFIG_IM
-#include <linux/oem/im.h>
-#endif
-
-=======
->>>>>>> Stashed changes
 const char *task_event_names[] = {"PUT_PREV_TASK", "PICK_NEXT_TASK",
 				  "TASK_WAKE", "TASK_MIGRATE", "TASK_UPDATE",
 				"IRQ_UPDATE"};
@@ -2084,15 +2077,10 @@ static inline void run_walt_irq_work(u64 old_window_start, struct rq *rq)
 
 	result = atomic64_cmpxchg(&walt_irq_work_lastq_ws, old_window_start,
 				   rq->window_start);
-<<<<<<< Updated upstream
-	if (result == old_window_start)
-		walt_irq_work_queue(&walt_cpufreq_irq_work);
-=======
 	if (result == old_window_start) {
 		walt_irq_work_queue(&walt_cpufreq_irq_work);
 		trace_walt_window_rollover(rq->window_start);
 	}
->>>>>>> Stashed changes
 }
 
 /* Reflect task activity on its demand and cpu's busy time statistics */
@@ -2316,13 +2304,7 @@ static struct sched_cluster *alloc_new_cluster(const struct cpumask *cpus)
 	raw_spin_lock_init(&cluster->load_lock);
 	cluster->cpus = *cpus;
 	cluster->efficiency = topology_get_cpu_scale(NULL, cpumask_first(cpus));
-#ifdef CONFIG_ONEPLUS_HEALTHINFO
-	cluster->overload = kzalloc(sizeof(struct sched_stat_para), GFP_ATOMIC);
-	cluster->overload->low_thresh_ms = 100;
-	cluster->overload->high_thresh_ms = 500;
-	if (!cluster->overload)
-		return NULL;
-#endif
+
 	if (cluster->efficiency > max_possible_efficiency)
 		max_possible_efficiency = cluster->efficiency;
 	if (cluster->efficiency < min_possible_efficiency)
@@ -2929,17 +2911,6 @@ void add_new_task_to_grp(struct task_struct *new)
 	unsigned long flags;
 	struct related_thread_group *grp;
 
-<<<<<<< Updated upstream
-#ifdef CONFIG_IM
-	if (im_sf(new)) {
-		// add child of sf into rdg
-		if (!im_render_grouping_enable())
-			im_list_add_task(new);
-	}
-#endif
-
-=======
->>>>>>> Stashed changes
 	/*
 	 * If the task does not belong to colocated schedtune
 	 * cgroup, nothing to do. We are checking this without

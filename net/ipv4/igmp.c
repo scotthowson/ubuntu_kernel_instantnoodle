@@ -1007,11 +1007,7 @@ static bool igmp_heard_query(struct in_device *in_dev, struct sk_buff *skb,
 		 * received value was zero, use the default or statically
 		 * configured value.
 		 */
-<<<<<<< Updated upstream
-		in_dev->mr_qrv = ih3->qrv ?: net->ipv4.sysctl_igmp_qrv;
-=======
 		in_dev->mr_qrv = ih3->qrv ?: READ_ONCE(net->ipv4.sysctl_igmp_qrv);
->>>>>>> Stashed changes
 		in_dev->mr_qi = IGMPV3_QQIC(ih3->qqic)*HZ ?: IGMP_QUERY_INTERVAL;
 
 		/* RFC3376, 8.3. Query Response Interval:
@@ -1769,11 +1765,7 @@ static void ip_mc_reset(struct in_device *in_dev)
 
 	in_dev->mr_qi = IGMP_QUERY_INTERVAL;
 	in_dev->mr_qri = IGMP_QUERY_RESPONSE_INTERVAL;
-<<<<<<< Updated upstream
-	in_dev->mr_qrv = net->ipv4.sysctl_igmp_qrv;
-=======
 	in_dev->mr_qrv = READ_ONCE(net->ipv4.sysctl_igmp_qrv);
->>>>>>> Stashed changes
 }
 #else
 static void ip_mc_reset(struct in_device *in_dev)

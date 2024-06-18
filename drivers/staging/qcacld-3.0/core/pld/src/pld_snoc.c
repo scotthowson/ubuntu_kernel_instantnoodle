@@ -31,8 +31,6 @@
 
 #ifdef CONFIG_PLD_SNOC_ICNSS
 /**
-<<<<<<< Updated upstream
-=======
  *
  *pld_snoc_idle_restart_cb() - Perform idle restart
  * @pdev: platform device
@@ -73,7 +71,6 @@ static int pld_snoc_idle_shutdown_cb(struct device *dev)
 }
 
 /**
->>>>>>> Stashed changes
  * pld_snoc_probe() - Probe function for platform driver
  * @dev: device
  *
@@ -396,11 +393,8 @@ struct icnss_driver_ops pld_snoc_ops = {
 	.suspend_noirq = pld_snoc_suspend_noirq,
 	.resume_noirq = pld_snoc_resume_noirq,
 	.uevent = pld_snoc_uevent,
-<<<<<<< Updated upstream
-=======
 	.idle_restart  = pld_snoc_idle_restart_cb,
 	.idle_shutdown = pld_snoc_idle_shutdown_cb,
->>>>>>> Stashed changes
 };
 
 /**

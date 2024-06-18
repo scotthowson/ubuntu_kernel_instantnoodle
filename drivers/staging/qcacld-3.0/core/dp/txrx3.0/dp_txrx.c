@@ -1,9 +1,5 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2017-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2017-2021 The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -186,9 +182,6 @@ struct dp_prealloc_context {
 };
 
 static struct dp_prealloc_context g_dp_context_allocs[] = {
-<<<<<<< Updated upstream
-	{DP_PDEV_TYPE, (sizeof(struct dp_pdev)), false,  NULL}
-=======
 	{DP_PDEV_TYPE, (sizeof(struct dp_pdev)), false,  NULL},
 #ifdef WLAN_FEATURE_DP_RX_RING_HISTORY
 	/* 4 Rx ring history */
@@ -205,7 +198,6 @@ static struct dp_prealloc_context g_dp_context_allocs[] = {
 	 false, NULL},
 #endif	/* RX_DEFRAG_DO_NOT_REINJECT */
 #endif	/* WLAN_FEATURE_DP_RX_RING_HISTORY */
->>>>>>> Stashed changes
 };
 
 static struct  dp_consistent_prealloc g_dp_consistent_allocs[] = {

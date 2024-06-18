@@ -2311,27 +2311,16 @@ static void handle_channel_custom(struct wiphy *wiphy,
 	const struct ieee80211_power_rule *power_rule = NULL;
 	u32 bw, center_freq_khz;
 
-<<<<<<< Updated upstream
-	for (bw = MHZ_TO_KHZ(20); bw >= min_bw; bw = bw / 2) {
-		reg_rule = freq_reg_info_regd(MHZ_TO_KHZ(chan->center_freq),
-					      regd, bw);
-=======
 	center_freq_khz = ieee80211_channel_to_khz(chan);
 	for (bw = MHZ_TO_KHZ(20); bw >= min_bw; bw = bw / 2) {
 		reg_rule = freq_reg_info_regd(center_freq_khz, regd, bw);
->>>>>>> Stashed changes
 		if (!IS_ERR(reg_rule))
 			break;
 	}
 
 	if (IS_ERR_OR_NULL(reg_rule)) {
-<<<<<<< Updated upstream
-		pr_debug("Disabling freq %d MHz as custom regd has no rule that fits it\n",
-			 chan->center_freq);
-=======
 		pr_debug("Disabling freq %d.%03d MHz as custom regd has no rule that fits it\n",
 			 chan->center_freq, chan->freq_offset);
->>>>>>> Stashed changes
 		if (wiphy->regulatory_flags & REGULATORY_WIPHY_SELF_MANAGED) {
 			chan->flags |= IEEE80211_CHAN_DISABLED;
 		} else {

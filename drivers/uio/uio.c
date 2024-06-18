@@ -988,11 +988,7 @@ err_request_irq:
 err_uio_dev_add_attributes:
 	device_del(&idev->dev);
 err_device_create:
-<<<<<<< Updated upstream
-	uio_free_minor(idev);
-=======
 	uio_free_minor(idev->minor);
->>>>>>> Stashed changes
 	put_device(&idev->dev);
 	return ret;
 }

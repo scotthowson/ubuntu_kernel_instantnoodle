@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2012-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 #include <linux/dma-buf.h>
 #include <linux/dma-mapping.h>
@@ -190,12 +186,6 @@ static int fastrpc_pdr_notifier_cb(struct notifier_block *nb,
 					void *data);
 static struct dentry *debugfs_root;
 static struct dentry *debugfs_global_file;
-
-static atomic_t total_buf_size;
-int read_fastrpc_usage(void)
-{
-	return atomic_read(&total_buf_size) / PAGE_SIZE;
-}
 
 static inline void mem_barrier(void)
 {
@@ -409,11 +399,8 @@ struct fastrpc_apps {
 	struct wakeup_source *wake_source;
 	struct qos_cores silvercores;
 	uint32_t max_size_limit;
-<<<<<<< Updated upstream
-=======
 	void *ramdump_handle;
 	bool enable_ramdump;
->>>>>>> Stashed changes
 };
 
 struct fastrpc_mmap {
@@ -717,12 +704,7 @@ static void fastrpc_buf_free(struct fastrpc_buf *buf, int cache)
 			hyp_assign_phys(buf->phys, buf_page_size(buf->size),
 				srcVM, 2, destVM, destVMperm, 1);
 		}
-<<<<<<< Updated upstream
-		trace_fastrpc_dma_free(fl->cid, buf->phys, buf->size);
-		atomic_sub(buf->size, &total_buf_size);
-=======
 		trace_fastrpc_dma_free(cid, buf->phys, buf->size);
->>>>>>> Stashed changes
 		dma_free_attrs(fl->sctx->smmu.dev, buf->size, buf->virt,
 					buf->phys, buf->dma_attr);
 	}
@@ -1211,15 +1193,6 @@ static int fastrpc_buf_alloc(struct fastrpc_file *fl, size_t size,
 	struct hlist_node *n;
 	int cid = -1;
 
-<<<<<<< Updated upstream
-	VERIFY(err, size > 0 && size < me->max_size_limit);
-	if (err) {
-		err = -EFAULT;
-		pr_err("adsprpc: %s: invalid allocation size 0x%zx\n",
-			__func__, size);
-		goto bail;
-	}
-=======
 	cid = fl->cid;
 	VERIFY(err, cid >= ADSP_DOMAIN_ID && cid < NUM_CHANNELS);
 	if (err) {
@@ -1234,7 +1207,6 @@ static int fastrpc_buf_alloc(struct fastrpc_file *fl, size_t size,
 			__func__, size);
 		goto bail;
 	}
->>>>>>> Stashed changes
 
 	if (!remote) {
 		/* find the smallest buffer that fits in the cache */
@@ -1265,16 +1237,12 @@ static int fastrpc_buf_alloc(struct fastrpc_file *fl, size_t size,
 	buf->flags = rflags;
 	buf->raddr = 0;
 	buf->remote = 0;
-<<<<<<< Updated upstream
-	atomic_add(size, &total_buf_size);
-=======
 
 	VERIFY(err, fl && fl->sctx != NULL);
 	if (err) {
 		err = -EBADR;
 		goto bail;
 	}
->>>>>>> Stashed changes
 	buf->virt = dma_alloc_attrs(fl->sctx->smmu.dev, buf->size,
 						(dma_addr_t *)&buf->phys,
 						GFP_KERNEL, buf->dma_attr);
@@ -2237,17 +2205,6 @@ static int fastrpc_invoke_send(struct smq_invoke_ctx *ctx,
 	struct fastrpc_file *fl = ctx->fl;
 	struct fastrpc_channel_ctx *channel_ctx = NULL;
 	int err = 0, cid = -1;
-<<<<<<< Updated upstream
-
-	channel_ctx = &fl->apps->channel[fl->cid];
-	cid = fl->cid;
-	VERIFY(err, cid >= ADSP_DOMAIN_ID && cid < NUM_CHANNELS);
-	if (err) {
-		err = -ECHRNG;
-		goto bail;
-	}
-=======
->>>>>>> Stashed changes
 
 	if (!fl) {
 		err = -EBADF;
@@ -3420,11 +3377,7 @@ static int fastrpc_mmap_remove_pdr(struct fastrpc_file *fl)
 	VERIFY(err, cid == fl->cid);
 	if (err)
 		goto bail;
-<<<<<<< Updated upstream
-	if (!me->channel[fl->cid].spd[session].ispdup) {
-=======
 	if (!me->channel[cid].spd[session].ispdup) {
->>>>>>> Stashed changes
 		err = -ENOTCONN;
 		goto bail;
 	}
@@ -4295,10 +4248,7 @@ static int fastrpc_device_open(struct inode *inode, struct file *filp)
 	fl->cid = -1;
 	fl->dev_minor = dev_minor;
 	fl->init_mem = NULL;
-<<<<<<< Updated upstream
-=======
 	fl->dsp_process_state = PROCESS_CREATE_DEFAULT;
->>>>>>> Stashed changes
 	memset(&fl->perf, 0, sizeof(fl->perf));
 	fl->qos_request = 0;
 	fl->dsp_proc_init = 0;
@@ -4318,14 +4268,6 @@ static int fastrpc_set_process_info(struct fastrpc_file *fl)
 {
 	int err = 0, buf_size = 0;
 	char strpid[PID_SIZE];
-<<<<<<< Updated upstream
-
-	fl->tgid = current->tgid;
-	snprintf(strpid, PID_SIZE, "%d", current->pid);
-	if (debugfs_root) {
-		buf_size = strlen(current->comm) + strlen("_")
-			+ strlen(strpid) + 1;
-=======
 	char cur_comm[TASK_COMM_LEN];
 
 	memcpy(cur_comm, current->comm, TASK_COMM_LEN);
@@ -4343,33 +4285,21 @@ static int fastrpc_set_process_info(struct fastrpc_file *fl)
 		}
 		fl->debug_buf_alloced_attempted = 1;
 		spin_unlock(&fl->hlock);
->>>>>>> Stashed changes
 		fl->debug_buf = kzalloc(buf_size, GFP_KERNEL);
 		if (!fl->debug_buf) {
 			err = -ENOMEM;
 			return err;
 		}
-<<<<<<< Updated upstream
-		snprintf(fl->debug_buf, UL_SIZE, "%.10s%s%d",
-			current->comm, "_", current->pid);
-=======
 		snprintf(fl->debug_buf, buf_size, "%.10s%s%d",
 			cur_comm, "_", current->pid);
->>>>>>> Stashed changes
 		fl->debugfs_file = debugfs_create_file(fl->debug_buf, 0644,
 			debugfs_root, fl, &debugfs_fops);
 		if (IS_ERR_OR_NULL(fl->debugfs_file)) {
 			pr_warn("Error: %s: %s: failed to create debugfs file %s\n",
-<<<<<<< Updated upstream
-				current->comm, __func__, fl->debug_buf);
-			fl->debugfs_file = NULL;
-			kfree(fl->debug_buf);
-=======
 				cur_comm, __func__, fl->debug_buf);
 			fl->debugfs_file = NULL;
 			kfree(fl->debug_buf);
 			fl->debug_buf_alloced_attempted = 0;
->>>>>>> Stashed changes
 			fl->debug_buf = NULL;
 		}
 	}
@@ -4388,10 +4318,7 @@ static int fastrpc_get_info(struct fastrpc_file *fl, uint32_t *info)
 	err = fastrpc_set_process_info(fl);
 	if (err)
 		goto bail;
-<<<<<<< Updated upstream
-=======
 	cid = *info;
->>>>>>> Stashed changes
 	if (fl->cid == -1) {
 		struct fastrpc_channel_ctx *chan = &me->channel[cid];
 
@@ -4492,12 +4419,9 @@ static int fastrpc_internal_control(struct fastrpc_file *fl,
 			fl->ws_timeout = MAX_PM_TIMEOUT_MS;
 		else
 			fl->ws_timeout = cp->pm.timeout;
-<<<<<<< Updated upstream
-=======
 		VERIFY(err, fl->cid >= 0 && fl->cid < NUM_CHANNELS);
 		if (err)
 			goto bail;
->>>>>>> Stashed changes
 		fastrpc_pm_awake(fl, gcinfo[fl->cid].secure);
 		break;
 	case FASTRPC_CONTROL_DSPPROCESS_CLEAN:
@@ -4862,8 +4786,6 @@ static int fastrpc_restart_notifier_cb(struct notifier_block *nb,
 		ctx->ssrcount++;
 		ctx->subsystemstate = SUBSYSTEM_RESTARTING;
 		mutex_unlock(&me->channel[cid].smd_mutex);
-<<<<<<< Updated upstream
-=======
 	} else if (code == SUBSYS_AFTER_SHUTDOWN) {
 		pr_info("adsprpc: %s: %s subsystem is down\n",
 			__func__, gcinfo[cid].subsys);
@@ -4875,7 +4797,6 @@ static int fastrpc_restart_notifier_cb(struct notifier_block *nb,
 		}
 		spin_unlock(&me->hlock);
 		ctx->subsystemstate = SUBSYSTEM_DOWN;
->>>>>>> Stashed changes
 	} else if (code == SUBSYS_RAMDUMP_NOTIFICATION) {
 		if (cid == RH_CID) {
 			if (me->ramdump_handle)

@@ -903,14 +903,11 @@ struct device_link {
 	struct rcu_head rcu_head;
 #endif
 	bool supplier_preactivated; /* Owned by consumer probe. */
-<<<<<<< Updated upstream
-=======
 
 	ANDROID_KABI_RESERVE(1);
 	ANDROID_KABI_RESERVE(2);
 	ANDROID_KABI_RESERVE(3);
 	ANDROID_KABI_RESERVE(4);
->>>>>>> Stashed changes
 };
 
 /**
@@ -932,12 +929,8 @@ enum dl_dev_state {
  * @suppliers: List of links to supplier devices.
  * @consumers: List of links to consumer devices.
  * @needs_suppliers: Hook to global list of devices waiting for suppliers.
-<<<<<<< Updated upstream
- * @defer_sync: Hook to global list of devices that have deferred sync_state.
-=======
  * @defer_hook: Hook to global list of devices that have deferred sync_state or
  *		deferred fw_devlink.
->>>>>>> Stashed changes
  * @need_for_probe: If needs_suppliers is on a list, this indicates if the
  *		    suppliers are needed for probe or not.
  * @status: Driver status information.
@@ -946,11 +939,7 @@ struct dev_links_info {
 	struct list_head suppliers;
 	struct list_head consumers;
 	struct list_head needs_suppliers;
-<<<<<<< Updated upstream
-	struct list_head defer_sync;
-=======
 	struct list_head defer_hook;
->>>>>>> Stashed changes
 	bool need_for_probe;
 	enum dl_dev_state status;
 
@@ -1124,14 +1113,8 @@ struct device {
 	bool			of_node_reused:1;
 	bool			state_synced:1;
 
-<<<<<<< Updated upstream
-#ifdef CONFIG_CONTROL_CENTER
-	bool cc_marked;
-#endif
-=======
 	struct list_head	iommu_map_list;
 	struct mutex		iommu_map_lock;
->>>>>>> Stashed changes
 
 	ANDROID_KABI_RESERVE(1);
 	ANDROID_KABI_RESERVE(2);

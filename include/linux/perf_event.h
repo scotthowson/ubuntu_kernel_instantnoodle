@@ -1229,26 +1229,12 @@ int perf_event_max_stack_handler(struct ctl_table *table, int write,
 
 /* Access to perf_event_open(2) syscall. */
 #define PERF_SECURITY_OPEN		0
-<<<<<<< Updated upstream
 
 /* Finer grained perf_event_open(2) access control. */
 #define PERF_SECURITY_CPU		1
 #define PERF_SECURITY_KERNEL		2
 #define PERF_SECURITY_TRACEPOINT	3
 
-static inline bool perf_paranoid_any(void)
-{
-	return sysctl_perf_event_paranoid > 2;
-}
-
-=======
-
-/* Finer grained perf_event_open(2) access control. */
-#define PERF_SECURITY_CPU		1
-#define PERF_SECURITY_KERNEL		2
-#define PERF_SECURITY_TRACEPOINT	3
-
->>>>>>> Stashed changes
 static inline int perf_is_paranoid(void)
 {
 	return sysctl_perf_event_paranoid > -1;

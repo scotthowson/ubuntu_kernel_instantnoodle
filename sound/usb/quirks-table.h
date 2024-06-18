@@ -3431,8 +3431,6 @@ AU0828_DEVICE(0x2040, 0x7270, "Hauppauge", "HVR-950Q"),
 		.profile_name = "Dell-WD15-Dock",
 		.ifnum = QUIRK_ANY_INTERFACE,
 		.type = QUIRK_SETUP_FMT_AFTER_RESUME
-<<<<<<< Updated upstream
-=======
 	}
 },
 {
@@ -3529,7 +3527,6 @@ ALC1220_VB_DESKTOP(0x26ce, 0x0a01), /* Asrock TRX40 Creator */
 		.product_name = "Aorus Master Main Audio",
 		.profile_name = "Gigabyte-Aorus-Master-Main-Audio",
 		.ifnum = QUIRK_NO_INTERFACE
->>>>>>> Stashed changes
 	}
 },
 

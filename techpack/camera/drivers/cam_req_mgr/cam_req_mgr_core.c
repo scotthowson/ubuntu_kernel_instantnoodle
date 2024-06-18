@@ -196,7 +196,6 @@ static void __cam_req_mgr_find_dev_name(
 {
 	int i = 0;
 	struct cam_req_mgr_connected_device *dev = NULL;
-	char trace[64] = {0};
 
 	for (i = 0; i < link->num_devs; i++) {
 		dev = &link->l_dev[i];
@@ -208,12 +207,6 @@ static void __cam_req_mgr_find_dev_name(
 				"Skip Frame: req: %lld not ready on link: 0x%x for pd: %d dev: %s open_req count: %d",
 				req_id, link->link_hdl, pd, dev->dev_info.name,
 				link->open_req_cnt);
-			snprintf(trace, sizeof(trace), "KMD %d_4 Skip Frame", link->link_hdl);
-			trace_int(trace, req_id);
-			trace_int(trace, 0);
-			trace_begin_end("Skip Frame: req: %lld not ready on link: 0x%x for pd: %d dev: %d_%d_%s open_req count: %d",
-				req_id, link->link_hdl, pd,
-				dev->dev_info.dev_id, dev->dev_info.dev_hdl, dev->dev_info.name, link->open_req_cnt);
 		}
 	}
 }
@@ -436,76 +429,6 @@ static void __cam_req_mgr_tbl_set_all_skip_cnt(
 }
 
 /**
-<<<<<<< Updated upstream
- * __cam_req_mgr_find_slot_for_req()
- *
- * @brief    : Find idx from input queue at which req id is enqueued
- * @in_q     : input request queue pointer
- * @req_id   : request id which needs to be searched in input queue
- *
- * @return   : slot index where passed request id is stored, -1 for failure
- *
- */
-static int32_t __cam_req_mgr_find_slot_for_req(
-	struct cam_req_mgr_req_queue *in_q, int64_t req_id)
-{
-	int32_t                   idx, i;
-	struct cam_req_mgr_slot  *slot;
-
-	idx = in_q->rd_idx;
-	for (i = 0; i < in_q->num_slots; i++) {
-		slot = &in_q->slot[idx];
-		if (slot->req_id == req_id) {
-			CAM_DBG(CAM_CRM,
-				"req: %lld found at idx: %d status: %d sync_mode: %d",
-				req_id, idx, slot->status, slot->sync_mode);
-			break;
-		}
-		__cam_req_mgr_dec_idx(&idx, 1, in_q->num_slots);
-	}
-	if (i >= in_q->num_slots)
-		idx = -1;
-
-	return idx;
-}
-
-/**
- * __cam_req_mgr_reset_slot_sync_mode()
- *
- * @brief    : reset the sync mode for the given slot
- * @link     : link pointer
- * @req_id   : request id
- *
- */
-static void __cam_req_mgr_reset_slot_sync_mode(
-	struct cam_req_mgr_core_link *link,
-	uint64_t                      req_id)
-{
-	struct cam_req_mgr_req_queue *in_q = link->req.in_q;
-	int                           slot_idx = -1;
-
-	slot_idx = __cam_req_mgr_find_slot_for_req(
-		in_q, req_id);
-
-	if (slot_idx != -1) {
-		CAM_DBG(CAM_CRM,
-			"link %0x req %lld sync mode %d -> %d",
-			link->link_hdl,
-			(long long)req_id,
-			in_q->slot[slot_idx].sync_mode,
-			CAM_REQ_MGR_SYNC_MODE_NO_SYNC);
-		in_q->slot[slot_idx].sync_mode = CAM_REQ_MGR_SYNC_MODE_NO_SYNC;
-	} else {
-		CAM_WARN(CAM_CRM,
-			"Can't get slot on link 0x%x for req %lld",
-			link->link_hdl, req_id);
-	}
-}
-
-
-/**
-=======
->>>>>>> Stashed changes
  * __cam_req_mgr_flush_req_slot()
  *
  * @brief    : reset all the slots/pd tables when flush is
@@ -632,11 +555,6 @@ static void __cam_req_mgr_validate_crm_wd_timer(
 		"rd_idx: %d idx: %d current_frame_timeout: %d ms",
 		in_q->rd_idx, idx, current_frame_timeout);
 
-<<<<<<< Updated upstream
-        if ((!current_frame_timeout) && (!next_frame_timeout))
-		return;
-=======
->>>>>>> Stashed changes
 	spin_lock_bh(&link->link_state_spin_lock);
 	if (link->watchdog) {
 		if ((next_frame_timeout + CAM_REQ_MGR_WATCHDOG_TIMEOUT) >
@@ -758,7 +676,6 @@ static int __cam_req_mgr_send_req(struct cam_req_mgr_core_link *link,
 	struct cam_req_mgr_apply_request     apply_req;
 	struct cam_req_mgr_link_evt_data     evt_data;
 	struct cam_req_mgr_tbl_slot          *slot = NULL;
-	char trace[64] = {0};
 
 	apply_req.link_hdl = link->link_hdl;
 	apply_req.report_if_bubble = 0;
@@ -857,9 +774,6 @@ static int __cam_req_mgr_send_req(struct cam_req_mgr_core_link *link,
 				}
 			}
 			trace_cam_req_mgr_apply_request(link, &apply_req, dev);
-			snprintf(trace, sizeof(trace), "KMD %d_5 ApplyRequest %d_%s", apply_req.link_hdl, dev->dev_info.dev_id, dev->dev_info.name);
-			trace_int(trace, apply_req.request_id);
-			trace_int(trace, 0);
 		}
 	}
 	if (rc < 0) {
@@ -1470,11 +1384,7 @@ static int __cam_req_mgr_process_req(struct cam_req_mgr_core_link *link,
 	struct cam_req_mgr_req_queue        *in_q;
 	struct cam_req_mgr_core_session     *session;
 	struct cam_req_mgr_connected_device *dev;
-<<<<<<< Updated upstream
-	char trace[64] = {0};
-=======
 	uint32_t                             max_retry = 0;
->>>>>>> Stashed changes
 
 	in_q = link->req.in_q;
 	session = (struct cam_req_mgr_core_session *)link->parent;
@@ -1491,10 +1401,6 @@ static int __cam_req_mgr_process_req(struct cam_req_mgr_core_link *link,
 		in_q->slot[in_q->rd_idx].req_id, in_q->rd_idx,
 		in_q->slot[in_q->rd_idx].status, link->link_hdl,
 		in_q->slot[in_q->rd_idx].additional_timeout);
-
-	snprintf(trace, sizeof(trace), "KMD %d_3 Process Request %d", link->link_hdl, trigger);
-	trace_int(trace, in_q->slot[in_q->rd_idx].req_id);
-	trace_int(trace, 0);
 
 	slot = &in_q->slot[in_q->rd_idx];
 	if (slot->status == CRM_SLOT_STATUS_NO_REQ) {
@@ -2382,16 +2288,6 @@ int cam_req_mgr_process_sched_req(void *priv, void *data)
 		slot->additional_timeout = sched_req->additional_timeout;
 	}
 
-	if (link->is_first_req) {
-		if (sched_req->additional_timeout >
-                                       CAM_REQ_MGR_WATCHDOG_TIMEOUT) {
-			crm_timer_modify(link->watchdog,
-                                        (sched_req->additional_timeout +
-                                            CAM_REQ_MGR_WATCHDOG_TIMEOUT - 1));
-		}
-		link->is_first_req = false;
-	}
-
 	link->open_req_cnt++;
 	__cam_req_mgr_inc_idx(&in_q->wr_idx, 1, in_q->num_slots);
 
@@ -2429,7 +2325,6 @@ int cam_req_mgr_process_add_req(void *priv, void *data)
 	struct cam_req_mgr_req_tbl          *tbl = NULL;
 	struct cam_req_mgr_tbl_slot         *slot = NULL;
 	struct crm_task_payload             *task_data = NULL;
-	char trace[64] = {0};
 
 	if (!data || !priv) {
 		CAM_ERR(CAM_CRM, "input args NULL %pK %pK", data, priv);
@@ -2503,9 +2398,6 @@ int cam_req_mgr_process_add_req(void *priv, void *data)
 		slot->req_ready_map);
 
 	trace_cam_req_mgr_add_req(link, idx, add_req, tbl, device);
-	snprintf(trace, sizeof(trace), "KMD %d_2 AddRequest %d_%s", add_req->link_hdl, device->dev_info.dev_id, device->dev_info.name);
-	trace_int(trace, add_req->req_id);
-	trace_int(trace, 0);
 
 	if (slot->req_ready_map == tbl->dev_mask) {
 		CAM_DBG(CAM_REQ,
@@ -2832,10 +2724,6 @@ static int cam_req_mgr_cb_add_req(struct cam_req_mgr_add_request *add_req)
 	CAM_DBG(CAM_REQ, "dev name %s dev_hdl %d dev req %lld",
 		__cam_req_mgr_dev_handle_to_name(add_req->dev_hdl, link),
 		add_req->dev_hdl, add_req->req_id);
-	trace_begin_end("ReqMgr AddRequest dev name %s dev_hdl %d dev req %lld, skip_before_applying %d link_state %d",
-		__cam_req_mgr_dev_handle_to_name(add_req->dev_hdl, link),
-		add_req->dev_hdl, add_req->req_id, add_req->skip_before_applying,
-		link->state);
 
 	mutex_lock(&link->lock);
 	spin_lock_bh(&link->link_state_spin_lock);
@@ -3815,7 +3703,6 @@ int cam_req_mgr_schedule_request(
 	struct cam_req_mgr_core_session  *session = NULL;
 	struct cam_req_mgr_sched_request *sched;
 	struct crm_task_payload           task_data;
-	char trace[64] = {0};
 
 	if (!sched_req) {
 		CAM_ERR(CAM_CRM, "csl_req is NULL");
@@ -3870,9 +3757,6 @@ int cam_req_mgr_schedule_request(
 
 	CAM_DBG(CAM_REQ, "Open req %lld on link 0x%x with sync_mode %d",
 		sched_req->req_id, sched_req->link_hdl, sched_req->sync_mode);
-	snprintf(trace, sizeof(trace), "KMD %d_1 OpenRequest", sched_req->link_hdl);
-	trace_int(trace, sched_req->req_id);
-	trace_int(trace, 0);
 end:
 	mutex_unlock(&g_crm_core_dev->crm_lock);
 	return rc;
@@ -4132,11 +4016,7 @@ int cam_req_mgr_link_control(struct cam_req_mgr_link_control *control)
 		if (control->ops == CAM_REQ_MGR_LINK_ACTIVATE) {
 			spin_lock_bh(&link->link_state_spin_lock);
 			link->state = CAM_CRM_LINK_STATE_READY;
-<<<<<<< Updated upstream
-			link->is_first_req = true;
-=======
 			link->skip_wd_validation = true;
->>>>>>> Stashed changes
 			spin_unlock_bh(&link->link_state_spin_lock);
 #if 0
 			if (control->init_timeout[i])
@@ -4177,11 +4057,7 @@ int cam_req_mgr_link_control(struct cam_req_mgr_link_control *control)
 			/* Destroy SOF watchdog timer */
 			spin_lock_bh(&link->link_state_spin_lock);
 			link->state = CAM_CRM_LINK_STATE_IDLE;
-<<<<<<< Updated upstream
-			link->is_first_req = false;
-=======
 			link->skip_wd_validation = false;
->>>>>>> Stashed changes
 			crm_timer_exit(&link->watchdog);
 			spin_unlock_bh(&link->link_state_spin_lock);
 		} else {

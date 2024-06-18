@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2016-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2016-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #define pr_fmt(fmt)	"LCDB: %s: " fmt, __func__
@@ -238,10 +234,7 @@ struct qpnp_lcdb {
 	bool				settings_saved;
 	bool				lcdb_sc_disable;
 	bool				voltage_step_ramp;
-<<<<<<< Updated upstream
-=======
 	/* Tracks the secure UI mode entry/exit */
->>>>>>> Stashed changes
 	bool				secure_mode;
 	int				sc_count;
 	ktime_t				sc_module_enable_time;

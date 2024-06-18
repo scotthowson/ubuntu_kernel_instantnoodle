@@ -564,13 +564,9 @@ static int sdio_set_bus_speed_mode(struct mmc_card *card)
 	if (err)
 		return err;
 
-<<<<<<< Updated upstream
-	sdio_enable_vendor_specific_settings(card);
-=======
 	/* Vendor specific settings based on card quirks */
 	sdio_enable_vendor_specific_settings(card);
 
->>>>>>> Stashed changes
 	speed &= ~SDIO_SPEED_BSS_MASK;
 	speed |= bus_speed;
 	err = mmc_io_rw_direct(card, 1, 0, SDIO_CCCR_SPEED, speed, NULL);

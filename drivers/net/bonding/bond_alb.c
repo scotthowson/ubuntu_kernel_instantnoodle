@@ -666,13 +666,6 @@ static struct slave *rlb_arp_xmit(struct sk_buff *skb, struct bonding *bond)
 {
 	struct slave *tx_slave = NULL;
 	struct arp_pkt *arp;
-<<<<<<< Updated upstream
-
-	if (!pskb_network_may_pull(skb, sizeof(*arp)))
-		return NULL;
-	arp = (struct arp_pkt *)skb_network_header(skb);
-=======
->>>>>>> Stashed changes
 
 	if (!pskb_network_may_pull(skb, sizeof(*arp)))
 		return NULL;

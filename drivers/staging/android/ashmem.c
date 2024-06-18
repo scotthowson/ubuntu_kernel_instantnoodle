@@ -156,8 +156,6 @@ ashmem_vmfile_get_unmapped_area(struct file *file, unsigned long addr,
 	return current->mm->get_unmapped_area(file, addr, len, pgoff, flags);
 }
 
-<<<<<<< Updated upstream
-=======
 static int ashmem_file_setup(struct ashmem_area *asma, size_t size,
 			     struct vm_area_struct *vma)
 {
@@ -192,10 +190,8 @@ static int ashmem_file_setup(struct ashmem_area *asma, size_t size,
 	return 0;
 }
 
->>>>>>> Stashed changes
 static int ashmem_mmap(struct file *file, struct vm_area_struct *vma)
 {
-	static struct file_operations vmfile_fops;
 	struct ashmem_area *asma = file->private_data;
 	unsigned long prot_mask;
 	size_t size;
@@ -228,38 +224,6 @@ static int ashmem_mmap(struct file *file, struct vm_area_struct *vma)
 			return ret;
 	}
 
-<<<<<<< Updated upstream
-	if (!asma->file) {
-		char *name = ASHMEM_NAME_DEF;
-		struct file *vmfile;
-
-		if (asma->name[ASHMEM_NAME_PREFIX_LEN] != '\0')
-			name = asma->name;
-
-		/* ... and allocate the backing shmem file */
-		vmfile = shmem_file_setup(name, asma->size, vma->vm_flags);
-		if (IS_ERR(vmfile)) {
-			ret = PTR_ERR(vmfile);
-			goto out;
-		}
-		vmfile->f_mode |= FMODE_LSEEK;
-		asma->file = vmfile;
-		/*
-		 * override mmap operation of the vmfile so that it can't be
-		 * remapped which would lead to creation of a new vma with no
-		 * asma permission checks. Have to override get_unmapped_area
-		 * as well to prevent VM_BUG_ON check for f_ops modification.
-		 */
-		if (!vmfile_fops.mmap) {
-			vmfile_fops = *vmfile->f_op;
-			vmfile_fops.mmap = ashmem_vmfile_mmap;
-			vmfile_fops.get_unmapped_area =
-					ashmem_vmfile_get_unmapped_area;
-		}
-		vmfile->f_op = &vmfile_fops;
-	}
-=======
->>>>>>> Stashed changes
 	get_file(asma->file);
 
 	if (vma->vm_flags & VM_SHARED) {

@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2019-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2019-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include "msm_vidc_debug.h"
@@ -517,12 +513,8 @@ int msm_vidc_get_encoder_internal_buffer_sizes(struct msm_vidc_inst *inst)
 {
 	struct msm_vidc_enc_buff_size_calculators *enc_calculators;
 	u32 width, height, i, num_ref, num_vpp_pipes;
-<<<<<<< Updated upstream
-	bool is_tenbit = false;
-=======
 	u32 rotation_val = 0, flip = 0;
 	bool is_tenbit = false, is_downscale = false;
->>>>>>> Stashed changes
 	int num_bframes;
 	struct v4l2_ctrl *bframe, *rotation, *hflip, *vflip;
 	struct v4l2_format *f;
@@ -1868,10 +1860,6 @@ static inline u32 hfi_iris2_enc_dpb_buffer_size(u32 width, u32 height,
 			metadata_stride, meta_buf_height);
 		size = (aligned_height + chroma_height) * aligned_width +
 			meta_size_y + meta_size_c;
-<<<<<<< Updated upstream
-		size = (size * (num_ref + 2)) + 4096;
-=======
->>>>>>> Stashed changes
 	} else {
 		ref_buf_height = (height + (HFI_VENUS_HEIGHT_ALIGNMENT - 1))
 			& (~(HFI_VENUS_HEIGHT_ALIGNMENT - 1));

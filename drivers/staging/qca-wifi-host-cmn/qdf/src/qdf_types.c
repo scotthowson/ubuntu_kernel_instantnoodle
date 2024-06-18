@@ -1,9 +1,6 @@
 /*
  * Copyright (c) 2018-2019 The Linux Foundation. All rights reserved.
-<<<<<<< Updated upstream
-=======
  * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -620,8 +617,6 @@ QDF_STATUS qdf_ipv6_parse(const char *ipv6_str, struct qdf_ipv6_addr *out_addr)
 }
 qdf_export_symbol(qdf_ipv6_parse);
 
-<<<<<<< Updated upstream
-=======
 QDF_STATUS qdf_uint32_array_parse(const char *in_str, uint32_t *out_array,
 				  qdf_size_t array_size, qdf_size_t *out_size)
 {
@@ -671,7 +666,6 @@ QDF_STATUS qdf_uint32_array_parse(const char *in_str, uint32_t *out_array,
 
 qdf_export_symbol(qdf_uint32_array_parse);
 
->>>>>>> Stashed changes
 QDF_STATUS qdf_uint16_array_parse(const char *in_str, uint16_t *out_array,
 				  qdf_size_t array_size, qdf_size_t *out_size)
 {

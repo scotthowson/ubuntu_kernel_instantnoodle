@@ -622,10 +622,7 @@ dp_rx_wbm_err_process(struct dp_intr *int_ctx, struct dp_soc *soc,
 /**
  * dp_rx_sg_create() - create a frag_list for MSDUs which are spread across
  *		     multiple nbufs.
-<<<<<<< Updated upstream
-=======
  * @soc: core txrx main context
->>>>>>> Stashed changes
  * @nbuf: pointer to the first msdu of an amsdu.
  *
  * This function implements the creation of RX frag_list for cases
@@ -633,11 +630,7 @@ dp_rx_wbm_err_process(struct dp_intr *int_ctx, struct dp_soc *soc,
  *
  * Return: returns the head nbuf which contains complete frag_list.
  */
-<<<<<<< Updated upstream
-qdf_nbuf_t dp_rx_sg_create(qdf_nbuf_t nbuf);
-=======
 qdf_nbuf_t dp_rx_sg_create(struct dp_soc *soc, qdf_nbuf_t nbuf);
->>>>>>> Stashed changes
 
 /*
  * dp_rx_desc_pool_alloc() - create a pool of software rx_descs

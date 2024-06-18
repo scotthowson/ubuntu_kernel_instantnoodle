@@ -60,13 +60,8 @@ static int sun7i_gmac_init(struct platform_device *pdev, void *priv)
 	} else {
 		clk_set_rate(gmac->tx_clk, SUN7I_GMAC_MII_RATE);
 		ret = clk_prepare(gmac->tx_clk);
-<<<<<<< Updated upstream
-		if (ret)
-			return ret;
-=======
 		if (ret && gmac->regulator)
 			regulator_disable(gmac->regulator);
->>>>>>> Stashed changes
 	}
 
 	return ret;

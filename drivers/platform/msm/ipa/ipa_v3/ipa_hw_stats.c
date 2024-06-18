@@ -2248,11 +2248,7 @@ static ssize_t ipa_debugfs_enable_disable_drop_stats(struct file *file,
 	ssize_t ret;
 
 	mutex_lock(&ipa3_ctx->lock);
-<<<<<<< Updated upstream
-	if (sizeof(dbg_buff) < count + 1) {
-=======
 	if (count >= sizeof(dbg_buff)) {
->>>>>>> Stashed changes
 		ret = -EFAULT;
 		goto bail;
 	}

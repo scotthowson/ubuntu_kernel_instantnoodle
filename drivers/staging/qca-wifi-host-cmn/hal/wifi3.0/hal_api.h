@@ -1,9 +1,6 @@
 /*
  * Copyright (c) 2016-2020 The Linux Foundation. All rights reserved.
-<<<<<<< Updated upstream
-=======
  * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -31,13 +28,10 @@
 #include "hif_io32.h"
 #include "qdf_platform.h"
 
-<<<<<<< Updated upstream
-=======
 #ifdef DUMP_REO_QUEUE_INFO_IN_DDR
 #include "hal_hw_headers.h"
 #endif
 
->>>>>>> Stashed changes
 /* Ring index for WBM2SW2 release ring */
 #define HAL_IPA_TX_COMP_RING_IDX 2
 
@@ -164,12 +158,7 @@ static inline void hal_reg_write_result_check(struct hal_soc *hal_soc,
 	}
 }
 
-<<<<<<< Updated upstream
-#if !defined(QCA_WIFI_QCA6390) && !defined(QCA_WIFI_QCA6490) || \
-    !defined(QCA_WIFI_QCA6750)
-=======
 #if !defined(QCA_WIFI_QCA6390) && !defined(QCA_WIFI_QCA6490)
->>>>>>> Stashed changes
 static inline void hal_lock_reg_access(struct hal_soc *soc,
 				       unsigned long *flags)
 {
@@ -1093,13 +1082,6 @@ void hal_reo_read_write_ctrl_ix(hal_soc_handle_t hal_soc_hdl, bool read,
 				uint32_t *ix2, uint32_t *ix3);
 
 /**
-<<<<<<< Updated upstream
- * hal_srng_set_hp_paddr() - Set physical address to dest SRNG head pointer
- * @sring: sring pointer
- * @paddr: physical address
- */
-extern void hal_srng_dst_set_hp_paddr(struct hal_srng *sring, uint64_t paddr);
-=======
  * hal_srng_set_hp_paddr_confirm() - Set physical address to dest SRNG head
  * pointer and confirm that write went through by reading back the value
  * @sring: sring pointer
@@ -1107,7 +1089,6 @@ extern void hal_srng_dst_set_hp_paddr(struct hal_srng *sring, uint64_t paddr);
  */
 extern void hal_srng_dst_set_hp_paddr_confirm(struct hal_srng *sring,
 					      uint64_t paddr);
->>>>>>> Stashed changes
 
 /**
  * hal_srng_dst_init_hp() - Initilaize head pointer with cached head pointer
@@ -2140,8 +2121,6 @@ void hal_setup_link_idle_list(hal_soc_handle_t hal_soc_hdl,
 
 }
 
-<<<<<<< Updated upstream
-=======
 #ifdef DUMP_REO_QUEUE_INFO_IN_DDR
 /**
  * hal_dump_rx_reo_queue_desc() - Dump reo queue descriptor fields
@@ -2214,7 +2193,6 @@ static inline void hal_dump_rx_reo_queue_desc(
 }
 #endif /* DUMP_REO_QUEUE_INFO_IN_DDR */
 
->>>>>>> Stashed changes
 /**
  * hal_srng_dump_ring_desc() - Dump ring descriptor info
  *

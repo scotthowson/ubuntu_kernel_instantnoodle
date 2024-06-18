@@ -681,8 +681,6 @@ static void stm32_set_termios(struct uart_port *port, struct ktermios *termios,
 	if (cflag & PARENB) {
 		bits++;
 		cr1 |= USART_CR1_PCE;
-<<<<<<< Updated upstream
-=======
 	}
 
 	/*
@@ -707,23 +705,7 @@ static void stm32_set_termios(struct uart_port *port, struct ktermios *termios,
 			bits++;
 			cr1 |= USART_CR1_M0;
 		}
->>>>>>> Stashed changes
 	}
-
-	/*
-	 * Word length configuration:
-	 * CS8 + parity, 9 bits word aka [M1:M0] = 0b01
-	 * CS7 or (CS6 + parity), 7 bits word aka [M1:M0] = 0b10
-	 * CS8 or (CS7 + parity), 8 bits word aka [M1:M0] = 0b00
-	 * M0 and M1 already cleared by cr1 initialization.
-	 */
-	if (bits == 9)
-		cr1 |= USART_CR1_M0;
-	else if ((bits == 7) && cfg->has_7bits_data)
-		cr1 |= USART_CR1_M1;
-	else if (bits != 8)
-		dev_dbg(port->dev, "Unsupported data bits config: %u bits\n"
-			, bits);
 
 	if (cflag & PARODD)
 		cr1 |= USART_CR1_PS;

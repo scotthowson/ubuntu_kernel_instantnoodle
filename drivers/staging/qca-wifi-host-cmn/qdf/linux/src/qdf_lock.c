@@ -823,10 +823,7 @@ void qdf_lock_stats_deinit(void)
 				  __func__, lock_cookies[i].u.cookie.func,
 				  lock_cookies[i].u.cookie.line);
 	}
-<<<<<<< Updated upstream
-=======
 	lock_cookie_freelist = NULL;
->>>>>>> Stashed changes
 }
 
 /* allocated separate memory in case the lock memory is freed without

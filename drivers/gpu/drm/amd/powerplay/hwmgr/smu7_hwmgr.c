@@ -3793,10 +3793,7 @@ static int smu7_trim_single_dpm_states(struct pp_hwmgr *hwmgr,
 {
 	uint32_t i;
 
-<<<<<<< Updated upstream
-=======
 	/* force the trim if mclk_switching is disabled to prevent flicker */
->>>>>>> Stashed changes
 	bool force_trim = (low_limit == high_limit);
 	for (i = 0; i < dpm_table->count; i++) {
 	/*skip the trim if od is enabled*/

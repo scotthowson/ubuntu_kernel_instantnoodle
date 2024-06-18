@@ -1,9 +1,5 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2019 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2019-2020 The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -32,10 +28,7 @@
 #include "wlan_fwol_ucfg_api.h"
 #include "wlan_fwol_tgt_api.h"
 #include "wlan_fw_offload_main.h"
-<<<<<<< Updated upstream
-=======
 #include "target_if.h"
->>>>>>> Stashed changes
 
 QDF_STATUS tgt_fwol_register_ev_handler(struct wlan_objmgr_psoc *psoc)
 {
@@ -179,8 +172,6 @@ QDF_STATUS tgt_fwol_register_rx_ops(struct wlan_fwol_rx_ops *rx_ops)
 
 	return QDF_STATUS_SUCCESS;
 }
-<<<<<<< Updated upstream
-=======
 
 QDF_STATUS tgt_fwol_pdev_param_send(struct wlan_objmgr_pdev *pdev,
 				    struct pdev_params pdev_param)
@@ -193,4 +184,3 @@ QDF_STATUS tgt_fwol_pdev_param_send(struct wlan_objmgr_pdev *pdev,
 	return wmi_unified_pdev_param_send(wmi_handle, &pdev_param,
 					   FWOL_WILDCARD_PDEV_ID);
 }
->>>>>>> Stashed changes

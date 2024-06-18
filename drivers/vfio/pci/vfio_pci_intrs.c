@@ -303,15 +303,11 @@ static int vfio_msi_set_vector_signal(struct vfio_pci_device *vdev,
 
 	if (vdev->ctx[vector].trigger) {
 		irq_bypass_unregister_producer(&vdev->ctx[vector].producer);
-<<<<<<< Updated upstream
-		free_irq(irq, vdev->ctx[vector].trigger);
-=======
 
 		cmd = vfio_pci_memory_lock_and_enable(vdev);
 		free_irq(irq, vdev->ctx[vector].trigger);
 		vfio_pci_memory_unlock_and_restore(vdev, cmd);
 
->>>>>>> Stashed changes
 		kfree(vdev->ctx[vector].name);
 		eventfd_ctx_put(vdev->ctx[vector].trigger);
 		vdev->ctx[vector].trigger = NULL;

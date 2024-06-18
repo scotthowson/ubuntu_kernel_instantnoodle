@@ -2026,14 +2026,6 @@ static int sel_fill_super(struct super_block *sb, void *data, int silent)
 	}
 
 	ret = sel_make_avc_files(dentry);
-
-	dentry = sel_make_dir(sb->s_root, "ss", &fsi->last_ino);
-	if (IS_ERR(dentry)) {
-		ret = PTR_ERR(dentry);
-		goto err;
-	}
-
-	ret = sel_make_ss_files(dentry);
 	if (ret)
 		goto err;
 

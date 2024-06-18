@@ -128,11 +128,6 @@ static inline struct pid *tgid_pidfd_to_pid(const struct file *file)
 	return ERR_PTR(-EBADF);
 }
 
-static inline struct pid *tgid_pidfd_to_pid(const struct file *file)
-{
-	return ERR_PTR(-EBADF);
-}
-
 #endif /* CONFIG_PROC_FS */
 
 #ifdef CONFIG_PROC_UID

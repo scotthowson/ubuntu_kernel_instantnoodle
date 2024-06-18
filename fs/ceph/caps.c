@@ -1058,11 +1058,8 @@ void __ceph_remove_cap(struct ceph_cap *cap, bool queue_release)
 
 	dout("__ceph_remove_cap %p from %p\n", cap, &ci->vfs_inode);
 
-<<<<<<< Updated upstream
-=======
 	mdsc = ceph_inode_to_client(&ci->vfs_inode)->mdsc;
 
->>>>>>> Stashed changes
 	/* remove from inode's cap rbtree, and clear auth cap */
 	rb_erase(&cap->ci_node, &ci->i_caps);
 	if (ci->i_auth_cap == cap)

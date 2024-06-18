@@ -179,20 +179,12 @@ static inline int ipa_pm_exceptions_stat(char *buf, int size)
 	return -EPERM;
 }
 
-<<<<<<< Updated upstream
-static inline int ipa_pm_add_dummy_clients(s8 power_plan);
-=======
 static inline int ipa_pm_add_dummy_clients(s8 power_plan)
->>>>>>> Stashed changes
 {
 	return -EPERM;
 }
 
-<<<<<<< Updated upstream
-static inline int ipa_pm_remove_dummy_clients(void);
-=======
 static inline int ipa_pm_remove_dummy_clients(void)
->>>>>>> Stashed changes
 {
 	return -EPERM;
 }

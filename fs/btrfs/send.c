@@ -34,14 +34,6 @@
 #define SEND_MAX_EXTENT_REFS	64
 
 /*
- * Maximum number of references an extent can have in order for us to attempt to
- * issue clone operations instead of write operations. This currently exists to
- * avoid hitting limitations of the backreference walking code (taking a lot of
- * time and using too much memory for extents with large number of references).
- */
-#define SEND_MAX_EXTENT_REFS	64
-
-/*
  * A fs_path is a helper to dynamically build path names with unknown size.
  * It reallocates the internal buffer on demand.
  * It allows fast adding of path elements on the right side (normal path) and
@@ -1382,20 +1374,13 @@ static int find_extent_clone(struct send_ctx *sctx,
 
 	ei = btrfs_item_ptr(tmp_path->nodes[0], tmp_path->slots[0],
 			    struct btrfs_extent_item);
-<<<<<<< Updated upstream
-=======
 	extent_refs = btrfs_extent_refs(tmp_path->nodes[0], ei);
->>>>>>> Stashed changes
 	/*
 	 * Backreference walking (iterate_extent_inodes() below) is currently
 	 * too expensive when an extent has a large number of references, both
 	 * in time spent and used memory. So for now just fallback to write
 	 * operations instead of clone operations when an extent has more than
 	 * a certain amount of references.
-<<<<<<< Updated upstream
-	 */
-	if (btrfs_extent_refs(tmp_path->nodes[0], ei) > SEND_MAX_EXTENT_REFS) {
-=======
 	 *
 	 * Also, if we have only one reference and only the send root as a clone
 	 * source - meaning no clone roots were given in the struct
@@ -1405,7 +1390,6 @@ static int find_extent_clone(struct send_ctx *sctx,
 	 */
 	if ((extent_refs == 1 && sctx->clone_roots_cnt == 1) ||
 	    extent_refs > SEND_MAX_EXTENT_REFS) {
->>>>>>> Stashed changes
 		ret = -ENOENT;
 		goto out;
 	}

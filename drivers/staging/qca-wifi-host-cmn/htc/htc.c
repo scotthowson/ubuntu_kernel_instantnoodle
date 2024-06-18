@@ -154,12 +154,9 @@ static void htc_cleanup(HTC_TARGET *target)
 	HTC_PACKET_QUEUE *pkt_queue;
 	qdf_nbuf_t netbuf;
 
-<<<<<<< Updated upstream
-=======
 	while (htc_dec_return_runtime_cnt((void *)target) >= 0)
 		hif_pm_runtime_put(target->hif_dev, RTPM_ID_HTC);
 
->>>>>>> Stashed changes
 	if (target->hif_dev) {
 		hif_detach_htc(target->hif_dev);
 		hif_mask_interrupt_call(target->hif_dev);
@@ -277,11 +274,6 @@ static void htc_runtime_pm_deinit(HTC_TARGET *target)
 	qdf_destroy_work(0, &target->queue_kicker);
 }
 
-<<<<<<< Updated upstream
-#else
-static inline void htc_runtime_pm_init(HTC_TARGET *target) { }
-static inline void htc_runtime_pm_deinit(HTC_TARGET *target) { }
-=======
 int32_t htc_dec_return_runtime_cnt(HTC_HANDLE htc)
 {
 	HTC_TARGET *target = GET_HTC_TARGET_FROM_HANDLE(htc);
@@ -308,7 +300,6 @@ static inline
 void htc_init_runtime_cnt(HTC_TARGET *target)
 {
 }
->>>>>>> Stashed changes
 #endif
 
 #if defined(DEBUG_HL_LOGGING) && defined(CONFIG_HL_SUPPORT)
@@ -413,10 +404,7 @@ HTC_HANDLE htc_create(void *ol_sc, struct htc_init_info *pInfo,
 	} while (false);
 
 	htc_recv_init(target);
-<<<<<<< Updated upstream
-=======
 	htc_init_runtime_cnt(target);
->>>>>>> Stashed changes
 
 	HTC_TRACE("-htc_create: (0x%pK)", target);
 

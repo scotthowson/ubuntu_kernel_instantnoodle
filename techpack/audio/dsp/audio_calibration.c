@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2014, 2016-2017, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2014, 2016-2017, 2020, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 #include <linux/slab.h>
 #include <linux/fs.h>
@@ -595,10 +591,7 @@ int __init audio_cal_init(void)
 
 	pr_debug("%s\n", __func__);
 
-<<<<<<< Updated upstream
-=======
 	cal_utils_init();
->>>>>>> Stashed changes
 	memset(&audio_cal, 0, sizeof(audio_cal));
 	mutex_init(&audio_cal.common_lock);
 	for (; i < MAX_CAL_TYPES; i++) {

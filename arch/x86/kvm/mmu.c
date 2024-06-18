@@ -6082,8 +6082,6 @@ static int set_nx_huge_pages(const char *val, const struct kernel_param *kp)
 	return 0;
 }
 
-<<<<<<< Updated upstream
-=======
 static void kvm_set_mmio_spte_mask(void)
 {
 	u64 mask;
@@ -6103,7 +6101,6 @@ static void kvm_set_mmio_spte_mask(void)
 	kvm_mmu_set_mmio_spte_mask(mask, mask);
 }
 
->>>>>>> Stashed changes
 int kvm_mmu_module_init(void)
 {
 	int ret = -ENOMEM;
@@ -6237,10 +6234,7 @@ static void kvm_recover_nx_lpages(struct kvm *kvm)
 				cond_resched_lock(&kvm->mmu_lock);
 		}
 	}
-<<<<<<< Updated upstream
-=======
 	kvm_mmu_commit_zap_page(kvm, &invalid_list);
->>>>>>> Stashed changes
 
 	spin_unlock(&kvm->mmu_lock);
 	srcu_read_unlock(&kvm->srcu, rcu_idx);

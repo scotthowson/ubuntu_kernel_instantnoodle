@@ -517,11 +517,8 @@ static int ipvlan_process_outbound(struct sk_buff *skb)
 	if (skb_mac_header_was_set(skb)) {
 		/* In this mode we dont care about
 		 * multicast and broadcast traffic */
-<<<<<<< Updated upstream
-=======
 		struct ethhdr *ethh = eth_hdr(skb);
 
->>>>>>> Stashed changes
 		if (is_multicast_ether_addr(ethh->h_dest)) {
 			pr_debug_ratelimited(
 				"Dropped {multi|broad}cast of type=[%x]\n",

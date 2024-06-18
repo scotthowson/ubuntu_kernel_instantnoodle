@@ -1,10 +1,6 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2011-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2011-2021 The Linux Foundation. All rights reserved.
  * Copyright (c) 2021-2023 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -69,17 +65,10 @@ typedef  enum  {
     WMI_SERVICE_GPIO=25,                    /* GPIO service */
     WMI_SERVICE_STA_DTIM_PS_MODULATED_DTIM=26, /* Modulated DTIM support */
     WMI_STA_UAPSD_BASIC_AUTO_TRIG=27,       /* Basic version of station UAPSD AC Trigger Generation Method with
-<<<<<<< Updated upstream
-                                             * variable tigger periods (service, delay, and suspend intervals) */
-    WMI_STA_UAPSD_VAR_AUTO_TRIG=28,         /* Station UAPSD AC Trigger Generation Method with variable
-                                             * trigger periods (service, delay, and suspend intervals) */
-    WMI_SERVICE_STA_KEEP_ALIVE=29,          /* Serivce to support the STA KEEP ALIVE mechanism */
-=======
                                              * variable trigger periods (service, delay, and suspend intervals) */
     WMI_STA_UAPSD_VAR_AUTO_TRIG=28,         /* Station UAPSD AC Trigger Generation Method with variable
                                              * trigger periods (service, delay, and suspend intervals) */
     WMI_SERVICE_STA_KEEP_ALIVE=29,          /* Service to support the STA KEEP ALIVE mechanism */
->>>>>>> Stashed changes
     WMI_SERVICE_TX_ENCAP=30,                /* Packet type for TX encapsulation */
     WMI_SERVICE_AP_PS_DETECT_OUT_OF_SYNC=31, /* detect out-of-sync sleeping stations */
     WMI_SERVICE_EARLY_RX=32,                /* adaptive early-rx feature */
@@ -496,9 +485,6 @@ typedef  enum  {
     WMI_SERVICE_QOS_NULL_FRAME_TX_OVER_WMI = 264, /* Indicates that FW supports tx of QoS null frame downloaded through WMI interface */
     WMI_SERVICE_SCAN_CONFIG_PER_CHANNEL = 265, /* Indicates that FW supports per channel configuration support in the scan start command */
     WMI_SERVICE_CSA_BEACON_TEMPLATE = 266, /* Indicates that FW supports updating CSA count in beacon template */
-<<<<<<< Updated upstream
-
-=======
     WMI_SERVICE_BROADCAST_TWT_REQUESTER = 267, /* Indicates FW supports Broadcast TWT REQUESTER */
     WMI_SERVICE_BROADCAST_TWT_RESPONDER = 268, /* Indicates FW supports Broadcast TWT RESPONDER */
     WMI_SERVICE_TWT_NUDGE = 269, /* Indicates that FW supports TWT Nudge command and event */
@@ -656,7 +642,6 @@ typedef  enum  {
     WMI_SERVICE_MULTIPLE_RF_PATH_SOC_SUPPORT = 389, /* Indicates FW supports Multiple RF Path on SOC Level */
     WMI_SERVICE_RADAR_FLAGS_SUPPORT = 390, /* Indicates FW supports radar flags, such as full bandwidth need put to NOL */
     WMI_SERVICE_XPAN_SUPPORT = 391, /* Indicate FW support XPAN configuration */
->>>>>>> Stashed changes
 
     WMI_MAX_EXT2_SERVICE
 
@@ -690,17 +675,6 @@ typedef  enum  {
  */
 #define WMI_SERVICE_ENABLE(pwmi_svc_bmap,svc_id) \
     ( (pwmi_svc_bmap)[(svc_id)/(sizeof(A_UINT32))] |= \
-<<<<<<< Updated upstream
-         (1 << ((svc_id)%(sizeof(A_UINT32)))) )
-
-#define WMI_SERVICE_DISABLE(pwmi_svc_bmap,svc_id) \
-    ( (pwmi_svc_bmap)[(svc_id)/(sizeof(A_UINT32))] &=  \
-      ( ~(1 << ((svc_id)%(sizeof(A_UINT32)))) ) )
-
-#define WMI_SERVICE_IS_ENABLED(pwmi_svc_bmap,svc_id) \
-    ( ((pwmi_svc_bmap)[(svc_id)/(sizeof(A_UINT32))] &  \
-       (1 << ((svc_id)%(sizeof(A_UINT32)))) ) != 0)
-=======
          ((A_UINT32) 1 << ((svc_id)%(sizeof(A_UINT32)))) )
 
 #define WMI_SERVICE_DISABLE(pwmi_svc_bmap,svc_id) \
@@ -710,7 +684,6 @@ typedef  enum  {
 #define WMI_SERVICE_IS_ENABLED(pwmi_svc_bmap,svc_id) \
     ( ((pwmi_svc_bmap)[(svc_id)/(sizeof(A_UINT32))] &  \
        ((A_UINT32) 1 << ((svc_id)%(sizeof(A_UINT32)))) ) != 0)
->>>>>>> Stashed changes
 
 
 #define WMI_SERVICE_EXT_ENABLE(pwmi_svc_bmap, pwmi_svc_ext_bmap, svc_id) \
@@ -720,11 +693,7 @@ typedef  enum  {
         } else { \
             int word = ((svc_id) - WMI_MAX_SERVICE) / 32; \
             int bit = (svc_id) & 0x1f; /* svc_id mod 32 */ \
-<<<<<<< Updated upstream
-            (pwmi_svc_ext_bmap)[word] |= (1 << bit); \
-=======
             (pwmi_svc_ext_bmap)[word] |= ((A_UINT32) 1 << bit); \
->>>>>>> Stashed changes
         } \
     } while (0)
 
@@ -735,11 +704,7 @@ typedef  enum  {
         } else { \
             int word = ((svc_id) - WMI_MAX_SERVICE) / 32; \
             int bit = (svc_id) & 0x1f; /* svc_id mod 32 */ \
-<<<<<<< Updated upstream
-            (pwmi_svc_ext_bmap)[word] &= ~(1 << bit); \
-=======
             (pwmi_svc_ext_bmap)[word] &= ~((A_UINT32) 1 << bit); \
->>>>>>> Stashed changes
         } \
     } while (0)
 
@@ -763,11 +728,7 @@ typedef  enum  {
         } else { \
             int word = ((svc_id) - WMI_MAX_EXT_SERVICE) / 32; \
             int bit = (svc_id) & 0x1f; /* svc_id mod 32 */ \
-<<<<<<< Updated upstream
-            (pwmi_svc_ext2_bmap)[word] |= (1 << bit); \
-=======
             (pwmi_svc_ext2_bmap)[word] |= ((A_UINT32) 1 << bit); \
->>>>>>> Stashed changes
         } \
     } while (0)
 
@@ -777,19 +738,11 @@ typedef  enum  {
         if (svc_id < WMI_MAX_SERVICE) { \
             WMI_SERVICE_DISABLE(pwmi_svc_bmap, svc_id); \
         } else if (svc_id < WMI_MAX_EXT_SERVICE) { \
-<<<<<<< Updated upstream
-            WMI_SERVICE_DISABLE(pwmi_svc_bmap, pwmi_svc_ext_bmap, svc_id); \
-        } else { \
-            int word = ((svc_id) - WMI_MAX_EXT_SERVICE) / 32; \
-            int bit = (svc_id) & 0x1f; /* svc_id mod 32 */ \
-            (pwmi_svc_ext2_bmap)[word] &= ~(1 << bit); \
-=======
             WMI_SERVICE_EXT_DISABLE(pwmi_svc_bmap, pwmi_svc_ext_bmap, svc_id); \
         } else { \
             int word = ((svc_id) - WMI_MAX_EXT_SERVICE) / 32; \
             int bit = (svc_id) & 0x1f; /* svc_id mod 32 */ \
             (pwmi_svc_ext2_bmap)[word] &= ~((A_UINT32) 1 << bit); \
->>>>>>> Stashed changes
         } \
     } while (0)
 

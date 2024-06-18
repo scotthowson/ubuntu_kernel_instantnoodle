@@ -1,9 +1,6 @@
 /*
  * Copyright (c) 2018-2020 The Linux Foundation. All rights reserved.
-<<<<<<< Updated upstream
-=======
  * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -582,8 +579,6 @@
 	CFG_INI_BOOL("LROEnable", WLAN_LRO_ENABLE, \
 	"DP LRO Enable")
 
-<<<<<<< Updated upstream
-=======
 /*
  * <ini>
  * CFG_DP_SG - Enable the SG feature standalonely
@@ -600,16 +595,10 @@
  *
  * </ini>
  */
->>>>>>> Stashed changes
 #define CFG_DP_SG \
 	CFG_INI_BOOL("dp_sg_support", false, \
 	"DP SG Enable")
 
-<<<<<<< Updated upstream
-#define CFG_DP_GRO \
-	CFG_INI_BOOL("GROEnable", false, \
-	"DP GRO Enable")
-=======
 #define WLAN_CFG_GRO_ENABLE_MIN 0
 #define WLAN_CFG_GRO_ENABLE_MAX 3
 #define WLAN_CFG_GRO_ENABLE_DEFAULT 0
@@ -650,7 +639,6 @@
 		WLAN_CFG_TC_INGRESS_PRIO_MAX, \
 		WLAN_CFG_TC_INGRESS_PRIO_DEFAULT, \
 		CFG_VALUE_OR_DEFAULT, "DP tc ingress prio")
->>>>>>> Stashed changes
 
 #define CFG_DP_OL_TX_CSUM \
 	CFG_INI_BOOL("dp_offload_tx_csum_support", false, \
@@ -1011,8 +999,6 @@
 		false, \
 		"enable rx frame pending check in WoW mode")
 
-<<<<<<< Updated upstream
-=======
 /*
  * <ini>
  * gForceRX64BA - enable force 64 blockack mode for RX
@@ -1031,7 +1017,6 @@
 		CFG_INI_BOOL("gForceRX64BA", \
 		false, "Enable/Disable force 64 blockack in RX side")
 
->>>>>>> Stashed changes
 #define CFG_DP \
 		CFG(CFG_DP_HTT_PACKET_TYPE) \
 		CFG(CFG_DP_INT_BATCH_THRESHOLD_OTHER) \
@@ -1061,10 +1046,7 @@
 		CFG(CFG_DP_LRO) \
 		CFG(CFG_DP_SG) \
 		CFG(CFG_DP_GRO) \
-<<<<<<< Updated upstream
-=======
 		CFG(CFG_DP_TC_INGRESS_PRIO) \
->>>>>>> Stashed changes
 		CFG(CFG_DP_OL_TX_CSUM) \
 		CFG(CFG_DP_OL_RX_CSUM) \
 		CFG(CFG_DP_RAWMODE) \
@@ -1114,10 +1096,6 @@
 		CFG(CFG_DP_LEGACY_MODE_CSUM_DISABLE) \
 		CFG(CFG_DP_RX_PENDING_HL_THRESHOLD) \
 		CFG(CFG_DP_RX_PENDING_LO_THRESHOLD) \
-<<<<<<< Updated upstream
-		CFG(CFG_DP_WOW_CHECK_RX_PENDING)
-=======
 		CFG(CFG_DP_WOW_CHECK_RX_PENDING) \
 		CFG(CFG_FORCE_RX_64_BA)
->>>>>>> Stashed changes
 #endif /* _CFG_DP_H_ */

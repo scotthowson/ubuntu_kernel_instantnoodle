@@ -16,15 +16,6 @@
 #include <linux/sched.h>
 #include <linux/cpu_cooling.h>
 
-<<<<<<< Updated upstream
-#ifdef CONFIG_PCCORE
-#include <oneplus/pccore/pccore_helper.h>
-#include <oneplus/control_center/control_center_helper.h>
-#include <oneplus/houston/houston_helper.h>
-#include <trace/events/power.h>
-#endif
-=======
->>>>>>> Stashed changes
 #define CREATE_TRACE_POINTS
 #include <trace/events/dcvsh.h>
 
@@ -34,11 +25,7 @@
 #define CLK_HW_DIV			2
 #define GT_IRQ_STATUS			BIT(2)
 #define MAX_FN_SIZE			20
-<<<<<<< Updated upstream
-#define LIMITS_POLLING_DELAY_MS		10
-=======
 #define LIMITS_POLLING_DELAY_MS		4
->>>>>>> Stashed changes
 
 #define CYCLE_CNTR_OFFSET(c, m, acc_count)				\
 			(acc_count ? ((c - cpumask_first(m) + 1) * 4) : 0)
@@ -76,11 +63,7 @@ struct skipped_freq {
 	u32 high_temp_index;
 	u32 low_temp_index;
 	u32 final_index;
-<<<<<<< Updated upstream
-	spinlock_t lock;
-=======
 	raw_spinlock_t lock;
->>>>>>> Stashed changes
 };
 
 struct cpufreq_qcom {
@@ -115,8 +98,6 @@ struct cpufreq_cooling_cdev {
 	struct device_node *np;
 };
 
-<<<<<<< Updated upstream
-=======
 struct cpufreq_qcom_boost {
 	struct cpufreq_qcom *c;
 	unsigned int max_index;
@@ -124,7 +105,6 @@ struct cpufreq_qcom_boost {
 
 static DEFINE_PER_CPU(struct cpufreq_qcom_boost, cpufreq_boost_pcpu);
 
->>>>>>> Stashed changes
 static const u16 cpufreq_qcom_std_offsets[REG_ARRAY_SIZE] = {
 	[REG_ENABLE]		= 0x0,
 	[REG_FREQ_LUT_TABLE]	= 0x110,
@@ -224,11 +204,7 @@ static bool dcvsh_core_count_change(struct cpufreq_qcom *c)
 	unsigned long freq, flags;
 	u32 index, regval;
 
-<<<<<<< Updated upstream
-	spin_lock_irqsave(&c->skip_data.lock, flags);
-=======
 	raw_spin_lock_irqsave(&c->skip_data.lock, flags);
->>>>>>> Stashed changes
 	index = readl_relaxed(c->reg_bases[REG_PERF_STATE]);
 
 	freq = readl_relaxed(c->reg_bases[REG_DOMAIN_STATE]) & GENMASK(7, 0);
@@ -243,11 +219,7 @@ static bool dcvsh_core_count_change(struct cpufreq_qcom *c)
 		ret = true;
 	}
 
-<<<<<<< Updated upstream
-	spin_unlock_irqrestore(&c->skip_data.lock, flags);
-=======
 	raw_spin_unlock_irqrestore(&c->skip_data.lock, flags);
->>>>>>> Stashed changes
 
 	return ret;
 }
@@ -322,17 +294,10 @@ qcom_cpufreq_hw_target_index(struct cpufreq_policy *policy,
 	unsigned long flags;
 
 	if (c->skip_data.skip && index == c->skip_data.high_temp_index) {
-<<<<<<< Updated upstream
-		spin_lock_irqsave(&c->skip_data.lock, flags);
-		writel_relaxed(c->skip_data.final_index,
-				c->reg_bases[REG_PERF_STATE]);
-		spin_unlock_irqrestore(&c->skip_data.lock, flags);
-=======
 		raw_spin_lock_irqsave(&c->skip_data.lock, flags);
 		writel_relaxed(c->skip_data.final_index,
 				c->reg_bases[REG_PERF_STATE]);
 		raw_spin_unlock_irqrestore(&c->skip_data.lock, flags);
->>>>>>> Stashed changes
 	} else {
 		writel_relaxed(index, c->reg_bases[REG_PERF_STATE]);
 	}
@@ -367,59 +332,11 @@ qcom_cpufreq_hw_fast_switch(struct cpufreq_policy *policy,
 			    unsigned int target_freq)
 {
 	int index;
-<<<<<<< Updated upstream
-#ifdef CONFIG_PCCORE
-	int dp_level = get_op_level();
-	bool op_enable = get_op_select_freq_enable();
-	int dp_level_mode = get_op_fd_mode();
-	int idx_cache;
-#endif
-	index = policy->cached_resolved_idx;
-	if (index < 0)
-		return 0;
-#ifdef CONFIG_PCCORE
-	idx_cache = index;
-	if (op_enable) {
-		if (!ht_pcc_alwayson() && ccdm_any_hint())
-			goto done;
-		if (dp_level_mode == 2) {
-			if (policy->freq_table_sorted == CPUFREQ_TABLE_SORTED_ASCENDING)
-				index = find_prefer_pd(policy->cpu, index, true, dp_level);
-			else
-				index = find_prefer_pd(policy->cpu, index, false, dp_level);
-
-		} else if (dp_level_mode == 1) {
-
-			if (policy->freq_table_sorted == CPUFREQ_TABLE_SORTED_ASCENDING) {
-
-				if (index - dp_level >= 0)
-					index -= dp_level;
-				else
-					index = 0;
-			} else {
-				int max = cpufreq_table_count_valid_entries(policy);
-
-				if (index + dp_level > max)
-					index = max;
-				else
-					index += dp_level;
-			}
-		}
-
-		if (policy->freq_table[index].frequency < policy->min)
-			index = policy->min_idx;
-	}
-done:
-	trace_find_freq(idx_cache, target_freq, index, policy->freq_table[index].frequency,
-		policy->cpu, op_enable, dp_level_mode, dp_level);
-#endif
-=======
 
 	index = policy->cached_resolved_idx;
 	if (index < 0)
 		return 0;
 
->>>>>>> Stashed changes
 	if (qcom_cpufreq_hw_target_index(policy, index))
 		return 0;
 
@@ -533,8 +450,6 @@ static struct cpufreq_driver cpufreq_qcom_hw_driver = {
 
 static int cpuhp_qcom_online(unsigned int cpu)
 {
-<<<<<<< Updated upstream
-=======
 	struct cpufreq_qcom_boost *b = &per_cpu(cpufreq_boost_pcpu, cpu);
 	struct cpufreq_qcom *c = b->c;
 
@@ -562,7 +477,6 @@ static int qcom_cpufreq_hw_read_lut(struct platform_device *pdev,
 				    struct cpufreq_qcom *c,
 				    int domain_index)
 {
->>>>>>> Stashed changes
 	struct device *dev = &pdev->dev, *cpu_dev;
 	void __iomem *base_freq, *base_volt;
 	u32 data, src, lval, i, core_count, prev_cc, prev_freq, cur_freq, volt;
@@ -577,9 +491,6 @@ static int qcom_cpufreq_hw_read_lut(struct platform_device *pdev,
 	if (!c->table)
 		return -ENOMEM;
 
-<<<<<<< Updated upstream
-	spin_lock_init(&c->skip_data.lock);
-=======
 	snprintf(tbl_name, sizeof(tbl_name), "qcom,cpufreq-table-%d",
 		 domain_index);
 	if (of_find_property(dev->of_node, tbl_name, &of_len) && of_len > 0) {
@@ -599,7 +510,6 @@ static int qcom_cpufreq_hw_read_lut(struct platform_device *pdev,
 	}
 
 	raw_spin_lock_init(&c->skip_data.lock);
->>>>>>> Stashed changes
 	base_freq = c->reg_bases[REG_FREQ_LUT_TABLE];
 	base_volt = c->reg_bases[REG_VOLT_LUT_TABLE];
 
@@ -625,40 +535,6 @@ static int qcom_cpufreq_hw_read_lut(struct platform_device *pdev,
 		dev_dbg(dev, "index=%d freq=%d, core_count %d\n",
 			i, c->table[i].frequency, core_count);
 
-<<<<<<< Updated upstream
-		if (core_count != c->max_cores) {
-			if (core_count == (c->max_cores - 1)) {
-				c->skip_data.skip = true;
-				c->skip_data.high_temp_index = i;
-				c->skip_data.freq = cur_freq;
-				c->skip_data.cc = core_count;
-				c->skip_data.final_index = i + 1;
-				c->skip_data.low_temp_index = i + 1;
-				c->skip_data.prev_freq =
-						c->table[i-1].frequency;
-				c->skip_data.prev_index = i - 1;
-				c->skip_data.prev_cc = prev_cc;
-			} else {
-				cur_freq = CPUFREQ_ENTRY_INVALID;
-				c->table[i].flags = CPUFREQ_BOOST_FREQ;
-			}
-		}
-
-		/*
-		 * Two of the same frequencies with the same core counts means
-		 * end of table.
-		 */
-		if (i > 0 && c->table[i - 1].frequency ==
-				c->table[i].frequency) {
-			if (prev_cc == core_count) {
-				struct cpufreq_frequency_table *prev =
-							&c->table[i - 1];
-
-				if (prev_freq == CPUFREQ_ENTRY_INVALID)
-					prev->flags = CPUFREQ_BOOST_FREQ;
-			}
-			break;
-=======
 		if (!of_find_freq(of_table, of_len, c->table[i].frequency)) {
 			c->table[i].frequency = CPUFREQ_ENTRY_INVALID;
 			cur_freq = CPUFREQ_ENTRY_INVALID;
@@ -696,7 +572,6 @@ static int qcom_cpufreq_hw_read_lut(struct platform_device *pdev,
 				}
 				break;
 			}
->>>>>>> Stashed changes
 		}
 
 		prev_cc = core_count;
@@ -720,17 +595,6 @@ static int qcom_cpufreq_hw_read_lut(struct platform_device *pdev,
 
 	if (of_table)
 			devm_kfree(dev, of_table);
-
-	if (c->skip_data.skip) {
-		pr_info("%s Skip: Index[%u], Frequency[%u], Core Count %u, Final Index %u Actual Index %u Prev_Freq[%u] Prev_Index[%u] Prev_CC[%u]\n",
-				__func__, c->skip_data.high_temp_index,
-				c->skip_data.freq, c->skip_data.cc,
-				c->skip_data.final_index,
-				c->skip_data.low_temp_index,
-				c->skip_data.prev_freq,
-				c->skip_data.prev_index,
-				c->skip_data.prev_cc);
-	}
 
 	if (c->skip_data.skip) {
 		pr_info("%s Skip: Index[%u], Frequency[%u], Core Count %u, Final Index %u Actual Index %u Prev_Freq[%u] Prev_Index[%u] Prev_CC[%u]\n",
@@ -934,15 +798,6 @@ static int cpufreq_hw_set_cur_state(struct thermal_cooling_device *cdev,
 	cpu_cdev->cpu_cooling_state = state;
 
 	if (state == CPUFREQ_HW_HIGH_TEMP_LEVEL) {
-<<<<<<< Updated upstream
-		spin_lock_irqsave(&c->skip_data.lock, flags);
-		c->skip_data.final_index = c->skip_data.high_temp_index;
-		spin_unlock_irqrestore(&c->skip_data.lock, flags);
-	} else {
-		spin_lock_irqsave(&c->skip_data.lock, flags);
-		c->skip_data.final_index = c->skip_data.low_temp_index;
-		spin_unlock_irqrestore(&c->skip_data.lock, flags);
-=======
 		raw_spin_lock_irqsave(&c->skip_data.lock, flags);
 		c->skip_data.final_index = c->skip_data.high_temp_index;
 		raw_spin_unlock_irqrestore(&c->skip_data.lock, flags);
@@ -950,7 +805,6 @@ static int cpufreq_hw_set_cur_state(struct thermal_cooling_device *cdev,
 		raw_spin_lock_irqsave(&c->skip_data.lock, flags);
 		c->skip_data.final_index = c->skip_data.low_temp_index;
 		raw_spin_unlock_irqrestore(&c->skip_data.lock, flags);
->>>>>>> Stashed changes
 	}
 
 	if (policy->cur != c->skip_data.freq)

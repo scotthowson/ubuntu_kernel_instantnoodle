@@ -1,9 +1,6 @@
 /*
  * Copyright (c) 2012-2019 The Linux Foundation. All rights reserved.
-<<<<<<< Updated upstream
-=======
  * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -34,10 +31,7 @@
 #define CFG_SUPPORTED_MCS_SET_LEN    16
 #define CFG_BASIC_MCS_SET_LEN    16
 #define CFG_CURRENT_MCS_SET_LEN    16
-<<<<<<< Updated upstream
-=======
 #define CFG_MLME_RATE_MASK_LEN    4
->>>>>>> Stashed changes
 
 /*
  * <ini>
@@ -229,8 +223,6 @@
 		CFG_CURRENT_MCS_SET_DATA, \
 		"current MCS set")
 
-<<<<<<< Updated upstream
-=======
 /*
  * <cfg>
  * ratemask_type - PHY type for the ratemask.
@@ -303,7 +295,6 @@
 		CFG_RATEMASK_DATA, \
 		"Ratemasks for rate selection")
 
->>>>>>> Stashed changes
 #define CFG_RATES_ALL \
 	CFG(CFG_MAX_HT_MCS_FOR_TX_DATA) \
 	CFG(CFG_DISABLE_ABG_RATE_FOR_TX_DATA) \
@@ -315,12 +306,8 @@
 	CFG(CFG_SUPPORTED_RATES_11A) \
 	CFG(CFG_SUPPORTED_MCS_SET) \
 	CFG(CFG_BASIC_MCS_SET) \
-<<<<<<< Updated upstream
-	CFG(CFG_CURRENT_MCS_SET)
-=======
 	CFG(CFG_CURRENT_MCS_SET) \
 	CFG(CFG_RATEMASK_TYPE) \
 	CFG(CFG_RATEMASK_SET)
->>>>>>> Stashed changes
 
 #endif /* __CFG_MLME_RATES_H */

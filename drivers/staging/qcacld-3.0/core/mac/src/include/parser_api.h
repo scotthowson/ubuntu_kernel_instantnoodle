@@ -1229,8 +1229,6 @@ QDF_STATUS populate_dot11f_twt_extended_caps(struct mac_context *mac_ctx,
 #endif
 
 /**
-<<<<<<< Updated upstream
-=======
  * populate_dot11f_btm_caps() - populate btm extended capabilities
  * @mac_ctx: Global MAC context.
  * @pe_session: Pointer to the PE session.
@@ -1245,7 +1243,6 @@ QDF_STATUS populate_dot11f_btm_caps(struct mac_context *mac_ctx,
 				    struct sDot11fIEExtCap *dot11f);
 
 /**
->>>>>>> Stashed changes
  * lim_truncate_ppet: truncates ppet of trailling zeros
  * @ppet: ppet to truncate
  * max_len: max length of ppet

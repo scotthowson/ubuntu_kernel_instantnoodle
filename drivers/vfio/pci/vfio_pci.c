@@ -715,11 +715,7 @@ static long vfio_pci_ioctl(void *device_data,
 		{
 			void __iomem *io;
 			size_t size;
-<<<<<<< Updated upstream
-			u16 orig_cmd;
-=======
 			u16 cmd;
->>>>>>> Stashed changes
 
 			info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
 			info.flags = 0;
@@ -739,21 +735,6 @@ static long vfio_pci_ioctl(void *device_data,
 			 * Is it really there?  Enable memory decode for
 			 * implicit access in pci_map_rom().
 			 */
-<<<<<<< Updated upstream
-			pci_read_config_word(pdev, PCI_COMMAND, &orig_cmd);
-			pci_write_config_word(pdev, PCI_COMMAND,
-					      orig_cmd | PCI_COMMAND_MEMORY);
-
-			io = pci_map_rom(pdev, &size);
-			if (io) {
-				info.flags = VFIO_REGION_INFO_FLAG_READ;
-				pci_unmap_rom(pdev, io);
-			} else {
-				info.size = 0;
-			}
-
-			pci_write_config_word(pdev, PCI_COMMAND, orig_cmd);
-=======
 			cmd = vfio_pci_memory_lock_and_enable(vdev);
 			io = pci_map_rom(pdev, &size);
 			if (io) {
@@ -764,7 +745,6 @@ static long vfio_pci_ioctl(void *device_data,
 			}
 			vfio_pci_memory_unlock_and_restore(vdev, cmd);
 
->>>>>>> Stashed changes
 			break;
 		}
 		case VFIO_PCI_VGA_REGION_INDEX:

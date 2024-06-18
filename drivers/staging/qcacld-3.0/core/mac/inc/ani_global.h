@@ -685,29 +685,15 @@ typedef struct sRrmContext {
 } tRrmContext, *tpRrmContext;
 
 /**
-<<<<<<< Updated upstream
- * enum auth_tx_ack_status - Indicate TX status of AUTH
- * @LIM_AUTH_ACK_NOT_RCD : Default status while waiting for ack status.
- * @LIM_AUTH_ACK_RCD_SUCCESS : Ack is received.
- * @LIM_AUTH_ACK_RCD_FAILURE : No Ack received.
-=======
  * enum tx_ack_status - Indicate TX status
  * @LIM_ACK_NOT_RCD: Default status while waiting for ack status.
  * @LIM_ACK_RCD_SUCCESS: Ack is received.
  * @LIM_ACK_RCD_FAILURE: No Ack received.
  * @LIM_TX_FAILED: Failed to TX
->>>>>>> Stashed changes
  *
  * Indicate if driver is waiting for ACK status of auth or ACK received for AUTH
  * OR NO ACK is received for the auth sent.
  */
-<<<<<<< Updated upstream
-enum auth_tx_ack_status {
-	LIM_AUTH_ACK_NOT_RCD,
-	LIM_AUTH_ACK_RCD_SUCCESS,
-	LIM_AUTH_ACK_RCD_FAILURE,
-};
-=======
 enum tx_ack_status {
 	LIM_ACK_NOT_RCD,
 	LIM_ACK_RCD_SUCCESS,
@@ -715,7 +701,6 @@ enum tx_ack_status {
 	LIM_TX_FAILED,
 };
 
->>>>>>> Stashed changes
 /**
  * struct vdev_type_nss - vdev type nss structure
  * @sta: STA Nss value.
@@ -812,22 +797,15 @@ struct mac_context {
 	struct wlan_objmgr_psoc *psoc;
 	struct wlan_objmgr_pdev *pdev;
 	void (*chan_info_cb)(struct scan_chan_info *chan_info);
-<<<<<<< Updated upstream
-=======
 	void (*del_peers_ind_cb)(struct wlan_objmgr_psoc *psoc,
 				 uint8_t vdev_id);
->>>>>>> Stashed changes
 	/* Based on INI parameter */
 	uint32_t dual_mac_feature_disable;
 
 	enum  country_src reg_hint_src;
 	uint32_t rx_packet_drop_counter;
-<<<<<<< Updated upstream
-	enum auth_tx_ack_status auth_ack_status;
-=======
 	enum tx_ack_status auth_ack_status;
 	enum tx_ack_status assoc_ack_status;
->>>>>>> Stashed changes
 	uint8_t user_configured_nss;
 	bool ignore_assoc_disallowed;
 	uint32_t peer_rssi;

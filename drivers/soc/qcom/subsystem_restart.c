@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2011-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2011-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #define pr_fmt(fmt) "subsys-restart: %s(): " fmt, __func__
@@ -835,115 +831,6 @@ struct subsys_device *find_subsys_device(const char *str)
 }
 EXPORT_SYMBOL(find_subsys_device);
 
-<<<<<<< Updated upstream
-static int val;
-static int restart_level;/*system original val*/
-struct delayed_work op_restart_modem_work;
-
-static ssize_t proc_restart_level_all_read(struct file *p_file,
-			char __user *puser_buf, size_t count, loff_t *p_offset)
-{
-	ssize_t len = 0;
-
-	len = copy_to_user(puser_buf, val?"1":"0", 1);
-	pr_info("the restart level switch is:%d\n", val);
-	return len;
-}
-
-static ssize_t proc_restart_level_all_write(struct file *p_file,
-	const char __user *puser_buf,
-	size_t count, loff_t *p_offset)
-{
-	char subsysname[][10] = {
-		"ipa_fws",
-		"ipa_uc",
-		"wlan",
-		"esoc0",
-		"adsp",
-		"cdsp",
-		"venus",
-		"spss",
-		"cvpss",
-		"npu",
-		"slpi",
-		"a650_zap"
-	};
-	int i = 0;
-	char temp[4] = {0};
-	struct subsys_device *subsys;
-	int rc;
-
-	if (copy_from_user(temp, puser_buf, 1))
-		return -EFAULT;
-
-	rc = kstrtoint(temp, 0, &val);
-	if (rc != 0)
-		return -EINVAL;
-
-	cancel_delayed_work_sync(&op_restart_modem_work);
-
-	for (i = 0 ; i < ARRAY_SIZE(subsysname); i++) {
-		subsys = find_subsys_device(subsysname[i]);
-		if (subsys) {
-			if (val == 1)
-				subsys->restart_level = RESET_SOC;
-			else
-				subsys->restart_level = RESET_SUBSYS_COUPLED;
-		}
-	}
-	pr_info("write the restart level switch to :%d\n", val);
-	return count;
-}
-
-static const struct file_operations restart_level_all_operations = {
-	.read = proc_restart_level_all_read,
-	.write = proc_restart_level_all_write,
-};
-
-static void init_restart_level_all_node(void)
-{
-	if (!proc_create("restart_level_all", 0644, NULL,
-			&restart_level_all_operations)){
-		pr_err("%s : Failed to register proc interface\n", __func__);
-	}
-}
-
-static void op_restart_modem_work_fun(struct work_struct *work)
-{
-	struct subsys_device *subsys = find_subsys_device("modem");
-
-	if (!subsys)
-		return;
-	subsys->restart_level = restart_level;
-	pr_err("%s:level=%d\n", __func__, subsys->restart_level);
-}
-
-int op_restart_modem_init(void)
-{
-	INIT_DELAYED_WORK(&op_restart_modem_work, op_restart_modem_work_fun);
-	return 0;
-}
-
-int op_restart_modem(void)
-{
-	struct subsys_device *subsys = find_subsys_device("modem");
-
-	if (!subsys)
-		return -ENODEV;
-	pr_err("%s:level=%d\n", __func__, subsys->restart_level);
-	restart_level = subsys->restart_level;
-	subsys->restart_level = RESET_SUBSYS_COUPLED;
-	if (subsystem_restart("modem") == -ENODEV)
-		pr_err("%s: SSR call failed\n", __func__);
-
-	schedule_delayed_work(&op_restart_modem_work,
-			msecs_to_jiffies(10*1000));
-	return 0;
-}
-EXPORT_SYMBOL(op_restart_modem);
-
-=======
->>>>>>> Stashed changes
 static int subsys_start(struct subsys_device *subsys)
 {
 	int ret;
@@ -1045,13 +932,9 @@ int wait_for_shutdown_ack(struct subsys_desc *desc)
 		return 0;
 
 	ret = wait_for_completion_timeout(&dev->shutdown_ack,
-<<<<<<< Updated upstream
-						msecs_to_jiffies(5000));
-=======
 						msecs_to_jiffies(10000));
->>>>>>> Stashed changes
 	if (!ret) {
-		pr_err("[%s]: Timed out (5000ms) waiting for shutdown ack\n",
+		pr_err("[%s]: Timed out waiting for shutdown ack\n",
 				desc->name);
 		return -ETIMEDOUT;
 	}
@@ -1364,32 +1247,6 @@ int subsystem_restart_dev(struct subsys_device *dev)
 
 	__subsystem_restart_dev(dev);
 
-<<<<<<< Updated upstream
-	case RESET_SUBSYS_COUPLED:
-		__subsystem_restart_dev(dev);
-		break;
-	case RESET_SOC:
-	/*small board absent ignore reset soc*/
-	if (get_small_board_1_absent() == 1 || get_small_board_2_absent() == 1) {
-		pr_warn("subsys-restart: small board absent restart request for %s\n", name);
-		__subsystem_restart_dev(dev);
-	} else if (!oem_get_modemdump_mode() && !(strcmp(name, "esoc0")) && oem_get_download_mode()) {
-		pr_err("%s ssr state=%d\n", name, get_esoc_ssr_state());
-		if (get_esoc_ssr_state() == 0) {
-			set_esoc_ssr_state(1);
-			__subsystem_restart_dev(dev);
-		}
-	} else {
-		__pm_stay_awake(dev->ssr_wlock);
-		schedule_work(&dev->device_restart_work);
-	}
-	return 0;
-	default:
-		panic("subsys-restart: Unknown restart level!\n");
-		break;
-	}
-=======
->>>>>>> Stashed changes
 	module_put(dev->owner);
 	put_device(&dev->dev);
 

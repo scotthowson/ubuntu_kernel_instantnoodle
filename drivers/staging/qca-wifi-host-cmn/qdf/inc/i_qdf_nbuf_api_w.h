@@ -120,8 +120,6 @@ static inline uint16_t qdf_nbuf_get_rx_flow_tag(qdf_nbuf_t buf)
 static inline void qdf_nbuf_set_exc_frame(qdf_nbuf_t buf, uint8_t value)
 {
 }
-<<<<<<< Updated upstream
-=======
 
 /**
  * qdf_nbuf_set_rx_reo_dest_ind() - set reo destination indication
@@ -157,5 +155,4 @@ static inline uint8_t qdf_nbuf_is_rx_ipa_smmu_map(qdf_nbuf_t buf)
 {
 	return 0;
 }
->>>>>>> Stashed changes
 #endif /* _QDF_NBUF_W_H */

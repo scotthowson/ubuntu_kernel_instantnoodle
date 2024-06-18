@@ -3,11 +3,7 @@
  * Copyright (c) 2015, Sony Mobile Communications, AB.
  */
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2018-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2018-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #define pr_fmt(fmt)	"WLED: %s: " fmt, __func__

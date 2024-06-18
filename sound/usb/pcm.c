@@ -655,15 +655,12 @@ static int set_format(struct snd_usb_substream *subs, struct audioformat *fmt)
 
 static int snd_usb_pcm_change_state(struct snd_usb_substream *subs, int state);
 
-<<<<<<< Updated upstream
-=======
 /**
  * snd_usb_enable_audio_stream - Enable/disable the specified usb substream.
  * @subs: pointer to the usb substream.
  * @datainterval: data packet interval.
  * @enable: if true, enable the usb substream. Else disable.
  */
->>>>>>> Stashed changes
 int snd_usb_enable_audio_stream(struct snd_usb_substream *subs,
 	int datainterval, bool enable)
 {

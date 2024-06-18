@@ -354,8 +354,6 @@ QDF_STATUS pmo_core_config_listen_interval(struct wlan_objmgr_vdev *vdev,
  */
 QDF_STATUS pmo_core_config_modulated_dtim(struct wlan_objmgr_vdev *vdev,
 					  uint32_t mod_dtim);
-<<<<<<< Updated upstream
-=======
 
 #ifdef SYSTEM_PM_CHECK
 /**
@@ -370,7 +368,6 @@ static inline void pmo_core_system_resume(struct wlan_objmgr_psoc *psoc)
 {
 }
 #endif
->>>>>>> Stashed changes
 #endif /* WLAN_POWER_MANAGEMENT_OFFLOAD */
 
 #endif /* end  of _WLAN_PMO_SUSPEND_RESUME_H_ */

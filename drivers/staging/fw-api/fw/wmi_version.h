@@ -1,10 +1,6 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2012-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
  * Copyright (c) 2021-2023 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -41,11 +37,7 @@
 #define __WMI_VER_MINOR_    0
 /** WMI revision number has to be incremented when there is a
  *  change that may or may not break compatibility. */
-<<<<<<< Updated upstream
-#define __WMI_REVISION_ 920
-=======
 #define __WMI_REVISION_ 1392
->>>>>>> Stashed changes
 
 /** The Version Namespace should not be normally changed. Only
  *  host and firmware of the same WMI namespace will work

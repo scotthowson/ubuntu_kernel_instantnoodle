@@ -319,8 +319,6 @@ void ipa_reg_send_to_nw_cb(struct wlan_objmgr_pdev *pdev,
 	return wlan_ipa_reg_send_to_nw_cb(ipa_obj, cb);
 }
 
-<<<<<<< Updated upstream
-=======
 #ifdef IPA_LAN_RX_NAPI_SUPPORT
 void ipa_reg_rps_enable_cb(struct wlan_objmgr_pdev *pdev,
 			   wlan_ipa_rps_enable cb)
@@ -345,7 +343,6 @@ void ipa_reg_rps_enable_cb(struct wlan_objmgr_pdev *pdev,
 }
 #endif
 
->>>>>>> Stashed changes
 void ipa_set_mcc_mode(struct wlan_objmgr_pdev *pdev, bool mcc_mode)
 {
 	struct wlan_ipa_priv *ipa_obj;

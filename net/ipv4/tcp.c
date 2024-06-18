@@ -500,11 +500,8 @@ static inline bool tcp_stream_is_readable(const struct tcp_sock *tp,
 			return true;
 		if (tcp_rmem_pressure(sk))
 			return true;
-<<<<<<< Updated upstream
-=======
 		if (tcp_receive_window(tp) <= inet_csk(sk)->icsk_ack.rcv_mss)
 			return true;
->>>>>>> Stashed changes
 	}
 	if (sk->sk_prot->stream_memory_read)
 		return sk->sk_prot->stream_memory_read(sk);
@@ -2905,15 +2902,6 @@ static int do_tcp_setsockopt(struct sock *sk, int level,
 	case TCP_QUEUE_SEQ:
 		if (sk->sk_state != TCP_CLOSE) {
 			err = -EPERM;
-<<<<<<< Updated upstream
-		else if (tp->repair_queue == TCP_SEND_QUEUE)
-			tp->write_seq = val;
-		else if (tp->repair_queue == TCP_RECV_QUEUE) {
-			WRITE_ONCE(tp->rcv_nxt, val);
-			WRITE_ONCE(tp->copied_seq, val);
-		}
-		else
-=======
 		} else if (tp->repair_queue == TCP_SEND_QUEUE) {
 			if (!tcp_rtx_queue_empty(sk))
 				err = -EPERM;
@@ -2927,7 +2915,6 @@ static int do_tcp_setsockopt(struct sock *sk, int level,
 				WRITE_ONCE(tp->copied_seq, val);
 			}
 		} else {
->>>>>>> Stashed changes
 			err = -EINVAL;
 		}
 		break;

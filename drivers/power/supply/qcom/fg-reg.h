@@ -1,10 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2016-2018, 2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2016-2018, 2020-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #ifndef __FG_REG_H__

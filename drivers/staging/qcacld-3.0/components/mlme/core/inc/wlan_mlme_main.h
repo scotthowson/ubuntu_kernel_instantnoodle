@@ -1,9 +1,5 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2018-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2018-2021 The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -547,18 +543,12 @@ mlme_get_operations_bitmap(struct wlan_objmgr_psoc *psoc, uint8_t vdev_id);
  * @reqs: RSO stop requestor
  * @clear: clear bit if true else set bit
  *
-<<<<<<< Updated upstream
- * Return: bitmap value
-=======
  * Return: None
->>>>>>> Stashed changes
  */
 void
 mlme_set_operations_bitmap(struct wlan_objmgr_psoc *psoc, uint8_t vdev_id,
 			   enum roam_control_requestor reqs, bool clear);
 
-<<<<<<< Updated upstream
-=======
 /**
  * mlme_clear_operations_bitmap() - Clear mlme operations bitmap which
  *  indicates what mlme operations are in progress
@@ -590,7 +580,6 @@ QDF_STATUS mlme_get_cfg_wlm_level(struct wlan_objmgr_psoc *psoc,
 QDF_STATUS mlme_get_cfg_wlm_reset(struct wlan_objmgr_psoc *psoc,
 				  bool *reset);
 
->>>>>>> Stashed changes
 #define MLME_IS_ROAM_STATE_RSO_STARTED(psoc, vdev_id) \
 	(mlme_get_roam_state(psoc, vdev_id) == ROAM_RSO_STARTED)
 
@@ -619,8 +608,6 @@ QDF_STATUS mlme_get_cfg_wlm_reset(struct wlan_objmgr_psoc *psoc,
  */
 void mlme_reinit_control_config_lfr_params(struct wlan_objmgr_psoc *psoc,
 					   struct wlan_mlme_lfr_cfg *lfr);
-<<<<<<< Updated upstream
-=======
 
 /**
  * wlan_is_vdev_id_up() - check if vdev id is in UP state
@@ -630,5 +617,4 @@ void mlme_reinit_control_config_lfr_params(struct wlan_objmgr_psoc *psoc,
  * Return: if vdev is up
  */
 bool wlan_is_vdev_id_up(struct wlan_objmgr_pdev *pdev, uint8_t vdev_id);
->>>>>>> Stashed changes
 #endif

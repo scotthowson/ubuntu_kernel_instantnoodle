@@ -80,24 +80,16 @@
 
 #define ADSP_STATE_READY_TIMEOUT_MS 3000
 
-<<<<<<< Updated upstream
-#define WSA8810_NAME_1 "wsa881x.20170211"
-#define WSA8810_NAME_2 "wsa881x.20170212"
-=======
 #define WSA8810_NAME_1 "wsa881x.1020170211"
 #define WSA8810_NAME_2 "wsa881x.1020170212"
 #define WSA8815_NAME_1 "wsa881x.1021170213"
 #define WSA8815_NAME_2 "wsa881x.1021170214"
->>>>>>> Stashed changes
 #define WCN_CDC_SLIM_RX_CH_MAX 2
 #define WCN_CDC_SLIM_TX_CH_MAX 2
 #define WCN_CDC_SLIM_TX_CH_MAX_LITO 3
 
-<<<<<<< Updated upstream
-=======
 #define SWR_MAX_SLAVE_DEVICES 6
 
->>>>>>> Stashed changes
 enum {
 	RX_PATH = 0,
 	TX_PATH,
@@ -205,14 +197,10 @@ struct msm_asoc_mach_data {
 	struct device_node *fsa_handle;
 	struct clk *lpass_audio_hw_vote;
 	int core_audio_vote_count;
-<<<<<<< Updated upstream
-	u32 tdm_max_slots; /* Max TDM slots used */
-=======
 	u32 wsa_max_devs;
 	u32 tdm_max_slots; /* Max TDM slots used */
 	int (*get_wsa_dev_num)(struct snd_soc_component*);
 	struct afe_cps_hw_intf_cfg cps_config;
->>>>>>> Stashed changes
 };
 
 struct tdm_port {
@@ -2719,15 +2707,12 @@ static int msm_get_port_id(int be_id)
 	case MSM_BACKEND_DAI_SENARY_MI2S_TX:
 		afe_port_id = AFE_PORT_ID_SENARY_MI2S_TX;
 		break;
-<<<<<<< Updated upstream
-=======
 	case MSM_BACKEND_DAI_WSA_CDC_DMA_RX_0:
 		afe_port_id = AFE_PORT_ID_WSA_CODEC_DMA_RX_0;
 		break;
 	case MSM_BACKEND_DAI_WSA_CDC_DMA_TX_0:
 		afe_port_id = AFE_PORT_ID_WSA_CODEC_DMA_TX_0;
 		break;
->>>>>>> Stashed changes
 	case MSM_BACKEND_DAI_VA_CDC_DMA_TX_0:
 		afe_port_id = AFE_PORT_ID_VA_CODEC_DMA_TX_0;
 		break;
@@ -4939,8 +4924,6 @@ static int msm_snd_cdc_dma_startup(struct snd_pcm_substream *substream)
 	return ret;
 }
 
-<<<<<<< Updated upstream
-=======
 static void set_cps_config(struct snd_soc_pcm_runtime *rtd,
 				u32 num_ch, u32 ch_mask)
 {
@@ -5056,7 +5039,6 @@ static void set_cps_config(struct snd_soc_pcm_runtime *rtd,
 					&pdata->cps_config, ch_mask);
 }
 
->>>>>>> Stashed changes
 static int msm_snd_cdc_dma_hw_params(struct snd_pcm_substream *substream,
 			     struct snd_pcm_hw_params *params)
 {
@@ -5104,14 +5086,11 @@ static int msm_snd_cdc_dma_hw_params(struct snd_pcm_substream *substream,
 				goto err;
 			}
 
-<<<<<<< Updated upstream
-=======
 			if (dai_link->id == MSM_BACKEND_DAI_WSA_CDC_DMA_RX_0 ||
 			    dai_link->id == MSM_BACKEND_DAI_WSA_CDC_DMA_RX_1) {
 				set_cps_config(rtd, user_set_rx_ch,
 						rx_ch_cdc_dma);
 			}
->>>>>>> Stashed changes
 		}
 		break;
 		}
@@ -5154,22 +5133,10 @@ err:
 
 static int msm_fe_qos_prepare(struct snd_pcm_substream *substream)
 {
-<<<<<<< Updated upstream
-	cpumask_t mask;
-
-	if (pm_qos_request_active(&substream->latency_pm_qos_req))
-		pm_qos_remove_request(&substream->latency_pm_qos_req);
-
-	cpumask_clear(&mask);
-	cpumask_set_cpu(1, &mask); /* affine to core 1 */
-	cpumask_set_cpu(2, &mask); /* affine to core 2 */
-	cpumask_copy(&substream->latency_pm_qos_req.cpus_affine, &mask);
-=======
 	if (pm_qos_request_active(&substream->latency_pm_qos_req))
 		pm_qos_remove_request(&substream->latency_pm_qos_req);
 
 	substream->latency_pm_qos_req.cpus_affine = BIT(1) | BIT(2);
->>>>>>> Stashed changes
 
 	substream->latency_pm_qos_req.type = PM_QOS_REQ_AFFINE_CORES;
 
@@ -5703,14 +5670,11 @@ static int msm_int_audrx_init(struct snd_soc_pcm_runtime *rtd)
 						WSA_MACRO_SPKR_MODE_1);
 				wsa_macro_set_spkr_gain_offset(component,
 						WSA_MACRO_GAIN_OFFSET_M1P5_DB);
-<<<<<<< Updated upstream
-=======
 			} else if (aux_comp->name != NULL && (
 				!strcmp(aux_comp->name, WSA8815_NAME_1) ||
 		    		!strcmp(aux_comp->name, WSA8815_NAME_2))) {
 				wsa_macro_set_spkr_mode(component,
 						WSA_MACRO_SPKR_MODE_DEFAULT);
->>>>>>> Stashed changes
 			}
 		}
 	}
@@ -8477,8 +8441,6 @@ static int msm_audio_ssr_register(struct device *dev)
 	return ret;
 }
 
-<<<<<<< Updated upstream
-=======
 static void parse_cps_configuration(struct platform_device *pdev,
 			struct msm_asoc_mach_data *pdata)
 {
@@ -8588,7 +8550,6 @@ static void parse_cps_configuration(struct platform_device *pdev,
 	}
 }
 
->>>>>>> Stashed changes
 static int msm_asoc_machine_probe(struct platform_device *pdev)
 {
 	struct snd_soc_card *card = NULL;
@@ -8660,8 +8621,6 @@ static int msm_asoc_machine_probe(struct platform_device *pdev)
 	dev_info(&pdev->dev, "%s: Sound card %s registered\n",
 		 __func__, card->name);
 
-<<<<<<< Updated upstream
-=======
 	/* Get maximum WSA device count for this platform */
 	ret = of_property_read_u32(pdev->dev.of_node,
 				   "qcom,wsa-max-devs", &pdata->wsa_max_devs);
@@ -8671,7 +8630,6 @@ static int msm_asoc_machine_probe(struct platform_device *pdev)
 		pdata->wsa_max_devs = 0;
 	}
 
->>>>>>> Stashed changes
 	ret = of_property_read_u32(pdev->dev.of_node, "qcom,tdm-max-slots",
 				   &pdata->tdm_max_slots);
 	if (ret) {
@@ -8784,13 +8742,10 @@ static int msm_asoc_machine_probe(struct platform_device *pdev)
 		atomic_set(&(pdata->mi2s_gpio_ref_count[index]), 0);
 	}
 
-<<<<<<< Updated upstream
-=======
 	/* parse cps configuration from dt */
 	if (of_property_read_bool(pdev->dev.of_node, "qcom,cps_reg_phy_addr"))
 		parse_cps_configuration(pdev, pdata);
 
->>>>>>> Stashed changes
 	/* Register LPASS audio hw vote */
 	lpass_audio_hw_vote = devm_clk_get(&pdev->dev, "lpass_audio_hw_vote");
 	if (IS_ERR(lpass_audio_hw_vote)) {

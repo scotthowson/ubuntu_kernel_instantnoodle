@@ -1,10 +1,6 @@
 /*
  * Copyright (c) 2016, Linaro Limited
-<<<<<<< Updated upstream
- * Copyright (c) 2014, 2016-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2014, 2016-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -1084,8 +1080,6 @@ static const struct rpm_smd_clk_desc rpm_clk_sdm660 = {
 	.num_clks = ARRAY_SIZE(sdm660_clks),
 };
 
-<<<<<<< Updated upstream
-=======
 /* sdm429w SMD clocks */
 DEFINE_CLK_SMD_RPM_BRANCH(sdm429w, bi_tcxo, bi_tcxo_ao,
 					QCOM_SMD_RPM_MISC_CLK, 0, 19200000);
@@ -1188,7 +1182,6 @@ static const struct rpm_smd_clk_desc rpm_clk_qm215 = {
 	.num_clks = ARRAY_SIZE(qm215_clks),
 };
 
->>>>>>> Stashed changes
 static const struct of_device_id rpm_smd_clk_match_table[] = {
 	{ .compatible = "qcom,rpmcc-msm8916", .data = &rpm_clk_msm8916 },
 	{ .compatible = "qcom,rpmcc-msm8974", .data = &rpm_clk_msm8974 },
@@ -1196,11 +1189,8 @@ static const struct of_device_id rpm_smd_clk_match_table[] = {
 	{ .compatible = "qcom,rpmcc-bengal", .data = &rpm_clk_bengal},
 	{ .compatible = "qcom,rpmcc-scuba", .data = &rpm_clk_scuba},
 	{ .compatible = "qcom,rpmcc-sdm660",  .data = &rpm_clk_sdm660  },
-<<<<<<< Updated upstream
-=======
 	{ .compatible = "qcom,rpmcc-qm215",  .data = &rpm_clk_qm215 },
 	{ .compatible = "qcom,rpmcc-sdm439",  .data = &rpm_clk_qm215 },
->>>>>>> Stashed changes
 	{ }
 };
 MODULE_DEVICE_TABLE(of, rpm_smd_clk_match_table);
@@ -1211,11 +1201,7 @@ static int rpm_smd_clk_probe(struct platform_device *pdev)
 	struct clk *clk;
 	struct rpm_cc *rcc;
 	struct clk_onecell_data *data;
-<<<<<<< Updated upstream
-	int ret, is_bengal, is_scuba, is_sdm660;
-=======
 	int ret, is_bengal, is_scuba, is_sdm660, is_qm215, is_sdm439;
->>>>>>> Stashed changes
 	size_t num_clks, i;
 	struct clk_hw **hw_clks;
 	const struct rpm_smd_clk_desc *desc;
@@ -1233,8 +1219,6 @@ static int rpm_smd_clk_probe(struct platform_device *pdev)
 
 	is_sdm660 = of_device_is_compatible(pdev->dev.of_node,
 						"qcom,rpmcc-sdm660");
-<<<<<<< Updated upstream
-=======
 
 	is_qm215 = of_device_is_compatible(pdev->dev.of_node,
 						"qcom,rpmcc-qm215");
@@ -1242,22 +1226,18 @@ static int rpm_smd_clk_probe(struct platform_device *pdev)
 	is_sdm439 = of_device_is_compatible(pdev->dev.of_node,
 						"qcom,rpmcc-sdm439");
 
->>>>>>> Stashed changes
 	if (is_sdm660) {
 		ret = clk_vote_bimc(&sdm660_bimc_clk.hw, INT_MAX);
 		if (ret < 0)
 			return ret;
 	}
 
-<<<<<<< Updated upstream
-=======
 	if (is_qm215 || is_sdm439) {
 		ret = clk_vote_bimc(&sdm429w_bimc_clk.hw, INT_MAX);
 		if (ret < 0)
 			return ret;
 	}
 
->>>>>>> Stashed changes
 	desc = of_device_get_match_data(&pdev->dev);
 	if (!desc)
 		return -EINVAL;
@@ -1346,8 +1326,6 @@ static int rpm_smd_clk_probe(struct platform_device *pdev)
 		/* Hold an active set vote for the cnoc_periph resource */
 		clk_set_rate(cnoc_periph_keepalive_a_clk.hw.clk, 19200000);
 		clk_prepare_enable(cnoc_periph_keepalive_a_clk.hw.clk);
-<<<<<<< Updated upstream
-=======
 	} else if (is_qm215 || is_sdm439) {
 		clk_prepare_enable(sdm429w_bi_tcxo_ao.hw.clk);
 
@@ -1357,7 +1335,6 @@ static int rpm_smd_clk_probe(struct platform_device *pdev)
 		 */
 		clk_set_rate(pnoc_keepalive_a_clk.hw.clk, 19200000);
 		clk_prepare_enable(pnoc_keepalive_a_clk.hw.clk);
->>>>>>> Stashed changes
 	}
 
 	dev_info(&pdev->dev, "Registered RPM clocks\n");

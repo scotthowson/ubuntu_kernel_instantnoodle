@@ -1,10 +1,6 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2013-2016, 2018-2019 The Linux Foundation. All rights reserved.*
-=======
  * Copyright (c) 2013-2016, 2018-2021 The Linux Foundation. All rights reserved.
  * Copyright (c) 2021-2023 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -110,11 +106,7 @@
  */
 #define MAX_SPATIAL_STREAM_ANY MAX_SPATIAL_STREAM_ANY_V2 /* DEPRECATED */
 
-<<<<<<< Updated upstream
-/* defines to set Packet extension values whic can be 0 us, 8 usec or 16 usec */
-=======
 /* defines to set Packet extension values which can be 0, 8, or 16 usec */
->>>>>>> Stashed changes
 /* NOTE: Below values cannot be changed without breaking WMI Compatibility */
 #define MAX_HE_NSS               8
 #define MAX_HE_MODULATION        8
@@ -157,11 +149,6 @@ typedef enum {
     MODE_11AX_HE80_2G = 23,
 #endif
 
-<<<<<<< Updated upstream
-    /*
-     * MODE_UNKNOWN should not be used within the host / target interface.
-     * Thus, it is permissible for ODE_UNKNOWN to be conditionally-defined,
-=======
 #if (defined(SUPPORT_11BE) && SUPPORT_11BE) || defined(SUPPORT_11BE_ROM)
     MODE_11BE_EHT20 = 24,
     MODE_11BE_EHT40 = 25,
@@ -177,18 +164,10 @@ typedef enum {
     /*
      * MODE_UNKNOWN should not be used within the host / target interface.
      * Thus, it is permissible for MODE_UNKNOWN to be conditionally-defined,
->>>>>>> Stashed changes
      * taking different values when compiling for different targets.
      */
     MODE_UNKNOWN,
     MODE_UNKNOWN_NO_160MHZ_SUPPORT = 14, /* not needed? */
-<<<<<<< Updated upstream
-#if 0
-    MODE_UNKNOWN_NO_11AX_SUPPORT = 16, /* not needed? */
-    MODE_UNKNOWN_11AX_SUPPORT = 24, /* not needed? */
-#endif
-=======
->>>>>>> Stashed changes
     MODE_UNKNOWN_160MHZ_SUPPORT = MODE_UNKNOWN, /* not needed? */
 
 #ifdef ATHR_WIN_NWF
@@ -259,21 +238,16 @@ typedef enum {
         ((mode) == MODE_11AX_HE20_2G)  || \
         ((mode) == MODE_11AX_HE40_2G)  || \
         ((mode) == MODE_11AX_HE80_2G))
-<<<<<<< Updated upstream
-=======
 #define IS_MODE_HE_5G_6G(mode) (((mode) == MODE_11AX_HE20) || \
         ((mode) == MODE_11AX_HE40)     || \
         ((mode) == MODE_11AX_HE80)     || \
         ((mode) == MODE_11AX_HE80_80)  || \
         ((mode) == MODE_11AX_HE160))
->>>>>>> Stashed changes
 #define IS_MODE_HE_2G(mode) (((mode) == MODE_11AX_HE20_2G) || \
         ((mode) == MODE_11AX_HE40_2G) || \
         ((mode) == MODE_11AX_HE80_2G))
 #endif /* SUPPORT_11AX */
 
-<<<<<<< Updated upstream
-=======
 #if (defined(SUPPORT_11BE) && SUPPORT_11BE) || defined(SUPPORT_11BE_ROM)
 #define IS_MODE_EHT(mode) (((mode) == MODE_11BE_EHT20) || \
         ((mode) == MODE_11BE_EHT40)     || \
@@ -288,7 +262,6 @@ typedef enum {
         ((mode) == MODE_11BE_EHT40_2G))
 #endif /* SUPPORT_11BE */
 
->>>>>>> Stashed changes
 #define IS_MODE_VHT_2G(mode) (((mode) == MODE_11AC_VHT20_2G) || \
         ((mode) == MODE_11AC_VHT40_2G) || \
         ((mode) == MODE_11AC_VHT80_2G))
@@ -319,11 +292,6 @@ typedef enum {
 #ifdef CONFIG_160MHZ_SUPPORT
   #define IS_MODE_11AC(phymode)  ((phymode >= MODE_11AC_VHT20) && \
                                   (phymode <= MODE_11AC_VHT160))
-<<<<<<< Updated upstream
-#else
-  #define IS_MODE_11AC(phymode)  ((phymode >= MODE_11AC_VHT20) && \
-                                  (phymode <= MODE_11AC_VHT80_2G))
-=======
   #define IS_MODE_11AC_5G(phymode) ((phymode == MODE_11AC_VHT20) || \
                                     (phymode == MODE_11AC_VHT40) || \
                                     (phymode == MODE_11AC_VHT80) || \
@@ -335,7 +303,6 @@ typedef enum {
   #define IS_MODE_11AC_5G(phymode) ((phymode == MODE_11AC_VHT20) || \
                                     (phymode == MODE_11AC_VHT40) || \
                                     (phymode == MODE_11AC_VHT80))
->>>>>>> Stashed changes
 #endif /* CONFIG_160MHZ_SUPPORT */
 
 #if SUPPORT_11AX
@@ -398,8 +365,6 @@ enum {
     REGDMN_MODE_11AXA_HE80_BIT         = 38, /* 5Ghz, HE80 */
     REGDMN_MODE_11AXA_HE160_BIT        = 39, /* 5Ghz, HE160 */
     REGDMN_MODE_11AXA_HE80_80_BIT      = 40, /* 5Ghz, HE80+80 */
-<<<<<<< Updated upstream
-=======
     REGDMN_MODE_11BEG_EHT20_BIT        = 41, /* 2Ghz, EHT20 */
     REGDMN_MODE_11BEA_EHT20_BIT        = 42, /* 5Ghz, EHT20 */
     REGDMN_MODE_11BEG_EHT40PLUS_BIT    = 43, /* 2Ghz, EHT40+ */
@@ -409,7 +374,6 @@ enum {
     REGDMN_MODE_11BEA_EHT80_BIT        = 47, /* 5Ghz, EHT80 */
     REGDMN_MODE_11BEA_EHT160_BIT       = 48, /* 5Ghz, EHT160 */
     REGDMN_MODE_11BEA_EHT320_BIT       = 49, /* 5Ghz, EHT320 */
->>>>>>> Stashed changes
 };
 
 enum {
@@ -452,8 +416,6 @@ enum {
     REGDMN_MODE_U32_11AXA_HE80      = 1 << (REGDMN_MODE_11AXA_HE80_BIT - 32),
     REGDMN_MODE_U32_11AXA_HE160     = 1 << (REGDMN_MODE_11AXA_HE160_BIT - 32),
     REGDMN_MODE_U32_11AXA_HE80_80   = 1 << (REGDMN_MODE_11AXA_HE80_80_BIT - 32),
-<<<<<<< Updated upstream
-=======
     REGDMN_MODE_U32_11BEG_EHT20      = 1 << (REGDMN_MODE_11BEG_EHT20_BIT - 32),
     REGDMN_MODE_U32_11BEA_EHT20      = 1 << (REGDMN_MODE_11BEA_EHT20_BIT - 32),
     REGDMN_MODE_U32_11BEG_EHT40PLUS  = 1 << (REGDMN_MODE_11BEG_EHT40PLUS_BIT - 32),
@@ -463,7 +425,6 @@ enum {
     REGDMN_MODE_U32_11BEA_EHT80      = 1 << (REGDMN_MODE_11BEA_EHT80_BIT - 32),
     REGDMN_MODE_U32_11BEA_EHT160     = 1 << (REGDMN_MODE_11BEA_EHT160_BIT - 32),
     REGDMN_MODE_U32_11BEA_EHT320     = 1 << (REGDMN_MODE_11BEA_EHT320_BIT - 32),
->>>>>>> Stashed changes
 };
 
 #define REGDMN_MODE_ALL       (0xFFFFFFFF)       /* REGDMN_MODE_ALL is defined out of the enum
@@ -497,13 +458,10 @@ typedef struct {
     A_UINT32 low_5ghz_chan;
     A_UINT32 high_5ghz_chan;
     A_UINT32 wireless_modes_ext; /* REGDMN MODE ext */
-<<<<<<< Updated upstream
-=======
     A_UINT32 low_2ghz_chan_ext;
     A_UINT32 high_2ghz_chan_ext;
     A_UINT32 low_5ghz_chan_ext;
     A_UINT32 high_5ghz_chan_ext;
->>>>>>> Stashed changes
 } HAL_REG_CAPABILITIES;
 
 #ifdef NUM_SPATIAL_STREAM
@@ -523,13 +481,8 @@ typedef struct {
 
 /*
  * Used to update rate-control logic with the status of the tx-completion.
-<<<<<<< Updated upstream
- * In host-based implementation of the rate-control feature, this struture is used to
- * create the payload for HTT message/s from target to host.
-=======
  * In host-based implementation of the rate-control feature, this structure
  * is used to create the payload for HTT message/s from target to host.
->>>>>>> Stashed changes
  */
 #ifndef CONFIG_MOVE_RC_STRUCT_TO_MACCORE
   #if (NUM_SPATIAL_STREAM > 3)
@@ -619,11 +572,7 @@ typedef struct {
 
 #define PROD_SCHED_BW_ENTRIES       (NUM_SCHED_ENTRIES * NUM_DYN_BW)
 
-<<<<<<< Updated upstream
-#if NUM_DYN_BW  > 4
-=======
 #if NUM_DYN_BW  > 5
->>>>>>> Stashed changes
 /* Extend rate table module first */
 #error "Extend rate table module first"
 #endif
@@ -735,11 +684,7 @@ typedef struct {
 #endif
 
 /**
-<<<<<<< Updated upstream
- * strucutre describing host memory chunk.
-=======
  * structure describing host memory chunk.
->>>>>>> Stashed changes
  */
 typedef struct {
    A_UINT32   tlv_header;     /* TLV tag and len; tag equals WMITLV_TAG_STRUC_wlan_host_memory_chunk */
@@ -868,15 +813,9 @@ struct wlan_dbg_tx_stats_v1 {
     A_UINT32 sw_retry_failure;
     /* illegal rate phy errors  */
     A_UINT32 illgl_rate_phy_err;
-<<<<<<< Updated upstream
-    /* wal pdev continous xretry */
-    A_UINT32 pdev_cont_xretry;
-    /* wal pdev continous xretry */
-=======
     /* wal pdev continuous xretry */
     A_UINT32 pdev_cont_xretry;
     /* wal pdev continuous xretry */
->>>>>>> Stashed changes
     A_UINT32 pdev_tx_timeout;
     /* wal pdev resets  */
     A_UINT32 pdev_resets;
@@ -926,15 +865,9 @@ struct wlan_dbg_tx_stats_v2 {
     A_UINT32 sw_retry_failure;
     /* illegal rate phy errors  */
     A_UINT32 illgl_rate_phy_err;
-<<<<<<< Updated upstream
-    /* wal pdev continous xretry */
-    A_UINT32 pdev_cont_xretry;
-    /* wal pdev continous xretry */
-=======
     /* wal pdev continuous xretry */
     A_UINT32 pdev_cont_xretry;
     /* wal pdev continuous xretry */
->>>>>>> Stashed changes
     A_UINT32 pdev_tx_timeout;
     /* wal pdev resets  */
     A_UINT32 pdev_resets;
@@ -1043,12 +976,7 @@ struct wlan_dbg_mem_stats {
 };
 
 struct wlan_dbg_peer_stats {
-<<<<<<< Updated upstream
-
-	A_INT32 dummy; /* REMOVE THIS ONCE REAL PEER STAT COUNTERS ARE ADDED */
-=======
     A_INT32 dummy; /* REMOVE THIS ONCE REAL PEER STAT COUNTERS ARE ADDED */
->>>>>>> Stashed changes
 };
 
 /*
@@ -1092,11 +1020,7 @@ typedef struct {
  * TEMPORARY: leave rssi_chain3 in place for AR900B builds until code using
  * rssi_chain3 has been converted to use wlan_dbg_rx_rate_info_v2_t.
  */
-<<<<<<< Updated upstream
-	A_UINT32 rssi_chain3;
-=======
     A_UINT32 rssi_chain3;
->>>>>>> Stashed changes
 } wlan_dbg_rx_rate_info_v1b_t;
 
 #if defined(AR900B)
@@ -1359,17 +1283,6 @@ struct wlan_dbg_tidq_stats {
 };
 
 typedef enum {
-<<<<<<< Updated upstream
-    WLAN_DBG_DATA_STALL_NONE = 0,
-    WLAN_DBG_DATA_STALL_VDEV_PAUSE,         /* 1 */
-    WLAN_DBG_DATA_STALL_HWSCHED_CMD_FILTER, /* 2 */
-    WLAN_DBG_DATA_STALL_HWSCHED_CMD_FLUSH,  /* 3 */
-    WLAN_DBG_DATA_STALL_RX_REFILL_FAILED,   /* 4 */
-    WLAN_DBG_DATA_STALL_RX_FCS_LEN_ERROR,   /* 5 */
-    WLAN_DBG_DATA_STALL_MAC_WDOG_ERRORS,    /* 6 */ /* Mac watch dog */
-    WLAN_DBG_DATA_STALL_PHY_BB_WDOG_ERROR,  /* 7 */ /* PHY watch dog */
-    WLAN_DBG_DATA_STALL_POST_TIM_NO_TXRX_ERROR, /* 8 */
-=======
     WLAN_DBG_DATA_STALL_NONE                   = 0,
     WLAN_DBG_DATA_STALL_VDEV_PAUSE             = 1,
     WLAN_DBG_DATA_STALL_HWSCHED_CMD_FILTER     = 2,
@@ -1382,7 +1295,6 @@ typedef enum {
     WLAN_DBG_DATA_STALL_CONSECUTIVE_NON_FLUSH  = 9,
     WLAN_DBG_DATA_STALL_CONSECUTIVE_NOACK      = 10,
     WLAN_DBG_DATA_STALL_CONSECUTIVE_LT_EXPIRY  = 11,
->>>>>>> Stashed changes
     WLAN_DBG_DATA_STALL_MAX,
 } wlan_dbg_data_stall_type_e;
 
@@ -1403,8 +1315,6 @@ typedef enum {
     #undef CONFIG_160MHZ_SUPPORT_UNDEF_WAR
 #endif
 
-<<<<<<< Updated upstream
-=======
 /** MGMT RX REO Changes */
 /* Macros for having versioning info for compatibility check between host and firmware */
 #define MLO_SHMEM_MAJOR_VERSION 2
@@ -1947,5 +1857,4 @@ typedef struct _wmi_mac_addr {
     A_UINT32 mac_addr47to32;
 } wmi_mac_addr;
 
->>>>>>> Stashed changes
 #endif /* __WLANDEFS_H__ */

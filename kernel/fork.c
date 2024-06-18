@@ -96,21 +96,8 @@
 #include <linux/thread_info.h>
 #include <linux/cpufreq_times.h>
 #include <linux/scs.h>
-<<<<<<< Updated upstream
-#ifdef CONFIG_HOUSTON
-#include <oneplus/houston/houston_helper.h>
-#endif
-#ifdef CONFIG_CONTROL_CENTER
-#include <oneplus/control_center/control_center_helper.h>
-#endif
-#ifdef CONFIG_IM
-#include <linux/oem/im.h>
-#endif
-
-=======
 #include <linux/simple_lmk.h>
 #include <linux/devfreq_boost.h>
->>>>>>> Stashed changes
 
 #include <asm/pgtable.h>
 #include <asm/pgalloc.h>
@@ -153,10 +140,6 @@ int lockdep_tasklist_lock_is_held(void)
 }
 EXPORT_SYMBOL_GPL(lockdep_tasklist_lock_is_held);
 #endif /* #ifdef CONFIG_PROVE_RCU */
-
-#ifdef CONFIG_ONEPLUS_TASKLOAD_INFO
-struct sample_window_t sample_window;
-#endif
 
 int nr_processes(void)
 {
@@ -938,42 +921,7 @@ static struct task_struct *dup_task_struct(struct task_struct *orig, int node)
 	tsk->splice_pipe = NULL;
 	tsk->task_frag.page = NULL;
 	tsk->wake_q.next = NULL;
-<<<<<<< Updated upstream
-#ifdef CONFIG_CONTROL_CENTER
-	tsk->nice_effect_ts = 0;
-	tsk->cached_prio = tsk->static_prio;
-#endif
-
-#ifdef CONFIG_RATP
-	tsk->cpus_suggested = CPU_MASK_ALL;
-#endif
-/* 2020-05-19 add for uxrealm*/
-#ifdef CONFIG_OPCHAIN
-	tsk->utask_tag = 0;
-	tsk->utask_tag_base = 0;
-	tsk->etask_claim = 0;
-	tsk->claim_cpu = -1;
-	tsk->utask_slave = 0;
-#endif
-
-#ifdef CONFIG_UXCHAIN
-	tsk->static_ux = 0;
-	tsk->dynamic_ux = 0;
-	tsk->ux_depth = 0;
-	tsk->oncpu_time = 0;
-	tsk->prio_saved = 0;
-	tsk->saved_flag = 0;
-#endif
-
-#ifdef CONFIG_UXCHAIN_V2
-	tsk->fork_by_static_ux = 0;
-	tsk->ux_once = 0;
-	tsk->get_mmlock = 0;
-	tsk->get_mmlock_ts = 0;
-#endif
-=======
 	tsk->wake_q_sleeper.next = NULL;
->>>>>>> Stashed changes
 
 	account_kernel_stack(tsk, 1);
 
@@ -990,12 +938,6 @@ static struct task_struct *dup_task_struct(struct task_struct *orig, int node)
 
 #ifdef CONFIG_MEMCG
 	tsk->active_memcg = NULL;
-#endif
-
-#ifdef CONFIG_TPD
-	tsk->tpd = 0;
-	tsk->dtpd = 0;
-	tsk->dtpdg = -1;
 #endif
 	return tsk;
 
@@ -1791,19 +1733,11 @@ static void pidfd_show_fdinfo(struct seq_file *m, struct file *f)
 /*
  * Poll support for process exit notification.
  */
-<<<<<<< Updated upstream
-static unsigned int pidfd_poll(struct file *file, struct poll_table_struct *pts)
-{
-	struct task_struct *task;
-	struct pid *pid = file->private_data;
-	int poll_flags = 0;
-=======
 static __poll_t pidfd_poll(struct file *file, struct poll_table_struct *pts)
 {
 	struct task_struct *task;
 	struct pid *pid = file->private_data;
 	__poll_t poll_flags = 0;
->>>>>>> Stashed changes
 
 	poll_wait(file, &pid->wait_pidfd, pts);
 
@@ -1815,11 +1749,7 @@ static __poll_t pidfd_poll(struct file *file, struct poll_table_struct *pts)
 	 * group, then poll(2) should block, similar to the wait(2) family.
 	 */
 	if (!task || (task->exit_state && thread_group_empty(task)))
-<<<<<<< Updated upstream
-		poll_flags = POLLIN | POLLRDNORM;
-=======
 		poll_flags = EPOLLIN | EPOLLRDNORM;
->>>>>>> Stashed changes
 	rcu_read_unlock();
 
 	return poll_flags;
@@ -1833,34 +1763,6 @@ const struct file_operations pidfd_fops = {
 #endif
 };
 
-<<<<<<< Updated upstream
-/**
- * pidfd_create() - Create a new pid file descriptor.
- *
- * @pid:  struct pid that the pidfd will reference
- *
- * This creates a new pid file descriptor with the O_CLOEXEC flag set.
- *
- * Note, that this function can only be called after the fd table has
- * been unshared to avoid leaking the pidfd to the new process.
- *
- * Return: On success, a cloexec pidfd is returned.
- *         On error, a negative errno number will be returned.
- */
-static int pidfd_create(struct pid *pid)
-{
-	int fd;
-
-	fd = anon_inode_getfd("[pidfd]", &pidfd_fops, get_pid(pid),
-			      O_RDWR | O_CLOEXEC);
-	if (fd < 0)
-		put_pid(pid);
-
-	return fd;
-}
-
-=======
->>>>>>> Stashed changes
 static void copy_oom_score_adj(u64 clone_flags, struct task_struct *tsk)
 {
 	/* Skip if kernel thread */
@@ -1951,11 +1853,6 @@ static __latent_entropy struct task_struct *copy_process(
 	}
 
 	if (clone_flags & CLONE_PIDFD) {
-<<<<<<< Updated upstream
-		int reserved;
-
-=======
->>>>>>> Stashed changes
 		/*
 		 * - CLONE_PARENT_SETTID is useless for pidfds and also
 		 *   parent_tidptr is used to return pidfds.
@@ -1966,19 +1863,6 @@ static __latent_entropy struct task_struct *copy_process(
 		if (clone_flags &
 		    (CLONE_DETACHED | CLONE_PARENT_SETTID | CLONE_THREAD))
 			return ERR_PTR(-EINVAL);
-<<<<<<< Updated upstream
-
-		/*
-		 * Verify that parent_tidptr is sane so we can potentially
-		 * reuse it later.
-		 */
-		if (get_user(reserved, parent_tidptr))
-			return ERR_PTR(-EFAULT);
-
-		if (reserved != 0)
-			return ERR_PTR(-EINVAL);
-=======
->>>>>>> Stashed changes
 	}
 
 	/*
@@ -2082,11 +1966,6 @@ static __latent_entropy struct task_struct *copy_process(
 #endif
 
 	task_io_accounting_init(&p->ioac);
-
-#ifdef CONFIG_ONEPLUS_TASKLOAD_INFO
-	task_tli_init(p);
-#endif
-
 	acct_clear_integrals(p);
 
 	posix_cpu_timers_init(p);
@@ -2139,12 +2018,7 @@ static __latent_entropy struct task_struct *copy_process(
 	p->sequential_io	= 0;
 	p->sequential_io_avg	= 0;
 #endif
-#ifdef CONFIG_ONEPLUS_HEALTHINFO
-/*2020-06-17, add for stuck monitor*/
-	p->stuck_trace = 0;
-	memset(&p->oneplus_stuck_info, 0, sizeof(struct oneplus_uifirst_monitor_info));
-#endif /*CONFIG_ONEPLUS_HEALTHINFO*/
-	p->fpack = NULL;
+
 	/* Perform scheduler related setup. Assign this task to a CPU. */
 	retval = sched_fork(clone_flags, p);
 	if (retval)
@@ -2203,17 +2077,11 @@ static __latent_entropy struct task_struct *copy_process(
 	 * if the fd table isn't shared).
 	 */
 	if (clone_flags & CLONE_PIDFD) {
-<<<<<<< Updated upstream
-		retval = pidfd_create(pid);
-=======
 		retval = get_unused_fd_flags(O_RDWR | O_CLOEXEC);
->>>>>>> Stashed changes
 		if (retval < 0)
 			goto bad_fork_free_pid;
 
 		pidfd = retval;
-<<<<<<< Updated upstream
-=======
 
 		pidfile = anon_inode_getfile("[pidfd]", &pidfd_fops, pid,
 					      O_RDWR | O_CLOEXEC);
@@ -2223,7 +2091,6 @@ static __latent_entropy struct task_struct *copy_process(
 		}
 		get_pid(pid);	/* held by pidfile now */
 
->>>>>>> Stashed changes
 		retval = put_user(pidfd, parent_tidptr);
 		if (retval)
 			goto bad_fork_put_pidfd;
@@ -2396,31 +2263,6 @@ static __latent_entropy struct task_struct *copy_process(
 	trace_task_newtask(p, clone_flags);
 	uprobe_copy_process(p, clone_flags);
 
-<<<<<<< Updated upstream
-#if defined(CONFIG_CONTROL_CENTER) || defined(CONFIG_HOUSTON) || defined(CONFIG_IM)
-	if (likely(!IS_ERR(p))) {
-#ifdef CONFIG_HOUSTON
-		ht_perf_event_init(p);
-		ht_rtg_init(p);
-#endif
-#ifdef CONFIG_CONTROL_CENTER
-		cc_tsk_init((void *) p);
-#endif
-#ifdef CONFIG_TPP
-		p->tpp_flag = 0;
-#endif
-#ifdef CONFIG_ONEPLUS_FG_OPT
-		p->fuse_boost = 0;
-#endif
-#ifdef CONFIG_IM
-		im_tsk_init_flag((void *) p);
-#endif
-	}
-#endif
-=======
-	copy_oom_score_adj(clone_flags, p);
->>>>>>> Stashed changes
-
 	copy_oom_score_adj(clone_flags, p);
 
 	return p;
@@ -2432,15 +2274,10 @@ bad_fork_cancel_cgroup:
 bad_fork_cgroup_threadgroup_change_end:
 	cgroup_threadgroup_change_end(current);
 bad_fork_put_pidfd:
-<<<<<<< Updated upstream
-	if (clone_flags & CLONE_PIDFD)
-		ksys_close(pidfd);
-=======
 	if (clone_flags & CLONE_PIDFD) {
 		fput(pidfile);
 		put_unused_fd(pidfd);
 	}
->>>>>>> Stashed changes
 bad_fork_free_pid:
 	if (pid != &init_struct_pid)
 		free_pid(pid);

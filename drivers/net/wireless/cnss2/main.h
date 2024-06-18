@@ -1,9 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
-<<<<<<< Updated upstream
-/* Copyright (c) 2016-2020, The Linux Foundation. All rights reserved. */
-=======
 /* Copyright (c) 2016-2021, The Linux Foundation. All rights reserved. */
->>>>>>> Stashed changes
 
 #ifndef _CNSS_MAIN_H
 #define _CNSS_MAIN_H
@@ -419,12 +415,9 @@ struct cnss_plat_data {
 	int (*get_info_cb)(void *ctx, void *event, int event_len);
 	u8 use_nv_mac;
 	u8 set_wlaon_pwr_ctrl;
-<<<<<<< Updated upstream
-=======
 	u8 fw_pcie_gen_switch;
 	u8 pcie_gen_speed;
 	int power_up_error;
->>>>>>> Stashed changes
 };
 
 int get_wifi_chain_mode(void);

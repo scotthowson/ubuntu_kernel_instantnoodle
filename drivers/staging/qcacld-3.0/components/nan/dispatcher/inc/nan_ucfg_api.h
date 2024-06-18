@@ -455,8 +455,6 @@ bool ucfg_is_nan_vdev(struct wlan_objmgr_vdev *vdev);
  * Return: QDF_STATUS
  */
 QDF_STATUS ucfg_nan_disable_ind_to_userspace(struct wlan_objmgr_psoc *psoc);
-<<<<<<< Updated upstream
-=======
 
 /**
  * ucfg_is_nan_allowed_on_freq() - Check if NAN is allowed on given freq
@@ -470,7 +468,6 @@ QDF_STATUS ucfg_nan_disable_ind_to_userspace(struct wlan_objmgr_psoc *psoc);
  * Return: True if NAN is allowed on the given frequency
  */
 bool ucfg_is_nan_allowed_on_freq(struct wlan_objmgr_pdev *pdev, uint32_t freq);
->>>>>>> Stashed changes
 #else /* WLAN_FEATURE_NAN */
 
 static inline
@@ -578,14 +575,11 @@ QDF_STATUS ucfg_nan_disable_ind_to_userspace(struct wlan_objmgr_psoc *psoc)
 {
 	return QDF_STATUS_SUCCESS;
 }
-<<<<<<< Updated upstream
-=======
 
 static inline
 bool ucfg_is_nan_allowed_on_freq(struct wlan_objmgr_pdev *pdev, uint32_t freq)
 {
 	return false;
 }
->>>>>>> Stashed changes
 #endif /* WLAN_FEATURE_NAN */
 #endif /* _NAN_UCFG_API_H_ */

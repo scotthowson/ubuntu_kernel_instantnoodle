@@ -1075,11 +1075,7 @@ static int kgdbts_option_setup(char *opt)
 		return 1;
 	}
 	strcpy(config, opt);
-<<<<<<< Updated upstream
-	return 0;
-=======
 	return 1;
->>>>>>> Stashed changes
 }
 
 __setup("kgdbts=", kgdbts_option_setup);

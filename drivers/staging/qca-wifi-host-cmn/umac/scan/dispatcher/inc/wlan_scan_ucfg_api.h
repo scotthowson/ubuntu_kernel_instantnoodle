@@ -1,9 +1,5 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2017-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2017-2021 The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -958,8 +954,6 @@ ucfg_scan_get_max_sched_scan_plan_interval(struct wlan_objmgr_psoc *psoc);
 uint32_t
 ucfg_scan_get_max_sched_scan_plan_iterations(struct wlan_objmgr_psoc *psoc);
 
-<<<<<<< Updated upstream
-=======
 /**
  * ucfg_scan_get_user_config_sched_scan_plan() - API to get user config sched
  * scan plan configuration value
@@ -970,7 +964,6 @@ ucfg_scan_get_max_sched_scan_plan_iterations(struct wlan_objmgr_psoc *psoc);
 bool
 ucfg_scan_get_user_config_sched_scan_plan(struct wlan_objmgr_psoc *psoc);
 
->>>>>>> Stashed changes
 #else
 static inline
 bool ucfg_scan_is_pno_offload_enabled(struct wlan_objmgr_psoc *psoc)
@@ -1025,15 +1018,12 @@ ucfg_scan_get_max_sched_scan_plan_iterations(struct wlan_objmgr_psoc *psoc)
 	return 0;
 }
 
-<<<<<<< Updated upstream
-=======
 static inline bool
 ucfg_scan_get_user_config_sched_scan_plan(struct wlan_objmgr_psoc *psoc)
 {
 	return true;
 }
 
->>>>>>> Stashed changes
 #endif /* FEATURE_WLAN_SCAN_PNO */
 
 /**

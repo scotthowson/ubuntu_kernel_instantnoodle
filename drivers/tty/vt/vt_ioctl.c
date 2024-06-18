@@ -855,14 +855,6 @@ int vt_ioctl(struct tty_struct *tty,
 			console_lock();
 			vcp = vc_cons[i].d;
 			if (vcp) {
-<<<<<<< Updated upstream
-				if (v.v_vlin)
-					vcp->vc_scan_lines = v.v_vlin;
-				if (v.v_clin)
-					vcp->vc_font.height = v.v_clin;
-				vcp->vc_resize_user = 1;
-				vc_resize(vcp, v.v_cols, v.v_rows);
-=======
 				int ret;
 				int save_scan_lines = vcp->vc_scan_lines;
 				int save_cell_height = vcp->vc_cell_height;
@@ -879,7 +871,6 @@ int vt_ioctl(struct tty_struct *tty,
 					console_unlock();
 					return ret;
 				}
->>>>>>> Stashed changes
 			}
 			console_unlock();
 		}

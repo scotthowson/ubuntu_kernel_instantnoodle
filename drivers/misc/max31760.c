@@ -1,11 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2020-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include <linux/device.h>
@@ -23,10 +19,6 @@
 #include <linux/gpio.h>
 #include <linux/delay.h>
 #include <linux/regulator/consumer.h>
-<<<<<<< Updated upstream
-#include <linux/rwlock.h>
-=======
->>>>>>> Stashed changes
 #include <linux/uaccess.h>
 #include <linux/regmap.h>
 
@@ -128,11 +120,7 @@ static ssize_t fan_show(struct device *dev, struct device_attribute *attr,
 static ssize_t fan_store(struct device *dev, struct device_attribute *attr,
 				const char *buf, size_t count)
 {
-<<<<<<< Updated upstream
-	long val;
-=======
 	long val, val1;
->>>>>>> Stashed changes
 	struct max31760 *pdata;
 
 	pdata =  dev_get_drvdata(dev);
@@ -142,10 +130,6 @@ static ssize_t fan_store(struct device *dev, struct device_attribute *attr,
 	}
 
 	kstrtol(buf, 0, &val);
-<<<<<<< Updated upstream
-	pr_debug("%s, count:%d  val:%lx, buf:%s\n",
-				 __func__, count, val, buf);
-=======
 	val1 = val >> 8;
 	pr_debug("%s, count:%d  val:%lx, val1:%lx, buf:%s\n",
 				 __func__, count, val, val1, buf);
@@ -155,7 +139,6 @@ static ssize_t fan_store(struct device *dev, struct device_attribute *attr,
 		max31760_i2c_reg_set(pdata, 0x50, val1);
 		return count;
 	}
->>>>>>> Stashed changes
 
 	if (val == 0xff) {
 		turn_gpio(pdata, false);

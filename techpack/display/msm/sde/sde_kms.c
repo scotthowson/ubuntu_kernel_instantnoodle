@@ -1139,19 +1139,12 @@ static void sde_kms_check_for_ext_vote(struct sde_kms *sde_kms,
 	 * cases, allow the target to go through a gdsc toggle after
 	 * crtc is disabled.
 	 */
-<<<<<<< Updated upstream
-	if (!crtc_enabled && phandle->is_ext_vote_en) {
-		pm_runtime_put_sync(sde_kms->dev->dev);
-		SDE_EVT32(phandle->is_ext_vote_en);
-		pm_runtime_get_sync(sde_kms->dev->dev);
-=======
 	if (!crtc_enabled && (phandle->is_ext_vote_en ||
 				!dev->dev->power.runtime_auto)) {
 		pm_runtime_put_sync(sde_kms->dev->dev);
 		pm_runtime_get_sync(sde_kms->dev->dev);
 		SDE_EVT32(phandle->is_ext_vote_en,
 				dev->dev->power.runtime_auto);
->>>>>>> Stashed changes
 	}
 
 	mutex_unlock(&phandle->ext_client_lock);
@@ -1256,11 +1249,6 @@ static void sde_kms_wait_for_commit_done(struct msm_kms *kms,
 
 	SDE_ATRACE_BEGIN("sde_kms_wait_for_commit_done");
 	list_for_each_entry(encoder, &dev->mode_config.encoder_list, head) {
-<<<<<<< Updated upstream
-		if (encoder->crtc != crtc &&
-				!sde_encoder_is_cwb_disabling(encoder, crtc))
-			continue;
-=======
 		cwb_disabling = false;
 		if (encoder->crtc != crtc) {
 			cwb_disabling = sde_encoder_is_cwb_disabling(encoder,
@@ -1269,7 +1257,6 @@ static void sde_kms_wait_for_commit_done(struct msm_kms *kms,
 				continue;
 		}
 
->>>>>>> Stashed changes
 		/*
 		 * Wait for post-flush if necessary to delay before
 		 * plane_cleanup. For example, wait for vsync in case of video
@@ -3272,36 +3259,15 @@ void sde_kms_update_pm_qos_irq_request(struct sde_kms *sde_kms,
 {
 	struct msm_drm_private *priv;
 
-<<<<<<< Updated upstream
-=======
 	if (!sde_kms->irq_num)
 		return;
 
->>>>>>> Stashed changes
 	priv = sde_kms->dev->dev_private;
 
 	if (!skip_lock)
 		mutex_lock(&priv->phandle.phandle_lock);
 
 	if (enable) {
-<<<<<<< Updated upstream
-		struct pm_qos_request *req;
-		u32 cpu_irq_latency;
-
-		req = &sde_kms->pm_qos_irq_req;
-		req->type = PM_QOS_REQ_AFFINE_CORES;
-		req->cpus_affine = sde_kms->irq_cpu_mask;
-		cpu_irq_latency = sde_kms->catalog->perf.cpu_irq_latency;
-
-		if (pm_qos_request_active(req))
-			pm_qos_update_request(req, cpu_irq_latency);
-		else if (!cpumask_empty(&req->cpus_affine)) {
-			/** If request is not active yet and mask is not empty
-			 *  then it needs to be added initially
-			 */
-			pm_qos_add_request(req, PM_QOS_CPU_DMA_LATENCY,
-					cpu_irq_latency);
-=======
 		u32 cpu_irq_latency = sde_kms->catalog->perf.cpu_irq_latency;
 		struct pm_qos_request *req = &sde_kms->pm_qos_irq_req;
 
@@ -3312,52 +3278,16 @@ void sde_kms_update_pm_qos_irq_request(struct sde_kms *sde_kms,
 			req->irq = sde_kms->irq_num;
 			pm_qos_add_request(req, PM_QOS_CPU_DMA_LATENCY,
 					   cpu_irq_latency);
->>>>>>> Stashed changes
 		}
 	} else if (!enable && pm_qos_request_active(&sde_kms->pm_qos_irq_req)) {
 		pm_qos_update_request(&sde_kms->pm_qos_irq_req,
 				PM_QOS_DEFAULT_VALUE);
 	}
 
-<<<<<<< Updated upstream
-	sde_kms->pm_qos_irq_req_en = enable;
-
-=======
->>>>>>> Stashed changes
 	if (!skip_lock)
 		mutex_unlock(&priv->phandle.phandle_lock);
 }
 
-<<<<<<< Updated upstream
-static void sde_kms_irq_affinity_notify(
-		struct irq_affinity_notify *affinity_notify,
-		const cpumask_t *mask)
-{
-	struct msm_drm_private *priv;
-	struct sde_kms *sde_kms = container_of(affinity_notify,
-					struct sde_kms, affinity_notify);
-
-	if (!sde_kms || !sde_kms->dev || !sde_kms->dev->dev_private)
-		return;
-
-	priv = sde_kms->dev->dev_private;
-
-	mutex_lock(&priv->phandle.phandle_lock);
-
-	// save irq cpu mask
-	sde_kms->irq_cpu_mask = *mask;
-
-	// request vote with updated irq cpu mask
-	if (sde_kms->pm_qos_irq_req_en)
-		sde_kms_update_pm_qos_irq_request(sde_kms, true, true);
-
-	mutex_unlock(&priv->phandle.phandle_lock);
-}
-
-static void sde_kms_irq_affinity_release(struct kref *ref) {}
-
-=======
->>>>>>> Stashed changes
 static void sde_kms_handle_power_event(u32 event_type, void *usr)
 {
 	struct sde_kms *sde_kms = usr;
@@ -3828,7 +3758,7 @@ static int sde_kms_hw_init(struct msm_kms *kms)
 	struct drm_device *dev;
 	struct msm_drm_private *priv;
 	struct platform_device *platformdev;
-	int i, irq_num, rc = -EINVAL;
+	int i, rc = -EINVAL;
 
 	if (!kms) {
 		SDE_ERROR("invalid kms\n");
@@ -3903,16 +3833,6 @@ static int sde_kms_hw_init(struct msm_kms *kms)
 		pm_runtime_put_sync(sde_kms->dev->dev);
 	}
 
-<<<<<<< Updated upstream
-	sde_kms->affinity_notify.notify = sde_kms_irq_affinity_notify;
-	sde_kms->affinity_notify.release = sde_kms_irq_affinity_release;
-
-	irq_num = platform_get_irq(to_platform_device(sde_kms->dev->dev), 0);
-	SDE_DEBUG("Registering for notification of irq_num: %d\n", irq_num);
-	irq_set_affinity_notifier(irq_num, &sde_kms->affinity_notify);
-
-=======
->>>>>>> Stashed changes
 	return 0;
 
 hw_init_err:

@@ -103,8 +103,6 @@
 						 * Not susceptible to
 						 * TSX Async Abort (TAA) vulnerabilities.
 						 */
-<<<<<<< Updated upstream
-=======
 #define ARCH_CAP_SBDR_SSDP_NO		BIT(13)	/*
 						 * Not susceptible to SBDR and SSDP
 						 * variants of Processor MMIO stale data
@@ -149,7 +147,6 @@
 						 * CPU is not vulnerable to Gather
 						 * Data Sampling (GDS).
 						 */
->>>>>>> Stashed changes
 
 #define MSR_IA32_FLUSH_CMD		0x0000010b
 #define L1D_FLUSH			BIT(0)	/*
@@ -164,8 +161,6 @@
 #define TSX_CTRL_RTM_DISABLE		BIT(0)	/* Disable RTM feature */
 #define TSX_CTRL_CPUID_CLEAR		BIT(1)	/* Disable TSX enumeration */
 
-<<<<<<< Updated upstream
-=======
 /* SRBDS support */
 #define MSR_IA32_MCU_OPT_CTRL		0x00000123
 #define RNGDS_MITG_DIS			BIT(0)
@@ -173,7 +168,6 @@
 #define GDS_MITG_DIS			BIT(4)	/* Disable GDS mitigation */
 #define GDS_MITG_LOCKED			BIT(5)	/* GDS mitigation locked */
 
->>>>>>> Stashed changes
 #define MSR_IA32_SYSENTER_CS		0x00000174
 #define MSR_IA32_SYSENTER_ESP		0x00000175
 #define MSR_IA32_SYSENTER_EIP		0x00000176

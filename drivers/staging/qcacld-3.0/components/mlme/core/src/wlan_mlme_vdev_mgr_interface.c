@@ -1036,10 +1036,7 @@ QDF_STATUS vdevmgr_mlme_ext_hdl_create(struct vdev_mlme_obj *vdev_mlme)
 				     &vdev_mlme->mgmt.generic.subtype);
 	if (QDF_IS_STATUS_ERROR(status)) {
 		mlme_err("Get vdev type failed; status:%d", status);
-<<<<<<< Updated upstream
-=======
 		qdf_mem_free(vdev_mlme->ext_vdev_ptr);
->>>>>>> Stashed changes
 		return status;
 	}
 
@@ -1047,10 +1044,7 @@ QDF_STATUS vdevmgr_mlme_ext_hdl_create(struct vdev_mlme_obj *vdev_mlme)
 	if (QDF_IS_STATUS_ERROR(status)) {
 		mlme_err("Failed to create vdev for vdev id %d",
 			 wlan_vdev_get_id(vdev_mlme->vdev));
-<<<<<<< Updated upstream
-=======
 		qdf_mem_free(vdev_mlme->ext_vdev_ptr);
->>>>>>> Stashed changes
 		return status;
 	}
 

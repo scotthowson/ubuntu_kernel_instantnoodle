@@ -67,8 +67,6 @@
 #define INTEL_FAM6_COMETLAKE		0xA5
 #define INTEL_FAM6_COMETLAKE_L		0xA6
 
-<<<<<<< Updated upstream
-=======
 #define INTEL_FAM6_ROCKETLAKE		0xA7
 
 /* Hybrid Core/Atom Processors */
@@ -82,7 +80,6 @@
 #define INTEL_FAM6_RAPTORLAKE_P		0xBA
 #define INTEL_FAM6_RAPTORLAKE_S		0xBF
 
->>>>>>> Stashed changes
 /* "Small Core" Processors (Atom) */
 
 #define INTEL_FAM6_ATOM_BONNELL		0x1C /* Diamondville, Pineview */
@@ -102,7 +99,6 @@
 #define INTEL_FAM6_ATOM_GOLDMONT	0x5C /* Apollo Lake */
 #define INTEL_FAM6_ATOM_GOLDMONT_X	0x5F /* Denverton */
 #define INTEL_FAM6_ATOM_GOLDMONT_PLUS	0x7A /* Gemini Lake */
-#define INTEL_FAM6_ATOM_TREMONT_X	0x86 /* Jacobsville */
 
 #define INTEL_FAM6_ATOM_TREMONT_X	0x86 /* Jacobsville */
 #define INTEL_FAM6_ATOM_TREMONT		0x96 /* Elkhart Lake */

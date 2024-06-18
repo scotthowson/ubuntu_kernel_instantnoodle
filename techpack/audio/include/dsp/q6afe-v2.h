@@ -1,10 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2012-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 #ifndef __Q6AFE_V2_H__
 #define __Q6AFE_V2_H__
@@ -49,10 +45,6 @@
 #define AFE_API_VERSION_V4		4
 /* for VAD enable */
 #define AFE_API_VERSION_V6		6
-<<<<<<< Updated upstream
-/* for Speaker Protection V4 */
-#define AFE_API_VERSION_V9		9
-=======
 /* for external mclk dynamic switch */
 #define AFE_API_VERSION_V8		8
 /* for Speaker Protection V4 */
@@ -60,7 +52,6 @@
 #define AFE_API_VERSION_V10		10
 
 #define AFE_SAMPLING_RATE_8KHZ 8000
->>>>>>> Stashed changes
 
 typedef int (*routing_cb)(int port);
 
@@ -330,8 +321,6 @@ struct vad_config {
 	u32 pre_roll;
 };
 
-<<<<<<< Updated upstream
-=======
 enum afe_mclk_src_id {
 	MCLK_SRC_INT = 0x00,
 	MCLK_SRC_EXT_0 = 0x01,
@@ -350,7 +339,6 @@ enum afe_mclk_freq {
 
 #define Q6AFE_EXT_MCLK_FREQ_DEFAULT 0
 
->>>>>>> Stashed changes
 struct afe_audio_buffer {
 	dma_addr_t phys;
 	void       *data;
@@ -467,12 +455,9 @@ int afe_pseudo_port_start_nowait(u16 port_id);
 int afe_pseudo_port_stop_nowait(u16 port_id);
 int afe_set_lpass_clock(u16 port_id, struct afe_clk_cfg *cfg);
 int afe_set_lpass_clock_v2(u16 port_id, struct afe_clk_set *cfg);
-<<<<<<< Updated upstream
-=======
 void afe_set_cps_config(int src_port,
 			struct afe_cps_hw_intf_cfg *cps_config,
 			u32 ch_mask);
->>>>>>> Stashed changes
 int afe_set_lpass_clk_cfg(int index, struct afe_clk_set *cfg);
 int afe_set_digital_codec_core_clock(u16 port_id,
 			struct afe_digital_clk_cfg *cfg);
@@ -537,10 +522,7 @@ int afe_get_doa_tracking_mon(u16 port_id,
 int afe_set_pll_clk_drift(u16 port_id, int32_t set_clk_drift,
 			  uint32_t clk_reset);
 int afe_set_clk_id(u16 port_id, uint32_t clk_id);
-<<<<<<< Updated upstream
-=======
 void afe_set_lsm_afe_port_id(int idx, int lsm_port);
->>>>>>> Stashed changes
 
 enum {
 	AFE_LPASS_CORE_HW_BLOCK_ID_NONE,
@@ -551,8 +533,6 @@ enum {
 	AFE_LPASS_CORE_HW_VOTE_MAX
 };
 
-<<<<<<< Updated upstream
-=======
 int afe_set_source_clk(u16 port_id, const char *clk_src);
 void afe_set_clk_src_array(const char *clk_src[CLK_SRC_MAX]);
 int afe_set_mclk_src_cfg(u16 port_id, uint32_t mclk_src_id, uint32_t mclk_freq);
@@ -569,7 +549,6 @@ void afe_unregister_ext_mclk_cb(void);
 #define AFE_LPASS_CORE_HW_BLOCK_ID_AVTIMER                     2
 #define AFE_LPASS_CORE_HW_MACRO_BLOCK                          3
 
->>>>>>> Stashed changes
 /* Handles audio-video timer (avtimer) and BTSC vote requests from clients.
  */
 #define AFE_CMD_REMOTE_LPASS_CORE_HW_VOTE_REQUEST            0x000100f4

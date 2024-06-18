@@ -1789,28 +1789,7 @@ static int queue_no_sg_merge(struct dm_target *ti, struct dm_dev *dev,
 	return q && test_bit(QUEUE_FLAG_NO_SG_MERGE, &q->queue_flags);
 }
 
-<<<<<<< Updated upstream
-static bool dm_table_all_devices_attribute(struct dm_table *t,
-					   iterate_devices_callout_fn func)
-{
-	struct dm_target *ti;
-	unsigned i;
-
-	for (i = 0; i < dm_table_get_num_targets(t); i++) {
-		ti = dm_table_get_target(t, i);
-
-		if (!ti->type->iterate_devices ||
-		    !ti->type->iterate_devices(ti, func, NULL))
-			return false;
-	}
-
-	return true;
-}
-
-static int device_no_partial_completion(struct dm_target *ti, struct dm_dev *dev,
-=======
 static int device_is_partial_completion(struct dm_target *ti, struct dm_dev *dev,
->>>>>>> Stashed changes
 					sector_t start, sector_t len, void *data)
 {
 	char b[BDEVNAME_SIZE];
@@ -2000,11 +1979,8 @@ void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
 
 	if (dm_table_any_dev_attr(t, queue_no_sg_merge, NULL))
 		blk_queue_flag_set(QUEUE_FLAG_NO_SG_MERGE, q);
-<<<<<<< Updated upstream
-=======
 	else
 		blk_queue_flag_clear(QUEUE_FLAG_NO_SG_MERGE, q);
->>>>>>> Stashed changes
 
 	dm_table_verify_integrity(t);
 

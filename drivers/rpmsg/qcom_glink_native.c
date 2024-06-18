@@ -1,11 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (c) 2016-2017, Linaro Ltd
-<<<<<<< Updated upstream
- * Copyright (c) 2018-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2018-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include <linux/idr.h>
@@ -1071,14 +1067,6 @@ static int qcom_glink_rx_data(struct qcom_glink *glink, size_t avail)
 					intent->offset,
 					channel->ept.priv,
 					RPMSG_ADDR_ANY);
-<<<<<<< Updated upstream
-			if (ret < 0)
-				CH_INFO(channel,
-					"glink:callback error ret = %d\n", ret);
-		} else {
-			CH_INFO(channel, "callback not present\n");
-			dev_err(glink->dev, "glink:callback not present\n");
-=======
 
 			if (ret < 0 && ret != -ENODEV) {
 				CH_ERR(channel,
@@ -1087,7 +1075,6 @@ static int qcom_glink_rx_data(struct qcom_glink *glink, size_t avail)
 			}
 		} else {
 			CH_ERR(channel, "callback not present\n");
->>>>>>> Stashed changes
 		}
 		spin_unlock(&channel->recv_lock);
 
@@ -2036,21 +2023,6 @@ static void qcom_glink_cancel_rx_work(struct qcom_glink *glink)
 	list_for_each_entry_safe(dcmd, tmp, &glink->rx_queue, node)
 		kfree(dcmd);
 }
-<<<<<<< Updated upstream
-
-/* Modify for glink name */
-struct g_sub_name {
-	const char *g_name;
-	const char *s_name;
-} sub_name[] = {
-	{"adsp", "glink-adsp"},
-	{"cdsp", "glink-cdsp"},
-	{"slpi", "glink-slpi"},
-	{"modem", "glink-modem"},
-	{"npu", "glink-npu"},
-};
-=======
->>>>>>> Stashed changes
 
 struct qcom_glink *qcom_glink_native_probe(struct device *dev,
 					   unsigned long features,
@@ -2125,25 +2097,8 @@ struct qcom_glink *qcom_glink_native_probe(struct device *dev,
 	if (ret) {
 		dev_err(dev, "failed to request IRQ\n");
 		goto unregister;
-<<<<<<< Updated upstream
 	}
 
-	/* Modify for glink name */
-	for (i = 0; i < ARRAY_SIZE(sub_name); i++) {
-		if (strcmp(sub_name[i].g_name, glink->name) == 0) {
-			ret = devm_request_irq(dev, irq,
-					qcom_glink_native_intr,
-					IRQF_NO_SUSPEND | IRQF_SHARED,
-					sub_name[i].s_name, glink);
-			if (ret) {
-				dev_err(dev, "failed to request IRQ\n");
-				goto unregister;
-			}
-			break;
-		}
-=======
->>>>>>> Stashed changes
-	}
 	glink->irq = irq;
 
 	size = of_property_count_u32_elems(dev->of_node, "cpu-affinity");

@@ -54,15 +54,9 @@ static void __init register_log_buf(void)
 	}
 	/*Register logbuf to minidump, first idx would be from bss section */
 	strlcpy(md_entry.name, "KLOGBUF", sizeof(md_entry.name));
-<<<<<<< Updated upstream
-	md_entry.virt_addr = (uintptr_t) (*log_bufp);
-	md_entry.phys_addr = virt_to_phys(*log_bufp);
-	md_entry.size = *log_buf_lenp;
-=======
 	md_entry.virt_addr = (uintptr_t) log_bufp;
 	md_entry.phys_addr = virt_to_phys(log_bufp);
 	md_entry.size = log_buf_len;
->>>>>>> Stashed changes
 	md_entry.id = MINIDUMP_DEFAULT_ID;
 	if (msm_minidump_add_region(&md_entry) < 0)
 		pr_err("Failed to add logbuf in Minidump\n");

@@ -623,10 +623,7 @@ static void __init imx6_pm_common_init(const struct imx6_pm_socdata
 
 static void imx6_pm_stby_poweroff(void)
 {
-<<<<<<< Updated upstream
-=======
 	gic_cpu_if_down(0);
->>>>>>> Stashed changes
 	imx6_set_lpm(STOP_POWER_OFF);
 	imx6q_suspend_finish(0);
 

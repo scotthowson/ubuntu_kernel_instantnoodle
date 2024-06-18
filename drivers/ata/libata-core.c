@@ -6795,16 +6795,9 @@ void ata_host_detach(struct ata_host *host)
 {
 	int i;
 
-<<<<<<< Updated upstream
-	/* Ensure ata_port probe has completed */
-	async_synchronize_full();
-
-	for (i = 0; i < host->n_ports; i++)
-=======
 	for (i = 0; i < host->n_ports; i++) {
 		/* Ensure ata_port probe has completed */
 		async_synchronize_cookie(host->ports[i]->cookie + 1);
->>>>>>> Stashed changes
 		ata_port_detach(host->ports[i]);
 	}
 

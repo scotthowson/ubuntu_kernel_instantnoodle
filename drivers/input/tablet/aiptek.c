@@ -1814,17 +1814,6 @@ aiptek_probe(struct usb_interface *intf, const struct usb_device_id *id)
 	input_set_abs_params(inputdev, ABS_TILT_Y, AIPTEK_TILT_MIN, AIPTEK_TILT_MAX, 0, 0);
 	input_set_abs_params(inputdev, ABS_WHEEL, AIPTEK_WHEEL_MIN, AIPTEK_WHEEL_MAX - 1, 0, 0);
 
-<<<<<<< Updated upstream
-	/* Verify that a device really has an endpoint */
-	if (intf->cur_altsetting->desc.bNumEndpoints < 1) {
-		dev_err(&intf->dev,
-			"interface has %d endpoints, but must have minimum 1\n",
-			intf->cur_altsetting->desc.bNumEndpoints);
-		err = -EINVAL;
-		goto fail3;
-	}
-	endpoint = &intf->cur_altsetting->endpoint[0].desc;
-=======
 	err = usb_find_common_endpoints(intf->cur_altsetting,
 					NULL, NULL, &endpoint, NULL);
 	if (err) {
@@ -1832,7 +1821,6 @@ aiptek_probe(struct usb_interface *intf, const struct usb_device_id *id)
 			"interface has no int in endpoints, but must have minimum 1\n");
 		goto fail3;
 	}
->>>>>>> Stashed changes
 
 	/* Go set up our URB, which is called when the tablet receives
 	 * input.

@@ -80,16 +80,6 @@ int f2fs_init_casefolded_name(const struct inode *dir,
 			      struct f2fs_filename *fname)
 {
 #ifdef CONFIG_UNICODE
-<<<<<<< Updated upstream
-	struct f2fs_sb_info *sbi = F2FS_SB(dir->i_sb);
-
-	if (IS_CASEFOLDED(dir)) {
-		fname->cf_name.name = f2fs_kmalloc(sbi, F2FS_NAME_LEN,
-						   GFP_NOFS);
-		if (!fname->cf_name.name)
-			return -ENOMEM;
-		fname->cf_name.len = utf8_casefold(sbi->sb->s_encoding,
-=======
 	struct super_block *sb = dir->i_sb;
 
 	if (IS_CASEFOLDED(dir) &&
@@ -99,20 +89,13 @@ int f2fs_init_casefolded_name(const struct inode *dir,
 		if (!fname->cf_name.name)
 			return -ENOMEM;
 		fname->cf_name.len = utf8_casefold(sb->s_encoding,
->>>>>>> Stashed changes
 						   fname->usr_fname,
 						   fname->cf_name.name,
 						   F2FS_NAME_LEN);
 		if ((int)fname->cf_name.len <= 0) {
-<<<<<<< Updated upstream
-			kfree(fname->cf_name.name);
-			fname->cf_name.name = NULL;
-			if (sb_has_enc_strict_mode(dir->i_sb))
-=======
 			kmem_cache_free(f2fs_cf_name_slab, fname->cf_name.name);
 			fname->cf_name.name = NULL;
 			if (sb_has_strict_encoding(sb))
->>>>>>> Stashed changes
 				return -EINVAL;
 			/* fall back to treating name as opaque byte sequence */
 		}
@@ -134,11 +117,7 @@ static int __f2fs_setup_filename(const struct inode *dir,
 #ifdef CONFIG_FS_ENCRYPTION
 	fname->crypto_buf = crypt_name->crypto_buf;
 #endif
-<<<<<<< Updated upstream
-	if (crypt_name->is_ciphertext_name) {
-=======
 	if (crypt_name->is_nokey_name) {
->>>>>>> Stashed changes
 		/* hash was decoded from the no-key name */
 		fname->hash = cpu_to_le32(crypt_name->hash);
 	} else {
@@ -197,15 +176,10 @@ void f2fs_free_filename(struct f2fs_filename *fname)
 	fname->crypto_buf.name = NULL;
 #endif
 #ifdef CONFIG_UNICODE
-<<<<<<< Updated upstream
-	kfree(fname->cf_name.name);
-	fname->cf_name.name = NULL;
-=======
 	if (fname->cf_name.name) {
 		kmem_cache_free(f2fs_cf_name_slab, fname->cf_name.name);
 		fname->cf_name.name = NULL;
 	}
->>>>>>> Stashed changes
 #endif
 }
 
@@ -224,12 +198,7 @@ static unsigned long dir_block_index(unsigned int level,
 static struct f2fs_dir_entry *find_in_block(struct inode *dir,
 				struct page *dentry_page,
 				const struct f2fs_filename *fname,
-<<<<<<< Updated upstream
-				int *max_slots,
-				struct page **res_page)
-=======
 				int *max_slots)
->>>>>>> Stashed changes
 {
 	struct f2fs_dentry_block *dentry_blk;
 	struct f2fs_dentry_ptr d;
@@ -237,30 +206,17 @@ static struct f2fs_dir_entry *find_in_block(struct inode *dir,
 	dentry_blk = (struct f2fs_dentry_block *)page_address(dentry_page);
 
 	make_dentry_ptr_block(dir, &d, dentry_blk);
-<<<<<<< Updated upstream
-	de = f2fs_find_target_dentry(&d, fname, max_slots);
-	if (de)
-		*res_page = dentry_page;
-
-	return de;
-=======
 	return f2fs_find_target_dentry(&d, fname, max_slots);
->>>>>>> Stashed changes
 }
 
 #ifdef CONFIG_UNICODE
 /*
  * Test whether a case-insensitive directory entry matches the filename
  * being searched for.
-<<<<<<< Updated upstream
- */
-static bool f2fs_match_ci_name(const struct inode *dir, const struct qstr *name,
-=======
  *
  * Returns 1 for a match, 0 for no match, and -errno on an error.
  */
 static int f2fs_match_ci_name(const struct inode *dir, const struct qstr *name,
->>>>>>> Stashed changes
 			       const u8 *de_name, u32 de_name_len)
 {
 	const struct super_block *sb = dir->i_sb;
@@ -274,19 +230,11 @@ static int f2fs_match_ci_name(const struct inode *dir, const struct qstr *name,
 			FSTR_INIT((u8 *)de_name, de_name_len);
 
 		if (WARN_ON_ONCE(!fscrypt_has_encryption_key(dir)))
-<<<<<<< Updated upstream
-			return false;
-
-		decrypted_name.name = kmalloc(de_name_len, GFP_KERNEL);
-		if (!decrypted_name.name)
-			return false;
-=======
 			return -EINVAL;
 
 		decrypted_name.name = kmalloc(de_name_len, GFP_KERNEL);
 		if (!decrypted_name.name)
 			return -ENOMEM;
->>>>>>> Stashed changes
 		res = fscrypt_fname_disk_to_usr(dir, 0, 0, &encrypted_name,
 						&decrypted_name);
 		if (res < 0)
@@ -296,25 +244,6 @@ static int f2fs_match_ci_name(const struct inode *dir, const struct qstr *name,
 	}
 
 	res = utf8_strncasecmp_folded(um, name, &entry);
-<<<<<<< Updated upstream
-	if (res < 0) {
-		/*
-		 * In strict mode, ignore invalid names.  In non-strict mode,
-		 * fall back to treating them as opaque byte sequences.
-		 */
-		if (sb_has_enc_strict_mode(sb) || name->len != entry.len)
-			res = 1;
-		else
-			res = memcmp(name->name, entry.name, name->len);
-	}
-out:
-	kfree(decrypted_name.name);
-	return res == 0;
-}
-#endif /* CONFIG_UNICODE */
-
-static inline bool f2fs_match_name(const struct inode *dir,
-=======
 	/*
 	 * In strict mode, ignore invalid names.  In non-strict mode,
 	 * fall back to treating them as opaque byte sequences.
@@ -333,7 +262,6 @@ out:
 #endif /* CONFIG_UNICODE */
 
 static inline int f2fs_match_name(const struct inode *dir,
->>>>>>> Stashed changes
 				   const struct f2fs_filename *fname,
 				   const u8 *de_name, u32 de_name_len)
 {
@@ -378,12 +306,6 @@ struct f2fs_dir_entry *f2fs_find_target_dentry(const struct f2fs_dentry_ptr *d,
 			continue;
 		}
 
-<<<<<<< Updated upstream
-		if (de->hash_code == fname->hash &&
-		    f2fs_match_name(d->inode, fname, d->filename[bit_pos],
-				    le16_to_cpu(de->name_len)))
-			goto found;
-=======
 		if (de->hash_code == fname->hash) {
 			res = f2fs_match_name(d->inode, fname,
 					      d->filename[bit_pos],
@@ -393,7 +315,6 @@ struct f2fs_dir_entry *f2fs_find_target_dentry(const struct f2fs_dentry_ptr *d,
 			if (res)
 				goto found;
 		}
->>>>>>> Stashed changes
 
 		if (max_slots && max_len > *max_slots)
 			*max_slots = max_len;
@@ -444,16 +365,10 @@ static struct f2fs_dir_entry *find_in_level(struct inode *dir,
 			}
 		}
 
-<<<<<<< Updated upstream
-		de = find_in_block(dir, dentry_page, fname, &max_slots,
-				   res_page);
-		if (de)
-=======
 		de = find_in_block(dir, dentry_page, fname, &max_slots);
 		if (IS_ERR(de)) {
 			*res_page = ERR_CAST(de);
 			de = NULL;
->>>>>>> Stashed changes
 			break;
 		} else if (de) {
 			*res_page = dentry_page;
@@ -858,11 +773,7 @@ add_dentry:
 	f2fs_wait_on_page_writeback(dentry_page, DATA, true, true);
 
 	if (inode) {
-<<<<<<< Updated upstream
-		down_write(&F2FS_I(inode)->i_sem);
-=======
 		f2fs_down_write(&F2FS_I(inode)->i_sem);
->>>>>>> Stashed changes
 		page = f2fs_init_inode_metadata(inode, dir, fname, NULL);
 		if (IS_ERR(page)) {
 			err = PTR_ERR(page);
@@ -954,11 +865,7 @@ int f2fs_do_tmpfile(struct inode *inode, struct inode *dir)
 	struct page *page;
 	int err = 0;
 
-<<<<<<< Updated upstream
-	down_write(&F2FS_I(inode)->i_sem);
-=======
 	f2fs_down_write(&F2FS_I(inode)->i_sem);
->>>>>>> Stashed changes
 	page = f2fs_init_inode_metadata(inode, dir, NULL, NULL);
 	if (IS_ERR(page)) {
 		err = PTR_ERR(page);
@@ -1034,13 +941,6 @@ void f2fs_delete_entry(struct f2fs_dir_entry *dentry, struct page *page,
 		!f2fs_truncate_hole(dir, page->index, page->index + 1)) {
 		f2fs_clear_radix_tree_dirty_tag(page);
 		clear_page_dirty_for_io(page);
-<<<<<<< Updated upstream
-		f2fs_clear_page_private(page);
-		ClearPageUptodate(page);
-		clear_cold_data(page);
-		inode_dec_dirty_pages(dir);
-		f2fs_remove_dirty_inode(dir);
-=======
 		ClearPageUptodate(page);
 
 		clear_page_private_gcing(page);
@@ -1050,7 +950,6 @@ void f2fs_delete_entry(struct f2fs_dir_entry *dentry, struct page *page,
 
 		detach_page_private(page);
 		set_page_private(page, 0);
->>>>>>> Stashed changes
 	}
 	f2fs_put_page(page, 1);
 
@@ -1138,14 +1037,6 @@ int f2fs_fill_dentries(struct dir_context *ctx, struct f2fs_dentry_ptr *d,
 			}
 			bit_pos++;
 			ctx->pos = start_pos + bit_pos;
-<<<<<<< Updated upstream
-			printk_ratelimited(
-				"%sF2FS-fs (%s): invalid namelen(0), ino:%u, run fsck to fix.",
-				KERN_WARNING, sbi->sb->s_id,
-				le32_to_cpu(de->ino));
-			set_sbi_flag(sbi, SBI_NEED_FSCK);
-=======
->>>>>>> Stashed changes
 			continue;
 		}
 
@@ -1162,10 +1053,7 @@ int f2fs_fill_dentries(struct dir_context *ctx, struct f2fs_dentry_ptr *d,
 				  __func__, le16_to_cpu(de->name_len));
 			set_sbi_flag(sbi, SBI_NEED_FSCK);
 			err = -EFSCORRUPTED;
-<<<<<<< Updated upstream
-=======
 			f2fs_handle_error(sbi, ERROR_CORRUPTED_DIRENT);
->>>>>>> Stashed changes
 			goto out;
 		}
 

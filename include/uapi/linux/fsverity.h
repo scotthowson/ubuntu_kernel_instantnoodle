@@ -34,10 +34,6 @@ struct fsverity_digest {
 	__u8 digest[];
 };
 
-<<<<<<< Updated upstream
-#define FS_IOC_ENABLE_VERITY	_IOW('f', 133, struct fsverity_enable_arg)
-#define FS_IOC_MEASURE_VERITY	_IOWR('f', 134, struct fsverity_digest)
-=======
 /*
  * Struct containing a file's Merkle tree properties.  The fs-verity file digest
  * is the hash of this struct.  A userspace program needs this struct only if it
@@ -103,6 +99,5 @@ struct fsverity_read_metadata_arg {
 #define FS_IOC_MEASURE_VERITY	_IOWR('f', 134, struct fsverity_digest)
 #define FS_IOC_READ_VERITY_METADATA \
 	_IOWR('f', 135, struct fsverity_read_metadata_arg)
->>>>>>> Stashed changes
 
 #endif /* _UAPI_LINUX_FSVERITY_H */

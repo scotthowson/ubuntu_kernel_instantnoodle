@@ -1,9 +1,5 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2016-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2016-2021 The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  *
  *
  * Permission to use, copy, modify, and/or distribute this software for
@@ -941,8 +937,6 @@ struct wlan_lmac_if_coex_tx_ops {
 };
 #endif
 
-<<<<<<< Updated upstream
-=======
 #ifdef WLAN_FEATURE_GPIO_CFG
 struct gpio_config_params;
 struct gpio_output_params;
@@ -960,7 +954,6 @@ struct wlan_lmac_if_gpio_tx_ops {
 };
 #endif
 
->>>>>>> Stashed changes
 /**
  * struct wlan_lmac_if_tx_ops - south bound tx function pointers
  * @mgmt_txrx_tx_ops: mgmt txrx tx ops
@@ -969,10 +962,7 @@ struct wlan_lmac_if_gpio_tx_ops {
  * @green_ap_tx_ops: green_ap tx_ops
  * @cp_stats_tx_ops: cp stats tx_ops
  * @coex_ops: coex tx_ops
-<<<<<<< Updated upstream
-=======
  * @gpio_ops: gpio tx_ops
->>>>>>> Stashed changes
  *
  * Callback function tabled to be registered with umac.
  * umac will use the functional table to send events/frames to wmi
@@ -1048,13 +1038,10 @@ struct wlan_lmac_if_tx_ops {
 #ifdef FEATURE_COEX
 	struct wlan_lmac_if_coex_tx_ops coex_ops;
 #endif
-<<<<<<< Updated upstream
-=======
 
 #ifdef WLAN_FEATURE_GPIO_CFG
 	struct wlan_lmac_if_gpio_tx_ops gpio_ops;
 #endif
->>>>>>> Stashed changes
 };
 
 /**

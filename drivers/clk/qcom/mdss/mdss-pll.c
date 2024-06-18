@@ -1,9 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0-only
-<<<<<<< Updated upstream
-/* Copyright (c) 2013-2020, The Linux Foundation. All rights reserved. */
-=======
 /* Copyright (c) 2013-2021, The Linux Foundation. All rights reserved. */
->>>>>>> Stashed changes
 
 #define pr_fmt(fmt)	"%s: " fmt, __func__
 
@@ -132,15 +128,11 @@ static int mdss_pll_resource_parse(struct platform_device *pdev,
 		pll_res->pll_interface_type = MDSS_DP_PLL_14NM;
 		pll_res->target_id = MDSS_PLL_TARGET_SDM660;
 		pll_res->revision = 2;
-<<<<<<< Updated upstream
-	} else
-=======
 	} else if (!strcmp(compatible_stream, "qcom,mdss_dsi_pll_12nm"))
 		pll_res->pll_interface_type = MDSS_DSI_PLL_12NM;
 	else if (!strcmp(compatible_stream, "qcom,mdss_dsi_pll_28lpm"))
 		pll_res->pll_interface_type = MDSS_DSI_PLL_28LPM;
 	else
->>>>>>> Stashed changes
 		goto err;
 
 	return rc;
@@ -168,15 +160,12 @@ static int mdss_pll_clock_register(struct platform_device *pdev,
 	case MDSS_DP_PLL_14NM:
 		rc = dp_pll_clock_register_14nm(pdev, pll_res);
 		break;
-<<<<<<< Updated upstream
-=======
 	case MDSS_DSI_PLL_28LPM:
 		rc = dsi_pll_clock_register_28lpm(pdev, pll_res);
 		break;
 	case MDSS_DSI_PLL_12NM:
 		rc = dsi_pll_clock_register_12nm(pdev, pll_res);
 		break;
->>>>>>> Stashed changes
 	case MDSS_UNKNOWN_PLL:
 	default:
 		rc = -EINVAL;
@@ -378,10 +367,7 @@ phy_io_error:
 res_parse_error:
 	iounmap(pll_res->pll_base);
 io_error:
-<<<<<<< Updated upstream
-=======
 	devm_kfree(&pdev->dev, pll_res);
->>>>>>> Stashed changes
 error:
 	return rc;
 }
@@ -403,10 +389,7 @@ static int mdss_pll_remove(struct platform_device *pdev)
 		iounmap(pll_res->gdsc_base);
 	mdss_pll_resource_release(pdev, pll_res);
 	iounmap(pll_res->pll_base);
-<<<<<<< Updated upstream
-=======
 	devm_kfree(&pdev->dev, pll_res);
->>>>>>> Stashed changes
 	return 0;
 }
 
@@ -415,11 +398,8 @@ static const struct of_device_id mdss_pll_dt_match[] = {
 	{.compatible = "qcom,mdss_dp_pll_14nm"},
 	{.compatible = "qcom,mdss_dsi_pll_sdm660"},
 	{.compatible = "qcom,mdss_dp_pll_sdm660"},
-<<<<<<< Updated upstream
-=======
 	{.compatible = "qcom,mdss_dsi_pll_12nm"},
 	{.compatible = "qcom,mdss_dsi_pll_28lpm"},
->>>>>>> Stashed changes
 	{}
 };
 

@@ -42,14 +42,9 @@ static void memfd_tag_pins(struct address_space *mapping)
 
 	xa_lock_irq(&mapping->i_pages);
 	radix_tree_for_each_slot(slot, &mapping->i_pages, &iter, start) {
-<<<<<<< Updated upstream
-		page = radix_tree_deref_slot_protected(slot, &mapping->i_pages.xa_lock);
-		if (!page || radix_tree_exception(page)) {
-=======
 		cache_count = 1;
 		page = radix_tree_deref_slot_protected(slot, &mapping->i_pages.xa_lock);
 		if (!page || radix_tree_exception(page) || PageTail(page)) {
->>>>>>> Stashed changes
 			if (radix_tree_deref_retry(page)) {
 				slot = radix_tree_iter_retry(&iter);
 				continue;

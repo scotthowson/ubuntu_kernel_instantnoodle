@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2016-2017, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2016-2017, 2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include <linux/module.h>
@@ -633,11 +629,7 @@ static int __init audio_notifier_init(void)
 static int __init audio_notifier_init(void)
 {
 	audio_notifier_subsys_init();
-<<<<<<< Updated upstream
-	audio_notifier_disable_service(AUDIO_NOTIFIER_PDR_SERVICE);
-=======
 	audio_notifer_disable_service(AUDIO_NOTIFIER_PDR_SERVICE);
->>>>>>> Stashed changes
 
 	audio_notifier_late_init();
 

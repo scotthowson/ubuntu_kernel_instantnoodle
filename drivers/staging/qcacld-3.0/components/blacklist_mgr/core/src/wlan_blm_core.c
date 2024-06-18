@@ -1,9 +1,6 @@
 /*
  * Copyright (c) 2011-2020 The Linux Foundation. All rights reserved.
-<<<<<<< Updated upstream
-=======
  * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -292,11 +289,8 @@ blm_filter_bssid(struct wlan_objmgr_pdev *pdev, qdf_list_t *scan_list)
 	uint32_t scan_list_size;
 	enum blm_bssid_action action;
 	qdf_list_node_t *cur_node = NULL, *next_node = NULL;
-<<<<<<< Updated upstream
-=======
 	struct scan_cache_node *force_connect_candidate = NULL;
 	bool are_all_candidate_blacklisted = true;
->>>>>>> Stashed changes
 
 	if (!scan_list || !qdf_list_size(scan_list)) {
 		blm_debug("Scan list is NULL or No BSSIDs present");
@@ -312,8 +306,6 @@ blm_filter_bssid(struct wlan_objmgr_pdev *pdev, qdf_list_t *scan_list)
 		scan_node = qdf_container_of(cur_node, struct scan_cache_node,
 					    node);
 		action = blm_action_on_bssid(pdev, scan_node->entry);
-<<<<<<< Updated upstream
-=======
 
 		if (are_all_candidate_blacklisted &&
 		    (action == BLM_ACTION_NOP ||
@@ -351,7 +343,6 @@ blm_filter_bssid(struct wlan_objmgr_pdev *pdev, qdf_list_t *scan_list)
 					return QDF_STATUS_E_NOMEM;
 			}
 		}
->>>>>>> Stashed changes
 		if (action != BLM_ACTION_NOP)
 			blm_modify_scan_list(scan_list, scan_node, action);
 		cur_node = next_node;
@@ -359,8 +350,6 @@ blm_filter_bssid(struct wlan_objmgr_pdev *pdev, qdf_list_t *scan_list)
 		scan_list_size--;
 	}
 
-<<<<<<< Updated upstream
-=======
 	if (are_all_candidate_blacklisted && force_connect_candidate) {
 		qdf_list_insert_front(scan_list,
 				      &force_connect_candidate->node);
@@ -369,7 +358,6 @@ blm_filter_bssid(struct wlan_objmgr_pdev *pdev, qdf_list_t *scan_list)
 		qdf_mem_free(force_connect_candidate);
 	}
 
->>>>>>> Stashed changes
 	return QDF_STATUS_SUCCESS;
 }
 
@@ -905,10 +893,7 @@ void blm_update_reject_ap_list_to_fw(struct wlan_objmgr_psoc *psoc)
 	struct wlan_objmgr_pdev *pdev;
 	struct blm_pdev_priv_obj *blm_ctx;
 	struct blm_psoc_priv_obj *blm_psoc_obj;
-<<<<<<< Updated upstream
-=======
 	QDF_STATUS status;
->>>>>>> Stashed changes
 
 	blm_psoc_obj = blm_get_psoc_obj(psoc);
 	if (!blm_psoc_obj) {
@@ -929,10 +914,6 @@ void blm_update_reject_ap_list_to_fw(struct wlan_objmgr_psoc *psoc)
 		goto end;
 	}
 
-<<<<<<< Updated upstream
-	cfg = &blm_psoc_obj->blm_cfg;
-	blm_send_reject_ap_list_to_fw(pdev, &blm_ctx->reject_ap_list, cfg);
-=======
 	status = qdf_mutex_acquire(&blm_ctx->reject_ap_list_lock);
 	if (QDF_IS_STATUS_ERROR(status)) {
 		blm_err("failed to acquire reject_ap_list_lock");
@@ -942,7 +923,6 @@ void blm_update_reject_ap_list_to_fw(struct wlan_objmgr_psoc *psoc)
 	cfg = &blm_psoc_obj->blm_cfg;
 	blm_send_reject_ap_list_to_fw(pdev, &blm_ctx->reject_ap_list, cfg);
 	qdf_mutex_release(&blm_ctx->reject_ap_list_lock);
->>>>>>> Stashed changes
 
 end:
 	wlan_objmgr_pdev_release_ref(pdev, WLAN_MLME_NB_ID);

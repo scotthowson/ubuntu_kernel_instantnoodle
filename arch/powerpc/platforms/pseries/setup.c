@@ -76,11 +76,7 @@
 #include "../../../../drivers/pci/pci.h"
 
 DEFINE_STATIC_KEY_FALSE(shared_processor);
-<<<<<<< Updated upstream
-EXPORT_SYMBOL_GPL(shared_processor);
-=======
 EXPORT_SYMBOL(shared_processor);
->>>>>>> Stashed changes
 
 int CMO_PrPSP = -1;
 int CMO_SecPSP = -1;

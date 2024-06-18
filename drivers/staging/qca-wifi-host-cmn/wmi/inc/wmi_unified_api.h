@@ -636,8 +636,6 @@ QDF_STATUS
 wmi_unified_extract_roam_11kv_stats(wmi_unified_t wmi, void *evt_buf,
 				    struct wmi_neighbor_report_data *dst,
 				    uint8_t idx, uint8_t rpt_idx);
-<<<<<<< Updated upstream
-=======
 /**
  * wmi_unified_extract_roam_msg_info() - Extract Roam msg stats
  * @wmi:       wmi handle
@@ -650,7 +648,6 @@ wmi_unified_extract_roam_11kv_stats(wmi_unified_t wmi, void *evt_buf,
 QDF_STATUS
 wmi_unified_extract_roam_msg_info(wmi_unified_t wmi, void *evt_buf,
 				   struct wmi_roam_msg_info *dst, uint8_t idx);
->>>>>>> Stashed changes
 
 /**
  * wmi_unified_vdev_create_send() - send VDEV create command to fw

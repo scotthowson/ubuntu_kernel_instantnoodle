@@ -1079,15 +1079,9 @@ static int gss_read_proxy_verf(struct svc_rqst *rqstp,
 			       struct gssp_in_token *in_token)
 {
 	struct kvec *argv = &rqstp->rq_arg.head[0];
-<<<<<<< Updated upstream
-	unsigned int page_base, length;
-	int pages, i, res;
-	size_t inlen;
-=======
 	unsigned int length, pgto_offs, pgfrom_offs;
 	int pages, i, res, pgto, pgfrom;
 	size_t inlen, to_offs, from_offs;
->>>>>>> Stashed changes
 
 	res = gss_read_common_verf(gc, argv, authp, in_handle);
 	if (res)
@@ -1101,24 +1095,16 @@ static int gss_read_proxy_verf(struct svc_rqst *rqstp,
 
 	pages = DIV_ROUND_UP(inlen, PAGE_SIZE);
 	in_token->pages = kcalloc(pages, sizeof(struct page *), GFP_KERNEL);
-<<<<<<< Updated upstream
-	if (!in_token->pages)
-		return SVC_DENIED;
-=======
 	if (!in_token->pages) {
 		kfree(in_handle->data);
 		return SVC_DENIED;
 	}
->>>>>>> Stashed changes
 	in_token->page_base = 0;
 	in_token->page_len = inlen;
 	for (i = 0; i < pages; i++) {
 		in_token->pages[i] = alloc_page(GFP_KERNEL);
 		if (!in_token->pages[i]) {
-<<<<<<< Updated upstream
-=======
 			kfree(in_handle->data);
->>>>>>> Stashed changes
 			gss_free_in_token_pages(in_token);
 			return SVC_DENIED;
 		}
@@ -1128,19 +1114,6 @@ static int gss_read_proxy_verf(struct svc_rqst *rqstp,
 	memcpy(page_address(in_token->pages[0]), argv->iov_base, length);
 	inlen -= length;
 
-<<<<<<< Updated upstream
-	i = 1;
-	page_base = rqstp->rq_arg.page_base;
-	while (inlen) {
-		length = min_t(unsigned int, inlen, PAGE_SIZE);
-		memcpy(page_address(in_token->pages[i]),
-		       page_address(rqstp->rq_arg.pages[i]) + page_base,
-		       length);
-
-		inlen -= length;
-		page_base = 0;
-		i++;
-=======
 	to_offs = length;
 	from_offs = rqstp->rq_arg.page_base;
 	while (inlen) {
@@ -1159,7 +1132,6 @@ static int gss_read_proxy_verf(struct svc_rqst *rqstp,
 		to_offs += length;
 		from_offs += length;
 		inlen -= length;
->>>>>>> Stashed changes
 	}
 	return 0;
 }

@@ -57,10 +57,6 @@
 		qcom,mdss-dsi-panel-status-command-state = "dsi_lp_mode";
 		qcom,mdss-dsi-panel-status-value = <0x9C>;
 		qcom,mdss-dsi-panel-status-read-length = <1>;
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
 		qcom,mdss-dsi-lp11-init;
 		qcom,mdss-bl-high2bit;
 		qcom,mdss-loading-effect;
@@ -76,11 +72,7 @@
 		qcom,mdss-dsi-panel-seria-num-sec-index = <16>;
 		qcom,mdss-dsi-panel-seria-num-msec-high-index = <17>;
 		qcom,mdss-dsi-panel-seria-num-msec-low-index = <18>;
-<<<<<<< Updated upstream
-
-=======
 		qcom,ulps-enabled;
->>>>>>> Stashed changes
 		qcom,mdss-dsi-display-timings {
 			timing@0 {
 				qcom,mdss-mdp-transfer-time-us = <12000>; //for 60fps
@@ -151,15 +143,6 @@
 					39 01 00 00 00 00 03 F0 5A 5A
 					39 01 00 00 00 00 02 35 00
 					39 01 00 00 00 00 03 F0 A5 A5
-<<<<<<< Updated upstream
-					/* TSP Setting */
-					39 01 00 00 00 00 03 F0 5A 5A
-					39 01 00 00 00 00 04 DF 83 00 10
-					39 01 00 00 00 00 02 B0 01
-					39 01 00 00 00 00 02 E6 01
-					39 01 00 00 00 00 03 F0 A5 A5
-=======
->>>>>>> Stashed changes
 					/* CASET/PASET Setting */
 					39 01 00 00 00 00 05 2A 00 00 04 37
 					39 01 00 00 00 00 05 2B 00 00 09 5F
@@ -335,22 +318,6 @@
 					/* HBM Mode OFF */
 					39 01 00 00 00 00 02 53 20
 				];
-<<<<<<< Updated upstream
-				qcom,mdss-dsi-loading-effect-1-command = [
-					39 01 00 00 00 00 03 F0 5A 5A
-					39 01 00 00 00 00 02 B0 01
-					39 01 00 00 00 00 02 C2 27
-					39 01 00 00 00 00 03 F0 A5 A5
-
-				];
-				qcom,mdss-dsi-loading-effect-off-command = [
-					39 01 00 00 00 00 03 F0 5A 5A
-					39 01 00 00 00 00 02 B0 01
-					39 01 00 00 00 00 02 C2 07
-					39 01 00 00 00 00 03 F0 A5 A5
-				];
-=======
->>>>>>> Stashed changes
 
 				qcom,mdss-dsi-loading-effect-enable-command = [
 					39 01 00 00 00 00 03 F0 5A 5A
@@ -380,10 +347,6 @@
 					39 01 00 00 00 00 02 B1 00
 					39 01 00 00 00 00 03 F0 A5 A5
 				];
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
 				qcom,mdss-dsi-panel-register-read-command = [
 					06 01 00 00 00 00 01 DA
 				];
@@ -408,10 +371,6 @@
 				qcom,mdss-dsi-panel-level2-key-disable-command = [
 					39 01 00 00 00 00 03 F0 A5 A5
 				];
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
 				qcom,mdss-dsi-timing-switch-command-state = "dsi_hs_mode";
 				qcom,mdss-dsi-on-command-state = "dsi_lp_mode";
 				qcom,mdss-dsi-off-command-state = "dsi_lp_mode";
@@ -436,11 +395,6 @@
 				qcom,mdss-dsi-panel-hbm-off-aod-on-command-state = "dsi_hs_mode";
 				qcom,mdss-dsi-loading-effect-enable-command-state  = "dsi_lp_mode";
 				qcom,mdss-dsi-loading-effect-disable-command-state  = "dsi_lp_mode";
-<<<<<<< Updated upstream
-				qcom,mdss-dsi-loading-effect-1-command-state	= "dsi_hs_mode";
-				qcom,mdss-dsi-loading-effect-off-command-state	= "dsi_hs_mode";
-=======
->>>>>>> Stashed changes
 				qcom,mdss-dsi-seed-command-state = "dsi_lp_mode";
 				qcom,mdss-dsi-panel-command-state = "dsi_lp_mode";
 				qcom,mdss-dsi-panel-register-read-command-state = "dsi_lp_mode";
@@ -528,15 +482,6 @@
 					39 01 00 00 00 00 03 F0 5A 5A
 					39 01 00 00 00 00 02 35 00
 					39 01 00 00 00 00 03 F0 A5 A5
-<<<<<<< Updated upstream
-					/* TSP Setting */
-					39 01 00 00 00 00 03 F0 5A 5A
-					39 01 00 00 00 00 04 DF 83 00 10
-					39 01 00 00 00 00 02 B0 01
-					39 01 00 00 00 00 02 E6 01
-					39 01 00 00 00 00 03 F0 A5 A5
-=======
->>>>>>> Stashed changes
 					/* CASET/PASET Setting */
 					39 01 00 00 00 00 05 2A 00 00 04 37
 					39 01 00 00 00 00 05 2B 00 00 09 5F
@@ -712,22 +657,6 @@
 					/* HBM Mode OFF */
 					39 01 00 00 00 00 02 53 20
 				];
-<<<<<<< Updated upstream
-				qcom,mdss-dsi-loading-effect-1-command = [
-					39 01 00 00 00 00 03 F0 5A 5A
-					39 01 00 00 00 00 02 B0 01
-					39 01 00 00 00 00 02 C2 27
-					39 01 00 00 00 00 03 F0 A5 A5
-
-				];
-				qcom,mdss-dsi-loading-effect-off-command = [
-					39 01 00 00 00 00 03 F0 5A 5A
-					39 01 00 00 00 00 02 B0 01
-					39 01 00 00 00 00 02 C2 07
-					39 01 00 00 00 00 03 F0 A5 A5
-				];
-=======
->>>>>>> Stashed changes
 
 				qcom,mdss-dsi-loading-effect-enable-command = [
 					39 01 00 00 00 00 03 F0 5A 5A
@@ -757,10 +686,6 @@
 					39 01 00 00 00 00 02 B1 00
 					39 01 00 00 00 00 03 F0 A5 A5
 				];
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
 				qcom,mdss-dsi-panel-register-read-command = [
 					06 01 00 00 00 00 01 DA
 				];
@@ -809,11 +734,6 @@
 				qcom,mdss-dsi-panel-hbm-off-aod-on-command-state = "dsi_hs_mode";
 				qcom,mdss-dsi-loading-effect-enable-command-state  = "dsi_lp_mode";
 				qcom,mdss-dsi-loading-effect-disable-command-state  = "dsi_lp_mode";
-<<<<<<< Updated upstream
-				qcom,mdss-dsi-loading-effect-1-command-state	= "dsi_hs_mode";
-				qcom,mdss-dsi-loading-effect-off-command-state	= "dsi_hs_mode";
-=======
->>>>>>> Stashed changes
 				qcom,mdss-dsi-seed-command-state = "dsi_lp_mode";
 				qcom,mdss-dsi-panel-command-state = "dsi_lp_mode";
 				qcom,mdss-dsi-panel-register-read-command-state = "dsi_lp_mode";

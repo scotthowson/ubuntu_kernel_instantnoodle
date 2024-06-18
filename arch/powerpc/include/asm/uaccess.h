@@ -299,13 +299,9 @@ do {								\
 	long __gu_err;						\
 	__long_type(*(ptr)) __gu_val;				\
 	__typeof__(*(ptr)) __user *__gu_addr = (ptr);	\
-<<<<<<< Updated upstream
-	__chk_user_ptr(ptr);					\
-=======
 	__typeof__(size) __gu_size = (size);			\
 								\
 	__chk_user_ptr(__gu_addr);				\
->>>>>>> Stashed changes
 	if (!is_kernel_addr((unsigned long)__gu_addr))		\
 		might_fault();					\
 	barrier_nospec();					\
@@ -323,11 +319,8 @@ do {								\
 	long __gu_err = -EFAULT;					\
 	__long_type(*(ptr)) __gu_val = 0;				\
 	__typeof__(*(ptr)) __user *__gu_addr = (ptr);		\
-<<<<<<< Updated upstream
-=======
 	__typeof__(size) __gu_size = (size);				\
 									\
->>>>>>> Stashed changes
 	might_fault();							\
 	if (access_ok(VERIFY_READ, __gu_addr, __gu_size)) {		\
 		barrier_nospec();					\
@@ -343,13 +336,9 @@ do {								\
 	long __gu_err;						\
 	__long_type(*(ptr)) __gu_val;				\
 	__typeof__(*(ptr)) __user *__gu_addr = (ptr);	\
-<<<<<<< Updated upstream
-	__chk_user_ptr(ptr);					\
-=======
 	__typeof__(size) __gu_size = (size);			\
 								\
 	__chk_user_ptr(__gu_addr);				\
->>>>>>> Stashed changes
 	barrier_nospec();					\
 	__get_user_size(__gu_val, __gu_addr, __gu_size, __gu_err); \
 	(x) = (__force __typeof__(*(ptr)))__gu_val;			\

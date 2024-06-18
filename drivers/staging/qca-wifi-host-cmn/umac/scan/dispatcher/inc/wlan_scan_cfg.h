@@ -1,9 +1,5 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2012-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -389,8 +385,6 @@ enum scan_mode_6ghz {
 #ifdef FEATURE_WLAN_SCAN_PNO
 /*
  * <ini>
-<<<<<<< Updated upstream
-=======
  * g_user_config_sched_scan_plan - set user config sched scan plans.
  * @Min: 0
  * @Max:1
@@ -415,7 +409,6 @@ enum scan_mode_6ghz {
 
 /*
  * <ini>
->>>>>>> Stashed changes
  * g_max_sched_scan_plan_iterations - pno sched max scan plan iterations.
  * @Min: 1
  * @Max: 100
@@ -739,11 +732,7 @@ enum scan_mode_6ghz {
  * mawc_nlo_enabled - For NLO/PNO, enable MAWC based scan
  * @Min: 0
  * @Max: 1
-<<<<<<< Updated upstream
- * @Default: 1
-=======
  * @Default: 0
->>>>>>> Stashed changes
  *
  * Enable/Disable the Motion Aided Wireless Connectivity
  * based NLO using this parameter
@@ -756,11 +745,7 @@ enum scan_mode_6ghz {
  */
 #define CFG_MAWC_NLO_ENABLED CFG_INI_BOOL( \
 			"mawc_nlo_enabled", \
-<<<<<<< Updated upstream
-			1, \
-=======
 			0, \
->>>>>>> Stashed changes
 			"Enable MAWC based scan")
 
 /*
@@ -852,12 +837,8 @@ enum scan_mode_6ghz {
 	CFG(CFG_MAWC_NLO_ENABLED) \
 	CFG(CFG_MAWC_NLO_EXP_BACKOFF_RATIO) \
 	CFG(CFG_MAWC_NLO_INIT_SCAN_INTERVAL) \
-<<<<<<< Updated upstream
-	CFG(CFG_MAWC_NLO_MAX_SCAN_INTERVAL)
-=======
 	CFG(CFG_MAWC_NLO_MAX_SCAN_INTERVAL) \
 	CFG(CFG_USER_CONFIG_SCHED_SCAN_PLAN)
->>>>>>> Stashed changes
 
 #else
 #define CFG_SCAN_PNO
@@ -1294,8 +1275,6 @@ enum scan_mode_6ghz {
 			CFG_VALUE_OR_DEFAULT, \
 			"6ghz scan mode")
 
-<<<<<<< Updated upstream
-=======
 /*
  * <ini>
  * scan_allow_bss_with_corrupted_ie - Continue scan even if corrupted IEs are
@@ -1320,7 +1299,6 @@ enum scan_mode_6ghz {
 			false, \
 			"scan allow bss with corrupted ie")
 
->>>>>>> Stashed changes
 #define CFG_SCAN_ALL \
 	CFG(CFG_DROP_BCN_ON_CHANNEL_MISMATCH) \
 	CFG(CFG_DROP_BCN_ON_INVALID_FREQ) \
@@ -1354,10 +1332,7 @@ enum scan_mode_6ghz {
 	CFG(CFG_AP_SCAN_BURST_DURATION) \
 	CFG(CFG_ENABLE_SKIP_DFS_IN_P2P_SEARCH) \
 	CFG(CFG_6GHZ_SCAN_MODE) \
-<<<<<<< Updated upstream
-=======
 	CFG(CFG_SCAN_ALLOW_BSS_WITH_CORRUPTED_IE) \
->>>>>>> Stashed changes
 	CFG_SCAN_PNO
 
 #endif /* __CONFIG_SCAN_H */

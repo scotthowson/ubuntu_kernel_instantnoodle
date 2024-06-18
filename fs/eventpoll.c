@@ -1386,14 +1386,9 @@ static int ep_create_wakeup_source(struct epitem *epi)
 			return -ENOMEM;
 	}
 
-<<<<<<< Updated upstream
-	name = epi->ffd.file->f_path.dentry->d_name.name;
-	ws = wakeup_source_register(NULL, name);
-=======
 	take_dentry_name_snapshot(&n, epi->ffd.file->f_path.dentry);
 	ws = wakeup_source_register(NULL, n.name);
 	release_dentry_name_snapshot(&n);
->>>>>>> Stashed changes
 
 	if (!ws)
 		return -ENOMEM;
@@ -1820,17 +1815,10 @@ fetch_events:
 			}
 
 			spin_unlock_irq(&ep->wq.lock);
-#ifdef CONFIG_ONEPLUS_HEALTHINFO
-
-			current->in_epoll = 1;
-#endif /*CONFIG_ONEPLUS_HEALTHINFO*/
 			if (!freezable_schedule_hrtimeout_range(to, slack,
 								HRTIMER_MODE_ABS))
 				timed_out = 1;
-#ifdef CONFIG_ONEPLUS_HEALTHINFO
 
-			current->in_epoll = 0;
-#endif /*CONFIG_ONEPLUS_HEALTHINFO*/
 			spin_lock_irq(&ep->wq.lock);
 		}
 
@@ -1902,15 +1890,9 @@ static int ep_loop_check_proc(void *priv, void *cookie, int call_nests)
 			 * during ep_insert().
 			 */
 			if (list_empty(&epi->ffd.file->f_tfile_llink)) {
-<<<<<<< Updated upstream
-				get_file(epi->ffd.file);
-				list_add(&epi->ffd.file->f_tfile_llink,
-					 &tfile_check_list);
-=======
 				if (get_file_rcu(epi->ffd.file))
 					list_add(&epi->ffd.file->f_tfile_llink,
 						 &tfile_check_list);
->>>>>>> Stashed changes
 			}
 		}
 	}
@@ -2156,10 +2138,7 @@ SYSCALL_DEFINE4(epoll_ctl, int, epfd, int, op, int, fd,
 error_tgt_fput:
 	if (full_check) {
 		clear_tfile_check_list();
-<<<<<<< Updated upstream
-=======
 		loop_check_gen++;
->>>>>>> Stashed changes
 		mutex_unlock(&epmutex);
 	}
 

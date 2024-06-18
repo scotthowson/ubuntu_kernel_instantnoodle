@@ -284,15 +284,6 @@ static inline int hif_pm_runtime_put_auto(struct device *dev)
 #endif /* FEATURE_RUNTIME_PM */
 
 #ifdef HIF_BUS_LOG_INFO
-<<<<<<< Updated upstream
-void hif_log_pcie_info(struct hif_softc *scn, uint8_t *data,
-		       unsigned int *offset);
-#else
-static inline
-void hif_log_pcie_info(struct hif_softc *scn, uint8_t *data,
-		       unsigned int *offset)
-{
-=======
 bool hif_log_pcie_info(struct hif_softc *scn, uint8_t *data,
 		       unsigned int *offset);
 #else
@@ -301,7 +292,6 @@ bool hif_log_pcie_info(struct hif_softc *scn, uint8_t *data,
 		       unsigned int *offset)
 {
 	return false;
->>>>>>> Stashed changes
 }
 #endif
 #endif /* __ATH_PCI_H__ */

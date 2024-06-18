@@ -4140,14 +4140,9 @@ retry:
 		 * page in our current bio, and thus deadlock, so flush the
 		 * write bio here.
 		 */
-<<<<<<< Updated upstream
-		flush_write_bio(epd);
-		goto retry;
-=======
 		ret = flush_write_bio(epd);
 		if (!ret)
 			goto retry;
->>>>>>> Stashed changes
 	}
 
 	if (wbc->range_cyclic || (wbc->nr_to_write > 0 && range_whole))

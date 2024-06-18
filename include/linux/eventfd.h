@@ -50,13 +50,6 @@ static inline bool eventfd_signal_count(void)
 	return this_cpu_read(eventfd_wake_count);
 }
 
-DECLARE_PER_CPU(int, eventfd_wake_count);
-
-static inline bool eventfd_signal_count(void)
-{
-	return this_cpu_read(eventfd_wake_count);
-}
-
 #else /* CONFIG_EVENTFD */
 
 /*
@@ -90,14 +83,11 @@ static inline bool eventfd_signal_count(void)
 	return false;
 }
 
-<<<<<<< Updated upstream
-=======
 static inline void eventfd_ctx_do_read(struct eventfd_ctx *ctx, __u64 *cnt)
 {
 
 }
 
->>>>>>> Stashed changes
 #endif
 
 #endif /* _LINUX_EVENTFD_H */

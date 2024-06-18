@@ -59,14 +59,11 @@ static int hyperv_cpuhp_online;
 
 static void *hv_panic_page;
 
-<<<<<<< Updated upstream
-=======
 /*
  * Boolean to control whether to report panic messages over Hyper-V.
  *
  * It can be set via /proc/sys/kernel/hyperv/record_panic_msg
  */
->>>>>>> Stashed changes
 static int sysctl_record_panic_msg = 1;
 
 static int hyperv_report_reg(void)
@@ -80,15 +77,12 @@ static int hyperv_panic_event(struct notifier_block *nb, unsigned long val,
 	struct pt_regs *regs;
 
 	vmbus_initiate_unload(true);
-<<<<<<< Updated upstream
-=======
 
 	/*
 	 * Hyper-V should be notified only once about a panic.  If we will be
 	 * doing hyperv_report_panic_msg() later with kmsg data, don't do
 	 * the notification here.
 	 */
->>>>>>> Stashed changes
 	if (ms_hyperv.misc_features & HV_FEATURE_GUEST_CRASH_MSR_AVAILABLE
 	    && hyperv_report_reg()) {
 		regs = current_pt_regs();
@@ -103,14 +97,11 @@ static int hyperv_die_event(struct notifier_block *nb, unsigned long val,
 	struct die_args *die = (struct die_args *)args;
 	struct pt_regs *regs = die->regs;
 
-<<<<<<< Updated upstream
-=======
 	/*
 	 * Hyper-V should be notified only once about a panic.  If we will be
 	 * doing hyperv_report_panic_msg() later with kmsg data, don't do
 	 * the notification here.
 	 */
->>>>>>> Stashed changes
 	if (hyperv_report_reg())
 		hyperv_report_panic(regs, val, true);
 	return NOTIFY_DONE;

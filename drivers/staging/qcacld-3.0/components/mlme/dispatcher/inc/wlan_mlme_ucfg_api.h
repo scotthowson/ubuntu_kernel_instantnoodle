@@ -1,10 +1,6 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2018-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2018-2021 The Linux Foundation. All rights reserved.
  * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -241,11 +237,7 @@ QDF_STATUS ucfg_mlme_set_ht_mpdu_density(struct wlan_objmgr_psoc *psoc,
  */
 static inline
 QDF_STATUS ucfg_mlme_get_band_capability(struct wlan_objmgr_psoc *psoc,
-<<<<<<< Updated upstream
-					 uint8_t *band_capability)
-=======
 					 uint32_t *band_capability)
->>>>>>> Stashed changes
 {
 	return wlan_mlme_get_band_capability(psoc, band_capability);
 }
@@ -259,11 +251,7 @@ QDF_STATUS ucfg_mlme_get_band_capability(struct wlan_objmgr_psoc *psoc,
  */
 static inline
 QDF_STATUS ucfg_mlme_set_band_capability(struct wlan_objmgr_psoc *psoc,
-<<<<<<< Updated upstream
-					 uint8_t band_capability)
-=======
 					 uint32_t band_capability)
->>>>>>> Stashed changes
 {
 	return wlan_mlme_set_band_capability(psoc, band_capability);
 }
@@ -1407,8 +1395,6 @@ QDF_STATUS ucfg_mlme_set_assoc_sta_limit(struct wlan_objmgr_psoc *psoc,
 }
 
 /**
-<<<<<<< Updated upstream
-=======
  * ucfg_mlme_get_assoc_sta_limit() - Get the assoc sta limit
  * @psoc: pointer to psoc object
  * @value: Pointer to variable that needs to be filled by MLME
@@ -1425,7 +1411,6 @@ QDF_STATUS ucfg_mlme_get_assoc_sta_limit(struct wlan_objmgr_psoc *psoc,
 }
 
 /**
->>>>>>> Stashed changes
  * ucfg_mlme_set_rmc_action_period_freq() - Set the rmc action period frequency
  * @psoc: pointer to psoc object
  * @value: Value that needs to be set from the caller
@@ -3237,8 +3222,6 @@ ucfg_mlme_get_wmm_mode(struct wlan_objmgr_psoc *psoc, uint8_t *value)
 	return wlan_mlme_get_wmm_mode(psoc, value);
 }
 
-<<<<<<< Updated upstream
-=======
 /**
  * ucfg_mlme_cfg_get_wlm_level() - Get the WLM level value
  * @psoc: pointer to psoc object
@@ -3267,7 +3250,6 @@ QDF_STATUS ucfg_mlme_cfg_get_wlm_reset(struct wlan_objmgr_psoc *psoc,
 	return mlme_get_cfg_wlm_reset(psoc, reset);
 }
 
->>>>>>> Stashed changes
 #ifdef WLAN_FEATURE_11AX
 /**
  * ucfg_mlme_update_tgt_he_cap() - Update tgt he cap in mlme component
@@ -3813,11 +3795,7 @@ ucfg_mlme_get_mws_coex_scc_channel_avoid_delay(struct wlan_objmgr_psoc *psoc,
 #endif
 
 /**
-<<<<<<< Updated upstream
- * ucfg_mlme_get_etsi13_srd_chan_in_master_mode  - get etsi13 srd chan
-=======
  * ucfg_mlme_get_etsi_srd_chan_in_master_mode  - get etsi srd chan
->>>>>>> Stashed changes
  * in master mode
  * @psoc:   pointer to psoc object
  * @value:  pointer to the value which will be filled for the caller
@@ -3825,10 +3803,6 @@ ucfg_mlme_get_mws_coex_scc_channel_avoid_delay(struct wlan_objmgr_psoc *psoc,
  * Return: QDF Status
  */
 QDF_STATUS
-<<<<<<< Updated upstream
-ucfg_mlme_get_etsi13_srd_chan_in_master_mode(struct wlan_objmgr_psoc *psoc,
-					     bool *value);
-=======
 ucfg_mlme_get_etsi_srd_chan_in_master_mode(struct wlan_objmgr_psoc *psoc,
 					   uint8_t *value);
 
@@ -3844,7 +3818,6 @@ QDF_STATUS
 ucfg_mlme_get_srd_master_mode_for_vdev(struct wlan_objmgr_psoc *psoc,
 				       enum QDF_OPMODE vdev_opmode,
 				       bool *value);
->>>>>>> Stashed changes
 
 #ifdef SAP_AVOID_ACS_FREQ_LIST
 /**
@@ -4009,8 +3982,6 @@ ucfg_mlme_set_obss_color_collision_offload_enabled(
 		struct wlan_objmgr_psoc *psoc, uint8_t value);
 
 /**
-<<<<<<< Updated upstream
-=======
  * ucfg_mlme_set_bss_color_collision_det_sta() - Enable bss color
  * collision detection offload for STA mode
  * @psoc:   pointer to psoc object
@@ -4023,7 +3994,6 @@ ucfg_mlme_set_bss_color_collision_det_sta(struct wlan_objmgr_psoc *psoc,
 					  uint8_t value);
 
 /**
->>>>>>> Stashed changes
  * ucfg_mlme_set_restricted_80p80_bw_supp() - Set the restricted 80p80 support
  * @psoc: pointer to psoc object
  * @restricted_80p80_supp: Value to be set from the caller
@@ -4198,8 +4168,6 @@ ucfg_mlme_set_roam_reason_vsie_status(struct wlan_objmgr_psoc *psoc,
 }
 
 #endif
-<<<<<<< Updated upstream
-=======
 
 /**
  * ucfg_is_roaming_enabled() - Check if roaming enabled
@@ -4211,5 +4179,4 @@ ucfg_mlme_set_roam_reason_vsie_status(struct wlan_objmgr_psoc *psoc,
  *	   WLAN_ROAM_RSO_ENABLED/WLAN_ROAMING_IN_PROG/WLAN_ROAM_SYNCH_IN_PROG
  */
 bool ucfg_is_roaming_enabled(struct wlan_objmgr_pdev *pdev, uint8_t vdev_id);
->>>>>>> Stashed changes
 #endif /* _WLAN_MLME_UCFG_API_H_ */

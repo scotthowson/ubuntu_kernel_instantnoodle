@@ -10,16 +10,12 @@ enum mm_event_type {
 	MM_RECLAIM = 4,
 	MM_SWP_FAULT = 5,
 	MM_KERN_ALLOC = 6,
-<<<<<<< Updated upstream
-	MM_TYPE_NUM = 7,
-=======
 	BLK_READ_SUBMIT_BIO = 7,
 	UFS_READ_QUEUE_CMD = 8,
 	UFS_READ_SEND_CMD = 9,
 	UFS_READ_COMPL_CMD = 10,
 	F2FS_READ_DATA = 11,
 	MM_TYPE_NUM = 12,
->>>>>>> Stashed changes
 };
 
 struct mm_event_task {
@@ -28,12 +24,9 @@ struct mm_event_task {
 	u64 accm_lat;
 } __attribute__ ((packed));
 
-<<<<<<< Updated upstream
-=======
 static inline void mm_event_task_init(struct task_struct *tsk) {}
 static inline void mm_event_start(ktime_t *time) {}
 static inline void mm_event_end(enum mm_event_type event, ktime_t start) {}
 static inline void mm_event_count(enum mm_event_type event, int count) {}
 
->>>>>>> Stashed changes
 #endif

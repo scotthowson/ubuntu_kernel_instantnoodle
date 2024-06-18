@@ -205,15 +205,12 @@ static match_table_t fsopt_tokens = {
 	{-1, NULL}
 };
 
-<<<<<<< Updated upstream
-=======
 /*
  * Remove adjacent slashes and then the trailing slash, unless it is
  * the only remaining character.
  *
  * E.g. "//dir1////dir2///" --> "/dir1/dir2", "///" --> "/".
  */
->>>>>>> Stashed changes
 static void canonicalize_path(char *path)
 {
 	int i, j = 0;

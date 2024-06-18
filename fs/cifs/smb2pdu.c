@@ -265,12 +265,9 @@ smb2_reconnect(__le16 smb2_command, struct cifs_tcon *tcon)
 			rc = -EHOSTDOWN;
 			mutex_unlock(&tcon->ses->session_mutex);
 			goto failed;
-<<<<<<< Updated upstream
-=======
 		} else if (rc) {
 			mutex_unlock(&ses->session_mutex);
 			goto out;
->>>>>>> Stashed changes
 		}
 	}
 	if (rc || !tcon->need_reconnect) {
@@ -3155,14 +3152,6 @@ smb2_readv_callback(struct mid_q_entry *mid)
 				(struct smb2_sync_hdr *)rdata->iov[0].iov_base;
 	unsigned int credits_received = 0;
 	struct smb_rqst rqst = { .rq_iov = &rdata->iov[1],
-<<<<<<< Updated upstream
-				 .rq_nvec = 1,
-				 .rq_pages = rdata->pages,
-				 .rq_offset = rdata->page_offset,
-				 .rq_npages = rdata->nr_pages,
-				 .rq_pagesz = rdata->pagesz,
-				 .rq_tailsz = rdata->tailsz };
-=======
 				 .rq_nvec = 1, };
 
 	if (rdata->got_bytes) {
@@ -3172,7 +3161,6 @@ smb2_readv_callback(struct mid_q_entry *mid)
 		rqst.rq_pagesz = rdata->pagesz;
 		rqst.rq_tailsz = rdata->tailsz;
 	}
->>>>>>> Stashed changes
 
 	cifs_dbg(FYI, "%s: mid=%llu state=%d result=%d bytes=%u\n",
 		 __func__, mid->mid, mid->mid_state, rdata->result,

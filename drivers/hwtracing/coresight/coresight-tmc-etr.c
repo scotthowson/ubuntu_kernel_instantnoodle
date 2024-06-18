@@ -1897,11 +1897,7 @@ tmc_update_etr_buffer(struct coresight_device *csdev,
 
 	/* Insert barrier packets at the beginning, if there was an overflow */
 	if (lost)
-<<<<<<< Updated upstream
-		tmc_etr_buf_insert_barrier_packet(etr_buf, etr_buf->offset);
-=======
 		tmc_etr_buf_insert_barrier_packet(etr_buf, offset);
->>>>>>> Stashed changes
 	tmc_etr_sync_perf_buffer(etr_perf, offset, size);
 
 	/*
@@ -2029,13 +2025,8 @@ static int _tmc_disable_etr_sink(struct coresight_device *csdev,
 				tmc_etr_bam_disable(drvdata);
 				mutex_unlock(&drvdata->mem_lock);
 				usb_qdss_close(drvdata->usbch);
-<<<<<<< Updated upstream
-				drvdata->usbch = NULL;
-				drvdata->mode = CS_MODE_DISABLED;
-=======
 				mutex_lock(&drvdata->mem_lock);
 				drvdata->usbch = NULL;
->>>>>>> Stashed changes
 				goto out;
 			} else {
 				spin_unlock_irqrestore(&drvdata->spinlock,
@@ -2051,10 +2042,6 @@ static int _tmc_disable_etr_sink(struct coresight_device *csdev,
 
 	/* Dissociate from monitored process. */
 	drvdata->pid = -1;
-<<<<<<< Updated upstream
-	drvdata->mode = CS_MODE_DISABLED;
-=======
->>>>>>> Stashed changes
 	/* Reset perf specific data */
 	drvdata->perf_buf = NULL;
 
@@ -2116,10 +2103,7 @@ int tmc_etr_switch_mode(struct tmc_drvdata *drvdata, const char *out_mode)
 
 	mutex_unlock(&drvdata->mem_lock);
 	coresight_disable_all_source_link();
-<<<<<<< Updated upstream
-=======
 	mutex_lock(&drvdata->mem_lock);
->>>>>>> Stashed changes
 	_tmc_disable_etr_sink(drvdata->csdev, true);
 	old_mode = drvdata->out_mode;
 	drvdata->out_mode = new_mode;

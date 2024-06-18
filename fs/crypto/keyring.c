@@ -20,10 +20,7 @@
 
 #include <crypto/skcipher.h>
 #include <linux/key-type.h>
-<<<<<<< Updated upstream
-=======
 #include <linux/random.h>
->>>>>>> Stashed changes
 #include <linux/seq_file.h>
 
 #include "fscrypt_private.h"
@@ -429,15 +426,9 @@ static int add_existing_master_key(struct fscrypt_master_key *mk,
 	return 0;
 }
 
-<<<<<<< Updated upstream
-static int add_master_key(struct super_block *sb,
-			  struct fscrypt_master_key_secret *secret,
-			  const struct fscrypt_key_specifier *mk_spec)
-=======
 static int do_add_master_key(struct super_block *sb,
 			     struct fscrypt_master_key_secret *secret,
 			     const struct fscrypt_key_specifier *mk_spec)
->>>>>>> Stashed changes
 {
 	static DEFINE_MUTEX(fscrypt_add_key_mutex);
 	struct key *key;
@@ -476,8 +467,6 @@ out_unlock:
 	return err;
 }
 
-<<<<<<< Updated upstream
-=======
 /* Size of software "secret" derived from hardware-wrapped key */
 #define RAW_SECRET_SIZE 32
 
@@ -521,7 +510,6 @@ static int add_master_key(struct super_block *sb,
 	return do_add_master_key(sb, secret, key_spec);
 }
 
->>>>>>> Stashed changes
 static int fscrypt_provisioning_key_preparse(struct key_preparsed_payload *prep)
 {
 	const struct fscrypt_provisioning_key_payload *payload = prep->data;
@@ -627,12 +615,6 @@ out_put:
 	return err;
 }
 
-<<<<<<< Updated upstream
-/* Size of software "secret" derived from hardware-wrapped key */
-#define RAW_SECRET_SIZE 32
-
-=======
->>>>>>> Stashed changes
 /*
  * Add a master encryption key to the filesystem, causing all files which were
  * encrypted with it to appear "unlocked" (decrypted) when accessed.
@@ -663,12 +645,6 @@ int fscrypt_ioctl_add_key(struct file *filp, void __user *_uarg)
 	struct fscrypt_add_key_arg __user *uarg = _uarg;
 	struct fscrypt_add_key_arg arg;
 	struct fscrypt_master_key_secret secret;
-<<<<<<< Updated upstream
-	u8 _kdf_key[RAW_SECRET_SIZE];
-	u8 *kdf_key;
-	unsigned int kdf_key_size;
-=======
->>>>>>> Stashed changes
 	int err;
 
 	if (copy_from_user(&arg, uarg, sizeof(arg)))
@@ -680,9 +656,6 @@ int fscrypt_ioctl_add_key(struct file *filp, void __user *_uarg)
 	if (memchr_inv(arg.__reserved, 0, sizeof(arg.__reserved)))
 		return -EINVAL;
 
-<<<<<<< Updated upstream
-	memset(&secret, 0, sizeof(secret));
-=======
 	/*
 	 * Only root can add keys that are identified by an arbitrary descriptor
 	 * rather than by a cryptographic hash --- since otherwise a malicious
@@ -703,7 +676,6 @@ int fscrypt_ioctl_add_key(struct file *filp, void __user *_uarg)
 		secret.is_hw_wrapped = true;
 	}
 
->>>>>>> Stashed changes
 	if (arg.key_id) {
 		if (arg.raw_size != 0)
 			return -EINVAL;
@@ -711,16 +683,6 @@ int fscrypt_ioctl_add_key(struct file *filp, void __user *_uarg)
 		if (err)
 			goto out_wipe_secret;
 		err = -EINVAL;
-<<<<<<< Updated upstream
-		if (!(arg.__flags & __FSCRYPT_ADD_KEY_FLAG_HW_WRAPPED) &&
-		    secret.size > FSCRYPT_MAX_KEY_SIZE)
-			goto out_wipe_secret;
-	} else {
-		if (arg.raw_size < FSCRYPT_MIN_KEY_SIZE ||
-		    arg.raw_size >
-		    ((arg.__flags & __FSCRYPT_ADD_KEY_FLAG_HW_WRAPPED) ?
-		     FSCRYPT_MAX_HW_WRAPPED_KEY_SIZE : FSCRYPT_MAX_KEY_SIZE))
-=======
 		if (secret.size > FSCRYPT_MAX_KEY_SIZE && !secret.is_hw_wrapped)
 			goto out_wipe_secret;
 	} else {
@@ -728,7 +690,6 @@ int fscrypt_ioctl_add_key(struct file *filp, void __user *_uarg)
 		    arg.raw_size > (secret.is_hw_wrapped ?
 				    FSCRYPT_MAX_HW_WRAPPED_KEY_SIZE :
 				    FSCRYPT_MAX_KEY_SIZE))
->>>>>>> Stashed changes
 			return -EINVAL;
 		secret.size = arg.raw_size;
 		err = -EFAULT;
@@ -736,69 +697,6 @@ int fscrypt_ioctl_add_key(struct file *filp, void __user *_uarg)
 			goto out_wipe_secret;
 	}
 
-<<<<<<< Updated upstream
-	switch (arg.key_spec.type) {
-	case FSCRYPT_KEY_SPEC_TYPE_DESCRIPTOR:
-		/*
-		 * Only root can add keys that are identified by an arbitrary
-		 * descriptor rather than by a cryptographic hash --- since
-		 * otherwise a malicious user could add the wrong key.
-		 */
-		err = -EACCES;
-		if (!capable(CAP_SYS_ADMIN))
-			goto out_wipe_secret;
-
-		err = -EINVAL;
-		if (arg.__flags & ~__FSCRYPT_ADD_KEY_FLAG_HW_WRAPPED)
-			goto out_wipe_secret;
-		break;
-	case FSCRYPT_KEY_SPEC_TYPE_IDENTIFIER:
-		err = -EINVAL;
-		if (arg.__flags & ~__FSCRYPT_ADD_KEY_FLAG_HW_WRAPPED)
-			goto out_wipe_secret;
-		if (arg.__flags & __FSCRYPT_ADD_KEY_FLAG_HW_WRAPPED) {
-			kdf_key = _kdf_key;
-			kdf_key_size = RAW_SECRET_SIZE;
-			err = fscrypt_derive_raw_secret(sb, secret.raw,
-							secret.size,
-							kdf_key, kdf_key_size);
-			if (err)
-				goto out_wipe_secret;
-			secret.is_hw_wrapped = true;
-		} else {
-			kdf_key = secret.raw;
-			kdf_key_size = secret.size;
-		}
-		err = fscrypt_init_hkdf(&secret.hkdf, kdf_key, kdf_key_size);
-		/*
-		 * Now that the HKDF context is initialized, the raw HKDF
-		 * key is no longer needed.
-		 */
-		memzero_explicit(kdf_key, kdf_key_size);
-		if (err)
-			goto out_wipe_secret;
-
-		/* Calculate the key identifier and return it to userspace. */
-		err = fscrypt_hkdf_expand(&secret.hkdf,
-					  HKDF_CONTEXT_KEY_IDENTIFIER,
-					  NULL, 0, arg.key_spec.u.identifier,
-					  FSCRYPT_KEY_IDENTIFIER_SIZE);
-		if (err)
-			goto out_wipe_secret;
-		err = -EFAULT;
-		if (copy_to_user(uarg->key_spec.u.identifier,
-				 arg.key_spec.u.identifier,
-				 FSCRYPT_KEY_IDENTIFIER_SIZE))
-			goto out_wipe_secret;
-		break;
-	default:
-		WARN_ON(1);
-		err = -EINVAL;
-		goto out_wipe_secret;
-	}
-
-	err = add_master_key(sb, &secret, &arg.key_spec);
-=======
 	err = add_master_key(sb, &secret, &arg.key_spec);
 	if (err)
 		goto out_wipe_secret;
@@ -810,7 +708,6 @@ int fscrypt_ioctl_add_key(struct file *filp, void __user *_uarg)
 			 FSCRYPT_KEY_IDENTIFIER_SIZE))
 		goto out_wipe_secret;
 	err = 0;
->>>>>>> Stashed changes
 out_wipe_secret:
 	wipe_master_key_secret(&secret);
 	return err;
@@ -818,8 +715,6 @@ out_wipe_secret:
 EXPORT_SYMBOL_GPL(fscrypt_ioctl_add_key);
 
 /*
-<<<<<<< Updated upstream
-=======
  * Add the key for '-o test_dummy_encryption' to the filesystem keyring.
  *
  * Use a per-boot random key to prevent people from misusing this option.
@@ -843,7 +738,6 @@ int fscrypt_add_test_dummy_key(struct super_block *sb,
 }
 
 /*
->>>>>>> Stashed changes
  * Verify that the current user has added a master key with the given identifier
  * (returns -ENOKEY if not).  This is needed to prevent a user from encrypting
  * their files using some other user's key which they don't actually know.

@@ -1,9 +1,5 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2012-2019 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -33,11 +29,7 @@
  *
  * @min: 0
  * @max: 1
-<<<<<<< Updated upstream
- * @default: 0
-=======
  * @default: 1
->>>>>>> Stashed changes
  *
  * 0 - disable
  * 1 - enable
@@ -50,8 +42,6 @@
 
 /*
  * <ini>
-<<<<<<< Updated upstream
-=======
  * wlm_latency_reset_on_disconnect - WLM latency level reset on disconnect
  *
  * @min: 0
@@ -69,7 +59,6 @@
 
 /*
  * <ini>
->>>>>>> Stashed changes
  * wlm_latency_level - WLM latency level
  * Define 4 latency level to gain latency
  *
@@ -265,10 +254,7 @@
 
 #define CFG_FE_WLM_ALL \
 	CFG(CFG_LATENCY_ENABLE) \
-<<<<<<< Updated upstream
-=======
 	CFG(CFG_LATENCY_RESET) \
->>>>>>> Stashed changes
 	CFG(CFG_LATENCY_LEVEL) \
 	CFG(CFG_LATENCY_FLAGS_NORMAL) \
 	CFG(CFG_LATENCY_FLAGS_MOD) \

@@ -1,10 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2016-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2016-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #ifndef SDE_DBG_H_
@@ -479,55 +475,6 @@ static inline void sde_reglog_log(u8 blk_id, u32 val, u32 addr)
 {
 	return;
 }
-<<<<<<< Updated upstream
-
-static inline void sde_evtlog_log(struct sde_dbg_evtlog *evtlog,
-		const char *name, int line, int flag, ...)
-{
-}
-
-static inline void sde_evtlog_dump_all(struct sde_dbg_evtlog *evtlog)
-{
-}
-
-static inline bool sde_evtlog_is_enabled(struct sde_dbg_evtlog *evtlog,
-		u32 flag)
-{
-	return false;
-}
-
-static inline ssize_t sde_evtlog_dump_to_buffer(struct sde_dbg_evtlog *evtlog,
-		char *evtlog_buf, ssize_t evtlog_buf_size,
-		bool update_last_entry)
-{
-	return 0;
-}
-
-static inline void sde_dbg_init_dbg_buses(u32 hwversion)
-{
-}
-
-static inline int sde_dbg_init(struct device *dev)
-{
-	return 0;
-}
-
-static inline int sde_dbg_debugfs_register(struct device *dev)
-{
-	return 0;
-}
-
-static inline void sde_dbg_destroy(void)
-{
-}
-
-static inline void sde_dbg_dump(enum sde_dbg_dump_context mode,
-	const char *name, ...)
-{
-}
-
-=======
->>>>>>> Stashed changes
 static inline void sde_dbg_ctrl(const char *name, ...)
 {
 	return;
@@ -542,10 +489,6 @@ static inline void sde_dbg_reg_register_dump_range(const char *base_name,
 {
 	return;
 }
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
 static inline void sde_dbg_set_sde_top_offset(u32 blk_off)
 {
 	return;
@@ -561,14 +504,8 @@ static inline int sde_dbg_init(struct device *dev) {
 static inline void sde_dbg_destroy(void) {
 	return;
 }
-<<<<<<< Updated upstream
-
-static inline void dsi_ctrl_debug_dump(u32 *entries, u32 size)
-{
-=======
 static inline int sde_dbg_debugfs_register(struct device *dev) {
 	return 0;
->>>>>>> Stashed changes
 }
 static inline void sde_dbg_init_dbg_buses(u32 hwversion) {
 	return;

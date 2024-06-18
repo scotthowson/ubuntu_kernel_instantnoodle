@@ -1,13 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 #ifndef __LINUX_BITS_H
 #define __LINUX_BITS_H
-<<<<<<< Updated upstream
-
-#include <linux/const.h>
-#include <vdso/bits.h>
-#include <asm/bitsperlong.h>
-
-=======
 
 #include <linux/const.h>
 #include <vdso/bits.h>
@@ -16,7 +9,6 @@
  * Old version of this macro to preserve the CRC signatures of some drm symbols.
  * Crazy but true...
  */
->>>>>>> Stashed changes
 #define BIT_ULL(nr)		(1ULL << (nr))
 #define BIT_MASK(nr)		(1UL << ((nr) % BITS_PER_LONG))
 #else

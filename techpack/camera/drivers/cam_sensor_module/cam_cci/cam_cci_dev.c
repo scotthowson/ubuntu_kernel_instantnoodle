@@ -82,7 +82,6 @@ irqreturn_t cam_cci_irq(int irq_num, void *data)
 				false;
 			if (!cci_master_info->status)
 				complete(&cci_master_info->reset_complete);
-			cci_master_info->status = 0;
 
 			complete_all(&cci_master_info->rd_done);
 			complete_all(&cci_master_info->th_complete);
@@ -93,7 +92,6 @@ irqreturn_t cam_cci_irq(int irq_num, void *data)
 				false;
 			if (!cci_master_info->status)
 				complete(&cci_master_info->reset_complete);
-			cci_master_info->status = 0;
 
 			complete_all(&cci_master_info->rd_done);
 			complete_all(&cci_master_info->th_complete);
@@ -431,12 +429,7 @@ static int cam_cci_platform_probe(struct platform_device *pdev)
 		sizeof(new_cci_dev->device_name));
 	new_cci_dev->v4l2_dev_str.name =
 		new_cci_dev->device_name;
-<<<<<<< Updated upstream
-	new_cci_dev->v4l2_dev_str.sd_flags =
-		V4L2_SUBDEV_FL_HAS_EVENTS;
-=======
 	new_cci_dev->v4l2_dev_str.sd_flags = V4L2_SUBDEV_FL_HAS_EVENTS;
->>>>>>> Stashed changes
 	new_cci_dev->v4l2_dev_str.ent_function =
 		CAM_CCI_DEVICE_TYPE;
 	new_cci_dev->v4l2_dev_str.token =

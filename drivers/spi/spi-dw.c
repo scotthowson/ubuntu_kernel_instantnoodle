@@ -303,12 +303,9 @@ static int dw_spi_transfer_one(struct spi_controller *master,
 	dws->rx_end = dws->rx + transfer->len;
 	dws->len = transfer->len;
 	spin_unlock_irqrestore(&dws->buf_lock, flags);
-<<<<<<< Updated upstream
-=======
 
 	/* Ensure dw->rx and dw->rx_end are visible */
 	smp_mb();
->>>>>>> Stashed changes
 
 	spi_enable_chip(dws, 0);
 

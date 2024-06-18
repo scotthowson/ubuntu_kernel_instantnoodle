@@ -448,10 +448,7 @@ static int binderfs_binder_ctl_create(struct super_block *sb)
 	inode->i_uid = info->root_uid;
 	inode->i_gid = info->root_gid;
 
-<<<<<<< Updated upstream
-=======
 	refcount_set(&device->ref, 1);
->>>>>>> Stashed changes
 	device->binderfs_inode = inode;
 	device->miscdev.minor = minor;
 
@@ -557,10 +554,7 @@ out:
 	return dentry;
 }
 
-<<<<<<< Updated upstream
-=======
 #ifdef CONFIG_ANDROID_BINDER_LOGS
->>>>>>> Stashed changes
 static struct dentry *binderfs_create_dir(struct dentry *parent,
 					  const char *name)
 {
@@ -659,15 +653,12 @@ static int init_binder_logs(struct super_block *sb)
 out:
 	return ret;
 }
-<<<<<<< Updated upstream
-=======
 #else
 static inline int init_binder_logs(struct super_block *sb)
 {
 	return 0;
 }
 #endif
->>>>>>> Stashed changes
 
 static int binderfs_fill_super(struct super_block *sb, void *data, int silent)
 {

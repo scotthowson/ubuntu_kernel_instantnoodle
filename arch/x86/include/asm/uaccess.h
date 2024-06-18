@@ -717,11 +717,7 @@ static __must_check inline bool user_access_begin(int type,
 {
 	if (unlikely(!access_ok(type, ptr, len)))
 		return 0;
-<<<<<<< Updated upstream
-	__uaccess_begin();
-=======
 	__uaccess_begin_nospec();
->>>>>>> Stashed changes
 	return 1;
 }
 

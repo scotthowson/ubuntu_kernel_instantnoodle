@@ -36,15 +36,6 @@
 		qcom,instance-type = "ufs";
 	};
 
-<<<<<<< Updated upstream
-	ufs1: ufshc@1da4000 {
-		compatible = "qcom,ufshc";
-		reg = <0x1da4000 0x3000>;
-		interrupts = <0 265 IRQ_TYPE_LEVEL_HIGH>;
-		phys = <&ufsphy1>;
-		phy-names = "ufsphy";
-		ufs-qcom-crypto = <&ufs_ice>;
-=======
 	sdcc1_ice: sdcc1ice@c0c8000 {
 		compatible = "qcom,ice";
 		reg = <0xc0c8000 0x8000>;
@@ -74,7 +65,6 @@
 		interrupts = <0 265 IRQ_TYPE_LEVEL_HIGH>;
 		phys = <&ufsphy1>;
 		phy-names = "ufsphy";
->>>>>>> Stashed changes
 
 		clock-names =
 			"core_clk",
@@ -504,13 +494,10 @@
 			snps,is-utmi-l1-suspend;
 			snps,hird-threshold = /bits/ 8 <0x0>;
 			dr_mode = "host";
-<<<<<<< Updated upstream
-=======
 			linux,sysdev_is_parent;
 			snps,dis_enblslpm_quirk;
 			snps,dis_u2_susphy_quirk;
 			usb-core-id = <1>;
->>>>>>> Stashed changes
 		};
 	};
 

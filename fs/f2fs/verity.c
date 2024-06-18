@@ -29,11 +29,8 @@
 #include "f2fs.h"
 #include "xattr.h"
 
-<<<<<<< Updated upstream
-=======
 #define F2FS_VERIFY_VER	(1)
 
->>>>>>> Stashed changes
 static inline loff_t f2fs_verity_metadata_pos(const struct inode *inode)
 {
 	return round_up(inode->i_size, 65536);
@@ -131,11 +128,7 @@ static int f2fs_begin_enable_verity(struct file *filp)
 	if (f2fs_verity_in_progress(inode))
 		return -EBUSY;
 
-<<<<<<< Updated upstream
-	if (f2fs_is_atomic_file(inode) || f2fs_is_volatile_file(inode))
-=======
 	if (f2fs_is_atomic_file(inode))
->>>>>>> Stashed changes
 		return -EOPNOTSUPP;
 
 	/*
@@ -143,11 +136,7 @@ static int f2fs_begin_enable_verity(struct file *filp)
 	 * here and not rely on ->open() doing it.  This must be done before
 	 * evicting the inline data.
 	 */
-<<<<<<< Updated upstream
-	err = dquot_initialize(inode);
-=======
 	err = f2fs_dquot_initialize(inode);
->>>>>>> Stashed changes
 	if (err)
 		return err;
 
@@ -163,42 +152,6 @@ static int f2fs_end_enable_verity(struct file *filp, const void *desc,
 				  size_t desc_size, u64 merkle_tree_size)
 {
 	struct inode *inode = file_inode(filp);
-<<<<<<< Updated upstream
-	u64 desc_pos = f2fs_verity_metadata_pos(inode) + merkle_tree_size;
-	struct fsverity_descriptor_location dloc = {
-		.version = cpu_to_le32(1),
-		.size = cpu_to_le32(desc_size),
-		.pos = cpu_to_le64(desc_pos),
-	};
-	int err = 0;
-
-	if (desc != NULL) {
-		/* Succeeded; write the verity descriptor. */
-		err = pagecache_write(inode, desc, desc_size, desc_pos);
-
-		/* Write all pages before clearing FI_VERITY_IN_PROGRESS. */
-		if (!err)
-			err = filemap_write_and_wait(inode->i_mapping);
-	}
-
-	/* If we failed, truncate anything we wrote past i_size. */
-	if (desc == NULL || err)
-		f2fs_truncate(inode);
-
-	clear_inode_flag(inode, FI_VERITY_IN_PROGRESS);
-
-	if (desc != NULL && !err) {
-		err = f2fs_setxattr(inode, F2FS_XATTR_INDEX_VERITY,
-				    F2FS_XATTR_NAME_VERITY, &dloc, sizeof(dloc),
-				    NULL, XATTR_CREATE);
-		if (!err) {
-			file_set_verity(inode);
-			f2fs_set_inode_flags(inode);
-			f2fs_mark_inode_dirty_sync(inode, true);
-		}
-	}
-	return err;
-=======
 	struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
 	u64 desc_pos = f2fs_verity_metadata_pos(inode) + merkle_tree_size;
 	struct fsverity_descriptor_location dloc = {
@@ -266,7 +219,6 @@ cleanup:
 	f2fs_up_write(&F2FS_I(inode)->i_gc_rwsem[WRITE]);
 	clear_inode_flag(inode, FI_VERITY_IN_PROGRESS);
 	return err ?: err2;
->>>>>>> Stashed changes
 }
 
 static int f2fs_get_verity_descriptor(struct inode *inode, void *buf,
@@ -282,11 +234,7 @@ static int f2fs_get_verity_descriptor(struct inode *inode, void *buf,
 			    F2FS_XATTR_NAME_VERITY, &dloc, sizeof(dloc), NULL);
 	if (res < 0 && res != -ERANGE)
 		return res;
-<<<<<<< Updated upstream
-	if (res != sizeof(dloc) || dloc.version != cpu_to_le32(1)) {
-=======
 	if (res != sizeof(dloc) || dloc.version != cpu_to_le32(F2FS_VERIFY_VER)) {
->>>>>>> Stashed changes
 		f2fs_warn(F2FS_I_SB(inode), "unknown verity xattr format");
 		return -EINVAL;
 	}
@@ -297,11 +245,8 @@ static int f2fs_get_verity_descriptor(struct inode *inode, void *buf,
 	if (pos + size < pos || pos + size > inode->i_sb->s_maxbytes ||
 	    pos < f2fs_verity_metadata_pos(inode) || size > INT_MAX) {
 		f2fs_warn(F2FS_I_SB(inode), "invalid verity xattr");
-<<<<<<< Updated upstream
-=======
 		f2fs_handle_error(F2FS_I_SB(inode),
 				ERROR_CORRUPTED_VERITY_XATTR);
->>>>>>> Stashed changes
 		return -EFSCORRUPTED;
 	}
 	if (buf_size) {

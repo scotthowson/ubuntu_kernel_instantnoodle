@@ -428,9 +428,6 @@ void rtc6226_scan(struct work_struct *work)
 				TUNE_STEP_SIZE) == next_freq_khz) {
 			FMDERR("%s Seek one more time if lower freq is valid\n",
 					__func__);
-<<<<<<< Updated upstream
-			retval = rtc6226_set_seek(radio, SRCH_UP, WRAP_ENABLE);
-=======
 			// Tuned to band low limit + chan spacing then seek
 			// down with bandlimit config
 			if (radio->space == 0)
@@ -454,7 +451,6 @@ void rtc6226_scan(struct work_struct *work)
 			}
 			retval = rtc6226_set_seek(radio, SRCH_DOWN,
 							WRAP_DISABLE);
->>>>>>> Stashed changes
 			if (retval < 0) {
 				FMDERR("%s seek fail %d\n", __func__, retval);
 				goto seek_tune_fail;
@@ -481,12 +477,6 @@ void rtc6226_scan(struct work_struct *work)
 				rssi = radio->registers[RSSI] & RSSI_RSSI;
 				FMDBG("%s freq %d, rssi %d rssi threshold %d\n",
 				 __func__, next_freq_khz, rssi, radio->rssi_th);
-<<<<<<< Updated upstream
-				if ((radio->recv_conf.band_low_limit *
-						TUNE_STEP_SIZE) ==
-							next_freq_khz &&
-						rssi >= radio->rssi_th) {
-=======
 				// Reach to band low limit,
 				// if SF is 0, means frequency at low limit is a
 				// commercial station Or a invalid channel
@@ -494,7 +484,6 @@ void rtc6226_scan(struct work_struct *work)
 					STATUS_SF) == 0) ||
 					(radio->recv_conf.band_high_limit *
 					TUNE_STEP_SIZE) == next_freq_khz) {
->>>>>>> Stashed changes
 					FMDERR("lower band freq is valid\n");
 					rtc6226_q_event(radio,
 						RTC6226_EVT_TUNE_SUCC);

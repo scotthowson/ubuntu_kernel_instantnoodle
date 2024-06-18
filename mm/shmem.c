@@ -1348,11 +1348,6 @@ static int shmem_writepage(struct page *page, struct writeback_control *wbc)
 		SetPageUptodate(page);
 	}
 
-<<<<<<< Updated upstream
-	memplus_set_private(page, 1);
-	/* add end */
-=======
->>>>>>> Stashed changes
 	swap = get_swap_page(page);
 	if (!swap.val)
 		goto redirty;

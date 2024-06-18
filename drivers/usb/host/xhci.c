@@ -1223,11 +1223,7 @@ int xhci_resume(struct xhci_hcd *xhci, bool hibernated)
 		xhci_dbg(xhci, "Stop HCD\n");
 		xhci_halt(xhci);
 		xhci_zero_64b_regs(xhci);
-<<<<<<< Updated upstream
-		retval = xhci_reset(xhci);
-=======
 		retval = xhci_reset(xhci, XHCI_RESET_LONG_USEC);
->>>>>>> Stashed changes
 		spin_unlock_irq(&xhci->lock);
 		if (retval)
 			return retval;

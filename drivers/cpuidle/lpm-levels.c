@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 
-<<<<<<< Updated upstream
-/* Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
-=======
 /* Copyright (c) 2012-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  * Copyright (C) 2006-2007 Adam Belay <abelay@novell.com>
  * Copyright (C) 2009 Intel Corporation
  */
@@ -46,13 +42,7 @@
 #include "../clk/clk.h"
 #define CREATE_TRACE_POINTS
 #include <trace/events/trace_msm_low_power.h>
-<<<<<<< Updated upstream
-#ifdef CONFIG_CONTROL_CENTER
-#include <oneplus/control_center/control_center_helper.h>
-#endif
-=======
 #include <linux/tick.h>
->>>>>>> Stashed changes
 
 #define SCLK_HZ (32768)
 #define PSCI_POWER_STATE(reset) (reset << 30)
@@ -546,11 +536,7 @@ static void cluster_prepare(struct lpm_cluster *cluster,
 	raw_spin_unlock(&cluster->sync_lock);
 	return;
 failed:
-<<<<<<< Updated upstream
-	spin_unlock(&cluster->sync_lock);
-=======
 	raw_spin_unlock(&cluster->sync_lock);
->>>>>>> Stashed changes
 	if (!IS_ERR_OR_NULL(cluster->stats))
 		cluster->stats->sleep_time = 0;
 }
@@ -691,13 +677,6 @@ static bool psci_enter_sleep(struct lpm_cpu *cpu, int idx, bool from_idle)
 	 */
 
 	if (!idx) {
-<<<<<<< Updated upstream
-		if (cpu->bias)
-			biastimer_start(cpu->bias);
-		stop_critical_timings();
-		cpu_do_idle();
-		start_critical_timings();
-=======
 		/*
 		 * If the tick is stopped, arm a timer to ensure that the CPU doesn't
 		 * stay in WFI too long and burn power. That way, the CPU will be woken
@@ -716,7 +695,6 @@ static bool psci_enter_sleep(struct lpm_cpu *cpu, int idx, bool from_idle)
 		if (timer)
 			hrtimer_try_to_cancel(timer);
 
->>>>>>> Stashed changes
 		return true;
 	}
 
@@ -761,57 +739,6 @@ static int lpm_cpuidle_select(struct cpuidle_driver *drv,
 	return cpu_power_select(dev, cpu);
 }
 
-<<<<<<< Updated upstream
-static void update_ipi_history(int cpu)
-{
-	struct ipi_history *history = &per_cpu(cpu_ipi_history, cpu);
-	ktime_t now = ktime_get();
-
-	history->interval[history->current_ptr] =
-			ktime_to_us(ktime_sub(now,
-			history->cpu_idle_resched_ts));
-	(history->current_ptr)++;
-	if (history->current_ptr >= MAXSAMPLES)
-		history->current_ptr = 0;
-	history->cpu_idle_resched_ts = now;
-}
-
-static void update_history(struct cpuidle_device *dev, int idx)
-{
-	struct lpm_history *history = &per_cpu(hist, dev->cpu);
-	uint32_t tmr = 0;
-	struct lpm_cpu *lpm_cpu = per_cpu(cpu_lpm, dev->cpu);
-
-	if (!lpm_prediction || !lpm_cpu->lpm_prediction)
-		return;
-
-	if (history->htmr_wkup) {
-		if (!history->hptr)
-			history->hptr = MAXSAMPLES-1;
-		else
-			history->hptr--;
-
-		history->resi[history->hptr] += dev->last_residency;
-		history->htmr_wkup = 0;
-		tmr = 1;
-	} else
-		history->resi[history->hptr] = dev->last_residency;
-
-	history->mode[history->hptr] = idx;
-
-	trace_cpu_pred_hist(history->mode[history->hptr],
-		history->resi[history->hptr], history->hptr, tmr);
-
-	if (history->nsamp < MAXSAMPLES)
-		history->nsamp++;
-
-	(history->hptr)++;
-	if (history->hptr >= MAXSAMPLES)
-		history->hptr = 0;
-}
-
-=======
->>>>>>> Stashed changes
 static int lpm_cpuidle_enter(struct cpuidle_device *dev,
 		struct cpuidle_driver *drv, int idx)
 {
@@ -1177,20 +1104,6 @@ static int lpm_probe(struct platform_device *pdev)
 		goto failed;
 	}
 
-<<<<<<< Updated upstream
-	set_update_ipi_history_callback(update_ipi_history);
-
-	/* Add lpm_debug to Minidump*/
-	strlcpy(md_entry.name, "KLPMDEBUG", sizeof(md_entry.name));
-	md_entry.virt_addr = (uintptr_t)lpm_debug;
-	md_entry.phys_addr = lpm_debug_phys;
-	md_entry.size = size;
-	md_entry.id = MINIDUMP_DEFAULT_ID;
-	if (msm_minidump_add_region(&md_entry) < 0)
-		pr_info("Failed to add lpm_debug in Minidump\n");
-
-=======
->>>>>>> Stashed changes
 	return 0;
 failed:
 	free_cluster_node(lpm_root_node);

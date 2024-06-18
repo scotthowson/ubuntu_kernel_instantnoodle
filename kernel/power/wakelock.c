@@ -46,11 +46,7 @@ ssize_t pm_show_wakelocks(char *buf, bool show_active)
 	for (node = rb_first(&wakelocks_tree); node; node = rb_next(node)) {
 		wl = rb_entry(node, struct wakelock, node);
 		if (wl->ws->active == show_active)
-<<<<<<< Updated upstream
-			str += scnprintf(str, end - str, "%s ", wl->name);
-=======
 			len += sysfs_emit_at(buf, len, "%s ", wl->name);
->>>>>>> Stashed changes
 	}
 	len += sysfs_emit_at(buf, len, "\n");
 

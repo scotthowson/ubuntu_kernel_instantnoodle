@@ -1056,11 +1056,7 @@ remove_hrtimer(struct hrtimer *timer, struct hrtimer_clock_base *base,
 	u8 state = timer->state;
 
 	if (state & HRTIMER_STATE_ENQUEUED) {
-<<<<<<< Updated upstream
-		int reprogram;
-=======
 		bool reprogram;
->>>>>>> Stashed changes
 
 		/*
 		 * Remove the timer and force reprogramming when high

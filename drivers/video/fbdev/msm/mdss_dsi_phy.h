@@ -1,9 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
-<<<<<<< Updated upstream
-/* Copyright (c) 2015-2018, 2020, The Linux Foundation. All rights reserved. */
-=======
 /* Copyright (c) 2015-2018, 2020-2021, The Linux Foundation. All rights reserved. */
->>>>>>> Stashed changes
 
 #ifndef MDSS_DSI_PHY_H
 #define MDSS_DSI_PHY_H
@@ -18,10 +14,7 @@ enum phy_rev {
 	DSI_PHY_REV_10 = 0x01,	/* REV 1.0 - 20nm, 28nm */
 	DSI_PHY_REV_20 = 0x02,	/* REV 2.0 - 14nm */
 	DSI_PHY_REV_30 = 0x03,  /* REV 3.0 */
-<<<<<<< Updated upstream
-=======
 	DSI_PHY_REV_12NM = 0x04, /* 12nm PHY */
->>>>>>> Stashed changes
 	DSI_PHY_REV_MAX,
 };
 
@@ -123,8 +116,6 @@ int mdss_dsi_phy_v3_ulps_config(struct mdss_dsi_ctrl_pdata *ctrl, bool enable);
  * can perform any sequence required after the Idle PC exit.
  */
 void mdss_dsi_phy_v3_idle_pc_exit(struct mdss_dsi_ctrl_pdata *ctrl);
-<<<<<<< Updated upstream
-=======
 
 /**
  * mdss_dsi_12nm_phy_regulator_enable() - enable lane reg for DSI 12nm PHY
@@ -175,5 +166,4 @@ void mdss_dsi_12nm_phy_hstx_drv_ctrl(
 	struct mdss_dsi_ctrl_pdata *ctrl, bool enable);
 
 
->>>>>>> Stashed changes
 #endif /* MDSS_DSI_PHY_H */

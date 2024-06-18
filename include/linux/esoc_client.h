@@ -71,15 +71,4 @@ static inline int esoc_unregister_client_hook(struct esoc_desc *desc,
 	return -EIO;
 }
 #endif
-<<<<<<< Updated upstream
-
-int ap_mdm_dump_once(void);
-int set_esoc_ssr_state(int state);
-int get_esoc_ssr_state(void);
-int get_mdm_umount_state(void);
-extern int oem_get_modemdump_mode(void);
-extern bool oem_get_twice_modemdump_state(void);
-
-=======
->>>>>>> Stashed changes
 #endif

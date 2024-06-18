@@ -2116,10 +2116,6 @@ QDF_STATUS policy_mgr_get_channel_list(struct wlan_objmgr_psoc *psoc,
 	uint32_t sbs_num_channels = 0;
 	uint32_t chan_index_24 = 0, chan_index_5 = 0, chan_index_6 = 0;
 	bool skip_dfs_channel = false;
-<<<<<<< Updated upstream
-	bool is_etsi13_srd_chan_allowed_in_mas_mode = true;
-=======
->>>>>>> Stashed changes
 	uint32_t i = 0, j = 0;
 	struct policy_mgr_psoc_priv_obj *pm_ctx;
 	bool sta_sap_scc_on_dfs_chan;
@@ -2183,12 +2179,6 @@ QDF_STATUS policy_mgr_get_channel_list(struct wlan_objmgr_psoc *psoc,
 			policy_mgr_debug("skip DFS ch from pcl for SAP/Go");
 			skip_dfs_channel = true;
 		}
-<<<<<<< Updated upstream
-		is_etsi13_srd_chan_allowed_in_mas_mode =
-			wlan_reg_is_etsi13_srd_chan_allowed_master_mode(pm_ctx->
-									pdev);
-=======
->>>>>>> Stashed changes
 	}
 
 	/* Let's divide the list in 2.4 & 5 Ghz lists */
@@ -2201,14 +2191,6 @@ QDF_STATUS policy_mgr_get_channel_list(struct wlan_objmgr_psoc *psoc,
 						     channel_list[i]))
 				continue;
 
-<<<<<<< Updated upstream
-			if (!is_etsi13_srd_chan_allowed_in_mas_mode &&
-			    wlan_reg_is_etsi13_srd_chan_for_freq(
-			    pm_ctx->pdev, channel_list[i]))
-				continue;
-
-=======
->>>>>>> Stashed changes
 			channel_list_5[chan_index_5++] = channel_list[i];
 		} else if (wlan_reg_is_6ghz_chan_freq(channel_list[i])) {
 			/* Add to 5G list untill 6G conc support is enabled */

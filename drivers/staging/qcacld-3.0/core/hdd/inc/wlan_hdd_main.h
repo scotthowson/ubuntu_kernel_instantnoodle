@@ -1,10 +1,6 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2012-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
  * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -444,8 +440,6 @@ enum hdd_auth_key_mgmt {
 };
 
 /**
-<<<<<<< Updated upstream
-=======
  * wlan_net_dev_ref_dbgid - Debug IDs to detect net device reference leaks
  */
 /*
@@ -521,7 +515,6 @@ typedef enum {
 } wlan_net_dev_ref_dbgid;
 
 /**
->>>>>>> Stashed changes
  * struct hdd_tx_rx_histogram - structure to keep track of tx and rx packets
  *				received over 100ms intervals
  * @interval_rx:	# of rx packets received in the last 100ms interval
@@ -1147,8 +1140,6 @@ struct rcpi_info {
 
 struct hdd_context;
 
-<<<<<<< Updated upstream
-=======
 #ifdef WLAN_FEATURE_DYNAMIC_RX_AGGREGATION
 /**
  * enum qdisc_filter_status - QDISC filter status
@@ -1163,7 +1154,6 @@ enum qdisc_filter_status {
 };
 #endif
 
->>>>>>> Stashed changes
 /**
  * struct hdd_adapter - hdd vdev/net_device context
  * @vdev: object manager vdev context
@@ -1177,11 +1167,8 @@ enum qdisc_filter_status {
  * @latency_level: 0 - normal, 1 - moderate, 2 - low, 3 - ultralow
  * @last_disconnect_reason: Last disconnected internal reason code
  *                          as per enum qca_disconnect_reason_codes
-<<<<<<< Updated upstream
-=======
  * @connect_req_status: Last disconnected internal status code
  *                          as per enum qca_sta_connect_fail_reason_codes
->>>>>>> Stashed changes
  * @upgrade_udp_qos_threshold: The threshold for user priority upgrade for
 			       any UDP packet.
  * @handle_feature_update: Handle feature update only if it is triggered
@@ -1190,12 +1177,9 @@ enum qdisc_filter_status {
 				 for the adapter.
  * @gro_disallowed: Flag to check if GRO is enabled or disable for adapter
  * @gro_flushed: Flag to indicate if GRO explicit flush is done or not
-<<<<<<< Updated upstream
-=======
  * @delete_in_progress: Flag to indicate that the adapter delete is in
  *			progress, and any operation using rtnl lock inside
  *			the driver can be avoided/skipped.
->>>>>>> Stashed changes
  */
 struct hdd_adapter {
 	/* Magic cookie for adapter sanity verification.  Note that this
@@ -1478,10 +1462,7 @@ struct hdd_adapter {
 	uint32_t motion_det_baseline_value;
 #endif /* WLAN_FEATURE_MOTION_DETECTION */
 	enum qca_disconnect_reason_codes last_disconnect_reason;
-<<<<<<< Updated upstream
-=======
 	enum wlan_status_code connect_req_status;
->>>>>>> Stashed changes
 
 #ifdef WLAN_FEATURE_PERIODIC_STA_STATS
 	/* Indicate whether to display sta periodic stats */
@@ -1499,15 +1480,10 @@ struct hdd_adapter {
 	bool handle_feature_update;
 
 	qdf_work_t netdev_features_update_work;
-<<<<<<< Updated upstream
-	uint8_t gro_disallowed[DP_MAX_RX_THREADS];
-	uint8_t gro_flushed[DP_MAX_RX_THREADS];
-=======
 	qdf_atomic_t gro_disallowed;
 	uint8_t gro_flushed[DP_MAX_RX_THREADS];
 	bool delete_in_progress;
 	qdf_atomic_t net_dev_hold_ref_count[NET_DEV_HOLD_ID_MAX];
->>>>>>> Stashed changes
 };
 
 #define WLAN_HDD_GET_STATION_CTX_PTR(adapter) (&(adapter)->session.station)
@@ -1689,18 +1665,12 @@ enum hdd_sta_smps_param {
  * enum RX_OFFLOAD - Receive offload modes
  * @CFG_LRO_ENABLED: Large Rx offload
  * @CFG_GRO_ENABLED: Generic Rx Offload
-<<<<<<< Updated upstream
-=======
  * @CFG_DYNAMIC_GRO_ENABLED: Dynamic GRO enabled
->>>>>>> Stashed changes
  */
 enum RX_OFFLOAD {
 	CFG_LRO_ENABLED = 1,
 	CFG_GRO_ENABLED,
-<<<<<<< Updated upstream
-=======
 	CFG_DYNAMIC_GRO_ENABLED,
->>>>>>> Stashed changes
 };
 
 /* One per STA: 1 for BCMC_STA_ID, 1 for each SAP_SELF_STA_ID,
@@ -1828,14 +1798,10 @@ struct hdd_adapter_ops_history {
  * @sar_cmd_params: SAR command params to be configured to the FW
  * @rx_aggregation: rx aggregation enable or disable state
  * @gro_force_flush: gro force flushed indication flag
-<<<<<<< Updated upstream
- * @adapter_ops_wq: High priority workqueue for handling adapter operations
-=======
  * @tc_based_dyn_gro: TC based dynamic GRO enable/disable flag
  * @tc_ingress_prio: TC ingress priority
  * @adapter_ops_wq: High priority workqueue for handling adapter operations
  * @is_dual_mac_cfg_updated: indicate whether dual mac cfg has been updated
->>>>>>> Stashed changes
  */
 struct hdd_context {
 	struct wlan_objmgr_psoc *psoc;
@@ -2162,11 +2128,8 @@ struct hdd_context {
 	struct {
 		qdf_atomic_t rx_aggregation;
 		uint8_t gro_force_flush[DP_MAX_RX_THREADS];
-<<<<<<< Updated upstream
-=======
 		bool tc_based_dyn_gro;
 		uint32_t tc_ingress_prio;
->>>>>>> Stashed changes
 	} dp_agg_param;
 #ifdef FW_THERMAL_THROTTLE_SUPPORT
 	uint8_t dutycycle_off_percent;
@@ -2174,10 +2137,7 @@ struct hdd_context {
 
 	qdf_workqueue_t *adapter_ops_wq;
 	struct hdd_adapter_ops_history adapter_ops_history;
-<<<<<<< Updated upstream
-=======
 	bool is_dual_mac_cfg_updated;
->>>>>>> Stashed changes
 };
 
 /**
@@ -2438,39 +2398,6 @@ QDF_STATUS hdd_adapter_iterate(hdd_adapter_iterate_cb cb,
 			       void *context);
 
 /**
-<<<<<<< Updated upstream
- * hdd_for_each_adapter - adapter iterator macro
- * @hdd_ctx: the global HDD context
- * @adapter: an hdd_adapter pointer to use as a cursor
- */
-#define hdd_for_each_adapter(hdd_ctx, adapter) \
-	for (hdd_get_front_adapter(hdd_ctx, &adapter); \
-	     adapter; \
-	     hdd_get_next_adapter(hdd_ctx, adapter, &adapter))
-
-/**
- * __hdd_take_ref_and_fetch_front_adapter - Helper macro to lock, fetch front
- * adapter, take ref and unlock.
- * @hdd_ctx: the global HDD context
- * @adapter: an hdd_adapter pointer to use as a cursor
- */
-#define __hdd_take_ref_and_fetch_front_adapter(hdd_ctx, adapter) \
-	qdf_spin_lock_bh(&hdd_ctx->hdd_adapter_lock), \
-	hdd_get_front_adapter_no_lock(hdd_ctx, &adapter), \
-	(adapter) ? dev_hold(adapter->dev) : (false), \
-	qdf_spin_unlock_bh(&hdd_ctx->hdd_adapter_lock)
-
-/**
- * __hdd_take_ref_and_fetch_next_adapter - Helper macro to lock, fetch next
- * adapter, take ref and unlock.
- * @hdd_ctx: the global HDD context
- * @adapter: an hdd_adapter pointer to use as a cursor
- */
-#define __hdd_take_ref_and_fetch_next_adapter(hdd_ctx, adapter) \
-	qdf_spin_lock_bh(&hdd_ctx->hdd_adapter_lock), \
-	hdd_get_next_adapter_no_lock(hdd_ctx, adapter, &adapter), \
-	(adapter) ? dev_hold(adapter->dev) : (false), \
-=======
  * hdd_adapter_dev_hold_debug - Debug API to call dev_hold
  * @adapter: hdd_adapter pointer
  * @dbgid: Debug ID corresponding to API that is requesting the dev_hold
@@ -2523,7 +2450,6 @@ void hdd_adapter_dev_put_debug(struct hdd_adapter *adapter,
 	hdd_get_next_adapter_no_lock(hdd_ctx, adapter, &next_adapter), \
 	(next_adapter) ? hdd_adapter_dev_hold_debug(next_adapter, dbgid) : \
 			 (false), \
->>>>>>> Stashed changes
 	qdf_spin_unlock_bh(&hdd_ctx->hdd_adapter_lock)
 
 /**
@@ -2533,32 +2459,6 @@ void hdd_adapter_dev_put_debug(struct hdd_adapter *adapter,
 #define __hdd_is_adapter_valid(_adapter) !!_adapter
 
 /**
-<<<<<<< Updated upstream
- * hdd_for_each_adapter_dev_held - Adapter iterator with dev_hold called
- * @hdd_ctx: the global HDD context
- * @adapter: an hdd_adapter pointer to use as a cursor
- *
- * This iterator will take the reference of the netdev associated with the
- * given adapter so as to prevent it from being removed in other context.
- * If the control goes inside the loop body then the dev_hold has been invoked.
- *
- *                           ***** NOTE *****
- * Before the end of each iteration, dev_put(adapter->dev) must be
- * called. Not calling this will keep hold of a reference, thus preventing
- * unregister of the netdevice.
- *
- * Usage example:
- *                 hdd_for_each_adapter_dev_held(hdd_ctx, adapter) {
- *                         <work involving adapter>
- *                         <some more work>
- *                         dev_put(adapter->dev)
- *                 }
- */
-#define hdd_for_each_adapter_dev_held(hdd_ctx, adapter) \
-	for (__hdd_take_ref_and_fetch_front_adapter(hdd_ctx, adapter); \
-	     __hdd_is_adapter_valid(adapter); \
-	     __hdd_take_ref_and_fetch_next_adapter(hdd_ctx, adapter))
-=======
  * hdd_for_each_adapter_dev_held_safe - Adapter iterator with dev_hold called
  *                                      in a delete safe manner
  * @hdd_ctx: the global HDD context
@@ -2594,7 +2494,6 @@ void hdd_adapter_dev_put_debug(struct hdd_adapter *adapter,
 	     __hdd_is_adapter_valid(adapter); \
 	     __hdd_take_ref_and_fetch_next_adapter_safe(hdd_ctx, adapter, \
 							next_adapter, dbgid))
->>>>>>> Stashed changes
 
 /**
  * wlan_hdd_get_adapter_by_vdev_id_from_objmgr() - Fetch adapter from objmgr

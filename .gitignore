@@ -136,23 +136,5 @@ all.config
 # fetched Android config fragments
 kernel/configs/android-*.cfg
 
-<<<<<<< Updated upstream
-# vendor device tree directories
-#arch/arm64/boot/dts/vendor
-#drivers/oneplus/
-#include/linux/oem
-
-# Tech package directories
-#techpack/
-
-# OP SLA feature
-#opslalib/slalib
-
-#
-#Ignoring Android.bp link file
-#
-Android.bp
-=======
 # Object directory
 out/
->>>>>>> Stashed changes

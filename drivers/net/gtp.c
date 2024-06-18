@@ -668,13 +668,6 @@ static int gtp_newlink(struct net *src_net, struct net_device *dev,
 
 	gtp = netdev_priv(dev);
 
-<<<<<<< Updated upstream
-	err = gtp_encap_enable(gtp, data);
-	if (err < 0)
-		return err;
-
-=======
->>>>>>> Stashed changes
 	if (!data[IFLA_GTP_PDP_HASHSIZE]) {
 		hashsize = 1024;
 	} else {
@@ -705,12 +698,6 @@ static int gtp_newlink(struct net *src_net, struct net_device *dev,
 
 	return 0;
 
-<<<<<<< Updated upstream
-out_hashtable:
-	kfree(gtp->addr_hash);
-	kfree(gtp->tid_hash);
-=======
->>>>>>> Stashed changes
 out_encap:
 	gtp_encap_disable(gtp);
 out_hashtable:

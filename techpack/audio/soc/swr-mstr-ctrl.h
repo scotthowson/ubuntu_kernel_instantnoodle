@@ -1,10 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2015-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2015-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #ifndef _SWR_WCD_CTRL_H
@@ -55,10 +51,7 @@ enum {
 	SWR_MSTR_UP,
 	SWR_MSTR_DOWN,
 	SWR_MSTR_SSR,
-<<<<<<< Updated upstream
-=======
 	SWR_MSTR_SSR_RESET,
->>>>>>> Stashed changes
 };
 
 enum swrm_pm_state {
@@ -193,10 +186,7 @@ struct swr_mstr_ctrl {
 	u32 rd_fifo_depth;
 	u32 wr_fifo_depth;
 	bool enable_slave_irq;
-<<<<<<< Updated upstream
-=======
 	bool clk_stop_wakeup;
->>>>>>> Stashed changes
 #ifdef CONFIG_DEBUG_FS
 	struct dentry *debugfs_swrm_dent;
 	struct dentry *debugfs_peek;

@@ -1,9 +1,5 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2012, 2014 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2012-2014, 2017, 2021 The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -56,21 +52,13 @@ struct ethernet_hdr_t {
 #define ETHERNET_MTU (ETHERNET_MAX_LEN - (ETHERNET_HDR_LEN + ETHERNET_CRC_LEN))
 
 
-<<<<<<< Updated upstream
-struct llc_snap_hdr_t {
-=======
 typedef struct llc_snap_hdr_t {
->>>>>>> Stashed changes
     A_UINT8 dsap;
     A_UINT8 ssap;
     A_UINT8 cntl;
     A_UINT8 org_code[3];
     A_UINT8 ethertype[2];
-<<<<<<< Updated upstream
-};
-=======
 } LLC_SNAP_HDR;
->>>>>>> Stashed changes
 
 #define LLC_SNAP_HDR_LEN (sizeof(struct llc_snap_hdr_t))
 #define LLC_SNAP_HDR_OFFSET_ETHERTYPE \
@@ -86,8 +74,6 @@ struct ethernet_vlan_hdr_t {
     A_UINT8 ethertype[2];
 };
 
-<<<<<<< Updated upstream
-=======
 typedef PREPACK struct _wai_hdr {
     A_UINT8 version[2];
     A_UINT8 type;
@@ -105,7 +91,6 @@ typedef PREPACK struct {
     A_UINT16 vlan_encap_p;
 } POSTPACK vlan_hdr_t;
 
->>>>>>> Stashed changes
 #define ETHERTYPE_IS_EAPOL_WAPI(typeorlen)           \
 			((typeorlen) == ETHERTYPE_PAE ||  \
 			(typeorlen) == ETHERTYPE_WAI)
@@ -168,19 +153,6 @@ typedef PREPACK struct {
 #define BTEP_SNAP_ORGCODE_2 0xf8
 
 
-<<<<<<< Updated upstream
-#define IS_SNAP(_llc) ((_llc)->dsap == LLC_SNAP_LSAP && \
-                       (_llc)->ssap == LLC_SNAP_LSAP && \
-                       (_llc)->cntl == LLC_UI)
-
-#define IS_RFC1042(_llc) ((_llc)->org_code[0] == RFC1042_SNAP_ORGCODE_0 && \
-                          (_llc)->org_code[1] == RFC1042_SNAP_ORGCODE_1 && \
-                          (_llc)->org_code[2] == RFC1042_SNAP_ORGCODE_2)
-
-#define IS_BTEP(_llc) ((_llc)->org_code[0] == BTEP_SNAP_ORGCODE_0 && \
-                       (_llc)->org_code[1] == BTEP_SNAP_ORGCODE_1 && \
-                       (_llc)->org_code[2] == BTEP_SNAP_ORGCODE_2)
-=======
 #define WAI_FRAME_TYPE 0X01
 #define WAPI_M4_TYPE 0x0c
 #define WAPI_M2_TYPE 0x09
@@ -225,6 +197,5 @@ typedef PREPACK struct {
      (*((A_UINT8 *)(_hdr) + 4) == 0xff) && \
      (*((A_UINT8 *)(_hdr) + 5) == 0xff))
 
->>>>>>> Stashed changes
 
 #endif /* _ENET__H_ */

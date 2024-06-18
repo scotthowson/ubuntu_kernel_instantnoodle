@@ -65,8 +65,6 @@ int hdd_set_antenna_mode(struct hdd_adapter *adapter,
 void hdd_get_roam_scan_ch_cb(hdd_handle_t hdd_handle,
 			     struct roam_scan_ch_resp *roam_ch,
 			     void *context);
-<<<<<<< Updated upstream
-=======
 
 /**
  * hdd_get_roam_scan_freq() - roam scan freq list
@@ -83,7 +81,6 @@ void hdd_get_roam_scan_ch_cb(hdd_handle_t hdd_handle,
 int
 hdd_get_roam_scan_freq(struct hdd_adapter *adapter, mac_handle_t mac_handle,
 		       uint32_t *chan_list, uint8_t *num_channels);
->>>>>>> Stashed changes
 #else
 static inline void
 hdd_get_roam_scan_ch_cb(hdd_handle_t hdd_handle,
@@ -91,8 +88,6 @@ hdd_get_roam_scan_ch_cb(hdd_handle_t hdd_handle,
 			void *context)
 {
 }
-<<<<<<< Updated upstream
-=======
 
 static inline int
 hdd_get_roam_scan_freq(struct hdd_adapter *adapter, mac_handle_t mac_handle,
@@ -100,7 +95,6 @@ hdd_get_roam_scan_freq(struct hdd_adapter *adapter, mac_handle_t mac_handle,
 {
 	return -EFAULT;
 }
->>>>>>> Stashed changes
 #endif
 
 #ifdef QCA_IBSS_SUPPORT

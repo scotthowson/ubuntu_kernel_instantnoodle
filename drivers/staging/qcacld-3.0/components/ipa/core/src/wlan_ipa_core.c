@@ -19,10 +19,7 @@
 /* Include Files */
 #include "wlan_ipa_core.h"
 #include "wlan_ipa_main.h"
-<<<<<<< Updated upstream
-=======
 #include "wlan_hdd_main.h"
->>>>>>> Stashed changes
 #include <ol_txrx.h>
 #include "cdp_txrx_ipa.h"
 #include "wal_rx_desc.h"
@@ -900,8 +897,6 @@ wlan_ipa_rx_intrabss_fwd(struct wlan_ipa_priv *ipa_ctx,
 #endif /* CONFIG_IPA_WDI_UNIFIED_API */
 
 /**
-<<<<<<< Updated upstream
-=======
  * wlan_ipa_send_sta_eapol_to_nw() - Send Rx EAPOL pkt for STA to Kernel
  * @skb: network buffer
  *
@@ -946,7 +941,6 @@ static int wlan_ipa_send_sta_eapol_to_nw(qdf_nbuf_t skb)
 }
 
 /**
->>>>>>> Stashed changes
  * wlan_ipa_send_skb_to_network() - Send skb to kernel
  * @skb: network buffer
  * @iface_ctx: IPA interface context
@@ -978,8 +972,6 @@ wlan_ipa_send_skb_to_network(qdf_nbuf_t skb,
 }
 
 /**
-<<<<<<< Updated upstream
-=======
  * wlan_ipa_eapol_intrabss_fwd_check() - Check if eapol pkt intrabss fwd is
  *  allowed or not
  * @ipa_ctx: IPA global context
@@ -1007,7 +999,6 @@ wlan_ipa_eapol_intrabss_fwd_check(struct wlan_ipa_priv *ipa_ctx,
 }
 
 /**
->>>>>>> Stashed changes
  * __wlan_ipa_w2i_cb() - WLAN to IPA callback handler
  * @priv: pointer to private data registered with IPA (we register a
  *	pointer to the global IPA context)
@@ -1024,11 +1015,8 @@ static void __wlan_ipa_w2i_cb(void *priv, qdf_ipa_dp_evt_type_t evt,
 	uint8_t iface_id;
 	uint8_t session_id = 0xff;
 	struct wlan_ipa_iface_context *iface_context;
-<<<<<<< Updated upstream
-=======
 	bool is_eapol_wapi = false;
 	struct qdf_mac_addr peer_mac_addr = QDF_MAC_ADDR_ZERO_INIT;
->>>>>>> Stashed changes
 
 	ipa_ctx = (struct wlan_ipa_priv *)priv;
 	if (!ipa_ctx) {
@@ -1045,15 +1033,6 @@ static void __wlan_ipa_w2i_cb(void *priv, qdf_ipa_dp_evt_type_t evt,
 		if (wlan_ipa_uc_is_enabled(ipa_ctx->config)) {
 			session_id = (uint8_t)skb->cb[0];
 			iface_id = ipa_ctx->vdev_to_iface[session_id];
-<<<<<<< Updated upstream
-		} else {
-			iface_id = WLAN_IPA_GET_IFACE_ID(skb->data);
-		}
-		if (iface_id >= WLAN_IPA_MAX_IFACE) {
-			ipa_err_rl("Invalid iface_id: %u,session id: %x %x %x %x. Dropped!",
-				   iface_id, session_id, (uint8_t)skb->cb[1],
-				   (uint8_t)skb->cb[2], (uint8_t)skb->cb[3]);
-=======
 			ipa_ctx->stats.num_rx_excep++;
 			qdf_nbuf_pull_head(skb, WLAN_IPA_UC_WLAN_CLD_HDR_LEN);
 		} else {
@@ -1072,7 +1051,6 @@ static void __wlan_ipa_w2i_cb(void *priv, qdf_ipa_dp_evt_type_t evt,
 					break;
 			}
 			ipa_err_rl("Pkt Dropped!");
->>>>>>> Stashed changes
 			ipa_ctx->ipa_rx_internal_drop_count++;
 			dev_kfree_skb_any(skb);
 			return;
@@ -1086,17 +1064,6 @@ static void __wlan_ipa_w2i_cb(void *priv, qdf_ipa_dp_evt_type_t evt,
 			dev_kfree_skb_any(skb);
 			return;
 		}
-<<<<<<< Updated upstream
-
-		if (wlan_ipa_uc_is_enabled(ipa_ctx->config)) {
-			ipa_ctx->stats.num_rx_excep++;
-			qdf_nbuf_pull_head(skb, WLAN_IPA_UC_WLAN_CLD_HDR_LEN);
-		} else {
-			qdf_nbuf_pull_head(skb, WLAN_IPA_WLAN_CLD_HDR_LEN);
-		}
-		iface_context->stats.num_rx_ipa_excep++;
-
-=======
 		iface_context->stats.num_rx_ipa_excep++;
 
 		if (iface_context->device_mode == QDF_STA_MODE)
@@ -1139,7 +1106,6 @@ static void __wlan_ipa_w2i_cb(void *priv, qdf_ipa_dp_evt_type_t evt,
 			return;
 		}
 
->>>>>>> Stashed changes
 		/* Disable to forward Intra-BSS Rx packets when
 		 * ap_isolate=1 in hostapd.conf
 		 */
@@ -1561,22 +1527,16 @@ static void wlan_ipa_cleanup_iface(struct wlan_ipa_iface_context *iface_context)
 			      iface_context->dev->name,
 			      wlan_ipa_is_ipv6_enabled(ipa_ctx->config));
 
-<<<<<<< Updated upstream
-=======
 	if (iface_context->device_mode == QDF_SAP_MODE)
 		ipa_ctx->num_sap_connected--;
 
->>>>>>> Stashed changes
 	qdf_spin_lock_bh(&iface_context->interface_lock);
 	iface_context->dev = NULL;
 	iface_context->device_mode = QDF_MAX_NO_OF_MODE;
 	iface_context->session_id = WLAN_IPA_MAX_SESSION;
 	qdf_spin_unlock_bh(&iface_context->interface_lock);
 	iface_context->ifa_address = 0;
-<<<<<<< Updated upstream
-=======
 	qdf_zero_macaddr(&iface_context->bssid);
->>>>>>> Stashed changes
 	if (!iface_context->ipa_ctx->num_iface) {
 		ipa_err("NUM INTF 0, Invalid");
 		QDF_ASSERT(0);
@@ -1730,12 +1690,9 @@ static QDF_STATUS wlan_ipa_setup_iface(struct wlan_ipa_priv *ipa_ctx,
 
 	ipa_ctx->num_iface++;
 
-<<<<<<< Updated upstream
-=======
 	if (device_mode == QDF_SAP_MODE)
 		ipa_ctx->num_sap_connected++;
 
->>>>>>> Stashed changes
 	ipa_debug("exit: num_iface=%d", ipa_ctx->num_iface);
 
 	return status;
@@ -1749,8 +1706,6 @@ end:
 
 #if defined(QCA_WIFI_QCA6290) || defined(QCA_WIFI_QCA6390) || \
     defined(QCA_WIFI_QCA6490) || defined(QCA_WIFI_QCA6750)
-<<<<<<< Updated upstream
-=======
 
 #ifdef IPA_LAN_RX_NAPI_SUPPORT
 void ipa_set_rps(struct wlan_ipa_priv *ipa_ctx, enum QDF_OPMODE mode,
@@ -1771,7 +1726,6 @@ void ipa_set_rps(struct wlan_ipa_priv *ipa_ctx, enum QDF_OPMODE mode,
 }
 #endif
 
->>>>>>> Stashed changes
 /**
  * wlan_ipa_uc_handle_first_con() - Handle first uC IPA connection
  * @ipa_ctx: IPA context
@@ -1782,8 +1736,6 @@ static QDF_STATUS wlan_ipa_uc_handle_first_con(struct wlan_ipa_priv *ipa_ctx)
 {
 	ipa_debug("enter");
 
-<<<<<<< Updated upstream
-=======
 	if (qdf_ipa_get_lan_rx_napi() && (ipa_ctx->num_sap_connected > 1)) {
 		ipa_debug("Multiple SAP connected. Not enabling pipes. Exit");
 		return QDF_STATUS_E_PERM;
@@ -1792,7 +1744,6 @@ static QDF_STATUS wlan_ipa_uc_handle_first_con(struct wlan_ipa_priv *ipa_ctx)
 	if (qdf_ipa_get_lan_rx_napi() && ipa_ctx->sta_connected)
 		ipa_set_rps(ipa_ctx, QDF_STA_MODE, true);
 
->>>>>>> Stashed changes
 	if (wlan_ipa_uc_enable_pipes(ipa_ctx) != QDF_STATUS_SUCCESS) {
 		ipa_err("IPA WDI Pipe activation failed");
 		return QDF_STATUS_E_BUSY;
@@ -1811,12 +1762,9 @@ void wlan_ipa_uc_handle_last_discon(struct wlan_ipa_priv *ipa_ctx,
 
 	wlan_ipa_uc_disable_pipes(ipa_ctx, force_disable);
 
-<<<<<<< Updated upstream
-=======
 	if (qdf_ipa_get_lan_rx_napi() && ipa_ctx->sta_connected)
 		ipa_set_rps(ipa_ctx, QDF_STA_MODE, false);
 
->>>>>>> Stashed changes
 	ipa_debug("exit: IPA WDI Pipes deactivated");
 }
 
@@ -2107,8 +2055,6 @@ static QDF_STATUS wlan_ipa_send_msg(qdf_netdev_t net_dev,
 	return QDF_STATUS_SUCCESS;
 }
 
-<<<<<<< Updated upstream
-=======
 #ifdef IPA_LAN_RX_NAPI_SUPPORT
 void wlan_ipa_handle_multiple_sap_evt(struct wlan_ipa_priv *ipa_ctx,
 				      qdf_ipa_wlan_event type)
@@ -2161,7 +2107,6 @@ wlan_ipa_save_bssid_iface_ctx(struct wlan_ipa_priv *ipa_ctx, uint8_t iface_id,
 		     mac_addr, QDF_MAC_ADDR_SIZE);
 }
 
->>>>>>> Stashed changes
 /**
  * __wlan_ipa_wlan_evt() - IPA event handler
  * @net_dev: Interface net device
@@ -2311,15 +2256,12 @@ static QDF_STATUS __wlan_ipa_wlan_evt(qdf_netdev_t net_dev, uint8_t device_mode,
 						break;
 					}
 				}
-<<<<<<< Updated upstream
-=======
 
 				if (qdf_ipa_get_lan_rx_napi() &&
 				    ipa_ctx->num_sap_connected == 1) {
 					wlan_ipa_handle_multiple_sap_evt(ipa_ctx,
 									 type);
 				}
->>>>>>> Stashed changes
 			}
 
 			return QDF_STATUS_SUCCESS;
@@ -2366,13 +2308,10 @@ static QDF_STATUS __wlan_ipa_wlan_evt(qdf_netdev_t net_dev, uint8_t device_mode,
 		ipa_ctx->vdev_to_iface[session_id] =
 				wlan_ipa_get_ifaceid(ipa_ctx, session_id);
 
-<<<<<<< Updated upstream
-=======
 		wlan_ipa_save_bssid_iface_ctx(ipa_ctx,
 					     ipa_ctx->vdev_to_iface[session_id],
 					     mac_addr);
 
->>>>>>> Stashed changes
 		if (wlan_ipa_uc_sta_is_enabled(ipa_ctx->config) &&
 		    (ipa_ctx->sap_num_connected_sta > 0 ||
 		     wlan_ipa_is_sta_only_offload_enabled()) &&
@@ -2407,12 +2346,9 @@ static QDF_STATUS __wlan_ipa_wlan_evt(qdf_netdev_t net_dev, uint8_t device_mode,
 
 		ipa_ctx->sta_connected++;
 
-<<<<<<< Updated upstream
-=======
 		if (qdf_ipa_get_lan_rx_napi() && ipa_ctx->sap_num_connected_sta)
 			ipa_set_rps_per_vdev(ipa_ctx, session_id, true);
 
->>>>>>> Stashed changes
 		qdf_mutex_release(&ipa_ctx->event_lock);
 
 		ipa_debug("sta_connected=%d vdev_to_iface[%u] %u",
@@ -2447,10 +2383,6 @@ static QDF_STATUS __wlan_ipa_wlan_evt(qdf_netdev_t net_dev, uint8_t device_mode,
 
 		if (wlan_ipa_uc_is_enabled(ipa_ctx->config)) {
 			qdf_mutex_release(&ipa_ctx->event_lock);
-<<<<<<< Updated upstream
-			wlan_ipa_uc_offload_enable_disable(ipa_ctx,
-				SIR_AP_RX_DATA_OFFLOAD, session_id, true);
-=======
 			if (qdf_ipa_get_lan_rx_napi() &&
 			    (ipa_ctx->num_sap_connected > 1)) {
 				wlan_ipa_handle_multiple_sap_evt(ipa_ctx, type);
@@ -2459,7 +2391,6 @@ static QDF_STATUS __wlan_ipa_wlan_evt(qdf_netdev_t net_dev, uint8_t device_mode,
 							SIR_AP_RX_DATA_OFFLOAD,
 							session_id, true);
 			}
->>>>>>> Stashed changes
 			qdf_mutex_acquire(&ipa_ctx->event_lock);
 		}
 
@@ -2545,12 +2476,9 @@ static QDF_STATUS __wlan_ipa_wlan_evt(qdf_netdev_t net_dev, uint8_t device_mode,
 		if (iface_ctx)
 			wlan_ipa_cleanup_iface(iface_ctx);
 
-<<<<<<< Updated upstream
-=======
 		if (qdf_ipa_get_lan_rx_napi() && ipa_ctx->sap_num_connected_sta)
 			ipa_set_rps_per_vdev(ipa_ctx, session_id, false);
 
->>>>>>> Stashed changes
 		qdf_mutex_release(&ipa_ctx->event_lock);
 
 		ipa_debug("sta_connected=%d", ipa_ctx->sta_connected);
@@ -2602,13 +2530,10 @@ static QDF_STATUS __wlan_ipa_wlan_evt(qdf_netdev_t net_dev, uint8_t device_mode,
 			}
 		}
 
-<<<<<<< Updated upstream
-=======
 		if (qdf_ipa_get_lan_rx_napi() &&
 		    (ipa_ctx->num_sap_connected == 1))
 			wlan_ipa_handle_multiple_sap_evt(ipa_ctx, type);
 
->>>>>>> Stashed changes
 		qdf_mutex_release(&ipa_ctx->event_lock);
 		break;
 
@@ -2764,10 +2689,7 @@ static QDF_STATUS __wlan_ipa_wlan_evt(qdf_netdev_t net_dev, uint8_t device_mode,
 					 * unloading WLAN driver is in progress
 					 */
 
-<<<<<<< Updated upstream
-=======
 					wlan_ipa_uc_bw_monitor(ipa_ctx, true);
->>>>>>> Stashed changes
 					wlan_ipa_uc_disable_pipes(ipa_ctx,
 								  true);
 				} else {
@@ -3404,10 +3326,7 @@ QDF_STATUS wlan_ipa_setup(struct wlan_ipa_priv *ipa_ctx,
 		ipa_ctx->ipa_p_rx_packets = 0;
 		ipa_ctx->resource_loading = false;
 		ipa_ctx->resource_unloading = false;
-<<<<<<< Updated upstream
-=======
 		ipa_ctx->num_sap_connected = 0;
->>>>>>> Stashed changes
 		ipa_ctx->sta_connected = 0;
 		ipa_ctx->ipa_pipes_down = true;
 		qdf_atomic_set(&ipa_ctx->pipes_disabled, 1);
@@ -3509,12 +3428,8 @@ QDF_STATUS wlan_ipa_cleanup(struct wlan_ipa_priv *ipa_ctx)
 	/* Teardown IPA sys_pipe for MCC */
 	if (wlan_ipa_uc_sta_is_enabled(ipa_ctx->config)) {
 		wlan_ipa_teardown_sys_pipe(ipa_ctx);
-<<<<<<< Updated upstream
-		qdf_cancel_work(&ipa_ctx->mcc_work);
-=======
 		if (ipa_ctx->uc_loaded)
 			qdf_cancel_work(&ipa_ctx->mcc_work);
->>>>>>> Stashed changes
 	}
 
 	wlan_ipa_wdi_destroy_rm(ipa_ctx);

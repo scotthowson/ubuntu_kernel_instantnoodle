@@ -79,11 +79,7 @@
 #include "ufs.h"
 #include "ufshci.h"
 #if defined(CONFIG_UFSFEATURE)
-#if defined(UFS3V1)
-#include "ufs31/ufsfeature.h"
-#elif defined(UFS3V0)
-#include "ufs30/ufsfeature.h"
-#endif
+#include "ufsfeature.h"
 #endif
 
 #define UFSHCD "ufshcd"
@@ -399,18 +395,6 @@ struct ufs_hba_variant_ops {
 	ANDROID_KABI_RESERVE(2);
 	ANDROID_KABI_RESERVE(3);
 	ANDROID_KABI_RESERVE(4);
-<<<<<<< Updated upstream
-};
-
-/**
- * struct ufs_hba_pm_qos_variant_ops - variant specific PM QoS callbacks
- */
-struct ufs_hba_pm_qos_variant_ops {
-	void		(*req_start)(struct ufs_hba *hba, struct request *req);
-	void		(*req_end)(struct ufs_hba *hba, struct request *req,
-				   bool should_lock);
-=======
->>>>>>> Stashed changes
 };
 
 /**
@@ -421,38 +405,6 @@ struct ufs_hba_variant {
 	struct device				*dev;
 	const char				*name;
 	struct ufs_hba_variant_ops		*vops;
-<<<<<<< Updated upstream
-	struct ufs_hba_pm_qos_variant_ops	*pm_qos_vops;
-=======
-};
-
-struct keyslot_mgmt_ll_ops;
-struct ufs_hba_crypto_variant_ops {
-	void (*setup_rq_keyslot_manager)(struct ufs_hba *hba,
-					 struct request_queue *q);
-	void (*destroy_rq_keyslot_manager)(struct ufs_hba *hba,
-					   struct request_queue *q);
-	int (*hba_init_crypto)(struct ufs_hba *hba,
-			       const struct keyslot_mgmt_ll_ops *ksm_ops);
-	void (*enable)(struct ufs_hba *hba);
-	void (*disable)(struct ufs_hba *hba);
-	int (*suspend)(struct ufs_hba *hba, enum ufs_pm_op pm_op);
-	int (*resume)(struct ufs_hba *hba, enum ufs_pm_op pm_op);
-	int (*debug)(struct ufs_hba *hba);
-	int (*prepare_lrbp_crypto)(struct ufs_hba *hba,
-				   struct scsi_cmnd *cmd,
-				   struct ufshcd_lrb *lrbp);
-	int (*map_sg_crypto)(struct ufs_hba *hba, struct ufshcd_lrb *lrbp);
-	int (*complete_lrbp_crypto)(struct ufs_hba *hba,
-				    struct scsi_cmnd *cmd,
-				    struct ufshcd_lrb *lrbp);
-	void *priv;
-
-	ANDROID_KABI_RESERVE(1);
-	ANDROID_KABI_RESERVE(2);
-	ANDROID_KABI_RESERVE(3);
-	ANDROID_KABI_RESERVE(4);
->>>>>>> Stashed changes
 };
 
 struct keyslot_mgmt_ll_ops;
@@ -1163,10 +1115,7 @@ struct ufs_hba {
 #if defined(CONFIG_UFSFEATURE)
 	struct ufsf_feature ufsf;
 #endif
-<<<<<<< Updated upstream
-=======
 	bool wb_enabled;
->>>>>>> Stashed changes
 
 #ifdef CONFIG_SCSI_UFS_CRYPTO
 	/* crypto */
@@ -1180,8 +1129,6 @@ struct ufs_hba {
 	ANDROID_KABI_RESERVE(2);
 	ANDROID_KABI_RESERVE(3);
 	ANDROID_KABI_RESERVE(4);
-<<<<<<< Updated upstream
-=======
 
 	struct {
 		struct pm_qos_request req;
@@ -1193,7 +1140,6 @@ struct ufs_hba {
 		atomic_t count;
 		bool active;
 	} pm_qos;
->>>>>>> Stashed changes
 };
 
 static inline void ufshcd_mark_shutdown_ongoing(struct ufs_hba *hba)
@@ -1460,15 +1406,6 @@ int ufshcd_query_flag(struct ufs_hba *hba, enum query_opcode opcode,
 	enum flag_idn idn, bool *flag_res);
 int ufshcd_read_string_desc(struct ufs_hba *hba, int desc_index,
 			    u8 *buf, u32 size, bool ascii);
-#if defined(CONFIG_UFSFEATURE)
-int ufshcd_exec_dev_cmd(struct ufs_hba *hba,
-			enum dev_cmd_type cmd_type, int timeout);
-int ufshcd_hibern8_hold(struct ufs_hba *hba, bool async);
-void ufshcd_hold_all(struct ufs_hba *hba);
-void ufshcd_release_all(struct ufs_hba *hba);
-int ufshcd_comp_scsi_upiu(struct ufs_hba *hba, struct ufshcd_lrb *lrbp);
-int ufshcd_map_sg(struct ufs_hba *hba, struct ufshcd_lrb *lrbp);
-#endif
 
 int ufshcd_hold(struct ufs_hba *hba, bool async);
 void ufshcd_release(struct ufs_hba *hba, bool no_sched);
@@ -1485,6 +1422,15 @@ u32 ufshcd_get_local_unipro_ver(struct ufs_hba *hba);
 
 void ufshcd_scsi_block_requests(struct ufs_hba *hba);
 void ufshcd_scsi_unblock_requests(struct ufs_hba *hba);
+#if defined(CONFIG_UFSFEATURE)
+int ufshcd_exec_dev_cmd(struct ufs_hba *hba,
+			enum dev_cmd_type cmd_type, int timeout);
+int ufshcd_hibern8_hold(struct ufs_hba *hba, bool async);
+void ufshcd_hold_all(struct ufs_hba *hba);
+void ufshcd_release_all(struct ufs_hba *hba);
+int ufshcd_comp_scsi_upiu(struct ufs_hba *hba, struct ufshcd_lrb *lrbp);
+int ufshcd_map_sg(struct ufs_hba *hba, struct ufshcd_lrb *lrbp);
+#endif
 
 /* Wrapper functions for safely calling variant operations */
 static inline const char *ufshcd_get_var_name(struct ufs_hba *hba)
@@ -1667,24 +1613,6 @@ static inline void ufshcd_vops_remove_debugfs(struct ufs_hba *hba)
 }
 #endif
 
-<<<<<<< Updated upstream
-static inline void ufshcd_vops_pm_qos_req_start(struct ufs_hba *hba,
-		struct request *req)
-{
-	if (hba->var && hba->var->pm_qos_vops &&
-		hba->var->pm_qos_vops->req_start)
-		hba->var->pm_qos_vops->req_start(hba, req);
-}
-
-static inline void ufshcd_vops_pm_qos_req_end(struct ufs_hba *hba,
-		struct request *req, bool lock)
-{
-	if (hba->var && hba->var->pm_qos_vops && hba->var->pm_qos_vops->req_end)
-		hba->var->pm_qos_vops->req_end(hba, req, lock);
-}
-
-=======
->>>>>>> Stashed changes
 extern struct ufs_pm_lvl_states ufs_pm_lvl_states[];
 
 /*

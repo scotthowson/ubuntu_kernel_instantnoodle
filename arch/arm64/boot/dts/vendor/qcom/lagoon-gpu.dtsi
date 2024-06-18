@@ -103,10 +103,7 @@
 		qcom,gpu-qdss-stm = <0x161c0000 0x40000>;
 
 		#cooling-cells = <2>;
-<<<<<<< Updated upstream
-=======
 		qcom,tzone-names = "gpuss-0-usr", "gpuss-1-usr";
->>>>>>> Stashed changes
 
 		/* Bus Scale Settings */
 		qcom,gpubw-dev = <&gpubw>;
@@ -224,11 +221,7 @@
 					qcom,gpu-freq = <650000000>;
 					qcom,bus-freq = <10>;
 					qcom,bus-min = <8>;
-<<<<<<< Updated upstream
-					qcom,bus-max = <12>;
-=======
 					qcom,bus-max = <10>;
->>>>>>> Stashed changes
 				};
 
 				/* NOM */
@@ -237,11 +230,7 @@
 					qcom,gpu-freq = <565000000>;
 					qcom,bus-freq = <9>;
 					qcom,bus-min = <8>;
-<<<<<<< Updated upstream
-					qcom,bus-max = <11>;
-=======
 					qcom,bus-max = <10>;
->>>>>>> Stashed changes
 				};
 
 				/* SVS_L1 */
@@ -312,11 +301,7 @@
 					qcom,gpu-freq = <650000000>;
 					qcom,bus-freq = <10>;
 					qcom,bus-min = <8>;
-<<<<<<< Updated upstream
-					qcom,bus-max = <12>;
-=======
 					qcom,bus-max = <10>;
->>>>>>> Stashed changes
 				};
 
 				/* NOM */
@@ -325,11 +310,7 @@
 					qcom,gpu-freq = <565000000>;
 					qcom,bus-freq = <9>;
 					qcom,bus-min = <8>;
-<<<<<<< Updated upstream
-					qcom,bus-max = <11>;
-=======
 					qcom,bus-max = <10>;
->>>>>>> Stashed changes
 				};
 
 				/* SVS_L1 */
@@ -391,11 +372,7 @@
 					qcom,gpu-freq = <650000000>;
 					qcom,bus-freq = <10>;
 					qcom,bus-min = <8>;
-<<<<<<< Updated upstream
-					qcom,bus-max = <12>;
-=======
 					qcom,bus-max = <10>;
->>>>>>> Stashed changes
 				};
 
 				/* NOM */
@@ -404,11 +381,7 @@
 					qcom,gpu-freq = <565000000>;
 					qcom,bus-freq = <9>;
 					qcom,bus-min = <8>;
-<<<<<<< Updated upstream
-					qcom,bus-max = <11>;
-=======
 					qcom,bus-max = <10>;
->>>>>>> Stashed changes
 				};
 
 				/* SVS_L1 */

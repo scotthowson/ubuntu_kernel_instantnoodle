@@ -44,21 +44,11 @@
 	for (index = 0; (index < (display)->ctrl_count) &&\
 			(index < MAX_DSI_CTRLS_PER_DISPLAY); index++)
 
-<<<<<<< Updated upstream
-#define DSI_WARN(fmt, ...)	DRM_WARN("[msm-dsi-warn]: "fmt, ##__VA_ARGS__)
-#define DSI_ERR(fmt, ...)	DRM_DEV_ERROR(NULL, "[%d]: " fmt, __LINE__, \
-								##__VA_ARGS__)
-#define DSI_INFO(fmt, ...)	DRM_DEV_INFO(NULL, "[msm-dsi-info]: "fmt, \
-								##__VA_ARGS__)
-#define DSI_DEBUG(fmt, ...)	DRM_DEV_DEBUG(NULL, "[msm-dsi-debug]: "fmt, \
-								##__VA_ARGS__)
-=======
 #define DSI_WARN(fmt, ...)
 #define DSI_ERR(fmt, ...)
 #define DSI_INFO(fmt, ...)
 #define DSI_DEBUG(fmt, ...)
 
->>>>>>> Stashed changes
 /**
  * enum dsi_pixel_format - DSI pixel formats
  * @DSI_PIXEL_FORMAT_RGB565:
@@ -616,10 +606,6 @@ struct dsi_video_engine_cfg {
 	bool hsa_lp11_en;
 	bool eof_bllp_lp11_en;
 	bool bllp_lp11_en;
-<<<<<<< Updated upstream
-	bool splash_dms;
-=======
->>>>>>> Stashed changes
 	enum dsi_video_traffic_mode traffic_mode;
 	u32 vc_id;
 	u32 dma_sched_line;
@@ -721,10 +707,6 @@ struct dsi_display_mode {
 	u32 dsi_mode_flags;
 	enum dsi_op_mode panel_mode;
 	bool is_preferred;
-<<<<<<< Updated upstream
-	bool splash_dms;
-=======
->>>>>>> Stashed changes
 	struct dsi_display_mode_priv_info *priv_info;
 };
 

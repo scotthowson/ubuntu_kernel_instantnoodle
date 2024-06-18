@@ -1,8 +1,5 @@
 #include "bengal.dtsi"
-<<<<<<< Updated upstream
-=======
 #include "bengal-pmi632.dtsi"
->>>>>>> Stashed changes
 
 / {
 	model = "Qualcomm Technologies, Inc. BENGALP-IOT";

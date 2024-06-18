@@ -1,9 +1,5 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2016-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2016-2021 The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -573,8 +569,6 @@ cdp_peer_set_tdls_offchan_enabled(ol_txrx_soc_handle soc, uint8_t vdev_id,
 							     peer_mac, val);
 }
 
-<<<<<<< Updated upstream
-=======
 /**
  * cdp_peer_flush_frags() - Flush frags on peer
  * @soc - data path soc handle
@@ -595,5 +589,4 @@ cdp_peer_flush_frags(ol_txrx_soc_handle soc, uint8_t vdev_id, uint8_t *peer_mac)
 	if (soc->ops->peer_ops->peer_flush_frags)
 		soc->ops->peer_ops->peer_flush_frags(soc, vdev_id, peer_mac);
 }
->>>>>>> Stashed changes
 #endif /* _CDP_TXRX_PEER_H_ */

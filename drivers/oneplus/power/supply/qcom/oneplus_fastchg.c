@@ -65,15 +65,9 @@ struct fastchg_device_info {
 	bool is_swarp_supported;
 	bool warp_normal_path_need_config;
 	bool fw_ver_not_match;
-<<<<<<< Updated upstream
-	int asic_hw_id;
-#endif
-	bool is_4115mAh_4p45_support;
-=======
 	bool need_recheck_fw;
 	int asic_hw_id;
 #endif
->>>>>>> Stashed changes
 	bool is_4300mAh_4p45_support;
 	bool is_4320mAh_4p45_support;
 	bool is_4510mAh_4p45_support;
@@ -143,10 +137,6 @@ static void oneplus_notify_dash_charger_type(enum fast_charger_type type);
 #endif
 static void oneplus_notify_adapter_sid(unsigned int sid);
 void switch_mode_to_normal(void);
-<<<<<<< Updated upstream
-extern void msm_cpuidle_set_sleep_disable(bool disable);
-=======
->>>>>>> Stashed changes
 
 static int is_usb_pluged(void)
 {
@@ -232,35 +222,6 @@ static void init_swarp_chg_exist_node(void)
 }
 #endif
 
-<<<<<<< Updated upstream
-static ssize_t dash_4115mAh_4p45_exist_read(struct file *p_file,
-	char __user *puser_buf, size_t count, loff_t *p_offset)
-{
-	return 0;
-}
-
-static ssize_t dash_4115mAh_4p45_exist_write(struct file *p_file,
-	const char __user *puser_buf,
-	size_t count, loff_t *p_offset)
-{
-	return 0;
-}
-
-static const struct file_operations dash_4115mAh_4p45_exist_operations = {
-	.read = dash_4115mAh_4p45_exist_read,
-	.write = dash_4115mAh_4p45_exist_write,
-};
-
-static void init_dash_4115mAh_4p45_exist_node(void)
-{
-	if (!proc_create("dash_4115_4p45_exit", 0644, NULL,
-			 &dash_4115mAh_4p45_exist_operations)){
-		pr_info("Failed to register dash_4115mAh_4p45 node\n");
-	}
-}
-
-=======
->>>>>>> Stashed changes
 static ssize_t dash_4300mAh_4p45_exist_read(struct file *p_file,
 	char __user *puser_buf, size_t count, loff_t *p_offset)
 {
@@ -1141,10 +1102,7 @@ static int dashchg_fw_write(
 }
 
 #ifdef OP_SWARP_SUPPORTED
-<<<<<<< Updated upstream
-=======
 /*RockChip RK826 firmware upgrade start*/
->>>>>>> Stashed changes
 #define ERASE_COUNT			959 /*0x0000-0x3BFF*/
 #define BYTE_OFFSET			2
 #define BYTES_TO_WRITE		16
@@ -1340,14 +1298,8 @@ int rk826_download_erase_byte(struct fastchg_device_info *chip, const u8 byte)
 	u8 transfer_buf[TRANSFER_LIMIT];
 	u32 onetime_size = TRANSFER_LIMIT - 8;
 	u32 index = 0;
-<<<<<<< Updated upstream
-	//u32 offset = 0;
-	int ret = 0;
-	int size=16384;// erase 16kb
-=======
 	int ret = 0;
 	int size=16384;
->>>>>>> Stashed changes
 
 	pr_info("size: %d\n", size);
 	pr_err("erase_rk826_%02x  start\n", byte);
@@ -1355,17 +1307,8 @@ int rk826_download_erase_byte(struct fastchg_device_info *chip, const u8 byte)
 		memset(transfer_buf, byte, TRANSFER_LIMIT);
 
 		if (size >= onetime_size) {
-<<<<<<< Updated upstream
-			//memcpy(transfer_buf, buf + offset, onetime_size);
-			size-= onetime_size;
-			//offset += onetime_size;
-		} else {
-			//memcpy(transfer_buf, buf + offset, size);
-			//offset += size;
-=======
 			size-= onetime_size;
 		} else {
->>>>>>> Stashed changes
 			size = 0;
 		}
 		*((u32 *)(transfer_buf + onetime_size)) = index;
@@ -1404,10 +1347,6 @@ static int rk826_erase_fw_by_byte(struct fastchg_device_info *chip, const u8 byt
 			goto update_fw_err;
 		}
 
-<<<<<<< Updated upstream
-		//2.check ~sync
-=======
->>>>>>> Stashed changes
 		msleep(10);
 		ret = oneplus_u16_i2c_read(chip->client, REG_HOST, 4, read_buf);
 		pr_info("the data: %x, %x, %x, %x\n", read_buf[0], read_buf[1], read_buf[2], read_buf[3]);
@@ -1431,10 +1370,6 @@ static int rk826_erase_fw_by_byte(struct fastchg_device_info *chip, const u8 byt
 		goto update_fw_err;
 	}
 
-<<<<<<< Updated upstream
-	// write rec_01
-=======
->>>>>>> Stashed changes
 	ret = oneplus_u16_i2c_write(chip->client, REG_HOST, 4, (u8 *)(&rec_01_flag));
 	if (ret < 0) {
 		pr_err("write rec_01 flag failed!");
@@ -1442,10 +1377,6 @@ static int rk826_erase_fw_by_byte(struct fastchg_device_info *chip, const u8 byt
 	}
 	msleep(10);
 
-<<<<<<< Updated upstream
-	// read reg_state
-=======
->>>>>>> Stashed changes
 	ret = oneplus_u16_i2c_read(chip->client, REG_STATE, 4, read_buf);
 	if (ret<0) {
 		pr_err("write rec_01 flag failed!");
@@ -1456,10 +1387,6 @@ static int rk826_erase_fw_by_byte(struct fastchg_device_info *chip, const u8 byt
 		goto update_fw_err;
 	}
 
-<<<<<<< Updated upstream
-	// send req
-=======
->>>>>>> Stashed changes
 	req.tag = 0x51455220;
 	req.ram_offset = 0;
 	req.length =  16384;//for erase
@@ -1475,10 +1402,6 @@ static int rk826_erase_fw_by_byte(struct fastchg_device_info *chip, const u8 byt
 	}
 	msleep(10);
 
-<<<<<<< Updated upstream
-	// read state firwware
-=======
->>>>>>> Stashed changes
 	ret = oneplus_u16_i2c_read(chip->client, REG_STATE, 4, read_buf);
 	pr_info("read state firwware: %x\n", *(u32 *)read_buf);
 	if (ret < 0) {
@@ -1490,10 +1413,6 @@ static int rk826_erase_fw_by_byte(struct fastchg_device_info *chip, const u8 byt
 		goto update_fw_err;
 	}
 
-<<<<<<< Updated upstream
-	// send fw
-=======
->>>>>>> Stashed changes
 	if ((ret = rk826_download_erase_byte(chip, byte)) != 0) {
 		pr_err("failed to send firmware");
 		goto update_fw_err;
@@ -1668,13 +1587,9 @@ update_fw_err:
 	pr_err("fail\n");
 	return 1;
 }
-<<<<<<< Updated upstream
-
-=======
 /*RockChip RK826 firmware upgrade end*/
 
 /*RichTek RT5125 firmware upgrade start*/
->>>>>>> Stashed changes
 #define DEFAULT_MAX_BINSIZE	(16 * 1024)
 #define DEFAULT_MAX_DATALEN	(128)
 #define DEFAULT_MAX_PAGELEN	(128)
@@ -2382,11 +2297,7 @@ static void dashchg_fw_update(struct work_struct *work)
 	} else {
 		rc = dashchg_fw_check();
 	}
-<<<<<<< Updated upstream
-	if (rc == FW_CHECK_SUCCESS) {
-=======
 	if (rc == FW_CHECK_SUCCESS && !di->need_recheck_fw) {
->>>>>>> Stashed changes
 		di->firmware_already_updated = true;
 		reset_mcu_and_request_irq(di);
 #ifdef OP_SWARP_SUPPORTED
@@ -2405,10 +2316,6 @@ update_asic_fw:
 		if (di->asic_hw_id == ROCKCHIP_RK826) {
 			if (!download_again && !fw_check_err
 				&& di->fw_ver_not_match) {
-<<<<<<< Updated upstream
-				// erase mtp.
-=======
->>>>>>> Stashed changes
 				rk826_erase_fw_by_byte(di, 0x00);
 				msleep(10);
 				rk826_erase_fw_by_byte(di, 0xff);
@@ -2417,10 +2324,7 @@ update_asic_fw:
 				msleep(10);
 			}
 			rc = rk826_fw_write(di, dashchg_firmware_data, 0, di->dashchg_fw_ver_count);
-<<<<<<< Updated upstream
-=======
 			di->need_recheck_fw = false;
->>>>>>> Stashed changes
 		} else if (di->asic_hw_id == RICHTEK_RT5125) {
 			rc = rt5125_fw_update(di);
 		}
@@ -2602,11 +2506,7 @@ static void clean_status(void)
 					msecs_to_jiffies(2000));
 		fastchg_di->fast_chg_started = false;
 		fastchg_di->fast_chg_ing = false;
-<<<<<<< Updated upstream
-		msm_cpuidle_set_sleep_disable(false);
-=======
 		update_fast_chg_started();
->>>>>>> Stashed changes
 	}
 }
 static void disable_mcu_work_func(struct work_struct *work)
@@ -2700,8 +2600,6 @@ void enhance_dash_type_set(int type)
 	}
 }
 
-<<<<<<< Updated upstream
-=======
 void recheck_asic_fw_status(void)
 {
 	u8 value_buf[2] = {0};
@@ -2723,7 +2621,6 @@ void recheck_asic_fw_status(void)
 	}
 }
 
->>>>>>> Stashed changes
 int dash_get_adapter_update_status(void)
 {
 	if (!fastchg_di)
@@ -2905,19 +2802,7 @@ void switch_mode_to_normal(void)
 		mcu_en_gpio_set(1);
 		op_check_charger_collapse_rerun_aicl();
 	}
-<<<<<<< Updated upstream
-	msm_cpuidle_set_sleep_disable(false);
 	update_disconnect_pd_status(false);
-}
-
-static void update_fast_chg_started(void)
-{
-	if (bq27541_data && bq27541_data->fast_chg_started_status)
-		bq27541_data->fast_chg_started_status(
-		fastchg_di->fast_chg_started);
-=======
-	update_disconnect_pd_status(false);
->>>>>>> Stashed changes
 }
 
 static void request_mcu_irq(struct fastchg_device_info *di)
@@ -2989,26 +2874,14 @@ void di_watchdog(struct timer_list *t)
 	di->fast_normal_to_warm = false;
 	di->fast_chg_ing = false;
 	di->fast_chg_error = false;
-<<<<<<< Updated upstream
-	schedule_work(&di->charger_present_status_work);
-	pr_err("switch off fastchg\n");
-
-=======
 	pr_err("ap_data_status=%d", gpio_get_value(di->ap_data));
 	schedule_work(&di->charger_present_status_work);
 	pr_err("switch off fastchg\n");
->>>>>>> Stashed changes
 	__pm_relax(di->fastchg_wake_lock);
 }
 
 #define MAX_BUFFER_SIZE 1024
 #define ALLOW_DATA 0x2
-<<<<<<< Updated upstream
-#define REJECT_DATA 0x11
-
-#ifndef CONFIG_ARCH_LITO
-=======
->>>>>>> Stashed changes
                             /* warp */ /* swarp */
 #define CURRENT_LIMIT_1 0x1 /* 3.6A */ /* 2.5A */
 #define CURRENT_LIMIT_2 0x2 /* 2.5A */ /* 2.0A */
@@ -3016,19 +2889,7 @@ void di_watchdog(struct timer_list *t)
 #define CURRENT_LIMIT_4 0x4 /* 4.0A */ /* 4.0A */
 #define CURRENT_LIMIT_5 0x5 /* 5.0A */ /* 5.0A */
 #define CURRENT_LIMIT_6 0x6 /* 6.0A */ /* 6.5A */
-<<<<<<< Updated upstream
-#else
-// Current limits as per the dash firwmare using by 4115mA battery in AVICII
-#define CURRENT_LIMIT_1 0x1 /* 2A */
-#define CURRENT_LIMIT_2 0x2 /* 2.5A */
-#define CURRENT_LIMIT_3 0x3 /* 3.0A */
-#define CURRENT_LIMIT_4 0x4 /* 4.0A */
-#define CURRENT_LIMIT_5 0x5 /* 5.0A */
-#define CURRENT_LIMIT_6 0x6 /* 6.0A */
-#endif
-=======
 #define REJECT_DATA 0x11
->>>>>>> Stashed changes
 
 /* Legacy write function */
 /*
@@ -3260,10 +3121,6 @@ static long  dash_dev_ioctl(struct file *filp, unsigned int cmd,
 	bool is_call_on = false;
 	bool is_video_call_on = false;
 	bool is_lcd_on = false;
-<<<<<<< Updated upstream
-	int cool_down = 0;
-=======
->>>>>>> Stashed changes
 	static int lcd_on_msg;
 	static int allow_iic_counter;
 
@@ -3292,10 +3149,6 @@ static long  dash_dev_ioctl(struct file *filp, unsigned int cmd,
 				di->fast_chg_error = false;
 				dash_write_4bits(di, ALLOW_DATA);
 				di->fast_chg_started = true;
-<<<<<<< Updated upstream
-				msm_cpuidle_set_sleep_disable(true);
-=======
->>>>>>> Stashed changes
 				if (di->is_swarp_supported) {
 					di->current_max_val = op_get_allowed_current_max();
 					// all skin_thermal limit current should not greater than max.
@@ -3357,35 +3210,6 @@ static long  dash_dev_ioctl(struct file *filp, unsigned int cmd,
 				}
 				bq27541_data->set_allow_reading(false);
 
-<<<<<<< Updated upstream
-				cool_down = op_get_cool_down_value();
-				if (cool_down < 0) {
-					is_skin_thermal_medium = check_skin_thermal_medium();
-					is_skin_temp_warm = check_skin_thermal_warm();
-					is_skin_temp_high = check_skin_thermal_high();
-					is_call_on = check_call_on_status();
-					is_video_call_on = check_video_call_on_status();
-					is_lcd_on = check_lcd_on_status();
-
-					if (is_call_on || is_video_call_on)
-						lcd_on_msg = CURRENT_LIMIT_2;
-					else {
-						if (is_skin_temp_high)
-							lcd_on_msg = is_lcd_on ? di->skin_hi_curr_max : di->skin_hi_lcdoff_curr_max;
-						else if (is_skin_temp_warm)
-							lcd_on_msg = is_lcd_on ? di->skin_wrm_curr_max : di->current_max_val;
-						else if (is_skin_thermal_medium)
-							lcd_on_msg = is_lcd_on ? di->skin_med_curr_max: di->skin_med_lcdoff_curr_max;
-						else
-							lcd_on_msg = di->current_max_val;
-					}
-				} else if (cool_down >= CURRENT_LIMIT_1
-							&& cool_down <= CURRENT_LIMIT_6) {
-					lcd_on_msg = cool_down;
-				} else
-					lcd_on_msg = di->current_max_val;
-
-=======
 				is_skin_thermal_medium = check_skin_thermal_medium();
 				is_skin_temp_warm = check_skin_thermal_warm();
 				is_skin_temp_high = check_skin_thermal_high();
@@ -3405,7 +3229,6 @@ static long  dash_dev_ioctl(struct file *filp, unsigned int cmd,
 					else
 						lcd_on_msg = di->current_max_val;
 				}
->>>>>>> Stashed changes
 				if (!di->is_swarp_supported)
 					dash_write_4bits(di, lcd_on_msg);
 #ifdef OP_SWARP_SUPPORTED
@@ -3585,10 +3408,7 @@ static long  dash_dev_ioctl(struct file *filp, unsigned int cmd,
 				bq27541_data->set_allow_reading(true);
 				di->warp_normal_path_need_config = true;
 				di->fast_chg_started = false;
-<<<<<<< Updated upstream
-=======
 				update_fast_chg_started();
->>>>>>> Stashed changes
 			} else if (arg == DASH_NOTIFY_ADAPTER_NOT_MATCH + 2) {
 				volt = onplus_get_battery_mvolts();
 				temp = onplus_get_battery_temperature();
@@ -3693,11 +3513,6 @@ static int dash_parse_dt(struct fastchg_device_info *di)
 	di->is_swarp_supported = of_property_read_bool(dev_node,
 		"op,swarp_supported");
 #endif
-<<<<<<< Updated upstream
-	di->is_4115mAh_4p45_support = of_property_read_bool(dev_node,
-		"op,4115mAh_4p45_support");
-=======
->>>>>>> Stashed changes
 	di->is_4300mAh_4p45_support = of_property_read_bool(dev_node,
 		"op,4300mAh_4p45_support");
 	di->is_4320mAh_4p45_support = of_property_read_bool(dev_node,
@@ -3978,9 +3793,6 @@ static void check_4p45_support(struct fastchg_device_info *di)
 	} else if (di->is_4320mAh_4p45_support) {
 		init_dash_4320mAh_4p45_exist_node();
 		pr_info("4320mAh_4p45 dash exist\n");
-	} else if (di->is_4115mAh_4p45_support) {
-		init_dash_4115mAh_4p45_exist_node();
-		pr_info("4115mAh_4p45 dash exist\n");
 	} else if (di->is_4510mAh_4p45_support) {
 		init_dash_4510mAh_4p45_exist_node();
 		pr_info("4510mAh_4p45 dash exist\n");
@@ -4171,25 +3983,11 @@ static int dash_probe(struct i2c_client *client, const struct i2c_device_id *id)
 		di->skin_hi_lcdoff_curr_max = CURRENT_LIMIT_2;
 		di->skin_med_lcdoff_curr_max = CURRENT_LIMIT_6;
 	} else {
-<<<<<<< Updated upstream
-#ifndef CONFIG_ARCH_LITO
-=======
->>>>>>> Stashed changes
 		di->skin_hi_curr_max = CURRENT_LIMIT_2;
 		di->skin_wrm_curr_max = CURRENT_LIMIT_1;
 		di->skin_med_curr_max = CURRENT_LIMIT_1;
 		di->skin_hi_lcdoff_curr_max = CURRENT_LIMIT_1;
 		di->skin_med_lcdoff_curr_max = CURRENT_LIMIT_6;
-<<<<<<< Updated upstream
-#else
-		di->skin_hi_curr_max = CURRENT_LIMIT_1; // 2A
-		di->skin_wrm_curr_max = CURRENT_LIMIT_3; // 3A
-		di->skin_med_curr_max = CURRENT_LIMIT_4; // 4A
-		di->skin_hi_lcdoff_curr_max = CURRENT_LIMIT_2; // 2.5A
-		di->skin_med_lcdoff_curr_max = CURRENT_LIMIT_3; // 3A
-#endif
-=======
->>>>>>> Stashed changes
 	}
 	di->current_max_val = CURRENT_LIMIT_6;
 #endif

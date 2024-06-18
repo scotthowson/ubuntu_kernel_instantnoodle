@@ -98,9 +98,6 @@ static const struct dmi_system_id lid_blacklst[] = {
 		 */
 		.matches = {
 			DMI_MATCH(DMI_SYS_VENDOR, "MEDION"),
-<<<<<<< Updated upstream
-			DMI_MATCH(DMI_PRODUCT_NAME, "E2215T MD60198"),
-=======
 			DMI_MATCH(DMI_PRODUCT_NAME, "E2215T"),
 		},
 		.driver_data = (void *)(long)ACPI_BUTTON_LID_INIT_OPEN,
@@ -113,7 +110,6 @@ static const struct dmi_system_id lid_blacklst[] = {
 		.matches = {
 			DMI_MATCH(DMI_SYS_VENDOR, "MEDION"),
 			DMI_MATCH(DMI_PRODUCT_NAME, "E2228T"),
->>>>>>> Stashed changes
 		},
 		.driver_data = (void *)(long)ACPI_BUTTON_LID_INIT_OPEN,
 	},
@@ -494,11 +490,7 @@ static int acpi_button_resume(struct device *dev)
 	struct acpi_button *button = acpi_driver_data(device);
 
 	button->suspended = false;
-<<<<<<< Updated upstream
-	if (button->type == ACPI_BUTTON_TYPE_LID && button->input->users) {
-=======
 	if (button->type == ACPI_BUTTON_TYPE_LID) {
->>>>>>> Stashed changes
 		button->last_state = !!acpi_lid_evaluate_state(device);
 		button->last_time = ktime_get();
 		acpi_lid_initialize_state(device);

@@ -1,9 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0-only
-<<<<<<< Updated upstream
-/* Copyright (c) 2013-2018, 2020, The Linux Foundation. All rights reserved. */
-=======
 /* Copyright (c) 2013-2018, 2020-2021, The Linux Foundation. All rights reserved. */
->>>>>>> Stashed changes
 
 #include <linux/workqueue.h>
 #include <linux/delay.h>
@@ -155,13 +151,9 @@ void mdss_check_dsi_ctrl_status(struct work_struct *work, uint32_t interval)
 	MDSS_XLOG(mipi->mode);
 
 	mdss_mdp_clk_ctrl(MDP_BLOCK_POWER_ON);
-<<<<<<< Updated upstream
-	ret = ctrl_pdata->check_status(ctrl_pdata);
-=======
 	mutex_lock(&pstatus_data->mfd->sd_lock);
 	ret = ctrl_pdata->check_status(ctrl_pdata);
 	mutex_unlock(&pstatus_data->mfd->sd_lock);
->>>>>>> Stashed changes
 	mdss_mdp_clk_ctrl(MDP_BLOCK_POWER_OFF);
 
 	mutex_unlock(&ctl->offlock);

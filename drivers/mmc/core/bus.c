@@ -423,14 +423,11 @@ void mmc_remove_card(struct mmc_card *card)
 	}
 	if (host->ops->exit_dbg_mode)
 		host->ops->exit_dbg_mode(host);
-<<<<<<< Updated upstream
-=======
 
 	if (host->cqe_enabled) {
 		host->cqe_ops->cqe_disable(host);
 		host->cqe_enabled = false;
 	}
->>>>>>> Stashed changes
 
 	put_device(&card->dev);
 }

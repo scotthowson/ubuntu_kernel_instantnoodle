@@ -222,13 +222,6 @@ struct sec_entry {
 	unsigned int valid_blocks;	/* # of valid blocks in a section */
 };
 
-<<<<<<< Updated upstream
-struct segment_allocation {
-	void (*allocate_segment)(struct f2fs_sb_info *, int, bool);
-};
-
-=======
->>>>>>> Stashed changes
 #define MAX_SKIP_GC_COUNT			16
 
 struct revoke_entry {
@@ -337,8 +330,6 @@ struct sit_entry_set {
  */
 static inline struct curseg_info *CURSEG_I(struct f2fs_sb_info *sbi, int type)
 {
-	if (type == CURSEG_COLD_DATA_PINNED)
-		type = CURSEG_COLD_DATA;
 	return (struct curseg_info *)(SM_I(sbi)->curseg_array + type);
 }
 
@@ -669,13 +660,9 @@ static inline int utilization(struct f2fs_sb_info *sbi)
  *                     pages over min_fsync_blocks. (=default option)
  * F2FS_IPU_ASYNC - do IPU given by asynchronous write requests.
  * F2FS_IPU_NOCACHE - disable IPU bio cache.
-<<<<<<< Updated upstream
- * F2FS_IPUT_DISABLE - disable IPU. (=default option in LFS mode)
-=======
  * F2FS_IPU_HONOR_OPU_WRITE - use OPU write prior to IPU write if inode has
  *                            FI_OPU_WRITE flag.
  * F2FS_IPU_DISABLE - disable IPU. (=default option in LFS mode)
->>>>>>> Stashed changes
  */
 #define DEF_MIN_IPU_UTIL	70
 #define DEF_MIN_FSYNC_BLOCKS	20
@@ -691,10 +678,7 @@ enum {
 	F2FS_IPU_FSYNC,
 	F2FS_IPU_ASYNC,
 	F2FS_IPU_NOCACHE,
-<<<<<<< Updated upstream
-=======
 	F2FS_IPU_HONOR_OPU_WRITE,
->>>>>>> Stashed changes
 };
 
 static inline unsigned int curseg_segno(struct f2fs_sb_info *sbi,

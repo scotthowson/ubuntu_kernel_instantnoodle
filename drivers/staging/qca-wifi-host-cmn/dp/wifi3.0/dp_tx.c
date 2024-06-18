@@ -1100,8 +1100,6 @@ static void dp_tx_raw_prepare_unset(struct dp_soc *soc,
 #define dp_vdev_peer_stats_update_protocol_cnt_tx(vdev_hdl, skb)
 #endif
 
-<<<<<<< Updated upstream
-=======
 #ifdef FEATURE_RUNTIME_PM
 /**
  * dp_tx_ring_access_end_wrapper() - Wrapper for ring access end
@@ -1164,7 +1162,6 @@ dp_tx_ring_access_end_wrapper(struct dp_soc *soc,
 }
 #endif
 
->>>>>>> Stashed changes
 /**
  * dp_tx_hw_enqueue() - Enqueue to TCL HW for transmit
  * @soc: DP Soc Handle
@@ -1753,20 +1750,7 @@ dp_tx_send_msdu_single(struct dp_vdev *vdev, qdf_nbuf_t nbuf,
 	nbuf = NULL;
 
 fail_return:
-<<<<<<< Updated upstream
-	if (hif_pm_runtime_get(soc->hif_handle,
-			       RTPM_ID_DW_TX_HW_ENQUEUE) == 0) {
-		hal_srng_access_end(soc->hal_soc, hal_ring_hdl);
-		hif_pm_runtime_put(soc->hif_handle,
-				   RTPM_ID_DW_TX_HW_ENQUEUE);
-	} else {
-		hal_srng_access_end_reap(soc->hal_soc, hal_ring_hdl);
-		hal_srng_set_event(hal_ring_hdl, HAL_SRNG_FLUSH_EVENT);
-		hal_srng_inc_flush_cnt(hal_ring_hdl);
-	}
-=======
 	dp_tx_ring_access_end_wrapper(soc, hal_ring_hdl);
->>>>>>> Stashed changes
 
 	return nbuf;
 }

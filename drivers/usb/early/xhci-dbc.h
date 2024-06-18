@@ -120,8 +120,6 @@ struct xdbc_ring {
 	u32			cycle_state;
 };
 
-<<<<<<< Updated upstream
-=======
 /*
  * These are the "Endpoint ID" (also known as "Context Index") values for the
  * OUT Transfer Ring and the IN Transfer Ring of a Debug Capability Context data
@@ -134,7 +132,6 @@ struct xdbc_ring {
  * Luckily the values from Intel don't overlap with those from AMD, so we can
  * just test for both.
  */
->>>>>>> Stashed changes
 #define XDBC_EPID_OUT		0
 #define XDBC_EPID_IN		1
 #define XDBC_EPID_OUT_INTEL	2

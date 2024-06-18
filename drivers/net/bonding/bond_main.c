@@ -2804,12 +2804,9 @@ static int bond_ab_arp_inspect(struct bonding *bond)
 		if (slave->link != BOND_LINK_UP) {
 			if (bond_time_in_interval(bond, last_rx, 1)) {
 				bond_propose_link_state(slave, BOND_LINK_UP);
-<<<<<<< Updated upstream
-=======
 				commit++;
 			} else if (slave->link == BOND_LINK_BACK) {
 				bond_propose_link_state(slave, BOND_LINK_FAIL);
->>>>>>> Stashed changes
 				commit++;
 			}
 			continue;
@@ -4097,27 +4094,6 @@ out:
 	if (ret != 0 && skipslave)
 		bond_skip_slave(rtnl_dereference(bond->slave_arr), skipslave);
 
-<<<<<<< Updated upstream
-		/* Rare situation where caller has asked to skip a specific
-		 * slave but allocation failed (most likely!). BTW this is
-		 * only possible when the call is initiated from
-		 * __bond_release_one(). In this situation; overwrite the
-		 * skipslave entry in the array with the last entry from the
-		 * array to avoid a situation where the xmit path may choose
-		 * this to-be-skipped slave to send a packet out.
-		 */
-		old_arr = rtnl_dereference(bond->slave_arr);
-		for (idx = 0; old_arr != NULL && idx < old_arr->count; idx++) {
-			if (skipslave == old_arr->arr[idx]) {
-				old_arr->arr[idx] =
-				    old_arr->arr[old_arr->count-1];
-				old_arr->count--;
-				break;
-			}
-		}
-	}
-=======
->>>>>>> Stashed changes
 	return ret;
 }
 

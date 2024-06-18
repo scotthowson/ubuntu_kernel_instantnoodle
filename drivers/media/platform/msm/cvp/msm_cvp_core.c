@@ -399,10 +399,6 @@ wait:
 		dprintk(CVP_ERR,
 			"Failed to release persist buffers\n");
 
-<<<<<<< Updated upstream
-	msm_cvp_session_queue_stop(inst);
-=======
->>>>>>> Stashed changes
 	dprintk(CVP_DBG, "Done cvp cleanup instance\n");
 }
 

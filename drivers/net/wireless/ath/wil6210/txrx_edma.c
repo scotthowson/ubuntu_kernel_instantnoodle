@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: ISC
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2012-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include <linux/etherdevice.h>
@@ -1261,15 +1257,12 @@ skipping:
 	wil_hex_dump_txrx("Rx ", DUMP_PREFIX_OFFSET, 16, 1,
 			  skb->data, skb_headlen(skb), false);
 
-<<<<<<< Updated upstream
-=======
 	if (!wil->use_compressed_rx_status &&
 	    wil_check_amsdu(wil, msg, cid, rxdata, skb)) {
 		kfree_skb(skb);
 		goto again;
 	}
 
->>>>>>> Stashed changes
 	/* use radiotap header only if required */
 	if (ndev->type == ARPHRD_IEEE80211_RADIOTAP)
 		wil_rx_add_radiotap_header_edma(wil, msg, skb);

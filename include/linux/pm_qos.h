@@ -17,25 +17,7 @@ enum {
 	PM_QOS_NETWORK_LATENCY,
 	PM_QOS_NETWORK_THROUGHPUT,
 	PM_QOS_MEMORY_BANDWIDTH,
-<<<<<<< Updated upstream
-	/* add for thermal*/
-	PM_QOS_MSM_THERMAL,
-	PM_QOS_SKIN_THERMAL,
-	PM_QOS_MMW0_THERMAL,
-	PM_QOS_MMW1_THERMAL,
-	PM_QOS_MMW2_THERMAL,
-	PM_QOS_MODEM_SKIN_THERMAL,
-	PM_QOS_C0_CPUFREQ_MAX,
-	PM_QOS_C0_CPUFREQ_MIN,
-	PM_QOS_C1_CPUFREQ_MAX,
-	PM_QOS_C1_CPUFREQ_MIN,
-	PM_QOS_C2_CPUFREQ_MAX,
-	PM_QOS_C2_CPUFREQ_MIN,
-	PM_QOS_DEVFREQ_MAX,
-	PM_QOS_DEVFREQ_MIN,
-=======
 
->>>>>>> Stashed changes
 	/* insert new class ID */
 	PM_QOS_NUM_CLASSES,
 };
@@ -61,22 +43,6 @@ enum pm_qos_flags_status {
 #define PM_QOS_LATENCY_TOLERANCE_DEFAULT_VALUE	0
 #define PM_QOS_LATENCY_TOLERANCE_NO_CONSTRAINT	(-1)
 
-<<<<<<< Updated upstream
-#define        MIN_CPUFREQ  0
-#define        MAX_CPUFREQ  0x40
-#define        MASK_CPUFREQ 0xE0
-
-#define PM_QOS_CPUFREQ_MAX_DEFAULT_VALUE       MAX_CPUFREQ
-#define PM_QOS_CPUFREQ_MIN_DEFAULT_VALUE       MIN_CPUFREQ
-#define PM_QOS_DEVFREQ_MAX_DEFAULT_VALUE       MAX_CPUFREQ
-#define PM_QOS_DEVFREQ_MIN_DEFAULT_VALUE       MIN_CPUFREQ
-
-extern void msm_cpuidle_set_sleep_disable(bool disable);
-
-#define PM_QOS_DYNAMIC_THERMAL_DEFAULT_VALUE  0
-
-=======
->>>>>>> Stashed changes
 #define PM_QOS_FLAG_NO_POWER_OFF	(1 << 0)
 
 enum pm_qos_req_type {

@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2012-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include <linux/file.h>
@@ -376,12 +372,6 @@ static void kgsl_sync_timeline_signal(struct kgsl_sync_timeline *ktimeline,
 
 void kgsl_sync_timeline_detach(struct kgsl_sync_timeline *ktimeline)
 {
-<<<<<<< Updated upstream
-	struct kgsl_sync_timeline *ktimeline = context->ktimeline;
-
-	kfree(ktimeline->name);
-	kfree(ktimeline);
-=======
 	unsigned long flags;
 	struct kgsl_context *context = ktimeline->context;
 
@@ -390,7 +380,6 @@ void kgsl_sync_timeline_detach(struct kgsl_sync_timeline *ktimeline)
 	ktimeline->context = NULL;
 	spin_unlock_irqrestore(&ktimeline->lock, flags);
 	kgsl_context_put(context);
->>>>>>> Stashed changes
 }
 
 static void kgsl_sync_timeline_destroy(struct kref *kref)

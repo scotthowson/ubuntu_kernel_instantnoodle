@@ -1,11 +1,7 @@
 // SPDX-License-Identifier: ISC
 /*
  * Copyright (c) 2012-2017 Qualcomm Atheros, Inc.
-<<<<<<< Updated upstream
- * Copyright (c) 2018-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2018-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include <linux/moduleparam.h>

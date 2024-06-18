@@ -13877,8 +13877,6 @@ static int vmx_check_intercept(struct kvm_vcpu *vcpu,
 
 		/* FIXME: produce nested vmexit and return X86EMUL_INTERCEPTED.  */
 		break;
-<<<<<<< Updated upstream:arch/x86/kvm/vmx.c
-=======
 
 	case x86_intercept_pause:
 		/*
@@ -13894,7 +13892,6 @@ static int vmx_check_intercept(struct kvm_vcpu *vcpu,
 			return X86EMUL_CONTINUE;
 
 		break;
->>>>>>> Stashed changes:arch/x86/kvm/vmx/vmx.c
 
 	/* TODO: check more intercepts... */
 	default:

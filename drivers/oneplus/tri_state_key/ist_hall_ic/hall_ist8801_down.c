@@ -654,10 +654,7 @@ static irqreturn_t ist8801_down_irq_handler(int irq, void *dev_id)
 	}
 
 	disable_irq_nosync(g_ist8801_data->irq);
-<<<<<<< Updated upstream
-=======
 	irq_enabled = false;
->>>>>>> Stashed changes
 	__pm_wakeup_event(g_ist8801_data->source, 2000);
 	oneplus_hall_irq_handler(1);
 

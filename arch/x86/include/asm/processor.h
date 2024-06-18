@@ -991,9 +991,6 @@ enum taa_mitigations {
 	TAA_MITIGATION_TSX_DISABLED,
 };
 
-<<<<<<< Updated upstream
-=======
 extern bool gds_ucode_mitigated(void);
 
->>>>>>> Stashed changes
 #endif /* _ASM_X86_PROCESSOR_H */

@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2016-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2016-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 /*
@@ -41,10 +37,6 @@
 #define BT_PWR_INFO(fmt, arg...) pr_info("%s: " fmt "\n", __func__, ## arg)
 #define BT_PWR_ERR(fmt, arg...)  pr_err("%s: " fmt "\n", __func__, ## arg)
 
-<<<<<<< Updated upstream
-#define SW_CTRL_GPIO_MAX_RETRY_TIMES 5
-=======
->>>>>>> Stashed changes
 #define PWR_SRC_NOT_AVAILABLE -2
 #define DEFAULT_INVALID_VALUE -1
 #define PWR_SRC_INIT_STATE_IDX 0
@@ -73,10 +65,7 @@ enum power_src_pos {
 	BT_VDD_LDO,
 	BT_VDD_RFA_0p8,
 	BT_VDD_RFACMN,
-<<<<<<< Updated upstream
-=======
 	// these indexes GPIOs/regs value are fetched during crash.
->>>>>>> Stashed changes
 	BT_RESET_GPIO_CURRENT,
 	BT_SW_CTRL_GPIO_CURRENT,
 	BT_VDD_AON_LDO_CURRENT,
@@ -101,7 +90,6 @@ static int pwr_state;
 struct class *bt_class;
 static int bt_major;
 static int soc_id;
-static int sw_ctl_pin_rety_cnt;
 
 static int bt_vreg_init(struct bt_power_vreg_data *vreg)
 {
@@ -385,11 +373,7 @@ static int bt_configure_gpios(int on)
 		bt_power_src_status[BT_RESET_GPIO] =
 			gpio_get_value(bt_reset_gpio);
 		msleep(50);
-<<<<<<< Updated upstream
-		BT_PWR_INFO("BTON:Turn Bt Off bt-reset-gpio(%d) value(%d)\n",
-=======
 		BT_PWR_INFO("BTON:Turn Bt Off bt-reset-gpio(%d) value(%d)",
->>>>>>> Stashed changes
 				bt_reset_gpio, gpio_get_value(bt_reset_gpio));
 		if (bt_sw_ctrl_gpio >= 0) {
 			BT_PWR_INFO("BTON:Turn Bt Off");
@@ -400,23 +384,13 @@ static int bt_configure_gpios(int on)
 					bt_power_src_status[BT_SW_CTRL_GPIO]);
 		}
 
-<<<<<<< Updated upstream
-		rc = gpio_direction_output(bt_reset_gpio, 1);
-
-=======
 		rc = bt_enable_bt_reset_gpios_safely();
->>>>>>> Stashed changes
 		if (rc) {
 			BT_PWR_ERR("%s:bt_enable_bt_reset_gpios_safely failed",
 				__func__);
 			return rc;
 		}
-<<<<<<< Updated upstream
-		bt_power_src_status[BT_RESET_GPIO] =
-			gpio_get_value(bt_reset_gpio);
-=======
 
->>>>>>> Stashed changes
 		msleep(50);
 		/*  Check  if  SW_CTRL  is  asserted  */
 		if  (bt_sw_ctrl_gpio  >=  0)  {
@@ -451,43 +425,6 @@ static int bt_configure_gpios(int on)
 					bt_sw_ctrl_gpio,
 					bt_power_src_status[BT_SW_CTRL_GPIO]);
 		}
-<<<<<<< Updated upstream
-
-		while ((gpio_get_value(bt_sw_ctrl_gpio) == 0) && (sw_ctl_pin_rety_cnt > 0)) {
-			sw_ctl_pin_rety_cnt--;
-			BT_PWR_INFO("BTON:bt-sw-ctrol-gpio is 0, retry %d",
-					SW_CTRL_GPIO_MAX_RETRY_TIMES - sw_ctl_pin_rety_cnt);
-
-			rc = gpio_direction_output(bt_reset_gpio, 0);
-			if (rc) {
-				BT_PWR_ERR("Unable to set direction to 0\n");
-				return rc;
-			}
-			msleep(50);
-			BT_PWR_INFO("BTON:Switch reset pin to low, bt-reset-gpio(%d) value(%d)\n",
-					bt_reset_gpio, gpio_get_value(bt_reset_gpio));
-			if (bt_sw_ctrl_gpio >= 0) {
-				BT_PWR_INFO("State: bt-sw-ctrl-gpio(%d) value(%d)",
-						bt_sw_ctrl_gpio,
-						gpio_get_value(bt_sw_ctrl_gpio));
-			}
-
-			rc = gpio_direction_output(bt_reset_gpio, 1);
-			if (rc) {
-				BT_PWR_ERR("Unable to set direction to 1\n");
-				return rc;
-			}
-			msleep(50);
-			BT_PWR_INFO("BTON:Switch reset pin to hight, bt-reset-gpio(%d) value(%d)\n",
-					bt_reset_gpio, gpio_get_value(bt_reset_gpio));
-			if (bt_sw_ctrl_gpio >= 0) {
-				BT_PWR_INFO("State: bt-sw-ctrl-gpio(%d) value(%d)",
-						bt_sw_ctrl_gpio,
-						gpio_get_value(bt_sw_ctrl_gpio));
-			}
-		}
-=======
->>>>>>> Stashed changes
 	} else {
 		gpio_set_value(bt_reset_gpio, 0);
 		if  (bt_debug_gpio  >=  0)
@@ -663,10 +600,6 @@ static int bluetooth_power(int on)
 			}
 		}
 		if (bt_power_pdata->bt_gpio_sys_rst > 0) {
-<<<<<<< Updated upstream
-			sw_ctl_pin_rety_cnt = SW_CTRL_GPIO_MAX_RETRY_TIMES;
-=======
->>>>>>> Stashed changes
 			bt_power_src_status[BT_RESET_GPIO] =
 				DEFAULT_INVALID_VALUE;
 			bt_power_src_status[BT_SW_CTRL_GPIO] =
@@ -682,18 +615,9 @@ static int bluetooth_power(int on)
 		if (bt_power_pdata->bt_gpio_sys_rst > 0)
 			bt_configure_gpios(on);
 gpio_fail:
-<<<<<<< Updated upstream
-		if (bt_power_pdata->bt_gpio_sys_rst > 0)
-			gpio_free(bt_power_pdata->bt_gpio_sys_rst);
-		if  (bt_power_pdata->bt_gpio_sw_ctrl  >  0)
-			gpio_free(bt_power_pdata->bt_gpio_sw_ctrl);
-		if  (bt_power_pdata->bt_gpio_debug  >  0)
-			gpio_free(bt_power_pdata->bt_gpio_debug);
-=======
 		//Free Gpios
 		bt_free_gpios();
 
->>>>>>> Stashed changes
 		if (bt_power_pdata->bt_chip_clk)
 			bt_clk_disable(bt_power_pdata->bt_chip_clk);
 clk_fail:
@@ -962,15 +886,12 @@ static int bt_power_populate_dt_pinfo(struct platform_device *pdev)
 		if (bt_power_pdata->bt_gpio_sys_rst < 0)
 			BT_PWR_INFO("bt-reset-gpio not provided in devicetree");
 
-<<<<<<< Updated upstream
-=======
 		bt_power_pdata->wl_gpio_sys_rst =
 			of_get_named_gpio(pdev->dev.of_node,
 						"qca,wl-reset-gpio", 0);
 		if (bt_power_pdata->wl_gpio_sys_rst < 0)
 			BT_PWR_INFO("wl-reset-gpio not provided in devicetree");
 
->>>>>>> Stashed changes
 		bt_power_pdata->bt_gpio_sw_ctrl  =
 			of_get_named_gpio(pdev->dev.of_node,
 						"qca,bt-sw-ctrl-gpio",  0);
@@ -1064,12 +985,9 @@ static int bt_power_probe(struct platform_device *pdev)
 	int ret = 0;
 	int itr;
 
-<<<<<<< Updated upstream
-=======
 	/* Fill whole array with -2 i.e NOT_AVAILABLE state by default
 	 * for any GPIO or Reg handle.
 	 */
->>>>>>> Stashed changes
 	for (itr = PWR_SRC_INIT_STATE_IDX;
 		itr < BT_POWER_SRC_SIZE; ++itr)
 		bt_power_src_status[itr] = PWR_SRC_NOT_AVAILABLE;
@@ -1231,13 +1149,9 @@ static long bt_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 			soc_id = chipset_version;
 			if (soc_id == QCA_HSP_SOC_ID_0100 ||
 				soc_id == QCA_HSP_SOC_ID_0110 ||
-<<<<<<< Updated upstream
-				soc_id == QCA_HSP_SOC_ID_0200) {
-=======
 				soc_id == QCA_HSP_SOC_ID_0200 ||
 				soc_id == QCA_HSP_SOC_ID_0210 ||
 				soc_id == QCA_HSP_SOC_ID_1211) {
->>>>>>> Stashed changes
 				ret = bt_disable_asd();
 			}
 		} else {

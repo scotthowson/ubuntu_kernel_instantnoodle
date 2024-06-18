@@ -292,8 +292,6 @@ static bool sanity_check_inode(struct inode *inode, struct page *node_page)
 		return false;
 	}
 
-<<<<<<< Updated upstream
-=======
 	if ((fi->i_flags & F2FS_CASEFOLD_FL) && !f2fs_sb_has_casefold(sbi)) {
 		set_sbi_flag(sbi, SBI_NEED_FSCK);
 		f2fs_warn(sbi, "%s: inode (ino=%lx) has casefold flag, but casefold feature is off",
@@ -301,16 +299,12 @@ static bool sanity_check_inode(struct inode *inode, struct page *node_page)
 		return false;
 	}
 
->>>>>>> Stashed changes
 	if (f2fs_has_extra_attr(inode) && f2fs_sb_has_compression(sbi) &&
 			fi->i_flags & F2FS_COMPR_FL &&
 			F2FS_FITS_IN_INODE(ri, fi->i_extra_isize,
 						i_log_cluster_size)) {
 		if (ri->i_compress_algorithm >= COMPRESS_MAX) {
-<<<<<<< Updated upstream
-=======
 			set_sbi_flag(sbi, SBI_NEED_FSCK);
->>>>>>> Stashed changes
 			f2fs_warn(sbi, "%s: inode (ino=%lx) has unsupported "
 				"compress algorithm: %u, run fsck to fix",
 				  __func__, inode->i_ino,
@@ -319,10 +313,7 @@ static bool sanity_check_inode(struct inode *inode, struct page *node_page)
 		}
 		if (le64_to_cpu(ri->i_compr_blocks) >
 				SECTOR_TO_BLOCK(inode->i_blocks)) {
-<<<<<<< Updated upstream
-=======
 			set_sbi_flag(sbi, SBI_NEED_FSCK);
->>>>>>> Stashed changes
 			f2fs_warn(sbi, "%s: inode (ino=%lx) has inconsistent "
 				"i_compr_blocks:%llu, i_blocks:%lu, run fsck to fix",
 				  __func__, inode->i_ino,
@@ -332,10 +323,7 @@ static bool sanity_check_inode(struct inode *inode, struct page *node_page)
 		}
 		if (ri->i_log_cluster_size < MIN_COMPRESS_LOG_SIZE ||
 			ri->i_log_cluster_size > MAX_COMPRESS_LOG_SIZE) {
-<<<<<<< Updated upstream
-=======
 			set_sbi_flag(sbi, SBI_NEED_FSCK);
->>>>>>> Stashed changes
 			f2fs_warn(sbi, "%s: inode (ino=%lx) has unsupported "
 				"log cluster size: %u, run fsck to fix",
 				  __func__, inode->i_ino,
@@ -478,46 +466,29 @@ static int do_read_inode(struct inode *inode)
 					(fi->i_flags & F2FS_COMPR_FL)) {
 		if (F2FS_FITS_IN_INODE(ri, fi->i_extra_isize,
 					i_log_cluster_size)) {
-<<<<<<< Updated upstream
-			fi->i_compr_blocks = le64_to_cpu(ri->i_compr_blocks);
-			fi->i_compress_algorithm = ri->i_compress_algorithm;
-			fi->i_log_cluster_size = ri->i_log_cluster_size;
-=======
 			atomic_set(&fi->i_compr_blocks,
 					le64_to_cpu(ri->i_compr_blocks));
 			fi->i_compress_algorithm = ri->i_compress_algorithm;
 			fi->i_log_cluster_size = ri->i_log_cluster_size;
 			fi->i_compress_flag = le16_to_cpu(ri->i_compress_flag);
->>>>>>> Stashed changes
 			fi->i_cluster_size = 1 << fi->i_log_cluster_size;
 			set_inode_flag(inode, FI_COMPRESSED_FILE);
 		}
 	}
 
-<<<<<<< Updated upstream
-	F2FS_I(inode)->i_disk_time[0] = inode->i_atime;
-	F2FS_I(inode)->i_disk_time[1] = inode->i_ctime;
-	F2FS_I(inode)->i_disk_time[2] = inode->i_mtime;
-	F2FS_I(inode)->i_disk_time[3] = F2FS_I(inode)->i_crtime;
-=======
 	init_idisk_time(inode);
 
 	/* Need all the flag bits */
 	f2fs_init_read_extent_tree(inode, node_page);
 	f2fs_init_age_extent_tree(inode);
 
->>>>>>> Stashed changes
 	f2fs_put_page(node_page, 1);
 
 	stat_inc_inline_xattr(inode);
 	stat_inc_inline_inode(inode);
 	stat_inc_inline_dir(inode);
 	stat_inc_compr_inode(inode);
-<<<<<<< Updated upstream
-	stat_add_compr_blocks(inode, F2FS_I(inode)->i_compr_blocks);
-=======
 	stat_add_compr_blocks(inode, atomic_read(&fi->i_compr_blocks));
->>>>>>> Stashed changes
 
 	return 0;
 }
@@ -716,18 +687,12 @@ void f2fs_update_inode(struct inode *inode, struct page *node_page)
 			F2FS_FITS_IN_INODE(ri, F2FS_I(inode)->i_extra_isize,
 							i_log_cluster_size)) {
 			ri->i_compr_blocks =
-<<<<<<< Updated upstream
-				cpu_to_le64(F2FS_I(inode)->i_compr_blocks);
-			ri->i_compress_algorithm =
-				F2FS_I(inode)->i_compress_algorithm;
-=======
 				cpu_to_le64(atomic_read(
 					&F2FS_I(inode)->i_compr_blocks));
 			ri->i_compress_algorithm =
 				F2FS_I(inode)->i_compress_algorithm;
 			ri->i_compress_flag =
 				cpu_to_le16(F2FS_I(inode)->i_compress_flag);
->>>>>>> Stashed changes
 			ri->i_log_cluster_size =
 				F2FS_I(inode)->i_log_cluster_size;
 		}
@@ -891,12 +856,8 @@ no_delete:
 	stat_dec_inline_dir(inode);
 	stat_dec_inline_inode(inode);
 	stat_dec_compr_inode(inode);
-<<<<<<< Updated upstream
-	stat_sub_compr_blocks(inode, F2FS_I(inode)->i_compr_blocks);
-=======
 	stat_sub_compr_blocks(inode,
 			atomic_read(&F2FS_I(inode)->i_compr_blocks));
->>>>>>> Stashed changes
 
 	if (likely(!f2fs_cp_error(sbi) &&
 				!is_sbi_flag_set(sbi, SBI_CP_DISABLED)))
@@ -963,10 +924,7 @@ void f2fs_handle_failed_inode(struct inode *inode)
 	err = f2fs_get_node_info(sbi, inode->i_ino, &ni, false);
 	if (err) {
 		set_sbi_flag(sbi, SBI_NEED_FSCK);
-<<<<<<< Updated upstream
-=======
 		set_inode_flag(inode, FI_FREE_NID);
->>>>>>> Stashed changes
 		f2fs_warn(sbi, "May loss orphan inode, run fsck to fix.");
 		goto out;
 	}

@@ -913,7 +913,8 @@ int __ref online_pages(unsigned long pfn, unsigned long nr_pages, int online_typ
 		node_states_set_node(nid, &arg);
 		if (need_zonelists_rebuild)
 			build_all_zonelists(NULL);
-		zone_pcp_update(zone);
+		else
+			zone_pcp_update(zone);
 	}
 
 	init_per_zone_wmark_min();
@@ -1082,8 +1083,10 @@ bool try_online_one_block(int nid)
 {
 	struct zone *zone = &NODE_DATA(nid)->node_zones[ZONE_MOVABLE];
 	bool onlined_block = false;
+	int ret = lock_device_hotplug_sysfs();
 
-	lock_device_hotplug();
+	if (ret)
+		return false;
 
 	walk_memory_range(zone->zone_start_pfn, zone_end_pfn(zone),
 			  &onlined_block, online_memory_one_block);

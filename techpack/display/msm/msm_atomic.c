@@ -564,13 +564,6 @@ static void msm_atomic_commit_dispatch(struct drm_device *dev,
 	struct drm_crtc *crtc = NULL;
 	struct drm_crtc_state *crtc_state = NULL;
 	int ret = -ECANCELED, i = 0, j = 0;
-<<<<<<< Updated upstream
-	bool nonblock;
-
-	/* cache since work will kfree commit in non-blocking case */
-	nonblock = commit->nonblock;
-=======
->>>>>>> Stashed changes
 
 	for_each_old_crtc_in_state(state, crtc, crtc_state, i) {
 		for (j = 0; j < priv->num_crtcs; j++) {

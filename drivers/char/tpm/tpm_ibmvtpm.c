@@ -250,14 +250,11 @@ again:
 			IBMVTPM_VALID_CMD, VTPM_TPM_COMMAND,
 			count, ibmvtpm->rtce_dma_handle);
 	if (rc != H_SUCCESS) {
-<<<<<<< Updated upstream
-=======
 		/*
 		 * H_CLOSED can be returned after LPM resume.  Call
 		 * tpm_ibmvtpm_resume() to re-enable the CRQ then retry
 		 * ibmvtpm_send_crq() once before failing.
 		 */
->>>>>>> Stashed changes
 		if (rc == H_CLOSED && retry) {
 			tpm_ibmvtpm_resume(ibmvtpm->dev);
 			retry = false;

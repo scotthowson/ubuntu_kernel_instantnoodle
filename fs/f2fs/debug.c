@@ -21,170 +21,6 @@
 #include "gc.h"
 
 static LIST_HEAD(f2fs_stat_list);
-<<<<<<< Updated upstream
-static DEFINE_MUTEX(f2fs_stat_mutex);
-#ifdef CONFIG_DEBUG_FS
-static struct dentry *f2fs_debugfs_root;
-#endif
-
-/*
- * This function calculates BDF of every segments
- */
-void f2fs_update_sit_info(struct f2fs_sb_info *sbi)
-{
-	struct f2fs_stat_info *si = F2FS_STAT(sbi);
-	unsigned long long blks_per_sec, hblks_per_sec, total_vblocks;
-	unsigned long long bimodal, dist;
-	unsigned int segno, vblocks;
-	int ndirty = 0;
-
-	bimodal = 0;
-	total_vblocks = 0;
-	blks_per_sec = BLKS_PER_SEC(sbi);
-	hblks_per_sec = blks_per_sec / 2;
-	for (segno = 0; segno < MAIN_SEGS(sbi); segno += sbi->segs_per_sec) {
-		vblocks = get_valid_blocks(sbi, segno, true);
-		dist = abs(vblocks - hblks_per_sec);
-		bimodal += dist * dist;
-
-		if (vblocks > 0 && vblocks < blks_per_sec) {
-			total_vblocks += vblocks;
-			ndirty++;
-		}
-	}
-	dist = div_u64(MAIN_SECS(sbi) * hblks_per_sec * hblks_per_sec, 100);
-	si->bimodal = div64_u64(bimodal, dist);
-	if (si->dirty_count)
-		si->avg_vblocks = div_u64(total_vblocks, ndirty);
-	else
-		si->avg_vblocks = 0;
-}
-
-#ifdef CONFIG_DEBUG_FS
-static void update_general_status(struct f2fs_sb_info *sbi)
-{
-	struct f2fs_stat_info *si = F2FS_STAT(sbi);
-	struct f2fs_super_block *raw_super = F2FS_RAW_SUPER(sbi);
-	int i;
-
-	/* these will be changed if online resize is done */
-	si->main_area_segs = le32_to_cpu(raw_super->segment_count_main);
-	si->main_area_sections = le32_to_cpu(raw_super->section_count);
-	si->main_area_zones = si->main_area_sections /
-				le32_to_cpu(raw_super->secs_per_zone);
-
-	/* validation check of the segment numbers */
-	si->hit_largest = atomic64_read(&sbi->read_hit_largest);
-	si->hit_cached = atomic64_read(&sbi->read_hit_cached);
-	si->hit_rbtree = atomic64_read(&sbi->read_hit_rbtree);
-	si->hit_total = si->hit_largest + si->hit_cached + si->hit_rbtree;
-	si->total_ext = atomic64_read(&sbi->total_hit_ext);
-	si->ext_tree = atomic_read(&sbi->total_ext_tree);
-	si->zombie_tree = atomic_read(&sbi->total_zombie_tree);
-	si->ext_node = atomic_read(&sbi->total_ext_node);
-	si->ndirty_node = get_pages(sbi, F2FS_DIRTY_NODES);
-	si->ndirty_dent = get_pages(sbi, F2FS_DIRTY_DENTS);
-	si->ndirty_meta = get_pages(sbi, F2FS_DIRTY_META);
-	si->ndirty_data = get_pages(sbi, F2FS_DIRTY_DATA);
-	si->ndirty_qdata = get_pages(sbi, F2FS_DIRTY_QDATA);
-	si->ndirty_imeta = get_pages(sbi, F2FS_DIRTY_IMETA);
-	si->ndirty_dirs = sbi->ndirty_inode[DIR_INODE];
-	si->ndirty_files = sbi->ndirty_inode[FILE_INODE];
-	si->nquota_files = sbi->nquota_files;
-	si->ndirty_all = sbi->ndirty_inode[DIRTY_META];
-	si->inmem_pages = get_pages(sbi, F2FS_INMEM_PAGES);
-	si->aw_cnt = sbi->atomic_files;
-	si->vw_cnt = atomic_read(&sbi->vw_cnt);
-	si->max_aw_cnt = atomic_read(&sbi->max_aw_cnt);
-	si->max_vw_cnt = atomic_read(&sbi->max_vw_cnt);
-	si->nr_dio_read = get_pages(sbi, F2FS_DIO_READ);
-	si->nr_dio_write = get_pages(sbi, F2FS_DIO_WRITE);
-	si->nr_wb_cp_data = get_pages(sbi, F2FS_WB_CP_DATA);
-	si->nr_wb_data = get_pages(sbi, F2FS_WB_DATA);
-	si->nr_rd_data = get_pages(sbi, F2FS_RD_DATA);
-	si->nr_rd_node = get_pages(sbi, F2FS_RD_NODE);
-	si->nr_rd_meta = get_pages(sbi, F2FS_RD_META);
-	if (SM_I(sbi)->fcc_info) {
-		si->nr_flushed =
-			atomic_read(&SM_I(sbi)->fcc_info->issued_flush);
-		si->nr_flushing =
-			atomic_read(&SM_I(sbi)->fcc_info->queued_flush);
-		si->flush_list_empty =
-			llist_empty(&SM_I(sbi)->fcc_info->issue_list);
-	}
-	if (SM_I(sbi)->dcc_info) {
-		si->nr_discarded =
-			atomic_read(&SM_I(sbi)->dcc_info->issued_discard);
-		si->nr_discarding =
-			atomic_read(&SM_I(sbi)->dcc_info->queued_discard);
-		si->nr_discard_cmd =
-			atomic_read(&SM_I(sbi)->dcc_info->discard_cmd_cnt);
-		si->undiscard_blks = SM_I(sbi)->dcc_info->undiscard_blks;
-	}
-	si->total_count = (int)sbi->user_block_count / sbi->blocks_per_seg;
-	si->rsvd_segs = reserved_segments(sbi);
-	si->overp_segs = overprovision_segments(sbi);
-	si->valid_count = valid_user_blocks(sbi);
-	si->discard_blks = discard_blocks(sbi);
-	si->valid_node_count = valid_node_count(sbi);
-	si->valid_inode_count = valid_inode_count(sbi);
-	si->inline_xattr = atomic_read(&sbi->inline_xattr);
-	si->inline_inode = atomic_read(&sbi->inline_inode);
-	si->inline_dir = atomic_read(&sbi->inline_dir);
-	si->compr_inode = atomic_read(&sbi->compr_inode);
-	si->compr_blocks = atomic_read(&sbi->compr_blocks);
-	si->append = sbi->im[APPEND_INO].ino_num;
-	si->update = sbi->im[UPDATE_INO].ino_num;
-	si->orphans = sbi->im[ORPHAN_INO].ino_num;
-	si->utilization = utilization(sbi);
-
-	si->free_segs = free_segments(sbi);
-	si->free_secs = free_sections(sbi);
-	si->prefree_count = prefree_segments(sbi);
-	si->dirty_count = dirty_segments(sbi);
-	if (sbi->node_inode)
-		si->node_pages = NODE_MAPPING(sbi)->nrpages;
-	if (sbi->meta_inode)
-		si->meta_pages = META_MAPPING(sbi)->nrpages;
-	si->nats = NM_I(sbi)->nat_cnt;
-	si->dirty_nats = NM_I(sbi)->dirty_nat_cnt;
-	si->sits = MAIN_SEGS(sbi);
-	si->dirty_sits = SIT_I(sbi)->dirty_sentries;
-	si->free_nids = NM_I(sbi)->nid_cnt[FREE_NID];
-	si->avail_nids = NM_I(sbi)->available_nids;
-	si->alloc_nids = NM_I(sbi)->nid_cnt[PREALLOC_NID];
-	si->io_skip_bggc = sbi->io_skip_bggc;
-	si->other_skip_bggc = sbi->other_skip_bggc;
-	si->skipped_atomic_files[BG_GC] = sbi->skipped_atomic_files[BG_GC];
-	si->skipped_atomic_files[FG_GC] = sbi->skipped_atomic_files[FG_GC];
-	si->util_free = (int)(free_user_blocks(sbi) >> sbi->log_blocks_per_seg)
-		* 100 / (int)(sbi->user_block_count >> sbi->log_blocks_per_seg)
-		/ 2;
-	si->util_valid = (int)(written_block_count(sbi) >>
-						sbi->log_blocks_per_seg)
-		* 100 / (int)(sbi->user_block_count >> sbi->log_blocks_per_seg)
-		/ 2;
-	si->util_invalid = 50 - si->util_free - si->util_valid;
-	for (i = CURSEG_HOT_DATA; i <= CURSEG_COLD_NODE; i++) {
-		struct curseg_info *curseg = CURSEG_I(sbi, i);
-		si->curseg[i] = curseg->segno;
-		si->cursec[i] = GET_SEC_FROM_SEG(sbi, curseg->segno);
-		si->curzone[i] = GET_ZONE_FROM_SEC(sbi, si->cursec[i]);
-	}
-
-	for (i = META_CP; i < META_MAX; i++)
-		si->meta_count[i] = atomic_read(&sbi->meta_count[i]);
-
-	for (i = 0; i < 2; i++) {
-		si->segment_count[i] = sbi->segment_count[i];
-		si->block_count[i] = sbi->block_count[i];
-	}
-
-	si->inplace_count = atomic_read(&sbi->inplace_count);
-}
-
-/*
-=======
 static DEFINE_RAW_SPINLOCK(f2fs_stat_lock);
 #ifdef CONFIG_DEBUG_FS
 static struct dentry *f2fs_debugfs_root;
@@ -388,7 +224,6 @@ static void update_general_status(struct f2fs_sb_info *sbi)
 }
 
 /*
->>>>>>> Stashed changes
  * This function calculates memory footprint.
  */
 static void update_mem_info(struct f2fs_sb_info *sbi)
@@ -567,15 +402,10 @@ static int stat_show(struct seq_file *s, void *v)
 			   si->inline_inode);
 		seq_printf(s, "  - Inline_dentry Inode: %u\n",
 			   si->inline_dir);
-<<<<<<< Updated upstream
-		seq_printf(s, "  - Compressed Inode: %u, Blocks: %u\n",
-			   si->compr_inode, si->compr_blocks);
-=======
 		seq_printf(s, "  - Compressed Inode: %u, Blocks: %llu\n",
 			   si->compr_inode, si->compr_blocks);
 		seq_printf(s, "  - Swapfile Inode: %u\n",
 			   si->swapfile_inode);
->>>>>>> Stashed changes
 		seq_printf(s, "  - Orphan/Append/Update Inode: %u, %u, %u\n",
 			   si->orphans, si->append, si->update);
 		seq_printf(s, "\nMain area: %d segs, %d secs %d zones\n",
@@ -824,21 +654,13 @@ int f2fs_build_stats(struct f2fs_sb_info *sbi)
 	atomic_set(&sbi->inline_inode, 0);
 	atomic_set(&sbi->inline_dir, 0);
 	atomic_set(&sbi->compr_inode, 0);
-<<<<<<< Updated upstream
-	atomic_set(&sbi->compr_blocks, 0);
-=======
 	atomic64_set(&sbi->compr_blocks, 0);
 	atomic_set(&sbi->swapfile_inode, 0);
 	atomic_set(&sbi->atomic_files, 0);
->>>>>>> Stashed changes
 	atomic_set(&sbi->inplace_count, 0);
 	for (i = META_CP; i < META_MAX; i++)
 		atomic_set(&sbi->meta_count[i], 0);
 
-<<<<<<< Updated upstream
-	atomic_set(&sbi->vw_cnt, 0);
-=======
->>>>>>> Stashed changes
 	atomic_set(&sbi->max_aw_cnt, 0);
 
 	raw_spin_lock_irqsave(&f2fs_stat_lock, flags);

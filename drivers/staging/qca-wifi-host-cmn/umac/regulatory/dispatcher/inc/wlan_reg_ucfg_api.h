@@ -1,9 +1,5 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2017-2019 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2017-2019, 2021 The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  *
  *
  * Permission to use, copy, modify, and/or distribute this software for
@@ -35,39 +31,23 @@ typedef QDF_STATUS (*reg_event_cb)(void *status_struct);
 /**
  * ucfg_reg_set_band() - Sets the band information for the PDEV
  * @pdev: The physical pdev to set the band for
-<<<<<<< Updated upstream
- * @band: The set band parameter to configure for the physical device
-=======
  * @band_bitmap: The band bitmap parameter (over reg_wifi_band) to configure
  *	for the physical device
->>>>>>> Stashed changes
  *
  * Return: QDF_STATUS
  */
 QDF_STATUS ucfg_reg_set_band(struct wlan_objmgr_pdev *pdev,
-<<<<<<< Updated upstream
-			     enum band_info band);
-=======
 			     uint32_t band_bitmap);
->>>>>>> Stashed changes
 
 /**
  * ucfg_reg_get_band() - Gets the band information for the PDEV
  * @pdev: The physical pdev to get the band for
-<<<<<<< Updated upstream
- * @band: The band parameter of the physical device
-=======
  * @band_bitmap: The band parameter of the physical device
->>>>>>> Stashed changes
  *
  * Return: QDF_STATUS
  */
 QDF_STATUS ucfg_reg_get_band(struct wlan_objmgr_pdev *pdev,
-<<<<<<< Updated upstream
-			     enum band_info *band);
-=======
 			     uint32_t *band_bitmap);
->>>>>>> Stashed changes
 
 /**
  * ucfg_reg_notify_sap_event() - Notify regulatory domain for sap event
@@ -122,18 +102,6 @@ void ucfg_reg_cache_channel_freq_state(struct wlan_objmgr_pdev *pdev,
 }
 #endif /* CONFIG_CHAN_FREQ_API */
 
-<<<<<<< Updated upstream
-/**
- * ucfg_reg_restore_cached_channels() - Cache the current state of the channles
- * @pdev: The physical dev to cache the channels for
- *
- * Return: QDF_STATUS
- */
-#ifdef DISABLE_CHANNEL_LIST
-void ucfg_reg_restore_cached_channels(struct wlan_objmgr_pdev *pdev);
-#else
-static inline
-=======
 
 #ifdef DISABLE_CHANNEL_LIST
 /**
@@ -157,7 +125,6 @@ void ucfg_reg_disable_cached_channels(struct wlan_objmgr_pdev *pdev)
 {
 }
 static inline
->>>>>>> Stashed changes
 void ucfg_reg_restore_cached_channels(struct wlan_objmgr_pdev *pdev)
 {
 }
@@ -223,18 +190,6 @@ QDF_STATUS ucfg_reg_set_country(struct wlan_objmgr_pdev *dev,
 QDF_STATUS ucfg_reg_reset_country(struct wlan_objmgr_psoc *psoc);
 
 /**
-<<<<<<< Updated upstream
- * ucfg_reg_get_curr_band() - Get the current band capability
- * @pdev: The physical dev to get default country from
- * @band: buffer to populate the band into
- *
- * Return: QDF_STATUS
- */
-QDF_STATUS ucfg_reg_get_curr_band(struct wlan_objmgr_pdev *pdev,
-		enum band_info *band);
-/**
-=======
->>>>>>> Stashed changes
  * ucfg_reg_enable_dfs_channels() - Enable the use of DFS channels
  * @pdev: The physical dev to enable DFS channels for
  *

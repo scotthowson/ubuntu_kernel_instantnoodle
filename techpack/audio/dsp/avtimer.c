@@ -115,11 +115,7 @@ static int32_t aprv2_core_fn_q(struct apr_client_data *data, void *priv)
 		avtimer.core_handle_q = NULL;
 		avtimer.avtimer_open_cnt = 0;
 		atomic_set(&avtimer.adsp_ready, 0);
-<<<<<<< Updated upstream
-		schedule_delayed_work(&avtimer.ssr_dwork,
-=======
 		queue_delayed_work(system_power_efficient_wq, &avtimer.ssr_dwork,
->>>>>>> Stashed changes
 				  msecs_to_jiffies(SSR_WAKETIME));
 		break;
 	}
@@ -294,11 +290,7 @@ static void reset_work(struct work_struct *work)
 	}
 	pr_debug("%s:Q6 not ready-retry after sometime\n", __func__);
 	if (--avtimer.num_retries > 0) {
-<<<<<<< Updated upstream
-		schedule_delayed_work(&avtimer.ssr_dwork,
-=======
 		queue_delayed_work(system_power_efficient_wq, &avtimer.ssr_dwork,
->>>>>>> Stashed changes
 			  msecs_to_jiffies(Q6_READY_RETRY));
 	} else {
 		pr_err("%s: Q6 failed responding after multiple retries\n",
@@ -344,14 +336,6 @@ int avcs_core_query_timer_offset(int64_t *av_offset, int32_t clock_id)
 	uint64_t avtimer_tick_temp, avtimer_tick, sys_time = 0;
 	struct timespec ts;
 
-<<<<<<< Updated upstream
-	if (!atomic_read(&avtimer.adsp_ready)) {
-		pr_debug("%s:In SSR, return\n", __func__);
-		return -ENETRESET;
-	}
-
-=======
->>>>>>> Stashed changes
 	if ((avtimer.p_avtimer_lsw == NULL) ||
 	    (avtimer.p_avtimer_msw == NULL)) {
 		return -EINVAL;

@@ -1,10 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2012-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #ifndef __MSM_VIDC_DEBUG__
@@ -73,13 +69,6 @@ enum vidc_err_recovery_disable {
 	VIDC_DISABLE_NON_NOC_ERR_RECOV = 0x0002
 };
 
-struct log_cookie {
-	u32 used;
-	u32 session_type;
-	u32 codec_type;
-	char name[20];
-};
-
 extern int msm_vidc_debug;
 extern int msm_vidc_fw_debug_mode;
 extern bool msm_vidc_fw_coverage;
@@ -89,10 +78,6 @@ extern bool msm_vidc_syscache_disable;
 extern bool msm_vidc_lossless_encode;
 extern bool msm_vidc_cvp_usage;
 extern int msm_vidc_err_recovery_disable;
-<<<<<<< Updated upstream
-extern struct log_cookie ctxt[MAX_SUPPORTED_INSTANCES];
-=======
->>>>>>> Stashed changes
 
 #define dprintk(__level, sid, __fmt, ...)	\
 	do { \
@@ -220,17 +205,10 @@ static inline bool is_print_allowed(u32 sid, u32 level)
 	if (!((msm_vidc_debug >> 8) & 0xF))
 		return true;
 
-<<<<<<< Updated upstream
-	if (!sid || sid > MAX_SUPPORTED_INSTANCES)
-		return true;
-
-	if (ctxt[sid-1].session_type & msm_vidc_debug)
-=======
 	if (!sid || sid > vidc_driver->num_ctxt)
 		return true;
 
 	if (vidc_driver->ctxt[sid-1].session_type & msm_vidc_debug)
->>>>>>> Stashed changes
 		return true;
 
 	return false;
@@ -238,37 +216,21 @@ static inline bool is_print_allowed(u32 sid, u32 level)
 
 static inline char *get_codec_name(u32 sid)
 {
-<<<<<<< Updated upstream
-	if (!sid || sid > MAX_SUPPORTED_INSTANCES)
-		return ".....";
-
-	return ctxt[sid-1].name;
-=======
 	if (!sid || sid > vidc_driver->num_ctxt)
 		return ".....";
 
 	return vidc_driver->ctxt[sid-1].name;
->>>>>>> Stashed changes
 }
 
 static inline void put_sid(u32 sid)
 {
-<<<<<<< Updated upstream
-	if (!sid || sid > MAX_SUPPORTED_INSTANCES) {
-=======
 	if (!sid || sid > vidc_driver->num_ctxt) {
->>>>>>> Stashed changes
 		d_vpr_e("%s: invalid sid %#x\n",
 			__func__, sid);
 		return;
 	}
-<<<<<<< Updated upstream
-	if (ctxt[sid-1].used)
-		ctxt[sid-1].used = 0;
-=======
 	if (vidc_driver->ctxt[sid-1].used)
 		vidc_driver->ctxt[sid-1].used = 0;
->>>>>>> Stashed changes
 }
 
 static inline void tic(struct msm_vidc_inst *i, enum profiling_points p,

@@ -187,11 +187,7 @@ QDF_STATUS wlan_mlme_set_ht_mpdu_density(struct wlan_objmgr_psoc *psoc,
 }
 
 QDF_STATUS wlan_mlme_get_band_capability(struct wlan_objmgr_psoc *psoc,
-<<<<<<< Updated upstream
-					 uint8_t *band_capability)
-=======
 					 uint32_t *band_capability)
->>>>>>> Stashed changes
 {
 	struct wlan_mlme_psoc_ext_obj *mlme_obj;
 
@@ -205,11 +201,7 @@ QDF_STATUS wlan_mlme_get_band_capability(struct wlan_objmgr_psoc *psoc,
 }
 
 QDF_STATUS wlan_mlme_set_band_capability(struct wlan_objmgr_psoc *psoc,
-<<<<<<< Updated upstream
-					 uint8_t band_capability)
-=======
 					 uint32_t band_capability)
->>>>>>> Stashed changes
 
 {
 	struct wlan_mlme_psoc_ext_obj *mlme_obj;
@@ -545,8 +537,6 @@ QDF_STATUS wlan_mlme_cfg_get_enable_ul_ofdm(struct wlan_objmgr_psoc *psoc,
 	return QDF_STATUS_SUCCESS;
 }
 
-<<<<<<< Updated upstream
-=======
 /* mlme_get_min_rate_cap() - get minimum capability for HE-MCS between
  *                           ini value and fw capability.
  *
@@ -573,7 +563,6 @@ static uint16_t mlme_get_min_rate_cap(uint16_t val1, uint16_t val2)
 	return ret;
 }
 
->>>>>>> Stashed changes
 QDF_STATUS mlme_update_tgt_he_caps_in_cfg(struct wlan_objmgr_psoc *psoc,
 					  struct wma_tgt_cfg *wma_cfg)
 {
@@ -818,17 +807,12 @@ QDF_STATUS mlme_update_tgt_he_caps_in_cfg(struct wlan_objmgr_psoc *psoc,
 	mlme_obj->cfg.he_caps.dot11_he_cap.rx_full_bw_su_he_mu_non_cmpr_sigb =
 				he_cap->rx_full_bw_su_he_mu_non_cmpr_sigb;
 
-<<<<<<< Updated upstream
-	tx_mcs_map = he_cap->tx_he_mcs_map_lt_80;
-	rx_mcs_map = he_cap->rx_he_mcs_map_lt_80;
-=======
 	tx_mcs_map = mlme_get_min_rate_cap(
 		mlme_obj->cfg.he_caps.dot11_he_cap.tx_he_mcs_map_lt_80,
 		he_cap->tx_he_mcs_map_lt_80);
 	rx_mcs_map = mlme_get_min_rate_cap(
 		mlme_obj->cfg.he_caps.dot11_he_cap.rx_he_mcs_map_lt_80,
 		he_cap->rx_he_mcs_map_lt_80);
->>>>>>> Stashed changes
 	if (!mlme_obj->cfg.vht_caps.vht_cap_info.enable2x2) {
 		nss = 2;
 		tx_mcs_map = HE_SET_MCS_4_NSS(tx_mcs_map, HE_MCS_DISABLE, nss);
@@ -841,17 +825,12 @@ QDF_STATUS mlme_update_tgt_he_caps_in_cfg(struct wlan_objmgr_psoc *psoc,
 	if (cfg_in_range(CFG_HE_TX_MCS_MAP_LT_80, tx_mcs_map))
 		mlme_obj->cfg.he_caps.dot11_he_cap.tx_he_mcs_map_lt_80 =
 			tx_mcs_map;
-<<<<<<< Updated upstream
-	tx_mcs_map = *((uint16_t *)he_cap->tx_he_mcs_map_160);
-	rx_mcs_map = *((uint16_t *)he_cap->rx_he_mcs_map_160);
-=======
 	tx_mcs_map = mlme_get_min_rate_cap(
 	   *((uint16_t *)mlme_obj->cfg.he_caps.dot11_he_cap.tx_he_mcs_map_160),
 	   *((uint16_t *)he_cap->tx_he_mcs_map_160));
 	rx_mcs_map = mlme_get_min_rate_cap(
 	   *((uint16_t *)mlme_obj->cfg.he_caps.dot11_he_cap.rx_he_mcs_map_160),
 	   *((uint16_t *)he_cap->rx_he_mcs_map_160));
->>>>>>> Stashed changes
 
 	if (!mlme_obj->cfg.vht_caps.vht_cap_info.enable2x2) {
 		nss = 2;
@@ -1727,8 +1706,6 @@ QDF_STATUS wlan_mlme_set_assoc_sta_limit(struct wlan_objmgr_psoc *psoc,
 	return QDF_STATUS_SUCCESS;
 }
 
-<<<<<<< Updated upstream
-=======
 QDF_STATUS wlan_mlme_get_assoc_sta_limit(struct wlan_objmgr_psoc *psoc,
 					 int *value)
 {
@@ -1743,7 +1720,6 @@ QDF_STATUS wlan_mlme_get_assoc_sta_limit(struct wlan_objmgr_psoc *psoc,
 	return QDF_STATUS_SUCCESS;
 }
 
->>>>>>> Stashed changes
 QDF_STATUS wlan_mlme_set_rmc_action_period_freq(struct wlan_objmgr_psoc *psoc,
 						int value)
 {
@@ -3044,8 +3020,6 @@ wlan_mlme_get_vht20_mcs9(struct wlan_objmgr_psoc *psoc, bool *value)
 }
 
 QDF_STATUS
-<<<<<<< Updated upstream
-=======
 wlan_mlme_get_indoor_support_for_nan(struct wlan_objmgr_psoc *psoc,
 				     bool *value)
 {
@@ -3099,7 +3073,6 @@ wlan_mlme_get_srd_master_mode_for_vdev(struct wlan_objmgr_psoc *psoc,
 }
 
 QDF_STATUS
->>>>>>> Stashed changes
 wlan_mlme_get_vht_enable2x2(struct wlan_objmgr_psoc *psoc, bool *value)
 {
 	struct wlan_mlme_psoc_ext_obj *mlme_obj;
@@ -3289,16 +3262,11 @@ mlme_update_vht_cap(struct wlan_objmgr_psoc *psoc, struct wma_tgt_vht_cap *cfg)
 	if (vht_cap_info->short_gi_160mhz && !cfg->vht_short_gi_160)
 		vht_cap_info->short_gi_160mhz = cfg->vht_short_gi_160;
 
-<<<<<<< Updated upstream
-	vht_cap_info->vht_mcs_10_11_supp = cfg->vht_mcs_10_11_supp;
-	mlme_legacy_debug(" vht_mcs_10_11_supp %d", cfg->vht_mcs_10_11_supp);
-=======
 	if (cfg_get(psoc, CFG_ENABLE_VHT_MCS_10_11))
 		vht_cap_info->vht_mcs_10_11_supp = cfg->vht_mcs_10_11_supp;
 
 	mlme_legacy_debug("vht_mcs_10_11_supp %d",
 			  vht_cap_info->vht_mcs_10_11_supp);
->>>>>>> Stashed changes
 
 	return QDF_STATUS_SUCCESS;
 }

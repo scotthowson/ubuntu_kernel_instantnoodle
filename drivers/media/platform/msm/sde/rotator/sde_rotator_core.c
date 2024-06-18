@@ -850,13 +850,10 @@ static int sde_rotator_import_data(struct sde_rot_mgr *mgr,
 		return ret;
 	}
 
-<<<<<<< Updated upstream
-=======
 	/*
 	 * driver assumes output buffer is ready to be written
 	 * immediately
 	 */
->>>>>>> Stashed changes
 	ret = sde_rotator_import_buffer(output, &entry->dst_buf, flag,
 				&mgr->pdev->dev, false);
 	if (ret) {
@@ -878,18 +875,12 @@ static int sde_rotator_import_data(struct sde_rot_mgr *mgr,
 static int sde_rotator_require_reconfiguration(struct sde_rot_mgr *mgr,
 		struct sde_rot_hw_resource *hw, struct sde_rot_entry *entry)
 {
-<<<<<<< Updated upstream
-=======
 	/* OT setting change may impact queued entries */
->>>>>>> Stashed changes
 	if (entry->perf && (entry->perf->rdot_limit != mgr->rdot_limit ||
 			entry->perf->wrot_limit != mgr->wrot_limit))
 		return true;
 
-<<<<<<< Updated upstream
-=======
 	/* sbuf mode is exclusive and may impact queued entries */
->>>>>>> Stashed changes
 	if (!mgr->sbuf_ctx && entry->perf && entry->perf->config.output.sbuf)
 		return true;
 
@@ -908,15 +899,12 @@ static int sde_rotator_is_hw_idle(struct sde_rot_mgr *mgr,
 {
 	int i;
 
-<<<<<<< Updated upstream
-=======
 	/*
 	 * Wait until all queues are idle in order to update global
 	 * setting such as VBIF QoS.  This check can be relaxed if global
 	 * settings can be updated individually by entries already
 	 * queued in hw queue, i.e. REGDMA can update VBIF directly.
 	 */
->>>>>>> Stashed changes
 	for (i = 0; i < mgr->queue_count; i++) {
 		struct sde_rot_hw_resource *hw_res = mgr->commitq[i].hw;
 
@@ -938,13 +926,10 @@ static int sde_rotator_is_hw_idle(struct sde_rot_mgr *mgr,
 static int sde_rotator_is_hw_available(struct sde_rot_mgr *mgr,
 		struct sde_rot_hw_resource *hw, struct sde_rot_entry *entry)
 {
-<<<<<<< Updated upstream
-=======
 	/*
 	 * Wait until hw is idle if reconfiguration is required; otherwise,
 	 * wait until free queue entry is available
 	 */
->>>>>>> Stashed changes
 	if (sde_rotator_require_reconfiguration(mgr, hw, entry)) {
 		SDEROT_DBG(
 			"wait4idle active=%d pending=%d rdot:%u/%u wrot:%u/%u s:%d.%d\n",
@@ -1087,9 +1072,6 @@ static void sde_rotator_put_hw_resource(struct sde_rot_queue *queue,
 		SDEROT_ERR("underflow active=%d pending=%d s:%d.%d\n",
 			atomic_read(&hw->num_active), hw->pending_count,
 			entry->item.session_id, entry->item.sequence_id);
-<<<<<<< Updated upstream
-
-=======
 	/*
 	 * Wake up all queues in case any entry is waiting for hw idle,
 	 * in order to update global settings, such as VBIF QoS.
@@ -1097,7 +1079,6 @@ static void sde_rotator_put_hw_resource(struct sde_rot_queue *queue,
 	 * settings can be updated individually by entries already
 	 * queued in hw queue.
 	 */
->>>>>>> Stashed changes
 	for (i = 0; i < mgr->queue_count; i++) {
 		struct sde_rot_hw_resource *hw_res = mgr->commitq[i].hw;
 
@@ -1390,15 +1371,12 @@ static int sde_rotator_calc_perf(struct sde_rot_mgr *mgr,
 		return -EINVAL;
 	}
 
-<<<<<<< Updated upstream
-=======
 	/*
 	 * rotator processes 4 pixels per clock, but the actual throughtput
 	 * is 3.6. We also need to take into account for overhead time. Final
 	 * equation is:
 	 *        W x H / throughput / (1/fps - overhead) * fudge_factor
 	 */
->>>>>>> Stashed changes
 	max_fps = sde_rotator_find_max_fps(mgr);
 	perf->clk_rate = config->input.width * config->input.height;
 	perf->clk_rate = (perf->clk_rate * mgr->pixel_per_clk.denom) /
@@ -1408,12 +1386,9 @@ static int sde_rotator_calc_perf(struct sde_rot_mgr *mgr,
 			mgr->fudge_factor.denom;
 	perf->clk_rate *= mgr->overhead.denom;
 
-<<<<<<< Updated upstream
-=======
 	/*
 	 * check for override overhead default value
 	 */
->>>>>>> Stashed changes
 	if (rot_dev->min_overhead_us > (mgr->overhead.numer * 100))
 		perf->clk_rate = DIV_ROUND_UP_ULL(perf->clk_rate,
 				(mgr->overhead.denom - max_fps *
@@ -1423,11 +1398,6 @@ static int sde_rotator_calc_perf(struct sde_rot_mgr *mgr,
 				(mgr->overhead.denom - max_fps *
 				mgr->overhead.numer));
 
-<<<<<<< Updated upstream
-	if (config->flags & SDE_ROTATION_EXT_PERF)
-		perf->clk_rate = config->clk_rate;
-
-=======
 	/* use client provided clock if specified */
 	if (config->flags & SDE_ROTATION_EXT_PERF)
 		perf->clk_rate = config->clk_rate;
@@ -1435,7 +1405,6 @@ static int sde_rotator_calc_perf(struct sde_rot_mgr *mgr,
 	/*
 	 * check for Override clock calculation
 	 */
->>>>>>> Stashed changes
 	if (rot_dev->min_rot_clk > perf->clk_rate)
 		perf->clk_rate = rot_dev->min_rot_clk;
 
@@ -1461,11 +1430,6 @@ static int sde_rotator_calc_perf(struct sde_rot_mgr *mgr,
 
 	perf->bw = read_bw + write_bw;
 
-<<<<<<< Updated upstream
-	if (rot_dev->min_bw > perf->bw)
-		perf->bw = rot_dev->min_bw;
-
-=======
 	/*
 	 * check for override bw calculation
 	 */
@@ -1473,7 +1437,6 @@ static int sde_rotator_calc_perf(struct sde_rot_mgr *mgr,
 		perf->bw = rot_dev->min_bw;
 
 	/* use client provided bandwidth if specified */
->>>>>>> Stashed changes
 	if (config->flags & SDE_ROTATION_EXT_PERF)
 		perf->bw = config->data_bw;
 
@@ -1531,10 +1494,7 @@ static void sde_rotator_release_from_work_distribution(
 
 		if (!entry->perf->work_distribution[wb_idx]
 				&& list_empty(&entry->perf->list)) {
-<<<<<<< Updated upstream
-=======
 			/* close session has offloaded perf free to us */
->>>>>>> Stashed changes
 			free_perf = true;
 		}
 
@@ -1702,13 +1662,10 @@ static void sde_rotator_commit_handler(struct kthread_work *work)
 	sde_rot_mgr_unlock(mgr);
 	return;
 kickoff_error:
-<<<<<<< Updated upstream
-=======
 	/*
 	 * Wait for any pending operations to complete before cancelling this
 	 * one so that the system is left in a consistent state.
 	 */
->>>>>>> Stashed changes
 	sde_rotator_req_wait_for_idle(mgr, request);
 	mgr->ops_cancel_hw(hw, entry);
 error:
@@ -2214,14 +2171,11 @@ static void sde_rotator_cancel_request(struct sde_rot_mgr *mgr,
 	int i;
 
 	if (atomic_read(&req->pending_count)) {
-<<<<<<< Updated upstream
-=======
 		/*
 		 * To avoid signal the rotation entry output fence in the wrong
 		 * order, all the entries in the same request needs to be
 		 * canceled first, before signaling the output fence.
 		 */
->>>>>>> Stashed changes
 		SDEROT_DBG("cancel work start\n");
 		sde_rot_mgr_unlock(mgr);
 		for (i = req->count - 1; i >= 0; i--) {
@@ -3251,11 +3205,6 @@ int sde_rotator_core_init(struct sde_rot_mgr **pmgr,
 		goto error_hw_init;
 	}
 
-<<<<<<< Updated upstream
-	sde_rotator_pm_qos_add(mdata);
-
-=======
->>>>>>> Stashed changes
 	ret = sde_rotator_init_queue(mgr);
 	if (ret) {
 		SDEROT_ERR("fail to init queue\n");
@@ -3395,10 +3344,7 @@ int sde_rotator_runtime_idle(struct device *dev)
 		return -ENODEV;
 	}
 
-<<<<<<< Updated upstream
-=======
 	/* add check for any busy status, if any */
->>>>>>> Stashed changes
 	SDEROT_DBG("idling ...\n");
 	return 0;
 }
@@ -3447,13 +3393,10 @@ int sde_rotator_pm_suspend(struct device *dev)
 	return 0;
 }
 
-<<<<<<< Updated upstream
-=======
 /*
  * sde_rotator_pm_resume - put the device in pm active state
  * @dev: Pointer to device structure
  */
->>>>>>> Stashed changes
 int sde_rotator_pm_resume(struct device *dev)
 {
 	struct sde_rot_mgr *mgr;
@@ -3466,14 +3409,11 @@ int sde_rotator_pm_resume(struct device *dev)
 		return -ENODEV;
 	}
 
-<<<<<<< Updated upstream
-=======
 	/*
 	 * It is possible that the runtime status of the device may
 	 * have been active when the system was suspended. Reset the runtime
 	 * status to suspended state after a complete system resume.
 	 */
->>>>>>> Stashed changes
 	pm_runtime_disable(dev);
 	pm_runtime_set_suspended(dev);
 	pm_runtime_set_active(dev);
@@ -3538,14 +3478,11 @@ int sde_rotator_resume(struct platform_device *dev)
 }
 #endif
 
-<<<<<<< Updated upstream
-=======
 /*
  * sde_rotator_session_open - external wrapper for open function
  *
  * Note each file open (sde_rot_file_private) is mapped to one session only.
  */
->>>>>>> Stashed changes
 int sde_rotator_session_open(struct sde_rot_mgr *mgr,
 	struct sde_rot_file_private **pprivate, int session_id,
 	struct sde_rot_queue_v1 *queue)
@@ -3578,12 +3515,9 @@ error_open:
 	return ret;
 }
 
-<<<<<<< Updated upstream
-=======
 /*
  * sde_rotator_session_close - external wrapper for close function
  */
->>>>>>> Stashed changes
 void sde_rotator_session_close(struct sde_rot_mgr *mgr,
 	struct sde_rot_file_private *private, int session_id)
 {
@@ -3598,12 +3532,9 @@ void sde_rotator_session_close(struct sde_rot_mgr *mgr,
 	SDEROT_DBG("session closed s:%d\n", session_id);
 }
 
-<<<<<<< Updated upstream
-=======
 /*
  * sde_rotator_session_config - external wrapper for config function
  */
->>>>>>> Stashed changes
 int sde_rotator_session_config(struct sde_rot_mgr *mgr,
 	struct sde_rot_file_private *private,
 	struct sde_rotation_config *config)
@@ -3616,12 +3547,9 @@ int sde_rotator_session_config(struct sde_rot_mgr *mgr,
 	return sde_rotator_config_session(mgr, private, config);
 }
 
-<<<<<<< Updated upstream
-=======
 /*
  * sde_rotator_session_validate - validate session
  */
->>>>>>> Stashed changes
 int sde_rotator_session_validate(struct sde_rot_mgr *mgr,
 	struct sde_rot_file_private *private,
 	struct sde_rotation_config *config)

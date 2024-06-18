@@ -97,13 +97,8 @@
 /*
  * UtilEstimation. Use estimated CPU utilization.
  */
-<<<<<<< Updated upstream
-SCHED_FEAT(UTIL_EST, true)
-SCHED_FEAT(UTIL_EST_FASTUP, true)
-=======
 #define SCHED_FEAT_UTIL_EST 1
 #define SCHED_FEAT_UTIL_EST_FASTUP 1
->>>>>>> Stashed changes
 
 /*
  * Fast pre-selection of CPU candidates for EAS.

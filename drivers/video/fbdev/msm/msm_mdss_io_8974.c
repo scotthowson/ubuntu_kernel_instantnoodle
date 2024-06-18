@@ -1,9 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0-only
-<<<<<<< Updated upstream
-/* Copyright (c) 2012-2018, 2020, The Linux Foundation. All rights reserved. */
-=======
 /* Copyright (c) 2012-2018, 2020-2021, The Linux Foundation. All rights reserved. */
->>>>>>> Stashed changes
 #include <linux/clk.h>
 #include <linux/interrupt.h>
 #include <linux/delay.h>
@@ -437,11 +433,7 @@ void mdss_dsi_dfps_config_8996(struct mdss_dsi_ctrl_pdata *ctrl)
 	wmb(); /* make sure phy timings are updated*/
 }
 
-<<<<<<< Updated upstream
-static void mdss_dsi_ctrl_phy_reset(struct mdss_dsi_ctrl_pdata *ctrl)
-=======
 void mdss_dsi_ctrl_phy_reset(struct mdss_dsi_ctrl_pdata *ctrl)
->>>>>>> Stashed changes
 {
 	/* start phy sw reset */
 	MIPI_OUTP(ctrl->ctrl_base + 0x12c, 0x0001);
@@ -588,12 +580,9 @@ static void mdss_dsi_phy_regulator_disable(struct mdss_dsi_ctrl_pdata *ctrl)
 	if (ctrl->shared_data->phy_rev == DSI_PHY_REV_30)
 		return;
 
-<<<<<<< Updated upstream
-=======
 	if (ctrl->shared_data->phy_rev == DSI_PHY_REV_12NM)
 		return;
 
->>>>>>> Stashed changes
 	MIPI_OUTP(ctrl->phy_regulator_io.base + 0x018, 0x000);
 }
 
@@ -610,11 +599,8 @@ static void mdss_dsi_phy_shutdown(struct mdss_dsi_ctrl_pdata *ctrl)
 		MIPI_OUTP(ctrl->phy_io.base + DSIPHY_CMN_CTRL_0, 0);
 	} else if (ctrl->shared_data->phy_rev == DSI_PHY_REV_30) {
 		mdss_dsi_phy_v3_shutdown(ctrl);
-<<<<<<< Updated upstream
-=======
 	} else if (ctrl->shared_data->phy_rev == DSI_PHY_REV_12NM) {
 		mdss_dsi_12nm_phy_shutdown(ctrl);
->>>>>>> Stashed changes
 	} else {
 		MIPI_OUTP(ctrl->phy_io.base + MDSS_DSI_DSIPHY_CTRL_0, 0x000);
 	}
@@ -636,12 +622,8 @@ void mdss_dsi_lp_cd_rx(struct mdss_dsi_ctrl_pdata *ctrl)
 		return;
 	}
 
-<<<<<<< Updated upstream
-	if (ctrl->shared_data->phy_rev == DSI_PHY_REV_20)
-=======
 	if ((ctrl->shared_data->phy_rev == DSI_PHY_REV_20) ||
 		(ctrl->shared_data->phy_rev == DSI_PHY_REV_12NM))
->>>>>>> Stashed changes
 		return;
 
 	pd = &(((ctrl->panel_data).panel_info.mipi).dsi_phy_db);
@@ -1332,11 +1314,8 @@ static void mdss_dsi_phy_regulator_ctrl(struct mdss_dsi_ctrl_pdata *ctrl,
 			mdss_dsi_8996_phy_regulator_enable(ctrl);
 		} else if (ctrl->shared_data->phy_rev == DSI_PHY_REV_30) {
 			mdss_dsi_phy_v3_regulator_enable(ctrl);
-<<<<<<< Updated upstream
-=======
 		} else if (ctrl->shared_data->phy_rev == DSI_PHY_REV_12NM) {
 			mdss_dsi_12nm_phy_regulator_enable(ctrl);
->>>>>>> Stashed changes
 		} else {
 			switch (ctrl->shared_data->hw_rev) {
 			case MDSS_DSI_HW_REV_103:
@@ -1389,11 +1368,8 @@ static void mdss_dsi_phy_ctrl(struct mdss_dsi_ctrl_pdata *ctrl, bool enable)
 			mdss_dsi_8996_phy_config(ctrl);
 		} else if (ctrl->shared_data->phy_rev == DSI_PHY_REV_30) {
 			mdss_dsi_phy_v3_init(ctrl, DSI_PHY_MODE_DPHY);
-<<<<<<< Updated upstream
-=======
 		} else if (ctrl->shared_data->phy_rev == DSI_PHY_REV_12NM) {
 			mdss_dsi_12nm_phy_config(ctrl);
->>>>>>> Stashed changes
 		} else {
 			switch (ctrl->shared_data->hw_rev) {
 			case MDSS_DSI_HW_REV_103:
@@ -1469,8 +1445,6 @@ void mdss_dsi_phy_init(struct mdss_dsi_ctrl_pdata *ctrl)
 	}
 }
 
-<<<<<<< Updated upstream
-=======
 static void mdss_dsi_phy_hstx_drv_ctrl(
 	struct mdss_dsi_ctrl_pdata *ctrl, bool enable)
 {
@@ -1478,7 +1452,6 @@ static void mdss_dsi_phy_hstx_drv_ctrl(
 		mdss_dsi_12nm_phy_hstx_drv_ctrl(ctrl, enable);
 }
 
->>>>>>> Stashed changes
 void mdss_dsi_core_clk_deinit(struct device *dev, struct dsi_shared_data *sdata)
 {
 }
@@ -1910,11 +1883,7 @@ u32 mdss_dsi_get_pclk_rate(struct mdss_panel_info *panel_info, u64 clk_rate)
 }
 
 static bool mdss_dsi_is_ulps_req_valid(struct mdss_dsi_ctrl_pdata *ctrl,
-<<<<<<< Updated upstream
-		int enable)
-=======
 		int enable, bool reconfig)
->>>>>>> Stashed changes
 {
 	struct mdss_dsi_ctrl_pdata *octrl = NULL;
 	struct mdss_panel_data *pdata = &ctrl->panel_data;
@@ -1945,19 +1914,11 @@ static bool mdss_dsi_is_ulps_req_valid(struct mdss_dsi_ctrl_pdata *ctrl,
 	 * However, this should be allowed in following usecases:
 	 *   1. If ULPS during suspend feature is enabled, where we
 	 *      configure the lanes in ULPS after turning off the panel.
-<<<<<<< Updated upstream
-	 *   2. When coming out of idle PC with clamps enabled, where we
-	 *      transition the controller HW state back to ULPS prior to
-	 *      disabling ULPS.
-	 */
-	if (enable && !ctrl->mmss_clamp &&
-=======
 	 *   2. When coming out of idle PC with ULPS enabled, where we need to
 	 *      reconfigure the controller HW state again to ULPS prior to
 	 *      disabling ULPS.
 	 */
 	if (enable && !reconfig &&
->>>>>>> Stashed changes
 		!(ctrl->ctrl_state & CTRL_STATE_PANEL_INIT) &&
 		!pdata->panel_info.ulps_suspend_enabled) {
 		pr_debug("%s: panel not yet initialized\n", __func__);
@@ -2084,10 +2045,7 @@ error:
  * mdss_dsi_ulps_config() - Program DSI lanes to enter/exit ULPS mode
  * @ctrl: pointer to DSI controller structure
  * @enable: 1 to enter ULPS, 0 to exit ULPS
-<<<<<<< Updated upstream
-=======
  * @reconfig: boolean to specify if DSI controller is reconfigured to enter ULPS
->>>>>>> Stashed changes
  *
  * Execute the necessary programming sequence to enter/exit DSI Ultra-Low Power
  * State (ULPS). This function the validity of the ULPS config request and
@@ -2095,11 +2053,7 @@ error:
  * This function assumes that the link and core clocks are already on.
  */
 static int mdss_dsi_ulps_config(struct mdss_dsi_ctrl_pdata *ctrl,
-<<<<<<< Updated upstream
-	int enable)
-=======
 	int enable, bool reconfig)
->>>>>>> Stashed changes
 {
 	int ret = 0;
 
@@ -2108,25 +2062,15 @@ static int mdss_dsi_ulps_config(struct mdss_dsi_ctrl_pdata *ctrl,
 		return -EINVAL;
 	}
 
-<<<<<<< Updated upstream
-	if (!mdss_dsi_is_ulps_req_valid(ctrl, enable)) {
-=======
 	if (!mdss_dsi_is_ulps_req_valid(ctrl, enable, reconfig)) {
->>>>>>> Stashed changes
 		pr_debug("%s: skiping ULPS config for ctrl%d, enable=%d\n",
 			__func__, ctrl->ndx, enable);
 		return 0;
 	}
 
-<<<<<<< Updated upstream
-	pr_debug("%s: configuring ulps (%s) for ctrl%d, clamps=%s\n",
-		__func__, (enable ? "on" : "off"), ctrl->ndx,
-		ctrl->mmss_clamp ? "enabled" : "disabled");
-=======
 	pr_debug("%s: configuring ulps (%s) for ctrl%d, reconfig=%s\n",
 		__func__, (enable ? "on" : "off"), ctrl->ndx,
 		reconfig ? "true" : "false");
->>>>>>> Stashed changes
 
 	if (enable && !ctrl->ulps) {
 		/*
@@ -2139,11 +2083,7 @@ static int mdss_dsi_ulps_config(struct mdss_dsi_ctrl_pdata *ctrl,
 		 * power collapse and just restoring the controller state to
 		 * ULPS with the clamps still in place.
 		 */
-<<<<<<< Updated upstream
-		if (!ctrl->mmss_clamp) {
-=======
 		if (!reconfig) {
->>>>>>> Stashed changes
 			ret = mdss_dsi_wait_for_lane_idle(ctrl);
 			if (ret) {
 				pr_warn_ratelimited("%s: lanes not idle, skip ulps\n",
@@ -2503,10 +2443,7 @@ error:
 
 int mdss_dsi_pre_clkoff_cb(void *priv,
 			   enum mdss_dsi_clk_type clk,
-<<<<<<< Updated upstream
-=======
 			   enum mdss_dsi_lclk_type l_type,
->>>>>>> Stashed changes
 			   enum mdss_dsi_clk_state new_state)
 {
 	int rc = 0;
@@ -2515,9 +2452,6 @@ int mdss_dsi_pre_clkoff_cb(void *priv,
 
 	pdata = &ctrl->panel_data;
 
-<<<<<<< Updated upstream
-	if ((clk & MDSS_DSI_LINK_CLK) && (new_state == MDSS_DSI_CLK_OFF)) {
-=======
 	if ((clk & MDSS_DSI_LINK_CLK) && (l_type == MDSS_DSI_LINK_HS_CLK) &&
 		(new_state == MDSS_DSI_CLK_OFF)) {
 		/* Disable HS TX driver in DSI PHY if applicable */
@@ -2526,7 +2460,6 @@ int mdss_dsi_pre_clkoff_cb(void *priv,
 
 	if ((clk & MDSS_DSI_LINK_CLK) && (l_type == MDSS_DSI_LINK_LP_CLK) &&
 		(new_state == MDSS_DSI_CLK_OFF)) {
->>>>>>> Stashed changes
 		if (pdata->panel_info.mipi.force_clk_lane_hs)
 			mdss_dsi_cfg_lane_ctrl(ctrl, BIT(28), 0);
 		/*
@@ -2536,15 +2469,9 @@ int mdss_dsi_pre_clkoff_cb(void *priv,
 		 */
 		if (!(ctrl->ctrl_state & CTRL_STATE_PANEL_INIT)) {
 			if (pdata->panel_info.ulps_suspend_enabled)
-<<<<<<< Updated upstream
-				mdss_dsi_ulps_config(ctrl, 1);
-		} else if (mdss_dsi_ulps_feature_enabled(pdata)) {
-			rc = mdss_dsi_ulps_config(ctrl, 1);
-=======
 				mdss_dsi_ulps_config(ctrl, 1, false);
 		} else if (mdss_dsi_ulps_feature_enabled(pdata)) {
 			rc = mdss_dsi_ulps_config(ctrl, 1, false);
->>>>>>> Stashed changes
 		}
 		if (rc) {
 			pr_err("%s: failed enable ulps, rc = %d\n",
@@ -2569,11 +2496,7 @@ int mdss_dsi_pre_clkoff_cb(void *priv,
 			 * Make sure that controller is not in ULPS state when
 			 * the DSI link is not active.
 			 */
-<<<<<<< Updated upstream
-			rc = mdss_dsi_ulps_config(ctrl, 0);
-=======
 			rc = mdss_dsi_ulps_config(ctrl, 0, false);
->>>>>>> Stashed changes
 			if (rc)
 				pr_err("%s: failed to disable ulps. rc=%d\n",
 					__func__, rc);
@@ -2611,10 +2534,7 @@ static void mdss_dsi_split_link_clk_cfg(struct mdss_dsi_ctrl_pdata *ctrl,
 
 int mdss_dsi_post_clkon_cb(void *priv,
 			   enum mdss_dsi_clk_type clk,
-<<<<<<< Updated upstream
-=======
 			   enum mdss_dsi_lclk_type l_type,
->>>>>>> Stashed changes
 			   enum mdss_dsi_clk_state curr_state)
 {
 	int rc = 0;
@@ -2633,9 +2553,6 @@ int mdss_dsi_post_clkon_cb(void *priv,
 		if (mmss_clamp)
 			mdss_dsi_ctrl_setup(ctrl);
 
-<<<<<<< Updated upstream
-		if (ctrl->ulps && mmss_clamp) {
-=======
 		rc = mdss_dsi_clamp_ctrl(ctrl, 0);
 		if (rc) {
 			pr_err("%s: Failed to disable dsi clamps. rc=%d\n",
@@ -2653,7 +2570,6 @@ int mdss_dsi_post_clkon_cb(void *priv,
 
 	if ((clk & MDSS_DSI_LINK_CLK) && (l_type == MDSS_DSI_LINK_LP_CLK)) {
 		if (ctrl->ulps) {
->>>>>>> Stashed changes
 			/*
 			 * ULPS Entry Request. This is needed if the lanes were
 			 * in ULPS prior to power collapse, since after
@@ -2669,42 +2585,12 @@ int mdss_dsi_post_clkon_cb(void *priv,
 			 * ULPS.
 			 */
 			ctrl->ulps = false;
-<<<<<<< Updated upstream
-			rc = mdss_dsi_ulps_config(ctrl, 1);
-=======
 			rc = mdss_dsi_ulps_config(ctrl, 1, true);
->>>>>>> Stashed changes
 			if (rc) {
 				pr_err("%s: Failed to enter ULPS. rc=%d\n",
 					__func__, rc);
 				goto error;
 			}
-<<<<<<< Updated upstream
-		}
-
-		rc = mdss_dsi_clamp_ctrl(ctrl, 0);
-		if (rc) {
-			pr_err("%s: Failed to disable dsi clamps. rc=%d\n",
-				__func__, rc);
-			goto error;
-		}
-
-		/*
-		 * Phy setup is needed if coming out of idle
-		 * power collapse with clamps enabled.
-		 */
-		if (ctrl->phy_power_off || mmss_clamp)
-			mdss_dsi_phy_power_on(ctrl, mmss_clamp);
-	}
-	if (clk & MDSS_DSI_LINK_CLK) {
-		/* toggle the resync FIFO everytime clock changes */
-		if ((ctrl->shared_data->phy_rev == DSI_PHY_REV_30) &&
-				!pdata->panel_info.cont_splash_enabled)
-			mdss_dsi_phy_v3_toggle_resync_fifo(ctrl);
-
-		if (ctrl->ulps) {
-			rc = mdss_dsi_ulps_config(ctrl, 0);
-=======
 
 			/* toggle the resync FIFO everytime clock changes */
 			if ((ctrl->shared_data->phy_rev == DSI_PHY_REV_30) &&
@@ -2712,25 +2598,18 @@ int mdss_dsi_post_clkon_cb(void *priv,
 				mdss_dsi_phy_v3_toggle_resync_fifo(ctrl);
 
 			rc = mdss_dsi_ulps_config(ctrl, 0, false);
->>>>>>> Stashed changes
 			if (rc) {
 				pr_err("%s: failed to disable ulps, rc= %d\n",
 				       __func__, rc);
 				goto error;
 			}
 		}
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
 		if (pdata->panel_info.mipi.force_clk_lane_hs)
 			mdss_dsi_cfg_lane_ctrl(ctrl, BIT(28), 1);
 
 		/* enable split link for cmn clk cfg1 */
 		mdss_dsi_split_link_clk_cfg(ctrl, 1);
-<<<<<<< Updated upstream
-	}
-=======
 
 		/* Enable HS TX driver in DSI PHY if applicable */
 		if ((clk & MDSS_DSI_LINK_CLK) &&
@@ -2739,17 +2618,13 @@ int mdss_dsi_post_clkon_cb(void *priv,
 	}
 
 
->>>>>>> Stashed changes
 error:
 	return rc;
 }
 
 int mdss_dsi_post_clkoff_cb(void *priv,
 			    enum mdss_dsi_clk_type clk_type,
-<<<<<<< Updated upstream
-=======
 			    enum mdss_dsi_lclk_type l_type,
->>>>>>> Stashed changes
 			    enum mdss_dsi_clk_state curr_state)
 {
 	int rc = 0;
@@ -2803,10 +2678,7 @@ int mdss_dsi_post_clkoff_cb(void *priv,
 
 int mdss_dsi_pre_clkon_cb(void *priv,
 			  enum mdss_dsi_clk_type clk_type,
-<<<<<<< Updated upstream
-=======
 			  enum mdss_dsi_lclk_type l_type,
->>>>>>> Stashed changes
 			  enum mdss_dsi_clk_state new_state)
 {
 	int rc = 0;
@@ -2859,8 +2731,6 @@ int mdss_dsi_pre_clkon_cb(void *priv,
 		}
 	}
 
-<<<<<<< Updated upstream
-=======
 	/* Disable dynamic clock gating*/
 	if (ctrl->mdss_util->dyn_clk_gating_ctrl)
 		ctrl->mdss_util->dyn_clk_gating_ctrl(0);
@@ -2885,7 +2755,6 @@ int mdss_dsi_pre_clkon_cb(void *priv,
 
 	}
 
->>>>>>> Stashed changes
 	if ((clk_type & MDSS_DSI_LINK_CLK) &&
 		(new_state == MDSS_DSI_CLK_ON) &&
 		!ctrl->panel_data.panel_info.cont_splash_enabled)

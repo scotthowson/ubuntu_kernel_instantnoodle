@@ -117,11 +117,6 @@ struct msm_watchdog_data {
 	bool user_pet_complete;
 	unsigned long long timer_fired;
 	unsigned long long thread_start;
-<<<<<<< Updated upstream
-	unsigned long long ping_start[NR_CPUS];
-	unsigned long long ping_end[NR_CPUS];
-=======
->>>>>>> Stashed changes
 	struct work_struct irq_counts_work;
 	struct irq_info irq_counts[NR_TOP_HITTERS];
 	struct irq_info ipi_counts[NR_IPI];

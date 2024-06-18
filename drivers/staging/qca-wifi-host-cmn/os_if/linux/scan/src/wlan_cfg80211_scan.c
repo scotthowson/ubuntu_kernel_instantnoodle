@@ -150,26 +150,6 @@ static void wlan_scan_rand_attrs(struct wlan_objmgr_vdev *vdev,
  * Return: None
  */
 static void
-<<<<<<< Updated upstream
-wlan_config_sched_scan_plan(struct pno_scan_req_params *pno_req,
-			    struct cfg80211_sched_scan_request *request)
-{
-	/*
-	 * As of now max 2 scan plans were supported by firmware
-	 * if number of scan plan supported by firmware increased below logic
-	 * must change.
-	 */
-	if (request->n_scan_plans == SCAN_PNO_MAX_PLAN_REQUEST) {
-		pno_req->fast_scan_period =
-			request->scan_plans[0].interval * MSEC_PER_SEC;
-		pno_req->fast_scan_max_cycles =
-			request->scan_plans[0].iterations;
-		pno_req->slow_scan_period =
-			request->scan_plans[1].interval * MSEC_PER_SEC;
-	} else if (request->n_scan_plans == 1) {
-		pno_req->fast_scan_period =
-			request->scan_plans[0].interval * MSEC_PER_SEC;
-=======
 wlan_config_sched_scan_plan(struct wlan_objmgr_psoc *psoc,
 			    struct pno_scan_req_params *pno_req,
 			    struct cfg80211_sched_scan_request *request)
@@ -178,7 +158,6 @@ wlan_config_sched_scan_plan(struct wlan_objmgr_psoc *psoc,
 	    request->n_scan_plans == 1) {
 		pno_req->fast_scan_period =
 		request->scan_plans[0].interval * MSEC_PER_SEC;
->>>>>>> Stashed changes
 		/*
 		 * if only one scan plan is configured from framework
 		 * then both fast and slow scan should be configured with the
@@ -187,8 +166,6 @@ wlan_config_sched_scan_plan(struct wlan_objmgr_psoc *psoc,
 		pno_req->fast_scan_max_cycles = 1;
 		pno_req->slow_scan_period =
 			request->scan_plans[0].interval * MSEC_PER_SEC;
-<<<<<<< Updated upstream
-=======
 	}
 	/*
 	 * As of now max 2 scan plans were supported by firmware
@@ -202,18 +179,13 @@ wlan_config_sched_scan_plan(struct wlan_objmgr_psoc *psoc,
 			request->scan_plans[0].iterations;
 		pno_req->slow_scan_period =
 			request->scan_plans[1].interval * MSEC_PER_SEC;
->>>>>>> Stashed changes
 	} else {
 		osif_err("Invalid number of scan plans %d !!",
 			 request->n_scan_plans);
 	}
 }
 #else
-<<<<<<< Updated upstream
-#define wlan_config_sched_scan_plan(pno_req, request) \
-=======
 #define wlan_config_sched_scan_plan(psoc, pno_req, request) \
->>>>>>> Stashed changes
 	__wlan_config_sched_scan_plan(pno_req, request, psoc)
 
 static void
@@ -597,11 +569,7 @@ int wlan_cfg80211_sched_scan_start(struct wlan_objmgr_vdev *vdev,
 	 *   switches slow_scan_period. This is less frequent scans and firmware
 	 *   shall be in slow_scan_period mode until next PNO Start.
 	 */
-<<<<<<< Updated upstream
-	wlan_config_sched_scan_plan(req, request);
-=======
 	wlan_config_sched_scan_plan(psoc, req, request);
->>>>>>> Stashed changes
 	req->delay_start_time = wlan_config_sched_scan_start_delay(request);
 	req->scan_backoff_multiplier = scan_backoff_multiplier;
 

@@ -212,12 +212,9 @@ struct irq_data {
  * IRQD_CAN_RESERVE		- Can use reservation mode
  * IRQD_MSI_NOMASK_QUIRK	- Non-maskable MSI quirk for affinity change
  *				  required
-<<<<<<< Updated upstream
-=======
  * IRQD_PERF_CRITICAL		- IRQ is performance-critical
  * IRQD_AFFINITY_ON_ACTIVATE	- Affinity is set on activation. Don't call
  *				  irq_chip::irq_set_affinity() when deactivated.
->>>>>>> Stashed changes
  */
 enum {
 	IRQD_TRIGGER_MASK		= 0xf,
@@ -241,11 +238,8 @@ enum {
 	IRQD_DEFAULT_TRIGGER_SET	= (1 << 25),
 	IRQD_CAN_RESERVE		= (1 << 26),
 	IRQD_MSI_NOMASK_QUIRK		= (1 << 27),
-<<<<<<< Updated upstream
-=======
 	IRQD_PERF_CRITICAL		= (1 << 28),
 	IRQD_AFFINITY_ON_ACTIVATE	= (1 << 29),
->>>>>>> Stashed changes
 };
 
 #define __irqd_to_state(d) ACCESS_PRIVATE((d)->common, state_use_accessors)
@@ -420,8 +414,6 @@ static inline bool irqd_msi_nomask_quirk(struct irq_data *d)
 	return __irqd_to_state(d) & IRQD_MSI_NOMASK_QUIRK;
 }
 
-<<<<<<< Updated upstream
-=======
 static inline void irqd_set_affinity_on_activate(struct irq_data *d)
 {
 	__irqd_to_state(d) |= IRQD_AFFINITY_ON_ACTIVATE;
@@ -432,7 +424,6 @@ static inline bool irqd_affinity_on_activate(struct irq_data *d)
 	return __irqd_to_state(d) & IRQD_AFFINITY_ON_ACTIVATE;
 }
 
->>>>>>> Stashed changes
 #undef __irqd_to_state
 
 static inline irq_hw_number_t irqd_to_hwirq(struct irq_data *d)

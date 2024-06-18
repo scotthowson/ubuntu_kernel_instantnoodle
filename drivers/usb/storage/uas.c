@@ -81,9 +81,6 @@ static void uas_free_streams(struct uas_dev_info *devinfo);
 static void uas_log_cmd_state(struct scsi_cmnd *cmnd, const char *prefix,
 				int status);
 
-<<<<<<< Updated upstream
-static struct workqueue_struct *workqueue;
-=======
 /*
  * This driver needs its own workqueue, as we need to control memory allocation.
  *
@@ -97,7 +94,6 @@ static struct workqueue_struct *workqueue;
  */
 static struct workqueue_struct *workqueue;
 
->>>>>>> Stashed changes
 static void uas_do_work(struct work_struct *work)
 {
 	struct uas_dev_info *devinfo =
@@ -878,12 +874,9 @@ static int uas_slave_configure(struct scsi_device *sdev)
 	if (devinfo->flags & US_FL_NO_READ_CAPACITY_16)
 		sdev->no_read_capacity_16 = 1;
 
-<<<<<<< Updated upstream
-=======
 	/* Some disks cannot handle WRITE_SAME */
 	if (devinfo->flags & US_FL_NO_SAME)
 		sdev->no_write_same = 1;
->>>>>>> Stashed changes
 	/*
 	 * Some disks return the total number of blocks in response
 	 * to READ CAPACITY rather than the highest block number.

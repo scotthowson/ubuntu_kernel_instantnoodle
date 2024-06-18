@@ -316,11 +316,7 @@ bool pmo_core_is_wow_applicable(struct wlan_objmgr_psoc *psoc)
 	}
 
 	if (pmo_core_is_lpass_enabled(psoc)) {
-<<<<<<< Updated upstream
-		pmo_info("lpass enabled, enabling wow");
-=======
 		pmo_debug("lpass enabled, enabling wow");
->>>>>>> Stashed changes
 		return true;
 	}
 

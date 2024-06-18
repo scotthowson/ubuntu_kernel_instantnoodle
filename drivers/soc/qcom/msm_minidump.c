@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2017-2018,2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2017-2018,2020-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #define pr_fmt(fmt) "Minidump: " fmt
@@ -236,10 +232,7 @@ EXPORT_SYMBOL(msm_minidump_update_region);
 int msm_minidump_add_region(const struct md_region *entry)
 {
 	u32 entries;
-<<<<<<< Updated upstream
-=======
 	u32 toc_init;
->>>>>>> Stashed changes
 	struct md_region *mdr;
 
 	if (validate_region(entry))

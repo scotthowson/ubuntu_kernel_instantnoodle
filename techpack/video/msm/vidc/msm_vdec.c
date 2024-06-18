@@ -927,8 +927,6 @@ int msm_vdec_s_ctrl(struct msm_vidc_inst *inst, struct v4l2_ctrl *ctrl)
 	case V4L2_CID_MPEG_VIDC_VIDEO_OPERATING_RATE:
 		if (!is_valid_operating_rate(inst, ctrl->val))
 			break;
-<<<<<<< Updated upstream
-=======
 		/*
 		 * reset the resources like clock and bus as per the updated
 		 * flag. When switch from TURBO to normal, need not wait for
@@ -938,7 +936,6 @@ int msm_vdec_s_ctrl(struct msm_vidc_inst *inst, struct v4l2_ctrl *ctrl)
 			inst->flags &= ~VIDC_TURBO;
 			msm_comm_reset_clocks_and_bus(inst);
 		}
->>>>>>> Stashed changes
 		inst->flags &= ~VIDC_TURBO;
 		if (ctrl->val == INT_MAX)
 			inst->flags |= VIDC_TURBO;

@@ -655,14 +655,11 @@ static void handle_thermal_trip(struct thermal_zone_device *tz,
 				THERMAL_EVENT_UNSPECIFIED, trip_temp);
 		}
 	}
-<<<<<<< Updated upstream
-=======
 
 	/*
 	 * It is better to notify at least one thermal zone if trip is violated
 	 * for none.
 	 */
->>>>>>> Stashed changes
 	if (temp_valid && !notify)
 		thermal_zone_device_update_temp(tz, THERMAL_EVENT_UNSPECIFIED,
 				trip_temp);

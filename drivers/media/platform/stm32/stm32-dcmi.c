@@ -587,11 +587,7 @@ static int dcmi_start_streaming(struct vb2_queue *vq, unsigned int count)
 	if (ret < 0) {
 		dev_err(dcmi->dev, "%s: Failed to start streaming, cannot get sync (%d)\n",
 			__func__, ret);
-<<<<<<< Updated upstream
-		goto err_release_buffers;
-=======
 		goto err_pm_put;
->>>>>>> Stashed changes
 	}
 
 	/* Enable stream on the sub device */

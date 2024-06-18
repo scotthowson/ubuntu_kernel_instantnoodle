@@ -1040,11 +1040,6 @@ static irqreturn_t meson_mmc_irq(int irq, void *dev_id)
 	if (WARN_ON(!host) || WARN_ON(!host->cmd))
 		return IRQ_NONE;
 
-<<<<<<< Updated upstream
-	spin_lock(&host->lock);
-
-=======
->>>>>>> Stashed changes
 	cmd = host->cmd;
 	data = cmd->data;
 	cmd->error = 0;
@@ -1087,12 +1082,6 @@ out:
 		start &= ~START_DESC_BUSY;
 		writel(start, host->regs + SD_EMMC_START);
 	}
-<<<<<<< Updated upstream
-
-	if (ret == IRQ_HANDLED)
-		meson_mmc_request_done(host->mmc, cmd->mrq);
-=======
->>>>>>> Stashed changes
 
 	return ret;
 }

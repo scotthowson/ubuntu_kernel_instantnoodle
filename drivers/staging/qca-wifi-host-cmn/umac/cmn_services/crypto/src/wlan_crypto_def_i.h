@@ -173,13 +173,10 @@ static inline void wlan_crypto_put_be64(u8 *a, u64 val)
 		((psoc)->soc_cb.tx_ops.crypto_tx_ops.set_key)
 #define WLAN_CRYPTO_TX_OPS_GETPN(psoc) \
 		((psoc)->soc_cb.tx_ops.crypto_tx_ops.getpn)
-<<<<<<< Updated upstream
-=======
 #define WLAN_CRYPTO_TX_OPS_REGISTER_EVENTS(psoc) \
 		((psoc)->soc_cb.tx_ops.crypto_tx_ops.register_events)
 #define WLAN_CRYPTO_TX_OPS_DEREGISTER_EVENTS(psoc) \
 		((psoc)->soc_cb.tx_ops.crypto_tx_ops.deregister_events)
->>>>>>> Stashed changes
 
 /* unalligned little endian access */
 #ifndef LE_READ_2
@@ -430,8 +427,6 @@ struct wlan_crypto_mmie {
 } __packed;
 
 /**
-<<<<<<< Updated upstream
-=======
  * struct crypto_add_key_result - add key result structure
  * @vdev_id: unique id identifying the VDEV
  * @key_ix: key index
@@ -459,7 +454,6 @@ typedef void (*crypto_add_key_callback)(void *context,
 					struct crypto_add_key_result *result);
 
 /**
->>>>>>> Stashed changes
  * struct wlan_crypto_comp_priv - crypto component private structure
  * @crypto_params:    crypto params for the peer
  * @key:              key buffers for this peer
@@ -468,12 +462,9 @@ typedef void (*crypto_add_key_callback)(void *context,
  * @def_tx_keyid:     default key used for this peer
  * @def_igtk_tx_keyid default igtk key used for this peer
  * @fils_aead_set     fils params for this peer
-<<<<<<< Updated upstream
-=======
  * @add_key_ctx: Opaque context to be used by the caller to associate the
  *  add key request with the response
  * @add_key_cb: Callback function to be called with the add key result
->>>>>>> Stashed changes
  *
  */
 struct wlan_crypto_comp_priv {
@@ -484,11 +475,8 @@ struct wlan_crypto_comp_priv {
 	uint8_t def_tx_keyid;
 	uint8_t def_igtk_tx_keyid;
 	uint8_t fils_aead_set;
-<<<<<<< Updated upstream
-=======
 	void *add_key_ctx;
 	crypto_add_key_callback add_key_cb;
->>>>>>> Stashed changes
 };
 
 /**

@@ -141,7 +141,6 @@ wdt_restart(struct watchdog_device *wdd, unsigned long mode, void *cmd)
 	writel_relaxed(0, wdt->base + WDTCONTROL);
 	writel_relaxed(0, wdt->base + WDTLOAD);
 	writel_relaxed(INT_ENABLE | RESET_ENABLE, wdt->base + WDTCONTROL);
-	readl_relaxed(wdt->base + WDTLOCK);
 
 	/* Flush posted writes. */
 	readl_relaxed(wdt->base + WDTLOCK);

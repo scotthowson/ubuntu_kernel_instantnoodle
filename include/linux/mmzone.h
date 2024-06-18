@@ -37,8 +37,6 @@
  */
 #define PAGE_ALLOC_COSTLY_ORDER 3
 
-#define MAX_KSWAPD_THREADS 16
-
 enum migratetype {
 	MIGRATE_UNMOVABLE,
 	MIGRATE_MOVABLE,
@@ -141,13 +139,6 @@ enum zone_stat_item {
 	NR_ZONE_INACTIVE_ANON = NR_ZONE_LRU_BASE,
 	NR_ZONE_ACTIVE_ANON,
 	NR_ZONE_INACTIVE_FILE,
-<<<<<<< Updated upstream
-#ifdef CONFIG_MEMPLUS
-	NR_ZONE_INACTIVE_ANON_SWAPCACHE,
-	NR_ZONE_ACTIVE_ANON_SWAPCACHE,
-#endif
-=======
->>>>>>> Stashed changes
 	NR_ZONE_ACTIVE_FILE,
 	NR_ZONE_UNEVICTABLE,
 	NR_ZONE_WRITE_PENDING,	/* Count of dirty, writeback and unstable pages */
@@ -162,15 +153,6 @@ enum zone_stat_item {
 #if IS_ENABLED(CONFIG_ZSMALLOC)
 	NR_ZSPAGES,		/* allocated in zsmalloc */
 #endif
-<<<<<<< Updated upstream
-#ifdef CONFIG_DEFRAG
-	NR_FREE_DEFRAG_POOL,
-#endif
-#ifdef CONFIG_ONEPLUS_HEALTHINFO
-	NR_IONCACHE_PAGES,
-#endif
-=======
->>>>>>> Stashed changes
 	NR_FREE_CMA_PAGES,
 	NR_VM_ZONE_STAT_ITEMS };
 
@@ -209,10 +191,7 @@ enum node_stat_item {
 	NR_UNRECLAIMABLE_PAGES,
 	NR_ION_HEAP,
 	NR_ION_HEAP_POOL,
-<<<<<<< Updated upstream
-=======
 	NR_GPU_HEAP,
->>>>>>> Stashed changes
 	NR_VM_NODE_STAT_ITEMS
 };
 
@@ -250,10 +229,6 @@ static inline int is_file_lru(enum lru_list lru)
 static inline int is_active_lru(enum lru_list lru)
 {
 	return (lru == LRU_ACTIVE_ANON || lru == LRU_ACTIVE_FILE);
-<<<<<<< Updated upstream
-#endif
-=======
->>>>>>> Stashed changes
 }
 
 struct zone_reclaim_stat {
@@ -683,11 +658,8 @@ typedef struct pglist_data {
 	/*
 	 * Must be held any time you expect node_start_pfn, node_present_pages
 	 * or node_spanned_pages stay constant.
-<<<<<<< Updated upstream
-=======
 	 * Also synchronizes pgdat->first_deferred_pfn during deferred page
 	 * init.
->>>>>>> Stashed changes
 	 *
 	 * pgdat_resize_lock() and pgdat_resize_unlock() are provided to
 	 * manipulate node_size_lock without checking for CONFIG_MEMORY_HOTPLUG
@@ -704,10 +676,8 @@ typedef struct pglist_data {
 	int node_id;
 	wait_queue_head_t kswapd_wait;
 	wait_queue_head_t pfmemalloc_wait;
-	/*
-	 * Protected by mem_hotplug_begin/end()
-	 */
-	struct task_struct *kswapd[MAX_KSWAPD_THREADS];
+	struct task_struct *kswapd;	/* Protected by
+					   mem_hotplug_begin/end() */
 	int kswapd_order;
 	enum zone_type kswapd_classzone_idx;
 
@@ -942,8 +912,6 @@ static inline int is_highmem(struct zone *zone)
 
 /* These two functions are used to setup the per zone pages min values */
 struct ctl_table;
-int kswapd_threads_sysctl_handler(struct ctl_table *, int,
-					void __user *, size_t *, loff_t *);
 int min_free_kbytes_sysctl_handler(struct ctl_table *, int,
 					void __user *, size_t *, loff_t *);
 int watermark_scale_factor_sysctl_handler(struct ctl_table *, int,

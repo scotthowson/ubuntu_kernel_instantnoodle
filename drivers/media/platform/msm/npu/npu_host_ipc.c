@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2018-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2018-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 /* -------------------------------------------------------------------------
@@ -396,8 +392,6 @@ exit:
 		sizeof(queue.qhdr_rx_req));
 	*is_rx_req_set = (queue.qhdr_rx_req == 1) ? 1 : 0;
 
-<<<<<<< Updated upstream
-=======
 	/* check if queue is empty (consumed by fw) */
 	if (*is_rx_req_set) {
 		MEMR(npu_dev, (void *)((size_t)(offset + (uint32_t)(
@@ -415,7 +409,6 @@ exit:
 			*is_rx_req_set = 0;
 	}
 
->>>>>>> Stashed changes
 	return status;
 }
 

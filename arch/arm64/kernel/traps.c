@@ -1025,15 +1025,9 @@ static int kasan_handler(struct pt_regs *regs, unsigned int esr)
 #define KASAN_ESR_MASK 0xffffff00
 
 static struct break_hook kasan_break_hook = {
-<<<<<<< Updated upstream
-	.esr_val = KASAN_ESR_VAL,
-	.esr_mask = KASAN_ESR_MASK,
-	.fn = kasan_handler,
-=======
 	.fn = kasan_handler,
 	.imm = KASAN_BRK_IMM,
 	.mask = KASAN_BRK_MASK,
->>>>>>> Stashed changes
 };
 #endif
 
@@ -1090,16 +1084,9 @@ static struct break_hook refcount_break_hook = {
 /* This registration must happen early, before debug_traps_init(). */
 void __init trap_init(void)
 {
-<<<<<<< Updated upstream
-	register_break_hook(&bug_break_hook);
-#ifdef CONFIG_KASAN_SW_TAGS
-	register_break_hook(&kasan_break_hook);
-#endif
-=======
 	register_kernel_break_hook(&bug_break_hook);
 #ifdef CONFIG_KASAN_SW_TAGS
 	register_kernel_break_hook(&kasan_break_hook);
 #endif
 	register_kernel_break_hook(&refcount_break_hook);
->>>>>>> Stashed changes
 }

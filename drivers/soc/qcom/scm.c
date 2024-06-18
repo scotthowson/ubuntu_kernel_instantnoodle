@@ -702,8 +702,6 @@ EXPORT_SYMBOL(scm_is_secure_device);
 
 #ifdef CONFIG_ARM64
 
-<<<<<<< Updated upstream
-=======
 #define TZ_HLOS_NOTIFY_CORE_KERNEL_BOOTUP 0x7
 int  scm_mem_protection_init_do_qrks(void)
 {
@@ -738,7 +736,6 @@ int  scm_mem_protection_init_do_qrks(void)
 	return resp;
 }
 
->>>>>>> Stashed changes
 /*
  * SCM call command ID to protect kernel memory
  * in Hyp Stage 2 page tables.
@@ -775,11 +772,6 @@ static int __init scm_mem_protection_init(void)
 }
 
 early_initcall(scm_mem_protection_init);
-<<<<<<< Updated upstream
-#endif
-
-#endif
-=======
 #endif
 
 #endif
@@ -788,4 +780,3 @@ bool under_scm_call(int cpu)
 {
 	return atomic_read(per_cpu_ptr(&scm_call_count, cpu));
 }
->>>>>>> Stashed changes

@@ -448,14 +448,11 @@ static int __maybe_unused axp288_extcon_resume(struct device *dev)
 {
 	struct axp288_extcon_info *info = dev_get_drvdata(dev);
 
-<<<<<<< Updated upstream
-=======
 	/*
 	 * Wakeup when a charger is connected to do charger-type
 	 * connection and generate an extcon event which makes the
 	 * axp288 charger driver set the input current limit.
 	 */
->>>>>>> Stashed changes
 	if (device_may_wakeup(dev))
 		disable_irq_wake(info->irq[VBUS_RISING_IRQ]);
 

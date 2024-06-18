@@ -148,10 +148,7 @@ int sde_mdp_get_rau_strides(u32 w, u32 h,
 		} else
 			ps->ystride[1] = 32 * 2;
 
-<<<<<<< Updated upstream
-=======
 		/* account for both chroma components */
->>>>>>> Stashed changes
 		ps->ystride[1] <<= 1;
 	} else if (fmt->fetch_planes == SDE_MDP_PLANE_INTERLEAVED) {
 		ps->rau_cnt = DIV_ROUND_UP(w, 32);
@@ -182,18 +179,12 @@ static int sde_mdp_get_a5x_plane_size(struct sde_mdp_format_params *fmt,
 
 	if (sde_mdp_is_nv12_8b_format(fmt)) {
 		ps->num_planes = 2;
-<<<<<<< Updated upstream
-=======
 		/* Y bitstream stride and plane size */
->>>>>>> Stashed changes
 		ps->ystride[0] = ALIGN(width, 128);
 		ps->plane_size[0] = ALIGN(ps->ystride[0] * ALIGN(height, 32),
 					4096);
 
-<<<<<<< Updated upstream
-=======
 		/* CbCr bitstream stride and plane size */
->>>>>>> Stashed changes
 		ps->ystride[1] = ALIGN(width, 128);
 		ps->plane_size[1] = ALIGN(ps->ystride[1] *
 			ALIGN(height / 2, 32), 4096);
@@ -203,35 +194,23 @@ static int sde_mdp_get_a5x_plane_size(struct sde_mdp_format_params *fmt,
 
 		ps->num_planes += 2;
 
-<<<<<<< Updated upstream
-=======
 		/* Y meta data stride and plane size */
->>>>>>> Stashed changes
 		ps->ystride[2] = ALIGN(DIV_ROUND_UP(width, 32), 64);
 		ps->plane_size[2] = ALIGN(ps->ystride[2] *
 			ALIGN(DIV_ROUND_UP(height, 8), 16), 4096);
 
-<<<<<<< Updated upstream
-=======
 		/* CbCr meta data stride and plane size */
->>>>>>> Stashed changes
 		ps->ystride[3] = ALIGN(DIV_ROUND_UP(width / 2, 16), 64);
 		ps->plane_size[3] = ALIGN(ps->ystride[3] *
 			ALIGN(DIV_ROUND_UP(height / 2, 8), 16), 4096);
 	} else if (sde_mdp_is_p010_format(fmt)) {
 		ps->num_planes = 2;
-<<<<<<< Updated upstream
-=======
 		/* Y bitstream stride and plane size */
->>>>>>> Stashed changes
 		ps->ystride[0] = ALIGN(width * 2, 256);
 		ps->plane_size[0] = ALIGN(ps->ystride[0] * ALIGN(height, 16),
 					4096);
 
-<<<<<<< Updated upstream
-=======
 		/* CbCr bitstream stride and plane size */
->>>>>>> Stashed changes
 		ps->ystride[1] = ALIGN(width * 2, 256);
 		ps->plane_size[1] = ALIGN(ps->ystride[1] *
 			ALIGN(height / 2, 16), 4096);
@@ -241,18 +220,12 @@ static int sde_mdp_get_a5x_plane_size(struct sde_mdp_format_params *fmt,
 
 		ps->num_planes += 2;
 
-<<<<<<< Updated upstream
-=======
 		/* Y meta data stride and plane size */
->>>>>>> Stashed changes
 		ps->ystride[2] = ALIGN(DIV_ROUND_UP(width, 32), 64);
 		ps->plane_size[2] = ALIGN(ps->ystride[2] *
 			ALIGN(DIV_ROUND_UP(height, 4), 16), 4096);
 
-<<<<<<< Updated upstream
-=======
 		/* CbCr meta data stride and plane size */
->>>>>>> Stashed changes
 		ps->ystride[3] = ALIGN(DIV_ROUND_UP(width / 2, 16), 64);
 		ps->plane_size[3] = ALIGN(ps->ystride[3] *
 			ALIGN(DIV_ROUND_UP(height / 2, 4), 16), 4096);
@@ -264,19 +237,13 @@ static int sde_mdp_get_a5x_plane_size(struct sde_mdp_format_params *fmt,
 
 		ps->num_planes = 2;
 
-<<<<<<< Updated upstream
-=======
 		/* Y bitstream stride and plane size */
->>>>>>> Stashed changes
 		ps->ystride[0]    = yWidth * TILEWIDTH_SIZE / Y_TILEWIDTH;
 		ps->plane_size[0] = ALIGN(ps->ystride[0] *
 				(yHeight * TILEHEIGHT_SIZE / Y_TILEHEIGHT),
 				4096);
 
-<<<<<<< Updated upstream
-=======
 		/* CbCr bitstream stride and plane size */
->>>>>>> Stashed changes
 		ps->ystride[1]    = uvWidth * TILEWIDTH_SIZE / UV_TILEWIDTH;
 		ps->plane_size[1] = ALIGN(ps->ystride[1] *
 				(uvHeight * TILEHEIGHT_SIZE / UV_TILEHEIGHT),
@@ -287,18 +254,12 @@ static int sde_mdp_get_a5x_plane_size(struct sde_mdp_format_params *fmt,
 
 		ps->num_planes += 2;
 
-<<<<<<< Updated upstream
-=======
 		/* Y meta data stride and plane size */
->>>>>>> Stashed changes
 		ps->ystride[2]    = ALIGN(yWidth / Y_TILEWIDTH, 64);
 		ps->plane_size[2] = ALIGN(ps->ystride[2] *
 				ALIGN((yHeight / Y_TILEHEIGHT), 16), 4096);
 
-<<<<<<< Updated upstream
-=======
 		/* CbCr meta data stride and plane size */
->>>>>>> Stashed changes
 		ps->ystride[3]    = ALIGN(uvWidth / UV_TILEWIDTH, 64);
 		ps->plane_size[3] = ALIGN(ps->ystride[3] *
 				ALIGN((uvHeight / UV_TILEHEIGHT), 16), 4096);
@@ -315,10 +276,7 @@ static int sde_mdp_get_a5x_plane_size(struct sde_mdp_format_params *fmt,
 
 		ps->num_planes = 1;
 
-<<<<<<< Updated upstream
-=======
 		/* RGB bitstream stride and plane size */
->>>>>>> Stashed changes
 		aligned_bitstream_width = ALIGN(width, stride_alignment);
 		ps->ystride[0] = aligned_bitstream_width * bpp;
 		ps->plane_size[0] = ALIGN(bpp * aligned_bitstream_width *
@@ -329,10 +287,7 @@ static int sde_mdp_get_a5x_plane_size(struct sde_mdp_format_params *fmt,
 
 		ps->num_planes += 1;
 
-<<<<<<< Updated upstream
-=======
 		/* RGB meta data stride and plane size */
->>>>>>> Stashed changes
 		ps->ystride[2] = ALIGN(DIV_ROUND_UP(aligned_bitstream_width,
 			16), 64);
 		ps->plane_size[2] = ALIGN(ps->ystride[2] *
@@ -416,8 +371,6 @@ int sde_mdp_get_plane_sizes(struct sde_mdp_format_params *fmt, u32 w, u32 h,
 			ps->plane_size[1] = VENUS_UV_SCANLINES(cf, h) *
 				ps->ystride[1];
 		} else if (fmt->format == SDE_PIX_FMT_Y_CBCR_H2V2_P010) {
-<<<<<<< Updated upstream
-=======
 			/*
 			 * |<---Y1--->000000<---Y0--->000000|  Plane0
 			 * |rrrrrrrrrr000000bbbbbbbbbb000000|  Plane1
@@ -425,7 +378,6 @@ int sde_mdp_get_plane_sizes(struct sde_mdp_format_params *fmt, u32 w, u32 h,
 			 *  33222222222211111111110000000000  Bit
 			 *  10987654321098765432109876543210  Location
 			 */
->>>>>>> Stashed changes
 			ps->num_planes = 2;
 			ps->ystride[0] = w * 2;
 			ps->ystride[1] = w * 2;
@@ -483,10 +435,7 @@ int sde_mdp_get_plane_sizes(struct sde_mdp_format_params *fmt, u32 w, u32 h,
 		}
 	}
 
-<<<<<<< Updated upstream
-=======
 	/* Safe to use MAX_PLANES as ps is memset at start of function */
->>>>>>> Stashed changes
 	for (i = 0; i < SDE_ROT_MAX_PLANES; i++)
 		ps->total_size += ps->plane_size[i];
 
@@ -504,10 +453,7 @@ static int sde_mdp_a5x_data_check(struct sde_mdp_data *data,
 	if (data->p[0].len == ps->plane_size[0])
 		goto end;
 
-<<<<<<< Updated upstream
-=======
 	/* From this point, assumption is plane 0 is to be divided */
->>>>>>> Stashed changes
 	data_size = data->p[0].len;
 	if (data_size < ps->total_size) {
 		SDEROT_ERR(
@@ -519,11 +465,6 @@ static int sde_mdp_a5x_data_check(struct sde_mdp_data *data,
 	base_addr = data->p[0].addr;
 
 	if (sde_mdp_is_yuv_format(fmt)) {
-<<<<<<< Updated upstream
-		data->p[0].addr = base_addr + ps->plane_size[2];
-		data->p[0].len = ps->plane_size[0];
-
-=======
 		/************************************************/
 		/*      UBWC            **                      */
 		/*      buffer          **      MDP PLANE       */
@@ -549,7 +490,6 @@ static int sde_mdp_a5x_data_check(struct sde_mdp_data *data,
 		data->p[0].len = ps->plane_size[0];
 
 		/* configure CbCr bitstream plane */
->>>>>>> Stashed changes
 		data->p[1].addr = base_addr + ps->plane_size[0]
 			+ ps->plane_size[2] + ps->plane_size[3];
 		data->p[1].len = ps->plane_size[1];
@@ -557,23 +497,15 @@ static int sde_mdp_a5x_data_check(struct sde_mdp_data *data,
 		if (!sde_mdp_is_ubwc_format(fmt))
 			goto done;
 
-<<<<<<< Updated upstream
-		data->p[2].addr = base_addr;
-		data->p[2].len = ps->plane_size[2];
-
-=======
 		/* configure Y metadata plane */
 		data->p[2].addr = base_addr;
 		data->p[2].len = ps->plane_size[2];
 
 		/* configure CbCr metadata plane */
->>>>>>> Stashed changes
 		data->p[3].addr = base_addr + ps->plane_size[0]
 			+ ps->plane_size[2];
 		data->p[3].len = ps->plane_size[3];
 	} else {
-<<<<<<< Updated upstream
-=======
 		/************************************************/
 		/*      UBWC            **                      */
 		/*      buffer          **      MDP PLANE       */
@@ -592,17 +524,13 @@ static int sde_mdp_a5x_data_check(struct sde_mdp_data *data,
 		/************************************************/
 
 		/* configure RGB bitstream plane */
->>>>>>> Stashed changes
 		data->p[0].addr = base_addr + ps->plane_size[2];
 		data->p[0].len = ps->plane_size[0];
 
 		if (!sde_mdp_is_ubwc_format(fmt))
 			goto done;
 
-<<<<<<< Updated upstream
-=======
 		/* configure RGB metadata plane */
->>>>>>> Stashed changes
 		data->p[2].addr = base_addr;
 		data->p[2].len = ps->plane_size[2];
 	}
@@ -700,10 +628,7 @@ int sde_validate_offset_for_ubwc_format(
 	return ret;
 }
 
-<<<<<<< Updated upstream
-=======
 /* x and y are assumed to be valid, expected to line up with start of tiles */
->>>>>>> Stashed changes
 void sde_rot_ubwc_data_calc_offset(struct sde_mdp_data *data, u16 x, u16 y,
 	struct sde_mdp_plane_sizes *ps, struct sde_mdp_format_params *fmt)
 {
@@ -722,10 +647,7 @@ void sde_rot_ubwc_data_calc_offset(struct sde_mdp_data *data, u16 x, u16 y,
 		u16 chroma_macro_w = macro_w / 2;
 		u16 chroma_micro_w = micro_w / 2;
 
-<<<<<<< Updated upstream
-=======
 		/* plane 1 and 3 are chroma, with sub sample of 2 */
->>>>>>> Stashed changes
 		offset = y * ps->ystride[0] +
 			(x / macro_w) * 4096;
 		if (offset < data->p[0].len) {
@@ -975,16 +897,12 @@ static int sde_mdp_map_buffer(struct sde_mdp_img_data *data, bool rotator,
 	}
 
 	if (!IS_ERR_OR_NULL(data->srcp_dma_buf)) {
-<<<<<<< Updated upstream
-
-=======
 		/*
 		 * dma_buf_map_attachment will call into
 		 * dma_map_sg_attrs, and so all cache maintenance
 		 * attribute and lazy unmap attribute will be all
 		 * provided here.
 		 */
->>>>>>> Stashed changes
 		data->srcp_attachment->dma_map_attrs |=
 			DMA_ATTR_DELAYED_UNMAP;
 
@@ -1224,10 +1142,7 @@ static struct sg_table *sde_rot_dmabuf_map_tiny(
 	if (!sgt)
 		goto free_alloc_pages;
 
-<<<<<<< Updated upstream
-=======
 	/* only alloc a single page */
->>>>>>> Stashed changes
 	if (sg_alloc_table(sgt, 1, GFP_KERNEL)) {
 		SDEROT_ERR("fail sg_alloc_table\n");
 		goto free_sgt;

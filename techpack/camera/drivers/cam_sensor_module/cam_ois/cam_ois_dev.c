@@ -67,6 +67,7 @@ static long cam_ois_subdev_ioctl(struct v4l2_subdev *sd,
 {
 	int                       rc     = 0;
 	struct cam_ois_ctrl_t *o_ctrl = v4l2_get_subdevdata(sd);
+
 	switch (cmd) {
 	case VIDIOC_CAM_CONTROL:
 		rc = cam_ois_driver_cmd(o_ctrl, arg);
@@ -131,20 +132,6 @@ static int cam_ois_subdev_close(struct v4l2_subdev *sd,
 	}
 
 	mutex_lock(&(o_ctrl->ois_mutex));
-<<<<<<< Updated upstream
-        if(o_ctrl->cam_ois_download_fw_in_advance){
-                //when close ois,should be disable ois
-                mutex_lock(&(o_ctrl->ois_power_down_mutex));
-                if (o_ctrl->ois_power_state == CAM_OIS_POWER_ON){
-                        RamWrite32A_oneplus(o_ctrl,0xf012,0x0);
-                }
-                mutex_unlock(&(o_ctrl->ois_power_down_mutex));
-                mutex_lock(&(o_ctrl->do_ioctl_ois));
-                o_ctrl->ois_fd_have_close_state = CAM_OIS_IS_DOING_CLOSE;
-                mutex_unlock(&(o_ctrl->do_ioctl_ois));
-        }
-        cam_ois_shutdown(o_ctrl);
-=======
 	if (o_ctrl->open_cnt <= 0) {
 		mutex_unlock(&(o_ctrl->ois_mutex));
 		return -EINVAL;
@@ -165,7 +152,6 @@ static int cam_ois_subdev_close(struct v4l2_subdev *sd,
                 }
 		cam_ois_shutdown(o_ctrl);
 	}
->>>>>>> Stashed changes
 	mutex_unlock(&(o_ctrl->ois_mutex));
 
 	return 0;

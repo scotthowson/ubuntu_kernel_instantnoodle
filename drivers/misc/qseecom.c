@@ -2,12 +2,8 @@
 /*
  * QTI Secure Execution Environment Communicator (QSEECOM) driver
  *
-<<<<<<< Updated upstream
- * Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2012-2021, The Linux Foundation. All rights reserved.
  * Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #define pr_fmt(fmt) "QSEECOM: %s: " fmt, __func__
@@ -2643,10 +2639,6 @@ err_resp:
 		case QSEOS_RESULT_CBACK_REQUEST:
 			pr_warn("get cback req app_id = %d, resp->data = %d\n",
 				data->client.app_id, resp->data);
-<<<<<<< Updated upstream
-			resp->resp_type = SMCINVOKE_RESULT_INBOUND_REQ_NEEDED;
-=======
->>>>>>> Stashed changes
 			break;
 		default:
 			pr_err("fail:resp res= %d,app_id = %d,lstr = %d\n",
@@ -3752,13 +3744,8 @@ static int __qseecom_send_cmd(struct qseecom_dev_handle *data,
 				(uint32_t)(__qseecom_uvirt_to_kphys(
 				data, (uintptr_t)req->resp_buf));
 		} else {
-<<<<<<< Updated upstream
-			send_data_req.req_ptr = (uint32_t)req->cmd_req_buf;
-			send_data_req.rsp_ptr = (uint32_t)req->resp_buf;
-=======
 			send_data_req.req_ptr = (uintptr_t)req->cmd_req_buf;
 			send_data_req.rsp_ptr = (uintptr_t)req->resp_buf;
->>>>>>> Stashed changes
 		}
 
 		send_data_req.req_len = req->cmd_req_len;
@@ -4407,14 +4394,11 @@ static int __qseecom_send_modfd_cmd(struct qseecom_dev_handle *data,
 	/* Allocate kernel buffer for request and response*/
 	ret = __qseecom_alloc_coherent_buf(req.cmd_req_len + req.resp_len,
 					&va, &pa);
-<<<<<<< Updated upstream
-=======
 	if (ret) {
 		pr_err("Failed to allocate coherent buf, ret %d\n", ret);
 		return ret;
 	}
 
->>>>>>> Stashed changes
 	req.cmd_req_buf = va;
 	send_cmd_req.cmd_req_buf = (void *)pa;
 

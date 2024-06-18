@@ -160,10 +160,6 @@ struct qcom_smp2p {
 	struct regmap *ipc_regmap;
 	int ipc_offset;
 	int ipc_bit;
-<<<<<<< Updated upstream
-	struct wakeup_source *ws;
-=======
->>>>>>> Stashed changes
 
 	struct mbox_client mbox_client;
 	struct mbox_chan *mbox_chan;
@@ -297,17 +293,6 @@ static void qcom_smp2p_notify_in(struct qcom_smp2p *smp2p)
 	}
 }
 
-<<<<<<< Updated upstream
-static irqreturn_t qcom_smp2p_isr(int irq, void *data)
-{
-	struct qcom_smp2p *smp2p = data;
-
-	__pm_stay_awake(smp2p->ws);
-	return IRQ_WAKE_THREAD;
-}
-
-=======
->>>>>>> Stashed changes
 /**
  * qcom_smp2p_intr() - interrupt handler for incoming notifications
  * @irq:	unused
@@ -351,11 +336,6 @@ static irqreturn_t qcom_smp2p_intr(int irq, void *data)
 			qcom_smp2p_do_ssr_ack(smp2p);
 	}
 
-<<<<<<< Updated upstream
-out:
-	__pm_relax(smp2p->ws);
-=======
->>>>>>> Stashed changes
 	return IRQ_HANDLED;
 }
 
@@ -666,15 +646,6 @@ static int qcom_smp2p_probe(struct platform_device *pdev)
 			list_add(&entry->node, &smp2p->outbound);
 		}
 	}
-<<<<<<< Updated upstream
-
-	smp2p->ws = wakeup_source_register(&pdev->dev, "smp2p");
-	if (!smp2p->ws) {
-		ret = -ENOMEM;
-		goto unwind_interfaces;
-	}
-=======
->>>>>>> Stashed changes
 
 	/* Kick the outgoing edge after allocating entries */
 	qcom_smp2p_kick(smp2p);
@@ -685,14 +656,11 @@ static int qcom_smp2p_probe(struct platform_device *pdev)
 					"smp2p", (void *)smp2p);
 	if (ret) {
 		dev_err(&pdev->dev, "failed to request interrupt\n");
-		goto unreg_ws;
+		goto unwind_interfaces;
 	}
 	enable_irq_wake(smp2p->irq);
 
 	return 0;
-
-unreg_ws:
-	wakeup_source_unregister(smp2p->ws);
 
 unwind_interfaces:
 	list_for_each_entry(entry, &smp2p->inbound, node)
@@ -717,8 +685,6 @@ static int qcom_smp2p_remove(struct platform_device *pdev)
 {
 	struct qcom_smp2p *smp2p = platform_get_drvdata(pdev);
 	struct smp2p_entry *entry;
-
-	wakeup_source_unregister(smp2p->ws);
 
 	list_for_each_entry(entry, &smp2p->inbound, node)
 		irq_domain_remove(entry->domain);

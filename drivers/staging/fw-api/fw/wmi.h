@@ -1,9 +1,6 @@
 /*
  * Copyright (c) 2010-2017 The Linux Foundation. All rights reserved.
-<<<<<<< Updated upstream
-=======
  * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -115,11 +112,7 @@ typedef PREPACK struct {
 #define WMI_CMD_HDR_PLT_PRIV_OFFSET            0x00000000
 
 /*
-<<<<<<< Updated upstream
- * List of Commnands
-=======
  * List of Commands
->>>>>>> Stashed changes
  */
 typedef enum {
     WMI_EXTENSION_CMDID,                     //used in wmi_svc.c   /* Non-wireless extensions */
@@ -153,10 +146,7 @@ typedef enum {
     GROUP_USAGE         = 0x01,
     TX_USAGE            = 0x02,     /* default Tx Key - Static WEP only */
     PMK_USAGE           = 0x04,     /* PMK cache */
-<<<<<<< Updated upstream
-=======
     LTF_USAGE           = 0x08,     /* LTF key seed */
->>>>>>> Stashed changes
 } KEY_USAGE;
 /*
  * List of Events (target to host)
@@ -179,11 +169,7 @@ typedef enum {
 } WMI_PHY_CAPABILITY;
 
 
-<<<<<<< Updated upstream
-/* Deprectated, need clean up */
-=======
 /* Deprecated, need clean up */
->>>>>>> Stashed changes
 #define WMI_MAX_RX_META_SZ  (12)
 
 typedef PREPACK struct {

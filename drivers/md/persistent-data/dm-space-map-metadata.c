@@ -452,8 +452,6 @@ static int sm_metadata_new_block_(struct dm_space_map *sm, dm_block_t *b)
 	 * Any block we allocate has to be free in both the old and current ll.
 	 */
 	r = sm_ll_find_common_free_block(&smm->old_ll, &smm->ll, smm->begin, smm->ll.nr_blocks, b);
-<<<<<<< Updated upstream
-=======
 	if (r == -ENOSPC) {
 		/*
 		 * There's no free block between smm->begin and the end of the metadata device.
@@ -462,7 +460,6 @@ static int sm_metadata_new_block_(struct dm_space_map *sm, dm_block_t *b)
 		r = sm_ll_find_common_free_block(&smm->old_ll, &smm->ll, 0, smm->begin, b);
 	}
 
->>>>>>> Stashed changes
 	if (r)
 		return r;
 

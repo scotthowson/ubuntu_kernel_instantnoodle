@@ -1,11 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2011-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2011-2021, The Linux Foundation. All rights reserved.
  * Copyright (c) 2022-2023, Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include <linux/compat.h>
@@ -743,25 +739,6 @@ static struct kgsl_process_private *kgsl_iommu_get_process(u64 ptbase)
 	return NULL;
 }
 
-static void kgsl_send_uevent_iommu_notify(struct kgsl_device *desc, char *fault_type,
-	const char *context_name)
-{
-	char *envp[4];
-	char *title = "GPU_IOMMU_PAGE_FAULT";
-
-	if (!desc)
-		return;
-
-	envp[0] = kasprintf(GFP_KERNEL, "title=%s", title);
-	envp[1] = kasprintf(GFP_KERNEL, "fault_type=%s", fault_type);
-	envp[2] = kasprintf(GFP_KERNEL, "context=%s", context_name);
-	envp[3] = NULL;
-	kobject_uevent_env(&desc->dev->kobj, KOBJ_CHANGE, envp);
-	kfree(envp[0]);
-	kfree(envp[1]);
-	kfree(envp[2]);
-}
-
 static int kgsl_iommu_fault_handler(struct iommu_domain *domain,
 	struct device *dev, unsigned long addr, int flags, void *token)
 {
@@ -810,7 +787,6 @@ static int kgsl_iommu_fault_handler(struct iommu_domain *domain,
 
 	ptbase = KGSL_IOMMU_GET_CTX_REG_Q(ctx, TTBR0);
 	private = kgsl_iommu_get_process(ptbase);
-	kgsl_send_uevent_iommu_notify(device, fault_type, ctx->name);
 
 	if (private) {
 		pid = pid_nr(private->pid);
@@ -2452,16 +2428,6 @@ static uint64_t kgsl_iommu_find_svm_region(struct kgsl_pagetable *pagetable,
 static bool iommu_addr_in_svm_ranges(struct kgsl_iommu_pt *pt,
 	u64 gpuaddr, u64 size)
 {
-<<<<<<< Updated upstream
-	if ((gpuaddr >= pt->compat_va_start && gpuaddr < pt->compat_va_end) &&
-		((gpuaddr + size) > pt->compat_va_start &&
-			(gpuaddr + size) <= pt->compat_va_end))
-		return true;
-
-	if ((gpuaddr >= pt->svm_start && gpuaddr < pt->svm_end) &&
-		((gpuaddr + size) > pt->svm_start &&
-			(gpuaddr + size) <= pt->svm_end))
-=======
 	u64 end = gpuaddr + size;
 
 	/* Make sure size is not zero and we don't wrap around */
@@ -2474,15 +2440,11 @@ static bool iommu_addr_in_svm_ranges(struct kgsl_iommu_pt *pt,
 
 	if ((gpuaddr >= pt->svm_start && gpuaddr < pt->svm_end) &&
 		(end > pt->svm_start && end <= pt->svm_end))
->>>>>>> Stashed changes
 		return true;
 
 	return false;
 }
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
 static int kgsl_iommu_set_svm_region(struct kgsl_pagetable *pagetable,
 		uint64_t gpuaddr, uint64_t size)
 {
@@ -2490,11 +2452,7 @@ static int kgsl_iommu_set_svm_region(struct kgsl_pagetable *pagetable,
 	struct kgsl_iommu_pt *pt = pagetable->priv;
 	struct rb_node *node;
 
-<<<<<<< Updated upstream
-
-=======
 	/* Make sure the requested address doesn't fall out of SVM range */
->>>>>>> Stashed changes
 	if (!iommu_addr_in_svm_ranges(pt, gpuaddr, size))
 		return -ENOMEM;
 
@@ -2537,14 +2495,11 @@ static int get_gpuaddr(struct kgsl_pagetable *pagetable,
 		return -ENOMEM;
 	}
 
-<<<<<<< Updated upstream
-=======
 	/*
 	 * This path is only called in a non-SVM path with locks so we can be
 	 * sure we aren't racing with anybody so we don't need to worry about
 	 * taking the lock
 	 */
->>>>>>> Stashed changes
 	ret = _insert_gpuaddr(pagetable, addr, size);
 	spin_unlock(&pagetable->lock);
 

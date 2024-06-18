@@ -179,14 +179,11 @@ int iwl_pcie_ctxt_info_gen3_init(struct iwl_trans *trans,
 
 	return 0;
 
-<<<<<<< Updated upstream
-=======
 err_free_ctxt_info:
 	dma_free_coherent(trans->dev, sizeof(*trans_pcie->ctxt_info_gen3),
 			  trans_pcie->ctxt_info_gen3,
 			  trans_pcie->ctxt_info_dma_addr);
 	trans_pcie->ctxt_info_gen3 = NULL;
->>>>>>> Stashed changes
 err_free_prph_info:
 	dma_free_coherent(trans->dev,
 			  sizeof(*prph_info),

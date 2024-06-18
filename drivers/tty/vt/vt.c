@@ -351,11 +351,7 @@ static struct uni_screen *vc_uniscr_alloc(unsigned int cols, unsigned int rows)
 	/* allocate everything in one go */
 	memsize = cols * rows * sizeof(char32_t);
 	memsize += rows * sizeof(char32_t *);
-<<<<<<< Updated upstream
-	p = vmalloc(memsize);
-=======
 	p = vzalloc(memsize);
->>>>>>> Stashed changes
 	if (!p)
 		return NULL;
 
@@ -1099,8 +1095,6 @@ static const struct tty_port_operations vc_port_ops = {
 	.destruct = vc_port_destruct,
 };
 
-<<<<<<< Updated upstream
-=======
 /*
  * Change # of rows and columns (0 means unchanged/the size of fg_console)
  * [this is to be used together with some user program
@@ -1109,7 +1103,6 @@ static const struct tty_port_operations vc_port_ops = {
 #define VC_MAXCOL (32767)
 #define VC_MAXROW (32767)
 
->>>>>>> Stashed changes
 int vc_allocate(unsigned int currcons)	/* return 0 on success */
 {
 	struct vt_notifier_param param;
@@ -1245,11 +1238,7 @@ static int vc_do_resize(struct tty_struct *tty, struct vc_data *vc,
 		return resize_screen(vc, new_cols, new_rows, user);
 	}
 
-<<<<<<< Updated upstream
-	if (new_screen_size > KMALLOC_MAX_SIZE)
-=======
 	if (new_screen_size > KMALLOC_MAX_SIZE || !new_screen_size)
->>>>>>> Stashed changes
 		return -EINVAL;
 	newscreen = kzalloc(new_screen_size, GFP_USER);
 	if (!newscreen)

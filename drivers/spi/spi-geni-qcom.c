@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2017-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2017-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 
@@ -171,10 +167,7 @@ struct spi_geni_master {
 	u32 miso_sampling_ctrl_val;
 	int set_cs_sb_delay; /*SB PIPE Delay */
 	int set_pre_cmd_dly; /*Pre command Delay */
-<<<<<<< Updated upstream
-=======
 	bool use_fixed_timeout;
->>>>>>> Stashed changes
 };
 
 static struct spi_master *get_spi_master(struct device *dev)
@@ -765,8 +758,6 @@ static int spi_geni_prepare_message(struct spi_master *spi,
 
 	if (mas->shared_ee) {
 		if (mas->setup) {
-<<<<<<< Updated upstream
-=======
 			/* Client to respect system suspend */
 			if (!pm_runtime_enabled(mas->dev)) {
 				GENI_SE_ERR(mas->ipc, false, NULL,
@@ -774,22 +765,17 @@ static int spi_geni_prepare_message(struct spi_master *spi,
 				return -EACCES;
 			}
 
->>>>>>> Stashed changes
 			ret = pm_runtime_get_sync(mas->dev);
 			if (ret < 0) {
 				dev_err(mas->dev,
 					"%s:pm_runtime_get_sync failed %d\n",
 							__func__, ret);
-<<<<<<< Updated upstream
-				pm_runtime_put_noidle(mas->dev);
-=======
 				WARN_ON_ONCE(1);
 				pm_runtime_put_noidle(mas->dev);
 				/* Set device in suspended since resume
 				 * failed
 				 */
 				pm_runtime_set_suspended(mas->dev);
->>>>>>> Stashed changes
 				goto exit_prepare_message;
 			}
 			ret = 0;
@@ -806,8 +792,6 @@ static int spi_geni_prepare_message(struct spi_master *spi,
 			mas->setup = true;
 		}
 	}
-<<<<<<< Updated upstream
-=======
 
 	if (pm_runtime_status_suspended(mas->dev)) {
 		if (!pm_runtime_enabled(mas->dev)) {
@@ -827,7 +811,6 @@ static int spi_geni_prepare_message(struct spi_master *spi,
 			return ret;
 		}
 	}
->>>>>>> Stashed changes
 
 	mas->cur_xfer_mode = select_xfer_mode(spi, spi_msg);
 
@@ -868,12 +851,8 @@ static int spi_geni_unprepare_message(struct spi_master *spi_mas,
 				GENI_SE_ERR(mas->ipc, false, NULL,
 					"suspend usage count mismatch:%d",
 								count);
-<<<<<<< Updated upstream
-		} else {
-=======
 		} else if (!pm_runtime_status_suspended(mas->dev) &&
 				pm_runtime_enabled(mas->dev)) {
->>>>>>> Stashed changes
 			pm_runtime_mark_last_busy(mas->dev);
 			pm_runtime_put_autosuspend(mas->dev);
 		}
@@ -942,8 +921,6 @@ static int spi_geni_prepare_transfer_hardware(struct spi_master *spi)
 
 	/* Adjust the IB based on the max speed of the slave.*/
 	rsc->ib = max_speed * DEFAULT_BUS_WIDTH;
-<<<<<<< Updated upstream
-=======
 
 	/* Client to respect system suspend */
 	if (!pm_runtime_enabled(mas->dev)) {
@@ -952,7 +929,6 @@ static int spi_geni_prepare_transfer_hardware(struct spi_master *spi)
 		return -EACCES;
 	}
 
->>>>>>> Stashed changes
 	if (mas->gsi_mode && !mas->shared_ee) {
 		struct se_geni_rsc *rsc;
 		int ret = 0;
@@ -971,14 +947,10 @@ static int spi_geni_prepare_transfer_hardware(struct spi_master *spi)
 			dev_err(mas->dev,
 				"%s:pm_runtime_get_sync failed %d\n",
 							__func__, ret);
-<<<<<<< Updated upstream
-			pm_runtime_put_noidle(mas->dev);
-=======
 			WARN_ON_ONCE(1);
 			pm_runtime_put_noidle(mas->dev);
 			/* Set device in suspended since resume failed */
 			pm_runtime_set_suspended(mas->dev);
->>>>>>> Stashed changes
 			goto exit_prepare_transfer_hardware;
 		}
 		ret = 0;
@@ -1162,11 +1134,6 @@ static int setup_fifo_xfer(struct spi_transfer *xfer,
 
 	/* Speed and bits per word can be overridden per transfer */
 	if (xfer->speed_hz != mas->cur_speed_hz) {
-<<<<<<< Updated upstream
-		u32 clk_sel = 0;
-		u32 m_clk_cfg = 0;
-=======
->>>>>>> Stashed changes
 		int idx = 0;
 		int div = 0;
 
@@ -1363,8 +1330,6 @@ static int spi_geni_transfer_one(struct spi_master *spi,
 		return -EINVAL;
 	}
 
-<<<<<<< Updated upstream
-=======
 	if (mas->use_fixed_timeout)
 		xfer_timeout = msecs_to_jiffies(SPI_XFER_TIMEOUT_MS);
 	else
@@ -1385,7 +1350,6 @@ static int spi_geni_transfer_one(struct spi_master *spi,
 		return -EACCES;
 	}
 
->>>>>>> Stashed changes
 	if (mas->cur_xfer_mode != GSI_DMA) {
 		reinit_completion(&mas->xfer_done);
 		ret = setup_fifo_xfer(xfer, mas, slv->mode, spi);
@@ -1785,12 +1749,9 @@ static int spi_geni_probe(struct platform_device *pdev)
 		of_property_read_bool(pdev->dev.of_node,
 				"qcom,shared_ee");
 
-<<<<<<< Updated upstream
-=======
 	geni_mas->use_fixed_timeout =
 		of_property_read_bool(pdev->dev.of_node,
 				"qcom,use-fixed-timeout");
->>>>>>> Stashed changes
 	geni_mas->set_miso_sampling = of_property_read_bool(pdev->dev.of_node,
 				"qcom,set-miso-sampling");
 	if (geni_mas->set_miso_sampling) {
@@ -1894,11 +1855,8 @@ static int spi_geni_runtime_suspend(struct device *dev)
 	struct spi_master *spi = get_spi_master(dev);
 	struct spi_geni_master *geni_mas = spi_master_get_devdata(spi);
 
-<<<<<<< Updated upstream
-=======
 	GENI_SE_DBG(geni_mas->ipc, false, NULL, "%s:\n", __func__);
 
->>>>>>> Stashed changes
 	if (geni_mas->shared_ee)
 		goto exit_rt_suspend;
 
@@ -1921,11 +1879,8 @@ static int spi_geni_runtime_resume(struct device *dev)
 	struct spi_master *spi = get_spi_master(dev);
 	struct spi_geni_master *geni_mas = spi_master_get_devdata(spi);
 
-<<<<<<< Updated upstream
-=======
 	GENI_SE_DBG(geni_mas->ipc, false, NULL, "%s:\n", __func__);
 
->>>>>>> Stashed changes
 	if (geni_mas->shared_ee)
 		goto exit_rt_resume;
 

@@ -1,19 +1,11 @@
 #ifndef __OP_BQ27541_H__
 #define __OP_BQ27541_H__
-<<<<<<< Updated upstream
-/* david.liu@bsp, 20161004 Add BQ27411 support */
-=======
->>>>>>> Stashed changes
 #define CONFIG_GAUGE_BQ27411		1
 #define DEVICE_TYPE_BQ27541		0x0541
 #define DEVICE_TYPE_BQ27411		0x0421
 #define DEVICE_TYPE_BQ28Z610	0xFFA5
 #define DEVICE_BQ27541			0
 #define DEVICE_BQ27411			1
-<<<<<<< Updated upstream
-#define DEVICE_BQ28Z610			2
-=======
->>>>>>> Stashed changes
 
 #define DRIVER_VERSION			"1.1.0"
 
@@ -56,17 +48,6 @@
 #define BQ27541_CS_SS		    BIT(13)
 
 #ifdef CONFIG_GAUGE_BQ27411
-<<<<<<< Updated upstream
-/* david.liu@bsp, 20161004 Add BQ27411 support */
-/* Bq27411 standard data commands */
-#define BQ27411_REG_TEMP                0x02
-#define BQ27411_REG_VOLT                0x04
-#define BQ27411_REG_RM                  0x0A
-#define BQ27411_REG_AI                  0x10
-#define BQ27411_REG_SOC                 0x1c
-#define BQ27411_REG_HEALTH              0x20
-#define BQ27411_REG_FCC                 0x2E
-=======
 #define BQ27411_REG_TEMP                0x02
 #define BQ27411_REG_VOLT                0x04
 #define BQ27411_REG_RM                  0x0C
@@ -76,7 +57,6 @@
 #define BQ27411_REG_HEALTH              0x20
 #define BQ27411_REG_FCC                 0xE
 #define BQ27411_REG_FCCF                0x2E
->>>>>>> Stashed changes
 
 #define CONTROL_CMD                 0x00
 #define CONTROL_STATUS              0x00
@@ -147,11 +127,8 @@
 #define BQ28Z610_BALANCING_CONFIG_BIT			BIT(28)
 
 #define BQ28Z610_REG_TIME_TO_FULL			0x18
-<<<<<<< Updated upstream
-=======
 #define BQ28Z610_REG_CHARGE_FULL_CAPACITY	0x12
 #define BQ28Z610_REG_BATTERY_HEALTH			0x2e
->>>>>>> Stashed changes
 #endif
 
 /* BQ27541 Control subcommands */
@@ -215,10 +192,6 @@
 #define ERROR_BATT_VOL  (3800 * 1000)
 
 #ifdef CONFIG_GAUGE_BQ27411
-<<<<<<< Updated upstream
-/* david.liu@bsp, 20161004 Add BQ27411 support */
-=======
->>>>>>> Stashed changes
 struct cmd_address {
 	u8	reg_temp;
 	u8	reg_volt;
@@ -259,11 +232,8 @@ struct bq27541_device_info {
 	int current_pre;
 	int cap_pre;
 	int remain_pre;
-<<<<<<< Updated upstream
-=======
 	int full_available_capacity_filtered_pre;
 	int full_available_capacity_pre;
->>>>>>> Stashed changes
 	int health_pre;
 	unsigned long rtc_resume_time;
 	unsigned long rtc_suspend_time;
@@ -274,10 +244,6 @@ struct bq27541_device_info {
 	int  temp_thr_update_count;
 	int  fw_ver;
 	int time_to_full;
-<<<<<<< Updated upstream
-	int short_time_standby_count;
-=======
->>>>>>> Stashed changes
 
 	bool lcd_is_off;
 	bool allow_reading;
@@ -288,15 +254,8 @@ struct bq27541_device_info {
 	bool disable_calib_soc;
 	unsigned long	lcd_off_time;
 	unsigned long	soc_pre_time;
-<<<<<<< Updated upstream
-	/* david.liu@oneplus.tw, 2016/05/16  Fix capacity won't udate */
 	unsigned long	soc_store_time;
 #ifdef CONFIG_GAUGE_BQ27411
-	/* david.liu@bsp, 20161004 Add BQ27411 support */
-=======
-	unsigned long	soc_store_time;
-#ifdef CONFIG_GAUGE_BQ27411
->>>>>>> Stashed changes
 	int device_type;
 	struct cmd_address cmd_addr;
 	bool modify_soc_smooth;

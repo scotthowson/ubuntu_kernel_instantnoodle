@@ -871,14 +871,11 @@ int dsi_ctrl_wait4dynamic_refresh_done(struct dsi_ctrl *ctrl);
  * @enable:			variable to control masking/unmasking.
  */
 void dsi_ctrl_mask_overflow(struct dsi_ctrl *dsi_ctrl, bool enable);
-<<<<<<< Updated upstream
-=======
 
 /**
  * dsi_ctrl_clear_slave_dma_status -   API to clear slave DMA status
  * @dsi_ctrl:                   DSI controller handle.
  * @flags:                      Modifiers
  */
->>>>>>> Stashed changes
 int dsi_ctrl_clear_slave_dma_status(struct dsi_ctrl *dsi_ctrl, u32 flags);
 #endif /* _DSI_CTRL_H_ */

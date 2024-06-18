@@ -1892,15 +1892,11 @@ static int __xipram do_write_buffer(struct map_info *map, struct flchip *chip,
 			continue;
 		}
 
-<<<<<<< Updated upstream
-		if (time_after(jiffies, timeo) && !chip_good(map, adr, datum))
-=======
 		/*
 		 * We check "time_after" and "!chip_good" before checking
 		 * "chip_good" to avoid the failure due to scheduling.
 		 */
 		if (time_after(jiffies, timeo) && !chip_good(map, adr, &datum))
->>>>>>> Stashed changes
 			break;
 
 		if (chip_good(map, adr, &datum)) {

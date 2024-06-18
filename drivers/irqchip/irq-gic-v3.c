@@ -45,8 +45,6 @@
 
 #include "irq-gic-common.h"
 
-unsigned int qrtr_first_msg = 1;
-
 struct redist_region {
 	void __iomem		*redist_base;
 	phys_addr_t		phys_base;
@@ -346,14 +344,11 @@ static int gic_suspend(void)
 	return 0;
 }
 
-<<<<<<< Updated upstream
-=======
 /*
  * gic_show_pending_irq - Shows the pending interrupts
  * Note: Interrupts should be disabled on the cpu from which
  * this is called to get accurate list of pending interrupts.
  */
->>>>>>> Stashed changes
 void gic_show_pending_irqs(void)
 {
 	void __iomem *base;
@@ -400,15 +395,7 @@ static void gic_show_resume_irq(struct gic_chip_data *gic)
 		else if (desc->action && desc->action->name)
 			name = desc->action->name;
 
-<<<<<<< Updated upstream
-		/* Add for battery historian */
-		if (name != NULL)
-			log_irq_wakeup_reason(irq);
-
-=======
->>>>>>> Stashed changes
 		pr_warn("%s: %d triggered %s\n", __func__, irq, name);
-		qrtr_first_msg = 0;
 	}
 }
 

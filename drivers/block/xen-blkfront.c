@@ -2294,12 +2294,8 @@ static int blkfront_setup_indirect(struct blkfront_ring_info *rinfo)
 
 		BUG_ON(!list_empty(&rinfo->indirect_pages));
 		for (i = 0; i < num; i++) {
-<<<<<<< Updated upstream
-			struct page *indirect_page = alloc_page(GFP_KERNEL);
-=======
 			struct page *indirect_page = alloc_page(GFP_KERNEL |
 			                                        __GFP_ZERO);
->>>>>>> Stashed changes
 			if (!indirect_page)
 				goto out_of_memory;
 			list_add(&indirect_page->lru, &rinfo->indirect_pages);

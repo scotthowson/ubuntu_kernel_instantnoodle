@@ -1,9 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0-only
-<<<<<<< Updated upstream
-/* Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
-=======
 /* Copyright (c) 2012-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -854,12 +850,8 @@ err_restart:
 }
 
 static int pil_msa_auth_modem_mdt(struct pil_desc *pil, const u8 *metadata,
-<<<<<<< Updated upstream
-				  size_t size)
-=======
 				  size_t size,  phys_addr_t region_start,
 				  void *region)
->>>>>>> Stashed changes
 {
 	struct modem_data *drv = dev_get_drvdata(pil->dev);
 	void *mdata_virt;
@@ -943,12 +935,8 @@ fail:
 }
 
 static int pil_msa_mss_reset_mba_load_auth_mdt(struct pil_desc *pil,
-<<<<<<< Updated upstream
-				const u8 *metadata, size_t size)
-=======
 				const u8 *metadata, size_t size,
 				phys_addr_t region_start, void *region)
->>>>>>> Stashed changes
 {
 	int ret;
 
@@ -956,12 +944,8 @@ static int pil_msa_mss_reset_mba_load_auth_mdt(struct pil_desc *pil,
 	if (ret)
 		return ret;
 
-<<<<<<< Updated upstream
-	return pil_msa_auth_modem_mdt(pil, metadata, size);
-=======
 	return pil_msa_auth_modem_mdt(pil, metadata, size, region_start,
 								region);
->>>>>>> Stashed changes
 }
 
 static int pil_msa_mba_verify_blob(struct pil_desc *pil, phys_addr_t phy_addr,

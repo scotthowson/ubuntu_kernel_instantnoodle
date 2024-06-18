@@ -10,12 +10,9 @@
 		interrupts = <0 83 IRQ_TYPE_LEVEL_HIGH>;
 		interrupt-controller;
 		#interrupt-cells = <1>;
-<<<<<<< Updated upstream
-=======
 
 		#list-cells = <1>;
 
->>>>>>> Stashed changes
 		vdd-supply = <&gdsc_mdss>;
 
 		/* Bus Scale Settings */
@@ -586,11 +583,8 @@
 		reg-names = "mdp_phys",
 			"rot_vbif_phys";
 
-<<<<<<< Updated upstream
-=======
 		#list-cells = <1>;
 
->>>>>>> Stashed changes
 		qcom,mdss-rot-mode = <1>;
 		qcom,mdss-highest-bank-bit = <0x1>;
 
@@ -618,10 +612,7 @@
 		interrupt-parent = <&mdss_mdp>;
 		interrupts = <2 0>;
 
-<<<<<<< Updated upstream
-=======
 		qcom,mdss-rot-parent = <&mdss_mdp 0>;
->>>>>>> Stashed changes
 		/* VBIF QoS remapper settings*/
 		qcom,mdss-rot-vbif-qos-setting = <1 1 1 1>;
 		qcom,mdss-rot-xin-id = <14 15>;

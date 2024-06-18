@@ -1630,8 +1630,6 @@ static void aio_poll_put_work(struct work_struct *work)
 	iocb_put(iocb);
 }
 
-<<<<<<< Updated upstream
-=======
 /*
  * Safely lock the waitqueue which the request is on, synchronizing with the
  * case where the ->poll() provider decides to free its waitqueue early.
@@ -1677,7 +1675,6 @@ static void poll_iocb_unlock_wq(struct poll_iocb *req)
 	rcu_read_unlock();
 }
 
->>>>>>> Stashed changes
 static void aio_poll_complete_work(struct work_struct *work)
 {
 	struct poll_iocb *req = container_of(work, struct poll_iocb, work);
@@ -1770,24 +1767,9 @@ static int aio_poll_wake(struct wait_queue_entry *wait, unsigned mode, int sync,
 	    spin_trylock_irqsave(&iocb->ki_ctx->ctx_lock, flags)) {
 		struct kioctx *ctx = iocb->ki_ctx;
 
-<<<<<<< Updated upstream
-	if (mask && spin_trylock_irqsave(&iocb->ki_ctx->ctx_lock, flags)) {
-		struct kioctx *ctx = iocb->ki_ctx;
-
-		/*
-		 * Try to complete the iocb inline if we can. Use
-		 * irqsave/irqrestore because not all filesystems (e.g. fuse)
-		 * call this function with IRQs disabled and because IRQs
-		 * have to be disabled before ctx_lock is obtained.
-		 */
-		list_del(&iocb->ki_list);
-		iocb->ki_res.res = mangle_poll(mask);
-		req->done = true;
-=======
 		list_del_init(&req->wait.entry);
 		list_del(&iocb->ki_list);
 		iocb->ki_res.res = mangle_poll(mask);
->>>>>>> Stashed changes
 		if (iocb->ki_eventfd && eventfd_signal_count()) {
 			iocb = NULL;
 			INIT_WORK(&req->work, aio_poll_put_work);

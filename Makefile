@@ -1,11 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0
 VERSION = 4
 PATCHLEVEL = 19
-<<<<<<< Updated upstream
-SUBLEVEL = 125
-=======
 SUBLEVEL = 295
->>>>>>> Stashed changes
 EXTRAVERSION =
 NAME = "People's Front"
 
@@ -463,38 +459,8 @@ KBUILD_LDFLAGS :=
 GCC_PLUGINS_CFLAGS :=
 CLANG_FLAGS :=
 
-<<<<<<< Updated upstream
-ifeq ($(filter instantnoodle%, $(OEM_TARGET_PRODUCT)),)
-KBUILD_CFLAGS += -DUFS3V1
-else
-KBUILD_CFLAGS += -DUFS3V0
-endif
-
-
-ifneq ($(filter ebba%, $(OEM_TARGET_PRODUCT)),)
-KBUILD_CFLAGS += -DOEM_TARGET_PRODUCT_EBBA
-KBUILD_CFLAGS += $(MTK_CDEFS_FACTORY_VERSION)
-KBUILD_CFLAGS += $(MTK_CDEFS_FINAL_RELEASE)
-else
-ifneq ($(filter lemonades%, $(OEM_TARGET_PRODUCT)),)
-KBUILD_CFLAGS += -DOEM_TARGET_PRODUCT_LEMONADES
-else
-ifneq ($(filter avicii%, $(OEM_TARGET_PRODUCT)),)
-KBUILD_CFLAGS += -DOEM_TARGET_PRODUCT_AVICII
-else
-ifneq ($(filter kebab%, $(OEM_TARGET_PRODUCT)),)
-KBUILD_CFLAGS += -DOEM_TARGET_PRODUCT_KEBAB
-endif
-endif
-endif
-endif
-
-export ARCH SRCARCH CONFIG_SHELL HOSTCC KBUILD_HOSTCFLAGS CROSS_COMPILE AS LD CC
-export CPP AR NM STRIP OBJCOPY OBJDUMP KBUILD_HOSTLDFLAGS KBUILD_HOSTLDLIBS
-=======
 export ARCH SRCARCH CONFIG_SHELL HOSTCC KBUILD_HOSTCFLAGS CROSS_COMPILE LD CC
 export CPP AR NM STRIP OBJCOPY OBJDUMP OBJSIZE READELF KBUILD_HOSTLDFLAGS KBUILD_HOSTLDLIBS
->>>>>>> Stashed changes
 export MAKE LEX YACC AWK GENKSYMS INSTALLKERNEL PERL PYTHON PYTHON2 PYTHON3 UTS_MACHINE
 export HOSTCXX KBUILD_HOSTCXXFLAGS LDFLAGS_MODULE CHECK CHECKFLAGS
 
@@ -569,12 +535,9 @@ endif # CROSS_COMPILE
 
 ifneq ($(LLVM_IAS),1)
 CLANG_FLAGS	+= -no-integrated-as
-<<<<<<< Updated upstream
-=======
 GCC_TOOLCHAIN_DIR := $(dir $(shell which $(CROSS_COMPILE)elfedit))
 CLANG_FLAGS	+= --prefix=$(GCC_TOOLCHAIN_DIR)$(notdir $(CROSS_COMPILE))
 endif
->>>>>>> Stashed changes
 CLANG_FLAGS	+= $(call cc-option, -Wno-misleading-indentation)
 CLANG_FLAGS	+= $(call cc-option, -Wno-bool-operation)
 CLANG_FLAGS	+= -Werror=unknown-warning-option
@@ -665,7 +628,7 @@ export KBUILD_MODULES KBUILD_BUILTIN
 ifeq ($(KBUILD_EXTMOD),)
 # Objects we will link into vmlinux / subdirs we need to visit
 init-y		:= init/
-drivers-y	:= drivers/ sound/ firmware/ techpack/ opslalib/
+drivers-y	:= drivers/ sound/ firmware/ techpack/
 net-y		:= net/
 libs-y		:= lib/
 core-y		:= usr/
@@ -763,10 +726,6 @@ KBUILD_CFLAGS   += $(call cc-disable-warning, fortify-source)
 ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
 KBUILD_CFLAGS   += -Os
 else
-<<<<<<< Updated upstream
-KBUILD_CFLAGS   += -O2
-endif
-=======
 KBUILD_CFLAGS   += -O3
 endif
 
@@ -779,7 +738,6 @@ KBUILD_CFLAGS	+= -mllvm -polly \
 		   -mllvm -polly-detect-keep-going \
 		   -mllvm -polly-vectorizer=stripmine \
 		   -mllvm -polly-invariant-load-hoisting
->>>>>>> Stashed changes
 
 # Tell gcc to never replace conditional load with a non-conditional one
 KBUILD_CFLAGS	+= $(call cc-option,--param=allow-store-data-races=0)
@@ -954,12 +912,6 @@ lto-clang-flags	:= -flto
 endif
 lto-clang-flags += -fvisibility=default $(call cc-option, -fsplit-lto-unit)
 
-<<<<<<< Updated upstream
-# Limit inlining across translation units to reduce binary size
-LD_FLAGS_LTO_CLANG := -mllvm -import-instr-limit=5
-
-=======
->>>>>>> Stashed changes
 KBUILD_LDFLAGS += $(LD_FLAGS_LTO_CLANG)
 KBUILD_LDFLAGS_MODULE += $(LD_FLAGS_LTO_CLANG)
 
@@ -1060,12 +1012,6 @@ KBUILD_CFLAGS   += $(call cc-option,-Werror=designated-init)
 
 # change __FILE__ to the relative path from the srctree
 KBUILD_CFLAGS	+= $(call cc-option,-fmacro-prefix-map=$(srctree)/=)
-
-# ensure -fcf-protection is disabled when using retpoline as it is
-# incompatible with -mindirect-branch=thunk-extern
-ifdef CONFIG_RETPOLINE
-KBUILD_CFLAGS += $(call cc-option,-fcf-protection=none)
-endif
 
 # use the deterministic mode of AR if available
 KBUILD_ARFLAGS := $(call ar-option,D)

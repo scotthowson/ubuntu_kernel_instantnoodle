@@ -1,9 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0-only
-<<<<<<< Updated upstream
-/* Copyright (c) 2020, The Linux Foundation. All rights reserved.
-=======
 /* Copyright (c) 2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  *
  * CAN bus driver for Microchip 25XXFD CAN Controller with SPI Interface
  *
@@ -3949,10 +3945,7 @@ static const struct spi_device_id mcp25xxfd_id_table[] = {
 };
 MODULE_DEVICE_TABLE(spi, mcp25xxfd_id_table);
 
-<<<<<<< Updated upstream
-=======
 #if defined(CONFIG_DEBUG_FS)
->>>>>>> Stashed changes
 static int mcp25xxfd_dump_regs(struct seq_file *file, void *offset)
 {
 	struct spi_device *spi = file->private;
@@ -3992,10 +3985,6 @@ static int mcp25xxfd_dump_regs(struct seq_file *file, void *offset)
 	return 0;
 }
 
-<<<<<<< Updated upstream
-#if defined(CONFIG_DEBUG_FS)
-=======
->>>>>>> Stashed changes
 static void mcp25xxfd_debugfs_add(struct mcp25xxfd_priv *priv)
 {
 	struct dentry *root, *fifousage, *fifoaddr, *rx, *tx, *status,
@@ -4159,10 +4148,6 @@ static void mcp25xxfd_debugfs_remove(struct mcp25xxfd_priv *priv)
 #else
 static void mcp25xxfd_debugfs_add(struct mcp25xxfd_priv *priv)
 {
-<<<<<<< Updated upstream
-	return 0;
-=======
->>>>>>> Stashed changes
 }
 
 static void mcp25xxfd_debugfs_remove(struct mcp25xxfd_priv *priv)

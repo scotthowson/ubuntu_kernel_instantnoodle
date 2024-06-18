@@ -1704,8 +1704,6 @@ static inline void wmi_unified_debug_dump(wmi_unified_t wmi_handle)
 						"WMI_NON_TLV_TARGET"));
 }
 
-<<<<<<< Updated upstream
-=======
 #ifdef SYSTEM_PM_CHECK
 /**
  * wmi_set_system_pm_pkt_tag() - API to set tag for system pm packets
@@ -1744,7 +1742,6 @@ static inline void wmi_set_system_pm_pkt_tag(uint16_t *htc_tag, wmi_buf_t buf,
 }
 #endif
 
->>>>>>> Stashed changes
 QDF_STATUS wmi_unified_cmd_send_fl(wmi_unified_t wmi_handle, wmi_buf_t buf,
 				   uint32_t len, uint32_t cmd_id,
 				   const char *func, uint32_t line)
@@ -1752,15 +1749,10 @@ QDF_STATUS wmi_unified_cmd_send_fl(wmi_unified_t wmi_handle, wmi_buf_t buf,
 	HTC_PACKET *pkt;
 	QDF_STATUS status;
 	uint16_t htc_tag = 0;
-<<<<<<< Updated upstream
-
-	if (wmi_get_runtime_pm_inprogress(wmi_handle)) {
-=======
 	bool rtpm_inprogress;
 
 	rtpm_inprogress = wmi_get_runtime_pm_inprogress(wmi_handle);
 	if (rtpm_inprogress) {
->>>>>>> Stashed changes
 		htc_tag = wmi_handle->ops->wmi_set_htc_tx_tag(wmi_handle, buf,
 							      cmd_id);
 	} else if (qdf_atomic_read(&wmi_handle->is_target_suspended) &&
@@ -1822,12 +1814,9 @@ QDF_STATUS wmi_unified_cmd_send_fl(wmi_unified_t wmi_handle, wmi_buf_t buf,
 		return QDF_STATUS_E_NOMEM;
 	}
 
-<<<<<<< Updated upstream
-=======
 	if (!rtpm_inprogress)
 		wmi_set_system_pm_pkt_tag(&htc_tag, buf, cmd_id);
 
->>>>>>> Stashed changes
 	SET_HTC_PACKET_INFO_TX(pkt,
 			       NULL,
 			       qdf_nbuf_data(buf), len + sizeof(WMI_CMD_HDR),
@@ -1986,12 +1975,7 @@ int wmi_unified_register_event_handler(wmi_unified_t wmi_handle,
 	evt_id = wmi_handle->wmi_events[event_id];
 
 	if (wmi_unified_get_event_handler_ix(wmi_handle, evt_id) != -1) {
-<<<<<<< Updated upstream
-		WMI_LOGI("event handler already registered 0x%x",
-			 evt_id);
-=======
 		wmi_info("event handler already registered 0x%x", evt_id);
->>>>>>> Stashed changes
 		return QDF_STATUS_E_FAILURE;
 	}
 	if (soc->max_event_idx == WMI_UNIFIED_MAX_EVENT) {
@@ -2038,11 +2022,7 @@ int wmi_unified_unregister_event(wmi_unified_t wmi_handle,
 
 	idx = wmi_unified_get_event_handler_ix(wmi_handle, evt_id);
 	if (idx == -1) {
-<<<<<<< Updated upstream
-		WMI_LOGI("event handler is not registered: evt id 0x%x",
-=======
 		wmi_warn("event handler is not registered: evt id 0x%x",
->>>>>>> Stashed changes
 			 evt_id);
 		return QDF_STATUS_E_FAILURE;
 	}
@@ -2080,23 +2060,14 @@ int wmi_unified_unregister_event_handler(wmi_unified_t wmi_handle,
 
 	if (event_id >= wmi_events_max ||
 		wmi_handle->wmi_events[event_id] == WMI_EVENT_ID_INVALID) {
-<<<<<<< Updated upstream
-		WMI_LOGI("Event id %d is unavailable",
-			 event_id);
-=======
 		wmi_err("Event id %d is unavailable", event_id);
->>>>>>> Stashed changes
 		return QDF_STATUS_E_FAILURE;
 	}
 	evt_id = wmi_handle->wmi_events[event_id];
 
 	idx = wmi_unified_get_event_handler_ix(wmi_handle, evt_id);
 	if (idx == -1) {
-<<<<<<< Updated upstream
-		WMI_LOGI("event handler is not registered: evt id 0x%x",
-=======
 		wmi_err("event handler is not registered: evt id 0x%x",
->>>>>>> Stashed changes
 			 evt_id);
 		return QDF_STATUS_E_FAILURE;
 	}

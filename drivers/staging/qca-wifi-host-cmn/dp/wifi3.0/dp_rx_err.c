@@ -1,9 +1,6 @@
 /*
  * Copyright (c) 2016-2020 The Linux Foundation. All rights reserved.
-<<<<<<< Updated upstream
-=======
  * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -532,11 +529,7 @@ more_msdu_link_desc:
 		rx_tlv_hdr_last = qdf_nbuf_data(tail_nbuf);
 
 		if (qdf_unlikely(head_nbuf != tail_nbuf)) {
-<<<<<<< Updated upstream
-			nbuf = dp_rx_sg_create(head_nbuf);
-=======
 			nbuf = dp_rx_sg_create(soc, head_nbuf);
->>>>>>> Stashed changes
 			qdf_nbuf_set_is_frag(nbuf, 1);
 			DP_STATS_INC(soc, rx.err.reo_err_oor_sg_count, 1);
 		}
@@ -737,8 +730,6 @@ void dp_rx_err_handle_bar(struct dp_soc *soc,
 			       start_seq_num);
 }
 
-<<<<<<< Updated upstream
-=======
 /**
  * dp_rx_bar_frame_handle() - Function to handle err BAR frames
  * @soc: core DP main context
@@ -754,17 +745,11 @@ void dp_rx_err_handle_bar(struct dp_soc *soc,
  *
  * Return: none
  */
->>>>>>> Stashed changes
 static void
 dp_rx_bar_frame_handle(struct dp_soc *soc,
 		       hal_ring_desc_t ring_desc,
 		       struct dp_rx_desc *rx_desc,
-<<<<<<< Updated upstream
-		       struct hal_rx_mpdu_desc_info *mpdu_desc_info,
-		       uint8_t error)
-=======
 		       struct hal_rx_mpdu_desc_info *mpdu_desc_info)
->>>>>>> Stashed changes
 {
 	qdf_nbuf_t nbuf;
 	struct dp_pdev *pdev;
@@ -773,10 +758,7 @@ dp_rx_bar_frame_handle(struct dp_soc *soc,
 	uint16_t peer_id;
 	uint8_t *rx_tlv_hdr;
 	uint32_t tid;
-<<<<<<< Updated upstream
-=======
 	uint8_t reo_err_code;
->>>>>>> Stashed changes
 
 	nbuf = rx_desc->nbuf;
 	rx_desc_pool = &soc->rx_desc_buf[rx_desc->pool_id];
@@ -797,35 +779,16 @@ dp_rx_bar_frame_handle(struct dp_soc *soc,
 	if (!peer)
 		goto next;
 
-<<<<<<< Updated upstream
-=======
 	reo_err_code = HAL_RX_REO_ERROR_GET(ring_desc);
->>>>>>> Stashed changes
 	dp_info("BAR frame: peer = "QDF_MAC_ADDR_FMT
 		" peer_id = %d"
 		" tid = %u"
 		" SSN = %d"
-<<<<<<< Updated upstream
-		" error status = %d",
-=======
 		" error code = %d",
->>>>>>> Stashed changes
 		QDF_MAC_ADDR_REF(peer->mac_addr.raw),
 		peer_id,
 		tid,
 		mpdu_desc_info->mpdu_seq,
-<<<<<<< Updated upstream
-		error);
-
-	switch (error) {
-	case HAL_REO_ERR_BAR_FRAME_2K_JUMP:
-		DP_STATS_INC(soc,
-			     rx.err.reo_error[error], 1);
-	case HAL_REO_ERR_BAR_FRAME_OOR:
-		dp_rx_err_handle_bar(soc, peer, nbuf);
-		DP_STATS_INC(soc,
-			     rx.err.reo_error[error], 1);
-=======
 		reo_err_code);
 
 	switch (reo_err_code) {
@@ -836,7 +799,6 @@ dp_rx_bar_frame_handle(struct dp_soc *soc,
 		dp_rx_err_handle_bar(soc, peer, nbuf);
 		DP_STATS_INC(soc,
 			     rx.err.reo_error[reo_err_code], 1);
->>>>>>> Stashed changes
 		break;
 	default:
 		DP_STATS_INC(soc, rx.bar_frame, 1);
@@ -1699,12 +1661,7 @@ dp_rx_err_process(struct dp_intr *int_ctx, struct dp_soc *soc,
 			dp_rx_bar_frame_handle(soc,
 					       ring_desc,
 					       rx_desc,
-<<<<<<< Updated upstream
-					       &mpdu_desc_info,
-					       error);
-=======
 					       &mpdu_desc_info);
->>>>>>> Stashed changes
 
 			rx_bufs_reaped[mac_id] += 1;
 			goto next_entry;

@@ -988,10 +988,7 @@ static int msm_drm_init(struct device *dev, struct drm_driver *drv)
 		priv->fbdev = msm_fbdev_init(ddev);
 #endif
 
-<<<<<<< Updated upstream
-=======
 #ifdef CONFIG_DEBUG_FS
->>>>>>> Stashed changes
 	ret = sde_dbg_debugfs_register(dev);
 	if (ret) {
 		dev_err(dev, "failed to reg sde dbg debugfs: %d\n", ret);

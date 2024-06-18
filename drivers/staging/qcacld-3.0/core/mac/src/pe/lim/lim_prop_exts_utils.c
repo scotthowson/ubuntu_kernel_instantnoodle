@@ -320,8 +320,6 @@ static inline bool lim_extract_adaptive_11r_cap(uint8_t *ie, uint16_t ie_len)
 }
 #endif
 
-<<<<<<< Updated upstream
-=======
 static
 void lim_update_ch_width_for_p2p_client(struct mac_context *mac,
 					struct pe_session *session,
@@ -360,7 +358,6 @@ void lim_update_ch_width_for_p2p_client(struct mac_context *mac,
 		 session->ch_center_freq_seg0, session->ch_center_freq_seg1);
 }
 
->>>>>>> Stashed changes
 void lim_extract_ap_capability(struct mac_context *mac_ctx, uint8_t *p_ie,
 			       uint16_t ie_len, uint8_t *qos_cap,
 			       uint8_t *uapsd, int8_t *local_constraint,
@@ -430,8 +427,6 @@ void lim_extract_ap_capability(struct mac_context *mac_ctx, uint8_t *p_ie,
 			!session->htSupportedChannelWidthSet) {
 		if (!mac_ctx->mlme_cfg->vht_caps.vht_cap_info.enable_txbf_20mhz)
 			session->vht_config.su_beam_formee = 0;
-<<<<<<< Updated upstream
-=======
 
 		if (session->opmode == QDF_P2P_CLIENT_MODE &&
 		    !wlan_reg_is_24ghz_ch_freq(beacon_struct->chan_freq))
@@ -439,7 +434,6 @@ void lim_extract_ap_capability(struct mac_context *mac_ctx, uint8_t *p_ie,
 					mac_ctx, session,
 					beacon_struct->chan_freq);
 
->>>>>>> Stashed changes
 	} else if (session->vhtCapabilityPresentInBeacon &&
 			vht_op->chanWidth) {
 		/* If VHT is supported min 80 MHz support is must */

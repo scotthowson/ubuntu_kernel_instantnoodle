@@ -35,10 +35,7 @@
 #include "wlan_crypto_def_i.h"
 #include "wlan_crypto_param_handling_i.h"
 #include "wlan_crypto_obj_mgr_i.h"
-<<<<<<< Updated upstream
-=======
 #include "wlan_crypto_main.h"
->>>>>>> Stashed changes
 #include <qdf_module.h>
 
 const struct wlan_crypto_cipher *wlan_crypto_cipher_ops[WLAN_CRYPTO_CIPHER_MAX];
@@ -4067,8 +4064,6 @@ wlan_crypto_reset_prarams(struct wlan_crypto_params *params)
 	params->rsn_caps = 0;
 }
 
-<<<<<<< Updated upstream
-=======
 uint8_t *
 wlan_crypto_parse_rsnxe_ie(uint8_t *rsnxe_ie, uint8_t *cap_len)
 {
@@ -4090,7 +4085,6 @@ wlan_crypto_parse_rsnxe_ie(uint8_t *rsnxe_ie, uint8_t *cap_len)
 	return ie;
 }
 
->>>>>>> Stashed changes
 QDF_STATUS wlan_set_vdev_crypto_prarams_from_ie(struct wlan_objmgr_vdev *vdev,
 						uint8_t *ie_ptr,
 						uint16_t ie_len)
@@ -4349,8 +4343,6 @@ void wlan_crypto_set_sae_single_pmk_bss_cap(struct wlan_objmgr_vdev *vdev,
 }
 #endif
 
-<<<<<<< Updated upstream
-=======
 void wlan_crypto_reset_vdev_params(struct wlan_objmgr_vdev *vdev)
 {
 	struct wlan_crypto_comp_priv *crypto_priv;
@@ -4382,5 +4374,4 @@ QDF_STATUS wlan_crypto_psoc_disable(struct wlan_objmgr_psoc *psoc)
 
 	return QDF_STATUS_E_FAILURE;
 }
->>>>>>> Stashed changes
 #endif

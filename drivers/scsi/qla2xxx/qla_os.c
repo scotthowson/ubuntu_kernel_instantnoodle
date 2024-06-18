@@ -1022,11 +1022,6 @@ qla2xxx_mqueuecommand(struct Scsi_Host *host, struct scsi_cmnd *cmd,
 	if (rval != QLA_SUCCESS) {
 		ql_dbg(ql_dbg_io + ql_dbg_verbose, vha, 0x3078,
 		    "Start scsi failed rval=%d for cmd=%p.\n", rval, cmd);
-<<<<<<< Updated upstream
-		if (rval == QLA_INTERFACE_ERROR)
-			goto qc24_free_sp_fail_command;
-=======
->>>>>>> Stashed changes
 		goto qc24_host_busy_free_sp;
 	}
 
@@ -1040,11 +1035,6 @@ qc24_host_busy:
 
 qc24_target_busy:
 	return SCSI_MLQUEUE_TARGET_BUSY;
-
-qc24_free_sp_fail_command:
-	sp->free(sp);
-	CMD_SP(cmd) = NULL;
-	qla2xxx_rel_qpair_sp(sp->qpair, sp);
 
 qc24_fail_command:
 	cmd->scsi_done(cmd);
@@ -3639,13 +3629,10 @@ qla2x00_remove_one(struct pci_dev *pdev)
 	}
 	qla2x00_wait_for_hba_ready(base_vha);
 
-<<<<<<< Updated upstream
-=======
 	/*
 	 * if UNLOADING flag is already set, then continue unload,
 	 * where it was set first.
 	 */
->>>>>>> Stashed changes
 	if (test_and_set_bit(UNLOADING, &base_vha->dpc_flags))
 		return;
 
@@ -6079,10 +6066,7 @@ qla2x00_do_dpc(void *data)
 
 			if (do_reset && !(test_and_set_bit(ABORT_ISP_ACTIVE,
 			    &base_vha->dpc_flags))) {
-<<<<<<< Updated upstream
-=======
 				base_vha->flags.online = 1;
->>>>>>> Stashed changes
 				ql_dbg(ql_dbg_dpc, base_vha, 0x4007,
 				    "ISP abort scheduled.\n");
 				if (ha->isp_ops->abort_isp(base_vha)) {

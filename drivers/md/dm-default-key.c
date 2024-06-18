@@ -81,12 +81,8 @@ static void default_key_dtr(struct dm_target *ti)
 }
 
 static int default_key_ctr_optional(struct dm_target *ti,
-<<<<<<< Updated upstream
-				    unsigned int argc, char **argv)
-=======
 				    unsigned int argc, char **argv,
 				    bool is_legacy)
->>>>>>> Stashed changes
 {
 	struct default_key_c *dkc = ti->private;
 	struct dm_arg_set as;
@@ -126,11 +122,7 @@ static int default_key_ctr_optional(struct dm_target *ti,
 			iv_large_sectors = true;
 		} else if (!strcmp(opt_string, "wrappedkey_v0")) {
 			dkc->is_hw_wrapped = true;
-<<<<<<< Updated upstream
-		} else if (!strcmp(opt_string, "set_dun")) {
-=======
 		} else if (!strcmp(opt_string, "set_dun") && is_legacy) {
->>>>>>> Stashed changes
 			dkc->set_dun = true;
 		} else {
 			ti->error = "Invalid feature arguments";
@@ -175,11 +167,7 @@ static void default_key_adjust_sector_size_and_iv(char **argv,
 		     !strcmp((*dkc)->dev->bdev->bd_disk->disk_name, "mmcblk0")))
 			(*dkc)->sector_size = SECTOR_SIZE;
 
-<<<<<<< Updated upstream
-		if (dev->bdev->bd_part)
-=======
 		if (dev->bdev->bd_part && !(*dkc)->set_dun)
->>>>>>> Stashed changes
 			(*dkc)->iv_offset += dev->bdev->bd_part->start_sect;
 	}
 }
@@ -202,28 +190,11 @@ static int default_key_ctr(struct dm_target *ti, unsigned int argc, char **argv)
 	unsigned long long tmpll;
 	char dummy;
 	int err;
-<<<<<<< Updated upstream
-=======
 	int __argc;
->>>>>>> Stashed changes
 	char *_argv[10];
 	bool is_legacy = false;
 
 	if (argc >= 4 && !strcmp(argv[0], "AES-256-XTS")) {
-<<<<<<< Updated upstream
-		argc = 0;
-		_argv[argc++] = "aes-xts-plain64";
-		_argv[argc++] = argv[1];
-		_argv[argc++] = "0";
-		_argv[argc++] = argv[2];
-		_argv[argc++] = argv[3];
-		_argv[argc++] = "3";
-		_argv[argc++] = "allow_discards";
-		_argv[argc++] = "sector_size:4096";
-		_argv[argc++] = "iv_large_sectors";
-		_argv[argc] = NULL;
-		argv = _argv;
-=======
 		__argc = 0;
 		_argv[__argc++] = "aes-xts-plain64";
 		_argv[__argc++] = argv[1];
@@ -244,7 +215,6 @@ static int default_key_ctr(struct dm_target *ti, unsigned int argc, char **argv)
 		_argv[__argc] = NULL;
 		argv = _argv;
 		argc = __argc;
->>>>>>> Stashed changes
 		is_legacy = true;
 	}
 
@@ -316,12 +286,8 @@ static int default_key_ctr(struct dm_target *ti, unsigned int argc, char **argv)
 	/* optional arguments */
 	dkc->sector_size = SECTOR_SIZE;
 	if (argc > 5) {
-<<<<<<< Updated upstream
-		err = default_key_ctr_optional(ti, argc - 5, &argv[5]);
-=======
 		err = default_key_ctr_optional(ti, argc - 5, &argv[5],
 					       is_legacy);
->>>>>>> Stashed changes
 		if (err)
 			goto bad;
 	}
@@ -401,23 +367,15 @@ static int default_key_map(struct dm_target *ti, struct bio *bio)
 	 * file's contents), or if it doesn't have any data (e.g. if it's a
 	 * DISCARD request), there's nothing more to do.
 	 */
-<<<<<<< Updated upstream
-	if (bio_should_skip_dm_default_key(bio) || !bio_has_data(bio))
-=======
 	if ((bio_should_skip_dm_default_key(bio) && !dkc->set_dun) ||
 	    !bio_has_data(bio))
->>>>>>> Stashed changes
 		return DM_MAPIO_REMAPPED;
 
 	/*
 	 * Else, dm-default-key needs to set this bio's encryption context.
 	 * It must not already have one.
 	 */
-<<<<<<< Updated upstream
-	if (WARN_ON_ONCE(bio_has_crypt_ctx(bio)))
-=======
 	if (WARN_ON_ONCE(bio_has_crypt_ctx(bio) && !dkc->set_dun))
->>>>>>> Stashed changes
 		return DM_MAPIO_KILL;
 
 	/* Calculate the DUN and enforce data-unit (crypto sector) alignment. */
@@ -433,9 +391,6 @@ static int default_key_map(struct dm_target *ti, struct bio *bio)
 	if (WARN_ON_ONCE(dun[0] > dkc->max_dun))
 		return DM_MAPIO_KILL;
 
-<<<<<<< Updated upstream
-	bio_crypt_set_ctx(bio, &dkc->key, dun, GFP_NOIO);
-=======
 	if (!bio_has_crypt_ctx(bio)) {
 		bio_crypt_set_ctx(bio, &dkc->key, dun, GFP_NOIO);
 		if (dkc->set_dun)
@@ -444,7 +399,6 @@ static int default_key_map(struct dm_target *ti, struct bio *bio)
 		if (dkc->set_dun && bio->bi_crypt_context->is_ext4)
 			default_key_map_dun(bio, dun);
 	}
->>>>>>> Stashed changes
 
 	return DM_MAPIO_REMAPPED;
 }
@@ -472,11 +426,8 @@ static void default_key_status(struct dm_target *ti, status_type_t type,
 			num_feature_args += 2;
 		if (dkc->is_hw_wrapped)
 			num_feature_args += 1;
-<<<<<<< Updated upstream
-=======
 		if (dkc->set_dun)
 			num_feature_args += 1;
->>>>>>> Stashed changes
 		if (num_feature_args != 0) {
 			DMEMIT(" %d", num_feature_args);
 			if (ti->num_discard_bios)
@@ -487,11 +438,8 @@ static void default_key_status(struct dm_target *ti, status_type_t type,
 			}
 			if (dkc->is_hw_wrapped)
 				DMEMIT(" wrappedkey_v0");
-<<<<<<< Updated upstream
-=======
 			if (dkc->set_dun)
 				DMEMIT(" set_dun");
->>>>>>> Stashed changes
 		}
 		break;
 	}

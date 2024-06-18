@@ -167,12 +167,9 @@ static inline bool scm_is_secure_device(void)
 	return false;
 }
 
-<<<<<<< Updated upstream
-=======
 extern bool under_scm_call(int cpu)
 {
 	return false;
 }
->>>>>>> Stashed changes
 #endif
 #endif

@@ -1292,8 +1292,6 @@ struct dhcp_server {
 	"00E04C 00 01", \
 	"Used to specify action OUIs to reconnect when assoc timeout")
 
-<<<<<<< Updated upstream
-=======
 /*
  * <ini>
  * gActionOUIDisableTWT - Used to specify action OUIs to control TWT param
@@ -1331,7 +1329,6 @@ struct dhcp_server {
 	"001018 00 01 000986 00 01", \
 	"Used to specify action OUIs to control TWT configuration")
 
->>>>>>> Stashed changes
 /* End of action oui inis */
 
 #ifdef ENABLE_MTRACE_LOG
@@ -1687,10 +1684,7 @@ enum host_log_level {
 	CFG(CFG_ACTION_OUI_DISABLE_AGGRESSIVE_EDCA) \
 	CFG(CFG_ACTION_OUI_SWITCH_TO_11N_MODE) \
 	CFG(CFG_ACTION_OUI_RECONN_ASSOCTIMEOUT) \
-<<<<<<< Updated upstream
-=======
 	CFG(CFG_ACTION_OUI_DISABLE_TWT) \
->>>>>>> Stashed changes
 	CFG(CFG_ADVERTISE_CONCURRENT_OPERATION) \
 	CFG(CFG_BUG_ON_REINIT_FAILURE) \
 	CFG(CFG_DBS_SCAN_SELECTION) \

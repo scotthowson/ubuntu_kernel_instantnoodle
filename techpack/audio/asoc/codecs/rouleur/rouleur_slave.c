@@ -11,12 +11,6 @@
 #include <linux/component.h>
 #include <soc/soundwire.h>
 
-<<<<<<< Updated upstream
-struct rouleur_slave_priv {
-	struct swr_device *swr_slave;
-};
-
-=======
 #ifdef CONFIG_DEBUG_FS
 #include <linux/debugfs.h>
 #include <linux/uaccess.h>
@@ -283,15 +277,10 @@ static const struct file_operations codec_debug_dump_ops = {
 };
 #endif
 
->>>>>>> Stashed changes
 static int rouleur_slave_bind(struct device *dev,
 				struct device *master, void *data)
 {
 	int ret = 0;
-<<<<<<< Updated upstream
-	struct rouleur_slave_priv *rouleur_slave = NULL;
-=======
->>>>>>> Stashed changes
 	uint8_t devnum = 0;
 	struct swr_device *pdev = to_swr_device(dev);
 
@@ -300,18 +289,6 @@ static int rouleur_slave_bind(struct device *dev,
 		return -EINVAL;
 	}
 
-<<<<<<< Updated upstream
-	rouleur_slave = devm_kzalloc(&pdev->dev,
-				sizeof(struct rouleur_slave_priv), GFP_KERNEL);
-	if (!rouleur_slave)
-		return -ENOMEM;
-
-	swr_set_dev_data(pdev, rouleur_slave);
-
-	rouleur_slave->swr_slave = pdev;
-
-=======
->>>>>>> Stashed changes
 	ret = swr_get_logical_dev_num(pdev, pdev->addr, &devnum);
 	if (ret) {
 		dev_dbg(&pdev->dev,
@@ -342,10 +319,6 @@ static void rouleur_slave_unbind(struct device *dev,
 		return;
 	}
 
-<<<<<<< Updated upstream
-	swr_set_dev_data(pdev, NULL);
-=======
->>>>>>> Stashed changes
 }
 
 static const struct swr_device_id rouleur_swr_id[] = {
@@ -382,8 +355,6 @@ static int rouleur_swr_reset(struct swr_device *pdev)
 
 static int rouleur_swr_probe(struct swr_device *pdev)
 {
-<<<<<<< Updated upstream
-=======
 	struct rouleur_slave_priv *rouleur_slave = NULL;
 
 	rouleur_slave = devm_kzalloc(&pdev->dev,
@@ -423,15 +394,11 @@ static int rouleur_swr_probe(struct swr_device *pdev)
                 }
         }
 #endif
->>>>>>> Stashed changes
 	return component_add(&pdev->dev, &rouleur_slave_comp_ops);
 }
 
 static int rouleur_swr_remove(struct swr_device *pdev)
 {
-<<<<<<< Updated upstream
-	component_del(&pdev->dev, &rouleur_slave_comp_ops);
-=======
 #ifdef CONFIG_DEBUG_FS
 	struct rouleur_slave_priv *rouleur_slave = swr_get_dev_data(pdev);
 
@@ -443,7 +410,6 @@ static int rouleur_swr_remove(struct swr_device *pdev)
 	component_del(&pdev->dev, &rouleur_slave_comp_ops);
 	swr_set_dev_data(pdev, NULL);
 	swr_remove_device(pdev);
->>>>>>> Stashed changes
 	return 0;
 }
 
@@ -474,9 +440,5 @@ static void __exit rouleur_slave_exit(void)
 module_init(rouleur_slave_init);
 module_exit(rouleur_slave_exit);
 
-<<<<<<< Updated upstream
-MODULE_DESCRIPTION("WCD937X Swr Slave driver");
-=======
 MODULE_DESCRIPTION("Rouleur Swr Slave driver");
->>>>>>> Stashed changes
 MODULE_LICENSE("GPL v2");

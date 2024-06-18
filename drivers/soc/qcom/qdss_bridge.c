@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2017-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2017-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #define KMSG_COMPONENT "QDSS diag bridge"
@@ -472,12 +468,7 @@ static void usb_notifier(void *priv, unsigned int event,
 {
 	struct qdss_bridge_drvdata *drvdata = priv;
 
-<<<<<<< Updated upstream
-	if (!drvdata || drvdata->mode != MHI_TRANSFER_TYPE_USB
-			|| drvdata->opened != ENABLE) {
-=======
 	if (!drvdata || drvdata->mode != MHI_TRANSFER_TYPE_USB) {
->>>>>>> Stashed changes
 		pr_err_ratelimited("%s can't be called in invalid status.\n",
 				__func__);
 		return;
@@ -485,15 +476,10 @@ static void usb_notifier(void *priv, unsigned int event,
 
 	switch (event) {
 	case USB_QDSS_CONNECT:
-<<<<<<< Updated upstream
-		usb_qdss_alloc_req(ch, drvdata->nr_trbs);
-		mhi_queue_read(drvdata);
-=======
 		if (drvdata->opened == ENABLE) {
 			usb_qdss_alloc_req(ch, drvdata->nr_trbs);
 			mhi_queue_read(drvdata);
 		}
->>>>>>> Stashed changes
 		break;
 
 	case USB_QDSS_DISCONNECT:
@@ -532,13 +518,6 @@ static int mhi_ch_open(struct qdss_bridge_drvdata *drvdata)
 	}
 
 	return 0;
-<<<<<<< Updated upstream
-err:
-	spin_lock_bh(&drvdata->lock);
-	spin_unlock_bh(&drvdata->lock);
-	return ret;
-=======
->>>>>>> Stashed changes
 }
 
 static void qdss_bridge_open_work_fn(struct work_struct *work)
@@ -869,15 +848,9 @@ static void qdss_mhi_remove(struct mhi_device *mhi_dev)
 	} else
 		spin_unlock_bh(&drvdata->lock);
 
-<<<<<<< Updated upstream
-	device_destroy(mhi_class, drvdata->cdev.dev);
-	cdev_del(&drvdata->cdev);
-	unregister_chrdev_region(drvdata->cdev.dev, 1);
-=======
 	device_destroy(mhi_class, drvdata->cdev->dev);
 	unregister_chrdev_region(drvdata->cdev->dev, 1);
 	cdev_del(drvdata->cdev);
->>>>>>> Stashed changes
 }
 
 int qdss_mhi_init(struct qdss_bridge_drvdata *drvdata)

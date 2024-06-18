@@ -1,9 +1,6 @@
 /*
  * Copyright (c) 2012-2020 The Linux Foundation. All rights reserved.
-<<<<<<< Updated upstream
-=======
  * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -71,10 +68,7 @@
 #include "wlan_scan_utils_api.h"
 #include "wlan_p2p_cfg_api.h"
 #include "cfg_nan_api.h"
-<<<<<<< Updated upstream
-=======
 #include "nan_ucfg_api.h"
->>>>>>> Stashed changes
 
 #include <ol_defines.h>
 
@@ -1555,20 +1549,12 @@ QDF_STATUS csr_update_channel_list(struct mac_context *mac)
 				}
 			}
 
-<<<<<<< Updated upstream
-
-			if (CHANNEL_STATE_ENABLE == channel_state)
-				pChanList->chanParam[num_channel].dfsSet =
-					false;
-			else
-=======
 			if (!ucfg_is_nan_allowed_on_freq(mac->pdev,
 				pChanList->chanParam[num_channel].freq))
 				pChanList->chanParam[num_channel].nan_disabled =
 					true;
 
 			if (CHANNEL_STATE_ENABLE != channel_state)
->>>>>>> Stashed changes
 				pChanList->chanParam[num_channel].dfsSet =
 					true;
 
@@ -5398,14 +5384,6 @@ QDF_STATUS csr_roam_set_bss_config_cfg(struct mac_context *mac, uint32_t session
 	/* short slot time */
 	mac->mlme_cfg->feature_flags.enable_short_slot_time_11g =
 						pBssConfig->uShortSlotTime;
-<<<<<<< Updated upstream
-	/* 11d */
-	if (pBssConfig->f11hSupport)
-		mac->mlme_cfg->gen.enabled_11d = pBssConfig->f11hSupport;
-	else
-		mac->mlme_cfg->gen.enabled_11d = pProfile->ieee80211d;
-=======
->>>>>>> Stashed changes
 
 	mac->mlme_cfg->power.local_power_constraint = pBssConfig->uPowerLimit;
 	/* CB */
@@ -8686,10 +8664,7 @@ QDF_STATUS csr_roam_copy_profile(struct mac_context *mac,
 		pDstProfile->extended_rates.numRates =
 			pSrcProfile->extended_rates.numRates;
 	}
-<<<<<<< Updated upstream
-=======
 	pDstProfile->require_h2e = pSrcProfile->require_h2e;
->>>>>>> Stashed changes
 	pDstProfile->cac_duration_ms = pSrcProfile->cac_duration_ms;
 	pDstProfile->dfs_regdomain   = pSrcProfile->dfs_regdomain;
 	pDstProfile->chan_switch_hostapd_rate_enabled  =
@@ -9374,8 +9349,6 @@ QDF_STATUS csr_roam_process_disassoc_deauth(struct mac_context *mac,
 	return status;
 }
 
-<<<<<<< Updated upstream
-=======
 static void csr_abort_connect_request_timers(
 	struct mac_context *mac, uint32_t vdev_id)
 {
@@ -9407,7 +9380,6 @@ static void csr_abort_connect_request_timers(
 		sme_debug("msg eWNI_SME_ABORT_CONN_TIMER post fail");
 }
 
->>>>>>> Stashed changes
 QDF_STATUS csr_roam_issue_disassociate_cmd(struct mac_context *mac,
 					uint32_t sessionId,
 					eCsrRoamDisconnectReason reason,
@@ -9429,11 +9401,8 @@ QDF_STATUS csr_roam_issue_disassociate_cmd(struct mac_context *mac,
 			csr_roam_substate_change(mac, eCSR_ROAM_SUBSTATE_NONE,
 						 sessionId);
 		}
-<<<<<<< Updated upstream
-=======
 		csr_abort_connect_request_timers(mac, sessionId);
 
->>>>>>> Stashed changes
 		pCommand->command = eSmeCommandRoam;
 		pCommand->vdev_id = (uint8_t) sessionId;
 		sme_debug("Disassociate reason: %d, vdev_id: %d",
@@ -11584,12 +11553,8 @@ csr_issue_set_context_req_helper(struct mac_context *mac_ctx,
 	 * For open mode authentication, send dummy install key response to
 	 * send OBSS scan and QOS event.
 	 */
-<<<<<<< Updated upstream
-	if (profile->negotiatedUCEncryptionType == eCSR_ENCRYPT_TYPE_NONE) {
-=======
 	if (profile &&
 	    profile->negotiatedUCEncryptionType == eCSR_ENCRYPT_TYPE_NONE) {
->>>>>>> Stashed changes
 		if (unicast)
 			return QDF_STATUS_SUCCESS;
 
@@ -14693,10 +14658,7 @@ csr_roam_get_bss_start_parms(struct mac_context *mac,
 	uint32_t opr_ch_freq = 0;
 	tSirNwType nw_type;
 	uint32_t tmp_opr_ch_freq = 0;
-<<<<<<< Updated upstream
-=======
 	uint8_t h2e;
->>>>>>> Stashed changes
 	tSirMacRateSet *opr_rates = &pParam->operationalRateSet;
 	tSirMacRateSet *ext_rates = &pParam->extendedRateSet;
 
@@ -14795,8 +14757,6 @@ csr_roam_get_bss_start_parms(struct mac_context *mac,
 		pParam->operation_chan_freq = opr_ch_freq;
 	}
 
-<<<<<<< Updated upstream
-=======
 	if (pProfile->require_h2e) {
 		h2e = WLAN_BASIC_RATE_MASK |
 			WLAN_BSS_MEMBERSHIP_SELECTOR_SAE_H2E;
@@ -14813,7 +14773,6 @@ csr_roam_get_bss_start_parms(struct mac_context *mac,
 		}
 	}
 
->>>>>>> Stashed changes
 	pParam->sirNwType = nw_type;
 	pParam->ch_params.ch_width = pProfile->ch_params.ch_width;
 	pParam->ch_params.center_freq_seg0 =
@@ -15975,8 +15934,6 @@ csr_update_sae_single_pmk_ap_cap(struct mac_context *mac,
 }
 #endif
 
-<<<<<<< Updated upstream
-=======
 static void csr_get_basic_rates(tSirMacRateSet *b_rates, uint32_t chan_freq)
 {
 	/*
@@ -15990,7 +15947,6 @@ static void csr_get_basic_rates(tSirMacRateSet *b_rates, uint32_t chan_freq)
 		csr_populate_basic_rates(b_rates, true, true);
 }
 
->>>>>>> Stashed changes
 /**
  * The communication between HDD and LIM is thru mailbox (MB).
  * Both sides will access the data structure "struct join_req".
@@ -16341,11 +16297,6 @@ QDF_STATUS csr_send_join_req_msg(struct mac_context *mac, uint32_t sessionId,
 				qdf_mem_copy(&csr_join_req->operationalRateSet.
 						rate, OpRateSet.rate,
 						OpRateSet.numRates);
-<<<<<<< Updated upstream
-			} else
-				csr_join_req->operationalRateSet.numRates = 0;
-
-=======
 			} else if (pProfile->phyMode == eCSR_DOT11_MODE_AUTO) {
 				tSirMacRateSet b_rates = {0};
 
@@ -16353,7 +16304,6 @@ QDF_STATUS csr_send_join_req_msg(struct mac_context *mac, uint32_t sessionId,
 						    pBssDescription->chan_freq);
 				csr_join_req->operationalRateSet = b_rates;
 			}
->>>>>>> Stashed changes
 			/* ExtendedRateSet */
 			if (ExRateSet.numRates) {
 				csr_join_req->extendedRateSet.numRates =
@@ -16361,10 +16311,6 @@ QDF_STATUS csr_send_join_req_msg(struct mac_context *mac, uint32_t sessionId,
 				qdf_mem_copy(&csr_join_req->extendedRateSet.
 						rate, ExRateSet.rate,
 						ExRateSet.numRates);
-<<<<<<< Updated upstream
-			} else
-				csr_join_req->extendedRateSet.numRates = 0;
-=======
 			} else {
 				csr_join_req->extendedRateSet.numRates = 0;
 			}
@@ -16374,7 +16320,6 @@ QDF_STATUS csr_send_join_req_msg(struct mac_context *mac, uint32_t sessionId,
 			csr_get_basic_rates(&b_rates,
 					    pBssDescription->chan_freq);
 			csr_join_req->operationalRateSet = b_rates;
->>>>>>> Stashed changes
 		} else {
 			csr_join_req->operationalRateSet.numRates = 0;
 			csr_join_req->extendedRateSet.numRates = 0;
@@ -18381,10 +18326,7 @@ csr_populate_roam_chan_list(struct mac_context *mac_ctx,
 			    tCsrChannelInfo *src)
 {
 	enum band_info band;
-<<<<<<< Updated upstream
-=======
 	uint32_t band_cap;
->>>>>>> Stashed changes
 	uint8_t i = 0;
 	uint8_t num_channels = 0;
 	uint32_t *freq_lst = src->freq_list;
@@ -18393,17 +18335,6 @@ csr_populate_roam_chan_list(struct mac_context *mac_ctx,
 	 * The INI channels need to be filtered with respect to the current band
 	 * that is supported.
 	 */
-<<<<<<< Updated upstream
-	band = mac_ctx->mlme_cfg->gen.band_capability;
-	if ((BAND_2G != band) && (BAND_5G != band)
-	    && (BAND_ALL != band)) {
-		QDF_TRACE(QDF_MODULE_ID_SME, QDF_TRACE_LEVEL_ERROR,
-			 "Invalid band(%d), roam scan offload req aborted",
-			  band);
-		return QDF_STATUS_E_FAILURE;
-	}
-
-=======
 	band_cap = mac_ctx->mlme_cfg->gen.band_capability;
 	if (!band_cap) {
 		QDF_TRACE(QDF_MODULE_ID_SME, QDF_TRACE_LEVEL_ERROR,
@@ -18414,7 +18345,6 @@ csr_populate_roam_chan_list(struct mac_context *mac_ctx,
 
 	band = wlan_reg_band_bitmap_to_band_info(band_cap);
 
->>>>>>> Stashed changes
 	num_channels = dst->ChannelCount;
 	for (i = 0; i < src->numOfChannels; i++) {
 		if (csr_is_channel_present_in_list(dst->chan_freq_cache,
@@ -18913,12 +18843,9 @@ csr_create_roam_scan_offload_request(struct mac_context *mac_ctx,
 			mac_ctx->mlme_cfg->trig_min_rssi[DEAUTH_MIN_RSSI];
 	req_buf->min_rssi_params[BMISS_MIN_RSSI] =
 			mac_ctx->mlme_cfg->trig_min_rssi[BMISS_MIN_RSSI];
-<<<<<<< Updated upstream
-=======
 	req_buf->min_rssi_params[MIN_RSSI_2G_TO_5G_ROAM] =
 			mac_ctx->mlme_cfg->trig_min_rssi[MIN_RSSI_2G_TO_5G_ROAM];
 
->>>>>>> Stashed changes
 	req_buf->score_delta_param[IDLE_ROAM_TRIGGER] =
 			mac_ctx->mlme_cfg->trig_score_delta[IDLE_ROAM_TRIGGER];
 	req_buf->score_delta_param[BTM_ROAM_TRIGGER] =
@@ -20126,10 +20053,7 @@ csr_roam_switch_to_deinit(struct mac_context *mac, uint8_t vdev_id,
 		return status;
 
 	mlme_set_roam_state(mac->psoc, vdev_id, ROAM_DEINIT);
-<<<<<<< Updated upstream
-=======
 	mlme_clear_operations_bitmap(mac->psoc, vdev_id);
->>>>>>> Stashed changes
 
 	if (reason != REASON_SUPPLICANT_INIT_ROAMING)
 		csr_enable_roaming_on_connected_sta(mac, vdev_id);
@@ -21321,10 +21245,7 @@ void csr_process_ho_fail_ind(struct mac_context *mac_ctx, void *msg_buf)
 	struct handoff_failure_ind *pSmeHOFailInd = msg_buf;
 	struct mlme_roam_after_data_stall *vdev_roam_params;
 	struct wlan_objmgr_vdev *vdev;
-<<<<<<< Updated upstream
-=======
 	struct reject_ap_info ap_info;
->>>>>>> Stashed changes
 	uint32_t sessionId;
 
 	if (!pSmeHOFailInd) {
@@ -21333,15 +21254,12 @@ void csr_process_ho_fail_ind(struct mac_context *mac_ctx, void *msg_buf)
 	}
 
 	sessionId = pSmeHOFailInd->vdev_id;
-<<<<<<< Updated upstream
-=======
 	ap_info.bssid = pSmeHOFailInd->bssid;
 	ap_info.reject_ap_type = DRIVER_AVOID_TYPE;
 	ap_info.reject_reason = REASON_ROAM_HO_FAILURE;
 	ap_info.source = ADDED_BY_DRIVER;
 	wlan_blm_add_bssid_to_reject_list(mac_ctx->pdev, &ap_info);
 
->>>>>>> Stashed changes
 
 	/* Roaming is supported only on Infra STA Mode. */
 	if (!csr_roam_is_sta_mode(mac_ctx, sessionId)) {

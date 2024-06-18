@@ -35,11 +35,6 @@ ifeq ($(call is-board-platform,sdm660),true)
 AUDIO_SELECT  := CONFIG_SND_SOC_SDM660=m
 endif
 
-<<<<<<< Updated upstream
-AUDIO_CHIPSET := audio
-# Build/Package only in case of supported target
-ifeq ($(call is-board-platform-in-list,msmnile $(MSMSTEPPE) $(TRINKET) kona lito bengal sdmshrike sdm660),true)
-=======
 ifeq ($(call is-board-platform-in-list,msm8953 msm8937),true)
 AUDIO_SELECT  := CONFIG_SND_SOC_SDM450=m
 endif
@@ -47,7 +42,6 @@ endif
 AUDIO_CHIPSET := audio
 # Build/Package only in case of supported target
 ifeq ($(call is-board-platform-in-list,msmnile $(MSMSTEPPE) $(TRINKET) kona lito bengal sdmshrike sdm660 msm8953 msm8937),true)
->>>>>>> Stashed changes
 
 LOCAL_PATH := $(call my-dir)
 
@@ -108,10 +102,7 @@ LOCAL_MODULE_DEBUG_ENABLE := true
 LOCAL_MODULE_PATH         := $(KERNEL_MODULES_OUT)
 include $(DLKM_DIR)/AndroidKernelModule.mk
 ###########################################################
-<<<<<<< Updated upstream
-=======
 ifneq ($(call is-board-platform-in-list, msm8937 msm8953),true)
->>>>>>> Stashed changes
 include $(CLEAR_VARS)
 LOCAL_MODULE              := $(AUDIO_CHIPSET)_q6_pdr.ko
 LOCAL_MODULE_KBUILD_NAME  := q6_pdr_dlkm.ko
@@ -119,10 +110,7 @@ LOCAL_MODULE_TAGS         := optional
 LOCAL_MODULE_DEBUG_ENABLE := true
 LOCAL_MODULE_PATH         := $(KERNEL_MODULES_OUT)
 include $(DLKM_DIR)/AndroidKernelModule.mk
-<<<<<<< Updated upstream
-=======
 endif
->>>>>>> Stashed changes
 ###########################################################
 endif # target specific build
 endif # DLKM check

@@ -994,23 +994,12 @@ static int nbd_add_socket(struct nbd_device *nbd, unsigned long arg,
 	socks = krealloc(config->socks, (config->num_connections + 1) *
 			 sizeof(struct nbd_sock *), GFP_KERNEL);
 	if (!socks) {
-<<<<<<< Updated upstream
-		sockfd_put(sock);
-		return -ENOMEM;
-	}
-
-	config->socks = socks;
-
-	nsock = kzalloc(sizeof(struct nbd_sock), GFP_KERNEL);
-	if (!nsock) {
-		sockfd_put(sock);
-		return -ENOMEM;
-=======
 		kfree(nsock);
 		err = -ENOMEM;
 		goto put_socket;
->>>>>>> Stashed changes
 	}
+
+	config->socks = socks;
 
 	nsock->fallback_index = -1;
 	nsock->dead = false;
@@ -1282,17 +1271,12 @@ static int nbd_start_device_ioctl(struct nbd_device *nbd, struct block_device *b
 	mutex_unlock(&nbd->config_lock);
 	ret = wait_event_interruptible(config->recv_wq,
 					 atomic_read(&config->recv_threads) == 0);
-	if (ret)
+	if (ret) {
 		sock_shutdown(nbd);
-<<<<<<< Updated upstream
-	flush_workqueue(nbd->recv_workq);
-
-=======
 		nbd_clear_que(nbd);
 	}
 
 	flush_workqueue(nbd->recv_workq);
->>>>>>> Stashed changes
 	mutex_lock(&nbd->config_lock);
 	nbd_bdev_reset(bdev);
 	/* user requested, ignore socket errors */

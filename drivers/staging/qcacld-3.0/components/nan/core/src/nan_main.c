@@ -1,9 +1,6 @@
 /*
  * Copyright (c) 2016-2020 The Linux Foundation. All rights reserved.
-<<<<<<< Updated upstream
-=======
  * Copyright (c) 2021-2023 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -534,10 +531,7 @@ static QDF_STATUS nan_handle_confirm(
 	struct wlan_objmgr_psoc *psoc;
 	struct nan_psoc_priv_obj *psoc_nan_obj;
 	struct nan_vdev_priv_obj *vdev_nan_obj;
-<<<<<<< Updated upstream
-=======
 	struct wlan_objmgr_peer *peer;
->>>>>>> Stashed changes
 	QDF_STATUS status;
 
 	vdev_id = wlan_vdev_get_id(confirm->vdev);
@@ -547,8 +541,6 @@ static QDF_STATUS nan_handle_confirm(
 		return QDF_STATUS_E_NULL_VALUE;
 	}
 
-<<<<<<< Updated upstream
-=======
 	peer = wlan_objmgr_get_peer_by_mac(psoc,
 					   confirm->peer_ndi_mac_addr.bytes,
 					   WLAN_NAN_ID);
@@ -560,7 +552,6 @@ static QDF_STATUS nan_handle_confirm(
 	if (peer)
 		wlan_objmgr_peer_release_ref(peer, WLAN_NAN_ID);
 
->>>>>>> Stashed changes
 	psoc_nan_obj = nan_get_psoc_priv_obj(psoc);
 	if (!psoc_nan_obj) {
 		nan_err("psoc_nan_obj is null");

@@ -1,11 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2009-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2009-2021, The Linux Foundation. All rights reserved.
  * Copyright (c) 2023, Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #ifndef _ARCH_ARM_MACH_MSM_SOCINFO_H_
@@ -159,8 +155,6 @@ enum socinfo_parttype {
 	of_flat_dt_is_compatible(of_get_flat_dt_root(), "qcom,bengal-iot")
 #define early_machine_is_bengalp_iot()	\
 	of_flat_dt_is_compatible(of_get_flat_dt_root(), "qcom,bengalp-iot")
-<<<<<<< Updated upstream
-=======
 #define early_machine_is_msm8937()	\
 	of_flat_dt_is_compatible(of_get_flat_dt_root(), "qcom,msm8937")
 #define early_machine_is_msm8917()	\
@@ -175,7 +169,6 @@ enum socinfo_parttype {
 	of_flat_dt_is_compatible(of_get_flat_dt_root(), "qcom,msm8953")
 #define early_machine_is_sdm450()	\
 	of_flat_dt_is_compatible(of_get_flat_dt_root(), "qcom,sdm450")
->>>>>>> Stashed changes
 #else
 #define of_board_is_sim()		0
 #define of_board_is_rumi()		0
@@ -217,8 +210,6 @@ enum socinfo_parttype {
 #define early_machine_is_sdm660()	0
 #define early_machine_is_bengal_iot()	0
 #define early_machine_is_bengalp_iot()	0
-<<<<<<< Updated upstream
-=======
 #define early_machine_is_msm8937()	0
 #define early_machine_is_msm8917()	0
 #define early_machine_is_sdm439()	0
@@ -226,7 +217,6 @@ enum socinfo_parttype {
 #define early_machine_is_qm215()	0
 #define early_machine_is_msm8953()	0
 #define early_machine_is_sdm450()	0
->>>>>>> Stashed changes
 #endif
 
 #define PLATFORM_SUBTYPE_MDM	1
@@ -271,8 +261,6 @@ enum msm_cpu {
 	MSM_CPU_SDMMAGPIE,
 	MSM_CPU_BENGAL_IOT,
 	MSM_CPU_BENGALP_IOT,
-<<<<<<< Updated upstream
-=======
 	MSM_CPU_8937,
 	MSM_CPU_8917,
 	MSM_CPU_SDM439,
@@ -280,7 +268,6 @@ enum msm_cpu {
 	MSM_CPU_QM215,
 	MSM_CPU_8953,
 	MSM_CPU_SDM450,
->>>>>>> Stashed changes
 };
 
 struct msm_soc_info {

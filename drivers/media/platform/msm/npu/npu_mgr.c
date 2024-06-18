@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2018-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2018-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 /* -------------------------------------------------------------------------
@@ -347,14 +343,11 @@ static int enable_fw_nolock(struct npu_device *npu_dev)
 	struct npu_host_ctx *host_ctx = &npu_dev->host_ctx;
 	int ret = 0;
 	uint32_t reg_val;
-<<<<<<< Updated upstream
-=======
 
 	if (host_ctx->dev_shuttingdown) {
 		NPU_ERR("device is shutting down, ignore enable request\n");
 		return -EIO;
 	}
->>>>>>> Stashed changes
 
 	if (host_ctx->fw_state == FW_UNLOADED) {
 		ret = load_fw_nolock(npu_dev,
@@ -758,8 +751,6 @@ static int npu_panic_handler(struct notifier_block *this,
 	return NOTIFY_DONE;
 }
 
-<<<<<<< Updated upstream
-=======
 static int npu_reboot_handler(struct notifier_block *this,
 				unsigned long code, void *unused)
 {
@@ -778,7 +769,6 @@ static int npu_reboot_handler(struct notifier_block *this,
 	return NOTIFY_DONE;
 }
 
->>>>>>> Stashed changes
 static void npu_update_pwr_work(struct work_struct *work)
 {
 	int ret;
@@ -831,8 +821,6 @@ int npu_host_init(struct npu_device *npu_dev)
 		goto fail;
 	}
 
-<<<<<<< Updated upstream
-=======
 	host_ctx->reboot_nb.notifier_call = npu_reboot_handler;
 	ret = register_reboot_notifier(&host_ctx->reboot_nb);
 	if (ret) {
@@ -840,7 +828,6 @@ int npu_host_init(struct npu_device *npu_dev)
 		goto fail;
 	}
 
->>>>>>> Stashed changes
 	host_ctx->panic_nb.notifier_call = npu_panic_handler;
 	ret = atomic_notifier_chain_register(&panic_notifier_list,
 		&host_ctx->panic_nb);
@@ -1629,63 +1616,6 @@ static struct npu_misc_cmd *npu_find_misc_cmd(struct npu_host_ctx *ctx,
 	return NULL;
 }
 
-<<<<<<< Updated upstream
-int npu_process_kevent(struct npu_client *client, struct npu_kevent *kevt)
-{
-	struct npu_device *npu_dev = client->npu_dev;
-	struct npu_host_ctx *host_ctx = &npu_dev->host_ctx;
-	int ret = 0;
-
-	mutex_lock(&host_ctx->lock);
-
-	switch (kevt->evt.type) {
-	case MSM_NPU_EVENT_TYPE_EXEC_V2_DONE:
-	{
-		struct npu_network_cmd *cmd = NULL;
-		struct npu_network *network;
-
-		network = get_network_by_hdl(host_ctx,
-			client, kevt->reserved[0]);
-		if (!network) {
-			NPU_ERR("Can't find network %x\n", kevt->reserved[0]);
-			ret = -EINVAL;
-			break;
-		}
-
-		cmd = npu_find_network_cmd(network, kevt->reserved[1]);
-		if (!cmd) {
-			NPU_ERR("can't find exec cmd with trans_id:%d\n",
-				kevt->reserved[1]);
-			network_put(network);
-			ret = -EINVAL;
-			break;
-		}
-
-		kevt->evt.reserved[0] = cmd->cmd_id;
-		ret = copy_to_user((void __user *)cmd->stats_buf_u,
-			(void *)cmd->stats_buf,
-			kevt->evt.u.exec_v2_done.stats_buf_size);
-		if (ret) {
-			NPU_ERR("fail to copy to user\n");
-			kevt->evt.u.exec_v2_done.stats_buf_size = 0;
-			ret = -EFAULT;
-		}
-
-		npu_dequeue_network_cmd(network, cmd);
-		npu_free_network_cmd(host_ctx, cmd);
-		network_put(network);
-		break;
-	}
-	default:
-		break;
-	}
-	mutex_unlock(&host_ctx->lock);
-
-	return ret;
-}
-
-=======
->>>>>>> Stashed changes
 static int app_msg_proc(struct npu_host_ctx *host_ctx, uint32_t *msg)
 {
 	uint32_t msg_id;
@@ -2803,15 +2733,12 @@ int32_t npu_host_exec_network_v2(struct npu_client *client,
 	if (atomic_inc_return(&host_ctx->network_execute_cnt) == 1)
 		npu_notify_cdsprm_cxlimit_activity(npu_dev, true);
 
-<<<<<<< Updated upstream
-=======
 	if (network->is_unloading) {
 		NPU_ERR("network is unloading\n");
 		ret = -EINVAL;
 		goto exec_v2_done;
 	}
 
->>>>>>> Stashed changes
 	if (!network->is_active) {
 		NPU_ERR("network is not active\n");
 		ret = -EINVAL;

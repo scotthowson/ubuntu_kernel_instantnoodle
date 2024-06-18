@@ -85,13 +85,6 @@
 #endif
 
 #include "tune.h"
-#ifdef CONFIG_ONEPLUS_HEALTHINFO
-#include <linux/oem/oneplus_healthinfo.h>
-#endif /*CONFIG_ONEPLUS_HEALTHINFO*/
-
-#ifdef CONFIG_UXCHAIN_V2
-extern int sysctl_uxchain_v2;
-#endif
 
 struct rq;
 struct cpuidle_state;
@@ -152,9 +145,6 @@ struct sched_cluster {
 	unsigned int max_possible_freq;
 	bool freq_init_done;
 	u64 aggr_grp_load;
-#ifdef CONFIG_ONEPLUS_HEALTHINFO
-	struct sched_stat_para *overload;
-#endif
 };
 
 extern cpumask_t asym_cap_sibling_cpus;
@@ -994,11 +984,8 @@ struct uclamp_rq {
 	unsigned int value;
 	struct uclamp_bucket bucket[UCLAMP_BUCKETS];
 };
-<<<<<<< Updated upstream
-=======
 
 DECLARE_STATIC_KEY_FALSE(sched_uclamp_used);
->>>>>>> Stashed changes
 #endif /* CONFIG_UCLAMP_TASK */
 
 /*
@@ -1199,17 +1186,8 @@ struct rq {
 #if SCHED_FEAT_TTWU_QUEUE
 	struct llist_head	wake_list;
 #endif
-<<<<<<< Updated upstream
-#ifdef CONFIG_ONEPLUS_HEALTHINFO
-	unsigned int ux_nr_running;
-	u64 cfs_ol_start;
-	u64 ux_ol_start;
-	u64 irqsoff_start_time;
-#endif
-=======
 #endif
 
->>>>>>> Stashed changes
 #ifdef CONFIG_CPU_IDLE
 	/* Must be inspected within a rcu lock section */
 	struct cpuidle_state	*idle_state;
@@ -1769,57 +1747,7 @@ static inline void __set_task_cpu(struct task_struct *p, unsigned int cpu)
 # define const_debug const
 #endif
 
-<<<<<<< Updated upstream
-#define SCHED_FEAT(name, enabled)	\
-	__SCHED_FEAT_##name ,
-
-enum {
-#include "features.h"
-	__SCHED_FEAT_NR,
-};
-
-#undef SCHED_FEAT
-
-#if defined(CONFIG_SCHED_DEBUG) && defined(CONFIG_JUMP_LABEL)
-
-/*
- * To support run-time toggling of sched features, all the translation units
- * (but core.c) reference the sysctl_sched_features defined in core.c.
- */
-extern const_debug unsigned int sysctl_sched_features;
-
-#define SCHED_FEAT(name, enabled)					\
-static __always_inline bool static_branch_##name(struct static_key *key) \
-{									\
-	return static_key_##enabled(key);				\
-}
-
-#include "features.h"
-#undef SCHED_FEAT
-
-extern struct static_key sched_feat_keys[__SCHED_FEAT_NR];
-#define sched_feat(x) (static_branch_##x(&sched_feat_keys[__SCHED_FEAT_##x]))
-
-#else /* !(SCHED_DEBUG && CONFIG_JUMP_LABEL) */
-
-/*
- * Each translation unit has its own copy of sysctl_sched_features to allow
- * constants propagation at compile time and compiler optimization based on
- * features default.
- */
-#define SCHED_FEAT(name, enabled)	\
-	(1UL << __SCHED_FEAT_##name) * enabled |
-static const_debug __maybe_unused unsigned int sysctl_sched_features =
-#include "features.h"
-	0;
-#undef SCHED_FEAT
-
-#define sched_feat(x) !!(sysctl_sched_features & (1UL << __SCHED_FEAT_##x))
-
-#endif /* SCHED_DEBUG && CONFIG_JUMP_LABEL */
-=======
 #define sched_feat(x) SCHED_FEAT_##x
->>>>>>> Stashed changes
 
 extern struct static_key_false sched_numa_balancing;
 extern struct static_key_false sched_schedstats;
@@ -2166,10 +2094,7 @@ static inline void add_nr_running(struct rq *rq, unsigned count)
 
 	sched_update_nr_prod(cpu_of(rq), count, true);
 	rq->nr_running = prev_nr + count;
-#ifdef CONFIG_ONEPLUS_HEALTHINFO
-	if (prev_nr <= 5 && rq->nr_running > 5)
-		rq->cfs_ol_start = rq_clock(rq);
-#endif
+
 	if (prev_nr < 2 && rq->nr_running >= 2) {
 #ifdef CONFIG_SMP
 		if (!READ_ONCE(rq->rd->overload))
@@ -2182,19 +2107,8 @@ static inline void add_nr_running(struct rq *rq, unsigned count)
 
 static inline void sub_nr_running(struct rq *rq, unsigned count)
 {
-#ifdef CONFIG_ONEPLUS_HEALTHINFO
-	u64 delta;
-	unsigned int prev_nr = rq->nr_running;
-#endif
 	sched_update_nr_prod(cpu_of(rq), count, false);
 	rq->nr_running -= count;
-#ifdef CONFIG_ONEPLUS_HEALTHINFO
-	if (prev_nr > 5 && rq->nr_running <= 5) {
-		delta = rq_clock(rq) - rq->cfs_ol_start;
-		rq->cfs_ol_start = 0;
-		ohm_overload_record(rq, (delta >> 20));
-	}
-#endif
 	/* Check if we still need preemption */
 	sched_update_tick_dependency(rq);
 }
@@ -2241,14 +2155,7 @@ unsigned long
 cpu_util_freq_walt(int cpu, struct sched_walt_cpu_load *walt_load);
 #else
 #define sched_ravg_window TICK_NSEC
-<<<<<<< Updated upstream
-static inline u64 sched_ktime_clock(void)
-{
-	return sched_clock();
-}
-=======
 #define sched_ktime_clock ktime_get_ns
->>>>>>> Stashed changes
 #endif
 
 #ifndef arch_scale_freq_capacity
@@ -2367,18 +2274,6 @@ static inline unsigned long cpu_util_cum(int cpu, int delta)
 	return (delta >= capacity) ? capacity : delta;
 }
 
-<<<<<<< Updated upstream
-#ifdef CONFIG_SCHED_TUNE
-extern unsigned long stune_util(int cpu, unsigned long other_util,
-				struct sched_walt_cpu_load *walt_load);
-#endif
-
-static inline unsigned long
-cpu_util_freq(int cpu, struct sched_walt_cpu_load *walt_load)
-{
-
-=======
->>>>>>> Stashed changes
 #ifdef CONFIG_SCHED_WALT
 extern unsigned long stune_util(int cpu, unsigned long other_util,
 				struct sched_walt_cpu_load *walt_load);
@@ -2746,8 +2641,6 @@ static inline void cpufreq_update_util(struct rq *rq, unsigned int flags) {}
 #ifdef CONFIG_UCLAMP_TASK
 unsigned long uclamp_eff_value(struct task_struct *p, enum uclamp_id clamp_id);
 
-<<<<<<< Updated upstream
-=======
 /**
  * uclamp_rq_util_with - clamp @util with @rq and @p effective uclamp values.
  * @rq:		The rq to clamp against. Must not be NULL.
@@ -2765,21 +2658,10 @@ unsigned long uclamp_eff_value(struct task_struct *p, enum uclamp_id clamp_id);
  * will return the correct effective uclamp value of the task even if the
  * static key is disabled.
  */
->>>>>>> Stashed changes
 static __always_inline
 unsigned long uclamp_rq_util_with(struct rq *rq, unsigned long util,
 				  struct task_struct *p)
 {
-<<<<<<< Updated upstream
-	unsigned long min_util = READ_ONCE(rq->uclamp[UCLAMP_MIN].value);
-	unsigned long max_util = READ_ONCE(rq->uclamp[UCLAMP_MAX].value);
-
-	if (p) {
-		min_util = max(min_util, uclamp_eff_value(p, UCLAMP_MIN));
-		max_util = max(max_util, uclamp_eff_value(p, UCLAMP_MAX));
-	}
-
-=======
 	unsigned long min_util = 0;
 	unsigned long max_util = 0;
 
@@ -2801,7 +2683,6 @@ unsigned long uclamp_rq_util_with(struct rq *rq, unsigned long util,
 	min_util = max_t(unsigned long, min_util, READ_ONCE(rq->uclamp[UCLAMP_MIN].value));
 	max_util = max_t(unsigned long, max_util, READ_ONCE(rq->uclamp[UCLAMP_MAX].value));
 out:
->>>>>>> Stashed changes
 	/*
 	 * Since CPU's {min,max}_util clamps are MAX aggregated considering
 	 * RUNNABLE tasks with _different_ clamps, we can end up with an
@@ -2812,8 +2693,6 @@ out:
 
 	return clamp(util, min_util, max_util);
 }
-<<<<<<< Updated upstream
-=======
 
 /*
  * When uclamp is compiled in, the aggregation at rq level is 'turned off'
@@ -2827,7 +2706,6 @@ static inline bool uclamp_is_used(void)
 {
 	return static_branch_likely(&sched_uclamp_used);
 }
->>>>>>> Stashed changes
 #else /* CONFIG_UCLAMP_TASK */
 static inline
 unsigned long uclamp_rq_util_with(struct rq *rq, unsigned long util,
@@ -2835,14 +2713,11 @@ unsigned long uclamp_rq_util_with(struct rq *rq, unsigned long util,
 {
 	return util;
 }
-<<<<<<< Updated upstream
-=======
 
 static inline bool uclamp_is_used(void)
 {
 	return false;
 }
->>>>>>> Stashed changes
 #endif /* CONFIG_UCLAMP_TASK */
 
 unsigned long task_util_est(struct task_struct *p);
@@ -2887,11 +2762,7 @@ static inline unsigned long cpu_util_cfs(struct rq *rq)
 }
 #endif
 
-<<<<<<< Updated upstream
-#ifdef CONFIG_CPU_FREQ_GOV_SCHEDUTIL
-=======
 #if defined(CONFIG_CPU_FREQ_GOV_SCHEDUTIL) || defined(CONFIG_CPU_FREQ_GOV_SCHEDHORIZON)
->>>>>>> Stashed changes
 
 unsigned long schedutil_cpu_util(int cpu, unsigned long util_cfs,
 				 unsigned long max, enum schedutil_type type,
@@ -2919,9 +2790,6 @@ static inline unsigned long schedutil_cpu_util(int cpu, unsigned long util_cfs,
 {
 	return 0;
 }
-<<<<<<< Updated upstream
-#endif /* CONFIG_CPU_FREQ_GOV_SCHEDUTIL */
-=======
 
 static inline unsigned long cpu_util_rt(struct rq *rq)
 {
@@ -2938,7 +2806,6 @@ static inline unsigned long cpu_util(int cpu)
 }
 #endif
 #endif
->>>>>>> Stashed changes
 
 #ifdef CONFIG_HAVE_SCHED_AVG_IRQ
 static inline unsigned long cpu_util_irq(struct rq *rq)
@@ -3365,8 +3232,6 @@ static inline bool is_min_capacity_cpu(int cpu)
 #endif
 }
 
-static inline bool is_asym_cap_cpu(int cpu) { return false; }
-
 static inline int asym_cap_siblings(int cpu1, int cpu2) { return 0; }
 
 static inline bool is_asym_cap_cpu(int cpu) { return false; }
@@ -3458,8 +3323,5 @@ struct sched_avg_stats {
 	int nr_scaled;
 };
 extern void sched_get_nr_running_avg(struct sched_avg_stats *stats);
-<<<<<<< Updated upstream
-=======
 
 extern u64 avg_vruntime(struct cfs_rq *cfs_rq);
->>>>>>> Stashed changes

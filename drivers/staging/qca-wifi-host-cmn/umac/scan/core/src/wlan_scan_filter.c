@@ -1,9 +1,5 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2017-2019 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2017-2021 The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -1041,10 +1037,7 @@ static bool scm_is_fils_config_match(struct scan_filter *filter,
 	int i;
 	struct fils_indication_ie *indication_ie;
 	uint8_t *data;
-<<<<<<< Updated upstream
-=======
 	uint8_t *end_ptr;
->>>>>>> Stashed changes
 
 	if (!filter->fils_scan_filter.realm_check)
 		return true;
@@ -1056,16 +1049,6 @@ static bool scm_is_fils_config_match(struct scan_filter *filter,
 	indication_ie =
 		(struct fils_indication_ie *) db_entry->ie_list.fils_indication;
 
-<<<<<<< Updated upstream
-	data = indication_ie->variable_data;
-	if (indication_ie->is_cache_id_present)
-		data += CACHE_IDENTIFIER_LEN;
-
-	if (indication_ie->is_hessid_present)
-		data += HESSID_LEN;
-
-	for (i = 1; i <= indication_ie->realm_identifiers_cnt; i++) {
-=======
 	end_ptr = (uint8_t *)indication_ie + indication_ie->len + 2;
 
 	data = indication_ie->variable_data;
@@ -1079,7 +1062,6 @@ static bool scm_is_fils_config_match(struct scan_filter *filter,
 
 	for (i = 1; i <= indication_ie->realm_identifiers_cnt &&
 	     (data + REAM_HASH_LEN) <= end_ptr; i++) {
->>>>>>> Stashed changes
 		if (!qdf_mem_cmp(filter->fils_scan_filter.fils_realm,
 				 data, REAM_HASH_LEN))
 			return true;
@@ -1197,13 +1179,9 @@ bool scm_filter_match(struct wlan_objmgr_psoc *psoc,
 	 */
 	if (!match && util_scan_entry_is_hidden_ap(db_entry)) {
 		for (i = 0; i < filter->num_of_auth; i++) {
-<<<<<<< Updated upstream
-			if (filter->auth_type[i] == WLAN_AUTH_TYPE_OWE) {
-=======
 			if (filter->auth_type[i] == WLAN_AUTH_TYPE_OWE &&
 			    util_is_bssid_match(&filter->bssid_hint,
 						&db_entry->bssid)) {
->>>>>>> Stashed changes
 				match = true;
 				break;
 			}

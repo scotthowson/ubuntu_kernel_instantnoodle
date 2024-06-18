@@ -61,29 +61,13 @@ choice
 		  and information exposures.
 
 	config GCC_PLUGIN_STRUCTLEAK_BYREF_ALL
-<<<<<<< Updated upstream
-		bool "zero-init anything passed by reference (very strong)"
-=======
 		bool "zero-init everything passed by reference (very strong)"
->>>>>>> Stashed changes
 		depends on GCC_PLUGINS
 		select GCC_PLUGIN_STRUCTLEAK
 		help
 		  Zero-initialize any stack variables that may be passed
 		  by reference and had not already been explicitly
 		  initialized. This is intended to eliminate all classes
-<<<<<<< Updated upstream
-		  of uninitialized stack variable exploits and information
-		  exposures.
-
-	config INIT_STACK_ALL
-		bool "0xAA-init everything on the stack (strongest)"
-		depends on CC_HAS_AUTO_VAR_INIT
-		help
-		  Initializes everything on the stack with a 0xAA
-		  pattern. This is intended to eliminate all classes
-=======
->>>>>>> Stashed changes
 		  of uninitialized stack variable exploits and information
 		  exposures.
 

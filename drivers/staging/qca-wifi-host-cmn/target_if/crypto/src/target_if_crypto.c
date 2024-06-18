@@ -1,9 +1,5 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2019-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2019-2021 The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -40,13 +36,10 @@
 #include <wmi_unified_api.h>
 #include <wmi_unified_crypto_api.h>
 #include <cdp_txrx_peer_ops.h>
-<<<<<<< Updated upstream
-=======
 #include <wlan_objmgr_pdev_obj.h>
 #include <wlan_objmgr_peer_obj.h>
 #include "wlan_crypto_def_i.h"
 #include "wlan_crypto_obj_mgr_i.h"
->>>>>>> Stashed changes
 
 #ifdef FEATURE_WLAN_WAPI
 #ifdef FEATURE_WAPI_BIG_ENDIAN
@@ -265,22 +258,13 @@ QDF_STATUS target_if_crypto_set_key(struct wlan_objmgr_vdev *vdev,
 	target_if_debug("vdev_id:%d, key: idx:%d,len:%d", params.vdev_id,
 			params.key_idx, params.key_len);
 	target_if_debug("peer mac "QDF_MAC_ADDR_FMT,
-<<<<<<< Updated upstream
-			 QDF_MAC_ADDR_REF(params.peer_mac));
-=======
 			QDF_MAC_ADDR_REF(params.peer_mac));
->>>>>>> Stashed changes
 	QDF_TRACE_HEX_DUMP(QDF_MODULE_ID_CRYPTO, QDF_TRACE_LEVEL_DEBUG,
 			   &params.key_rsc_ctr, sizeof(uint64_t));
 	status = wmi_unified_setup_install_key_cmd(pdev_wmi_handle, &params);
 
 	/* Zero-out local key variables */
 	qdf_mem_zero(&params, sizeof(struct set_key_params));
-<<<<<<< Updated upstream
-	return status;
-}
-
-=======
 
 	return status;
 }
@@ -404,7 +388,6 @@ target_if_crypto_deregister_events(struct wlan_objmgr_psoc *psoc)
 	return QDF_STATUS_SUCCESS;
 }
 
->>>>>>> Stashed changes
 QDF_STATUS target_if_crypto_register_tx_ops(struct wlan_lmac_if_tx_ops *tx_ops)
 {
 	struct wlan_lmac_if_crypto_tx_ops *crypto;
@@ -416,11 +399,8 @@ QDF_STATUS target_if_crypto_register_tx_ops(struct wlan_lmac_if_tx_ops *tx_ops)
 	crypto = &tx_ops->crypto_tx_ops;
 
 	crypto->set_key = target_if_crypto_set_key;
-<<<<<<< Updated upstream
-=======
 	crypto->register_events = target_if_crypto_register_events;
 	crypto->deregister_events = target_if_crypto_deregister_events;
->>>>>>> Stashed changes
 
 	return QDF_STATUS_SUCCESS;
 }

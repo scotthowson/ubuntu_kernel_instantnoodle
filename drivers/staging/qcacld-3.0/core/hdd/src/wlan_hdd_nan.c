@@ -1,9 +1,5 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2012-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -73,11 +69,8 @@ static int __wlan_hdd_cfg80211_nan_ext_request(struct wiphy *wiphy,
 {
 	int ret_val;
 	struct hdd_context *hdd_ctx = wiphy_priv(wiphy);
-<<<<<<< Updated upstream
-=======
 	struct net_device *dev = wdev->netdev;
 	struct hdd_adapter *adapter = WLAN_HDD_GET_PRIV_PTR(dev);
->>>>>>> Stashed changes
 
 	hdd_enter_dev(wdev->netdev);
 
@@ -95,13 +88,8 @@ static int __wlan_hdd_cfg80211_nan_ext_request(struct wiphy *wiphy,
 		return -EPERM;
 	}
 
-<<<<<<< Updated upstream
-	return os_if_process_nan_req(hdd_ctx->psoc,
-					 data, data_len);
-=======
 	return os_if_process_nan_req(hdd_ctx->psoc, adapter->vdev_id,
 				     data, data_len);
->>>>>>> Stashed changes
 }
 
 int wlan_hdd_cfg80211_nan_ext_request(struct wiphy *wiphy,

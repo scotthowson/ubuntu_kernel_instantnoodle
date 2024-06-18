@@ -45,12 +45,8 @@ unsigned int rmnet_wq_frequency __read_mostly = 1000;
 #define PS_INTERVAL (((!rmnet_wq_frequency) ?                             \
 					1 : rmnet_wq_frequency/10) * (HZ/100))
 #define NO_DELAY (0x0000 * HZ)
-<<<<<<< Updated upstream
-#define PS_INTERVAL_KT (ms_to_ktime(1000))
-=======
 #define PS_INTERVAL_MS (1000)
 #define PS_INTERVAL_KT (ms_to_ktime(PS_INTERVAL_MS))
->>>>>>> Stashed changes
 #define WATCHDOG_EXPIRE_JF (msecs_to_jiffies(50))
 
 #ifdef CONFIG_QCOM_QMI_DFC
@@ -215,89 +211,6 @@ int qmi_rmnet_flow_control(struct net_device *dev, u32 mq_idx, int enable)
 	trace_dfc_qmi_tc(dev->name, mq_idx, enable);
 
 	return 0;
-}
-
-/**
- * qmi_rmnet_watchdog_fn - watchdog timer func
- */
-static void qmi_rmnet_watchdog_fn(struct timer_list *t)
-{
-	struct rmnet_bearer_map *bearer;
-
-	bearer = container_of(t, struct rmnet_bearer_map, watchdog);
-
-	trace_dfc_watchdog(bearer->qos->mux_id, bearer->bearer_id, 2);
-
-	spin_lock_bh(&bearer->qos->qos_lock);
-
-	if (bearer->watchdog_quit)
-		goto done;
-
-	/*
-	 * Possible stall, try to recover. Enable 80% query and jumpstart
-	 * the bearer if disabled.
-	 */
-	bearer->watchdog_expire_cnt++;
-	bearer->bytes_in_flight = 0;
-	if (!bearer->grant_size) {
-		bearer->grant_size = DEFAULT_CALL_GRANT;
-		bearer->grant_thresh = qmi_rmnet_grant_per(bearer->grant_size);
-		dfc_bearer_flow_ctl(bearer->qos->vnd_dev, bearer, bearer->qos);
-	} else {
-		bearer->grant_thresh = qmi_rmnet_grant_per(bearer->grant_size);
-	}
-
-done:
-	bearer->watchdog_started = false;
-	spin_unlock_bh(&bearer->qos->qos_lock);
-}
-
-/**
- * qmi_rmnet_watchdog_add - add the bearer to watch
- * Needs to be called with qos_lock
- */
-void qmi_rmnet_watchdog_add(struct rmnet_bearer_map *bearer)
-{
-	bearer->watchdog_quit = false;
-
-	if (bearer->watchdog_started)
-		return;
-
-	bearer->watchdog_started = true;
-	mod_timer(&bearer->watchdog, jiffies + WATCHDOG_EXPIRE_JF);
-
-	trace_dfc_watchdog(bearer->qos->mux_id, bearer->bearer_id, 1);
-}
-
-/**
- * qmi_rmnet_watchdog_remove - remove the bearer from watch
- * Needs to be called with qos_lock
- */
-void qmi_rmnet_watchdog_remove(struct rmnet_bearer_map *bearer)
-{
-	bearer->watchdog_quit = true;
-
-	if (!bearer->watchdog_started)
-		return;
-
-	if (try_to_del_timer_sync(&bearer->watchdog) >= 0)
-		bearer->watchdog_started = false;
-
-	trace_dfc_watchdog(bearer->qos->mux_id, bearer->bearer_id, 0);
-}
-
-/**
- * qmi_rmnet_bearer_clean - clean the removed bearer
- * Needs to be called with rtn_lock but not qos_lock
- */
-static void qmi_rmnet_bearer_clean(struct qos_info *qos)
-{
-	if (qos->removed_bearer) {
-		qos->removed_bearer->watchdog_quit = true;
-		del_timer_sync(&qos->removed_bearer->watchdog);
-		kfree(qos->removed_bearer);
-		qos->removed_bearer = NULL;
-	}
 }
 
 /**
@@ -1341,12 +1254,7 @@ void qmi_rmnet_work_init(void *port)
 	if (rmnet_ps_wq)
 		return;
 
-<<<<<<< Updated upstream
-	rmnet_ps_wq = alloc_workqueue("rmnet_powersave_work",
-				      WQ_CPU_INTENSIVE, 1);
-=======
 	rmnet_ps_wq = create_freezable_workqueue("rmnet_powersave_work");
->>>>>>> Stashed changes
 
 	if (!rmnet_ps_wq)
 		return;
@@ -1391,10 +1299,6 @@ void qmi_rmnet_work_exit(void *port)
 	synchronize_rcu();
 
 	rmnet_work_inited = false;
-<<<<<<< Updated upstream
-	alarm_cancel(&rmnet_work->atimer);
-=======
->>>>>>> Stashed changes
 	cancel_delayed_work_sync(&rmnet_work->work);
 	destroy_workqueue(rmnet_ps_wq);
 	qmi_rmnet_work_set_active(port, 0);

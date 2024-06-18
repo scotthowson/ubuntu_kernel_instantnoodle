@@ -1,9 +1,5 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2019-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2019-2021 The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -27,21 +23,15 @@
 #include <wlan_crypto_global_api.h>
 #include <wlan_objmgr_vdev_obj.h>
 #include <wlan_crypto_main_i.h>
-<<<<<<< Updated upstream
-=======
 #include <wlan_objmgr_pdev_obj.h>
 #include <wlan_objmgr_peer_obj.h>
 #include <wlan_crypto_def_i.h>
 #include <wlan_crypto_obj_mgr_i.h>
->>>>>>> Stashed changes
 #include <net/cfg80211.h>
 #include <wlan_nl_to_crypto_params.h>
 #include "wlan_cfg80211_crypto.h"
 #include <wlan_cfg80211.h>
-<<<<<<< Updated upstream
-=======
 #include <wlan_osif_request_manager.h>
->>>>>>> Stashed changes
 
 static void wlan_cfg80211_translate_key(struct wlan_objmgr_vdev *vdev,
 					uint8_t key_index,
@@ -149,14 +139,6 @@ int wlan_cfg80211_store_key(struct wlan_objmgr_vdev *vdev,
 	return 0;
 }
 
-<<<<<<< Updated upstream
-int wlan_cfg80211_crypto_add_key(struct wlan_objmgr_vdev *vdev,
-				 enum wlan_crypto_key_type key_type,
-				 uint8_t key_index)
-{
-	struct wlan_crypto_key *crypto_key;
-	QDF_STATUS status;
-=======
 #define WLAN_WAIT_TIME_ADD_KEY 100
 
 static void
@@ -192,16 +174,12 @@ int wlan_cfg80211_crypto_add_key(struct wlan_objmgr_vdev *vdev,
 		.priv_size = sizeof(*result),
 		.timeout_ms = WLAN_WAIT_TIME_ADD_KEY,
 	};
->>>>>>> Stashed changes
 
 	crypto_key = wlan_crypto_get_key(vdev, key_index);
 	if (!crypto_key) {
 		osif_err("Crypto KEY is NULL");
 		return -EINVAL;
 	}
-<<<<<<< Updated upstream
-	status  = ucfg_crypto_set_key_req(vdev, crypto_key, key_type);
-=======
 
 	if (sync) {
 		priv = wlan_get_vdev_crypto_obj(vdev);
@@ -238,7 +216,6 @@ int wlan_cfg80211_crypto_add_key(struct wlan_objmgr_vdev *vdev,
 	} else {
 		status  = ucfg_crypto_set_key_req(vdev, crypto_key, key_type);
 	}
->>>>>>> Stashed changes
 
 	return qdf_status_to_os_return(status);
 }

@@ -579,10 +579,7 @@ struct hif_ce_desc_event {
 	int index;
 	enum hif_ce_event_type type;
 	uint64_t time;
-<<<<<<< Updated upstream
-=======
 	int cpu_id;
->>>>>>> Stashed changes
 #ifdef HELIUMPLUS
 	union ce_desc descriptor;
 #else

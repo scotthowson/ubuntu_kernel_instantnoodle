@@ -517,14 +517,6 @@ static int mdm_subsys_powerup(const struct subsys_desc *crashed_subsys)
 			esoc_mdm_log(
 			"Boot failed. Doing cleanup and attempting to retry\n");
 			mdm_subsys_retry_powerup_cleanup(esoc_clink, 0);
-<<<<<<< Updated upstream
-			if (oem_get_download_mode() && oem_get_modemdump_mode()) {
-				pr_err("[MDM] Trigger OEM TWICE modemdump\n");
-				esoc_mdm_log("[MDM] Trigger OEM TWICE modemdump\n");
-				oem_twice_modemdump_en = true;
-			}
-=======
->>>>>>> Stashed changes
 		} else if (mdm_drv->pon_state == PON_SUCCESS) {
 			break;
 		}

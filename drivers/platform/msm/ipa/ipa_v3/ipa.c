@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2012-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include <linux/clk.h>
@@ -7275,11 +7271,8 @@ fail_mem_ctrl:
 fail_tz_unlock_reg:
 	if (ipa3_ctx->logbuf) {
 		ipc_log_context_destroy(ipa3_ctx->logbuf);
-<<<<<<< Updated upstream
-=======
 		ipa3_ctx->logbuf = NULL;
 	}
->>>>>>> Stashed changes
 fail_uc_file_alloc:
 	kfree(ipa3_ctx->gsi_fw_file_name);
 fail_gsi_file_alloc:

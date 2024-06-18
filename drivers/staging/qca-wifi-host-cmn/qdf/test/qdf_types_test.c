@@ -1,9 +1,6 @@
 /*
  * Copyright (c) 2018-2019 The Linux Foundation. All rights reserved.
-<<<<<<< Updated upstream
-=======
  * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -238,8 +235,6 @@ static uint32_t qdf_types_ut_uint16_array_parse(void)
 	return errors;
 }
 
-<<<<<<< Updated upstream
-=======
 #define ut_uint32_array_pass(str, max_size, exp_arr, exp_arr_size) \
 __ut_uint32_array(str, QDF_STATUS_SUCCESS, max_size, exp_arr, exp_arr_size)
 
@@ -314,7 +309,6 @@ static uint32_t qdf_types_ut_uint32_array_parse(void)
 	return errors;
 }
 
->>>>>>> Stashed changes
 #define ut_uint32_pass(str, exp) __ut_uint32(str, QDF_STATUS_SUCCESS, exp)
 #define ut_uint32_fail(str, exp_status) __ut_uint32(str, exp_status, 0)
 
@@ -662,10 +656,7 @@ uint32_t qdf_types_unit_test(void)
 	errors += qdf_types_ut_ipv4_parse();
 	errors += qdf_types_ut_ipv6_parse();
 	errors += qdf_types_ut_uint16_array_parse();
-<<<<<<< Updated upstream
-=======
 	errors += qdf_types_ut_uint32_array_parse();
->>>>>>> Stashed changes
 
 	return errors;
 }

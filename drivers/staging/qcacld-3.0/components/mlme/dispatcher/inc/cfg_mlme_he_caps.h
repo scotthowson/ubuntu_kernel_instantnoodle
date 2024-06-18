@@ -507,37 +507,6 @@
 				0, \
 				"He Rx Full Bw Mu Non Cmpr Sigb")
 
-<<<<<<< Updated upstream
-#define CFG_HE_RX_MCS_MAP_LT_80 CFG_UINT( \
-				"he_rx_mcs_map_lt_80", \
-				0, \
-				0xFFFF, \
-				0xFFF0, \
-				CFG_VALUE_OR_DEFAULT, \
-				"He Rx Mcs Map Lt 80")
-
-#define CFG_HE_TX_MCS_MAP_LT_80 CFG_UINT( \
-				"he_tx_mcs_map_lt_80", \
-				0, \
-				0xFFFF, \
-				0xFFF0, \
-				CFG_VALUE_OR_DEFAULT, \
-				"He Tx Mcs Map Lt 80")
-
-#define CFG_HE_RX_MCS_MAP_160 CFG_UINT( \
-				"he_rx_mcs_map_160", \
-				0, \
-				0xFFFF, \
-				0xFFF0, \
-				CFG_VALUE_OR_DEFAULT, \
-				"He Rx Mcs Map 160")
-
-#define CFG_HE_TX_MCS_MAP_160 CFG_UINT( \
-				"he_tx_mcs_map_160", \
-				0, \
-				0xFFFF, \
-				0xFFF0, \
-=======
 /* 11AX related INI configuration */
 /*
  * <ini>
@@ -690,7 +659,6 @@
 				0, \
 				0xFFFF, \
 				0xFFFA, \
->>>>>>> Stashed changes
 				CFG_VALUE_OR_DEFAULT, \
 				"He Tx Mcs Map 160")
 

@@ -47,10 +47,7 @@
 #include "wlan_fwol_ucfg_api.h"
 #include "cfg_ucfg_api.h"
 #include "hdd_dp_cfg.h"
-<<<<<<< Updated upstream
-=======
 #include "wlan_hdd_object_manager.h"
->>>>>>> Stashed changes
 
 /**
  * get_next_line() - find and locate the new line pointer
@@ -496,14 +493,6 @@ static void hdd_set_fine_time_meas_cap(struct hdd_context *hdd_ctx)
  */
 static void hdd_set_oem_6g_supported(struct hdd_context *hdd_ctx)
 {
-<<<<<<< Updated upstream
-	bool oem_6g_disable = 1;
-
-	ucfg_mlme_get_oem_6g_supported(hdd_ctx->psoc, &oem_6g_disable);
-	ucfg_wifi_pos_set_oem_6g_supported(hdd_ctx->psoc, oem_6g_disable);
-	hdd_debug("oem 6g support is - %s",
-		  oem_6g_disable ? "Enabled" : "Disbaled");
-=======
 	bool oem_6g_disable = true;
 	bool is_reg_6g_support, set_wifi_pos_6g_disabled;
 
@@ -527,7 +516,6 @@ static void hdd_set_oem_6g_supported(struct hdd_context *hdd_ctx)
 					   set_wifi_pos_6g_disabled);
 	hdd_debug("oem 6g support is - %s",
 		  set_wifi_pos_6g_disabled ? "Disbaled" : "Enabled");
->>>>>>> Stashed changes
 }
 
 /**
@@ -1069,12 +1057,8 @@ hdd_set_nss_params(struct hdd_adapter *adapter,
  * Ensure that nss is either 1 or 2 before calling this.
  *
  * @adapter: the pointer to adapter
-<<<<<<< Updated upstream
- * @nss: the number of spatial streams to be updated
-=======
  * @tx_nss: the Tx number of spatial streams to be updated
  * @rx_nss: the Rx number of spatial streams to be updated
->>>>>>> Stashed changes
  *
  * This function is used to modify the number of spatial streams
  * supported when not in connected state.
@@ -1082,12 +1066,8 @@ hdd_set_nss_params(struct hdd_adapter *adapter,
  * Return: QDF_STATUS_SUCCESS if nss is correctly updated,
  *              otherwise QDF_STATUS_E_FAILURE would be returned
  */
-<<<<<<< Updated upstream
-QDF_STATUS hdd_update_nss(struct hdd_adapter *adapter, uint8_t nss)
-=======
 QDF_STATUS hdd_update_nss(struct hdd_adapter *adapter, uint8_t tx_nss,
 			  uint8_t rx_nss)
->>>>>>> Stashed changes
 {
 	struct hdd_context *hdd_ctx = WLAN_HDD_GET_CTX(adapter);
 	uint32_t rx_supp_data_rate, tx_supp_data_rate;
@@ -1100,28 +1080,16 @@ QDF_STATUS hdd_update_nss(struct hdd_adapter *adapter, uint8_t tx_nss,
 	uint8_t enable2x2;
 	mac_handle_t mac_handle;
 	bool bval = 0;
-<<<<<<< Updated upstream
-	uint8_t tx_nss, rx_nss;
-	uint8_t band, max_supp_nss;
-
-	if ((nss == 2) && (hdd_ctx->num_rf_chains != 2)) {
-=======
 	uint8_t band, max_supp_nss;
 
 	if ((tx_nss == 2 || rx_nss == 2) && (hdd_ctx->num_rf_chains != 2)) {
->>>>>>> Stashed changes
 		hdd_err("No support for 2 spatial streams");
 		return QDF_STATUS_E_INVAL;
 	}
 
-<<<<<<< Updated upstream
-	if (nss > MAX_VDEV_NSS) {
-		hdd_debug("Cannot support %d nss streams", nss);
-=======
 	if (tx_nss > MAX_VDEV_NSS || rx_nss > MAX_VDEV_NSS) {
 		hdd_debug("Cannot support tx_nss: %d rx_nss: %d", tx_nss,
 			  rx_nss);
->>>>>>> Stashed changes
 		return QDF_STATUS_E_INVAL;
 	}
 
@@ -1138,13 +1106,6 @@ QDF_STATUS hdd_update_nss(struct hdd_adapter *adapter, uint8_t tx_nss,
 	}
 	max_supp_nss = MAX_VDEV_NSS;
 
-<<<<<<< Updated upstream
-	/* Till now we dont have support for different rx, tx nss values */
-	tx_nss = nss;
-	rx_nss = nss;
-
-=======
->>>>>>> Stashed changes
 	/*
 	 * If FW is supporting the dynamic nss update, this command is meant to
 	 * be per vdev, so update only the ini params of that particular vdev
@@ -1186,11 +1147,7 @@ QDF_STATUS hdd_update_nss(struct hdd_adapter *adapter, uint8_t tx_nss,
 	 * update of nss and chains per vdev feature, for the upcoming
 	 * connection
 	 */
-<<<<<<< Updated upstream
-	enable2x2 = (nss == 1) ? 0 : 1;
-=======
 	enable2x2 = (rx_nss == 2) ? 1 : 0;
->>>>>>> Stashed changes
 
 	if (bval == enable2x2) {
 		hdd_debug("NSS same as requested");
@@ -1208,16 +1165,6 @@ QDF_STATUS hdd_update_nss(struct hdd_adapter *adapter, uint8_t tx_nss,
 		return QDF_STATUS_E_FAILURE;
 	}
 
-<<<<<<< Updated upstream
-	if (!enable2x2) {
-		/* 1x1 */
-		rx_supp_data_rate = VHT_RX_HIGHEST_SUPPORTED_DATA_RATE_1_1;
-		tx_supp_data_rate = VHT_TX_HIGHEST_SUPPORTED_DATA_RATE_1_1;
-	} else {
-		/* 2x2 */
-		rx_supp_data_rate = VHT_RX_HIGHEST_SUPPORTED_DATA_RATE_2_2;
-		tx_supp_data_rate = VHT_TX_HIGHEST_SUPPORTED_DATA_RATE_2_2;
-=======
 	if (tx_nss == 1 && rx_nss == 2) {
 		/* 1x2 */
 		rx_supp_data_rate = VHT_RX_HIGHEST_SUPPORTED_DATA_RATE_2_2;
@@ -1230,7 +1177,6 @@ QDF_STATUS hdd_update_nss(struct hdd_adapter *adapter, uint8_t tx_nss,
 		/* 1x1 */
 		rx_supp_data_rate = VHT_RX_HIGHEST_SUPPORTED_DATA_RATE_1_1;
 		tx_supp_data_rate = VHT_TX_HIGHEST_SUPPORTED_DATA_RATE_1_1;
->>>>>>> Stashed changes
 	}
 
 	/* Update Rx Highest Long GI data Rate */
@@ -1286,11 +1232,7 @@ skip_ht_cap_update:
 	if (QDF_IS_STATUS_SUCCESS(qdf_status)) {
 		mcs_set[0] = mcs_set_temp[0];
 		if (enable2x2)
-<<<<<<< Updated upstream
-			for (val_len = 0; val_len < nss; val_len++)
-=======
 			for (val_len = 0; val_len < rx_nss; val_len++)
->>>>>>> Stashed changes
 				mcs_set[val_len] =
 				WLAN_HDD_RX_MCS_ALL_NSTREAM_RATES;
 		if (ucfg_mlme_set_supported_mcs_set(
@@ -1304,25 +1246,16 @@ skip_ht_cap_update:
 		status = false;
 		hdd_err("Could not get MCS SET from CFG");
 	}
-<<<<<<< Updated upstream
-	sme_update_he_cap_nss(mac_handle, adapter->vdev_id, nss);
-#undef WLAN_HDD_RX_MCS_ALL_NSTREAM_RATES
-
-	if (QDF_STATUS_SUCCESS != sme_update_nss(mac_handle, nss))
-=======
 	sme_update_he_cap_nss(mac_handle, adapter->vdev_id, rx_nss);
 #undef WLAN_HDD_RX_MCS_ALL_NSTREAM_RATES
 
 	if (QDF_STATUS_SUCCESS != sme_update_nss(mac_handle, rx_nss))
->>>>>>> Stashed changes
 		status = false;
 
 	hdd_set_policy_mgr_user_cfg(hdd_ctx);
 
 	return (status == false) ? QDF_STATUS_E_FAILURE : QDF_STATUS_SUCCESS;
 }
-<<<<<<< Updated upstream
-=======
 
 QDF_STATUS hdd_get_tx_nss(struct hdd_adapter *adapter, uint8_t *tx_nss)
 {
@@ -1419,4 +1352,3 @@ QDF_STATUS hdd_get_rx_nss(struct hdd_adapter *adapter, uint8_t *rx_nss)
 
 	return status;
 }
->>>>>>> Stashed changes

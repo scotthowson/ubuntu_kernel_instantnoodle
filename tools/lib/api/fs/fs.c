@@ -228,10 +228,7 @@ static bool fs__env_override(struct fs *fs)
 		return false;
 
 	fs->found = true;
-<<<<<<< Updated upstream
-=======
 	fs->checked = true;
->>>>>>> Stashed changes
 	strncpy(fs->path, override_path, sizeof(fs->path) - 1);
 	fs->path[sizeof(fs->path) - 1] = '\0';
 	return true;

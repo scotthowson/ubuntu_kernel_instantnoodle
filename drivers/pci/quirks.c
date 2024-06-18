@@ -1882,10 +1882,7 @@ static void quirk_ryzen_xhci_d3hot(struct pci_dev *dev)
 }
 DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_AMD, 0x15e0, quirk_ryzen_xhci_d3hot);
 DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_AMD, 0x15e1, quirk_ryzen_xhci_d3hot);
-<<<<<<< Updated upstream
-=======
 DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_AMD, 0x1639, quirk_ryzen_xhci_d3hot);
->>>>>>> Stashed changes
 
 #ifdef CONFIG_X86_IO_APIC
 static int dmi_disable_ioapicreroute(const struct dmi_system_id *d)
@@ -1985,19 +1982,11 @@ static void quirk_disable_intel_boot_interrupt(struct pci_dev *dev)
 		pci_write_config_word(dev, INTEL_6300_IOAPIC_ABAR,
 				      pci_config_word);
 		break;
-<<<<<<< Updated upstream
-	case 0x3c28:
-	case 0x0e28:
-	case 0x2f28:
-	case 0x6f28:
-	case 0x2034:
-=======
 	case 0x3c28:	/* Xeon E5 1600/2600/4600	*/
 	case 0x0e28:	/* Xeon E5/E7 V2		*/
 	case 0x2f28:	/* Xeon E5/E7 V3,V4		*/
 	case 0x6f28:	/* Xeon D-1500			*/
 	case 0x2034:	/* Xeon Scalable Family		*/
->>>>>>> Stashed changes
 		pci_read_config_dword(dev, INTEL_CIPINTRC_CFG_OFFSET,
 				      &pci_config_dword);
 		pci_config_dword |= INTEL_CIPINTRC_DIS_INTX_ICH;
@@ -2010,10 +1999,6 @@ static void quirk_disable_intel_boot_interrupt(struct pci_dev *dev)
 	pci_info(dev, "disabled boot interrupts on device [%04x:%04x]\n",
 		 dev->vendor, dev->device);
 }
-<<<<<<< Updated upstream
-DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,   PCI_DEVICE_ID_INTEL_ESB_10,	quirk_disable_intel_boot_interrupt);
-DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_INTEL,   PCI_DEVICE_ID_INTEL_ESB_10,	quirk_disable_intel_boot_interrupt);
-=======
 /*
  * Device 29 Func 5 Device IDs of IO-APIC
  * containing ABAR—APIC1 Alternate Base Address Register
@@ -2030,7 +2015,6 @@ DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_ESB_10,
  * Device IDs obtained from volume 2 datasheets of commented
  * families above.
  */
->>>>>>> Stashed changes
 DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	0x3c28,
 		quirk_disable_intel_boot_interrupt);
 DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	0x0e28,
@@ -5203,13 +5187,9 @@ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_SERVERWORKS, 0x0422, quirk_no_ext_tags);
  */
 static void quirk_amd_harvest_no_ats(struct pci_dev *pdev)
 {
-<<<<<<< Updated upstream
-	if (pdev->device == 0x7340 && pdev->revision != 0xc5)
-=======
 	if ((pdev->device == 0x7312 && pdev->revision != 0x00) ||
 	    (pdev->device == 0x7340 && pdev->revision != 0xc5) ||
 	    (pdev->device == 0x7341 && pdev->revision != 0x00))
->>>>>>> Stashed changes
 		return;
 
 	pci_info(pdev, "disabling ATS\n");
@@ -5220,16 +5200,11 @@ static void quirk_amd_harvest_no_ats(struct pci_dev *pdev)
 DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x98e4, quirk_amd_harvest_no_ats);
 /* AMD Iceland dGPU */
 DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x6900, quirk_amd_harvest_no_ats);
-<<<<<<< Updated upstream
-/* AMD Navi14 dGPU */
-DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x7340, quirk_amd_harvest_no_ats);
-=======
 /* AMD Navi10 dGPU */
 DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x7312, quirk_amd_harvest_no_ats);
 /* AMD Navi14 dGPU */
 DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x7340, quirk_amd_harvest_no_ats);
 DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x7341, quirk_amd_harvest_no_ats);
->>>>>>> Stashed changes
 #endif /* CONFIG_PCI_ATS */
 
 /* Freescale PCIe doesn't support MSI in RC mode */
@@ -5582,14 +5557,11 @@ out_disable:
 DECLARE_PCI_FIXUP_CLASS_FINAL(PCI_VENDOR_ID_NVIDIA, 0x13b1,
 			      PCI_CLASS_DISPLAY_VGA, 8,
 			      quirk_reset_lenovo_thinkpad_p50_nvgpu);
-<<<<<<< Updated upstream
-=======
 
 /*
  * Device [1b21:2142]
  * When in D0, PME# doesn't get asserted when plugging USB 3.0 device.
  */
->>>>>>> Stashed changes
 static void pci_fixup_no_d0_pme(struct pci_dev *dev)
 {
 	pci_info(dev, "PME# does not work under D0, disabling it\n");
@@ -5597,8 +5569,6 @@ static void pci_fixup_no_d0_pme(struct pci_dev *dev)
 }
 DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ASMEDIA, 0x2142, pci_fixup_no_d0_pme);
 
-<<<<<<< Updated upstream
-=======
 /*
  * Device [12d8:0x400e] and [12d8:0x400f]
  * These devices advertise PME# support in all power states but don't
@@ -5612,19 +5582,15 @@ static void pci_fixup_no_pme(struct pci_dev *dev)
 DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_PERICOM, 0x400e, pci_fixup_no_pme);
 DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_PERICOM, 0x400f, pci_fixup_no_pme);
 
->>>>>>> Stashed changes
 static void apex_pci_fixup_class(struct pci_dev *pdev)
 {
 	pdev->class = (PCI_CLASS_SYSTEM_OTHER << 8) | pdev->class;
 }
 DECLARE_PCI_FIXUP_CLASS_HEADER(0x1ac1, 0x089a,
 			       PCI_CLASS_NOT_DEFINED, 8, apex_pci_fixup_class);
-<<<<<<< Updated upstream
-=======
 
 static void nvidia_ion_ahci_fixup(struct pci_dev *pdev)
 {
 	pdev->dev_flags |= PCI_DEV_FLAGS_HAS_MSI_MASKING;
 }
 DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NVIDIA, 0x0ab8, nvidia_ion_ahci_fixup);
->>>>>>> Stashed changes

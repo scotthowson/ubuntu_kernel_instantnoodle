@@ -591,8 +591,6 @@ QDF_STATUS ucfg_fwol_send_dscp_up_map_to_fw(
 	return QDF_STATUS_SUCCESS;
 }
 #endif
-<<<<<<< Updated upstream
-=======
 
 /**
  * ucfg_fwol_configure_global_params - API to configure global params
@@ -623,7 +621,6 @@ QDF_STATUS ucfg_fwol_configure_vdev_params(struct wlan_objmgr_psoc *psoc,
 					   struct wlan_objmgr_pdev *pdev,
 					   enum QDF_OPMODE device_mode,
 					   uint8_t vdev_id);
->>>>>>> Stashed changes
 #else
 static inline QDF_STATUS ucfg_fwol_psoc_open(struct wlan_objmgr_psoc *psoc)
 {
@@ -912,8 +909,6 @@ ucfg_fwol_get_is_rate_limit_enabled(struct wlan_objmgr_psoc *psoc,
 }
 #endif /* FEATURE_WLAN_RA_FILTERING */
 
-<<<<<<< Updated upstream
-=======
 static inline QDF_STATUS
 ucfg_fwol_configure_global_params(struct wlan_objmgr_psoc *psoc,
 				  struct wlan_objmgr_pdev *pdev)
@@ -929,7 +924,6 @@ ucfg_fwol_configure_vdev_params(struct wlan_objmgr_psoc *psoc,
 	return QDF_STATUS_E_FAILURE;
 }
 
->>>>>>> Stashed changes
 #endif /* WLAN_FW_OFFLOAD */
 
 #endif /* _WLAN_FWOL_UCFG_API_H_ */

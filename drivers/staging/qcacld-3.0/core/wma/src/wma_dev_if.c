@@ -1,10 +1,6 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2013-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2013-2021 The Linux Foundation. All rights reserved.
  * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -90,18 +86,12 @@
 #include "wlan_mlme_public_struct.h"
 #include "wlan_mlme_api.h"
 #include "wlan_mlme_main.h"
-<<<<<<< Updated upstream
-=======
 #include "wlan_mlme_ucfg_api.h"
->>>>>>> Stashed changes
 #include <wlan_dfs_utils_api.h>
 #include "../../core/src/vdev_mgr_ops.h"
 #include "wlan_utility.h"
 #include <wlan_cp_stats_mc_ucfg_api.h>
-<<<<<<< Updated upstream
-=======
 #include "wmi_unified_vdev_api.h"
->>>>>>> Stashed changes
 
 QDF_STATUS wma_find_vdev_id_by_addr(tp_wma_handle wma, uint8_t *addr,
 				    uint8_t *vdev_id)
@@ -1103,11 +1093,7 @@ void wma_update_rate_flags_after_vdev_restart(tp_wma_handle wma,
 					      struct wma_txrx_node *iface)
 {
 	struct vdev_mlme_obj *vdev_mlme;
-<<<<<<< Updated upstream
-	enum tx_rate_info *rate_flags;
-=======
 	enum tx_rate_info rate_flags = 0;
->>>>>>> Stashed changes
 	enum wlan_phymode bss_phymode;
 	struct wlan_channel *des_chan;
 
@@ -1118,40 +1104,10 @@ void wma_update_rate_flags_after_vdev_restart(tp_wma_handle wma,
 	if (!vdev_mlme)
 		return;
 
-<<<<<<< Updated upstream
-	rate_flags = &vdev_mlme->mgmt.rate_info.rate_flags;
-
-=======
->>>>>>> Stashed changes
 	des_chan = wlan_vdev_mlme_get_des_chan(iface->vdev);
 	bss_phymode = des_chan->ch_phymode;
 
 	if (IS_WLAN_PHYMODE_HE(bss_phymode)) {
-<<<<<<< Updated upstream
-		if (des_chan->ch_width == CH_WIDTH_160MHZ ||
-		    des_chan->ch_width == CH_WIDTH_80P80MHZ)
-			*rate_flags |= TX_RATE_HE160;
-		else if (des_chan->ch_width == CH_WIDTH_80MHZ)
-			*rate_flags |= TX_RATE_HE80;
-		else if (des_chan->ch_width)
-			*rate_flags |= TX_RATE_HE40;
-		else
-			*rate_flags |= TX_RATE_HE20;
-	} else if (IS_WLAN_PHYMODE_VHT(bss_phymode)) {
-		*rate_flags |= wma_get_vht_rate_flags(des_chan->ch_width);
-	} else if (IS_WLAN_PHYMODE_HT(bss_phymode)) {
-		if (des_chan->ch_width)
-			*rate_flags |= TX_RATE_HT40;
-		else
-			*rate_flags |= TX_RATE_HT20;
-	} else {
-		*rate_flags = TX_RATE_LEGACY;
-	}
-
-	wma_debug("bss phymode %d rate_flags %x, ch_width %d",
-		  bss_phymode, *rate_flags, des_chan->ch_width);
-	ucfg_mc_cp_stats_set_rate_flags(iface->vdev, *rate_flags);
-=======
 		rate_flags = wma_get_he_rate_flags(des_chan->ch_width);
 	} else if (IS_WLAN_PHYMODE_VHT(bss_phymode)) {
 		rate_flags = wma_get_vht_rate_flags(des_chan->ch_width);
@@ -1164,7 +1120,6 @@ void wma_update_rate_flags_after_vdev_restart(tp_wma_handle wma,
 	wma_debug("bss phymode %d rate_flags %x, ch_width %d",
 		  bss_phymode, rate_flags, des_chan->ch_width);
 	ucfg_mc_cp_stats_set_rate_flags(iface->vdev, rate_flags);
->>>>>>> Stashed changes
 }
 
 QDF_STATUS wma_handle_channel_switch_resp(tp_wma_handle wma,
@@ -1206,8 +1161,6 @@ QDF_STATUS wma_handle_channel_switch_resp(tp_wma_handle wma,
 	return QDF_STATUS_SUCCESS;
 }
 
-<<<<<<< Updated upstream
-=======
 /*
  * wma_get_ratemask_type() - convert user input ratemask type to FW type
  * @type: User input ratemask type maintained in HDD
@@ -1238,7 +1191,6 @@ static QDF_STATUS wma_get_ratemask_type(enum wlan_mlme_ratemask_type type,
 	return QDF_STATUS_SUCCESS;
 }
 
->>>>>>> Stashed changes
 QDF_STATUS wma_vdev_start_resp_handler(struct vdev_mlme_obj *vdev_mlme,
 				       struct vdev_start_response *rsp)
 {
@@ -1252,12 +1204,9 @@ QDF_STATUS wma_vdev_start_resp_handler(struct vdev_mlme_obj *vdev_mlme,
 	QDF_STATUS status;
 	enum vdev_assoc_type assoc_type = VDEV_ASSOC;
 	struct vdev_mlme_obj *mlme_obj;
-<<<<<<< Updated upstream
-=======
 	struct wlan_mlme_psoc_ext_obj *mlme_psoc_obj;
 	const struct wlan_mlme_ratemask *ratemask_cfg;
 	struct config_ratemask_params rparams = {0};
->>>>>>> Stashed changes
 
 	wma = cds_get_context(QDF_MODULE_ID_WMA);
 	if (!wma) {
@@ -1270,12 +1219,9 @@ QDF_STATUS wma_vdev_start_resp_handler(struct vdev_mlme_obj *vdev_mlme,
 		return QDF_STATUS_E_FAILURE;
 	}
 
-<<<<<<< Updated upstream
-=======
 	mlme_psoc_obj = mlme_get_psoc_ext_obj(psoc);
 	ratemask_cfg = &mlme_psoc_obj->cfg.ratemask_cfg;
 
->>>>>>> Stashed changes
 #ifdef FEATURE_AP_MCC_CH_AVOIDANCE
 	if (!mac_ctx) {
 		WMA_LOGE("%s: Failed to get mac_ctx", __func__);
@@ -1384,8 +1330,6 @@ QDF_STATUS wma_vdev_start_resp_handler(struct vdev_mlme_obj *vdev_mlme,
 	if (iface->type == WMI_VDEV_TYPE_AP && wma_is_vdev_up(rsp->vdev_id))
 		wma_set_sap_keepalive(wma, rsp->vdev_id);
 
-<<<<<<< Updated upstream
-=======
 	/* Send ratemask to firmware */
 	if ((ratemask_cfg->type > WLAN_MLME_RATEMASK_TYPE_NO_MASK) &&
 	    (ratemask_cfg->type < WLAN_MLME_RATEMASK_TYPE_MAX)) {
@@ -1418,7 +1362,6 @@ QDF_STATUS wma_vdev_start_resp_handler(struct vdev_mlme_obj *vdev_mlme,
 			wma_err(FL("failed to send ratemask"));
 	}
 
->>>>>>> Stashed changes
 	return QDF_STATUS_SUCCESS;
 }
 
@@ -4983,16 +4926,10 @@ fail_del_bss_ho_fail:
 static void wma_wait_tx_complete(tp_wma_handle wma,
 				uint32_t session_id)
 {
-<<<<<<< Updated upstream
-	uint8_t max_wait_iterations = 0;
-	cdp_config_param_type val;
-	void *soc = cds_get_context(QDF_MODULE_ID_SOC);
-=======
 	uint8_t max_wait_iterations = 0, delay = 0;
 	cdp_config_param_type val;
 	void *soc = cds_get_context(QDF_MODULE_ID_SOC);
 	QDF_STATUS status;
->>>>>>> Stashed changes
 
 	if (!wma_is_vdev_valid(session_id)) {
 		WMA_LOGE("%s: Vdev is not valid: %d",
@@ -5000,18 +4937,11 @@ static void wma_wait_tx_complete(tp_wma_handle wma,
 		return;
 	}
 
-<<<<<<< Updated upstream
-	max_wait_iterations =
-		wma->interfaces[session_id].delay_before_vdev_stop /
-		WMA_TX_Q_RECHECK_TIMER_WAIT;
-
-=======
 	status = ucfg_mlme_get_delay_before_vdev_stop(wma->psoc, &delay);
 	if (QDF_IS_STATUS_ERROR(status))
 		wma_err("Failed to get delay before vdev stop");
 
 	max_wait_iterations = delay / WMA_TX_Q_RECHECK_TIMER_WAIT;
->>>>>>> Stashed changes
 	if (cdp_txrx_get_pdev_param(soc,
 				    wlan_objmgr_pdev_get_pdev_id(wma->pdev),
 				    CDP_TX_PENDING, &val))

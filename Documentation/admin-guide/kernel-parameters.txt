@@ -2605,10 +2605,6 @@
 					       kvm.nx_huge_pages=off [X86]
 					       l1tf=off [X86]
 					       mds=off [X86]
-<<<<<<< Updated upstream
-					       tsx_async_abort=off [X86]
-					       kvm.nx_huge_pages=off [X86]
-=======
 					       mmio_stale_data=off [X86]
 					       no_entry_flush [PPC]
 					       no_uaccess_flush [PPC]
@@ -2621,7 +2617,6 @@
 					       spectre_v2_user=off [X86]
 					       ssbd=force-off [ARM64]
 					       tsx_async_abort=off [X86]
->>>>>>> Stashed changes
 
 				Exceptions:
 					       This does not have any effect on
@@ -2643,10 +2638,7 @@
 				Equivalent to: l1tf=flush,nosmt [X86]
 					       mds=full,nosmt [X86]
 					       tsx_async_abort=full,nosmt [X86]
-<<<<<<< Updated upstream
-=======
 					       mmio_stale_data=full,nosmt [X86]
->>>>>>> Stashed changes
 
 	mminit_loglevel=
 			[KNL] When CONFIG_DEBUG_MEMORY_INIT is set, this

@@ -20,8 +20,6 @@
 #include <linux/sizes.h>
 #include <asm/pgtable.h>
 #include <asm/sections.h>
-<<<<<<< Updated upstream
-=======
 
 /*
  * The auipc+jalr instruction pair can reach any PC-relative offset
@@ -35,7 +33,6 @@ static bool riscv_insn_valid_32bit_offset(ptrdiff_t val)
 	return (-(1L << 31) - (1L << 11)) <= val && val < ((1L << 31) - (1L << 11));
 #endif
 }
->>>>>>> Stashed changes
 
 static int apply_r_riscv_32_rela(struct module *me, u32 *location, Elf_Addr v)
 {

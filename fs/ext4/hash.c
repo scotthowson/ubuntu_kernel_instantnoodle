@@ -197,11 +197,7 @@ static void str2hashbuf_unsigned(const char *msg, int len, __u32 *buf, int num)
  * represented, and whether or not the returned hash is 32 bits or 64
  * bits.  32 bit hashes will return 0 for the minor hash.
  */
-<<<<<<< Updated upstream
-static int __ext4fs_dirhash(const char *name, int len,
-=======
 static int __ext4fs_dirhash(const struct inode *dir, const char *name, int len,
->>>>>>> Stashed changes
 			    struct dx_hash_info *hinfo)
 {
 	__u32	hash;
@@ -298,12 +294,8 @@ int ext4fs_dirhash(const struct inode *dir, const char *name, int len,
 	unsigned char *buff;
 	struct qstr qstr = {.name = name, .len = len };
 
-<<<<<<< Updated upstream
-	if (len && IS_CASEFOLDED(dir) && um) {
-=======
 	if (len && IS_CASEFOLDED(dir) && um &&
 	   (!IS_ENCRYPTED(dir) || fscrypt_has_encryption_key(dir))) {
->>>>>>> Stashed changes
 		buff = kzalloc(sizeof(char) * PATH_MAX, GFP_KERNEL);
 		if (!buff)
 			return -ENOMEM;
@@ -314,20 +306,12 @@ int ext4fs_dirhash(const struct inode *dir, const char *name, int len,
 			goto opaque_seq;
 		}
 
-<<<<<<< Updated upstream
-		r = __ext4fs_dirhash(buff, dlen, hinfo);
-=======
 		r = __ext4fs_dirhash(dir, buff, dlen, hinfo);
->>>>>>> Stashed changes
 
 		kfree(buff);
 		return r;
 	}
 opaque_seq:
 #endif
-<<<<<<< Updated upstream
-	return __ext4fs_dirhash(name, len, hinfo);
-=======
 	return __ext4fs_dirhash(dir, name, len, hinfo);
->>>>>>> Stashed changes
 }

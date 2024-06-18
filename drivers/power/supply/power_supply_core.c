@@ -970,10 +970,6 @@ create_triggers_failed:
 register_thermal_failed:
 wakeup_init_failed:
 	device_del(dev);
-<<<<<<< Updated upstream
-wakeup_init_failed:
-=======
->>>>>>> Stashed changes
 device_add_failed:
 check_supplies_failed:
 dev_set_name_failed:

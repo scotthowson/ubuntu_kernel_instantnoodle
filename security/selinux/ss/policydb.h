@@ -239,10 +239,7 @@ struct genfs {
 struct policydb {
 	int mls_enabled;
 	int android_netlink_route;
-<<<<<<< Updated upstream
-=======
 	int android_netlink_getneigh;
->>>>>>> Stashed changes
 
 	/* symbol tables */
 	struct symtab symtab[SYM_NUM];
@@ -330,10 +327,7 @@ extern int policydb_write(struct policydb *p, void *fp);
 
 #define POLICYDB_CONFIG_MLS    1
 #define POLICYDB_CONFIG_ANDROID_NETLINK_ROUTE    (1 << 31)
-<<<<<<< Updated upstream
-=======
 #define POLICYDB_CONFIG_ANDROID_NETLINK_GETNEIGH (1 << 30)
->>>>>>> Stashed changes
 
 /* the config flags related to unknown classes/perms are bits 2 and 3 */
 #define REJECT_UNKNOWN	0x00000002

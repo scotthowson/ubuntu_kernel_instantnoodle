@@ -568,13 +568,8 @@ static int btt_freelist_init(struct arena_info *arena)
 		 * FIXME: if error clearing fails during init, we want to make
 		 * the BTT read-only
 		 */
-<<<<<<< Updated upstream
-		if (ent_e_flag(log_new.old_map) &&
-				!ent_normal(log_new.old_map)) {
-=======
 		if (ent_e_flag(le32_to_cpu(log_new.old_map)) &&
 		    !ent_normal(le32_to_cpu(log_new.old_map))) {
->>>>>>> Stashed changes
 			arena->freelist[i].has_err = 1;
 			ret = arena_clear_freelist_error(arena, i);
 			if (ret)
@@ -592,8 +587,6 @@ static int btt_freelist_init(struct arena_info *arena)
 		if (ret)
 			return ret;
 
-<<<<<<< Updated upstream
-=======
 		/*
 		 * The map_entry from btt_read_map is stripped of any flag bits,
 		 * so use the stripped out versions from the log as well for
@@ -601,7 +594,6 @@ static int btt_freelist_init(struct arena_info *arena)
 		 * 'raw' version of the log entries as that captured what we
 		 * were going to write originally.
 		 */
->>>>>>> Stashed changes
 		if ((log_newmap != map_entry) && (log_oldmap == map_entry)) {
 			/*
 			 * Last transaction wrote the flog, but wasn't able

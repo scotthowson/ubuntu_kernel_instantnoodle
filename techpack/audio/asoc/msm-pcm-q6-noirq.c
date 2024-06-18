@@ -153,11 +153,8 @@ static const struct soc_enum msm_pcm_fe_topology_enum[] = {
 static void event_handler(uint32_t opcode,
 		uint32_t token, uint32_t *payload, void *priv)
 {
-<<<<<<< Updated upstream
-=======
 	struct msm_audio *prtd = priv;
 	struct snd_pcm_substream *substream;
->>>>>>> Stashed changes
 	uint32_t *ptrmem = (uint32_t *)payload;
 
 	switch (opcode) {
@@ -176,8 +173,6 @@ static void event_handler(uint32_t opcode,
 			break;
 		}
 		break;
-<<<<<<< Updated upstream
-=======
 	case RESET_EVENTS:
 		if (!prtd || !prtd->substream) {
 			pr_err("%s: prtd or substream is NULL\n", __func__);
@@ -190,7 +185,6 @@ static void event_handler(uint32_t opcode,
 		}
 		substream->runtime->status->state = SNDRV_PCM_STATE_DISCONNECTED;
 		break;
->>>>>>> Stashed changes
 	default:
 		pr_debug("Not Supported Event opcode[0x%x]\n", opcode);
 		break;

@@ -247,12 +247,6 @@ static int mxs_dcp_run_aes(struct dcp_async_ctx *actx,
 		goto aes_done_run;
 	}
 
-	if (actx->fill % AES_BLOCK_SIZE) {
-		dev_err(sdcp->dev, "Invalid block size!\n");
-		ret = -EINVAL;
-		goto aes_done_run;
-	}
-
 	/* Fill in the DMA descriptor. */
 	desc->control0 = MXS_DCP_CONTROL0_DECR_SEMAPHORE |
 		    MXS_DCP_CONTROL0_INTERRUPT |
@@ -283,13 +277,10 @@ static int mxs_dcp_run_aes(struct dcp_async_ctx *actx,
 	ret = mxs_dcp_start_dma(actx);
 
 aes_done_run:
-<<<<<<< Updated upstream
-=======
 	dma_unmap_single(sdcp->dev, dst_phys, DCP_BUF_SZ, DMA_FROM_DEVICE);
 err_dst:
 	dma_unmap_single(sdcp->dev, src_phys, DCP_BUF_SZ, DMA_TO_DEVICE);
 err_src:
->>>>>>> Stashed changes
 	dma_unmap_single(sdcp->dev, key_phys, 2 * AES_KEYSIZE_128,
 			 DMA_TO_DEVICE);
 
@@ -313,21 +304,13 @@ static int mxs_dcp_aes_block_crypt(struct crypto_async_request *arq)
 	uint8_t *out_buf = sdcp->coh->aes_out_buf;
 
 	uint32_t dst_off = 0;
-<<<<<<< Updated upstream
-=======
 	uint8_t *src_buf = NULL;
->>>>>>> Stashed changes
 	uint32_t last_out_len = 0;
 
 	uint8_t *key = sdcp->coh->aes_key;
 
 	int ret = 0;
-<<<<<<< Updated upstream
-	int split = 0;
-	unsigned int i, len, clen, rem = 0, tlen = 0;
-=======
 	unsigned int i, len, clen, tlen = 0;
->>>>>>> Stashed changes
 	int init = 0;
 	bool limit_hit = false;
 
@@ -370,46 +353,17 @@ static int mxs_dcp_aes_block_crypt(struct crypto_async_request *arq)
 			 * submit the buffer.
 			 */
 			if (actx->fill == out_off || sg_is_last(src) ||
-<<<<<<< Updated upstream
-				limit_hit) {
-=======
 			    limit_hit) {
->>>>>>> Stashed changes
 				ret = mxs_dcp_run_aes(actx, req, init);
 				if (ret)
 					return ret;
 				init = 0;
 
-<<<<<<< Updated upstream
-				out_tmp = out_buf;
-				last_out_len = actx->fill;
-				while (dst && actx->fill) {
-					if (!split) {
-						dst_buf = sg_virt(dst);
-						dst_off = 0;
-					}
-					rem = min(sg_dma_len(dst) - dst_off,
-						  actx->fill);
-
-					memcpy(dst_buf + dst_off, out_tmp, rem);
-					out_tmp += rem;
-					dst_off += rem;
-					actx->fill -= rem;
-
-					if (dst_off == sg_dma_len(dst)) {
-						dst = sg_next(dst);
-						split = 0;
-					} else {
-						split = 1;
-					}
-				}
-=======
 				sg_pcopy_from_buffer(dst, dst_nents, out_buf,
 						     actx->fill, dst_off);
 				dst_off += actx->fill;
 				last_out_len = actx->fill;
 				actx->fill = 0;
->>>>>>> Stashed changes
 			}
 		} while (len);
 
@@ -646,13 +600,10 @@ static int mxs_dcp_run_sha(struct ahash_request *req)
 	if (rctx->fini) {
 		digest_phys = dma_map_single(sdcp->dev, sdcp->coh->sha_out_buf,
 					     DCP_SHA_PAY_SZ, DMA_FROM_DEVICE);
-<<<<<<< Updated upstream
-=======
 		ret = dma_mapping_error(sdcp->dev, digest_phys);
 		if (ret)
 			goto done_run;
 
->>>>>>> Stashed changes
 		desc->control0 |= MXS_DCP_CONTROL0_HASH_TERM;
 		desc->payload = digest_phys;
 	}
@@ -707,14 +658,10 @@ static int dcp_sha_req_to_buf(struct crypto_async_request *arq)
 		oft += clen;
 		actx->fill += clen;
 
-<<<<<<< Updated upstream
-
-=======
 		/*
 		 * If we filled the buffer and still have some
 		 * more data, submit the buffer.
 		 */
->>>>>>> Stashed changes
 		if (len && actx->fill == DCP_BUF_SZ) {
 			ret = mxs_dcp_run_sha(req);
 			if (ret)

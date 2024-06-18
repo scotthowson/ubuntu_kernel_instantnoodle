@@ -171,15 +171,12 @@ int mmc_retune(struct mmc_host *host)
 		return_to_hs400 = true;
 	}
 
-<<<<<<< Updated upstream
-=======
 	/*
 	 * Timing should be adjusted to the HS400 target
 	 * operation frequency for tuning process.
 	 * Similar handling is also done in mmc_hs200_tuning()
 	 * This is handled properly in sdhci-msm.c from msm-5.4 onwards.
 	 */
->>>>>>> Stashed changes
 	if (host->card->mmc_avail_type & EXT_CSD_CARD_TYPE_HS400 &&
 		host->ios.bus_width == MMC_BUS_WIDTH_8)
 		mmc_set_timing(host, MMC_TIMING_MMC_HS400);
@@ -206,10 +203,6 @@ bool mmc_host_may_gate_card(struct mmc_card *card)
 	if (!card)
 		return true;
 
-<<<<<<< Updated upstream
-	if (mmc_card_sdio(card) && card->cccr.async_intr_sup)
-		return true;
-=======
 	/*
 	 * SDIO3.0 card allows the clock to be gated off so check if
 	 * that is the case or not
@@ -225,7 +218,6 @@ bool mmc_host_may_gate_card(struct mmc_card *card)
 	 * gate the clock, because there is somebody out there that may still
 	 * be using it.
 	 */
->>>>>>> Stashed changes
 	return !(card->quirks & MMC_QUIRK_BROKEN_CLK_GATING);
 }
 

@@ -8,11 +8,6 @@
 
 #include <linux/bitops.h>
 
-<<<<<<< Updated upstream
-#define MMSS_MDSS_HW_INTR_STATUS		0x10
-#define MMSS_MDSS_HW_INTR_STATUS_ROT		BIT(2)
-
-=======
 /* MMSS_MDSS:
  * OFFSET=0x000000
  */
@@ -22,7 +17,6 @@
 /* SDE_ROT_ROTTOP:
  * OFFSET=0x0A8800
  */
->>>>>>> Stashed changes
 #define SDE_ROT_ROTTOP_OFFSET                   0xA8800
 #define ROTTOP_HW_VERSION                       (SDE_ROT_ROTTOP_OFFSET+0x00)
 #define ROTTOP_CLK_CTRL                         (SDE_ROT_ROTTOP_OFFSET+0x10)
@@ -57,12 +51,9 @@
 
 #define ROTTOP_OP_MODE_ROT_OUT_MASK             (0x3 << 4)
 
-<<<<<<< Updated upstream
-=======
 /* SDE_ROT_SSPP:
  * OFFSET=0x0A8900
  */
->>>>>>> Stashed changes
 #define SDE_ROT_SSPP_OFFSET                     0xA8900
 #define ROT_SSPP_SRC_SIZE                       (SDE_ROT_SSPP_OFFSET+0x00)
 #define ROT_SSPP_SRC_IMG_SIZE                   (SDE_ROT_SSPP_OFFSET+0x04)
@@ -150,12 +141,9 @@
 #define SDE_ROT_SSPP_FETCH_BLOCKSIZE_144_EXT    ((2 << 16) | (1 << 15))
 
 
-<<<<<<< Updated upstream
-=======
 /* SDE_ROT_WB:
  * OFFSET=0x0A8B00
  */
->>>>>>> Stashed changes
 #define SDE_ROT_WB_OFFSET                       0xA8B00
 #define ROT_WB_DST_FORMAT                       (SDE_ROT_WB_OFFSET+0x000)
 #define ROT_WB_DST_OP_MODE                      (SDE_ROT_WB_OFFSET+0x004)
@@ -212,22 +200,16 @@
 #define ROT_WB_OUT_XY                           (SDE_ROT_WB_OFFSET+0x2C4)
 
 
-<<<<<<< Updated upstream
-=======
 /* SDE_ROT_REGDMA_RAM:
  * OFFSET=0x0A8E00
  */
->>>>>>> Stashed changes
 #define SDE_ROT_REGDMA_RAM_OFFSET              0xA8E00
 #define REGDMA_RAM_REGDMA_CMD_RAM              (SDE_ROT_REGDMA_RAM_OFFSET+0x00)
 
 
-<<<<<<< Updated upstream
-=======
 /* SDE_ROT_REGDMA_CSR:
  * OFFSET=0x0AAE00
  */
->>>>>>> Stashed changes
 #define SDE_ROT_REGDMA_OFFSET                    0xAAE00
 #define REGDMA_CSR_REGDMA_VERSION                (SDE_ROT_REGDMA_OFFSET+0x00)
 #define REGDMA_CSR_REGDMA_OP_MODE                (SDE_ROT_REGDMA_OFFSET+0x04)
@@ -256,12 +238,9 @@
 #define REGDMA_CSR_REGDMA_DEBUG_SEL              (SDE_ROT_REGDMA_OFFSET+0x68)
 
 
-<<<<<<< Updated upstream
-=======
 /* SDE_ROT_QDSS:
  * OFFSET=0x0AAF00
  */
->>>>>>> Stashed changes
 #define ROT_QDSS_CONFIG                          0x00
 #define ROT_QDSS_ATB_DATA_ENABLE0                0x04
 #define ROT_QDSS_ATB_DATA_ENABLE1                0x08
@@ -271,17 +250,12 @@
 #define ROT_QDSS_CLK_STATUS                      0x18
 #define ROT_QDSS_PULSE_TRIGGER                   0x20
 
-<<<<<<< Updated upstream
-#define SDE_ROT_VBIF_NRT_OFFSET                  0
-
-=======
 /*
  * SDE_ROT_VBIF_NRT:
  */
 #define SDE_ROT_VBIF_NRT_OFFSET                  0
 
 /* REGDMA OP Code */
->>>>>>> Stashed changes
 #define REGDMA_OP_NOP                   (0 << 28)
 #define REGDMA_OP_REGWRITE              (1 << 28)
 #define REGDMA_OP_REGMODIFY             (2 << 28)
@@ -289,13 +263,6 @@
 #define REGDMA_OP_BLKWRITE_INC          (4 << 28)
 #define REGDMA_OP_MASK                  0xF0000000
 
-<<<<<<< Updated upstream
-#define REGDMA_ADDR_OFFSET_MASK         0xFFFFF
-
-#define REGDMA_CMD_TRIG_SEL_SW_START    (0 << 27)
-#define REGDMA_CMD_TRIG_SEL_MDP_FLUSH   (1 << 27)
-
-=======
 /* REGDMA ADDR offset Mask */
 #define REGDMA_ADDR_OFFSET_MASK         0xFFFFF
 
@@ -304,7 +271,6 @@
 #define REGDMA_CMD_TRIG_SEL_MDP_FLUSH   (1 << 27)
 
 /* General defines */
->>>>>>> Stashed changes
 #define ROT_DONE_MASK                   0x1
 #define ROT_DONE_CLEAR                  0x1
 #define ROT_BUSY_BIT                    BIT(0)

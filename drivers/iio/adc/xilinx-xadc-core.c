@@ -103,9 +103,6 @@ static const unsigned int XADC_ZYNQ_UNMASK_TIMEOUT = 500;
 
 #define XADC_FLAGS_BUFFERED BIT(0)
 
-<<<<<<< Updated upstream
-#define XADC_MAX_SAMPLERATE 150000
-=======
 /*
  * The XADC hardware supports a samplerate of up to 1MSPS. Unfortunately it does
  * not have a hardware FIFO. Which means an interrupt is generated for each
@@ -116,7 +113,6 @@ static const unsigned int XADC_ZYNQ_UNMASK_TIMEOUT = 500;
  */
 #define XADC_MAX_SAMPLERATE 150000
 
->>>>>>> Stashed changes
 static void xadc_write_reg(struct xadc *xadc, unsigned int reg,
 	uint32_t val)
 {
@@ -813,8 +809,6 @@ static int xadc_preenable(struct iio_dev *indio_dev)
 	if (ret)
 		goto err;
 
-<<<<<<< Updated upstream
-=======
 	/*
 	 * In simultaneous mode the upper and lower aux channels are samples at
 	 * the same time. In this mode the upper 8 bits in the sequencer
@@ -822,7 +816,6 @@ static int xadc_preenable(struct iio_dev *indio_dev)
 	 * each. As such we must set the bit if either the channel in the lower
 	 * group or the upper group is enabled.
 	 */
->>>>>>> Stashed changes
 	if (seq_mode == XADC_CONF1_SEQ_SIMULTANEOUS)
 		scan_mask = ((scan_mask >> 8) | scan_mask) & 0xff0000;
 
@@ -1271,13 +1264,10 @@ static int xadc_probe(struct platform_device *pdev)
 	if (ret)
 		goto err_free_samplerate_trigger;
 
-<<<<<<< Updated upstream
-=======
 	/*
 	 * Make sure not to exceed the maximum samplerate since otherwise the
 	 * resulting interrupt storm will soft-lock the system.
 	 */
->>>>>>> Stashed changes
 	if (xadc->ops->flags & XADC_FLAGS_BUFFERED) {
 		ret = xadc_read_samplerate(xadc);
 		if (ret < 0)

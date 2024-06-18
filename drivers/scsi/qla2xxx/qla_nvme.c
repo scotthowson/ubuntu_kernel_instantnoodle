@@ -478,14 +478,11 @@ static int qla_nvme_post_cmd(struct nvme_fc_local_port *lport,
 	struct nvme_private *priv = fd->private;
 	struct qla_nvme_rport *qla_rport = rport->private;
 
-<<<<<<< Updated upstream
-=======
 	if (!priv) {
 		/* nvme association has been torn down */
 		return rval;
 	}
 
->>>>>>> Stashed changes
 	fcport = qla_rport->fcport;
 
 	vha = fcport->vha;

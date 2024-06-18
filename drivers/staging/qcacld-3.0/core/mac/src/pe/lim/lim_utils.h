@@ -1,9 +1,6 @@
 /*
  * Copyright (c) 2012-2020 The Linux Foundation. All rights reserved.
-<<<<<<< Updated upstream
-=======
  * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -223,8 +220,6 @@ void lim_send_sme_mgmt_frame_ind(struct mac_context *mac_ctx, uint8_t frame_type
 void lim_deactivate_timers(struct mac_context *mac_ctx);
 
 /*
-<<<<<<< Updated upstream
-=======
  * lim_deactivate_timers_for_vdev() - Deactivate lim connection timers
  * @mac_ctx: Pointer to global mac structure
  * @vdev_id: vdev id
@@ -238,7 +233,6 @@ void lim_deactivate_timers_for_vdev(struct mac_context *mac_ctx,
 				    uint8_t vdev_id);
 
 /*
->>>>>>> Stashed changes
  * The below 'product' check tobe removed if 'Association' is
  * allowed in IBSS.
  */

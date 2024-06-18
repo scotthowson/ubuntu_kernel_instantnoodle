@@ -1,10 +1,6 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2011-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2011-2021 The Linux Foundation. All rights reserved.
  * Copyright (c) 2021-2023 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -213,11 +209,6 @@
  * 3.84 Add fisa_control_bits_v2 def.
  * 3.85 Add HTT_RX_PEER_META_DATA defs.
  * 3.86 Add HTT_T2H_MSG_TYPE_FSE_CMEM_BASE_SEND def.
-<<<<<<< Updated upstream
- */
-#define HTT_CURRENT_VERSION_MAJOR 3
-#define HTT_CURRENT_VERSION_MINOR 86
-=======
  * 3.87 Add on-chip AST index field to PEER_MAP_V2 msg.
  * 3.88 Add HTT_H2T_MSG_TYPE_HOST_PADDR_SIZE def.
  * 3.89 Add MSDU queue enumerations.
@@ -267,7 +258,6 @@
  */
 #define HTT_CURRENT_VERSION_MAJOR 3
 #define HTT_CURRENT_VERSION_MINOR 128
->>>>>>> Stashed changes
 
 #define HTT_NUM_TX_FRAG_DESC  1024
 
@@ -310,11 +300,7 @@
  */
 #define HTT_T2H_MSG_TYPE_RC_UPDATE_IND DEPRECATED_HTT_T2H_MSG_TYPE_RC_UPDATE_IND
 
-<<<<<<< Updated upstream
-/*
-=======
 /**
->>>>>>> Stashed changes
  * htt_dbg_stats_type -
  * bit positions for each stats type within a stats type bitmask
  * The bitmask contains 24 bits.
@@ -374,17 +360,12 @@ enum HTT_OPTION_TLV_TAGS {
     HTT_OPTION_TLV_TAG_HL_SUPPRESS_TX_COMPL_IND = 0x2,
     HTT_OPTION_TLV_TAG_MAX_TX_QUEUE_GROUPS      = 0x3,
     HTT_OPTION_TLV_TAG_SUPPORT_TX_MSDU_DESC_EXT = 0x4,
-<<<<<<< Updated upstream
-};
-
-=======
     /* TCL_METADATA_VER: added to support V2 and higher of the TCL Data Cmd */
     HTT_OPTION_TLV_TAG_TCL_METADATA_VER         = 0x5,
 };
 
 #define HTT_TCL_METADATA_VER_SZ 4
 
->>>>>>> Stashed changes
 PREPACK struct htt_option_tlv_header_t {
     A_UINT8 tag;
     A_UINT8 length;
@@ -460,11 +441,7 @@ PREPACK struct htt_option_tlv_ll_bus_addr_size_t {
  * downloads over the host --> target bus are as slow as or slower than
  * the transmissions over the WLAN PHY.  For cases where the bus is faster
  * than the WLAN PHY, the target will transmit relatively large A-MPDUs,
-<<<<<<< Updated upstream
- * and consquently will send one TX_COMPL_IND message that covers several
-=======
  * and consequently will send one TX_COMPL_IND message that covers several
->>>>>>> Stashed changes
  * tx frames.  For cases where the WLAN PHY is faster than the bus,
  * the target will end up transmitting very short A-MPDUs, and consequently
  * sending many TX_COMPL_IND messages, which each cover a very small number
@@ -507,11 +484,7 @@ PREPACK struct htt_option_tlv_hl_suppress_tx_compl_ind_t {
  * The MAX_TX_QUEUE_GROUPS TLV can be sent from the target to the host as
  * a suffix to the VERSION_CONF message.  If the host has specified in the
  * VER_REQ message a limit on the number of tx queue groups the host can
-<<<<<<< Updated upstream
- * supprt, the target shall limit its specification of the maximum tx groups
-=======
  * support, the target shall limit its specification of the maximum tx groups
->>>>>>> Stashed changes
  * to be no larger than this host-specified limit.
  *
  * If the target does not provide a MAX_TX_QUEUE_GROUPS TLV, then the host
@@ -572,8 +545,6 @@ PREPACK struct htt_option_tlv_support_tx_msdu_desc_ext_t {
     A_UINT16 tx_msdu_desc_ext_support; /* SUPPORT_TX_MSDU_DESC_EXT enum */
 } POSTPACK;
 
-<<<<<<< Updated upstream
-=======
 /*
  * For the tcl data command V2 and higher support added a new
  * version tag HTT_OPTION_TLV_TAG_TCL_METADATA_VER.
@@ -873,7 +844,6 @@ typedef htt_stats_tlv_tag_t htt_tlv_tag_t;
         ((_var) |= ((_val) << HTT_STATS_TLV_LENGTH_S)); \
     } while (0)
 
->>>>>>> Stashed changes
 
 /*=== host -> target messages ===============================================*/
 
@@ -902,8 +872,6 @@ enum htt_h2t_msg_type {
     HTT_H2T_MSG_TYPE_RX_FISA_CFG           = 0x15,
     HTT_H2T_MSG_TYPE_3_TUPLE_HASH_CFG      = 0x16,
     HTT_H2T_MSG_TYPE_RX_FULL_MONITOR_MODE  = 0x17,
-<<<<<<< Updated upstream
-=======
     HTT_H2T_MSG_TYPE_HOST_PADDR_SIZE       = 0x18,
     HTT_H2T_MSG_TYPE_RXDMA_RXOLE_PPE_CFG   = 0x19,
     HTT_H2T_MSG_TYPE_VDEVS_TXRX_STATS_CFG  = 0x1a,
@@ -918,7 +886,6 @@ enum htt_h2t_msg_type {
     HTT_H2T_MSG_TYPE_RX_CCE_SUPER_RULE_SETUP = 0x23,
     HTT_H2T_MSG_TYPE_PRIMARY_LINK_PEER_MIGRATE_RESP = 0x24,
     HTT_H2T_MSG_TYPE_TX_LATENCY_STATS_CFG  = 0x25,
->>>>>>> Stashed changes
 
     /* keep this last */
     HTT_H2T_NUM_MSGS
@@ -942,12 +909,9 @@ enum htt_h2t_msg_type {
 /**
  * @brief host -> target version number request message definition
  *
-<<<<<<< Updated upstream
-=======
  * MSG_TYPE => HTT_H2T_MSG_TYPE_VERSION_REQ
  *
  *
->>>>>>> Stashed changes
  *     |31            24|23            16|15             8|7              0|
  *     |----------------+----------------+----------------+----------------|
  *     |                     reserved                     |    msg type    |
@@ -968,11 +932,7 @@ enum htt_h2t_msg_type {
  *   - MSG_TYPE
  *     Bits 7:0
  *     Purpose: identifies this as a version number request message
-<<<<<<< Updated upstream
- *     Value: 0x0
-=======
  *     Value: 0x0 (HTT_H2T_MSG_TYPE_VERSION_REQ)
->>>>>>> Stashed changes
  */
 
 #define HTT_VER_REQ_BYTES 4
@@ -984,11 +944,8 @@ enum htt_h2t_msg_type {
 /**
  * @brief HTT tx MSDU descriptor
  *
-<<<<<<< Updated upstream
-=======
  * MSG_TYPE => HTT_H2T_MSG_TYPE_TX_FRM
  *
->>>>>>> Stashed changes
  * @details
  *  The HTT tx MSDU descriptor is created by the host HTT SW for each
  *  tx MSDU.  The HTT tx MSDU descriptor contains the information that
@@ -1231,11 +1188,7 @@ PREPACK struct htt_tx_msdu_desc ## _paddr_bits_ ## _t                          \
         A_UINT16 chanfreq;                                                     \
                                                                                \
         /* Reason reserved is commented is increasing the htt structure size   \
-<<<<<<< Updated upstream
-         * leads to some wierd issues. Contact Raj/Kyeyoon for more info       \
-=======
          * leads to some weird issues.                                         \
->>>>>>> Stashed changes
          * A_UINT32 reserved_dword3_bits0_31;                                  \
          */                                                                    \
 } POSTPACK
@@ -2095,12 +2048,8 @@ PREPACK struct htt_tx_msdu_desc_ext2_t {
          * with valid information.
          */
         is_host_opaque_valid :  1,
-<<<<<<< Updated upstream
-        rsvd0                : 29;
-=======
         traffic_end_indication: 1,
         rsvd0                : 28;
->>>>>>> Stashed changes
 
     /* DWORD 6 : Host opaque cookie for special frames */
     A_UINT32 host_opaque_cookie  : 16, /* see is_host_opaque_valid */
@@ -2607,8 +2556,6 @@ PREPACK struct htt_tx_tcl_metadata {
          ((_var) |= ((_val) << HTT_TX_TCL_METADATA_PEER_ID_S)); \
      } while (0)
 
-<<<<<<< Updated upstream
-=======
 /*------------------------------------------------------------------
  *                 V2 Version of TCL Data Command
  * V2 Version to support peer_id, vdev_id, svc_class_id and
@@ -2797,7 +2744,6 @@ PREPACK struct htt_tx_tcl_metadata_v2 {
 /*------------------------------------------------------------------
  *                 End V2 Version of TCL Data Command
  *-----------------------------------------------------------------*/
->>>>>>> Stashed changes
 
 typedef enum {
    HTT_TX_FW2WBM_TX_STATUS_OK,
@@ -2806,10 +2752,7 @@ typedef enum {
    HTT_TX_FW2WBM_TX_STATUS_REINJECT,
    HTT_TX_FW2WBM_TX_STATUS_INSPECT,
    HTT_TX_FW2WBM_TX_STATUS_MEC_NOTIFY,
-<<<<<<< Updated upstream
-=======
    HTT_TX_FW2WBM_TX_STATUS_VDEVID_MISMATCH,
->>>>>>> Stashed changes
 
    HTT_TX_FW2WBM_TX_STATUS_MAX
 } htt_tx_fw2wbm_tx_status_t;
@@ -2823,10 +2766,7 @@ typedef enum {
    HTT_TX_FW2WBM_REINJECT_REASON_ARP,
    HTT_TX_FW2WBM_REINJECT_REASON_DHCP,
    HTT_TX_FW2WBM_REINJECT_REASON_FLOW_CONTROL,
-<<<<<<< Updated upstream
-=======
    HTT_TX_FW2WBM_REINJECT_REASON_MLO_MCAST,
->>>>>>> Stashed changes
 
    HTT_TX_FW2WBM_REINJECT_REASON_MAX,
 } htt_tx_fw2wbm_reinject_reason_t;
@@ -2834,11 +2774,7 @@ typedef enum {
 /**
  * @brief HTT TX WBM Completion from firmware to host
  * @details
-<<<<<<< Updated upstream
- *  This structure is passed from firmware to host overlayed on wbm_release_ring
-=======
  *  This structure is passed from firmware to host overlaid on wbm_release_ring
->>>>>>> Stashed changes
  *  DWORD 3 and 4 for software based completions (Exception frames and
  *  TQM bypass frames)
  *  For software based completions, wbm_release_ring->release_source_module will
@@ -2931,11 +2867,7 @@ PREPACK struct htt_tx_wbm_completion {
  * @details
  *  This structure applies only to WLAN chips that contain WLAN Buffer Mgmt
  *  (WBM) offload HW.
-<<<<<<< Updated upstream
- *  This structure is passed from firmware to host overlayed on wbm_release_ring
-=======
  *  This structure is passed from firmware to host overlaid on wbm_release_ring
->>>>>>> Stashed changes
  *  For software based completions, release_source_module will
  *  be set to WIFIRELEASE_SOURCE_FW_E. Host SW is expected to inspect using
  *  struct wbm_release_ring and then switch to this after looking at
@@ -2951,12 +2883,8 @@ PREPACK struct htt_tx_wbm_completion_v2 {
         tx_status:              4, /* Takes enum values of htt_tx_fw2wbm_tx_status_t */
         reinject_reason:        4, /* Takes enum values of htt_tx_fw2wbm_reinject_reason_t */
         exception_frame:        1,
-<<<<<<< Updated upstream
-        rsvd0:                 12, /* For future use */
-=======
         transmit_count:         7, /* Refer to struct wbm_release_ring */
         rsvd0:                  5, /* For future use */
->>>>>>> Stashed changes
         used_by_hw4:            1, /* wbm_internal_error bit being used by HW */
         rsvd1:                  1; /* For future use */
     A_UINT32
@@ -2982,11 +2910,8 @@ PREPACK struct htt_tx_wbm_completion_v2 {
 #define HTT_TX_WBM_COMPLETION_V2_REINJECT_REASON_S           13
 #define HTT_TX_WBM_COMPLETION_V2_EXP_FRAME_M                 0x00020000
 #define HTT_TX_WBM_COMPLETION_V2_EXP_FRAME_S                 17
-<<<<<<< Updated upstream
-=======
 #define HTT_TX_WBM_COMPLETION_V2_TRANSMIT_COUNT_M            0x01FC0000
 #define HTT_TX_WBM_COMPLETION_V2_TRANSMIT_COUNT_S            18
->>>>>>> Stashed changes
 
 /* DWORD 3 */
 #define HTT_TX_WBM_COMPLETION_V2_TX_STATUS_GET(_var) \
@@ -3019,8 +2944,6 @@ PREPACK struct htt_tx_wbm_completion_v2 {
          ((_var) |= ((_val) << HTT_TX_WBM_COMPLETION_V2_EXP_FRAME_S)); \
      } while (0)
 
-<<<<<<< Updated upstream
-=======
 #define HTT_TX_WBM_COMPLETION_V2_TRANSMIT_COUNT_GET(_var) \
      (((_var) & HTT_TX_WBM_COMPLETION_V2_TRANSMIT_COUNT_M) >> \
     HTT_TX_WBM_COMPLETION_V2_TRANSMIT_COUNT_S)
@@ -3133,17 +3056,12 @@ typedef enum {
     TX_FRAME_TYPE_EAPOL     = 1,
 } htt_tx_wbm_status_frame_type;
 
->>>>>>> Stashed changes
 /**
  * @brief HTT TX WBM transmit status from firmware to host
  * @details
  *  This structure applies only to WLAN chips that contain WLAN Buffer Mgmt
  *  (WBM) offload HW.
-<<<<<<< Updated upstream
- *  This structure is passed from firmware to host overlayed on wbm_release_ring.
-=======
  *  This structure is passed from firmware to host overlaid on wbm_release_ring.
->>>>>>> Stashed changes
  *  used only if tx_status is HTT_TX_FW2WBM_TX_STATUS_OK or HTT_TX_FW2WBM_TX_STATUS_DROP
  *  or HTT_TX_FW2WBM_TX_STATUS_TTL
  */
@@ -3171,16 +3089,12 @@ PREPACK struct htt_tx_wbm_transmit_status {
        mcast_valid:      1,  /* If this "mcast_valid" is set, the mcast field
                               * contains valid data.
                               */
-<<<<<<< Updated upstream
-       reserved0:        8;
-=======
        frame_type:       4,  /* holds htt_tx_wbm_status_frame_type value */
        transmit_count_valid: 1, /* If this "transmit_count_valid" is set, the
                                  * transmit_count field in struct
                                  * htt_tx_wbm_completion_vx has valid data.
                                  */
        reserved:         3;
->>>>>>> Stashed changes
    A_UINT32
        ppdu_start_tsf:  32;  /* PPDU Start timestamp added for multicast
                               * packets in the wbm completion path
@@ -3204,13 +3118,10 @@ PREPACK struct htt_tx_wbm_transmit_status {
 #define HTT_TX_WBM_COMPLETION_V2_MCAST_S               22
 #define HTT_TX_WBM_COMPLETION_V2_MCAST_VALID_M         0x00800000
 #define HTT_TX_WBM_COMPLETION_V2_MCAST_VALID_S         23
-<<<<<<< Updated upstream
-=======
 #define HTT_TX_WBM_COMPLETION_V2_FRAME_TYPE_M          0x0F000000
 #define HTT_TX_WBM_COMPLETION_V2_FRAME_TYPE_S          24
 #define HTT_TX_WBM_COMPLETION_V2_TRANSMIT_CNT_VALID_M  0x10000000
 #define HTT_TX_WBM_COMPLETION_V2_TRANSMIT_CNT_VALID_S  28
->>>>>>> Stashed changes
 
 /* DWORD 4 */
 #define HTT_TX_WBM_COMPLETION_V2_SCH_CMD_ID_GET(_var) \
@@ -3284,8 +3195,6 @@ PREPACK struct htt_tx_wbm_transmit_status {
          ((_var) |= ((_val) << HTT_TX_WBM_COMPLETION_V2_MCAST_VALID_S)); \
      } while (0)
 
-<<<<<<< Updated upstream
-=======
 #define HTT_TX_WBM_COMPLETION_V2_FRAME_TYPE_GET(_var) \
     (((_var) & HTT_TX_WBM_COMPLETION_V2_FRAME_TYPE_M) >> \
     HTT_TX_WBM_COMPLETION_V2_FRAME_TYPE_S)
@@ -3306,17 +3215,12 @@ PREPACK struct htt_tx_wbm_transmit_status {
      } while (0)
 
 
->>>>>>> Stashed changes
 /**
  * @brief HTT TX WBM reinject status from firmware to host
  * @details
  *  This structure applies only to WLAN chips that contain WLAN Buffer Mgmt
  *  (WBM) offload HW.
-<<<<<<< Updated upstream
- *  This structure is passed from firmware to host overlayed on wbm_release_ring.
-=======
  *  This structure is passed from firmware to host overlaid on wbm_release_ring.
->>>>>>> Stashed changes
  *  used only if tx_status is HTT_TX_FW2WBM_TX_STATUS_REINJECT.
  */
 PREPACK struct htt_tx_wbm_reinject_status {
@@ -3333,11 +3237,7 @@ PREPACK struct htt_tx_wbm_reinject_status {
  * @details
  *  This structure applies only to WLAN chips that contain WLAN Buffer Mgmt
  *  (WBM) offload HW.
-<<<<<<< Updated upstream
- *  This structure is passed from firmware to host overlayed on wbm_release_ring.
-=======
  *  This structure is passed from firmware to host overlaid on wbm_release_ring.
->>>>>>> Stashed changes
  *  used only if tx_status is HTT_TX_FW2WBM_TX_STATUS_MEC_NOTIFY.
  *  FW sends SA addresses to host for all multicast/broadcast packets received on
  *  STA side.
@@ -3521,9 +3421,6 @@ PREPACK struct htt_tx_flow_metadata {
 
 
 /**
-<<<<<<< Updated upstream
- * @brief Used in HTT_H2T_MSG_TYPE_ADD_WDS_ENTRY and HTT_H2T_MSG_TYPE_DELETE_WDS_ENTRY messages
-=======
  * @brief host -> target ADD WDS Entry
  *
  * MSG_TYPE => HTT_H2T_MSG_TYPE_ADD_WDS_ENTRY
@@ -3531,7 +3428,6 @@ PREPACK struct htt_tx_flow_metadata {
  * @brief host -> target DELETE WDS Entry
  *
  * MSG_TYPE => HTT_H2T_MSG_TYPE_DELETE_WDS_ENTRY
->>>>>>> Stashed changes
  *
  * @details
  *  HTT wds entry from source port learning
@@ -3555,13 +3451,8 @@ PREPACK struct htt_tx_flow_metadata {
  *  The message is interpreted as follows:
  *
  *  dword0 - b'0:7   - msg_type: This will be set to
-<<<<<<< Updated upstream
- *                     HTT_H2T_MSG_TYPE_ADD_WDS_ENTRY or
- *                     HTT_H2T_MSG_TYPE_DELETE_WDS_ENTRY
-=======
  *                     0xd (HTT_H2T_MSG_TYPE_ADD_WDS_ENTRY) or
  *                     0xe (HTT_H2T_MSG_TYPE_DELETE_WDS_ENTRY)
->>>>>>> Stashed changes
  *
  *  dword0 - b'8:15  - vdev_id
  *
@@ -3642,12 +3533,9 @@ PREPACK struct htt_wds_entry {
 
 /**
  * @brief MAC DMA rx ring setup specification
-<<<<<<< Updated upstream
-=======
  *
  * MSG_TYPE => HTT_H2T_MSG_TYPE_RX_RING_CFG
  *
->>>>>>> Stashed changes
  * @details
  *  To allow for dynamic rx ring reconfiguration and to avoid race
  *  conditions, the host SW never directly programs the MAC DMA rx ring(s)
@@ -3689,11 +3577,7 @@ PREPACK struct htt_wds_entry {
  *   - MSG_TYPE
  *     Bits 7:0
  *     Purpose: identifies this as an rx ring configuration message
-<<<<<<< Updated upstream
- *     Value: 0x2
-=======
  *     Value: 0x2 (HTT_H2T_MSG_TYPE_RX_RING_CFG)
->>>>>>> Stashed changes
  *   - NUM_RINGS
  *     Bits 15:8
  *     Purpose: indicates whether the host is setting up one rx ring or two
@@ -4161,11 +4045,8 @@ PREPACK struct htt_wds_entry {
 /**
  * @brief host -> target FW statistics retrieve
  *
-<<<<<<< Updated upstream
-=======
  * MSG_TYPE => HTT_H2T_MSG_TYPE_STATS_REQ
  *
->>>>>>> Stashed changes
  * @details
  * The following field definitions describe the format of the HTT host
  * to target FW stats retrieve message. The message specifies the type of
@@ -4187,11 +4068,7 @@ PREPACK struct htt_wds_entry {
  *  - MSG_TYPE
  *    Bits 7:0
  *    Purpose: identifies this is a stats upload request message
-<<<<<<< Updated upstream
- *    Value: 0x3
-=======
  *    Value: 0x3 (HTT_H2T_MSG_TYPE_STATS_REQ)
->>>>>>> Stashed changes
  *  - UPLOAD_TYPES
  *    Bits 31:8
  *    Purpose: identifies which types of FW statistics to upload
@@ -4280,11 +4157,8 @@ PREPACK struct htt_wds_entry {
 /**
  * @brief host -> target HTT out-of-band sync request
  *
-<<<<<<< Updated upstream
-=======
  * MSG_TYPE => HTT_H2T_MSG_TYPE_SYNC
  *
->>>>>>> Stashed changes
  * @details
  *  The HTT SYNC tells the target to suspend processing of subsequent
  *  HTT host-to-target messages until some other target agent locally
@@ -4306,11 +4180,7 @@ PREPACK struct htt_wds_entry {
  *  - MSG_TYPE
  *    Bits 7:0
  *    Purpose: identifies this as a sync message
-<<<<<<< Updated upstream
- *    Value: 0x4
-=======
  *    Value: 0x4 (HTT_H2T_MSG_TYPE_SYNC)
->>>>>>> Stashed changes
  *  - SYNC_COUNT
  *    Bits 15:8
  *    Purpose: specifies what sync value the HTT FW will wait for from
@@ -4338,13 +4208,9 @@ PREPACK struct htt_wds_entry {
 
 
 /**
-<<<<<<< Updated upstream
- * @brief HTT aggregation configuration
-=======
  * @brief host -> target HTT aggregation configuration
  *
  * MSG_TYPE => HTT_H2T_MSG_TYPE_AGGR_CFG
->>>>>>> Stashed changes
  */
 #define HTT_AGGR_CFG_MSG_SZ                     4
 
@@ -4375,11 +4241,8 @@ PREPACK struct htt_wds_entry {
 /**
  * @brief host -> target HTT configure max amsdu info per vdev
  *
-<<<<<<< Updated upstream
-=======
  * MSG_TYPE => HTT_H2T_MSG_TYPE_AGGR_CFG_EX
  *
->>>>>>> Stashed changes
  * @details
  *  The HTT AGGR CFG EX tells the target to configure max_amsdu info per vdev
  *
@@ -4391,11 +4254,7 @@ PREPACK struct htt_wds_entry {
  *  - MSG_TYPE
  *    Bits 7:0
  *    Purpose: identifies this as a aggr cfg ex message
-<<<<<<< Updated upstream
- *    Value: 0xa
-=======
  *    Value: 0xa (HTT_H2T_MSG_TYPE_AGGR_CFG_EX)
->>>>>>> Stashed changes
  *  - MAX_NUM_AMSDU_SUBFRM
  *    Bits 15:8
  *    Purpose: max MSDUs per A-MSDU
@@ -4431,11 +4290,8 @@ PREPACK struct htt_wds_entry {
 /**
  * @brief HTT WDI_IPA Config Message
  *
-<<<<<<< Updated upstream
-=======
  * MSG_TYPE => HTT_H2T_MSG_TYPE_WDI_IPA_CFG
  *
->>>>>>> Stashed changes
  * @details
  *  The HTT WDI_IPA config message is created/sent by host at driver
  *  init time. It contains information about data structures used on
@@ -4515,11 +4371,7 @@ PREPACK struct htt_wds_entry {
  *   - MSG_TYPE
  *     Bits 7:0
  *     Purpose: Identifies this as WDI_IPA config message
-<<<<<<< Updated upstream
- *     value: = 0x8
-=======
  *     value: = 0x8 (HTT_H2T_MSG_TYPE_WDI_IPA_CFG)
->>>>>>> Stashed changes
  *   - TX_PKT_POOL_SIZE
  *     Bits 15:0
  *     Purpose: Total number of TX packet buffer pool allocated by Host for
@@ -5116,11 +4968,8 @@ enum htt_wdi_ipa_op_code {
 /**
  * @brief HTT WDI_IPA Operation Request Message
  *
-<<<<<<< Updated upstream
-=======
  * MSG_TYPE => HTT_H2T_MSG_TYPE_WDI_IPA_OP_REQ
  *
->>>>>>> Stashed changes
  * @details
  *  HTT WDI_IPA Operation Request message is sent by host
  *  to either suspend or resume WDI_IPA TX or RX path.
@@ -5133,11 +4982,7 @@ enum htt_wdi_ipa_op_code {
  *   - MSG_TYPE
  *     Bits 7:0
  *     Purpose: Identifies this as WDI_IPA Operation Request message
-<<<<<<< Updated upstream
- *     value: = 0x9
-=======
  *     value: = 0x9 (HTT_H2T_MSG_TYPE_WDI_IPA_OP_REQ)
->>>>>>> Stashed changes
  *   - OP_CODE
  *     Bits 31:16
  *     Purpose: Identifies operation host is requesting (e.g. TX suspend)
@@ -5167,10 +5012,6 @@ PREPACK struct htt_wdi_ipa_op_request_t
     } while (0)
 
 /*
-<<<<<<< Updated upstream
- * @brief  host -> target  HTT_SRING_SETUP message
- *
-=======
  * @brief  host -> target HTT_MSI_SETUP message
  *
  * MSG_TYPE => HTT_H2T_MSG_TYPE_MSI_SETUP
@@ -5281,7 +5122,6 @@ enum htt_msi_setup_type {
  *
  * MSG_TYPE => HTT_H2T_MSG_TYPE_SRING_SETUP
  *
->>>>>>> Stashed changes
  * @details
  * After target is booted up, Host can send SRING setup message for
  * each host facing LMAC SRING. Target setups up HW registers based
@@ -5328,11 +5168,7 @@ enum htt_msi_setup_type {
  *
  * The message is interpreted as follows:
  * dword0  - b'0:7   - msg_type: This will be set to
-<<<<<<< Updated upstream
- *                     HTT_H2T_MSG_TYPE_SRING_SETUP
-=======
  *                     0xb (HTT_H2T_MSG_TYPE_SRING_SETUP)
->>>>>>> Stashed changes
  *           b'8:15  - pdev_id:
  *                     0 (for rings at SOC/UMAC level),
  *                     1/2/3 mac id (for rings at LMAC level)
@@ -5408,11 +5244,7 @@ enum htt_msi_setup_type {
  *                     3'b010: 4 usec
  *                     3'b011: 8 usec (default)
  *                     3'b100: 16 usec
-<<<<<<< Updated upstream
- *                     Others: Reserverd
-=======
  *                     Others: Reserved
->>>>>>> Stashed changes
  *           b'19    - response_required:
  *                     Host needs HTT_T2H_MSG_TYPE_SRING_SETUP_DONE as response
  *           b'20    - ipa_drop_flag:
@@ -5469,15 +5301,12 @@ enum htt_srng_ring_id {
     HTT_HOST2_TO_FW_RXBUF_RING,    /* (mobile only) second ring used by host to provide remote RX buffers */
     HTT_RXDMA_NON_MONITOR_DEST_RING, /* Per MDPU indication to host for non-monitor RxDMA traffic upload */
     HTT_RXDMA_HOST_BUF_RING2,      /* Second ring used by FW to feed removed buffers and update removed packets */
-<<<<<<< Updated upstream
-=======
     HTT_TX_MON_HOST2MON_BUF_RING,   /* Status buffers and Packet buffers are provided by host */
     HTT_TX_MON_MON2HOST_DEST_RING,  /* Used by monitor to fill status buffers and provide to host */
     HTT_RX_MON_HOST2MON_BUF_RING,   /* Status buffers and Packet buffers are provided by host */
     HTT_RX_MON_MON2HOST_DEST_RING, /* Used by monitor to fill status buffers and provide to host */
     HTT_LPASS_TO_FW_RXBUF_RING,    /* new LPASS to FW refill ring to recycle rx buffers */
     HTT_HOST3_TO_FW_RXBUF_RING,    /* used by host for EasyMesh feature */
->>>>>>> Stashed changes
     /* Add Other SRING which can't be directly configured by host software above this line */
 };
 
@@ -5622,11 +5451,7 @@ enum htt_srng_ring_id {
         (((_var) & HTT_SRING_SETUP_RING_MISC_CFG_FLAG_MSI_SWAP_M) >> \
         HTT_SRING_SETUP_RING_MISC_CFG_FLAG_MSI_SWAP_S)
 #define HTT_SRING_SETUP_RING_MISC_CFG_FLAG_MSI_SWAP_SET(_var, _val) \
-<<<<<<< Updated upstream
-        do {														 \
-=======
         do { \
->>>>>>> Stashed changes
             HTT_CHECK_SET_VAL(HTT_SRING_SETUP_RING_MISC_CFG_FLAG_MSI_SWAP, _val); \
             ((_var) |= ((_val) << HTT_SRING_SETUP_RING_MISC_CFG_FLAG_MSI_SWAP_S)); \
         } while (0)
@@ -5808,13 +5633,9 @@ enum htt_srng_ring_id {
 
 
 /**
-<<<<<<< Updated upstream
- * @brief HTT_H2T_MSG_TYPE_RX_RING_SELECTION_CFG Message
-=======
  * @brief host -> target RX ring selection config message
  *
  * MSG_TYPE => HTT_H2T_MSG_TYPE_RX_RING_SELECTION_CFG
->>>>>>> Stashed changes
  *
  * @details
  *    HTT_H2T_MSG_TYPE_RX_RING_SELECTION_CFG message is sent by host to
@@ -5824,35 +5645,6 @@ enum htt_srng_ring_id {
  *
  *    The message would appear as follows:
  *
-<<<<<<< Updated upstream
- *    |31 28|27|26|25|24|23            16|15  | 11| 10|9 8|7             0|
- *    |-----+--+--+--+--+----------------+----+---+---+---+---------------|
- *    |rsvd1|DT|OV|PS|SS|     ring_id    |     pdev_id    |    msg_type   |
- *    |-------------------------------------------------------------------|
- *    |              rsvd2               |           ring_buffer_size     |
- *    |-------------------------------------------------------------------|
- *    |                        packet_type_enable_flags_0                 |
- *    |-------------------------------------------------------------------|
- *    |                        packet_type_enable_flags_1                 |
- *    |-------------------------------------------------------------------|
- *    |                        packet_type_enable_flags_2                 |
- *    |-------------------------------------------------------------------|
- *    |                        packet_type_enable_flags_3                 |
- *    |-------------------------------------------------------------------|
- *    |                         tlv_filter_in_flags                       |
- *    |-------------------------------------------------------------------|
- *    |         rx_header_offset         |       rx_packet_offset         |
- *    |-------------------------------------------------------------------|
- *    |       rx_mpdu_start_offset       |      rx_mpdu_end_offset        |
- *    |-------------------------------------------------------------------|
- *    |       rx_msdu_start_offset       |      rx_msdu_end_offset        |
- *    |-------------------------------------------------------------------|
- *    |              rsvd3               |      rx_attention_offset       |
- *    |-------------------------------------------------------------------|
- *    |              rsvd4                    | mo| fp| rx_drop_threshold |
- *    |                                       |ndp|ndp|                   |
- *    |-------------------------------------------------------------------|
-=======
  *    |31 28|27|26|25|24|23|22|21 19|18 16|15  | 11| 10|9 8|7             0|
  *    |-----+--+--+--+--+-----------------+----+---+---+---+---------------|
  *    |rsvd1|DT|OV|PS|SS|      ring_id    |     pdev_id    |    msg_type   |
@@ -5880,17 +5672,11 @@ enum htt_srng_ring_id {
  *    |               rsvd4                    | mo| fp| rx_drop_threshold |
  *    |                                        |ndp|ndp|                   |
  *    |--------------------------------------------------------------------|
->>>>>>> Stashed changes
  * Where:
  *     PS = pkt_swap
  *     SS = status_swap
  *     OV = rx_offsets_valid
  *     DT = drop_thresh_valid
-<<<<<<< Updated upstream
- * The message is interpreted as follows:
- * dword0 - b'0:7   - msg_type: This will be set to
- *                    HTT_H2T_MSG_TYPE_RX_RING_SELECTION_CFG
-=======
  *     CLM = config_length_mgmt
  *     CLC = config_length_ctrl
  *     CLD = config_length_data
@@ -5899,7 +5685,6 @@ enum htt_srng_ring_id {
  * The message is interpreted as follows:
  * dword0 - b'0:7   - msg_type: This will be set to
  *                    0xc (HTT_H2T_MSG_TYPE_RX_RING_SELECTION_CFG)
->>>>>>> Stashed changes
  *          b'8:15  - pdev_id:
  *                    0 (for rings at SOC/UMAC level),
  *                    1/2/3 mac id (for rings at LMAC level)
@@ -5915,13 +5700,6 @@ enum htt_srng_ring_id {
  *                    configuration fields are valid
  *          b'27    - drop_thresh_valid (DT): flag to indicate if the
  *                    rx_drop_threshold field is valid
-<<<<<<< Updated upstream
- *          b'28:31 - rsvd1:  reserved for future use
- * dword1 - b'0:16  - ring_buffer_size: size of bufferes referenced by rx ring,
- *                    in byte units.
- *                    Valid only for HW_TO_SW_RING and SW_TO_HW_RING
- *        - b'16:31 - rsvd2: Reserved for future use
-=======
  *          b'28    - rx_mon_global_en: Enable/Disable global register
  8                    configuration in Rx monitor module.
  *          b'29:31 - rsvd1:  reserved for future use
@@ -5966,7 +5744,6 @@ enum htt_srng_ring_id {
  *                    host wil fiter out frames.
  *                    RxPCU (Filter IN) -> RxOLE (Filter In/Filter Out)
  *          b'28:31 - rsvd2: Reserved for future use
->>>>>>> Stashed changes
  * dword2 - b'0:31  - packet_type_enable_flags_0:
  *                    Enable MGMT packet from 0b0000 to 0b1001
  *                    bits from low to high: FP, MD, MO - 3 bits
@@ -6033,10 +5810,6 @@ enum htt_srng_ring_id {
  *                    value.
  *        - b'10    - fp_ndp: Flag to indicate FP NDP status tlv is subscribed
  *                    by host. 1 -> subscribed
-<<<<<<< Updated upstream
- *        - b`11    - mo_ndp: Flag to indicate MO NDP status tlv is subscribed
- *                    by host. 1 -> subscribed
-=======
  *        - b'11    - mo_ndp: Flag to indicate MO NDP status tlv is subscribed
  *                    by host. 1 -> subscribed
  *        - b'12    - fp_phy_err: Flag to indicate FP PHY status tlv is
@@ -6093,7 +5866,6 @@ enum htt_srng_ring_id {
  *                    1:  RX_PKT TLV logging at specified offset for the
  *                        subsequent buffer
  *          b`15:1  - rx_pkt_tlv_offset: Qword offset for rx_packet TLVs.
->>>>>>> Stashed changes
  */
 PREPACK struct htt_rx_ring_selection_cfg_t {
     A_UINT32 msg_type:          8,
@@ -6103,11 +5875,6 @@ PREPACK struct htt_rx_ring_selection_cfg_t {
              pkt_swap:          1,
              rx_offsets_valid:  1,
              drop_thresh_valid: 1,
-<<<<<<< Updated upstream
-             rsvd1:             4;
-    A_UINT32 ring_buffer_size: 16,
-             rsvd2:            16;
-=======
              rx_mon_global_en:  1,
              rsvd1:             3;
     A_UINT32 ring_buffer_size: 16,
@@ -6117,7 +5884,6 @@ PREPACK struct htt_rx_ring_selection_cfg_t {
              rx_hdr_len:        2,
              rxpcu_filter_enable_flag:1,
              rsvd2:             4;
->>>>>>> Stashed changes
     A_UINT32 packet_type_enable_flags_0;
     A_UINT32 packet_type_enable_flags_1;
     A_UINT32 packet_type_enable_flags_2;
@@ -6134,9 +5900,6 @@ PREPACK struct htt_rx_ring_selection_cfg_t {
     A_UINT32 rx_drop_threshold:    10,
              fp_ndp:               1,
              mo_ndp:               1,
-<<<<<<< Updated upstream
-             rsvd4:                20;
-=======
              fp_phy_err:           1,
              fp_phy_err_buf_src:   2,
              fp_phy_err_buf_dest:  2,
@@ -6167,7 +5930,6 @@ PREPACK struct htt_rx_ring_selection_cfg_t {
              rsvd10:                             12;
     A_UINT32 packet_type_enable_fpmo_flags0;
     A_UINT32 packet_type_enable_fpmo_flags1;
->>>>>>> Stashed changes
 } POSTPACK;
 
 #define HTT_RX_RING_SELECTION_CFG_SZ    (sizeof(struct htt_rx_ring_selection_cfg_t))
@@ -6238,8 +6000,6 @@ PREPACK struct htt_rx_ring_selection_cfg_t {
                 ((_var) |= ((_val) << HTT_RX_RING_SELECTION_CFG_DROP_THRESHOLD_VALID_S)); \
             } while (0)
 
-<<<<<<< Updated upstream
-=======
 #define HTT_RX_RING_SELECTION_CFG_RX_MON_GLOBAL_EN_M           0x10000000
 #define HTT_RX_RING_SELECTION_CFG_RX_MON_GLOBAL_EN_S           28
 #define HTT_RX_RING_SELECTION_CFG_RX_MON_GLOBAL_EN_GET(_var) \
@@ -6251,7 +6011,6 @@ PREPACK struct htt_rx_ring_selection_cfg_t {
                 ((_var) |= ((_val) << HTT_RX_RING_SELECTION_CFG_RX_MON_GLOBAL_EN_S)); \
             } while (0)
 
->>>>>>> Stashed changes
 #define HTT_RX_RING_SELECTION_CFG_RING_BUFFER_SIZE_M           0x0000ffff
 #define HTT_RX_RING_SELECTION_CFG_RING_BUFFER_SIZE_S           0
 #define HTT_RX_RING_SELECTION_CFG_RING_BUFFER_SIZE_GET(_var) \
@@ -6263,8 +6022,6 @@ PREPACK struct htt_rx_ring_selection_cfg_t {
                 ((_var) |= ((_val) << HTT_RX_RING_SELECTION_CFG_RING_BUFFER_SIZE_S)); \
             } while (0)
 
-<<<<<<< Updated upstream
-=======
 #define HTT_RX_RING_SELECTION_CFG_CONFIG_LENGTH_MGMT_M         0x00070000
 #define HTT_RX_RING_SELECTION_CFG_CONFIG_LENGTH_MGMT_S         16
 #define HTT_RX_RING_SELECTION_CFG_CONFIG_LENGTH_MGMT_GET(_var) \
@@ -6320,7 +6077,6 @@ PREPACK struct htt_rx_ring_selection_cfg_t {
         ((_var) |= ((_val) << HTT_RX_RING_SELECTION_CFG_RXPCU_FILTER_S));\
     } while(0)
 
->>>>>>> Stashed changes
 #define HTT_RX_RING_SELECTION_CFG_PKT_TYPE_ENABLE_FLAG_0_M     0xffffffff
 #define HTT_RX_RING_SELECTION_CFG_PKT_TYPE_ENABLE_FLAG_0_S     0
 #define HTT_RX_RING_SELECTION_CFG_PKT_TYPE_ENABLE_FLAG_0_GET(_var) \
@@ -6486,8 +6242,6 @@ PREPACK struct htt_rx_ring_selection_cfg_t {
                 ((_var) |= ((_val) << HTT_RX_RING_SELECTION_CFG_MO_NDP_S)); \
             } while (0)
 
-<<<<<<< Updated upstream
-=======
 #define HTT_RX_RING_SELECTION_CFG_FP_PHY_ERR_M         0x00001000
 #define HTT_RX_RING_SELECTION_CFG_FP_PHY_ERR_S         12
 #define HTT_RX_RING_SELECTION_CFG_FP_PHY_ERR_GET(_var) \
@@ -6744,7 +6498,6 @@ PREPACK struct htt_rx_ring_selection_cfg_t {
          HTT_CHECK_SET_VAL(HTT_RX_RING_SELECTION_CFG_PACKET_TYPE_ENABLE_FPMO_FLAGS1, _val); \
          ((_var) |= ((_val) << HTT_RX_RING_SELECTION_CFG_PACKET_TYPE_ENABLE_FPMO_FLAGS1_S)); \
      } while (0)
->>>>>>> Stashed changes
 
 /*
  * Subtype based MGMT frames enable bits.
@@ -7104,8 +6857,6 @@ PREPACK struct htt_rx_ring_selection_cfg_t {
 #define HTT_RX_RING_SELECTION_CFG_PKT_TYPE_ENABLE_FLAG3_MO_DATA_NULL_M 0x04000000
 #define HTT_RX_RING_SELECTION_CFG_PKT_TYPE_ENABLE_FLAG3_MO_DATA_NULL_S 26
 
-<<<<<<< Updated upstream
-=======
 /* FPMO mode flags */
 /* MGMT */
 #define HTT_RX_RING_SELECTION_CFG_PKT_TYPE_ENABLE_FLAG0_FPMO_MGMT_0000_M 0x00000001
@@ -7187,7 +6938,6 @@ PREPACK struct htt_rx_ring_selection_cfg_t {
 #define HTT_RX_RING_SELECTION_CFG_PKT_TYPE_ENABLE_FLAG1_FPMO_DATA_QOS_NULL_TB_M 0x00000010
 #define HTT_RX_RING_SELECTION_CFG_PKT_TYPE_ENABLE_FLAG1_FPMO_DATA_QOS_NULL_TB_S 4
 
->>>>>>> Stashed changes
 #define HTT_RX_RING_SELECTION_CFG_PKT_TYPE_ENABLE_SET(word, httsym, value) \
             do { \
                 HTT_CHECK_SET_VAL(httsym, value); \
@@ -7246,12 +6996,9 @@ PREPACK struct htt_rx_ring_selection_cfg_t {
 #define HTT_RX_RING_SELECTION_CFG_TLV_FILTER_IN_FLAG_RX_PPDU_END_STATUS_DONE_M     0x00001000
 #define HTT_RX_RING_SELECTION_CFG_TLV_FILTER_IN_FLAG_RX_PPDU_END_STATUS_DONE_S     12
 
-<<<<<<< Updated upstream
-=======
 #define HTT_RX_RING_SELECTION_CFG_TLV_FILTER_IN_FLAG_RX_PPDU_START_USER_INFO_M      0x00002000
 #define HTT_RX_RING_SELECTION_CFG_TLV_FILTER_IN_FLAG_RX_PPDU_START_USER_INFO_S      13
 
->>>>>>> Stashed changes
 #define HTT_RX_RING_TLV_ENABLE_SET(word, httsym, enable) \
             do { \
                 HTT_CHECK_SET_VAL(httsym, enable); \
@@ -7269,9 +7016,6 @@ PREPACK struct htt_rx_ring_selection_cfg_t {
         word, HTT_RX_RING_SELECTION_CFG_TLV_FILTER_IN_FLAG_RX_##tlv)
 
 /**
-<<<<<<< Updated upstream
- * @brief HTT_H2T_MSG_TYPE_RFS_CONFIG
-=======
  * @brief host -> target TX monitor config message
  *
  * MSG_TYPE => HTT_H2T_MSG_TYPE_TX_MONITOR_CFG
@@ -8434,7 +8178,6 @@ PREPACK struct htt_tx_monitor_cfg_t {
  *
  * MSG_TYPE => HTT_H2T_MSG_TYPE_RFS_CONFIG
  *
->>>>>>> Stashed changes
  * host --> target Receive Flow Steering configuration message definition.
  * Host must send this message before sending HTT_H2T_MSG_TYPE_RX_RING_CFG.
  * The reason for this is we want RFS to be configured and ready before MAC
@@ -8473,13 +8216,9 @@ PREPACK struct htt_tx_monitor_cfg_t {
 
 
 /**
-<<<<<<< Updated upstream
- * @brief host -> target FW extended statistics retrieve
-=======
  * @brief host -> target FW extended statistics request
  *
  * MSG_TYPE => HTT_H2T_MSG_TYPE_EXT_STATS_REQ
->>>>>>> Stashed changes
  *
  * @details
  * The following field definitions describe the format of the HTT host
@@ -8508,11 +8247,7 @@ PREPACK struct htt_tx_monitor_cfg_t {
  *  - MSG_TYPE
  *    Bits 7:0
  *    Purpose: identifies this is a extended stats upload request message
-<<<<<<< Updated upstream
- *    Value: 0x10
-=======
  *    Value: 0x10 (HTT_H2T_MSG_TYPE_EXT_STATS_REQ)
->>>>>>> Stashed changes
  *  - PDEV_MASK
  *    Bits 8:15
  *    Purpose: identifies the mask of PDEVs to retrieve stats from
@@ -8599,10 +8334,6 @@ PREPACK struct htt_tx_monitor_cfg_t {
     } while (0)
 
 /**
-<<<<<<< Updated upstream
- * @brief host -> target FW  PPDU_STATS request message
- *
-=======
  * @brief host -> target FW streaming statistics request
  *
  * MSG_TYPE => HTT_H2T_MSG_TYPE_STREAMING_STATS_REQ
@@ -8696,7 +8427,6 @@ PREPACK struct htt_tx_monitor_cfg_t {
  *
  * MSG_TYPE => HTT_H2T_MSG_TYPE_PPDU_STATS_CFG
  *
->>>>>>> Stashed changes
  * @details
  * The following field definitions describe the format of the HTT host
  * to target FW for PPDU_STATS_CFG msg.
@@ -8711,11 +8441,7 @@ PREPACK struct htt_tx_monitor_cfg_t {
  *  - MSG_TYPE
  *    Bits 7:0
  *    Purpose: identifies this is a req to configure ppdu_stats_ind from target
-<<<<<<< Updated upstream
- *    Value: 0x11
-=======
  *    Value: 0x11 (HTT_H2T_MSG_TYPE_PPDU_STATS_CFG)
->>>>>>> Stashed changes
  *  - PDEV_MASK
  *    Bits 8:15
  *    Purpose: identifies which pdevs this PPDU stats configuration applies to
@@ -8761,12 +8487,9 @@ PREPACK struct htt_tx_monitor_cfg_t {
 
 /**
  * @brief Host-->target HTT RX FSE setup message
-<<<<<<< Updated upstream
-=======
  *
  * MSG_TYPE => HTT_H2T_MSG_TYPE_RX_FSE_SETUP_CFG
  *
->>>>>>> Stashed changes
  * @details
  * Through this message, the host will provide details of the flow tables
  * in host DDR along with hash keys.
@@ -8781,11 +8504,7 @@ PREPACK struct htt_tx_monitor_cfg_t {
  *
  * Header fields:
  *  dword0 - b'7:0   - msg_type: This will be set to
-<<<<<<< Updated upstream
- *                     HTT_H2T_MSG_TYPE_RX_FSE_SETUP_CFG
-=======
  *                     0x12 (HTT_H2T_MSG_TYPE_RX_FSE_SETUP_CFG)
->>>>>>> Stashed changes
  *           b'15:8  - pdev_id:  0 indicates msg is for all LMAC rings, i.e. soc
  *                     1, 2, 3 indicates pdev_id 0,1,2 and the msg is for that
  *                     pdev's LMAC ring.
@@ -8862,12 +8581,9 @@ enum htt_ip_da_sa_prefix {
 
 /**
  * @brief Host-->target HTT RX FISA configure and enable
-<<<<<<< Updated upstream
-=======
  *
  * MSG_TYPE => HTT_H2T_MSG_TYPE_RX_FISA_CFG
  *
->>>>>>> Stashed changes
  * @details
  * The host will send this command down to configure and enable the FISA
  * operational params.
@@ -8875,13 +8591,8 @@ enum htt_ip_da_sa_prefix {
  * register.
  * Should configure both the MACs.
  *
-<<<<<<< Updated upstream
- * dword0 - b'7:0   - msg_type: This will be set to HTT_H2T_MSG_TYPE_RX_FISA_CFG
- *
-=======
  * dword0 - b'7:0   - msg_type:
  *                    This will be set to 0x15 (HTT_H2T_MSG_TYPE_RX_FISA_CFG)
->>>>>>> Stashed changes
  *          b'15:8  - pdev_id:  0 indicates msg is for all LMAC rings, i.e. soc
  *                    1, 2, 3 indicates pdev_id 0,1,2 and the msg is for that
  *                    pdev's LMAC ring.
@@ -8909,11 +8620,7 @@ enum htt_ip_da_sa_prefix {
  *          b'9     - DISABLE_TA_CHECK: 1- Disable TA check for MPDU Sequence
  *                    num jump
  *          b'10    - DISABLE_QOS_CHECK: 1- Disable checking if qos/nonqos
-<<<<<<< Updated upstream
- *            data type switch has happend for MPDU Sequence num jump
-=======
  *            data type switch has happened for MPDU Sequence num jump
->>>>>>> Stashed changes
  *          b'11    - DISABLE_RAW_CHECK: 1- Disable checking for raw packet type
  *            for MPDU Sequence num jump
  *          b'12    - DISABLE_DECRYPT_ERR_CHECK: 1- Disable fisa cache commands
@@ -8978,13 +8685,8 @@ PREPACK struct htt_h2t_msg_type_fisa_config_t {
          } fisa_control_bits;
          struct {
              A_UINT32 fisa_enable:                1,
-<<<<<<< Updated upstream
-                      fisa_aggr_limit:            4,
-                      reserved:                   27;
-=======
                       fisa_aggr_limit:            6,
                       reserved:                   25;
->>>>>>> Stashed changes
          } fisa_control_bits_v2;
 
          A_UINT32 fisa_control_value;
@@ -9204,11 +8906,7 @@ PREPACK struct htt_h2t_msg_type_fisa_config_t {
         } while (0)
 
 /* Dword 1: fisa_control_value fisa_aggr_limit */
-<<<<<<< Updated upstream
-#define HTT_RX_FISA_CONFIG_FISA_V2_AGGR_LIMIT_M        0x0000001e
-=======
 #define HTT_RX_FISA_CONFIG_FISA_V2_AGGR_LIMIT_M        0x0000007e
->>>>>>> Stashed changes
 #define HTT_RX_FISA_CONFIG_FISA_V2_AGGR_LIMIT_S        1
 #define HTT_RX_FISA_CONFIG_FISA_V2_AGGR_LIMIT_GET(_var) \
         (((_var) & HTT_RX_FISA_CONFIG_FISA_V2_AGGR_LIMIT_M) >> \
@@ -9345,12 +9043,9 @@ PREPACK struct htt_h2t_msg_rx_fse_setup_t {
 
 /**
  * @brief Host-->target HTT RX FSE operation message
-<<<<<<< Updated upstream
-=======
  *
  * MSG_TYPE => HTT_H2T_MSG_TYPE_RX_FSE_OPERATION_CFG
  *
->>>>>>> Stashed changes
  * @details
  * The host will send this Flow Search Engine (FSE) operation message for
  * every flow add/delete operation.
@@ -9395,11 +9090,7 @@ PREPACK struct htt_h2t_msg_rx_fse_setup_t {
  *
  * Header fields:
  *  dword0 - b'7:0   - msg_type: This will be set to
-<<<<<<< Updated upstream
- *                     HTT_H2T_MSG_TYPE_RX_FSE_OPERATION_CFG
-=======
  *                     0x13 (HTT_H2T_MSG_TYPE_RX_FSE_OPERATION_CFG)
->>>>>>> Stashed changes
  *           b'15:8  - pdev_id:  0 indicates msg is for all LMAC rings, i.e. soc
  *                     1, 2, 3 indicates pdev_id 0,1,2 and the msg is for the
  *                     specified pdev's LMAC ring.
@@ -9478,12 +9169,9 @@ PREPACK struct htt_h2t_msg_rx_fse_operation_t {
 
 /**
  * @brief Host-->target HTT RX Full monitor mode register configuration message
-<<<<<<< Updated upstream
-=======
  *
  * MSG_TYPE => HTT_H2T_MSG_TYPE_RX_FULL_MONITOR_MODE
  *
->>>>>>> Stashed changes
  * @details
  * The host will send this Full monitor mode register configuration message.
  * This message can be sent per SOC or per PDEV which is differentiated
@@ -9505,11 +9193,7 @@ PREPACK struct htt_h2t_msg_rx_fse_operation_t {
  *
  * Header fields:
  *  dword0 - b'7:0   - msg_type: This will be set to
-<<<<<<< Updated upstream
- *                     HTT_H2T_MSG_TYPE_RX_FULL_MONITOR_MODE.
-=======
  *                     0x17 (HTT_H2T_MSG_TYPE_RX_FULL_MONITOR_MODE)
->>>>>>> Stashed changes
  *           b'15:8  - pdev_id:  0 indicates msg is for all LMAC rings, i.e. soc
  *                     1, 2, 3 indicates pdev_id 0,1,2 and the msg is for the
  *                     specified pdev's LMAC ring.
@@ -9740,14 +9424,9 @@ enum htt_rx_fse_operation {
 
 
 /**
-<<<<<<< Updated upstream
- * @brief HTT_H2T_MSG_TYPE_3_TUPLE_HASH_CFG
- * host --> target Receive to configure the RxOLE 3-tuple Hash
-=======
  * @brief host --> target Receive to configure the RxOLE 3-tuple Hash
  *
  * MSG_TYPE => HTT_H2T_MSG_TYPE_3_TUPLE_HASH_CFG
->>>>>>> Stashed changes
  *
  *     |31            24|23              |15             8|7          2|1|0|
  *     |----------------+----------------+----------------+----------------|
@@ -9765,11 +9444,7 @@ enum htt_rx_fse_operation {
  *
  * Header fields:
  *  dword0 - b'7:0   - msg_type: This will be set to
-<<<<<<< Updated upstream
- *                     HTT_H2T_MSG_TYPE_3_TUPLE_HASH_CFG
-=======
  *                     0x16 (HTT_H2T_MSG_TYPE_3_TUPLE_HASH_CFG)
->>>>>>> Stashed changes
  *           b'15:8  - pdev_id:  0 indicates msg is for all LMAC rings, i.e. soc
  *                     1, 2, 3 indicates pdev_id 0,1,2 and the msg is for the
  *                     specified pdev's LMAC ring.
@@ -9840,8 +9515,6 @@ PREPACK struct htt_h2t_msg_rx_3_tuple_hash_cfg_t {
 
 #define HTT_3_TUPLE_HASH_CFG_REQ_BYTES     8
 
-<<<<<<< Updated upstream
-=======
 /**
  * @brief host --> target Host PA Address Size
  *
@@ -11185,53 +10858,12 @@ PREPACK struct htt_h2t_tx_latency_stats_cfg {
         ((_var) |= ((_val) << HTT_H2T_TX_LATENCY_STATS_CFG_GRANULARITY_S)); \
     } while (0)
 
->>>>>>> Stashed changes
 
 
 /*=== target -> host messages ===============================================*/
 
 
 enum htt_t2h_msg_type {
-<<<<<<< Updated upstream
-    HTT_T2H_MSG_TYPE_VERSION_CONF             = 0x0,
-    HTT_T2H_MSG_TYPE_RX_IND                   = 0x1,
-    HTT_T2H_MSG_TYPE_RX_FLUSH                 = 0x2,
-    HTT_T2H_MSG_TYPE_PEER_MAP                 = 0x3,
-    HTT_T2H_MSG_TYPE_PEER_UNMAP               = 0x4,
-    HTT_T2H_MSG_TYPE_RX_ADDBA                 = 0x5,
-    HTT_T2H_MSG_TYPE_RX_DELBA                 = 0x6,
-    HTT_T2H_MSG_TYPE_TX_COMPL_IND             = 0x7,
-    HTT_T2H_MSG_TYPE_PKTLOG                   = 0x8,
-    HTT_T2H_MSG_TYPE_STATS_CONF               = 0x9,
-    HTT_T2H_MSG_TYPE_RX_FRAG_IND              = 0xa,
-    HTT_T2H_MSG_TYPE_SEC_IND                  = 0xb,
-    DEPRECATED_HTT_T2H_MSG_TYPE_RC_UPDATE_IND = 0xc, /* no longer used */
-    HTT_T2H_MSG_TYPE_TX_INSPECT_IND           = 0xd,
-    HTT_T2H_MSG_TYPE_MGMT_TX_COMPL_IND        = 0xe,
-    /* only used for HL, add HTT MSG for HTT CREDIT update */
-    HTT_T2H_MSG_TYPE_TX_CREDIT_UPDATE_IND     = 0xf,
-    HTT_T2H_MSG_TYPE_RX_PN_IND                = 0x10,
-    HTT_T2H_MSG_TYPE_RX_OFFLOAD_DELIVER_IND   = 0x11,
-    HTT_T2H_MSG_TYPE_RX_IN_ORD_PADDR_IND      = 0x12,
-    /* 0x13 is reserved for RX_RING_LOW_IND (RX Full reordering related) */
-    HTT_T2H_MSG_TYPE_WDI_IPA_OP_RESPONSE      = 0x14,
-    HTT_T2H_MSG_TYPE_CHAN_CHANGE              = 0x15,
-    HTT_T2H_MSG_TYPE_RX_OFLD_PKT_ERR          = 0x16,
-    HTT_T2H_MSG_TYPE_RATE_REPORT              = 0x17,
-    HTT_T2H_MSG_TYPE_FLOW_POOL_MAP            = 0x18,
-    HTT_T2H_MSG_TYPE_FLOW_POOL_UNMAP          = 0x19,
-    HTT_T2H_MSG_TYPE_SRING_SETUP_DONE         = 0x1a,
-    HTT_T2H_MSG_TYPE_MAP_FLOW_INFO            = 0x1b,
-    HTT_T2H_MSG_TYPE_EXT_STATS_CONF           = 0x1c,
-    HTT_T2H_MSG_TYPE_PPDU_STATS_IND           = 0x1d,
-    HTT_T2H_MSG_TYPE_PEER_MAP_V2              = 0x1e,
-    HTT_T2H_MSG_TYPE_PEER_UNMAP_V2            = 0x1f,
-    HTT_T2H_MSG_TYPE_MONITOR_MAC_HEADER_IND   = 0x20,
-    HTT_T2H_MSG_TYPE_FLOW_POOL_RESIZE         = 0x21,
-    HTT_T2H_MSG_TYPE_CFR_DUMP_COMPL_IND       = 0x22,
-    HTT_T2H_MSG_TYPE_PEER_STATS_IND           = 0x23,
-    HTT_T2H_MSG_TYPE_BKPRESSURE_EVENT_IND     = 0x24,
-=======
     HTT_T2H_MSG_TYPE_VERSION_CONF                  = 0x0,
     HTT_T2H_MSG_TYPE_RX_IND                        = 0x1,
     HTT_T2H_MSG_TYPE_RX_FLUSH                      = 0x2,
@@ -11270,16 +10902,10 @@ enum htt_t2h_msg_type {
     HTT_T2H_MSG_TYPE_CFR_DUMP_COMPL_IND            = 0x22,
     HTT_T2H_MSG_TYPE_PEER_STATS_IND                = 0x23,
     HTT_T2H_MSG_TYPE_BKPRESSURE_EVENT_IND          = 0x24,
->>>>>>> Stashed changes
     /* TX_OFFLOAD_DELIVER_IND:
      * Forward the target's locally-generated packets to the host,
      * to provide to the monitor mode interface.
      */
-<<<<<<< Updated upstream
-    HTT_T2H_MSG_TYPE_TX_OFFLOAD_DELIVER_IND   = 0x25,
-    HTT_T2H_MSG_TYPE_CHAN_CALDATA             = 0x26,
-    HTT_T2H_MSG_TYPE_FSE_CMEM_BASE_SEND       = 0x27,
-=======
     HTT_T2H_MSG_TYPE_TX_OFFLOAD_DELIVER_IND        = 0x25,
     HTT_T2H_MSG_TYPE_CHAN_CALDATA                  = 0x26,
     HTT_T2H_MSG_TYPE_FSE_CMEM_BASE_SEND            = 0x27,
@@ -11304,7 +10930,6 @@ enum htt_t2h_msg_type {
     HTT_T2H_MSG_TYPE_PEER_AST_OVERRIDE_INDEX_IND   = 0x38,
     HTT_T2H_MSG_TYPE_PEER_EXTENDED_EVENT           = 0x39,
     HTT_T2H_MSG_TYPE_TX_LATENCY_STATS_PERIODIC_IND = 0x3a,
->>>>>>> Stashed changes
 
 
     HTT_T2H_MSG_TYPE_TEST,
@@ -11330,11 +10955,8 @@ enum htt_t2h_msg_type {
 /**
  * @brief target -> host version number confirmation message definition
  *
-<<<<<<< Updated upstream
-=======
  * MSG_TYPE => HTT_T2H_MSG_TYPE_VERSION_CONF
  *
->>>>>>> Stashed changes
  *     |31            24|23            16|15             8|7              0|
  *     |----------------+----------------+----------------+----------------|
  *     |    reserved    |  major number  |  minor number  |    msg type    |
@@ -11355,11 +10977,7 @@ enum htt_t2h_msg_type {
  *   - MSG_TYPE
  *     Bits 7:0
  *     Purpose: identifies this as a version number confirmation message
-<<<<<<< Updated upstream
- *     Value: 0x0
-=======
  *     Value: 0x0 (HTT_T2H_MSG_TYPE_VERSION_CONF)
->>>>>>> Stashed changes
  *   - VER_MINOR
  *     Bits 15:8
  *     Purpose: Specify the minor number of the HTT message library version
@@ -11411,11 +11029,8 @@ enum htt_t2h_msg_type {
 /**
  * @brief - target -> host HTT Rx In order indication message
  *
-<<<<<<< Updated upstream
-=======
  * MSG_TYPE => HTT_T2H_MSG_TYPE_RX_IN_ORD_PADDR_IND
  *
->>>>>>> Stashed changes
  * @details
  *
  * |31            24|23                 |15|14|13|12|11|10|9|8|7|6|5|4       0|
@@ -11842,11 +11457,8 @@ A_COMPILE_TIME_ASSERT(HTT_RX_IND_hdr_size_quantum,
 /**
  * @brief target -> host rx indication message definition
  *
-<<<<<<< Updated upstream
-=======
  * MSG_TYPE => HTT_T2H_MSG_TYPE_RX_IND
  *
->>>>>>> Stashed changes
  * @details
  * The following field definitions describe the format of the rx indication
  * message sent from the target to the host.
@@ -11923,11 +11535,7 @@ A_COMPILE_TIME_ASSERT(HTT_RX_IND_hdr_size_quantum,
  *   - MSG_TYPE
  *     Bits 7:0
  *     Purpose: identifies this as an rx indication message
-<<<<<<< Updated upstream
- *     Value: 0x1
-=======
  *     Value: 0x1 (HTT_T2H_MSG_TYPE_RX_IND)
->>>>>>> Stashed changes
  *   - EXT_TID
  *     Bits 12:8
  *     Purpose: identify the traffic ID of the rx data, including
@@ -12735,16 +12343,10 @@ PREPACK struct htt_chan_info_t
     (((word) & HTT_CHAN_INFO_PHY_MODE_M) >> HTT_CHAN_INFO_PHY_MODE_S)
 
 /*
-<<<<<<< Updated upstream
- * HTT_T2H_MSG_TYPE_TX_OFFLOAD_DELIVER_IND
- * @brief target -> host message definition for FW offloaded pkts
- *
-=======
  * @brief target -> host message definition for FW offloaded pkts
  *
  * MSG_TYPE => HTT_T2H_MSG_TYPE_TX_OFFLOAD_DELIVER_IND
  *
->>>>>>> Stashed changes
  * @details
  * The following field definitions describe the format of the firmware
  * offload deliver message sent from the target to the host.
@@ -13070,11 +12672,8 @@ PREPACK struct htt_tx_offload_deliver_ind_hdr_t
 /*
  * @brief target -> host rx reorder flush message definition
  *
-<<<<<<< Updated upstream
-=======
  * MSG_TYPE => HTT_T2H_MSG_TYPE_RX_FLUSH
  *
->>>>>>> Stashed changes
  * @details
  * The following field definitions describe the format of the rx flush
  * message sent from the target to the host.
@@ -13091,11 +12690,7 @@ PREPACK struct htt_tx_offload_deliver_ind_hdr_t
  *   - MSG_TYPE
  *     Bits 7:0
  *     Purpose: identifies this as an rx flush message
-<<<<<<< Updated upstream
- *     Value: 0x2
-=======
  *     Value: 0x2 (HTT_T2H_MSG_TYPE_RX_FLUSH)
->>>>>>> Stashed changes
  *   - PEER_ID
  *     Bits 23:8 (only bits 18:8 actually used)
  *     Purpose: identify which peer's rx data is being flushed
@@ -13198,11 +12793,8 @@ PREPACK struct htt_tx_offload_deliver_ind_hdr_t
 /*
  * @brief target -> host rx pn check indication message
  *
-<<<<<<< Updated upstream
-=======
  * MSG_TYPE => HTT_T2H_MSG_TYPE_RX_PN_IND
  *
->>>>>>> Stashed changes
  * @details
  * The following field definitions describe the format of the Rx PN check
  * indication message sent from the target to the host.
@@ -13224,11 +12816,7 @@ PREPACK struct htt_tx_offload_deliver_ind_hdr_t
  *   - MSG_TYPE
  *     Bits 7:0
  *     Purpose: Identifies this as an rx pn check indication message
-<<<<<<< Updated upstream
- *     Value: 0x2
-=======
  *     Value: 0x10 (HTT_T2H_MSG_TYPE_RX_PN_IND)
->>>>>>> Stashed changes
  *   - PEER_ID
  *     Bits 23:8 (only bits 18:8 actually used)
  *     Purpose: identify which peer
@@ -13333,11 +12921,8 @@ PREPACK struct htt_tx_offload_deliver_ind_hdr_t
 /*
  * @brief target -> host rx offload deliver message for LL system
  *
-<<<<<<< Updated upstream
-=======
  * MSG_TYPE => HTT_T2H_MSG_TYPE_RX_OFFLOAD_DELIVER_IND
  *
->>>>>>> Stashed changes
  * @details
  * In a low latency system this message is sent whenever the offload
  * manager flushes out the packets it has coalesced in its coalescing buffer.
@@ -13453,11 +13038,8 @@ PREPACK struct htt_tx_offload_deliver_ind_hdr_t
 /**
  * @brief target -> host rx peer map/unmap message definition
  *
-<<<<<<< Updated upstream
-=======
  * MSG_TYPE => HTT_T2H_MSG_TYPE_PEER_MAP
  *
->>>>>>> Stashed changes
  * @details
  * The following diagram shows the format of the rx peer map message sent
  * from the target to the host.  This layout assumes the target operates
@@ -13473,11 +13055,7 @@ PREPACK struct htt_tx_offload_deliver_ind_hdr_t
  * In certain generations of chips, the peer map message also contains
  * a HW peer ID.  This HW peer ID is used during rx --> tx frame forwarding
  * to identify which peer the frame needs to be forwarded to (i.e. the
-<<<<<<< Updated upstream
- * peer assocated with the Destination MAC Address within the packet),
-=======
  * peer associated with the Destination MAC Address within the packet),
->>>>>>> Stashed changes
  * and particularly which vdev needs to transmit the frame (for cases
  * of inter-vdev rx --> tx forwarding). The HW peer id here is the same
  * meaning as AST_INDEX_0.
@@ -13497,11 +13075,8 @@ PREPACK struct htt_tx_offload_deliver_ind_hdr_t
  * |-----------------------------------------------------------------------|
  *
  *
-<<<<<<< Updated upstream
-=======
  * MSG_TYPE => HTT_T2H_MSG_TYPE_PEER_UNMAP
  *
->>>>>>> Stashed changes
  * The following diagram shows the format of the rx peer unmap message sent
  * from the target to the host.
  *
@@ -13515,12 +13090,8 @@ PREPACK struct htt_tx_offload_deliver_ind_hdr_t
  *   - MSG_TYPE
  *     Bits 7:0
  *     Purpose: identifies this as an rx peer map or peer unmap message
-<<<<<<< Updated upstream
- *     Value: peer map -> 0x3, peer unmap -> 0x4
-=======
  *     Value: peer map   -> 0x3 (HTT_T2H_MSG_TYPE_PEER_MAP),
  *            peer unmap -> 0x4 (HTT_T2H_MSG_TYPE_PEER_UNMAP)
->>>>>>> Stashed changes
  *   - VDEV_ID
  *     Bits 15:8
  *     Purpose: Indicates which virtual device the peer is associated
@@ -13611,11 +13182,8 @@ PREPACK struct htt_tx_offload_deliver_ind_hdr_t
 /**
  * @brief target -> host rx peer map V2 message definition
  *
-<<<<<<< Updated upstream
-=======
  * MSG_TYPE => HTT_T2H_MSG_TYPE_PEER_MAP_V2
  *
->>>>>>> Stashed changes
  * @details
  * The following diagram shows the format of the rx peer map v2 message sent
  * from the target to the host.  This layout assumes the target operates
@@ -13630,11 +13198,7 @@ PREPACK struct htt_tx_offload_deliver_ind_hdr_t
  *
  * The peer map v2 message also contains a HW peer ID.  This HW peer ID
  * is used during rx --> tx frame forwarding to identify which peer the
-<<<<<<< Updated upstream
- * frame needs to be forwarded to (i.e. the peer assocated with the
-=======
  * frame needs to be forwarded to (i.e. the peer associated with the
->>>>>>> Stashed changes
  * Destination MAC Address within the packet), and particularly which vdev
  * needs to transmit the frame (for cases of inter-vdev rx --> tx forwarding).
  * This DA-based peer ID that is provided for certain rx frames
@@ -13648,29 +13212,6 @@ PREPACK struct htt_tx_offload_deliver_ind_hdr_t
  * AST 3, check the AST_VALID_MASK(3) to see if the corresponding extension
  * AST is valid.
  *
-<<<<<<< Updated upstream
- * |31    28|27    24|23    20|19 17|16|15              8|7               0|
- * |-----------------------------------------------------------------------|
- * |            SW peer ID             |     VDEV ID     |     msg type    |
- * |-----------------------------------------------------------------------|
- * |    MAC addr 3   |    MAC addr 2   |    MAC addr 1   |    MAC addr 0   |
- * |-----------------------------------------------------------------------|
- * |      HW peer ID / AST index 0     |    MAC addr 5   |    MAC addr 4   |
- * |-----------------------------------------------------------------------|
- * |     Reserved_20_31       |ASTVM|NH|          AST Hash Value           |
- * |-----------------------------------------------------------------------|
- * | ASTFM3 | ASTFM2 | ASTFM1 | ASTFM0 |           AST index 1             |
- * |-----------------------------------------------------------------------|
- * |TID valid low pri| TID valid hi pri|           AST index 2             |
- * |-----------------------------------------------------------------------|
- * |           Reserved_1              |           AST index 3             |
- * |-----------------------------------------------------------------------|
- * |                               Reserved_2                              |
- * |-----------------------------------------------------------------------|
- * Where:
- *    NH = Next Hop
- *    ASTVM = AST valid mask
-=======
  * |31    28|27    24|23   21|20|19 17|16|15              8|7               0|
  * |-------------------------------------------------------------------------|
  * |              SW peer ID             |     VDEV ID     |     msg type    |
@@ -13693,7 +13234,6 @@ PREPACK struct htt_tx_offload_deliver_ind_hdr_t
  *    NH = Next Hop
  *    ASTVM = AST valid mask
  *    OA = on-chip AST valid bit
->>>>>>> Stashed changes
  *    ASTFM = AST flow mask
  *
  * The following field definitions describe the format of the rx peer map v2
@@ -13701,11 +13241,7 @@ PREPACK struct htt_tx_offload_deliver_ind_hdr_t
  *   - MSG_TYPE
  *     Bits 7:0
  *     Purpose: identifies this as an rx peer map v2 message
-<<<<<<< Updated upstream
- *     Value: peer map v2 -> 0x1e
-=======
  *     Value: peer map v2 -> 0x1e (HTT_T2H_MSG_TYPE_PEER_MAP_V2)
->>>>>>> Stashed changes
  *   - VDEV_ID
  *     Bits 15:8
  *     Purpose: Indicates which virtual device the peer is associated with.
@@ -13740,13 +13276,10 @@ PREPACK struct htt_tx_offload_deliver_ind_hdr_t
  *   - AST_VALID_MASK
  *     Bits  19:17
  *     Purpose: Indicate if the AST 1 through AST 3 are valid
-<<<<<<< Updated upstream
-=======
  *   - ONCHIP_AST_VALID_FLAG
  *     Bit 20
  *     Purpose: Indicate if the on-chip AST index field (ONCHIP_AST_IDX)
  *         is valid.
->>>>>>> Stashed changes
  *   - AST_INDEX_1
  *     Bits 15:0
  *     Purpose: indicate the second AST index for this peer
@@ -13774,8 +13307,6 @@ PREPACK struct htt_tx_offload_deliver_ind_hdr_t
  *   - AST_INDEX_3
  *     Bits 15:0
  *     Purpose: indicate the fourth AST index for this peer
-<<<<<<< Updated upstream
-=======
  *   - ONCHIP_AST_IDX / RESERVED
  *     Bits 31:16
  *     Purpose: This field is valid only when split AST feature is enabled.
@@ -13783,7 +13314,6 @@ PREPACK struct htt_tx_offload_deliver_ind_hdr_t
  *         If valid, identifies the HW peer ID corresponding to the peer MAC
  *         address, this ast_idx is used for LMAC modules for RXPCU.
  *     Value: ID used by the LMAC HW to identify the peer
->>>>>>> Stashed changes
  */
 #define HTT_RX_PEER_MAP_V2_VDEV_ID_M        0xff00
 #define HTT_RX_PEER_MAP_V2_VDEV_ID_S        8
@@ -13802,12 +13332,9 @@ PREPACK struct htt_tx_offload_deliver_ind_hdr_t
 #define HTT_RX_PEER_MAP_V2_AST_VALID_MASK_M     0x000e0000
 #define HTT_RX_PEER_MAP_V2_AST_VALID_MASK_S     17
 
-<<<<<<< Updated upstream
-=======
 #define HTT_RX_PEER_MAP_V2_ONCHIP_AST_VALID_FLAG_M 0x00100000
 #define HTT_RX_PEER_MAP_V2_ONCHIP_AST_VALID_FLAG_S 20
 
->>>>>>> Stashed changes
 #define HTT_RX_PEER_MAP_V2_AST_INDEX_1_M        0xffff
 #define HTT_RX_PEER_MAP_V2_AST_INDEX_1_S        0
 #define HTT_RX_PEER_MAP_V2_AST_0_FLOW_MASK_M    0x000f0000
@@ -13829,12 +13356,9 @@ PREPACK struct htt_tx_offload_deliver_ind_hdr_t
 #define HTT_RX_PEER_MAP_V2_AST_INDEX_3_M        0xffff
 #define HTT_RX_PEER_MAP_V2_AST_INDEX_3_S        0
 
-<<<<<<< Updated upstream
-=======
 #define HTT_RX_PEER_MAP_V2_ONCHIP_AST_HASH_VALUE_M 0xffff0000
 #define HTT_RX_PEER_MAP_V2_ONCHIP_AST_HASH_VALUE_S 16
 
->>>>>>> Stashed changes
 #define HTT_RX_PEER_MAP_V2_VDEV_ID_SET(word, value)           \
     do {                                                      \
         HTT_CHECK_SET_VAL(HTT_RX_PEER_MAP_V2_VDEV_ID, value); \
@@ -13867,8 +13391,6 @@ PREPACK struct htt_tx_offload_deliver_ind_hdr_t
 #define HTT_RX_PEER_MAP_V2_AST_HASH_VALUE_GET(word) \
     (((word) & HTT_RX_PEER_MAP_V2_AST_HASH_VALUE_M) >> HTT_RX_PEER_MAP_V2_AST_HASH_VALUE_S)
 
-<<<<<<< Updated upstream
-=======
 #define HTT_RX_PEER_MAP_V2_ONCHIP_AST_HASH_VALUE_SET(word, value)             \
     do {                                                                      \
         HTT_CHECK_SET_VAL(HTT_RX_PEER_MAP_V2_ONCHIP_AST_HASH_VALUE_M, value); \
@@ -13877,7 +13399,6 @@ PREPACK struct htt_tx_offload_deliver_ind_hdr_t
 #define HTT_RX_PEER_MAP_V2_ONCHIP_AST_HASH_VALUE_GET(word) \
     (((word) & HTT_RX_PEER_MAP_V2_ONCHIP_AST_HASH_VALUE_M) >> HTT_RX_PEER_MAP_V2_ONCHIP_AST_HASH_VALUE_S)
 
->>>>>>> Stashed changes
 #define HTT_RX_PEER_MAP_V2_NEXT_HOP_SET(word, value)            \
     do {                                                        \
         HTT_CHECK_SET_VAL(HTT_RX_PEER_MAP_V2_NEXT_HOP, value);  \
@@ -13894,8 +13415,6 @@ PREPACK struct htt_tx_offload_deliver_ind_hdr_t
 #define HTT_RX_PEER_MAP_V2_AST_VALID_MASK_GET(word) \
     (((word) & HTT_RX_PEER_MAP_V2_AST_VALID_MASK_M) >> HTT_RX_PEER_MAP_V2_AST_VALID_MASK_S)
 
-<<<<<<< Updated upstream
-=======
 #define HTT_RX_PEER_MAP_V2_ONCHIP_AST_VALID_FLAG_SET(word, value) \
     do { \
         HTT_CHECK_SET_VAL(HTT_RX_PEER_MAP_V2_ONCHIP_AST_VALID_FLAG_M, value); \
@@ -13904,7 +13423,6 @@ PREPACK struct htt_tx_offload_deliver_ind_hdr_t
 #define HTT_RX_PEER_MAP_V2_ONCHIP_AST_VALID_MASK_GET(word) \
     (((word) & HTT_RX_PEER_MAP_V2_ONCHIP_AST_VALID_FLAG_M) >> HTT_RX_PEER_MAP_V2_ONCHIP_AST_VALID_FLAG_S)
 
->>>>>>> Stashed changes
 #define HTT_RX_PEER_MAP_V2_AST_INDEX_1_SET(word, value) \
     do { \
         HTT_CHECK_SET_VAL(HTT_RX_PEER_MAP_V2_AST_INDEX_1, value); \
@@ -13992,10 +13510,6 @@ PREPACK struct htt_tx_offload_deliver_ind_hdr_t
 #define HTT_RX_PEER_MAP_V2_BYTES 32
 
 /**
-<<<<<<< Updated upstream
- * @brief target -> host rx peer unmap V2 message definition
- *
-=======
  * @brief target -> host rx peer map V3 message definition
  *
  * MSG_TYPE => HTT_T2H_MSG_TYPE_PEER_MAP_V3
@@ -14251,7 +13765,6 @@ PREPACK struct htt_tx_offload_deliver_ind_hdr_t
  * @brief target -> host rx peer unmap V2 message definition
  *
  * MSG_TYPE => HTT_T2H_MSG_TYPE_PEER_UNMAP_V2
->>>>>>> Stashed changes
  *
  * The following diagram shows the format of the rx peer unmap message sent
  * from the target to the host.
@@ -14279,11 +13792,7 @@ PREPACK struct htt_tx_offload_deliver_ind_hdr_t
  *   - MSG_TYPE
  *     Bits 7:0
  *     Purpose: identifies this as an rx peer unmap v2 message
-<<<<<<< Updated upstream
- *     Value: peer unmap v2 -> 0x1f
-=======
  *     Value: peer unmap v2 -> 0x1f (HTT_T2H_MSG_TYPE_PEER_UNMAP_V2)
->>>>>>> Stashed changes
  *   - VDEV_ID
  *     Bits 15:8
  *     Purpose: Indicates which virtual device the peer is associated
@@ -14363,8 +13872,6 @@ PREPACK struct htt_tx_offload_deliver_ind_hdr_t
 
 #define HTT_RX_PEER_UNMAP_V2_BYTES 28
 
-<<<<<<< Updated upstream
-=======
 /**
  * @brief target -> host rx peer mlo map message definition
  *
@@ -14811,16 +14318,12 @@ typedef enum {
 #define HTT_RX_PEER_EXTENDED_LOGICAL_LINK_ID_VALID_OFFSET   8  /* bytes */
 
 #define HTT_RX_PEER_EXTENDED_EVENT_BYTES 20 /* bytes */
->>>>>>> Stashed changes
 
 /**
  * @brief target -> host message specifying security parameters
  *
-<<<<<<< Updated upstream
-=======
  * MSG_TYPE => HTT_T2H_MSG_TYPE_SEC_IND
  *
->>>>>>> Stashed changes
  * @details
  *  The following diagram shows the format of the security specification
  *  message sent from the target to the host.
@@ -14852,11 +14355,7 @@ typedef enum {
  *   - MSG_TYPE
  *     Bits 7:0
  *     Purpose: identifies this as a security specification message
-<<<<<<< Updated upstream
- *     Value: 0xb
-=======
  *     Value: 0xb (HTT_T2H_MSG_TYPE_SEC_IND)
->>>>>>> Stashed changes
  *   - SEC_TYPE
  *     Bits 14:8
  *     Purpose: specifies which type of security applies to the peer
@@ -14933,11 +14432,8 @@ typedef enum {
 /**
  * @brief target -> host rx ADDBA / DELBA message definitions
  *
-<<<<<<< Updated upstream
-=======
  * MSG_TYPE => HTT_T2H_MSG_TYPE_RX_ADDBA
  *
->>>>>>> Stashed changes
  * @details
  * The following diagram shows the format of the rx ADDBA message sent
  * from the target to the host:
@@ -14947,11 +14443,8 @@ typedef enum {
  * |          peer ID         |  TID |   window size   |     msg type    |
  * |---------------------------------------------------------------------|
  *
-<<<<<<< Updated upstream
-=======
  * MSG_TYPE => HTT_T2H_MSG_TYPE_RX_DELBA
  *
->>>>>>> Stashed changes
  * The following diagram shows the format of the rx DELBA message sent
  * from the target to the host:
  *
@@ -14965,12 +14458,8 @@ typedef enum {
  *   - MSG_TYPE
  *     Bits 7:0
  *     Purpose: identifies this as an rx ADDBA or DELBA message
-<<<<<<< Updated upstream
- *     Value: ADDBA -> 0x5, DELBA -> 0x6
-=======
  *     Value: ADDBA -> 0x5 (HTT_T2H_MSG_TYPE_RX_ADDBA),
  *            DELBA -> 0x6 (HTT_T2H_MSG_TYPE_RX_DELBA)
->>>>>>> Stashed changes
  *   - IR (initiator / recipient)
  *     Bits 9:8 (DELBA only)
  *     Purpose: specify whether the DELBA handshake was initiated by the
@@ -15064,8 +14553,6 @@ typedef enum {
 
 #define HTT_RX_DELBA_BYTES 4
 
-<<<<<<< Updated upstream
-=======
 
 /**
  * @brief target -> host rx ADDBA / DELBA message definitions
@@ -15216,7 +14703,6 @@ typedef enum {
 #define HTT_RX_DELBA_EXTN_BYTES 8
 
 
->>>>>>> Stashed changes
 /**
  * @brief tx queue group information element definition
  *
@@ -15373,11 +14859,8 @@ PREPACK struct htt_txq_group {
 /**
  * @brief target -> host TX completion indication message definition
  *
-<<<<<<< Updated upstream
-=======
  * MSG_TYPE => HTT_T2H_MSG_TYPE_TX_COMPL_IND
  *
->>>>>>> Stashed changes
  * @details
  * The following diagram shows the format of the TX completion indication sent
  * from the target to the host
@@ -15426,11 +14909,7 @@ PREPACK struct htt_txq_group {
  * - msg_type
  *   Bits 7:0
  *   Purpose: identifies this as HTT TX completion indication
-<<<<<<< Updated upstream
- *   Value: 0x7
-=======
  *   Value: 0x7 (HTT_T2H_MSG_TYPE_TX_COMPL_IND)
->>>>>>> Stashed changes
  * - status
  *   Bits 10:8
  *   Purpose: the TX completion status of payload fragmentations descriptors
@@ -15481,11 +14960,7 @@ PREPACK struct htt_txq_group {
  *   Purpose: Indicate whether data ACK RSSI is appended for each MSDU in
  *            TX_COMP_IND message.  The order of the per-MSDU ACK RSSI report
  *            matches the order of the MSDU IDs.  Although the ACK RSSI is the
-<<<<<<< Updated upstream
- *            same for all MSDUs witin a single PPDU, the RSSI is duplicated
-=======
  *            same for all MSDUs within a single PPDU, the RSSI is duplicated
->>>>>>> Stashed changes
  *            for each MSDU, for convenience.
  *            The ACK RSSI values are valid when status is COMPLETE_OK (and
  *            this append2 bit is set).
@@ -15888,10 +15363,6 @@ PREPACK struct htt_tx_compl_ind_append_tx_tsf64 {
 
 
 /**
-<<<<<<< Updated upstream
- * @brief target -> host rate-control update indication message
- *
-=======
  * @brief target -> host software UMAC TX completion indication message
  *
  * MSG_TYPE => HTT_T2H_MSG_TYPE_SOFT_UMAC_TX_COMPL_IND
@@ -16634,7 +16105,6 @@ struct htt_t2h_soft_umac_tx_compl_ind {
  *
  * DEPRECATED (DEPRECATED_HTT_T2H_MSG_TYPE_RC_UPDATE_IND)
  *
->>>>>>> Stashed changes
  * @details
  * The following diagram shows the format of the RC Update message
  * sent from the target to the host, while processing the tx-completion
@@ -16724,11 +16194,8 @@ typedef struct {
 /**
  * @brief target -> host rx fragment indication message definition
  *
-<<<<<<< Updated upstream
-=======
  * MSG_TYPE => HTT_T2H_MSG_TYPE_RX_FRAG_IND
  *
->>>>>>> Stashed changes
  * @details
  * The following field definitions describe the format of the rx fragment
  * indication message sent from the target to the host.
@@ -16754,11 +16221,7 @@ typedef struct {
  *   - MSG_TYPE
  *     Bits 7:0
  *     Purpose: identifies this as an rx fragment indication message
-<<<<<<< Updated upstream
- *     Value: 0xa
-=======
  *     Value: 0xa (HTT_T2H_MSG_TYPE_RX_FRAG_IND)
->>>>>>> Stashed changes
  *   - EXT_TID
  *     Bits 12:8
  *     Purpose: identify the traffic ID of the rx data, including
@@ -16838,11 +16301,8 @@ typedef struct {
 /**
  * @brief target -> host test message definition
  *
-<<<<<<< Updated upstream
-=======
  * MSG_TYPE => HTT_T2H_MSG_TYPE_TEST
  *
->>>>>>> Stashed changes
  * @details
  * The following field definitions describe the format of the test
  * message sent from the target to the host.
@@ -16873,11 +16333,7 @@ typedef struct {
  *     Purpose: indicate how many 32-bit integers follow the message header
  *   - NUM_CHARS
  *     Bits 31:16
-<<<<<<< Updated upstream
- *     Purpose: indicate how many 8-bit charaters follow the series of integers
-=======
  *     Purpose: indicate how many 8-bit characters follow the series of integers
->>>>>>> Stashed changes
  */
 #define HTT_RX_TEST_NUM_INTS_M   0xff00
 #define HTT_RX_TEST_NUM_INTS_S   8
@@ -16903,11 +16359,8 @@ typedef struct {
 /**
  * @brief target -> host packet log message
  *
-<<<<<<< Updated upstream
-=======
  * MSG_TYPE => HTT_T2H_MSG_TYPE_PKTLOG
  *
->>>>>>> Stashed changes
  * @details
  * The following field definitions describe the format of the packet log
  * message sent from the target to the host.
@@ -16923,11 +16376,7 @@ typedef struct {
  *   - MSG_TYPE
  *     Bits 7:0
  *     Purpose: identifies this as a pktlog message
-<<<<<<< Updated upstream
- *     Value: HTT_T2H_MSG_TYPE_PKTLOG
-=======
  *     Value: 0x8 (HTT_T2H_MSG_TYPE_PKTLOG)
->>>>>>> Stashed changes
  *   - mac_id
  *     Bits 9:8
  *     Purpose: identifies which MAC/PHY instance generated this pktlog info
@@ -17087,11 +16536,7 @@ struct rx_reorder_stats {
     A_UINT32 rxdesc_bmc_msdus_inv_peer;
     /* Number of MSDUs dropped due to no first MSDU flag */
     A_UINT32 rxdesc_no_1st_msdu;
-<<<<<<< Updated upstream
-    /* Number of MSDUs droped due to ring overflow */
-=======
     /* Number of MSDUs dropped due to ring overflow */
->>>>>>> Stashed changes
     A_UINT32 msdu_drop_ring_ov;
     /* Number of MSDUs dropped due to FC mismatch */
     A_UINT32 msdu_drop_fc_mismatch;
@@ -17198,11 +16643,8 @@ enum htt_dbg_stats_status {
 /**
  * @brief target -> host statistics upload
  *
-<<<<<<< Updated upstream
-=======
  * MSG_TYPE => HTT_T2H_MSG_TYPE_STATS_CONF
  *
->>>>>>> Stashed changes
  * @details
  * The following field definitions describe the format of the HTT target
  * to host stats upload confirmation message.
@@ -17243,11 +16685,7 @@ enum htt_dbg_stats_status {
  *  - MSG_TYPE
  *    Bits 7:0
  *    Purpose: identifies this is a statistics upload confirmation message
-<<<<<<< Updated upstream
- *    Value: 0x9
-=======
  *    Value: 0x9 (HTT_T2H_MSG_TYPE_STATS_CONF)
->>>>>>> Stashed changes
  *  - COOKIE_LSBS
  *    Bits 31:0
  *    Purpose: Provide a mechanism to match a target->host stats confirmation
@@ -17329,11 +16767,8 @@ enum htt_dbg_stats_status {
 /**
  * @brief host -> target FRAG DESCRIPTOR/MSDU_EXT DESC bank
  *
-<<<<<<< Updated upstream
-=======
  * MSG_TYPE => HTT_H2T_MSG_TYPE_FRAG_DESC_BANK_CFG
  *
->>>>>>> Stashed changes
  * @details
  * The following field definitions describe the format of the HTT host
  * to target frag_desc/msdu_ext bank configuration message.
@@ -17373,11 +16808,7 @@ enum htt_dbg_stats_status {
  * Header fields:
  *  - MSG_TYPE
  *    Bits 7:0
-<<<<<<< Updated upstream
- *    Value: 0x6
-=======
  *    Value: 0x6 (HTT_H2T_MSG_TYPE_FRAG_DESC_BANK_CFG)
->>>>>>> Stashed changes
  *  for systems with 64-bit format for bus addresses:
  *      - BANKx_BASE_ADDRESS_LO
  *        Bits 31:0
@@ -17524,11 +16955,8 @@ TEMPLATE_HTT_TX_FRAG_DESC_BANK_CFG_T(64, HTT_VAR_PADDR64_LE(bank_base_address));
 /**
  * @brief target -> host HTT TX Credit total count update message definition
  *
-<<<<<<< Updated upstream
-=======
  * MSG_TYPE => HTT_T2H_MSG_TYPE_TX_CREDIT_UPDATE_IND
  *
->>>>>>> Stashed changes
  *|31                 16|15|14       9|  8    |7       0 |
  *|---------------------+--+----------+-------+----------|
  *|cur htt credit delta | Q| reserved | sign  | msg type |
@@ -17538,11 +16966,7 @@ TEMPLATE_HTT_TX_FRAG_DESC_BANK_CFG_T(64, HTT_VAR_PADDR64_LE(bank_base_address));
  *   - MSG_TYPE
  *     Bits 7:0
  *     Purpose: identifies this as a htt tx credit delta update message
-<<<<<<< Updated upstream
- *     Value: 0xe
-=======
  *     Value: 0xf (HTT_T2H_MSG_TYPE_TX_CREDIT_UPDATE_IND)
->>>>>>> Stashed changes
  *   - SIGN
  *     Bits 8
  *      identifies whether credit delta is positive or negative
@@ -17608,11 +17032,8 @@ TEMPLATE_HTT_TX_FRAG_DESC_BANK_CFG_T(64, HTT_VAR_PADDR64_LE(bank_base_address));
 /**
  * @brief HTT WDI_IPA Operation Response Message
  *
-<<<<<<< Updated upstream
-=======
  * MSG_TYPE => HTT_T2H_MSG_TYPE_WDI_IPA_OP_RESPONSE
  *
->>>>>>> Stashed changes
  * @details
  *  HTT WDI_IPA Operation Response message is sent by target
  *  to host confirming suspend or resume operation.
@@ -17631,11 +17052,7 @@ TEMPLATE_HTT_TX_FRAG_DESC_BANK_CFG_T(64, HTT_VAR_PADDR64_LE(bank_base_address));
  *   - MSG_TYPE
  *     Bits 7:0
  *     Purpose: Identifies this as WDI_IPA Operation Response message
-<<<<<<< Updated upstream
- *     value: = 0x13
-=======
  *     value: = 0x14 (HTT_T2H_MSG_TYPE_WDI_IPA_OP_RESPONSE)
->>>>>>> Stashed changes
  *   - OP_CODE
  *     Bits 31:16
  *     Purpose: Identifies the operation target is responding to (e.g. TX suspend)
@@ -17708,12 +17125,9 @@ enum htt_phy_mode {
 
 /**
  * @brief target -> host HTT channel change indication
-<<<<<<< Updated upstream
-=======
  *
  * MSG_TYPE => HTT_T2H_MSG_TYPE_CHAN_CHANGE
  *
->>>>>>> Stashed changes
  * @details
  *  Specify when a channel change occurs.
  *  This allows the host to precisely determine which rx frames arrived
@@ -17736,11 +17150,7 @@ enum htt_phy_mode {
  *   - MSG_TYPE
  *     Bits 7:0
  *     Purpose: identifies this as a htt channel change indication message
-<<<<<<< Updated upstream
- *     Value: 0x15
-=======
  *     Value: 0x15 (HTT_T2H_MSG_TYPE_CHAN_CHANGE)
->>>>>>> Stashed changes
  *   - PRIMARY_CHAN_CENTER_FREQ_MHZ
  *     Bits 31:0
  *     Purpose: identify the (center of the) new 20 MHz primary channel
@@ -17780,8 +17190,6 @@ PREPACK struct htt_chan_change_t
     A_UINT32 contig_chan2_center_freq_mhz;
     A_UINT32 phy_mode;
 } POSTPACK;
-<<<<<<< Updated upstream
-=======
 /*
  * Due to historical / backwards-compatibility reasons, maintain the
  * below htt_chan_change_msg struct definition, which needs to be
@@ -17796,7 +17204,6 @@ PREPACK struct htt_chan_change_msg {
      A_UINT32 band_center_freq2; /* Center frequency 2 in MHz - valid only for 11acvht 80plus80 mode*/
      A_UINT32 chan_mode;  /* WLAN_PHY_MODE of the channel defined in wlan_defs.h */
 } POSTPACK;
->>>>>>> Stashed changes
 
 #define HTT_CHAN_CHANGE_PRIMARY_CHAN_CENTER_FREQ_MHZ_M  0xffffffff
 #define HTT_CHAN_CHANGE_PRIMARY_CHAN_CENTER_FREQ_MHZ_S  0
@@ -17850,11 +17257,8 @@ PREPACK struct htt_chan_change_msg {
 /**
  * @brief rx offload packet error message
  *
-<<<<<<< Updated upstream
-=======
  * MSG_TYPE => HTT_T2H_MSG_TYPE_RX_OFLD_PKT_ERR
  *
->>>>>>> Stashed changes
  * @details
  *  HTT_RX_OFLD_PKT_ERR message is sent by target to host to indicate err
  *  of target payload like mic err.
@@ -18085,13 +17489,9 @@ enum htt_rx_ofld_pkt_err_type {
     } while (0)
 
 /**
-<<<<<<< Updated upstream
- * @brief peer rate report message
-=======
  * @brief target -> host peer rate report message
  *
  * MSG_TYPE => HTT_T2H_MSG_TYPE_RATE_REPORT
->>>>>>> Stashed changes
  *
  * @details
  *  HTT_T2H_MSG_TYPE_RATE_REPORT message is sent by target to host to indicate the
@@ -18205,13 +17605,9 @@ enum htt_peer_rate_report_phy_type {
     } while (0)
 
 /**
-<<<<<<< Updated upstream
- * @brief HTT_T2H_MSG_TYPE_FLOW_POOL_MAP Message
-=======
  * @brief target -> host flow pool map message
  *
  * MSG_TYPE => HTT_T2H_MSG_TYPE_FLOW_POOL_MAP
->>>>>>> Stashed changes
  *
  * @details
  *  HTT_T2H_MSG_TYPE_FLOW_POOL_MAP message is sent by the target when setting up
@@ -18233,11 +17629,7 @@ enum htt_peer_rate_report_phy_type {
  *         |-------------------------------------------------------------------|
  *
  * The header field is one DWORD long and is interpreted as follows:
-<<<<<<< Updated upstream
- * b'0:7   - msg_type:  This will be set to HTT_T2H_MSG_TYPE_FLOW_POOL_MAP
-=======
  * b'0:7   - msg_type:  Set to 0x18 (HTT_T2H_MSG_TYPE_FLOW_POOL_MAP)
->>>>>>> Stashed changes
  * b'8-15  - num_flows: This will indicate the number of flows being setup in
  *                      this message
  * b'16-31 - reserved:  These bits are reserved for future use
@@ -18393,13 +17785,9 @@ PREPACK struct htt_flow_pool_map_payload_t {
     } while (0)
 
 /**
-<<<<<<< Updated upstream
- * @brief HTT_T2H_MSG_TYPE_FLOW_POOL_UNMAP Message
-=======
  * @brief target -> host flow pool unmap message
  *
  * MSG_TYPE => HTT_T2H_MSG_TYPE_FLOW_POOL_UNMAP
->>>>>>> Stashed changes
  *
  * @details
  *  HTT_T2H_MSG_TYPE_FLOW_POOL_UNMAP message is sent by the target when tearing
@@ -18424,13 +17812,8 @@ PREPACK struct htt_flow_pool_map_payload_t {
  *     |-------------------------------------------------------------------|
  *
  *  The message is interpreted as follows:
-<<<<<<< Updated upstream
- *  dword0 - b'0:7   - msg_type: This will be set to
- *                               HTT_T2H_MSG_TYPE_FLOW_POOL_UNMAP
-=======
  *  dword0 - b'0:7   - msg_type: This will be set to 0x19
  *                               (HTT_T2H_MSG_TYPE_FLOW_POOL_UNMAP)
->>>>>>> Stashed changes
  *           b'8:31  - reserved0: Reserved for future use
  *
  *  dword1 - b'0:31  - flow_type: This indicates the type of the entity to which
@@ -18499,13 +17882,9 @@ PREPACK struct htt_flow_pool_unmap_t {
 
 
 /**
-<<<<<<< Updated upstream
- * @brief HTT_T2H_MSG_TYPE_SRING_SETUP_DONE Message
-=======
  * @brief target -> host SRING setup done message
  *
  * MSG_TYPE => HTT_T2H_MSG_TYPE_SRING_SETUP_DONE
->>>>>>> Stashed changes
  *
  * @details
  *  HTT_T2H_MSG_TYPE_SRING_SETUP_DONE message is sent by the target when
@@ -18522,13 +17901,8 @@ PREPACK struct htt_flow_pool_unmap_t {
  *     |-------------------------------------------------------------------|
  *
  * The message is interpreted as follows:
-<<<<<<< Updated upstream
- * dword0 - b'0:7   - msg_type: This will be set to
- *                    HTT_T2H_MSG_TYPE_SRING_SETUP_DONE
-=======
  * dword0 - b'0:7   - msg_type: This will be set to 0x1a
  *                    (HTT_T2H_MSG_TYPE_SRING_SETUP_DONE)
->>>>>>> Stashed changes
  *          b'8:15  - pdev_id:
  *                    0 (for rings at SOC/UMAC level),
  *                    1/2/3 mac id (for rings at LMAC level)
@@ -18587,13 +17961,9 @@ enum htt_ring_setup_status {
 
 
 /**
-<<<<<<< Updated upstream
- * @brief HTT_T2H_MSG_TYPE_MAP_FLOW_INFO Message
-=======
  * @brief target -> flow map flow info
  *
  * MSG_TYPE => HTT_T2H_MSG_TYPE_MAP_FLOW_INFO
->>>>>>> Stashed changes
  *
  * @details
  *  HTT TX map flow entry with tqm flow pointer
@@ -18618,13 +17988,8 @@ enum htt_ring_setup_status {
  *
  *  The message is interpreted as follows:
  *
-<<<<<<< Updated upstream
- *  dword0 - b'0:7   - msg_type: This will be set to
- *                     HTT_T2H_MSG_TYPE_MAP_FLOW_INFO
-=======
  *  dword0 - b'0:7   - msg_type: This will be set to 0x1b
  *                     (HTT_T2H_MSG_TYPE_MAP_FLOW_INFO)
->>>>>>> Stashed changes
  *
  *  dword0 - b'8:27  - fse_hsh_idx: Flow search table index provided by host
  *                                  for this flow entry
@@ -18725,31 +18090,19 @@ enum htt_dbg_ext_stats_status {
 /**
  * @brief target -> host ppdu stats upload
  *
-<<<<<<< Updated upstream
-=======
  * MSG_TYPE => HTT_T2H_MSG_TYPE_PPDU_STATS_IND
  *
->>>>>>> Stashed changes
  * @details
  * The following field definitions describe the format of the HTT target
  * to host ppdu stats indication message.
  *
  *
-<<<<<<< Updated upstream
- * |31                         16|15   12|11   10|9      8|7            0 |
- * |----------------------------------------------------------------------|
- * |    payload_size             | rsvd  |pdev_id|mac_id  |    msg type   |
- * |----------------------------------------------------------------------|
- * |                          ppdu_id                                     |
- * |----------------------------------------------------------------------|
-=======
  * |31         24|23           16|15   12|11   10|9      8|7            0 |
  * |-----------------------------+-------+-------+--------+---------------|
  * |    payload_size             | rsvd  |pdev_id|mac_id  |    msg type   |
  * |-------------+---------------+-------+-------+--------+---------------|
  * | tgt_private |                     ppdu_id                            |
  * |-------------+--------------------------------------------------------|
->>>>>>> Stashed changes
  * |                        Timestamp in us                               |
  * |----------------------------------------------------------------------|
  * |                          reserved                                    |
@@ -18762,11 +18115,7 @@ enum htt_dbg_ext_stats_status {
  *    Bits 7:0
  *    Purpose: Identifies this is a PPDU STATS indication
  *             message.
-<<<<<<< Updated upstream
- *    Value: 0x1d
-=======
  *    Value: 0x1d (HTT_T2H_MSG_TYPE_PPDU_STATS_IND)
->>>>>>> Stashed changes
  *  - mac_id
  *    Bits 9:8
  *    Purpose: mac_id of this ppdu_id
@@ -18793,14 +18142,9 @@ enum htt_dbg_ext_stats_status {
 #define HTT_T2H_PPDU_STATS_PAYLOAD_SIZE_M     0xFFFF0000
 #define HTT_T2H_PPDU_STATS_PAYLOAD_SIZE_S     16
 
-<<<<<<< Updated upstream
-#define HTT_T2H_PPDU_STATS_PPDU_ID_M          0xFFFFFFFF
-#define HTT_T2H_PPDU_STATS_PPDU_ID_S          0
-=======
 #define HTT_T2H_PPDU_STATS_PPDU_ID_M          0x00FFFFFF
 #define HTT_T2H_PPDU_STATS_PPDU_ID_S          0
 /* bits 31:24 are used by the target for internal purposes */
->>>>>>> Stashed changes
 
 #define HTT_T2H_PPDU_STATS_MAC_ID_SET(word, value)             \
     do {                                                         \
@@ -18831,11 +18175,7 @@ enum htt_dbg_ext_stats_status {
 
 #define HTT_T2H_PPDU_STATS_PPDU_ID_SET(word, value)             \
     do {                                                         \
-<<<<<<< Updated upstream
-        HTT_CHECK_SET_VAL(HTT_T2H_PPDU_STATS_PPDU_ID, value);   \
-=======
         /*HTT_CHECK_SET_VAL(HTT_T2H_PPDU_STATS_PPDU_ID, value);*/   \
->>>>>>> Stashed changes
         (word) |= (value)  << HTT_T2H_PPDU_STATS_PPDU_ID_S;     \
     } while (0)
 #define HTT_T2H_PPDU_STATS_PPDU_ID_GET(word) \
@@ -18866,11 +18206,8 @@ typedef struct {
 /**
  * @brief target -> host extended statistics upload
  *
-<<<<<<< Updated upstream
-=======
  * MSG_TYPE => HTT_T2H_MSG_TYPE_EXT_STATS_CONF
  *
->>>>>>> Stashed changes
  * @details
  * The following field definitions describe the format of the HTT target
  * to host stats upload confirmation message.
@@ -18904,11 +18241,7 @@ typedef struct {
  *    Bits 7:0
  *    Purpose: Identifies this is a extended statistics upload confirmation
  *             message.
-<<<<<<< Updated upstream
- *    Value: 0x1c
-=======
  *    Value: 0x1c (HTT_T2H_MSG_TYPE_EXT_STATS_CONF)
->>>>>>> Stashed changes
  *  - COOKIE_LSBS
  *    Bits 31:0
  *    Purpose: Provide a mechanism to match a target->host stats confirmation
@@ -18997,8 +18330,6 @@ typedef struct {
     (((word) & HTT_T2H_EXT_STATS_CONF_TLV_LENGTH_M) >> \
     HTT_T2H_EXT_STATS_CONF_TLV_LENGTH_S)
 
-<<<<<<< Updated upstream
-=======
 
 /**
  * @brief target -> host streaming statistics upload
@@ -19033,7 +18364,6 @@ typedef struct {
 #define HTT_T2H_STREAMING_STATS_IND_HDR_SIZE 4
 
 
->>>>>>> Stashed changes
 typedef enum {
     HTT_PEER_TYPE_DEFAULT = 0,    /* Generic/Non-BSS/Self Peer */
     HTT_PEER_TYPE_BSS = 1,        /* Peer is BSS Peer entry */
@@ -19058,11 +18388,8 @@ typedef enum {
 /**
  * @brief target -> host monitor mac header indication message
  *
-<<<<<<< Updated upstream
-=======
  * MSG_TYPE => HTT_T2H_MSG_TYPE_MONITOR_MAC_HEADER_IND
  *
->>>>>>> Stashed changes
  * @details
  * The following diagram shows the format of the monitor mac header message
  * sent from the target to the host.
@@ -19091,11 +18418,7 @@ typedef enum {
  *  - msg_type
  *    Bits 7:0
  *    Purpose: Identifies this is a monitor mac header indication message.
-<<<<<<< Updated upstream
- *    Value: 0x20
-=======
  *    Value: 0x20 (HTT_T2H_MSG_TYPE_MONITOR_MAC_HEADER_IND)
->>>>>>> Stashed changes
  *  - peer_id
  *    Bits 31:16
  *    Purpose: Software peer id given by host during association,
@@ -19140,13 +18463,9 @@ typedef enum {
     HTT_T2H_MONITOR_MAC_HEADER_NUM_MPDU_S)
 
 /**
-<<<<<<< Updated upstream
- * @brief HTT_T2H_MSG_TYPE_FLOW_POOL_RESIZE Message
-=======
  * @brief target -> host flow pool resize Message
  *
  * MSG_TYPE => HTT_T2H_MSG_TYPE_FLOW_POOL_RESIZE
->>>>>>> Stashed changes
  *
  * @details
  *  HTT_T2H_MSG_TYPE_FLOW_POOL_RESIZE message is sent by the target when
@@ -19162,21 +18481,12 @@ typedef enum {
  *     |-------------------------------------------------------------------|
  *
  *  The message is interpreted as follows:
-<<<<<<< Updated upstream
- *  b'0:7   - msg_type: This will be set to
- *            HTT_T2H_MSG_TYPE_FLOW_POOL_RESIZE
- *
- *  b'0:15  - flow pool ID: Existing flow pool ID
- *
- *  b'16:31 - flow pool new size: new pool size for exisiting flow pool ID
-=======
  *  b'0:7   - msg_type: This will be set to 0x21
  *            (HTT_T2H_MSG_TYPE_FLOW_POOL_RESIZE)
  *
  *  b'0:15  - flow pool ID: Existing flow pool ID
  *
  *  b'16:31 - flow pool new size: new pool size for existing flow pool ID
->>>>>>> Stashed changes
  *
  */
 
@@ -19217,57 +18527,7 @@ PREPACK struct htt_flow_pool_resize_t {
         ((_var) |= ((_val) << HTT_FLOW_POOL_RESIZE_FLOW_POOL_NEW_SIZE_S)); \
     } while (0)
 
-<<<<<<< Updated upstream
-/**
- * @brief host -> target  channel change message
- *
- * @details
- * the meesage is generated by FW every time FW changes channel. This will be used by host mainly
- * to associate  RX frames to correct channel they were received on.
- * The following field definitions describe the format of the HTT target
- * to host channel change message.
- * |31                         16|15           8|7   5|4       0|
- * |------------------------------------------------------------|
- * |                  reserved                  |    MSG_TYPE   |
- * |------------------------------------------------------------|
- * |                        CHAN_MHZ                            |
- * |------------------------------------------------------------|
- * |                        BAND_CENTER_FREQ1                   |
- * |------------------------------------------------------------|
- * |                        BAND_CENTER_FREQ2                   |
- * |------------------------------------------------------------|
- * |                        CHAN_PHY_MODE                       |
- * |------------------------------------------------------------|
- * Header fields:
- *  - MSG_TYPE
- *    Bits 7:0
- *    Value: 0xf
- *  - CHAN_MHZ
- *    Bits 31:0
- *    Purpose: frequency of the primary 20mhz channel.
- *  - BAND_CENTER_FREQ1
- *    Bits 31:0
- *    Purpose: centre frequency of the full channel.
- *  - BAND_CENTER_FREQ2
- *    Bits 31:0
- *    Purpose: centre frequency2  of the channel.  is only valid for 11acvht 80plus80.
- *  - CHAN_PHY_MODE
- *    Bits 31:0
- *    Purpose: phy mode of the channel.
-*/
 
-PREPACK struct htt_chan_change_msg {
-     A_UINT32 chan_mhz;   /* frequency in mhz */
-
-     A_UINT32 band_center_freq1; /* Center frequency 1 in MHz*/
-
-     A_UINT32 band_center_freq2; /* Center frequency 2 in MHz - valid only for 11acvht 80plus80 mode*/
-
-     A_UINT32 chan_mode;  /* WLAN_PHY_MODE of the channel defined in wlan_defs.h */
-} POSTPACK;
-=======
-
->>>>>>> Stashed changes
 
 #define HTT_CFR_CAPTURE_MAGIC_PATTERN                0xCCCCCCCC
 #define HTT_CFR_CAPTURE_READ_INDEX_OFFSET            0 /* bytes */
@@ -19403,11 +18663,8 @@ typedef enum {
  * @brief target -> host CFR dump completion indication message definition
  * htt_cfr_dump_compl_ind when the version is HTT_PEER_CFR_CAPTURE_MSG_TYPE_1.
  *
-<<<<<<< Updated upstream
-=======
  * MSG_TYPE => HTT_T2H_MSG_TYPE_CFR_DUMP_COMPL_IND
  *
->>>>>>> Stashed changes
  * @details
  * The following diagram shows the format of the Channel Frequency Response
  * (CFR) dump completion indication. This inidcation is sent to the Host when
@@ -19480,11 +18737,7 @@ typedef enum {
  * - msg_type
  *   Bits 7:0
  *   Purpose: Identifies this as CFR TX completion indication
-<<<<<<< Updated upstream
- *   Value: HTT_T2H_MSG_TYPE_CFR_DUMP_COMPL_IND
-=======
  *   Value: 0x22 (HTT_T2H_MSG_TYPE_CFR_DUMP_COMPL_IND)
->>>>>>> Stashed changes
  * - payload_present
  *   Bit 8
  *   Purpose: Identifies how CFR data is sent to host
@@ -19754,13 +19007,9 @@ PREPACK struct htt_cfr_dump_compl_ind {
 
 /**
  * @brief target -> host peer (PPDU) stats message
-<<<<<<< Updated upstream
- * HTT_T2H_MSG_TYPE_PEER_STATS_IND
-=======
  *
  * MSG_TYPE => HTT_T2H_MSG_TYPE_PEER_STATS_IND
  *
->>>>>>> Stashed changes
  * @details
  * This message is generated by FW when FW is sending stats to  host
  * about one or more PPDUs that the FW has transmitted to one or more peers.
@@ -19822,11 +19071,7 @@ PREPACK struct htt_cfr_dump_compl_ind {
  *
  * Header
  * ------
-<<<<<<< Updated upstream
- * dword0 - b'0:7  - msg_type : HTT_T2H_MSG_TYPE_PEER_STATS_IND
-=======
  * dword0 - b'0:7  - msg_type : 0x23 (HTT_T2H_MSG_TYPE_PEER_STATS_IND)
->>>>>>> Stashed changes
  * dword0 - b'8:31 - reserved : Reserved for future use
  *
  * payload include below peer_stats information
@@ -19857,13 +19102,9 @@ PREPACK struct htt_cfr_dump_compl_ind {
 
 
 /**
-<<<<<<< Updated upstream
- * @brief HTT_T2H_MSG_TYPE_BKPRESSURE_EVENTID Message
-=======
  * @brief target -> host backpressure event
  *
  * MSG_TYPE => HTT_T2H_MSG_TYPE_BKPRESSURE_EVENT_IND
->>>>>>> Stashed changes
  *
  * @details
  *  HTT_T2H_MSG_TYPE_BKPRESSURE_EVENTID message is sent by the target when
@@ -19874,11 +19115,7 @@ PREPACK struct htt_cfr_dump_compl_ind {
  *  subsequent period (100 ms) as long as the backpressure remains unabated.
  *  This message indicates the ring id along with current head and tail index
  *  locations (i.e. write and read indices).
-<<<<<<< Updated upstream
- *  The backpressure time indicates the time in ms for which continous
-=======
  *  The backpressure time indicates the time in ms for which continuous
->>>>>>> Stashed changes
  *  backpressure has been observed in the ring.
  *
  *  The message format is as follows:
@@ -19893,17 +19130,6 @@ PREPACK struct htt_cfr_dump_compl_ind {
  *     |-------------------------------------------------------------------|
  *
  *  The message is interpreted as follows:
-<<<<<<< Updated upstream
- *  dword0 - b'0:7   - msg_type: This will be set to
- *                               HTT_T2H_MSG_TYPE_BKPRESSURE_EVENT_IND
- *           b'8:15  - pdev_id:  0 indicates msg is for UMAC ring.
- *                               1, 2, 3 indicates pdev_id 0,1,2 and
-                                 the msg is for LMAC ring.
- *           b'16:23 - ring_type: Refer to enum htt_backpressure_ring_type.
- *           b'24:31 - ring_id:  Refer enum htt_backpressure_umac_ring_id/
- *                               htt_backpressure_lmac_ring_id. This represents
- *                               the ring id for which continous backpressure is seen
-=======
  *  dword0 - b'0:7   - msg_type: This will be set to 0x24
  *                               (HTT_T2H_MSG_TYPE_BKPRESSURE_EVENT_IND)
  *           b'8:15  - pdev_id:  0 indicates msg is for UMAC ring.
@@ -19914,7 +19140,6 @@ PREPACK struct htt_cfr_dump_compl_ind {
  *                               htt_backpressure_lmac_ring_id. This represents
  *                               the ring id for which continuous backpressure
  *                               is seen
->>>>>>> Stashed changes
  *
  *  dword1 - b'0:15  - head_idx: This indicates the current head index of
  *                               the ring indicated by the ring_id
@@ -19922,11 +19147,7 @@ PREPACK struct htt_cfr_dump_compl_ind {
  *  dword1 - b'16:31 - tail_idx: This indicates the current tail index of
  *                               the ring indicated by the ring id
  *
-<<<<<<< Updated upstream
- *  dword2 - b'0:31  - backpressure_time_ms: Indicates how long continous
-=======
  *  dword2 - b'0:31  - backpressure_time_ms: Indicates how long continuous
->>>>>>> Stashed changes
  *                               backpressure has been seen in the ring
  *                               indicated by the ring_id.
  *                               Units = milliseconds
@@ -20133,17 +19354,11 @@ struct htt_ul_ofdma_user_info_v0 {
 };
 
 #define HTT_UL_OFDMA_USER_INFO_V0_BITMAP_W0 \
-<<<<<<< Updated upstream
-    A_UINT32 w0_fw_rsvd:30; \
-    A_UINT32 w0_valid:1; \
-    A_UINT32 w0_version:1;
-=======
     A_UINT32 w0_fw_rsvd:29; \
     A_UINT32 w0_manual_ulofdma_trig:1; \
     A_UINT32 w0_valid:1; \
     A_UINT32 w0_version:1;
 
->>>>>>> Stashed changes
 struct htt_ul_ofdma_user_info_v0_bitmap_w0 {
     HTT_UL_OFDMA_USER_INFO_V0_BITMAP_W0
 };
@@ -20161,9 +19376,6 @@ struct htt_ul_ofdma_user_info_v0_bitmap_w1 {
     HTT_UL_OFDMA_USER_INFO_V0_BITMAP_W1
 };
 
-<<<<<<< Updated upstream
-/* htt_up_ofdma_user_info_v0_bitmap shows what bitfields are within the info */
-=======
 
 #define HTT_UL_OFDMA_USER_INFO_V1_BITMAP_W0 \
     A_UINT32 w0_fw_rsvd:27; \
@@ -20186,7 +19398,6 @@ struct htt_ul_ofdma_user_info_v1_bitmap_w1 {
 
 
 /* htt_ul_ofdma_user_info_v0_bitmap shows what bitfields are within the info */
->>>>>>> Stashed changes
 PREPACK struct htt_ul_ofdma_user_info_v0_bitmap {
     union {
         A_UINT32 word0;
@@ -20202,8 +19413,6 @@ PREPACK struct htt_ul_ofdma_user_info_v0_bitmap {
     };
 } POSTPACK;
 
-<<<<<<< Updated upstream
-=======
 /*
  * htt_ul_ofdma_user_info_v1_bitmap bits are aligned to
  * htt_ul_ofdma_user_info_v0_bitmap, based on the w0_version
@@ -20225,7 +19434,6 @@ PREPACK struct htt_ul_ofdma_user_info_v1_bitmap {
 } POSTPACK;
 
 
->>>>>>> Stashed changes
 enum HTT_UL_OFDMA_TRIG_TYPE {
     HTT_UL_OFDMA_USER_INFO_V0_TRIG_TYPE_BASIC = 0,
     HTT_UL_OFDMA_USER_INFO_V0_TRIG_TYPE_BFRP,
@@ -20240,12 +19448,9 @@ enum HTT_UL_OFDMA_TRIG_TYPE {
 #define HTT_UL_OFDMA_USER_INFO_V0_W0_FW_INTERNAL_M  0x0000ffff
 #define HTT_UL_OFDMA_USER_INFO_V0_W0_FW_INTERNAL_S  0
 
-<<<<<<< Updated upstream
-=======
 #define HTT_UL_OFDMA_USER_INFO_V0_W0_MANUAL_ULOFDMA_TRIG_M 0x20000000
 #define HTT_UL_OFDMA_USER_INFO_V0_W0_MANUAL_ULOFDMA_TRIG_S 29
 
->>>>>>> Stashed changes
 #define HTT_UL_OFDMA_USER_INFO_V0_W0_VALID_M 0x40000000
 #define HTT_UL_OFDMA_USER_INFO_V0_W0_VALID_S 30
 
@@ -20381,10 +19586,6 @@ enum HTT_UL_OFDMA_TRIG_TYPE {
 
 /**
  * @brief target -> host channel calibration data message
-<<<<<<< Updated upstream
- * @brief host -> target channel calibration data message
- *
-=======
  *
  * MSG_TYPE => HTT_T2H_MSG_TYPE_CHAN_CALDATA
  *
@@ -20392,7 +19593,6 @@ enum HTT_UL_OFDMA_TRIG_TYPE {
  *
  * MSG_TYPE => HTT_H2T_MSG_TYPE_CHAN_CALDATA
  *
->>>>>>> Stashed changes
  * @details
  * The following field definitions describe the format of the channel
  * calibration data message sent from the target to the host when
@@ -20417,13 +19617,8 @@ enum HTT_UL_OFDMA_TRIG_TYPE {
  *   - MSG_TYPE
  *     Bits 7:0
  *     Purpose: identifies this as a channel calibration data message
-<<<<<<< Updated upstream
- *     Value: HTT_T2H_MSG_TYPE_CHAN_CALDATA (0x15) or
- *            HTT_H2T_MSG_TYPE_CHAN_CALDATA (0xb)
-=======
  *     Value: 0x25 (HTT_T2H_MSG_TYPE_CHAN_CALDATA)
  *            0x14 (HTT_H2T_MSG_TYPE_CHAN_CALDATA)
->>>>>>> Stashed changes
  *   - SUB_TYPE
  *     Bits 11:8
  *     Purpose: T2H: indicates whether target is providing chan cal data
@@ -20465,11 +19660,7 @@ enum HTT_UL_OFDMA_TRIG_TYPE {
  *     Bits 31:16
  *     Purpose: indicates the secondary channel center frequency,
  *              only for 11acvht 80plus80 mode
-<<<<<<< Updated upstream
- *     Value:  secondary channel center frequeny, in MHz units, if applicable
-=======
  *     Value:  secondary channel center frequency, in MHz units, if applicable
->>>>>>> Stashed changes
  *
  * checksum field
  *   - CHECK_SUM
@@ -20603,13 +19794,9 @@ PREPACK struct htt_chan_caldata_msg {
 
 
 /**
-<<<<<<< Updated upstream
- * @brief HTT_T2H_MSG_TYPE_FSE_CMEM_BASE_SEND Message
-=======
  * @brief target -> host FSE CMEM based send
  *
  * MSG_TYPE => HTT_T2H_MSG_TYPE_FSE_CMEM_BASE_SEND
->>>>>>> Stashed changes
  *
  * @details
  *  HTT_T2H_MSG_TYPE_FSE_CMEM_BASE_SEND message is sent by the target when
@@ -20630,13 +19817,8 @@ PREPACK struct htt_chan_caldata_msg {
  *     |-------------------------------------------------------------------|
  *
  * The message is interpreted as follows:
-<<<<<<< Updated upstream
- * dword0 - b'0:7   - msg_type: This will be set to
- *                    HTT_T2H_MSG_TYPE_FSE_CMEM_BASE_SEND
-=======
  * dword0 - b'0:7   - msg_type: This will be set to 0x27
  *                    (HTT_T2H_MSG_TYPE_FSE_CMEM_BASE_SEND)
->>>>>>> Stashed changes
  *          b'8:15  - number_entries: Indicated the number of entries
  *                    programmed.
  *          b'16:31 - reserved.
@@ -20830,27 +20012,16 @@ PREPACK struct htt_rx_peer_metadata_v0 {
  *
  * The following diagram shows the format of the RX PEER METADATA V1 format.
  *
-<<<<<<< Updated upstream
- * |31 29|28   26|25   24|23        16|15 14|   13  |12                   0|
- * |-----------------------------------------------------------------------|
- * |Rsvd2|CHIP ID|LMAC ID|  VDEV ID   |Rsvd1|ML PEER| SW PEER ID/ML PEER ID|
- * |-----------------------------------------------------------------------|
-=======
  * |31 29|28   26|25   24|23   16|15           14|   13  |12                  0|
  * |---------------------------------------------------------------------------|
  * |Rsvd2|CHIP ID|LMAC ID|VDEV ID|logical_link_id|ML PEER|SW PEER ID/ML PEER ID|
  * |---------------------------------------------------------------------------|
->>>>>>> Stashed changes
  */
 PREPACK struct htt_rx_peer_metadata_v1 {
     A_UINT32
         peer_id:         13,
         ml_peer_valid:   1,
-<<<<<<< Updated upstream
-        reserved1:       2,
-=======
         logical_link_id: 2,
->>>>>>> Stashed changes
         vdev_id:         8,
         lmac_id:         2,
         chip_id:         3,
@@ -20884,8 +20055,6 @@ PREPACK struct htt_rx_peer_metadata_v1 {
 #define HTT_RX_PEER_META_DATA_V1_VDEV_ID_GET(_var) \
     (((_var) & HTT_RX_PEER_META_DATA_V1_VDEV_ID_M) >> HTT_RX_PEER_META_DATA_V1_VDEV_ID_S)
 
-<<<<<<< Updated upstream
-=======
 #define HTT_RX_PEER_META_DATA_V1_LOGICAL_LINK_ID_S    14
 #define HTT_RX_PEER_META_DATA_V1_LOGICAL_LINK_ID_M    0x0000c000
 #define HTT_RX_PEER_META_DATA_V1_LOGICAL_LINK_ID_GET(_var) \
@@ -20897,7 +20066,6 @@ PREPACK struct htt_rx_peer_metadata_v1 {
         ((_var) |= ((_val) << HTT_RX_PEER_META_DATA_V1_LOGICAL_LINK_ID_S)); \
     } while (0)
 
->>>>>>> Stashed changes
 #define HTT_RX_PEER_META_DATA_V1_VDEV_ID_SET(_var, _val) \
     do {                                             \
         HTT_CHECK_SET_VAL(HTT_RX_PEER_META_DATA_V1_VDEV_ID, _val);  \
@@ -20926,8 +20094,6 @@ PREPACK struct htt_rx_peer_metadata_v1 {
         ((_var) |= ((_val) << HTT_RX_PEER_META_DATA_V1_CHIP_ID_S)); \
     } while (0)
 
-<<<<<<< Updated upstream
-=======
 /**
  * @brief target -> RX PEER METADATA V1A format
  * Host will know the peer metadata version from the wmi_service_ready_ext2
@@ -23047,6 +22213,5 @@ typedef struct _htt_tx_latency_stats {
     } while (0)
 
 
->>>>>>> Stashed changes
 
 #endif

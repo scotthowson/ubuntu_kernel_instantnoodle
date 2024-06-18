@@ -47,11 +47,6 @@ static int32_t nvt_get_fw_need_write_size(const struct firmware *fw_entry)
 	for (i = total_sectors_to_check; i > 0; i--) {
 		/* printk("current end flag address checked = 0x%X\n", i * FLASH_SECTOR_SIZE - NVT_FLASH_END_FLAG_LEN); */
 		/* check if there is end flag "NVT" at the end of this sector */
-<<<<<<< Updated upstream
-		if (memcmp(&fw_entry->data[i * FLASH_SECTOR_SIZE - NVT_FLASH_END_FLAG_LEN], "NVT", NVT_FLASH_END_FLAG_LEN) == 0) {
-			fw_need_write_size = i * FLASH_SECTOR_SIZE;
-			NVT_LOG("fw_need_write_size = %zu(0x%zx)\n", fw_need_write_size, fw_need_write_size);
-=======
 		if ((memcmp((const char *)&fw_entry->data[i *
 				FLASH_SECTOR_SIZE - NVT_FLASH_END_FLAG_LEN],
 				"NVT", NVT_FLASH_END_FLAG_LEN) == 0) ||
@@ -61,7 +56,6 @@ static int32_t nvt_get_fw_need_write_size(const struct firmware *fw_entry)
 			fw_need_write_size = i * FLASH_SECTOR_SIZE;
 			NVT_LOG("fw_need_write_size = %zu(0x%zx)\n",
 				fw_need_write_size, fw_need_write_size);
->>>>>>> Stashed changes
 			return 0;
 		}
 	}
@@ -87,11 +81,7 @@ int32_t update_firmware_request(char *filename)
 
 	NVT_LOG("filename is %s\n", filename);
 
-<<<<<<< Updated upstream
-	ret = request_firmware_nowarn(&fw_entry, filename, &ts->client->dev);
-=======
 	ret = request_firmware(&fw_entry, filename, &ts->client->dev);
->>>>>>> Stashed changes
 	if (ret) {
 		NVT_ERR("firmware load failed, ret=%d\n", ret);
 		return ret;
@@ -982,18 +972,11 @@ int32_t nvt_check_flash_end_flag(void)
 	}
 
 	//buf[3:5] => NVT End Flag
-<<<<<<< Updated upstream
-	strlcpy(nvt_end_flag, &buf[3], NVT_FLASH_END_FLAG_LEN);
-	NVT_LOG("nvt_end_flag=%s (%02X %02X %02X)\n", nvt_end_flag, buf[3], buf[4], buf[5]);
-
-	if (memcmp(nvt_end_flag, "NVT", NVT_FLASH_END_FLAG_LEN) == 0) {
-=======
 	strlcpy(nvt_end_flag, &buf[3], sizeof(nvt_end_flag));
 	NVT_LOG("nvt_end_flag=%s (%02X %02X %02X)\n", nvt_end_flag, buf[3], buf[4], buf[5]);
 
 	if ((memcmp(nvt_end_flag, "NVT", NVT_FLASH_END_FLAG_LEN) == 0) ||
 		(memcmp(nvt_end_flag, "MOD", NVT_FLASH_END_FLAG_LEN) == 0)) {
->>>>>>> Stashed changes
 		return 0;
 	} else {
 		NVT_ERR("\"NVT\" end flag not found!\n");
@@ -1018,14 +1001,11 @@ void Boot_Update_Firmware(struct work_struct *work)
 	snprintf(firmware_name, sizeof(firmware_name),
 			BOOT_UPDATE_FIRMWARE_NAME);
 
-<<<<<<< Updated upstream
-=======
 	if (ts->nvt_pid == 0x5B0B) {
 		NVT_LOG("Skip Firmware Update\n");
 		return;
 	}
 
->>>>>>> Stashed changes
 	// request bin file in "/etc/firmware"
 	ret = update_firmware_request(firmware_name);
 	if (ret) {

@@ -5,10 +5,6 @@
 / {
 	model = "Qualcomm Technologies, Inc. Scuba IOT 2GB DDR SoC";
 	compatible = "qcom,scuba-iot";
-<<<<<<< Updated upstream
-	qcom,msm-id = <473 0x10000>, <474 0x10000>;
-=======
 	qcom,msm-id = <473 0x10000>;
->>>>>>> Stashed changes
 	qcom,board-id = <0 0x400>;
 };

@@ -1,10 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2018-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2018-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #ifndef _BENGAL_PORT_CONFIG
@@ -42,8 +38,6 @@ static struct port_params rx_frame_params_dsd[SWR_MSTR_PORT_LEN] = {
 	{3,  1,  0,  0xFF, 0xFF, 0xFF, 0xFF, 3,    0},
 };
 
-<<<<<<< Updated upstream
-=======
 static struct port_params rx_frame_params_khaje[SWR_MSTR_PORT_LEN] = {
 	{3,  1,  0,  0xFF, 0xFF, 1,    0xFF, 0xFF, 0},
 	{31, 0,  0,  3,    6,    7,    0,    0xFF, 0},
@@ -52,7 +46,6 @@ static struct port_params rx_frame_params_khaje[SWR_MSTR_PORT_LEN] = {
 	{0,  0,  0,  0xFF, 0xFF, 0xFF, 0xFF, 0,    0},
 };
 
->>>>>>> Stashed changes
 /* TX UC1: TX1: 1ch, TX2: 2chs, TX3: 1ch(MBHC) */
 static struct port_params tx_frame_params_default[SWR_MSTR_PORT_LEN] = {
 	{3,  1,  0,  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0},  /* TX1 */
@@ -71,13 +64,10 @@ static struct swr_mstr_port_map sm_port_map_rouleur[] = {
 	{RX_MACRO, SWR_UC0, rx_frame_params_rouleur},
 	{RX_MACRO, SWR_UC1, rx_frame_params_dsd},
 };
-<<<<<<< Updated upstream
-=======
 
 static struct swr_mstr_port_map sm_port_map_khaje[] = {
 	{VA_MACRO, SWR_UC0, tx_frame_params_default},
 	{RX_MACRO, SWR_UC0, rx_frame_params_khaje},
 	{RX_MACRO, SWR_UC1, rx_frame_params_dsd},
 };
->>>>>>> Stashed changes
 #endif /* _BENGAL_PORT_CONFIG */

@@ -136,8 +136,6 @@
 #define WLAN_RM_CAPABILITY_IE_MAX_LEN            5
 #define WLAN_RNR_IE_MIN_LEN                      5
 
-<<<<<<< Updated upstream
-=======
 /* Wide band channel switch IE length */
 #define WLAN_WIDE_BW_CHAN_SWITCH_IE_LEN          3
 
@@ -149,7 +147,6 @@
 /* Max channel switch time IE length */
 #define WLAN_MAX_CHAN_SWITCH_TIME_IE_LEN         4
 
->>>>>>> Stashed changes
 /* HT capability flags */
 #define WLAN_HTCAP_C_ADVCODING             0x0001
 #define WLAN_HTCAP_C_CHWIDTH40             0x0002
@@ -207,11 +204,6 @@
 #define WLAN_HE_6GHZ_CHWIDTH_160_80_80    3 /* 160/80+80 MHz Oper Ch width */
 
 #define WLAN_RATE_VAL              0x7f
-<<<<<<< Updated upstream
-
-#define WLAN_RV(v)     ((v) & WLAN_RATE_VAL)
-
-=======
 #define WLAN_BASIC_RATE_MASK       0x80
 
 #define WLAN_RV(v)     ((v) & WLAN_RATE_VAL)
@@ -223,7 +215,6 @@
 #define WLAN_BSS_MEMBERSHIP_SELECTOR_SAE_H2E      123
 #define WLAN_BSS_MEMBERSHIP_SELECTOR_HE_PHY       122
 
->>>>>>> Stashed changes
 #define WLAN_CHAN_IS_5GHZ(chanidx) \
 	((chanidx > 30) ? true : false)
 #define WLAN_CHAN_IS_2GHZ(chanidx) \
@@ -460,8 +451,6 @@ enum extn_element_ie {
 	WLAN_EXTN_ELEMID_ESP         = 11,
 };
 
-<<<<<<< Updated upstream
-=======
 /**
  * enum wlan_status_code - wlan status codes
  * (IEEE Std 802.11-2016, 9.4.1.9, Table 9-46)
@@ -619,7 +608,6 @@ enum wlan_status_code {
 	STATUS_ASSOC_NO_RESP_RECEIVED = 65534,
 };
 
->>>>>>> Stashed changes
 #define WLAN_OUI_SIZE 4
 #define WLAN_MAX_CIPHER 6
 #define WLAN_RSN_SELECTOR_LEN 4
@@ -1649,11 +1637,8 @@ is_bwnss_oui(uint8_t *frm)
 		((ATH_OUI_BW_NSS_MAP_TYPE << 24) | ATH_OUI));
 }
 
-<<<<<<< Updated upstream
-=======
 #define WLAN_BWNSS_MAP_OFFSET 6
 
->>>>>>> Stashed changes
 /**
  * is_he_cap_oui() - If vendor IE is HE CAP OUI
  * @frm: vendor IE pointer
@@ -2030,18 +2015,12 @@ static inline void wlan_parse_wapi_ie(uint8_t *wapi_ie,
 		len -= WLAN_OUI_SIZE;
 	}
 
-<<<<<<< Updated upstream
-	wapi->uc_cipher_count = LE_READ_2(ie);
-	ie += 2;
-	len -= 2;
-=======
 	if (len < 2)
 		return;
 	wapi->uc_cipher_count = LE_READ_2(ie);
 	ie += 2;
 	len -= 2;
 
->>>>>>> Stashed changes
 	if ((wapi->uc_cipher_count > WLAN_MAX_CIPHER) ||
 	   len < (wapi->uc_cipher_count * WLAN_OUI_SIZE + 2))
 		return;

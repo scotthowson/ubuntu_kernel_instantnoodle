@@ -238,12 +238,9 @@ ifeq ($(KBUILD_EXTMOD),)
 prepare: vdso_prepare
 vdso_prepare: prepare0
 	$(Q)$(MAKE) $(build)=arch/arm64/kernel/vdso include/generated/vdso-offsets.h
-<<<<<<< Updated upstream
-=======
 	$(if $(CONFIG_COMPAT_VDSO),$(Q)$(MAKE) \
 		$(build)=arch/arm64/kernel/vdso32  \
 		include/generated/vdso32-offsets.h)
->>>>>>> Stashed changes
 endif
 
 define archhelp

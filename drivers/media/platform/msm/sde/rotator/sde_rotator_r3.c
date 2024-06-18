@@ -31,20 +31,11 @@
 #define RES_UHD              (3840*2160)
 #define MS_TO_US(t) ((t) * USEC_PER_MSEC)
 
-<<<<<<< Updated upstream
-=======
 /* traffic shaping clock ticks = finish_time x 19.2MHz */
->>>>>>> Stashed changes
 #define TRAFFIC_SHAPE_CLKTICK_14MS   268800
 #define TRAFFIC_SHAPE_CLKTICK_12MS   230400
 #define TRAFFIC_SHAPE_VSYNC_CLK      19200000
 
-<<<<<<< Updated upstream
-#define KOFF_TIMEOUT		(42 * 8)
-
-#define KOFF_TIMEOUT_SBUF	(10000)
-
-=======
 /* wait for at most 2 vsync for lowest refresh rate (24hz) */
 #define KOFF_TIMEOUT		(42 * 8)
 
@@ -55,22 +46,16 @@
 #define KOFF_TIMEOUT_SBUF	(10000)
 
 /* default stream buffer headroom in lines */
->>>>>>> Stashed changes
 #define DEFAULT_SBUF_HEADROOM	20
 #define DEFAULT_UBWC_MALSIZE	0
 #define DEFAULT_UBWC_SWIZZLE	0
 
 #define DEFAULT_MAXLINEWIDTH	4096
 
-<<<<<<< Updated upstream
-#define PARTIAL_WRITE_ALIGNMENT	0x1F
-
-=======
 /* stride alignment requirement for avoiding partial writes */
 #define PARTIAL_WRITE_ALIGNMENT	0x1F
 
 /* Macro for constructing the REGDMA command */
->>>>>>> Stashed changes
 #define SDE_REGDMA_WRITE(p, off, data) \
 	do { \
 		SDEROT_DBG("SDEREG.W:[%s:0x%X] <= 0x%X\n", #off, (off),\
@@ -125,10 +110,7 @@
 		p += sizeof(u32); \
 	} while (0)
 
-<<<<<<< Updated upstream
-=======
 /* Macro for directly accessing mapped registers */
->>>>>>> Stashed changes
 #define SDE_ROTREG_WRITE(base, off, data) \
 	do { \
 		SDEROT_DBG("SDEREG.D:[%s:0x%X] <= 0x%X\n", #off, (off)\
@@ -249,17 +231,12 @@ static const u32 sde_hw_rotator_v3_outpixfmts[] = {
 	SDE_PIX_FMT_Y_CBCR_H2V2_UBWC,
 	SDE_PIX_FMT_RGBA_1010102,
 	SDE_PIX_FMT_RGBX_1010102,
-<<<<<<< Updated upstream
-	SDE_PIX_FMT_BGRA_1010102,
-	SDE_PIX_FMT_BGRX_1010102,
-=======
 	/* SDE_PIX_FMT_ARGB_2101010 */
 	/* SDE_PIX_FMT_XRGB_2101010 */
 	SDE_PIX_FMT_BGRA_1010102,
 	SDE_PIX_FMT_BGRX_1010102,
 	/* SDE_PIX_FMT_ABGR_2101010 */
 	/* SDE_PIX_FMT_XBGR_2101010 */
->>>>>>> Stashed changes
 	SDE_PIX_FMT_RGBA_1010102_UBWC,
 	SDE_PIX_FMT_RGBX_1010102_UBWC,
 	SDE_PIX_FMT_Y_CBCR_H2V2_P010,
@@ -377,22 +354,16 @@ static const u32 sde_hw_rotator_v4_outpixfmts[] = {
 	SDE_PIX_FMT_BGR_888,
 	SDE_PIX_FMT_RGB_565,
 	SDE_PIX_FMT_BGR_565,
-<<<<<<< Updated upstream
-=======
 	/* SDE_PIX_FMT_Y_CB_CR_H2V2 */
 	/* SDE_PIX_FMT_Y_CR_CB_H2V2 */
 	/* SDE_PIX_FMT_Y_CR_CB_GH2V2 */
->>>>>>> Stashed changes
 	SDE_PIX_FMT_Y_CBCR_H2V2,
 	SDE_PIX_FMT_Y_CRCB_H2V2,
 	SDE_PIX_FMT_Y_CBCR_H1V2,
 	SDE_PIX_FMT_Y_CRCB_H1V2,
 	SDE_PIX_FMT_Y_CBCR_H2V1,
 	SDE_PIX_FMT_Y_CRCB_H2V1,
-<<<<<<< Updated upstream
-=======
 	/* SDE_PIX_FMT_YCBYCR_H2V1 */
->>>>>>> Stashed changes
 	SDE_PIX_FMT_Y_CBCR_H2V2_VENUS,
 	SDE_PIX_FMT_Y_CRCB_H2V2_VENUS,
 	SDE_PIX_FMT_RGBA_8888_UBWC,
@@ -454,14 +425,6 @@ static const u32 sde_hw_rotator_v4_outpixfmts_sbuf[] = {
 };
 
 static struct sde_rot_vbif_debug_bus nrt_vbif_dbg_bus_r3[] = {
-<<<<<<< Updated upstream
-	{0x214, 0x21c, 16, 1, 0x200},
-	{0x214, 0x21c, 0, 12, 0x13},
-	{0x21c, 0x214, 0, 12, 0xc},
-};
-
-static struct sde_rot_debug_bus rot_dbgbus_r3[] = {
-=======
 	{0x214, 0x21c, 16, 1, 0x200}, /* arb clients main */
 	{0x214, 0x21c, 0, 12, 0x13}, /* xin blocks - axi side */
 	{0x21c, 0x214, 0, 12, 0xc}, /* xin blocks - clock side */
@@ -472,17 +435,13 @@ static struct sde_rot_debug_bus rot_dbgbus_r3[] = {
 	 * rottop - 0xA8850
 	 */
 	/* REGDMA */
->>>>>>> Stashed changes
 	{ 0XA8850, 0, 0 },
 	{ 0XA8850, 0, 1 },
 	{ 0XA8850, 0, 2 },
 	{ 0XA8850, 0, 3 },
 	{ 0XA8850, 0, 4 },
-<<<<<<< Updated upstream
-=======
 
 	/* ROT_WB */
->>>>>>> Stashed changes
 	{ 0XA8850, 1, 0 },
 	{ 0XA8850, 1, 1 },
 	{ 0XA8850, 1, 2 },
@@ -491,10 +450,6 @@ static struct sde_rot_debug_bus rot_dbgbus_r3[] = {
 	{ 0XA8850, 1, 5 },
 	{ 0XA8850, 1, 6 },
 	{ 0XA8850, 1, 7 },
-<<<<<<< Updated upstream
-	{ 0XA8850, 2, 0 },
-	{ 0XA8850, 3, 0 },
-=======
 
 	/* UBWC_DEC */
 	{ 0XA8850, 2, 0 },
@@ -503,7 +458,6 @@ static struct sde_rot_debug_bus rot_dbgbus_r3[] = {
 	{ 0XA8850, 3, 0 },
 
 	/* ROT_FETCH_0 */
->>>>>>> Stashed changes
 	{ 0XA8850, 4, 0 },
 	{ 0XA8850, 4, 1 },
 	{ 0XA8850, 4, 2 },
@@ -512,11 +466,8 @@ static struct sde_rot_debug_bus rot_dbgbus_r3[] = {
 	{ 0XA8850, 4, 5 },
 	{ 0XA8850, 4, 6 },
 	{ 0XA8850, 4, 7 },
-<<<<<<< Updated upstream
-=======
 
 	/* ROT_FETCH_1 */
->>>>>>> Stashed changes
 	{ 0XA8850, 5, 0 },
 	{ 0XA8850, 5, 1 },
 	{ 0XA8850, 5, 2 },
@@ -525,11 +476,8 @@ static struct sde_rot_debug_bus rot_dbgbus_r3[] = {
 	{ 0XA8850, 5, 5 },
 	{ 0XA8850, 5, 6 },
 	{ 0XA8850, 5, 7 },
-<<<<<<< Updated upstream
-=======
 
 	/* ROT_FETCH_2 */
->>>>>>> Stashed changes
 	{ 0XA8850, 6, 0 },
 	{ 0XA8850, 6, 1 },
 	{ 0XA8850, 6, 2 },
@@ -538,11 +486,8 @@ static struct sde_rot_debug_bus rot_dbgbus_r3[] = {
 	{ 0XA8850, 6, 5 },
 	{ 0XA8850, 6, 6 },
 	{ 0XA8850, 6, 7 },
-<<<<<<< Updated upstream
-=======
 
 	/* ROT_FETCH_3 */
->>>>>>> Stashed changes
 	{ 0XA8850, 7, 0 },
 	{ 0XA8850, 7, 1 },
 	{ 0XA8850, 7, 2 },
@@ -551,11 +496,8 @@ static struct sde_rot_debug_bus rot_dbgbus_r3[] = {
 	{ 0XA8850, 7, 5 },
 	{ 0XA8850, 7, 6 },
 	{ 0XA8850, 7, 7 },
-<<<<<<< Updated upstream
-=======
 
 	/* ROT_FETCH_4 */
->>>>>>> Stashed changes
 	{ 0XA8850, 8, 0 },
 	{ 0XA8850, 8, 1 },
 	{ 0XA8850, 8, 2 },
@@ -564,11 +506,8 @@ static struct sde_rot_debug_bus rot_dbgbus_r3[] = {
 	{ 0XA8850, 8, 5 },
 	{ 0XA8850, 8, 6 },
 	{ 0XA8850, 8, 7 },
-<<<<<<< Updated upstream
-=======
 
 	/* ROT_UNPACK_0*/
->>>>>>> Stashed changes
 	{ 0XA8850, 9, 0 },
 	{ 0XA8850, 9, 1 },
 	{ 0XA8850, 9, 2 },
@@ -581,14 +520,11 @@ static struct sde_rot_regdump sde_rot_r3_regdump[] = {
 	{ "SDEROT_WB", SDE_ROT_WB_OFFSET, 0x300, SDE_ROT_REGDUMP_READ },
 	{ "SDEROT_REGDMA_CSR", SDE_ROT_REGDMA_OFFSET, 0x100,
 		SDE_ROT_REGDUMP_READ },
-<<<<<<< Updated upstream
-=======
 	/*
 	 * Need to perform a SW reset to REGDMA in order to access the
 	 * REGDMA RAM especially if REGDMA is waiting for Rotator IDLE.
 	 * REGDMA RAM should be dump at last.
 	 */
->>>>>>> Stashed changes
 	{ "SDEROT_REGDMA_RESET", ROTTOP_SW_RESET_OVERRIDE, 1,
 		SDE_ROT_REGDUMP_WRITE, 1 },
 	{ "SDEROT_REGDMA_RAM", SDE_ROT_REGDMA_RAM_OFFSET, 0x2000,
@@ -735,10 +671,6 @@ static irqreturn_t sde_hw_rotator_regdmairq_handler(int irq, void *ptr)
 	SDE_ROTREG_WRITE(rot->mdss_base, REGDMA_CSR_REGDMA_INT_CLEAR, isr);
 
 	SDEROT_DBG("intr_status = %8.8x\n", isr);
-<<<<<<< Updated upstream
-	if (isr & (REGDMA_INT_HIGH_MASK | REGDMA_INT_LOW_MASK)) {
-		spin_lock(&rot->rotisr_lock);
-=======
 
 	/* Any REGDMA status, including error and watchdog timer, should
 	 * trigger and wake up waiting thread
@@ -750,7 +682,6 @@ static irqreturn_t sde_hw_rotator_regdmairq_handler(int irq, void *ptr)
 		 * Obtain rotator context based on timestamp from regdma
 		 * and low/high interrupt status
 		 */
->>>>>>> Stashed changes
 		if (isr & REGDMA_INT_HIGH_MASK) {
 			q_id = ROT_QUEUE_HIGH_PRIORITY;
 		} else if (isr & REGDMA_INT_LOW_MASK) {
@@ -761,14 +692,11 @@ static irqreturn_t sde_hw_rotator_regdmairq_handler(int irq, void *ptr)
 		}
 
 		ts = __sde_hw_rotator_get_timestamp(rot, q_id);
-<<<<<<< Updated upstream
-=======
 
 		/*
 		 * Timestamp packet is not available in sbuf mode.
 		 * Simulate timestamp update in the handler instead.
 		 */
->>>>>>> Stashed changes
 		if (test_bit(SDE_CAPS_HW_TIMESTAMP, mdata->sde_caps_map) ||
 				list_empty(&rot->sbuf_ctx[q_id]))
 			goto skip_sbuf;
@@ -794,13 +722,10 @@ static irqreturn_t sde_hw_rotator_regdmairq_handler(int irq, void *ptr)
 skip_sbuf:
 		ctx = rot->rotCtx[q_id][ts & SDE_HW_ROT_REGDMA_SEG_MASK];
 
-<<<<<<< Updated upstream
-=======
 		/*
 		 * Wake up all waiting context from the current and previous
 		 * SW Timestamp.
 		 */
->>>>>>> Stashed changes
 		while (ctx &&
 			sde_hw_rotator_elapsed_swts(ctx->timestamp, ts) >= 0) {
 			ctx->last_regdma_isr_status = isr;
@@ -818,13 +743,10 @@ done_isr_handle:
 		spin_unlock(&rot->rotisr_lock);
 		ret = IRQ_HANDLED;
 	} else if (isr & REGDMA_INT_ERR_MASK) {
-<<<<<<< Updated upstream
-=======
 		/*
 		 * For REGDMA Err, we save the isr info and wake up
 		 * all waiting contexts
 		 */
->>>>>>> Stashed changes
 		int i, j;
 
 		SDEROT_ERR(
@@ -1415,11 +1337,6 @@ static void sde_hw_rotator_vbif_setting(struct sde_hw_rotator *rot)
 		SDEROT_DBG("invalid vbif remapper levels\n");
 	}
 
-<<<<<<< Updated upstream
-	SDE_VBIF_WRITE(mdata, MMSS_VBIF_NRT_VBIF_WRITE_GATHTER_EN,
-			BIT(XIN_WRITEBACK));
-
-=======
 	/* Enable write gather for writeback to remove write gaps, which
 	 * may hang AXI/BIMC/SDE.
 	 */
@@ -1429,7 +1346,6 @@ static void sde_hw_rotator_vbif_setting(struct sde_hw_rotator *rot)
 	/*
 	 * For debug purpose, disable clock gating, i.e. Clocks always on
 	 */
->>>>>>> Stashed changes
 	if (mdata->clk_always_on) {
 		SDE_VBIF_WRITE(mdata, MMSS_VBIF_CLKON, 0x3);
 		SDE_VBIF_WRITE(mdata, MMSS_VBIF_NRT_VBIF_CLK_FORCE_CTRL0, 0x3);
@@ -1452,13 +1368,10 @@ static void sde_hw_rotator_setup_timestamp_packet(
 
 	wrptr = sde_hw_rotator_get_regdma_segment(ctx);
 
-<<<<<<< Updated upstream
-=======
 	/*
 	 * Create a dummy packet write out to 1 location for timestamp
 	 * generation.
 	 */
->>>>>>> Stashed changes
 	SDE_REGDMA_BLKWRITE_INC(wrptr, ROT_SSPP_SRC_SIZE, 6);
 	SDE_REGDMA_BLKWRITE_DATA(wrptr, 0x00010001);
 	SDE_REGDMA_BLKWRITE_DATA(wrptr, 0);
@@ -1472,13 +1385,10 @@ static void sde_hw_rotator_setup_timestamp_packet(
 	SDE_REGDMA_BLKWRITE_DATA(wrptr, 0x03020100);
 	SDE_REGDMA_BLKWRITE_DATA(wrptr, 0x80000000);
 	SDE_REGDMA_BLKWRITE_DATA(wrptr, ctx->timestamp);
-<<<<<<< Updated upstream
-=======
 	/*
 	 * Must clear secure buffer setting for SW timestamp because
 	 * SW timstamp buffer allocation is always non-secure region.
 	 */
->>>>>>> Stashed changes
 	if (ctx->is_secure) {
 		SDE_REGDMA_WRITE(wrptr, ROT_SSPP_SRC_ADDR_SW_STATUS, 0);
 		SDE_REGDMA_WRITE(wrptr, ROT_WB_DST_ADDR_SW_STATUS, 0);
@@ -1547,13 +1457,9 @@ static void sde_hw_rotator_setup_qos_lut_wr(struct sde_hw_rotator_context *ctx)
 	struct sde_rot_data_type *mdata = sde_rot_get_mdata();
 	char __iomem *wrptr = sde_hw_rotator_get_regdma_segment(ctx);
 
-<<<<<<< Updated upstream
-	if (!ctx->sbuf_mode) {
-=======
 	/* Offline rotation setting */
 	if (!ctx->sbuf_mode) {
 		/* QOS LUT WR setting */
->>>>>>> Stashed changes
 		if (test_bit(SDE_QOS_LUT, mdata->sde_qos_map)) {
 			SDE_REGDMA_WRITE(wrptr, ROT_WB_CREQ_LUT_0,
 					mdata->lut_cfg[SDE_ROT_WR].creq_lut_0);
@@ -1561,29 +1467,19 @@ static void sde_hw_rotator_setup_qos_lut_wr(struct sde_hw_rotator_context *ctx)
 					mdata->lut_cfg[SDE_ROT_WR].creq_lut_1);
 		}
 
-<<<<<<< Updated upstream
-=======
 		/* Danger LUT WR setting */
->>>>>>> Stashed changes
 		if (test_bit(SDE_QOS_DANGER_LUT, mdata->sde_qos_map))
 			SDE_REGDMA_WRITE(wrptr, ROT_WB_DANGER_LUT,
 					mdata->lut_cfg[SDE_ROT_WR].danger_lut);
 
-<<<<<<< Updated upstream
-=======
 		/* Safe LUT WR setting */
->>>>>>> Stashed changes
 		if (test_bit(SDE_QOS_SAFE_LUT, mdata->sde_qos_map))
 			SDE_REGDMA_WRITE(wrptr, ROT_WB_SAFE_LUT,
 					mdata->lut_cfg[SDE_ROT_WR].safe_lut);
 
-<<<<<<< Updated upstream
-	} else {
-=======
 	/* Inline rotation setting */
 	} else {
 		/* QOS LUT WR setting */
->>>>>>> Stashed changes
 		if (test_bit(SDE_INLINE_QOS_LUT, mdata->sde_inline_qos_map)) {
 			SDE_REGDMA_WRITE(wrptr, ROT_WB_CREQ_LUT_0,
 				mdata->inline_lut_cfg[SDE_ROT_WR].creq_lut_0);
@@ -1591,29 +1487,20 @@ static void sde_hw_rotator_setup_qos_lut_wr(struct sde_hw_rotator_context *ctx)
 				mdata->inline_lut_cfg[SDE_ROT_WR].creq_lut_1);
 		}
 
-<<<<<<< Updated upstream
-=======
 		/* Danger LUT WR setting */
->>>>>>> Stashed changes
 		if (test_bit(SDE_INLINE_QOS_DANGER_LUT,
 					mdata->sde_inline_qos_map))
 			SDE_REGDMA_WRITE(wrptr, ROT_WB_DANGER_LUT,
 				mdata->inline_lut_cfg[SDE_ROT_WR].danger_lut);
 
-<<<<<<< Updated upstream
-=======
 		/* Safe LUT WR setting */
->>>>>>> Stashed changes
 		if (test_bit(SDE_INLINE_QOS_SAFE_LUT,
 					mdata->sde_inline_qos_map))
 			SDE_REGDMA_WRITE(wrptr, ROT_WB_SAFE_LUT,
 				mdata->inline_lut_cfg[SDE_ROT_WR].safe_lut);
 	}
 
-<<<<<<< Updated upstream
-=======
 	/* Update command queue write ptr */
->>>>>>> Stashed changes
 	sde_hw_rotator_put_regdma_segment(ctx, wrptr);
 }
 
@@ -1628,13 +1515,9 @@ static void sde_hw_rotator_setup_qos_lut_rd(struct sde_hw_rotator_context *ctx)
 	struct sde_rot_data_type *mdata = sde_rot_get_mdata();
 	char __iomem *wrptr = sde_hw_rotator_get_regdma_segment(ctx);
 
-<<<<<<< Updated upstream
-	if (!ctx->sbuf_mode) {
-=======
 	/* Offline rotation setting */
 	if (!ctx->sbuf_mode) {
 		/* QOS LUT RD setting */
->>>>>>> Stashed changes
 		if (test_bit(SDE_QOS_LUT, mdata->sde_qos_map)) {
 			SDE_REGDMA_WRITE(wrptr, ROT_SSPP_CREQ_LUT_0,
 					mdata->lut_cfg[SDE_ROT_RD].creq_lut_0);
@@ -1642,29 +1525,19 @@ static void sde_hw_rotator_setup_qos_lut_rd(struct sde_hw_rotator_context *ctx)
 					mdata->lut_cfg[SDE_ROT_RD].creq_lut_1);
 		}
 
-<<<<<<< Updated upstream
-=======
 		/* Danger LUT RD setting */
->>>>>>> Stashed changes
 		if (test_bit(SDE_QOS_DANGER_LUT, mdata->sde_qos_map))
 			SDE_REGDMA_WRITE(wrptr, ROT_SSPP_DANGER_LUT,
 					mdata->lut_cfg[SDE_ROT_RD].danger_lut);
 
-<<<<<<< Updated upstream
-=======
 		/* Safe LUT RD setting */
->>>>>>> Stashed changes
 		if (test_bit(SDE_QOS_SAFE_LUT, mdata->sde_qos_map))
 			SDE_REGDMA_WRITE(wrptr, ROT_SSPP_SAFE_LUT,
 					mdata->lut_cfg[SDE_ROT_RD].safe_lut);
 
-<<<<<<< Updated upstream
-	} else {
-=======
 	/* inline rotation setting */
 	} else {
 		/* QOS LUT RD setting */
->>>>>>> Stashed changes
 		if (test_bit(SDE_INLINE_QOS_LUT, mdata->sde_inline_qos_map)) {
 			SDE_REGDMA_WRITE(wrptr, ROT_SSPP_CREQ_LUT_0,
 				mdata->inline_lut_cfg[SDE_ROT_RD].creq_lut_0);
@@ -1672,29 +1545,20 @@ static void sde_hw_rotator_setup_qos_lut_rd(struct sde_hw_rotator_context *ctx)
 				mdata->inline_lut_cfg[SDE_ROT_RD].creq_lut_1);
 		}
 
-<<<<<<< Updated upstream
-=======
 		/* Danger LUT RD setting */
->>>>>>> Stashed changes
 		if (test_bit(SDE_INLINE_QOS_DANGER_LUT,
 					mdata->sde_inline_qos_map))
 			SDE_REGDMA_WRITE(wrptr, ROT_SSPP_DANGER_LUT,
 				mdata->inline_lut_cfg[SDE_ROT_RD].danger_lut);
 
-<<<<<<< Updated upstream
-=======
 		/* Safe LUT RD setting */
->>>>>>> Stashed changes
 		if (test_bit(SDE_INLINE_QOS_SAFE_LUT,
 					mdata->sde_inline_qos_map))
 			SDE_REGDMA_WRITE(wrptr, ROT_SSPP_SAFE_LUT,
 				mdata->inline_lut_cfg[SDE_ROT_RD].safe_lut);
 	}
 
-<<<<<<< Updated upstream
-=======
 	/* Update command queue write ptr */
->>>>>>> Stashed changes
 	sde_hw_rotator_put_regdma_segment(ctx, wrptr);
 }
 
@@ -1908,14 +1772,11 @@ static void sde_hw_rotator_setup_fetchengine(struct sde_hw_rotator_context *ctx,
 
 	wrptr = sde_hw_rotator_get_regdma_segment(ctx);
 
-<<<<<<< Updated upstream
-=======
 	/*
 	 * Determine if traffic shaping is required. Only enable traffic
 	 * shaping when content is 4k@30fps. The actual traffic shaping
 	 * bandwidth calculation is done in output setup.
 	 */
->>>>>>> Stashed changes
 	if (((!ctx->sbuf_mode)
 			&& (cfg->src_rect->w * cfg->src_rect->h) >= RES_UHD)
 			&& (cfg->fps <= 30)) {
@@ -2035,8 +1896,6 @@ static void sde_hw_rotator_setup_wbengine(struct sde_hw_rotator_context *ctx,
 	/* partial write check */
 	if (test_bit(SDE_CAPS_PARTIALWR, mdata->sde_caps_map)) {
 		no_partial_writes = BIT(10);
-<<<<<<< Updated upstream
-=======
 
 		/*
 		 * For simplicity, don't disable partial writes if
@@ -2048,7 +1907,6 @@ static void sde_hw_rotator_setup_wbengine(struct sde_hw_rotator_context *ctx,
 		 * alignment of the actual horizontal ROI on a per
 		 * color format basis.
 		 */
->>>>>>> Stashed changes
 		if (sde_mdp_is_ubwc_format(fmt)) {
 			no_partial_writes = 0x0;
 		} else if (cfg->dst_rect->x ||
@@ -2088,18 +1946,11 @@ static void sde_hw_rotator_setup_wbengine(struct sde_hw_rotator_context *ctx,
 	cdp_params.offset = ROT_WB_CDP_CNTL;
 	sde_hw_rotator_cdp_configs(ctx, &cdp_params);
 
-<<<<<<< Updated upstream
-=======
 	/* QOS LUT/ Danger LUT/ Safe LUT WR setting */
->>>>>>> Stashed changes
 	sde_hw_rotator_setup_qos_lut_wr(ctx);
 
 	wrptr = sde_hw_rotator_get_regdma_segment(ctx);
 
-<<<<<<< Updated upstream
-	if (ctx->is_traffic_shaping || cfg->prefill_bw) {
-		u32 bw;
-=======
 	/* setup traffic shaper for 4k 30fps content or if prefill_bw is set */
 	if (ctx->is_traffic_shaping || cfg->prefill_bw) {
 		u32 bw;
@@ -2112,7 +1963,6 @@ static void sde_hw_rotator_setup_wbengine(struct sde_hw_rotator_context *ctx,
 		 * Finally, calcualte the byte count per clock tick based on
 		 * resolution, bpp and compression ratio.
 		 */
->>>>>>> Stashed changes
 		bw = cfg->dst_rect->w * cfg->dst_rect->h;
 
 		if (fmt->chroma_sample == SDE_MDP_CHROMA_420)
@@ -2122,10 +1972,7 @@ static void sde_hw_rotator_setup_wbengine(struct sde_hw_rotator_context *ctx,
 
 		bw /= TRAFFIC_SHAPE_CLKTICK_12MS;
 
-<<<<<<< Updated upstream
-=======
 		/* use prefill bandwidth instead if specified */
->>>>>>> Stashed changes
 		if (cfg->prefill_bw)
 			bw = DIV_ROUND_UP_SECTOR_T(cfg->prefill_bw,
 					TRAFFIC_SHAPE_VSYNC_CLK);
@@ -2143,10 +1990,7 @@ static void sde_hw_rotator_setup_wbengine(struct sde_hw_rotator_context *ctx,
 		SDEROT_DBG("Disable ROT_WB Traffic Shaper\n");
 	}
 
-<<<<<<< Updated upstream
-=======
 	/* Update command queue write ptr */
->>>>>>> Stashed changes
 	sde_hw_rotator_put_regdma_segment(ctx, wrptr);
 }
 
@@ -2166,13 +2010,10 @@ static u32 sde_hw_rotator_start_no_regdma(struct sde_hw_rotator_context *ctx,
 	u32 cmd0, cmd1, cmd2;
 	u32 blksize;
 
-<<<<<<< Updated upstream
-=======
 	/*
 	 * when regdma is not using, the regdma segment is just a normal
 	 * DRAM, and not an iomem.
 	 */
->>>>>>> Stashed changes
 	mem_rdptr = sde_hw_rotator_get_regdma_segment_base(ctx);
 	wrptr = sde_hw_rotator_get_regdma_segment(ctx);
 
@@ -2188,11 +2029,8 @@ static u32 sde_hw_rotator_start_no_regdma(struct sde_hw_rotator_context *ctx,
 	sde_hw_rotator_put_regdma_segment(ctx, wrptr);
 
 	SDEROT_DBG("BEGIN %d\n", ctx->timestamp);
-<<<<<<< Updated upstream
-=======
 	/* Write all command stream to Rotator blocks */
 	/* Rotator will start right away after command stream finish writing */
->>>>>>> Stashed changes
 	while (mem_rdptr < wrptr) {
 		u32 op = REGDMA_OP_MASK & readl_relaxed_no_log(mem_rdptr);
 
@@ -2256,12 +2094,9 @@ static u32 sde_hw_rotator_start_no_regdma(struct sde_hw_rotator_context *ctx,
 			}
 			break;
 		default:
-<<<<<<< Updated upstream
-=======
 			/* Other not supported OP mode
 			 * Skip data for now for unregonized OP mode
 			 */
->>>>>>> Stashed changes
 			SDEROT_DBG("UNDEFINED\n");
 			mem_rdptr += sizeof(u32);
 			break;
@@ -2304,12 +2139,9 @@ static u32 sde_hw_rotator_start_regdma(struct sde_hw_rotator_context *ctx,
 		int_trigger = true;
 	}
 
-<<<<<<< Updated upstream
-=======
 	/*
 	 * Last ROT command must be ROT_START before REGDMA start
 	 */
->>>>>>> Stashed changes
 	SDE_REGDMA_WRITE(wrptr, ROTTOP_START_CTRL, ctx->start_ctrl);
 
 	sde_hw_rotator_put_regdma_segment(ctx, wrptr);
@@ -2409,13 +2241,10 @@ static u32 sde_hw_rotator_wait_done_no_regdma(
 		spin_lock_irqsave(&rot->rotisr_lock, flags);
 		status = SDE_ROTREG_READ(rot->mdss_base, ROTTOP_STATUS);
 		if (rc == 0) {
-<<<<<<< Updated upstream
-=======
 			/*
 			 * Timeout, there might be error,
 			 * or rotator still busy
 			 */
->>>>>>> Stashed changes
 			if (status & ROT_BUSY_BIT)
 				SDEROT_ERR(
 					"Timeout waiting for rotator done\n");
@@ -2516,8 +2345,6 @@ static u32 sde_hw_rotator_wait_done_regdma(
 
 			if (ubwcerr || abort ||
 					sde_hw_rotator_halt_vbif_xin_client()) {
-<<<<<<< Updated upstream
-=======
 				/*
 				 * Perform recovery for ROT SSPP UBWC decode
 				 * error.
@@ -2525,7 +2352,6 @@ static u32 sde_hw_rotator_wait_done_regdma(
 				 * - reset TS logic so all pending rotation
 				 *   in hw queue got done signalled
 				 */
->>>>>>> Stashed changes
 				if (!sde_hw_rotator_reset(rot, ctx))
 					status = REGDMA_INCOMPLETE_CMD;
 				else
@@ -2545,10 +2371,7 @@ static u32 sde_hw_rotator_wait_done_regdma(
 
 		spin_unlock_irqrestore(&rot->rotisr_lock, flags);
 
-<<<<<<< Updated upstream
-=======
 		/* dump rot status after releasing lock if timeout occurred */
->>>>>>> Stashed changes
 		if (timeout) {
 			SDEROT_ERR(
 				"TIMEOUT, ts:0x%X/0x%X, pending:%d, abort:%d\n",
@@ -2740,8 +2563,6 @@ void sde_hw_rotator_pre_pmevent(struct sde_rot_mgr *mgr, bool pmon)
 	u32 l_ts, h_ts, l_hwts, h_hwts;
 	u32 rotsts, regdmasts, rotopmode;
 
-<<<<<<< Updated upstream
-=======
 	/*
 	 * Check last HW timestamp with SW timestamp before power off event.
 	 * If there is a mismatch, that will be quite possible the rotator HW
@@ -2749,7 +2570,6 @@ void sde_hw_rotator_pre_pmevent(struct sde_rot_mgr *mgr, bool pmon)
 	 * it is best to do a timeout eventlog to capture some good events
 	 * log data for analysis.
 	 */
->>>>>>> Stashed changes
 	if (!pmon && mgr && mgr->hw_data) {
 		rot = mgr->hw_data;
 		h_ts = atomic_read(&rot->timestamp[ROT_QUEUE_HIGH_PRIORITY]) &
@@ -2818,13 +2638,10 @@ void sde_hw_rotator_post_pmevent(struct sde_rot_mgr *mgr, bool pmon)
 	struct sde_hw_rotator *rot;
 	u32 l_ts, h_ts;
 
-<<<<<<< Updated upstream
-=======
 	/*
 	 * After a power on event, the rotator HW is reset to default setting.
 	 * It is necessary to synchronize the SW timestamp with the HW.
 	 */
->>>>>>> Stashed changes
 	if (pmon && mgr && mgr->hw_data) {
 		rot = mgr->hw_data;
 		h_ts = atomic_read(&rot->timestamp[ROT_QUEUE_HIGH_PRIORITY]);
@@ -2883,13 +2700,10 @@ static struct sde_rot_hw_resource *sde_hw_rotator_alloc_ext(
 		return NULL;
 	}
 
-<<<<<<< Updated upstream
-=======
 	/*
 	 * Allocate rotator resource info. Each allocation is per
 	 * HW priority queue
 	 */
->>>>>>> Stashed changes
 	resinfo = kzalloc(sizeof(*resinfo), GFP_KERNEL);
 	if (!resinfo) {
 		SDEROT_ERR("Failed allocation HW rotator resource info\n");
@@ -2901,10 +2715,7 @@ static struct sde_rot_hw_resource *sde_hw_rotator_alloc_ext(
 	atomic_set(&resinfo->hw.num_active, 0);
 	init_waitqueue_head(&resinfo->hw.wait_queue);
 
-<<<<<<< Updated upstream
-=======
 	/* For non-regdma, only support one active session */
->>>>>>> Stashed changes
 	if (resinfo->rot->mode == ROT_REGDMA_OFF)
 		resinfo->hw.max_active = 1;
 	else {
@@ -3126,13 +2937,10 @@ static int sde_hw_rotator_config(struct sde_rot_hw_resource *hw,
 
 	SDEROT_EVTLOG(ctx->start_ctrl, ctx->sys_cache_mode, ctx->op_mode);
 
-<<<<<<< Updated upstream
-=======
 	/*
 	 * if Rotator HW is reset, but missing PM event notification, we
 	 * need to init the SW timestamp automatically.
 	 */
->>>>>>> Stashed changes
 	rststs = SDE_ROTREG_READ(rot->mdss_base, REGDMA_RESET_STATUS_REG);
 	if (!rot->reset_hw_ts && rststs) {
 		u32 l_ts, h_ts, l_hwts, h_hwts;

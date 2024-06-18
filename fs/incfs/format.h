@@ -256,8 +256,6 @@ struct backing_file_context {
 	 * 0 means there are no metadata records.
 	 */
 	loff_t bc_last_md_record_offset;
-<<<<<<< Updated upstream
-=======
 
 	/*
 	 * Credentials to set before reads/writes
@@ -265,7 +263,6 @@ struct backing_file_context {
 	 * there is no need to get/put the creds
 	 */
 	const struct cred *bc_cred;
->>>>>>> Stashed changes
 };
 
 struct metadata_handler {
@@ -293,13 +290,9 @@ struct metadata_handler {
 loff_t incfs_get_end_offset(struct file *f);
 
 /* Backing file context management */
-<<<<<<< Updated upstream
-struct backing_file_context *incfs_alloc_bfc(struct file *backing_file);
-=======
 struct mount_info;
 struct backing_file_context *incfs_alloc_bfc(struct mount_info *mi,
 					     struct file *backing_file);
->>>>>>> Stashed changes
 
 void incfs_free_bfc(struct backing_file_context *bfc);
 
@@ -350,14 +343,9 @@ int incfs_read_blockmap_entries(struct backing_file_context *bfc,
 int incfs_read_next_metadata_record(struct backing_file_context *bfc,
 				    struct metadata_handler *handler);
 
-<<<<<<< Updated upstream
-ssize_t incfs_kread(struct file *f, void *buf, size_t size, loff_t pos);
-ssize_t incfs_kwrite(struct file *f, const void *buf, size_t size, loff_t pos);
-=======
 ssize_t incfs_kread(struct backing_file_context *bfc, void *buf, size_t size,
 		    loff_t pos);
 ssize_t incfs_kwrite(struct backing_file_context *bfc, const void *buf,
 		     size_t size, loff_t pos);
->>>>>>> Stashed changes
 
 #endif /* _INCFS_FORMAT_H */

@@ -1106,10 +1106,6 @@ static void etm4_init_trace_id(struct etmv4_drvdata *drvdata)
 	drvdata->trcid = coresight_get_trace_id(drvdata->cpu);
 }
 
-<<<<<<< Updated upstream
-#ifdef CONFIG_CPU_PM
-=======
->>>>>>> Stashed changes
 static int etm4_cpu_save(struct etmv4_drvdata *drvdata)
 {
 	int i, ret = 0;
@@ -1162,11 +1158,7 @@ static int etm4_cpu_save(struct etmv4_drvdata *drvdata)
 	state->trcvdsacctlr = readl(drvdata->base + TRCVDSACCTLR);
 	state->trcvdarcctlr = readl(drvdata->base + TRCVDARCCTLR);
 
-<<<<<<< Updated upstream
-	for (i = 0; i < drvdata->nrseqstate; i++)
-=======
 	for (i = 0; i < drvdata->nrseqstate - 1; i++)
->>>>>>> Stashed changes
 		state->trcseqevr[i] = readl(drvdata->base + TRCSEQEVRn(i));
 
 	state->trcseqrstevr = readl(drvdata->base + TRCSEQRSTEVR);
@@ -1189,13 +1181,8 @@ static int etm4_cpu_save(struct etmv4_drvdata *drvdata)
 	}
 
 	for (i = 0; i < drvdata->nr_addr_cmp * 2; i++) {
-<<<<<<< Updated upstream
-		state->trcacvr[i] = readl(drvdata->base + TRCACVRn(i));
-		state->trcacatr[i] = readl(drvdata->base + TRCACATRn(i));
-=======
 		state->trcacvr[i] = readq(drvdata->base + TRCACVRn(i));
 		state->trcacatr[i] = readq(drvdata->base + TRCACATRn(i));
->>>>>>> Stashed changes
 	}
 
 	/*
@@ -1206,27 +1193,16 @@ static int etm4_cpu_save(struct etmv4_drvdata *drvdata)
 	 */
 
 	for (i = 0; i < drvdata->numcidc; i++)
-<<<<<<< Updated upstream
-		state->trccidcvr[i] = readl(drvdata->base + TRCCIDCVRn(i));
-
-	for (i = 0; i < drvdata->numvmidc; i++)
-		state->trcvmidcvr[i] = readl(drvdata->base + TRCVMIDCVRn(i));
-=======
 		state->trccidcvr[i] = readq(drvdata->base + TRCCIDCVRn(i));
 
 	for (i = 0; i < drvdata->numvmidc; i++)
 		state->trcvmidcvr[i] = readq(drvdata->base + TRCVMIDCVRn(i));
->>>>>>> Stashed changes
 
 	state->trccidcctlr0 = readl(drvdata->base + TRCCIDCCTLR0);
 	state->trccidcctlr1 = readl(drvdata->base + TRCCIDCCTLR1);
 
 	state->trcvmidcctlr0 = readl(drvdata->base + TRCVMIDCCTLR0);
-<<<<<<< Updated upstream
-	state->trcvmidcctlr0 = readl(drvdata->base + TRCVMIDCCTLR1);
-=======
 	state->trcvmidcctlr1 = readl(drvdata->base + TRCVMIDCCTLR1);
->>>>>>> Stashed changes
 
 	state->trcclaimset = readl(drvdata->base + TRCCLAIMCLR);
 
@@ -1287,11 +1263,7 @@ static void etm4_cpu_restore(struct etmv4_drvdata *drvdata)
 	writel_relaxed(state->trcvdsacctlr, drvdata->base + TRCVDSACCTLR);
 	writel_relaxed(state->trcvdarcctlr, drvdata->base + TRCVDARCCTLR);
 
-<<<<<<< Updated upstream
-	for (i = 0; i < drvdata->nrseqstate; i++)
-=======
 	for (i = 0; i < drvdata->nrseqstate - 1; i++)
->>>>>>> Stashed changes
 		writel_relaxed(state->trcseqevr[i],
 			       drvdata->base + TRCSEQEVRn(i));
 
@@ -1322,43 +1294,25 @@ static void etm4_cpu_restore(struct etmv4_drvdata *drvdata)
 	}
 
 	for (i = 0; i < drvdata->nr_addr_cmp * 2; i++) {
-<<<<<<< Updated upstream
-		writel_relaxed(state->trcacvr[i],
-			       drvdata->base + TRCACVRn(i));
-		writel_relaxed(state->trcacatr[i],
-=======
 		writeq_relaxed(state->trcacvr[i],
 			       drvdata->base + TRCACVRn(i));
 		writeq_relaxed(state->trcacatr[i],
->>>>>>> Stashed changes
 			       drvdata->base + TRCACATRn(i));
 	}
 
 	for (i = 0; i < drvdata->numcidc; i++)
-<<<<<<< Updated upstream
-		writel_relaxed(state->trccidcvr[i],
-			       drvdata->base + TRCCIDCVRn(i));
-
-	for (i = 0; i < drvdata->numvmidc; i++)
-		writel_relaxed(state->trcvmidcvr[i],
-=======
 		writeq_relaxed(state->trccidcvr[i],
 			       drvdata->base + TRCCIDCVRn(i));
 
 	for (i = 0; i < drvdata->numvmidc; i++)
 		writeq_relaxed(state->trcvmidcvr[i],
->>>>>>> Stashed changes
 			       drvdata->base + TRCVMIDCVRn(i));
 
 	writel_relaxed(state->trccidcctlr0, drvdata->base + TRCCIDCCTLR0);
 	writel_relaxed(state->trccidcctlr1, drvdata->base + TRCCIDCCTLR1);
 
 	writel_relaxed(state->trcvmidcctlr0, drvdata->base + TRCVMIDCCTLR0);
-<<<<<<< Updated upstream
-	writel_relaxed(state->trcvmidcctlr0, drvdata->base + TRCVMIDCCTLR1);
-=======
 	writel_relaxed(state->trcvmidcctlr1, drvdata->base + TRCVMIDCCTLR1);
->>>>>>> Stashed changes
 
 	writel_relaxed(state->trcclaimset, drvdata->base + TRCCLAIMSET);
 
@@ -1419,21 +1373,6 @@ static struct notifier_block etm4_cpu_pm_nb = {
 	.notifier_call = etm4_cpu_pm_notify,
 };
 
-<<<<<<< Updated upstream
-static int etm4_cpu_pm_register(void)
-{
-	return cpu_pm_register_notifier(&etm4_cpu_pm_nb);
-}
-
-static void etm4_cpu_pm_unregister(void)
-{
-	cpu_pm_unregister_notifier(&etm4_cpu_pm_nb);
-}
-#else
-static int etm4_cpu_pm_register(void) { return 0; }
-static void etm4_cpu_pm_unregister(void) { }
-#endif
-=======
 /* Setup PM. Called with cpus locked. Deals with error conditions and counts */
 static int etm4_pm_setup_cpuslocked(void)
 {
@@ -1486,7 +1425,6 @@ static void etm4_pm_clear(void)
 		hp_online = 0;
 	}
 }
->>>>>>> Stashed changes
 
 static int etm4_probe(struct amba_device *adev, const struct amba_id *id)
 {
@@ -1550,24 +1488,6 @@ static int etm4_probe(struct amba_device *adev, const struct amba_id *id)
 		cpus_read_unlock();
 		return -EINVAL;
 	}
-<<<<<<< Updated upstream
-	if (!etm4_count++) {
-		cpuhp_setup_state_nocalls_cpuslocked(CPUHP_AP_ARM_CORESIGHT_STARTING,
-						     "arm/coresight4:starting",
-						     etm4_starting_cpu, etm4_dying_cpu);
-		ret = cpuhp_setup_state_nocalls_cpuslocked(CPUHP_AP_ONLINE_DYN,
-							   "arm/coresight4:online",
-							   etm4_online_cpu, NULL);
-		if (ret < 0)
-			goto err_arch_supported;
-		hp_online = ret;
-
-		ret = etm4_cpu_pm_register();
-		if (ret)
-			goto err_arch_supported;
-	}
-=======
->>>>>>> Stashed changes
 
 	ret = etm4_pm_setup_cpuslocked();
 	cpus_read_unlock();
@@ -1618,18 +1538,8 @@ static int etm4_probe(struct amba_device *adev, const struct amba_id *id)
 	return 0;
 
 err_arch_supported:
-<<<<<<< Updated upstream
-	if (--etm4_count == 0) {
-		etm4_cpu_pm_unregister();
-
-		cpuhp_remove_state_nocalls(CPUHP_AP_ARM_CORESIGHT_STARTING);
-		if (hp_online)
-			cpuhp_remove_state_nocalls(hp_online);
-	}
-=======
 	etmdrvdata[drvdata->cpu] = NULL;
 	etm4_pm_clear();
->>>>>>> Stashed changes
 	return ret;
 }
 

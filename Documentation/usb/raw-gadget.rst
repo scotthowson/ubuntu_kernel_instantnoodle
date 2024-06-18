@@ -27,14 +27,8 @@ differences are:
 3. Raw Gadget provides a way to select a UDC device/driver to bind to,
    while GadgetFS currently binds to the first available UDC.
 
-<<<<<<< Updated upstream
-4. Raw Gadget uses predictable endpoint names (handles) across different
-   UDCs (as long as UDCs have enough endpoints of each required transfer
-   type).
-=======
 4. Raw Gadget explicitly exposes information about endpoints addresses and
    capabilities allowing a user to write UDC-agnostic gadgets.
->>>>>>> Stashed changes
 
 5. Raw Gadget has ioctl-based interface instead of a filesystem-based one.
 
@@ -55,17 +49,6 @@ The typical usage of Raw Gadget looks like:
    Raw Gadget and react to those depending on what kind of USB device
    needs to be emulated.
 
-<<<<<<< Updated upstream
-Potential future improvements
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-- Implement ioctl's for setting/clearing halt status on endpoints.
-
-- Reporting more events (suspend, resume, etc.) through
-  USB_RAW_IOCTL_EVENT_FETCH.
-
-- Support O_NONBLOCK I/O.
-=======
 Note, that some UDC drivers have fixed addresses assigned to endpoints, and
 therefore arbitrary endpoint addresses can't be used in the descriptors.
 Nevertheles, Raw Gadget provides a UDC-agnostic way to write USB gadgets.
@@ -99,4 +82,3 @@ Potential future improvements
   enabling endpoints; allow providing stream_id for bulk transfers).
 
 - Support ISO transfer features (expose frame_number for completed requests).
->>>>>>> Stashed changes

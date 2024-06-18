@@ -452,11 +452,7 @@ int msi_domain_alloc_irqs(struct irq_domain *domain, struct device *dev,
 				virq, virq + desc->nvec_used - 1);
 		}
 
-<<<<<<< Updated upstream
-		irq_data = irq_domain_get_irq_data(domain, desc->irq);
-=======
 		irq_data = irq_domain_get_irq_data(domain, i);
->>>>>>> Stashed changes
 		if (!can_reserve) {
 			irqd_clr_can_reserve(irq_data);
 			if (domain->flags & IRQ_DOMAIN_MSI_NOMASK_QUIRK)

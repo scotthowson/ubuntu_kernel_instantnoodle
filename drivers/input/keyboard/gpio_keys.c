@@ -393,31 +393,6 @@ static void gpio_keys_gpio_work_func(struct work_struct *work)
 		pm_relax(bdata->input->dev.parent);
 }
 
-<<<<<<< Updated upstream
-static void gpio_vol_up_work_func(struct work_struct *work)
-{
-	struct gpio_button_data *bdata =
-		container_of(work, struct gpio_button_data, press_vol_up.work);
-	const struct gpio_keys_button *button = bdata->button;
-	struct input_dev *input = bdata->input;
-	int state;
-
-	state = gpiod_get_value_cansleep(bdata->gpiod);
-	if (state < 0) {
-		dev_err(input->dev.parent,
-			"failed to get gpio state: %d\n", state);
-		return;
-	}
-
-	if (state && button->code == KEY_VOLUMEUP) {
-		set_vol_up_status(KEY_PRESSED);
-		compound_key_to_get_trace("system_server");
-		compound_key_to_get_tombstone("surfaceflinger");
-	}
-}
-
-=======
->>>>>>> Stashed changes
 static irqreturn_t gpio_keys_gpio_isr(int irq, void *dev_id)
 {
 	struct gpio_button_data *bdata = dev_id;

@@ -712,8 +712,6 @@ bool wlan_crypto_check_wpa_match(struct wlan_objmgr_psoc *psoc,
 				 peer_crypto_params);
 
 /**
-<<<<<<< Updated upstream
-=======
  * wlan_crypto_parse_rsnxe_ie() - parse RSNXE IE
  * @rsnxe_ie: RSNXE IE pointer
  * @cap_len: pointer to hold len of ext capability
@@ -724,7 +722,6 @@ uint8_t *
 wlan_crypto_parse_rsnxe_ie(uint8_t *rsnxe_ie, uint8_t *cap_len);
 
 /**
->>>>>>> Stashed changes
  * wlan_set_vdev_crypto_prarams_from_ie - Sets vdev crypto params from IE info
  * @vdev: vdev pointer
  * @ie_ptr: pointer to IE
@@ -864,8 +861,6 @@ QDF_STATUS wlan_crypto_set_key_req(struct wlan_objmgr_vdev *vdev,
  * Return: None
  */
 void wlan_crypto_free_vdev_key(struct wlan_objmgr_vdev *vdev);
-<<<<<<< Updated upstream
-=======
 
 /**
  * wlan_crypto_reset_vdev_params - Reset params for vdev
@@ -876,7 +871,6 @@ void wlan_crypto_free_vdev_key(struct wlan_objmgr_vdev *vdev);
  * Return: None
  */
 void wlan_crypto_reset_vdev_params(struct wlan_objmgr_vdev *vdev);
->>>>>>> Stashed changes
 #else
 static inline void wlan_crypto_update_set_key_peer(
 						struct wlan_objmgr_vdev *vdev,
@@ -910,13 +904,10 @@ QDF_STATUS wlan_crypto_set_key_req(struct wlan_objmgr_vdev *vdev,
 static inline void wlan_crypto_free_vdev_key(struct wlan_objmgr_vdev *vdev)
 {
 }
-<<<<<<< Updated upstream
-=======
 
 static inline void wlan_crypto_reset_vdev_prarams(struct wlan_objmgr_vdev *vdev)
 {
 }
->>>>>>> Stashed changes
 #endif /* CRYPTO_SET_KEY_CONVERGED */
 
 /**

@@ -44,8 +44,6 @@ static const u8 return_offsets[8][2] = {
 	[7] = { 4, 4 },		/* FIQ, unused */
 };
 
-<<<<<<< Updated upstream
-=======
 static bool pre_fault_synchronize(struct kvm_vcpu *vcpu)
 {
 	preempt_disable();
@@ -66,7 +64,6 @@ static void post_fault_synchronize(struct kvm_vcpu *vcpu, bool loaded)
 	}
 }
 
->>>>>>> Stashed changes
 /*
  * When an exception is taken, most CPSR fields are left unchanged in the
  * handler. However, some are explicitly overridden (e.g. M[4:0]).
@@ -231,11 +228,8 @@ static void inject_abt32(struct kvm_vcpu *vcpu, bool is_pabt,
 		/* no need to shuffle FS[4] into DFSR[10] as its 0 */
 		*fsr = DFSR_FSC_EXTABT_nLPAE;
 	}
-<<<<<<< Updated upstream
-=======
 
 	post_fault_synchronize(vcpu, loaded);
->>>>>>> Stashed changes
 }
 
 void kvm_inject_dabt32(struct kvm_vcpu *vcpu, unsigned long addr)

@@ -1,9 +1,6 @@
 /*
  * Copyright (c) 2011-2020 The Linux Foundation. All rights reserved.
-<<<<<<< Updated upstream
-=======
  * Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -717,10 +714,7 @@ struct csr_roam_profile {
 	tCsrKeys Keys;
 	tCsrChannelInfo ChannelInfo;
 	uint32_t op_freq;
-<<<<<<< Updated upstream
-=======
 	uint32_t freq_hint;
->>>>>>> Stashed changes
 	struct ch_params ch_params;
 	/* If this is 0, SME will fill in for caller. */
 	uint16_t beaconInterval;
@@ -774,10 +768,7 @@ struct csr_roam_profile {
 	uint16_t beacon_tx_rate;
 	tSirMacRateSet  supported_rates;
 	tSirMacRateSet  extended_rates;
-<<<<<<< Updated upstream
-=======
 	bool require_h2e;
->>>>>>> Stashed changes
 	struct qdf_mac_addr bssid_hint;
 	bool force_24ghz_in_ht20;
 	uint32_t cac_duration_ms;

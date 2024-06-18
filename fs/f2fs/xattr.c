@@ -27,12 +27,8 @@ static void *xattr_alloc(struct f2fs_sb_info *sbi, int size, bool *is_inline)
 {
 	if (likely(size == sbi->inline_xattr_slab_size)) {
 		*is_inline = true;
-<<<<<<< Updated upstream
-		return kmem_cache_zalloc(sbi->inline_xattr_slab, GFP_NOFS);
-=======
 		return f2fs_kmem_cache_alloc(sbi->inline_xattr_slab,
 					GFP_F2FS_ZERO, false, sbi);
->>>>>>> Stashed changes
 	}
 	*is_inline = false;
 	return f2fs_kzalloc(sbi, size, GFP_NOFS);
@@ -44,11 +40,7 @@ static void xattr_free(struct f2fs_sb_info *sbi, void *xattr_addr,
 	if (is_inline)
 		kmem_cache_free(sbi->inline_xattr_slab, xattr_addr);
 	else
-<<<<<<< Updated upstream
-		kvfree(xattr_addr);
-=======
 		kfree(xattr_addr);
->>>>>>> Stashed changes
 }
 
 static int f2fs_xattr_generic_get(const struct xattr_handler *handler,
@@ -536,11 +528,7 @@ int f2fs_getxattr(struct inode *inode, int index, const char *name,
 	f2fs_down_read(&F2FS_I(inode)->i_xattr_sem);
 	error = lookup_all_xattrs(inode, ipage, index, len, name,
 				&entry, &base_addr, &base_size, &is_inline);
-<<<<<<< Updated upstream
-	up_read(&F2FS_I(inode)->i_xattr_sem);
-=======
 	f2fs_up_read(&F2FS_I(inode)->i_xattr_sem);
->>>>>>> Stashed changes
 	if (error)
 		return error;
 
@@ -571,11 +559,7 @@ ssize_t f2fs_listxattr(struct dentry *dentry, char *buffer, size_t buffer_size)
 	struct inode *inode = d_inode(dentry);
 	struct f2fs_xattr_entry *entry;
 	void *base_addr, *last_base_addr;
-<<<<<<< Updated upstream
-	int error = 0;
-=======
 	int error;
->>>>>>> Stashed changes
 	size_t rest = buffer_size;
 
 	f2fs_down_read(&F2FS_I(inode)->i_xattr_sem);
@@ -599,11 +583,8 @@ ssize_t f2fs_listxattr(struct dentry *dentry, char *buffer, size_t buffer_size)
 						inode->i_ino);
 			set_sbi_flag(F2FS_I_SB(inode), SBI_NEED_FSCK);
 			error = -EFSCORRUPTED;
-<<<<<<< Updated upstream
-=======
 			f2fs_handle_error(F2FS_I_SB(inode),
 						ERROR_CORRUPTED_XATTR);
->>>>>>> Stashed changes
 			goto cleanup;
 		}
 
@@ -800,11 +781,7 @@ int f2fs_setxattr(struct inode *inode, int index, const char *name,
 	if (!f2fs_is_checkpoint_ready(sbi))
 		return -ENOSPC;
 
-<<<<<<< Updated upstream
-	err = dquot_initialize(inode);
-=======
 	err = f2fs_dquot_initialize(inode);
->>>>>>> Stashed changes
 	if (err)
 		return err;
 
@@ -815,15 +792,9 @@ int f2fs_setxattr(struct inode *inode, int index, const char *name,
 	f2fs_balance_fs(sbi, true);
 
 	f2fs_lock_op(sbi);
-<<<<<<< Updated upstream
-	down_write(&F2FS_I(inode)->i_xattr_sem);
-	err = __f2fs_setxattr(inode, index, name, value, size, ipage, flags);
-	up_write(&F2FS_I(inode)->i_xattr_sem);
-=======
 	f2fs_down_write(&F2FS_I(inode)->i_xattr_sem);
 	err = __f2fs_setxattr(inode, index, name, value, size, ipage, flags);
 	f2fs_up_write(&F2FS_I(inode)->i_xattr_sem);
->>>>>>> Stashed changes
 	f2fs_unlock_op(sbi);
 
 	f2fs_update_time(sbi, REQ_TIME);

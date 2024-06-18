@@ -1,10 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (c) 2016-2020, The Linux Foundation. All rights reserved.
-<<<<<<< Updated upstream
-=======
  * Copyright (c) 2022, Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include <linux/of_device.h>
@@ -1104,34 +1101,6 @@ int dsi_phy_set_timing_params(struct msm_dsi_phy *phy,
 		phy->cfg.is_phy_timing_present = true;
 
 	if (phy->hw.ops.commit_phy_timing && commit)
-<<<<<<< Updated upstream
-		phy->hw.ops.commit_phy_timing(&phy->hw, &phy->cfg.timing);
-
-	mutex_unlock(&phy->phy_lock);
-	return rc;
-}
-
-/* TODO: Deduplicate this ASAP */
-int dsi_phy_set_timing_params_commit(struct msm_dsi_phy *phy,
-				     u32 *timing, u32 size)
-{
-	int rc = 0;
-
-	if (!phy || !timing || !size) {
-		pr_err("Invalid params\n");
-		return -EINVAL;
-	};
-
-	mutex_lock(&phy->phy_lock);
-
-	if (phy->hw.ops.phy_timing_val)
-		rc = phy->hw.ops.phy_timing_val(&phy->cfg.timing, timing, size);
-	if (!rc)
-		phy->cfg.is_phy_timing_present = true;
-
-	if (phy->hw.ops.commit_phy_timing)
-=======
->>>>>>> Stashed changes
 		phy->hw.ops.commit_phy_timing(&phy->hw, &phy->cfg.timing);
 
 	mutex_unlock(&phy->phy_lock);

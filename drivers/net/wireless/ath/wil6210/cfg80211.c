@@ -1050,11 +1050,6 @@ static int wil_cfg80211_change_iface(struct wiphy *wiphy,
 	compressed_rx_status = wil->use_compressed_rx_status;
 	if (type == NL80211_IFTYPE_MONITOR)
 		wil->use_compressed_rx_status = false;
-<<<<<<< Updated upstream
-	else if (wdev->iftype == NL80211_IFTYPE_MONITOR)
-		wil->use_compressed_rx_status =  true;
-=======
->>>>>>> Stashed changes
 
 	/* do not reset FW when there are active VIFs,
 	 * because it can cause significant disruption

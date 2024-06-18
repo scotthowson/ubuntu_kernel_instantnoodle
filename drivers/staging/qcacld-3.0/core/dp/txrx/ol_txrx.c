@@ -1,10 +1,6 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2011-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2011-2021 The Linux Foundation. All rights reserved.
  * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -1448,25 +1444,19 @@ ol_txrx_pdev_post_attach(struct cdp_soc_t *soc_hdl, uint8_t pdev_id)
 	pdev->rx_pn[htt_sec_type_tkip].len =
 		pdev->rx_pn[htt_sec_type_tkip_nomic].len =
 			pdev->rx_pn[htt_sec_type_aes_ccmp].len = 48;
-<<<<<<< Updated upstream
-=======
 
 	pdev->rx_pn[htt_sec_type_aes_ccmp_256].len =
 		pdev->rx_pn[htt_sec_type_aes_gcmp].len =
 			pdev->rx_pn[htt_sec_type_aes_gcmp_256].len = 48;
 
->>>>>>> Stashed changes
 	pdev->rx_pn[htt_sec_type_tkip].cmp =
 		pdev->rx_pn[htt_sec_type_tkip_nomic].cmp =
 			pdev->rx_pn[htt_sec_type_aes_ccmp].cmp = ol_rx_pn_cmp48;
 
-<<<<<<< Updated upstream
-=======
 	pdev->rx_pn[htt_sec_type_aes_ccmp_256].cmp =
 		pdev->rx_pn[htt_sec_type_aes_gcmp].cmp =
 		    pdev->rx_pn[htt_sec_type_aes_gcmp_256].cmp = ol_rx_pn_cmp48;
 
->>>>>>> Stashed changes
 	/* WAPI: 128-bit PN */
 	pdev->rx_pn[htt_sec_type_wapi].len = 128;
 	pdev->rx_pn[htt_sec_type_wapi].cmp = ol_rx_pn_wapi_cmp;
@@ -3645,8 +3635,6 @@ static void ol_txrx_peer_unmap_sync_cb_set(
 }
 
 /**
-<<<<<<< Updated upstream
-=======
  * ol_txrx_peer_flush_frags() - Flush fragments for a particular peer
  * @soc_hdl - datapath soc handle
  * @vdev_id - virtual device id
@@ -3677,7 +3665,6 @@ ol_txrx_peer_flush_frags(struct cdp_soc_t *soc_hdl, uint8_t vdev_id,
 }
 
 /**
->>>>>>> Stashed changes
  * ol_txrx_dump_tx_desc() - dump tx desc total and free count
  * @txrx_pdev: Pointer to txrx pdev
  *
@@ -5892,23 +5879,15 @@ static uint32_t ol_txrx_get_cfg(struct cdp_soc_t *soc_hdl, enum cdp_dp_cfg cfg)
 	case cfg_dp_enable_p2p_ip_tcp_udp_checksum_offload:
 		value = cfg_ctx->p2p_ip_tcp_udp_checksum_offload;
 		break;
-<<<<<<< Updated upstream
-=======
 	case cfg_dp_enable_nan_ip_tcp_udp_checksum_offload:
 		value = cfg_ctx->nan_tcp_udp_checksumoffload;
 		break;
->>>>>>> Stashed changes
 	case cfg_dp_tso_enable:
 		value = cfg_ctx->tso_enable;
 		break;
 	case cfg_dp_lro_enable:
 		value = cfg_ctx->lro_enable;
 		break;
-<<<<<<< Updated upstream
-	case cfg_dp_gro_enable:
-		value = cfg_ctx->gro_enable;
-		break;
-=======
 	case cfg_dp_sg_enable:
 		value = cfg_ctx->sg_enable;
 		break;
@@ -5921,7 +5900,6 @@ static uint32_t ol_txrx_get_cfg(struct cdp_soc_t *soc_hdl, enum cdp_dp_cfg cfg)
 	case cfg_dp_tc_ingress_prio:
 		value = cfg_ctx->tc_ingress_prio;
 		break;
->>>>>>> Stashed changes
 #ifdef QCA_LL_TX_FLOW_CONTROL_V2
 	case cfg_dp_tx_flow_start_queue_offset:
 		value = cfg_ctx->tx_flow_start_queue_offset;
@@ -6418,10 +6396,7 @@ static struct cdp_peer_ops ol_ops_peer = {
 	.set_peer_as_tdls_peer = ol_txrx_set_peer_as_tdls_peer,
 #endif /* CONFIG_HL_SUPPORT */
 	.peer_detach_force_delete = ol_txrx_peer_detach_force_delete,
-<<<<<<< Updated upstream
-=======
 	.peer_flush_frags = ol_txrx_peer_flush_frags,
->>>>>>> Stashed changes
 };
 
 static struct cdp_tx_delay_ops ol_ops_delay = {

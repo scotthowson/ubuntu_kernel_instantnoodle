@@ -1,10 +1,6 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2011-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2011-2021 The Linux Foundation. All rights reserved.
  * Copyright (c) 2021-2023 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -123,8 +119,6 @@ typedef enum {
   WLAN_MODULE_CFIR,                     /* 0x54 */ /* Channel Capture */
   WLAN_MODULE_CODE_COVER,               /* 0x55 */ /* code coverage */
   WLAN_MODULE_SHO,                      /* 0x56 */ /* SAP HW offload */
-<<<<<<< Updated upstream
-=======
   WLAN_MODULE_MLO_MGR,                  /* 0x57 */ /* MLO manager */
   WLAN_MODULE_PEER_INIT,                /* 0x58 */ /* peer init connection handling */
   WLAN_MODULE_STA_MLO_PS,               /* 0x59 */ /* MLO PS manager */
@@ -160,7 +154,6 @@ typedef enum {
   WLAN_MODULE_SMART_TX,                 /* 0x71 */
   WLAN_MODULE_BRIDGE_PEER,              /* 0x72 */
   WLAN_MODULE_AUX_MAC_MGR,              /* 0x73 */
->>>>>>> Stashed changes
 
 
   WLAN_MODULE_ID_MAX,

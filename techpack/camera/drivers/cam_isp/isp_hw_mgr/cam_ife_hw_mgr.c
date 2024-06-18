@@ -3835,10 +3835,6 @@ static int cam_ife_mgr_config_hw(void *hw_mgr_priv,
 		for (i = 0; i < CAM_IFE_HW_CONFIG_WAIT_MAX_TRY; i++) {
 			rem_jiffies = wait_for_completion_timeout(
 				&ctx->config_done_complete,
-<<<<<<< Updated upstream
-				msecs_to_jiffies(60));
-			if (rc <= 0) {
-=======
 				msecs_to_jiffies(30));
 			if (rem_jiffies == 0) {
 				if (!cam_cdm_detect_hang_error(
@@ -3849,7 +3845,6 @@ static int cam_ife_mgr_config_hw(void *hw_mgr_priv,
 						ctx->ctx_index);
 					continue;
 				}
->>>>>>> Stashed changes
 				CAM_ERR(CAM_ISP,
 					"config done completion timeout for req_id=%llu ctx_index %d",
 					cfg->request_id, ctx->ctx_index);

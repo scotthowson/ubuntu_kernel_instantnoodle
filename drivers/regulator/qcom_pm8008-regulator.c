@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
-<<<<<<< Updated upstream
-/* Copyright (c) 2019-2020, The Linux Foundation. All rights reserved. */
-=======
 /* Copyright (c) 2019-2021, The Linux Foundation. All rights reserved. */
 /* Copyright (c) 2021, Qualcomm Innovation Center, Inc. All rights reserved. */
->>>>>>> Stashed changes
 
 #define pr_fmt(fmt) "PM8008: %s: " fmt, __func__
 
@@ -676,13 +672,10 @@ static int pm8008_register_ldo(struct pm8008_regulator *pm8008_reg,
 		return rc;
 	}
 	pm8008_reg->base = base;
-<<<<<<< Updated upstream
-=======
 
 	rc = pm8008_regulator_register_init(pm8008_reg, &reg_data[i]);
 	if (rc)
 		return rc;
->>>>>>> Stashed changes
 
 	pm8008_reg->min_dropout_uv = reg_data[i].min_dropout_uv;
 	of_property_read_u32(reg_node, "qcom,min-dropout-voltage",

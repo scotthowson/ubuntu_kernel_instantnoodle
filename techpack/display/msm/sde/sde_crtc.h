@@ -1,9 +1,5 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2015-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2015-2021 The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  * Copyright (C) 2013 Red Hat
  * Author: Rob Clark <robdclark@gmail.com>
  *
@@ -299,10 +295,7 @@ struct sde_crtc_misr_info {
  * @ltm_lock        : Spinlock to protect ltm buffer_cnt, hist_en and ltm lists
  * @needs_hw_reset  : Initiate a hw ctl reset
  * @comp_ratio      : Compression ratio
-<<<<<<< Updated upstream
-=======
  * @dspp_blob_info  : blob containing dspp hw capability information
->>>>>>> Stashed changes
  */
 struct sde_crtc {
 	struct drm_crtc base;
@@ -390,11 +383,8 @@ struct sde_crtc {
 	bool needs_hw_reset;
 
 	int comp_ratio;
-<<<<<<< Updated upstream
-=======
 
 	struct drm_property_blob *dspp_blob_info;
->>>>>>> Stashed changes
 };
 
 #define to_sde_crtc(x) container_of(x, struct sde_crtc, base)
@@ -890,15 +880,12 @@ void sde_crtc_get_misr_info(struct drm_crtc *crtc,
 int sde_crtc_get_num_datapath(struct drm_crtc *crtc,
 		struct drm_connector *connector);
 
-<<<<<<< Updated upstream
-=======
 /**
  * _sde_crtc_clear_dim_layers_v1 - clear all dim layer settings
  * @cstate:      Pointer to drm crtc state
  */
 void _sde_crtc_clear_dim_layers_v1(struct drm_crtc_state *state);
 
->>>>>>> Stashed changes
 /*
  * sde_crtc_set_compression_ratio - set compression ratio src_bpp/target_bpp
  * @msm_mode_info: Mode info

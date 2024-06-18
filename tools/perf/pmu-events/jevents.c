@@ -1156,11 +1156,7 @@ int main(int argc, char *argv[])
 		/* Make build fail */
 		fclose(eventsfp);
 		free_arch_std_events();
-<<<<<<< Updated upstream
-		return 1;
-=======
 		ret = 1;
->>>>>>> Stashed changes
 	}
 
 

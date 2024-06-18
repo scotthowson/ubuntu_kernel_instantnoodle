@@ -281,10 +281,6 @@ bool qdf_is_drv_supported(void);
  */
 void qdf_register_drv_supported_callback(qdf_is_drv_supported_callback
 					 is_drv_supported);
-<<<<<<< Updated upstream
-#endif /*_QDF_PLATFORM_H*/
-
-=======
 
 typedef void (*qdf_recovery_reason_update_callback)(enum qdf_hang_reason
 						    reason);
@@ -337,4 +333,3 @@ void qdf_register_get_bus_reg_dump(qdf_bus_reg_dump callback);
  */
 void qdf_get_bus_reg_dump(struct device *dev, uint8_t *buf, uint32_t len);
 #endif /*_QDF_PLATFORM_H*/
->>>>>>> Stashed changes

@@ -40,12 +40,6 @@
 #include <linux/init_task.h>
 #include <linux/uaccess.h>
 #include <linux/build_bug.h>
-<<<<<<< Updated upstream
-#ifdef CONFIG_FSC
-#include <linux/oem/fsc.h>
-#endif
-=======
->>>>>>> Stashed changes
 
 #include "internal.h"
 #include "mount.h"
@@ -2445,17 +2439,6 @@ static int filename_lookup(int dfd, struct filename *name, unsigned flags,
 		nd.root = *root;
 		flags |= LOOKUP_ROOT;
 	}
-<<<<<<< Updated upstream
-#ifdef CONFIG_FSC
-	is_fsc_path_candidate = (fsc_enable && fsc_allow_list_cur &&
-					fsc_path_check(name, &len));
-	if (is_fsc_path_candidate && fsc_absence_check(name->name, len)) {
-		putname(name);
-		return -ENOENT;
-	}
-#endif
-=======
->>>>>>> Stashed changes
 	set_nameidata(&nd, dfd, name);
 	retval = path_lookupat(&nd, flags | LOOKUP_RCU, path);
 	if (unlikely(retval == -ECHILD))

@@ -257,11 +257,7 @@ QDF_STATUS wlan_mlme_set_ht_mpdu_density(struct wlan_objmgr_psoc *psoc,
  * Return: QDF Status
  */
 QDF_STATUS wlan_mlme_get_band_capability(struct wlan_objmgr_psoc *psoc,
-<<<<<<< Updated upstream
-					 uint8_t *band_capability);
-=======
 					 uint32_t *band_capability);
->>>>>>> Stashed changes
 
 /**
  * wlan_mlme_set_band_capability() - Set the Band capability config
@@ -271,11 +267,7 @@ QDF_STATUS wlan_mlme_get_band_capability(struct wlan_objmgr_psoc *psoc,
  * Return: QDF Status
  */
 QDF_STATUS wlan_mlme_set_band_capability(struct wlan_objmgr_psoc *psoc,
-<<<<<<< Updated upstream
-					 uint8_t band_capability);
-=======
 					 uint32_t band_capability);
->>>>>>> Stashed changes
 
 /**
  * wlan_mlme_get_prevent_link_down() - Get the prevent link down config
@@ -533,8 +525,6 @@ QDF_STATUS wlan_mlme_set_assoc_sta_limit(struct wlan_objmgr_psoc *psoc,
 					 int value);
 
 /**
-<<<<<<< Updated upstream
-=======
  * wlan_mlme_get_assoc_sta_limit() - Get the assoc sta limit
  * @psoc: pointer to psoc object
  * @value: Pointer to value that needs to be filled by MLME
@@ -545,7 +535,6 @@ QDF_STATUS wlan_mlme_get_assoc_sta_limit(struct wlan_objmgr_psoc *psoc,
 					 int *value);
 
 /**
->>>>>>> Stashed changes
  * wlan_mlme_set_rmc_action_period_freq() - Set the rmc action period frequency
  * @psoc: pointer to psoc object
  * @value: Value that needs to be set from the caller
@@ -1925,8 +1914,6 @@ QDF_STATUS
 wlan_mlme_get_vht20_mcs9(struct wlan_objmgr_psoc *psoc, bool *value);
 
 /**
-<<<<<<< Updated upstream
-=======
  * wlan_mlme_get_srd_master_mode_for_vdev  - Get SRD master mode for vdev
  * @psoc:          pointer to psoc object
  * @vdev_opmode:   vdev operating mode
@@ -1951,7 +1938,6 @@ wlan_mlme_get_indoor_support_for_nan(struct wlan_objmgr_psoc *psoc,
 				     bool *value);
 
 /**
->>>>>>> Stashed changes
  * wlan_mlme_get_vht_enable2x2() - Enables/disables VHT Tx/Rx MCS values for 2x2
  * @psoc: psoc context
  * @value: data to be set

@@ -206,27 +206,21 @@ static const struct pci_device_id intel_th_pci_id_table[] = {
 		.driver_data = (kernel_ulong_t)&intel_th_2x,
 	},
 	{
-<<<<<<< Updated upstream
-=======
 		/* Tiger Lake PCH-H */
 		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x43a6),
 		.driver_data = (kernel_ulong_t)&intel_th_2x,
 	},
 	{
->>>>>>> Stashed changes
 		/* Jasper Lake PCH */
 		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x4da6),
 		.driver_data = (kernel_ulong_t)&intel_th_2x,
 	},
 	{
-<<<<<<< Updated upstream
-=======
 		/* Jasper Lake CPU */
 		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x4e29),
 		.driver_data = (kernel_ulong_t)&intel_th_2x,
 	},
 	{
->>>>>>> Stashed changes
 		/* Elkhart Lake CPU */
 		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x4529),
 		.driver_data = (kernel_ulong_t)&intel_th_2x,
@@ -236,8 +230,6 @@ static const struct pci_device_id intel_th_pci_id_table[] = {
 		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x4b26),
 		.driver_data = (kernel_ulong_t)&intel_th_2x,
 	},
-<<<<<<< Updated upstream
-=======
 	{
 		/* Alder Lake-P */
 		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x51a6),
@@ -273,7 +265,6 @@ static const struct pci_device_id intel_th_pci_id_table[] = {
 		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x4c19),
 		.driver_data = (kernel_ulong_t)&intel_th_2x,
 	},
->>>>>>> Stashed changes
 	{ 0 },
 };
 

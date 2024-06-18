@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2012-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include <linux/module.h>
@@ -991,11 +987,7 @@ static int gsi_startxfer_for_ep(struct usb_ep *ep)
 	memset(&params, 0, sizeof(params));
 	params.param0 = GSI_TRB_ADDR_BIT_53_MASK | GSI_TRB_ADDR_BIT_55_MASK;
 	params.param0 |= upper_32_bits(dwc3_trb_dma_offset(dep,
-<<<<<<< Updated upstream
-						&dep->trb_pool[0]) & 0xffff);
-=======
 						&dep->trb_pool[0])) & 0xffff;
->>>>>>> Stashed changes
 	params.param0 |= (ep->ep_intr_num << 16);
 	params.param1 = lower_32_bits(dwc3_trb_dma_offset(dep,
 						&dep->trb_pool[0]));
@@ -1270,11 +1262,7 @@ static int gsi_prepare_trbs(struct usb_ep *ep, struct usb_gsi_request *req)
 			/* Set up the Link TRB at the end */
 			if (i == (num_trbs - 1)) {
 				trb->bpl = lower_32_bits(trb0_dma);
-<<<<<<< Updated upstream
-				trb->bph = upper_32_bits(trb0_dma & 0xffff);
-=======
 				trb->bph = upper_32_bits(trb0_dma) & 0xffff;
->>>>>>> Stashed changes
 				trb->bph |= (1 << 23) | (1 << 21)
 						| (ep->ep_intr_num << 16);
 				trb->size = 0;
@@ -1298,11 +1286,7 @@ static int gsi_prepare_trbs(struct usb_ep *ep, struct usb_gsi_request *req)
 			} else if (i == (num_trbs - 1)) {
 				/* Set up the Link TRB at the end */
 				trb->bpl = lower_32_bits(trb0_dma);
-<<<<<<< Updated upstream
-				trb->bph = upper_32_bits(trb0_dma & 0xffff);
-=======
 				trb->bph = upper_32_bits(trb0_dma) & 0xffff;
->>>>>>> Stashed changes
 				trb->bph |= (1 << 23) | (1 << 21)
 						| (ep->ep_intr_num << 16);
 				trb->ctrl = DWC3_TRBCTL_LINK_TRB
@@ -3017,10 +3001,6 @@ static void dwc3_resume_work(struct work_struct *w)
 	struct extcon_dev *edev = NULL;
 	const char *edev_name;
 	char *eud_str;
-<<<<<<< Updated upstream
-	bool eud_connected = false;
-=======
->>>>>>> Stashed changes
 	int ret = 0;
 
 	dev_dbg(mdwc->dev, "%s: dwc3 resume work\n", __func__);
@@ -3038,45 +3018,18 @@ static void dwc3_resume_work(struct work_struct *w)
 		/* Skip querying speed and cc_state for EUD edev */
 		eud_str = strnstr(edev_name, "eud", strlen(edev_name));
 		if (eud_str)
-<<<<<<< Updated upstream
-			eud_connected = true;
-	}
-
-	/* Check speed and Type-C polarity values in order to configure PHY */
-	if (!eud_connected && edev && extcon_get_state(edev, extcon_id)) {
-		dwc->maximum_speed = dwc->max_hw_supp_speed;
-		dwc->gadget.max_speed = dwc->maximum_speed;
-
-=======
 			goto skip_update;
 	}
 
 	dwc->maximum_speed = dwc->max_hw_supp_speed;
 	/* Check speed and Type-C polarity values in order to configure PHY */
 	if (edev && extcon_get_state(edev, extcon_id)) {
->>>>>>> Stashed changes
 		ret = extcon_get_property(edev, extcon_id,
 				EXTCON_PROP_USB_SS, &val);
 
-		if (!ret && val.intval == 0) {
+		if (!ret && val.intval == 0)
 			dwc->maximum_speed = USB_SPEED_HIGH;
-			dwc->gadget.max_speed = dwc->maximum_speed;
-		}
 
-<<<<<<< Updated upstream
-		if (mdwc->override_usb_speed &&
-			mdwc->override_usb_speed <= dwc->maximum_speed) {
-			dwc->maximum_speed = mdwc->override_usb_speed;
-			dwc->gadget.max_speed = dwc->maximum_speed;
-			dbg_event(0xFF, "override_speed",
-					mdwc->override_usb_speed);
-			mdwc->override_usb_speed = 0;
-		}
-
-		dbg_event(0xFF, "speed", dwc->maximum_speed);
-
-=======
->>>>>>> Stashed changes
 		ret = extcon_get_property(edev, extcon_id,
 				EXTCON_PROP_USB_TYPEC_POLARITY, &val);
 		if (ret)

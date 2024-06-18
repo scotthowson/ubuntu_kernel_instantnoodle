@@ -36,8 +36,6 @@ static void config_sub_second_increment(void __iomem *ioaddr,
 	unsigned long data;
 	u32 reg_value;
 
-<<<<<<< Updated upstream
-=======
 	/* For GMAC3.x, 4.x versions, in "fine adjustement mode" set sub-second
 	 * increment to twice the number of nanoseconds of a clock cycle.
 	 * The calculation of the default_addend value by the caller will set it
@@ -46,7 +44,6 @@ static void config_sub_second_increment(void __iomem *ioaddr,
 	 * cycles, adding twice the number of nanoseconds of a clock cycle :
 	 * 2000000000ULL / ptp_clock.
 	 */
->>>>>>> Stashed changes
 	if (value & PTP_TCR_TSCFUPDT)
 		data = (2000000000ULL / ptp_clock);
 	else

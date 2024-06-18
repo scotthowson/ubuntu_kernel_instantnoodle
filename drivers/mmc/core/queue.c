@@ -139,19 +139,8 @@ static enum blk_eh_timer_return mmc_mq_timed_out(struct request *req,
 	bool ignore_tout;
 
 	spin_lock_irqsave(q->queue_lock, flags);
-<<<<<<< Updated upstream
-
-	if (mq->recovery_needed || !mq->use_cqe) {
-		ret = BLK_EH_RESET_TIMER;
-		spin_unlock_irqrestore(q->queue_lock, flags);
-	} else {
-		spin_unlock_irqrestore(q->queue_lock, flags);
-		ret = mmc_cqe_timed_out(req);
-	}
-=======
 	ignore_tout = mq->recovery_needed || !mq->use_cqe;
 	spin_unlock_irqrestore(q->queue_lock, flags);
->>>>>>> Stashed changes
 
 	return ignore_tout ? BLK_EH_RESET_TIMER : mmc_cqe_timed_out(req);
 }
@@ -394,15 +383,10 @@ static void mmc_setup_queue(struct mmc_queue *mq, struct mmc_card *card)
 	if (host->ops->init)
 		host->ops->init(host);
 
-<<<<<<< Updated upstream
-	if (mmc_card_mmc(card))
-		block_size = card->ext_csd.data_sector_size;
-=======
 	if (mmc_card_mmc(card) && card->ext_csd.data_sector_size) {
 		block_size = card->ext_csd.data_sector_size;
 		WARN_ON(block_size != 512 && block_size != 4096);
 	}
->>>>>>> Stashed changes
 
 	blk_queue_logical_block_size(mq->queue, block_size);
 	blk_queue_max_segment_size(mq->queue,

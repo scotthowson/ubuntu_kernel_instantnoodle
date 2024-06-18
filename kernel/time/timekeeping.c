@@ -151,13 +151,10 @@ static void tk_set_wall_to_mono(struct timekeeper *tk, struct timespec64 wtm)
 static inline void tk_update_sleep_time(struct timekeeper *tk, ktime_t delta)
 {
 	tk->offs_boot = ktime_add(tk->offs_boot, delta);
-<<<<<<< Updated upstream
-=======
 	/*
 	 * Timespec representation for VDSO update to avoid 64bit division
 	 * on every update.
 	 */
->>>>>>> Stashed changes
 	tk->monotonic_to_boot = ktime_to_timespec64(tk->offs_boot);
 }
 
@@ -731,11 +728,7 @@ static void timekeeping_forward_now(struct timekeeper *tk)
  *
  * Returns the time of day in a timespec64 (WARN if suspended).
  */
-<<<<<<< Updated upstream
-void __getnstimeofday64(struct timespec64 *ts)
-=======
 void ktime_get_real_ts64(struct timespec64 *ts)
->>>>>>> Stashed changes
 {
 	struct timekeeper *tk = &tk_core.timekeeper;
 	unsigned long seq;

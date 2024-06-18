@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2015-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2015-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #define pr_fmt(fmt) "icnss: " fmt
@@ -50,16 +46,6 @@
 #include <soc/qcom/ramdump.h>
 #include "icnss_private.h"
 #include "icnss_qmi.h"
-<<<<<<< Updated upstream
-
-#include <linux/hardware_info.h>
-/* WIFI MODIFICATION: */
-#include <linux/oem/project_info.h>
-static u32 fw_version;
-static u32 fw_version_ext;
-/* WIFI MODIFICATION: */
-=======
->>>>>>> Stashed changes
 
 #define MAX_PROP_SIZE			32
 #define NUM_LOG_PAGES			10
@@ -1104,42 +1090,26 @@ static int icnss_driver_event_server_arrive(void *data)
 			goto qmi_registered;
 		}
 		ignore_assert = true;
-<<<<<<< Updated upstream
-		goto clear_server;
-=======
 		goto fail;
->>>>>>> Stashed changes
 	}
 
 	if (!penv->msa_va) {
 		icnss_pr_err("Invalid MSA address\n");
 		ret = -EINVAL;
-<<<<<<< Updated upstream
-		goto clear_server;
-=======
 		goto fail;
->>>>>>> Stashed changes
 	}
 
 	ret = wlfw_msa_mem_info_send_sync_msg(penv);
 	if (ret < 0) {
 		ignore_assert = true;
-<<<<<<< Updated upstream
-		goto clear_server;
-=======
 		goto fail;
->>>>>>> Stashed changes
 	}
 
 	if (!test_bit(ICNSS_MSA0_ASSIGNED, &penv->state)) {
 		ret = icnss_assign_msa_perm_all(penv,
 						ICNSS_MSA_PERM_WLAN_HW_RW);
 		if (ret < 0)
-<<<<<<< Updated upstream
-			goto clear_server;
-=======
 			goto fail;
->>>>>>> Stashed changes
 		set_bit(ICNSS_MSA0_ASSIGNED, &penv->state);
 	}
 
@@ -1179,11 +1149,6 @@ static int icnss_driver_event_server_arrive(void *data)
 err_setup_msa:
 	icnss_assign_msa_perm_all(penv, ICNSS_MSA_PERM_HLOS_ALL);
 	clear_bit(ICNSS_MSA0_ASSIGNED, &penv->state);
-<<<<<<< Updated upstream
-clear_server:
-	icnss_clear_server(penv);
-=======
->>>>>>> Stashed changes
 fail:
 	ICNSS_ASSERT(ignore_assert);
 qmi_registered:
@@ -1208,25 +1173,6 @@ static int icnss_driver_event_server_exit(void *data)
 
 	return 0;
 }
-
-void cnss_set_fw_version(u32 version, u32 ext)
-{
-	fw_version = version;
-	fw_version_ext = ext;
-}
-EXPORT_SYMBOL(cnss_set_fw_version);
-
-static ssize_t cnss_version_information_show(struct device *dev,
-		struct device_attribute *attr, char *buf)
-{
-	if (!penv)
-		return -ENODEV;
-	return scnprintf(buf, PAGE_SIZE, "%u.%u.%u.%u.%u\n",
-		 (fw_version & 0xf0000000) >> 28,
-	(fw_version & 0xf000000) >> 24, (fw_version & 0xf00000) >> 20,
-	fw_version & 0x7fff, (fw_version_ext & 0xf0000000) >> 28);
-}
-static DEVICE_ATTR_RO(cnss_version_information);
 
 static int icnss_call_driver_probe(struct icnss_priv *priv)
 {
@@ -1257,13 +1203,6 @@ static int icnss_call_driver_probe(struct icnss_priv *priv)
 		goto out;
 	}
 
-<<<<<<< Updated upstream
-	device_create_file(&penv->pdev->dev,
-		 &dev_attr_cnss_version_information);
-	push_component_info(WCN, "WCN3988", "QualComm");
-
-=======
->>>>>>> Stashed changes
 	icnss_block_shutdown(false);
 	set_bit(ICNSS_DRIVER_PROBED, &priv->state);
 
@@ -2309,7 +2248,6 @@ int icnss_get_soc_info(struct device *dev, struct icnss_soc_info *info)
 {
 	char *fw_build_timestamp = NULL;
 
-	char wlan_info[254] = "qcom";
 	if (!penv || !dev) {
 		icnss_pr_err("Platform driver not initialized\n");
 		return -EINVAL;
@@ -2328,9 +2266,6 @@ int icnss_get_soc_info(struct device *dev, struct icnss_soc_info *info)
 		penv->fw_version_info.fw_build_timestamp,
 		WLFW_MAX_TIMESTAMP_LEN + 1);
 
-	snprintf(wlan_info, sizeof(wlan_info), "wcn3988 chip_id:%d fw_version:%x", info->chip_id, info->fw_version);
-	icnss_pr_err("wlan_info: %s\n", wlan_info);
-	hardwareinfo_set_prop(HARDWARE_WIFI, wlan_info);
 	return 0;
 }
 EXPORT_SYMBOL(icnss_get_soc_info);
@@ -3983,11 +3918,6 @@ static int icnss_remove(struct platform_device *pdev)
 	device_init_wakeup(&penv->pdev->dev, false);
 
 	icnss_unregister_power_supply_notifier(penv);
-<<<<<<< Updated upstream
-
-	icnss_debugfs_destroy(penv);
-=======
->>>>>>> Stashed changes
 
 	icnss_debugfs_destroy(penv);
 

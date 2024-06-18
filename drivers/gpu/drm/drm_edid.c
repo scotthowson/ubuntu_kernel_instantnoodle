@@ -4233,8 +4233,6 @@ static void drm_parse_hdmi_forum_vsdb(struct drm_connector *connector,
 			hdmi->scdc.read_request = true;
 	}
 
-<<<<<<< Updated upstream
-=======
 	/*
 	 * All HDMI 2.0 monitors must support scrambling at rates > 340 MHz.
 	 * And as per the spec, three factors confirm this:
@@ -4243,7 +4241,6 @@ static void drm_parse_hdmi_forum_vsdb(struct drm_connector *connector,
 	 * * SCDC support available (let's check)
 	 * Lets check it out.
 	 */
->>>>>>> Stashed changes
 
 	if (hf_vsdb[5]) {
 		/* max clock is 5000 KHz times block value */

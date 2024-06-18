@@ -181,15 +181,12 @@ static inline void pld_pcie_link_down(struct device *dev)
 {
 }
 
-<<<<<<< Updated upstream
-=======
 static inline int pld_pcie_get_reg_dump(struct device *dev, uint8_t *buf,
 					uint32_t len)
 {
 	return 0;
 }
 
->>>>>>> Stashed changes
 static inline int pld_pcie_is_fw_down(struct device *dev)
 {
 	return 0;
@@ -482,8 +479,6 @@ static inline void pld_pcie_link_down(struct device *dev)
 	cnss_pci_link_down(dev);
 }
 
-<<<<<<< Updated upstream
-=======
 #if ((LINUX_VERSION_CODE >= KERNEL_VERSION(4, 19, 0)) && \
 		(LINUX_VERSION_CODE < KERNEL_VERSION(4, 20, 0)))
 static inline int pld_pcie_get_reg_dump(struct device *dev, uint8_t *buf,
@@ -499,7 +494,6 @@ static inline int pld_pcie_get_reg_dump(struct device *dev, uint8_t *buf,
 }
 #endif
 
->>>>>>> Stashed changes
 static inline int pld_pcie_is_fw_down(struct device *dev)
 {
 	return cnss_pci_is_device_down(dev);

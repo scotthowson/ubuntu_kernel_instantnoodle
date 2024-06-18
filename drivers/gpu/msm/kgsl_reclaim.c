@@ -5,22 +5,14 @@
 
 #include <linux/kthread.h>
 #include <linux/notifier.h>
-<<<<<<< Updated upstream
-#include <linux/shmem_fs.h>
-=======
 #include <linux/pagevec.h>
 #include <linux/shmem_fs.h>
 #include <linux/swap.h>
->>>>>>> Stashed changes
 
 #include "kgsl_reclaim.h"
 #include "kgsl_sharedmem.h"
 
 static struct notifier_block kgsl_reclaim_nb;
-<<<<<<< Updated upstream
-static bool kgsl_reclaim;
-=======
->>>>>>> Stashed changes
 
 /*
  * Reclaiming excessive number of pages from a process will impact launch
@@ -78,12 +70,6 @@ int kgsl_reclaim_to_pinned_state(
 	struct kgsl_mem_entry *entry;
 	int next = 0, valid_entry, ret = 0;
 
-<<<<<<< Updated upstream
-	if (!kgsl_reclaim)
-		return 0;
-
-=======
->>>>>>> Stashed changes
 	mutex_lock(&process->reclaim_lock);
 
 	if (test_bit(KGSL_PROC_PINNED_STATE, &process->state))
@@ -180,12 +166,7 @@ static const struct attribute *proc_reclaim_attrs[] = {
 
 void kgsl_reclaim_proc_sysfs_init(struct kgsl_process_private *process)
 {
-<<<<<<< Updated upstream
-	if (kgsl_reclaim)
-		WARN_ON(sysfs_create_files(&process->kobj, proc_reclaim_attrs));
-=======
 	WARN_ON(sysfs_create_files(&process->kobj, proc_reclaim_attrs));
->>>>>>> Stashed changes
 }
 
 ssize_t kgsl_proc_max_reclaim_limit_store(struct device *dev,
@@ -193,12 +174,6 @@ ssize_t kgsl_proc_max_reclaim_limit_store(struct device *dev,
 {
 	int ret;
 
-<<<<<<< Updated upstream
-	if (!kgsl_reclaim)
-		return -EINVAL;
-
-=======
->>>>>>> Stashed changes
 	ret = kstrtou32(buf, 0, &kgsl_reclaim_max_page_limit);
 	return ret ? ret : count;
 }
@@ -206,26 +181,6 @@ ssize_t kgsl_proc_max_reclaim_limit_store(struct device *dev,
 ssize_t kgsl_proc_max_reclaim_limit_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
-<<<<<<< Updated upstream
-	if (!kgsl_reclaim)
-		return 0;
-
-	return scnprintf(buf, PAGE_SIZE, "%d\n", kgsl_reclaim_max_page_limit);
-}
-
-static int kgsl_reclaim_callback(struct notifier_block *nb,
-		unsigned long pid, void *data)
-{
-	struct kgsl_process_private *process;
-	struct kgsl_mem_entry *entry;
-	struct kgsl_memdesc *memdesc;
-	int valid_entry, next = 0, ret;
-	u64 mapsize;
-
-	process = kgsl_process_private_find(pid);
-	if (!process)
-		return NOTIFY_OK;
-=======
 	return scnprintf(buf, PAGE_SIZE, "%d\n", kgsl_reclaim_max_page_limit);
 }
 
@@ -255,7 +210,6 @@ static int kgsl_reclaim_callback(struct notifier_block *nb,
 
 	if (!process)
 		return ret;
->>>>>>> Stashed changes
 
 	/*
 	 * If we do not get the lock here, it means that the buffers are
@@ -309,16 +263,6 @@ static int kgsl_reclaim_callback(struct notifier_block *nb,
 
 		if (!kgsl_mmu_unmap(memdesc->pagetable, memdesc)) {
 			int i;
-<<<<<<< Updated upstream
-
-			for (i = 0; i < memdesc->page_count; i++) {
-				set_page_dirty_lock(memdesc->pages[i]);
-				spin_lock(&memdesc->lock);
-				put_page(memdesc->pages[i]);
-				memdesc->pages[i] = NULL;
-				spin_unlock(&memdesc->lock);
-			}
-=======
 			struct pagevec pvec;
 
 			/*
@@ -345,7 +289,6 @@ static int kgsl_reclaim_callback(struct notifier_block *nb,
 			}
 			if (pagevec_count(&pvec))
 				kgsl_release_page_vec(&pvec);
->>>>>>> Stashed changes
 
 			memdesc->priv |= KGSL_MEMDESC_RECLAIMED;
 
@@ -353,19 +296,10 @@ static int kgsl_reclaim_callback(struct notifier_block *nb,
 				(memdesc->shmem_filp->f_mapping,
 				data, memdesc->vma);
 
-<<<<<<< Updated upstream
-			memdesc->reclaimed_page_count += memdesc->page_count;
-			atomic_add(memdesc->page_count,
-					&process->reclaimed_page_count);
-			mapsize = atomic_long_read(&memdesc->mapsize);
-			atomic_long_sub(mapsize, &memdesc->mapsize);
-			atomic_long_sub(mapsize, &process->gpumem_mapped);
-=======
 			mapping_set_unevictable(memdesc->shmem_filp->f_mapping);
 			memdesc->reclaimed_page_count += memdesc->page_count;
 			atomic_add(memdesc->page_count,
 					&process->reclaimed_page_count);
->>>>>>> Stashed changes
 		}
 
 		kgsl_mem_entry_put(entry);
@@ -385,30 +319,14 @@ done:
 
 void kgsl_reclaim_proc_private_init(struct kgsl_process_private *process)
 {
-<<<<<<< Updated upstream
-	if (!kgsl_reclaim)
-		return;
-
-=======
->>>>>>> Stashed changes
 	mutex_init(&process->reclaim_lock);
 	INIT_WORK(&process->fg_work, kgsl_reclaim_foreground_work);
 	set_bit(KGSL_PROC_PINNED_STATE, &process->state);
 	set_bit(KGSL_PROC_STATE, &process->state);
 }
 
-<<<<<<< Updated upstream
-int kgsl_reclaim_init(struct kgsl_device *device)
-{
-	if (!(device->flags & KGSL_FLAG_PROCESS_RECLAIM))
-		return 0;
-
-	kgsl_reclaim = true;
-
-=======
 int kgsl_reclaim_init(void)
 {
->>>>>>> Stashed changes
 	kgsl_reclaim_nb.notifier_call = kgsl_reclaim_callback;
 	return proc_reclaim_notifier_register(&kgsl_reclaim_nb);
 }

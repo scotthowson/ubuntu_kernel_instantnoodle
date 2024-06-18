@@ -132,8 +132,6 @@ bool wlan_reg_is_24ghz_ch_freq(qdf_freq_t freq);
 #define WLAN_REG_IS_5GHZ_CH_FREQ(freq) wlan_reg_is_5ghz_ch_freq(freq)
 bool wlan_reg_is_5ghz_ch_freq(qdf_freq_t freq);
 
-<<<<<<< Updated upstream
-=======
 /**
  * wlan_reg_is_freq_indoor() - Check if a frequency is indoor.
  * @pdev: Pointer to pdev.
@@ -143,7 +141,6 @@ bool wlan_reg_is_5ghz_ch_freq(qdf_freq_t freq);
  */
 bool wlan_reg_is_freq_indoor(struct wlan_objmgr_pdev *pdev, qdf_freq_t freq);
 
->>>>>>> Stashed changes
 #ifdef CONFIG_BAND_6GHZ
 /**
  * wlan_reg_is_6ghz_chan_freq() - Check if the given channel frequency is 6GHz
@@ -1306,8 +1303,6 @@ wlan_reg_country_chan_opclass_to_freq(struct wlan_objmgr_pdev *pdev,
 uint16_t wlan_reg_chan_opclass_to_freq(uint8_t chan,
 				       uint8_t op_class,
 				       bool global_tbl_lookup);
-<<<<<<< Updated upstream
-=======
 #ifdef CONFIG_REG_CLIENT
 /**
  * wlan_reg_band_bitmap_to_band_info() - Convert the band_bitmap to a
@@ -1320,5 +1315,4 @@ uint16_t wlan_reg_chan_opclass_to_freq(uint8_t chan,
  */
 enum band_info wlan_reg_band_bitmap_to_band_info(uint32_t band_bitmap);
 #endif
->>>>>>> Stashed changes
 #endif

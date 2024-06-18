@@ -1,10 +1,4 @@
-<<<<<<< Updated upstream
-. ${ROOT_DIR}/common/build.config.common
-. ${ROOT_DIR}/common/build.config.x86_64
-. ${ROOT_DIR}/common/build.config.gki
-=======
 . ${ROOT_DIR}/${KERNEL_DIR}/build.config.common
 . ${ROOT_DIR}/${KERNEL_DIR}/build.config.x86_64
 . ${ROOT_DIR}/${KERNEL_DIR}/build.config.gki
->>>>>>> Stashed changes
 

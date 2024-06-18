@@ -795,10 +795,6 @@ int cnss_idle_restart(struct device *dev)
 
 	timeout = cnss_get_timeout(plat_priv, CNSS_TIMEOUT_IDLE_RESTART);
 	ret = wait_for_completion_timeout(&plat_priv->power_up_complete,
-<<<<<<< Updated upstream
-					  msecs_to_jiffies((timeout << 1) +
-							   WLAN_WD_TIMEOUT_MS));
-=======
 					  msecs_to_jiffies(timeout));
 	if (plat_priv->power_up_error) {
 		ret = plat_priv->power_up_error;
@@ -808,7 +804,6 @@ int cnss_idle_restart(struct device *dev)
 		goto out;
 	}
 
->>>>>>> Stashed changes
 	if (!ret) {
 		cnss_pr_err("Timeout (%ums) waiting for idle restart to complete\n",
 			    timeout);
@@ -857,11 +852,7 @@ int cnss_idle_shutdown(struct device *dev)
 	reinit_completion(&plat_priv->recovery_complete);
 	timeout = cnss_get_timeout(plat_priv, CNSS_TIMEOUT_RECOVERY);
 	ret = wait_for_completion_timeout(&plat_priv->recovery_complete,
-<<<<<<< Updated upstream
-					  msecs_to_jiffies(RECOVERY_TIMEOUT));
-=======
 					  msecs_to_jiffies(timeout));
->>>>>>> Stashed changes
 	if (!ret) {
 		cnss_pr_err("Timeout (%ums) waiting for recovery to complete\n",
 			    timeout);
@@ -1193,12 +1184,9 @@ static int cnss_do_recovery(struct cnss_plat_data *plat_priv,
 			     &plat_priv->ctrl_params.quirks))
 			goto self_recovery;
 		if (!cnss_bus_recover_link_down(plat_priv)) {
-<<<<<<< Updated upstream
-=======
 			/* clear recovery bit here to avoid skipping
 			 * the recovery work for RDDM later
 			 */
->>>>>>> Stashed changes
 			clear_bit(CNSS_DRIVER_RECOVERY,
 				  &plat_priv->driver_state);
 			return 0;
@@ -2388,8 +2376,6 @@ static void cnss_unregister_bus_scale(struct cnss_plat_data *plat_priv)
 		msm_bus_scale_unregister_client(bus_bw_info->bus_client);
 }
 
-<<<<<<< Updated upstream
-=======
 static ssize_t qtime_sync_period_show(struct device *dev,
 				      struct device_attribute *attr,
 				      char *buf)
@@ -2417,7 +2403,6 @@ static ssize_t qtime_sync_period_store(struct device *dev,
 	return count;
 }
 
->>>>>>> Stashed changes
 static ssize_t recovery_store(struct device *dev,
 			      struct device_attribute *attr,
 			      const char *buf, size_t count)
@@ -2508,19 +2493,13 @@ static ssize_t fs_ready_store(struct device *dev,
 static DEVICE_ATTR_WO(fs_ready);
 static DEVICE_ATTR_WO(shutdown);
 static DEVICE_ATTR_WO(recovery);
-<<<<<<< Updated upstream
-=======
 static DEVICE_ATTR_RW(qtime_sync_period);
->>>>>>> Stashed changes
 
 static struct attribute *cnss_attrs[] = {
 	&dev_attr_fs_ready.attr,
 	&dev_attr_shutdown.attr,
 	&dev_attr_recovery.attr,
-<<<<<<< Updated upstream
-=======
 	&dev_attr_qtime_sync_period.attr,
->>>>>>> Stashed changes
 	NULL,
 };
 
@@ -2750,10 +2729,6 @@ static ssize_t cnss_version_information_show(struct device *dev,
 }
 
 static DEVICE_ATTR_RO(cnss_version_information);
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
 static int cnss_probe(struct platform_device *plat_dev)
 {
 	int ret = 0;

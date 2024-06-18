@@ -1959,11 +1959,6 @@ static void soc_check_tplg_fes(struct snd_soc_card *card)
 			dai_link->platform_name = component->name;
 
 			/* convert non BE into BE */
-<<<<<<< Updated upstream
-			dai_link->no_pcm = 1;
-			dai_link->dpcm_playback = 1;
-			dai_link->dpcm_capture = 1;
-=======
 			if (!dai_link->no_pcm) {
 				dai_link->no_pcm = 1;
 
@@ -1983,7 +1978,6 @@ static void soc_check_tplg_fes(struct snd_soc_card *card)
 					dai_link->dpcm_capture = !dai_link->playback_only;
 				}
 			}
->>>>>>> Stashed changes
 
 			/* override any BE fixups */
 			dai_link->be_hw_params_fixup =

@@ -1,11 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2016-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2016-2021, The Linux Foundation. All rights reserved.
  * Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include <asm/cacheflush.h>
@@ -66,14 +62,6 @@ _kgsl_get_pool_from_order(unsigned int order)
 static void
 _kgsl_pool_add_page(struct kgsl_page_pool *pool, struct page *p)
 {
-<<<<<<< Updated upstream
-	kgsl_zero_page(p, pool->pool_order);
-
-	spin_lock(&pool->list_lock);
-	list_add_tail(&p->lru, &pool->page_list);
-	pool->page_count++;
-	spin_unlock(&pool->list_lock);
-=======
 	/*
 	 * Sanity check to make sure we don't re-pool a page that
 	 * somebody else has a reference to.
@@ -87,7 +75,6 @@ _kgsl_pool_add_page(struct kgsl_page_pool *pool, struct page *p)
 
 	llist_add((struct llist_node *)&p->lru, &pool->page_list);
 	atomic_inc(&pool->page_count);
->>>>>>> Stashed changes
 	mod_node_page_state(page_pgdat(p), NR_KERNEL_MISC_RECLAIMABLE,
 			    (1 << pool->pool_order));
 }
@@ -103,13 +90,6 @@ _kgsl_pool_get_page(struct kgsl_page_pool *pool)
 	node = llist_del_first(&pool->page_list);
 	spin_unlock(&pool->list_lock);
 
-<<<<<<< Updated upstream
-	if (p != NULL)
-		mod_node_page_state(page_pgdat(p),
-				    NR_KERNEL_MISC_RECLAIMABLE,
-				    -(1 << pool->pool_order));
-
-=======
 	if (node) {
 		atomic_dec(&pool->page_count);
 		p = container_of((struct list_head *)node, typeof(*p), lru);
@@ -117,7 +97,6 @@ _kgsl_pool_get_page(struct kgsl_page_pool *pool)
 				    NR_KERNEL_MISC_RECLAIMABLE,
 				    -(1 << pool->pool_order));
 	}
->>>>>>> Stashed changes
 	return p;
 }
 
@@ -277,8 +256,7 @@ static int kgsl_pool_get_retry_order(unsigned int order)
  * Return total page count on success and negative value on failure
  */
 int kgsl_pool_alloc_page(int *page_size, struct page **pages,
-			unsigned int pages_len, unsigned int *align,
-			struct kgsl_memdesc *memdesc)
+			unsigned int pages_len, unsigned int *align)
 {
 	int j;
 	int pcount = 0;
@@ -373,7 +351,7 @@ done:
 
 eagain:
 	*page_size = kgsl_get_page_size(size,
-			ilog2(size), memdesc);
+			ilog2(size));
 	*align = ilog2(*page_size);
 	return -EAGAIN;
 }
@@ -560,13 +538,11 @@ static void kgsl_of_get_mempools(struct device_node *parent)
 	}
 }
 
-void kgsl_init_page_pools(struct kgsl_device *device)
+void kgsl_init_page_pools(struct platform_device *pdev)
 {
-	if (device->flags & KGSL_FLAG_USE_SHMEM)
-		return;
 
 	/* Get GPU mempools data and configure pools */
-	kgsl_of_get_mempools(device->pdev->dev.of_node);
+	kgsl_of_get_mempools(pdev->dev.of_node);
 
 	/* Reserve the appropriate number of pages for each pool */
 	kgsl_pool_reserve_pages();

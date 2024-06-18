@@ -308,18 +308,6 @@ static ssize_t hfi1_write_iter(struct kiocb *kiocb, struct iov_iter *from)
 	unsigned long dim = from->nr_segs;
 	int idx;
 
-<<<<<<< Updated upstream
-	idx = srcu_read_lock(&fd->pq_srcu);
-	pq = srcu_dereference(fd->pq, &fd->pq_srcu);
-	if (!cq || !pq) {
-		srcu_read_unlock(&fd->pq_srcu, idx);
-		return -EIO;
-	}
-
-	if (!iter_is_iovec(from) || !dim) {
-		srcu_read_unlock(&fd->pq_srcu, idx);
-		return -EINVAL;
-=======
 	if (!HFI1_CAP_IS_KSET(SDMA))
 		return -EINVAL;
 	idx = srcu_read_lock(&fd->pq_srcu);
@@ -332,7 +320,6 @@ static ssize_t hfi1_write_iter(struct kiocb *kiocb, struct iov_iter *from)
 	if (!iter_is_iovec(from) || !dim) {
 		srcu_read_unlock(&fd->pq_srcu, idx);
 		return -EINVAL;
->>>>>>> Stashed changes
 	}
 
 	trace_hfi1_sdma_request(fd->dd, fd->uctxt->ctxt, fd->subctxt, dim);

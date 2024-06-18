@@ -322,8 +322,6 @@
 	"OCE WAN Weightage")
 
 /*
-<<<<<<< Updated upstream
-=======
  *
  * sae_pk_ap_weightage - update scoring param based on SAE PK ap weightage
  * @Min: 0
@@ -354,7 +352,6 @@
 	"SAE-PK AP weightage")
 
 /*
->>>>>>> Stashed changes
  * <ini>
  * best_rssi_threshold - Best Rssi for score calculation
  * @Min: 0
@@ -1204,8 +1201,6 @@
 
 /*
  * <ini>
-<<<<<<< Updated upstream
-=======
  * min_rssi_for_2g_to_5g_roam - Candidate AP minimum RSSI for
  * 2G to 5G roam trigger (in dBm)
  * @Min: -120
@@ -1233,7 +1228,6 @@
 
 /*
  * <ini>
->>>>>>> Stashed changes
  * idle_roam_score_delta - Roam score delta value in percentage for idle roam.
  * @Min: 0
  * @Max: 100
@@ -1330,10 +1324,7 @@
 	CFG(CFG_SCORING_PCL_WEIGHTAGE) \
 	CFG(CFG_SCORING_CHAN_CONGESTION_WEIGHTAGE) \
 	CFG(CFG_SCORING_OCE_WAN_WEIGHTAGE) \
-<<<<<<< Updated upstream
-=======
 	CFG(CFG_SAE_PK_AP_WEIGHTAGE) \
->>>>>>> Stashed changes
 	CFG(CFG_SCORING_BEST_RSSI_THRESHOLD) \
 	CFG(CFG_SCORING_GOOD_RSSI_THRESHOLD) \
 	CFG(CFG_SCORING_BAD_RSSI_THRESHOLD) \
@@ -1362,10 +1353,7 @@
 	CFG(CFG_APSD_ENABLED) \
 	CFG(CFG_DISCONNECT_ROAM_TRIGGER_MIN_RSSI) \
 	CFG(CFG_BMISS_ROAM_MIN_RSSI) \
-<<<<<<< Updated upstream
-=======
 	CFG(CFG_2G_TO_5G_ROAM_MIN_RSSI) \
->>>>>>> Stashed changes
 	CFG(CFG_IDLE_ROAM_SCORE_DELTA) \
 	CFG(CFG_BTM_ROAM_SCORE_DELTA) \
 	CFG(CFG_VENDOR_ROAM_SCORE_ALGORITHM) \

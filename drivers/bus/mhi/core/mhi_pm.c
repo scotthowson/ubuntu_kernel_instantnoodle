@@ -433,11 +433,7 @@ void mhi_pm_m1_transition(struct mhi_controller *mhi_cntrl)
 	mhi_cntrl->M2++;
 
 	write_unlock_irq(&mhi_cntrl->pm_lock);
-<<<<<<< Updated upstream
-	wake_up_all(&mhi_cntrl->state_event);
-=======
 	swake_up_all(&mhi_cntrl->state_event);
->>>>>>> Stashed changes
 
 	/* transfer pending, exit M2 immediately */
 	if (unlikely(atomic_read(&mhi_cntrl->pending_pkts) ||
@@ -554,25 +550,18 @@ static int mhi_pm_mission_mode_transition(struct mhi_controller *mhi_cntrl)
 	mhi_special_events_pending(mhi_cntrl);
 
 	/* setup sysfs nodes for userspace votes */
-<<<<<<< Updated upstream
-	mhi_create_sysfs(mhi_cntrl);
-=======
 	ret = mhi_create_sysfs(mhi_cntrl);
 	if (ret) {
 		MHI_ERR("Failed to create sysfs nodes with ret:%d\n", ret);
 		goto error_sysfs_create;
 	}
->>>>>>> Stashed changes
 
 	MHI_CNTRL_LOG("Adding new devices\n");
 
 	/* add supported devices */
 	mhi_create_devices(mhi_cntrl);
 
-<<<<<<< Updated upstream
-=======
 error_sysfs_create:
->>>>>>> Stashed changes
 	read_lock_bh(&mhi_cntrl->pm_lock);
 
 error_mission_mode:
@@ -645,11 +634,7 @@ static void mhi_pm_disable_transition(struct mhi_controller *mhi_cntrl,
 		write_unlock_irq(&mhi_cntrl->pm_lock);
 
 		/* wait for reset to be cleared */
-<<<<<<< Updated upstream
-		ret = wait_event_timeout(mhi_cntrl->state_event,
-=======
 		ret = swait_event_timeout_exclusive(mhi_cntrl->state_event,
->>>>>>> Stashed changes
 				!mhi_cntrl->initiate_mhi_reset, timeout);
 		if (!ret && cur_state == MHI_PM_SYS_ERR_PROCESS) {
 			MHI_CRITICAL("Device failed to exit RESET state\n");
@@ -688,11 +673,7 @@ static void mhi_pm_disable_transition(struct mhi_controller *mhi_cntrl,
 	mhi_destroy_sysfs(mhi_cntrl);
 
 	MHI_CNTRL_LOG("Waiting for all pending threads to complete\n");
-<<<<<<< Updated upstream
-	wake_up_all(&mhi_cntrl->state_event);
-=======
 	swake_up_all(&mhi_cntrl->state_event);
->>>>>>> Stashed changes
 	flush_work(&mhi_cntrl->special_work);
 
 	if (sfr_info && sfr_info->buf_addr) {
@@ -837,15 +818,9 @@ int mhi_queue_state_transition(struct mhi_controller *mhi_cntrl,
 	spin_lock_irqsave(&mhi_cntrl->transition_lock, flags);
 	list_add_tail(&item->node, &mhi_cntrl->transition_list);
 	spin_unlock_irqrestore(&mhi_cntrl->transition_lock, flags);
-<<<<<<< Updated upstream
-	MHI_LOG("%s state to :%s\n", __func__,
-		TO_MHI_STATE_TRANS_STR(item->state));
-	queue_work(mhi_cntrl->wq, &mhi_cntrl->st_worker);
-=======
 
 	queue_work(mhi_cntrl->wq, &mhi_cntrl->st_worker);
 
->>>>>>> Stashed changes
 	return 0;
 }
 
@@ -1542,8 +1517,6 @@ int mhi_pm_fast_resume(struct mhi_controller *mhi_cntrl, bool notify_client)
 	}
 
 	if (mhi_cntrl->rddm_supported) {
-<<<<<<< Updated upstream
-=======
 
 		/* check EP is in proper state */
 		if (mhi_cntrl->link_status(mhi_cntrl, mhi_cntrl->priv_data)) {
@@ -1553,7 +1526,6 @@ int mhi_pm_fast_resume(struct mhi_controller *mhi_cntrl, bool notify_client)
 			return -ETIMEDOUT;
 		}
 
->>>>>>> Stashed changes
 		if (mhi_get_exec_env(mhi_cntrl) == MHI_EE_RDDM &&
 		    !mhi_cntrl->power_down) {
 			mhi_cntrl->ee = MHI_EE_RDDM;
@@ -1566,11 +1538,7 @@ int mhi_pm_fast_resume(struct mhi_controller *mhi_cntrl, bool notify_client)
 
 			mhi_cntrl->status_cb(mhi_cntrl, mhi_cntrl->priv_data,
 					     MHI_CB_EE_RDDM);
-<<<<<<< Updated upstream
-			wake_up_all(&mhi_cntrl->state_event);
-=======
 			swake_up_all(&mhi_cntrl->state_event);
->>>>>>> Stashed changes
 
 			tasklet_enable(&mhi_cntrl->mhi_event->task);
 			goto exit_pm_fast_resume;
@@ -1827,11 +1795,7 @@ int mhi_force_rddm_mode(struct mhi_controller *mhi_cntrl)
 
 	/* wait for rddm event */
 	MHI_CNTRL_LOG("Waiting for device to enter RDDM state\n");
-<<<<<<< Updated upstream
-	ret = wait_event_timeout(mhi_cntrl->state_event,
-=======
 	ret = swait_event_timeout_exclusive(mhi_cntrl->state_event,
->>>>>>> Stashed changes
 				 mhi_cntrl->ee == MHI_EE_RDDM,
 				 msecs_to_jiffies(mhi_cntrl->timeout_ms));
 	ret = ret ? 0 : -EIO;

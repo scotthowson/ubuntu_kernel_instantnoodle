@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2011, 2013-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2011, 2013-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  * Linux Foundation chooses to take subject only to the GPLv2 license terms,
  * and distributes only under these terms.
  *
@@ -148,10 +144,7 @@ struct f_cdev_opts {
 	char *func_name;
 	u8 port_num;
 	u8 proto;
-<<<<<<< Updated upstream
-=======
 	int refcnt;
->>>>>>> Stashed changes
 };
 
 static int major, minors;

@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2018-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2018-2021 The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 #define pr_fmt(fmt) "SMBLIB: %s: " fmt, __func__
 
@@ -116,12 +112,8 @@ static void pps_usbpd_connect_cb(struct usbpd_svid_handler *hdlr,
 static void pps_usbpd_disconnect_cb(struct usbpd_svid_handler *hdlr);
 static struct op_pps op_pps_chg;
 
-<<<<<<< Updated upstream
-extern int connected_charger_type;
-=======
 int connected_charger_type;
 EXPORT_SYMBOL(connected_charger_type);
->>>>>>> Stashed changes
 module_param_call(sys_boot_complete, usb_enum_check, param_get_int, &sys_boot_complete, 0644);
 MODULE_PARM_DESC(sys_boot_complete, "sys_boot_complete");
 
@@ -5641,12 +5633,8 @@ int smblib_set_prop_pd_active(struct smb_charger *chg,
 			temp_region = op_battery_temp_region_get(chg);
 			if (temp_region != BATT_TEMP_COLD
 				&& temp_region != BATT_TEMP_HOT
-<<<<<<< Updated upstream
-				&& chg->typec_mode != POWER_SUPPLY_TYPEC_SINK_POWERED_CABLE) {
-=======
 				&& chg->typec_mode != POWER_SUPPLY_TYPEC_SINK_POWERED_CABLE
 				&& !chg->chg_done) {
->>>>>>> Stashed changes
 				op_charging_en(chg, true);
 			}
 		}
@@ -6991,11 +6979,6 @@ static void smblib_handle_hvdcp_check_timeout(struct smb_charger *chg,
 					      bool rising, bool qc_charger)
 {
 	u32 hvdcp_ua = 0;
-<<<<<<< Updated upstream
-
-	if (rising) {
-=======
->>>>>>> Stashed changes
 
 	if (rising) {
 		if (qc_charger) {
@@ -9002,12 +8985,8 @@ static void op_set_pd_active_work(struct work_struct *work)
 	temp_region_now = op_battery_temp_region_get(chg);
 	if (temp_region_now != BATT_TEMP_COLD
 		&& temp_region_now != BATT_TEMP_HOT
-<<<<<<< Updated upstream
-		&& chg->typec_mode != POWER_SUPPLY_TYPEC_SINK_POWERED_CABLE) {
-=======
 		&& chg->typec_mode != POWER_SUPPLY_TYPEC_SINK_POWERED_CABLE
 		&& !chg->chg_done) {
->>>>>>> Stashed changes
 		op_charging_en(chg, true);
 	}
 }
@@ -9016,10 +8995,7 @@ static void op_set_pd_active_work(struct work_struct *work)
 void op_set_swarp_charger(struct smb_charger *chg)
 {
 	chg->real_charger_type = POWER_SUPPLY_TYPE_DASH;
-<<<<<<< Updated upstream
-=======
 	chg->dash_present = true;
->>>>>>> Stashed changes
 	enhance_dash_type_set(CHARGER_SWARP_65W);
 }
 
@@ -13929,10 +13905,7 @@ static void smblib_chg_termination_work(struct work_struct *work)
 						chg_termination_work);
 	int rc, input_present, delay = CHG_TERM_WA_ENTRY_DELAY_MS;
 	int vbat_now_uv, max_fv_uv;
-<<<<<<< Updated upstream
-=======
 	u8 stat = 0;
->>>>>>> Stashed changes
 
 	/*
 	 * Hold awake votable to prevent pm_relax being called prior to
@@ -13964,10 +13937,6 @@ static void smblib_chg_termination_work(struct work_struct *work)
 	/* Get the battery float voltage */
 	rc = smblib_get_prop_from_bms(chg, POWER_SUPPLY_PROP_VOLTAGE_MAX,
 				&pval);
-<<<<<<< Updated upstream
-	if (rc < 0)
-		goto out;
-=======
 	if (rc < 0) {
 		/* FG based targets supports only MAX_DESIGN property */
 		rc = smblib_get_prop_from_bms(chg,
@@ -13976,7 +13945,6 @@ static void smblib_chg_termination_work(struct work_struct *work)
 		if (rc < 0)
 			goto out;
 	}
->>>>>>> Stashed changes
 
 	max_fv_uv = pval.intval;
 

@@ -388,10 +388,7 @@ struct icnss_priv {
 	struct workqueue_struct *soc_update_wq;
 	bool is_chain1_supported;
 	bool chain_reg_info_updated;
-<<<<<<< Updated upstream
-=======
 	unsigned long device_config;
->>>>>>> Stashed changes
 };
 
 struct icnss_reg_info {

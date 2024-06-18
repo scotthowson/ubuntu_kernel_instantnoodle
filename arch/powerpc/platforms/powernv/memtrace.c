@@ -71,8 +71,6 @@ static int change_memblock_state(struct memory_block *mem, void *arg)
 	return 0;
 }
 
-<<<<<<< Updated upstream
-=======
 static void memtrace_clear_range(unsigned long start_pfn,
 				 unsigned long nr_pages)
 {
@@ -90,7 +88,6 @@ static void memtrace_clear_range(unsigned long start_pfn,
 	}
 }
 
->>>>>>> Stashed changes
 /* called with device_hotplug_lock held */
 static bool memtrace_offline_pages(u32 nid, u64 start_pfn, u64 nr_pages)
 {

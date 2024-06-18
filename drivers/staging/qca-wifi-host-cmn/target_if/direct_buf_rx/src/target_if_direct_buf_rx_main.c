@@ -1,9 +1,5 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2017-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2017-2021 The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -1027,14 +1023,11 @@ static QDF_STATUS target_if_dbr_replenish_ring(struct wlan_objmgr_pdev *pdev,
 		return QDF_STATUS_E_FAILURE;
 	}
 
-<<<<<<< Updated upstream
-=======
 	if (cookie >= mod_param->dbr_ring_cfg->num_ptr) {
 		direct_buf_rx_err("invalid cookie %d", cookie);
 		return QDF_STATUS_E_INVAL;
 	}
 
->>>>>>> Stashed changes
 	dbr_psoc_obj = wlan_objmgr_psoc_get_comp_private_obj(psoc,
 				WLAN_TARGET_IF_COMP_DIRECT_BUF_RX);
 
@@ -1310,20 +1303,6 @@ static QDF_STATUS target_if_dbr_cfg_tgt(struct wlan_objmgr_pdev *pdev,
 	dbr_cfg_req.pdev_id = mod_param->pdev_id;
 	/* Module ID numbering starts from 1 in FW. need to fix it */
 	dbr_cfg_req.mod_id = mod_param->mod_id;
-<<<<<<< Updated upstream
-	dbr_cfg_req.base_paddr_lo = (uint64_t)dbr_ring_cfg->base_paddr_aligned
-						& 0xFFFFFFFF;
-	dbr_cfg_req.base_paddr_hi = (uint64_t)dbr_ring_cfg->base_paddr_aligned
-						& 0xFFFFFFFF00000000;
-	dbr_cfg_req.head_idx_paddr_lo = (uint64_t)dbr_ring_cfg->head_idx_addr
-						& 0xFFFFFFFF;
-	dbr_cfg_req.head_idx_paddr_hi = (uint64_t)dbr_ring_cfg->head_idx_addr
-						& 0xFFFFFFFF00000000;
-	dbr_cfg_req.tail_idx_paddr_lo = (uint64_t)dbr_ring_cfg->tail_idx_addr
-						& 0xFFFFFFFF;
-	dbr_cfg_req.tail_idx_paddr_hi = (uint64_t)dbr_ring_cfg->tail_idx_addr
-						& 0xFFFFFFFF00000000;
-=======
 	dbr_cfg_req.base_paddr_lo =
 		qdf_get_lower_32_bits(dbr_ring_cfg->base_paddr_aligned);
 	dbr_cfg_req.base_paddr_hi =
@@ -1336,7 +1315,6 @@ static QDF_STATUS target_if_dbr_cfg_tgt(struct wlan_objmgr_pdev *pdev,
 		qdf_get_lower_32_bits(dbr_ring_cfg->tail_idx_addr);
 	dbr_cfg_req.tail_idx_paddr_hi =
 		qdf_get_upper_32_bits(dbr_ring_cfg->tail_idx_addr);
->>>>>>> Stashed changes
 	dbr_cfg_req.num_elems = dbr_ring_cap->ring_elems_min;
 	dbr_cfg_req.buf_size = dbr_ring_cap->min_buf_size;
 	dbr_cfg_req.num_resp_per_event = dbr_config->num_resp_per_event;
@@ -1531,27 +1509,19 @@ static void *target_if_dbr_vaddr_lookup(
 
 	dbr_buf_pool = mod_param->dbr_buf_pool;
 
-<<<<<<< Updated upstream
-=======
 	if (cookie >= mod_param->dbr_ring_cfg->num_ptr) {
 		direct_buf_rx_err("invalid cookie %d", cookie);
 		return NULL;
 	}
 
->>>>>>> Stashed changes
 	if (dbr_buf_pool[cookie].paddr == paddr) {
 		return dbr_buf_pool[cookie].vaddr +
 				dbr_buf_pool[cookie].offset;
 	}
-<<<<<<< Updated upstream
-
-	direct_buf_rx_debug("Incorrect paddr found on cookie slot");
-=======
 	direct_buf_rx_debug("Invalid paddr, cookie %d, pool paddr %pK, paddr %pK",
 			    cookie, (void *)dbr_buf_pool[cookie].paddr,
 			    (void *)paddr);
 
->>>>>>> Stashed changes
 	return NULL;
 }
 
@@ -1662,8 +1632,6 @@ static QDF_STATUS target_if_get_dbr_data(struct wlan_objmgr_pdev *pdev,
 	*cookie = WMI_HOST_DBR_DATA_ADDR_HI_HOST_DATA_GET(
 				dbr_rsp->dbr_entries[idx].paddr_hi);
 	dbr_data->vaddr = target_if_dbr_vaddr_lookup(mod_param, paddr, *cookie);
-<<<<<<< Updated upstream
-=======
 
 	if (!dbr_data->vaddr) {
 		direct_buf_rx_debug("dbr vaddr lookup failed, cookie %d, hi %x, lo %x",
@@ -1672,7 +1640,6 @@ static QDF_STATUS target_if_get_dbr_data(struct wlan_objmgr_pdev *pdev,
 		return QDF_STATUS_E_FAILURE;
 	}
 
->>>>>>> Stashed changes
 	dbr_data->cookie = *cookie;
 	dbr_data->paddr = paddr;
 	direct_buf_rx_debug("Cookie = %d Vaddr look up = %pK",
@@ -1888,14 +1855,11 @@ static int target_if_direct_buf_rx_rsp_event_handler(ol_scn_t scn,
 	dbr_buf_pool = mod_param->dbr_buf_pool;
 	dbr_rsp.dbr_entries = qdf_mem_malloc(dbr_rsp.num_buf_release_entry *
 					sizeof(struct direct_buf_rx_entry));
-<<<<<<< Updated upstream
-=======
 	if (!dbr_rsp.dbr_entries) {
 		direct_buf_rx_err("invalid dbr_entries");
 		wlan_objmgr_pdev_release_ref(pdev, dbr_mod_id);
 		return QDF_STATUS_E_FAILURE;
 	}
->>>>>>> Stashed changes
 
 	if (dbr_rsp.num_meta_data_entry > dbr_rsp.num_buf_release_entry) {
 		direct_buf_rx_err("More than expected number of metadata");

@@ -31,13 +31,10 @@ static qdf_is_recovering_callback	is_recovering_cb;
 static qdf_is_drv_connected_callback    is_drv_connected_cb;
 static qdf_wmi_send_over_qmi_callback _wmi_send_recv_qmi_cb;
 static qdf_is_drv_supported_callback    is_drv_supported_cb;
-<<<<<<< Updated upstream
-=======
 static qdf_recovery_reason_update_callback   update_recovery_reason_cb;
 static qdf_bus_reg_dump   get_bus_reg_dump;
 
 
->>>>>>> Stashed changes
 
 void qdf_register_fw_down_callback(qdf_is_fw_down_callback is_fw_down)
 {
@@ -202,8 +199,6 @@ bool qdf_is_drv_supported(void)
 }
 
 qdf_export_symbol(qdf_is_drv_supported);
-<<<<<<< Updated upstream
-=======
 
 void qdf_register_recovery_reason_update(qdf_recovery_reason_update_callback
 					 callback)
@@ -239,4 +234,3 @@ void qdf_get_bus_reg_dump(struct device *dev, uint8_t *buf, uint32_t len)
 }
 
 qdf_export_symbol(qdf_get_bus_reg_dump);
->>>>>>> Stashed changes

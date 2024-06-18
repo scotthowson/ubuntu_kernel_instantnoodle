@@ -7,11 +7,7 @@
 / {
 	model = "Qualcomm Technologies, Inc. Orchid CDP";
 	compatible = "qcom,orchid-cdp", "qcom,orchid", "qcom,cdp";
-<<<<<<< Updated upstream
-	qcom,board-id = <1 0>;
-=======
 	qcom,board-id = <1 1>;
->>>>>>> Stashed changes
 };
 
 &ufsphy_mem {

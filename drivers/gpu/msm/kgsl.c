@@ -1,11 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2008-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2008-2021, The Linux Foundation. All rights reserved.
  * Copyright (c) 2022-2023, Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include <uapi/linux/sched/types.h>
@@ -326,12 +322,6 @@ static struct kgsl_memdesc_ops kgsl_dmabuf_ops = {
 };
 #endif
 
-<<<<<<< Updated upstream
-static void mem_entry_destroy(struct kgsl_mem_entry *entry)
-{
-	unsigned int memtype;
-
-=======
 static void kgsl_destroy_anon(struct kgsl_memdesc *memdesc)
 {
 	int i = 0, j;
@@ -361,7 +351,6 @@ static void mem_entry_destroy(struct kgsl_mem_entry *entry)
 {
 	unsigned int memtype;
 
->>>>>>> Stashed changes
 	/* pull out the memtype before the flags get cleared */
 	memtype = kgsl_memdesc_usermem_type(&entry->memdesc);
 
@@ -980,13 +969,6 @@ static struct kgsl_process_private *kgsl_process_private_new(
 {
 	struct kgsl_process_private *private;
 	struct pid *cur_pid = get_task_pid(current->group_leader, PIDTYPE_PID);
-
-	/*
-	 * Flush mem_workqueue to make sure that any lingering
-	 * structs (process pagetable etc) are released before
-	 * starting over again.
-	 */
-	flush_workqueue(kgsl_driver.mem_workqueue);
 
 	/* Search in the process list */
 	list_for_each_entry(private, &kgsl_driver.process_list, list) {
@@ -3014,14 +2996,6 @@ long kgsl_ioctl_gpuobj_import(struct kgsl_device_private *dev_priv,
 	return 0;
 
 unmap:
-<<<<<<< Updated upstream
-	if (kgsl_memdesc_usermem_type(&entry->memdesc) == KGSL_MEM_ENTRY_ION) {
-		kgsl_destroy_ion(entry->priv_data);
-		entry->memdesc.sgt = NULL;
-	}
-
-=======
->>>>>>> Stashed changes
 	kgsl_sharedmem_free(&entry->memdesc);
 
 out:
@@ -3332,17 +3306,6 @@ long kgsl_ioctl_map_user_mem(struct kgsl_device_private *dev_priv,
 	return result;
 
 error_attach:
-<<<<<<< Updated upstream
-	switch (kgsl_memdesc_usermem_type(&entry->memdesc)) {
-	case KGSL_MEM_ENTRY_ION:
-		kgsl_destroy_ion(entry->priv_data);
-		entry->memdesc.sgt = NULL;
-		break;
-	default:
-		break;
-	}
-=======
->>>>>>> Stashed changes
 	kgsl_sharedmem_free(&entry->memdesc);
 error:
 	/* Clear gpuaddr here so userspace doesn't get any wrong ideas */
@@ -4758,9 +4721,6 @@ kgsl_gpumem_vm_close(struct vm_area_struct *vma)
 	if (!entry)
 		return;
 
-<<<<<<< Updated upstream
-	entry->memdesc.useraddr = 0;
-=======
 	/*
 	 * Remove the memdesc from the mapped stat once all the mappings have
 	 * gone away
@@ -4769,7 +4729,6 @@ kgsl_gpumem_vm_close(struct vm_area_struct *vma)
 		atomic_long_sub(entry->memdesc.size,
 				&entry->priv->gpumem_mapped);
 
->>>>>>> Stashed changes
 	kgsl_mem_entry_put_deferred(entry);
 }
 
@@ -5051,36 +5010,6 @@ static unsigned long _get_svm_area(struct kgsl_process_private *private,
 	return result;
 }
 
-<<<<<<< Updated upstream
-static void kgsl_send_uevent_notify(struct kgsl_device *desc, char *comm,
-			unsigned long len, unsigned long total_vm,
-			unsigned long largest_gap_cpu, unsigned long largest_gap_gpu)
-{
-	char *envp[7];
-	char *title = "GPU_VM";
-
-	if (!desc)
-		return;
-	envp[0] = kasprintf(GFP_KERNEL, "title=%s", title);
-	envp[1] = kasprintf(GFP_KERNEL, "COMM=%s", comm);
-	envp[2] = kasprintf(GFP_KERNEL, "LEN=%lu", len);
-	envp[3] = kasprintf(GFP_KERNEL, "TOTAL_VM=%lu", total_vm);
-	envp[4] = kasprintf(GFP_KERNEL, "LARGEST_GAP_CPU=%lu", largest_gap_cpu);
-	envp[5] = kasprintf(GFP_KERNEL, "LARGEST_GAP_GPU=%lu", largest_gap_gpu);
-	envp[6] = NULL;
-	kobject_uevent_env(&desc->dev->kobj, KOBJ_CHANGE, envp);
-	kfree(envp[0]);
-	kfree(envp[1]);
-	kfree(envp[2]);
-	kfree(envp[3]);
-	kfree(envp[4]);
-	kfree(envp[5]);
-}
-
-static int current_pid = -1;
-
-=======
->>>>>>> Stashed changes
 static unsigned long
 kgsl_get_unmapped_area(struct file *file, unsigned long addr,
 			unsigned long len, unsigned long pgoff,
@@ -5204,21 +5133,6 @@ static int kgsl_mmap(struct file *file, struct vm_area_struct *vma)
 		vma->vm_file = get_file(entry->memdesc.shmem_filp);
 	}
 
-<<<<<<< Updated upstream
-	entry->memdesc.vma = vma;
-	entry->memdesc.useraddr = vma->vm_start;
-
-	/*
-	 * kgsl gets the entry id or the gpu address through vm_pgoff.
-	 * It is used during mmap and never needed again. But this vm_pgoff
-	 * has different meaning at other parts of kernel. Not setting to
-	 * zero will let way for wrong assumption when tried to unmap a page
-	 * from this vma.
-	 */
-	vma->vm_pgoff = 0;
-
-	trace_kgsl_mem_mmap(entry);
-=======
 	/*
 	 * kgsl gets the entry id or the gpu address through vm_pgoff.
 	 * It is used during mmap and never needed again. But this vm_pgoff
@@ -5233,7 +5147,6 @@ static int kgsl_mmap(struct file *file, struct vm_area_struct *vma)
 				&entry->priv->gpumem_mapped);
 
 	trace_kgsl_mem_mmap(entry, vma->vm_start);
->>>>>>> Stashed changes
 	return 0;
 }
 
@@ -5459,11 +5372,7 @@ int kgsl_device_platform_probe(struct kgsl_device *device)
 	dma_set_max_seg_size(device->dev, KGSL_DMA_BIT_MASK);
 
 	/* Initialize the memory pools */
-	kgsl_init_page_pools(device);
-
-	status = kgsl_reclaim_init(device);
-	if (status)
-		goto error_close_mmu;
+	kgsl_init_page_pools(device->pdev);
 
 	status = kgsl_reclaim_init();
 	if (status)

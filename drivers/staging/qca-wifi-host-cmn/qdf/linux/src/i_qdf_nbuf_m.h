@@ -77,8 +77,6 @@
 	 (((struct qdf_nbuf_cb *)((skb)->cb))->u.rx.dev.priv_cb_m. \
 	 exc_frm)
 
-<<<<<<< Updated upstream
-=======
 #define  QDF_NBUF_CB_RX_PACKET_REO_DEST_IND(skb) \
 	(((struct qdf_nbuf_cb *)((skb)->cb))->u.rx.dev.priv_cb_m. \
 	reo_dest_ind)
@@ -87,7 +85,6 @@
 	 (((struct qdf_nbuf_cb *)((skb)->cb))->u.rx.dev.priv_cb_m. \
 	 ipa_smmu_map)
 
->>>>>>> Stashed changes
 #define __qdf_nbuf_ipa_owned_get(skb) \
 	QDF_NBUF_CB_TX_IPA_OWNED(skb)
 

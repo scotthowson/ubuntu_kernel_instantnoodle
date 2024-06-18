@@ -24,12 +24,9 @@
 
 static void dp_rx_fisa_flush_flow_wrap(struct dp_fisa_rx_sw_ft *sw_ft);
 
-<<<<<<< Updated upstream
-=======
 /** REO will push frame into REO2FW RING */
 #define REO_DESTINATION_FW 6
 
->>>>>>> Stashed changes
 #if defined(FISA_DEBUG_ENABLE)
 /**
  * hex_dump_skb_data() - Helper function to dump skb while debugging
@@ -218,12 +215,7 @@ dp_rx_fisa_setup_hw_fse(struct dp_rx_fst *fisa_hdl,
 	struct hal_rx_flow flow;
 	void *hw_fse;
 
-<<<<<<< Updated upstream
-	/* REO destination index starts from 1 */
-	flow.reo_destination_indication = flow_steer_info + 1;
-=======
 	flow.reo_destination_indication = flow_steer_info;
->>>>>>> Stashed changes
 	flow.fse_metadata = 0xDEADBEEF;
 	flow.tuple_info.dest_ip_127_96 = rx_flow_info->dest_ip_127_96;
 	flow.tuple_info.dest_ip_95_64 = rx_flow_info->dest_ip_95_64;
@@ -305,12 +297,8 @@ static struct dp_fisa_rx_sw_ft *
 dp_rx_fisa_add_ft_entry(struct dp_rx_fst *fisa_hdl,
 			uint32_t flow_idx_hash,
 			qdf_nbuf_t nbuf, struct dp_vdev *vdev,
-<<<<<<< Updated upstream
-			uint8_t *rx_tlv_hdr)
-=======
 			uint8_t *rx_tlv_hdr,
 			uint32_t reo_dest_indication)
->>>>>>> Stashed changes
 {
 	struct dp_fisa_rx_sw_ft *sw_ft_entry;
 	uint32_t flow_hash;
@@ -364,16 +352,10 @@ dp_rx_fisa_add_ft_entry(struct dp_rx_fst *fisa_hdl,
 				dp_rx_fisa_setup_hw_fse(fisa_hdl,
 							hashed_flow_idx,
 							&rx_flow_tuple_info,
-<<<<<<< Updated upstream
-							reo_id);
-			sw_ft_entry->is_populated = true;
-			sw_ft_entry->napi_id = reo_id;
-=======
 							reo_dest_indication);
 			sw_ft_entry->is_populated = true;
 			sw_ft_entry->napi_id = reo_id;
 			sw_ft_entry->reo_dest_indication = reo_dest_indication;
->>>>>>> Stashed changes
 			qdf_mem_copy(&sw_ft_entry->rx_flow_tuple_info,
 				     &rx_flow_tuple_info,
 				     sizeof(struct cdp_rx_flow_tuple_info));
@@ -478,10 +460,7 @@ dp_rx_get_fisa_flow(struct dp_rx_fst *fisa_hdl, struct dp_vdev *vdev,
 {
 	uint8_t *rx_tlv_hdr;
 	uint32_t flow_idx;
-<<<<<<< Updated upstream
-=======
 	uint32_t reo_destination_indication;
->>>>>>> Stashed changes
 	bool flow_invalid, flow_timeout, flow_idx_valid;
 	struct dp_fisa_rx_sw_ft *sw_ft_entry = NULL;
 	struct dp_fisa_rx_sw_ft *sw_ft_base = (struct dp_fisa_rx_sw_ft *)
@@ -492,8 +471,6 @@ dp_rx_get_fisa_flow(struct dp_rx_fst *fisa_hdl, struct dp_vdev *vdev,
 		return sw_ft_entry;
 
 	rx_tlv_hdr = qdf_nbuf_data(nbuf);
-<<<<<<< Updated upstream
-=======
 	hal_rx_msdu_get_reo_destination_indication(hal_soc_hdl, rx_tlv_hdr,
 						   &reo_destination_indication);
 	/*
@@ -505,7 +482,6 @@ dp_rx_get_fisa_flow(struct dp_rx_fst *fisa_hdl, struct dp_vdev *vdev,
 	if (reo_destination_indication != qdf_nbuf_get_rx_reo_dest_ind(nbuf))
 		return sw_ft_entry;
 
->>>>>>> Stashed changes
 	hal_rx_msdu_get_flow_params(hal_soc_hdl, rx_tlv_hdr, &flow_invalid,
 				    &flow_timeout, &flow_idx);
 
@@ -530,12 +506,8 @@ dp_rx_get_fisa_flow(struct dp_rx_fst *fisa_hdl, struct dp_vdev *vdev,
 
 	/* else new flow, add entry to FT */
 	sw_ft_entry = dp_rx_fisa_add_ft_entry(fisa_hdl, flow_idx, nbuf, vdev,
-<<<<<<< Updated upstream
-					      rx_tlv_hdr);
-=======
 					      rx_tlv_hdr,
 					      reo_destination_indication);
->>>>>>> Stashed changes
 
 	return sw_ft_entry;
 }
@@ -1018,18 +990,13 @@ static int dp_add_nbuf_to_fisa_flow(struct dp_rx_fst *fisa_hdl,
 	uint16_t hal_cumulative_ip_len;
 	hal_soc_handle_t hal_soc_hdl = fisa_hdl->soc_hdl->hal_soc;
 	uint32_t hal_aggr_count;
-<<<<<<< Updated upstream
-=======
 	uint8_t napi_id = QDF_NBUF_CB_RX_CTX_ID(nbuf);
->>>>>>> Stashed changes
 
 	dump_tlvs(hal_soc_hdl, rx_tlv_hdr, QDF_TRACE_LEVEL_ERROR);
 	dp_fisa_debug("nbuf: %pK nbuf->next:%pK nbuf->data:%pK len %d data_len %d",
 		      nbuf, qdf_nbuf_next(nbuf), qdf_nbuf_data(nbuf), nbuf->len,
 		      nbuf->data_len);
 
-<<<<<<< Updated upstream
-=======
 	/* Packets of the same flow are arriving on a different REO than
 	 * the one configured.
 	 */
@@ -1038,7 +1005,6 @@ static int dp_add_nbuf_to_fisa_flow(struct dp_rx_fst *fisa_hdl,
 		return FISA_AGGR_NOT_ELIGIBLE;
 	}
 
->>>>>>> Stashed changes
 	hal_cumulative_ip_len = hal_rx_get_fisa_cumulative_ip_length(
 								hal_soc_hdl,
 								rx_tlv_hdr);
@@ -1284,11 +1250,6 @@ QDF_STATUS dp_fisa_rx(struct dp_soc *soc, struct dp_vdev *vdev,
 						    head_nbuf, fisa_flow);
 		if (fisa_ret == FISA_AGGR_DONE)
 			goto next_msdu;
-<<<<<<< Updated upstream
-		else
-			qdf_assert(0);
-=======
->>>>>>> Stashed changes
 
 pull_nbuf:
 		nbuf_skip_rx_pkt_tlv(dp_fisa_rx_hdl->soc_hdl->hal_soc,
@@ -1315,10 +1276,7 @@ QDF_STATUS dp_rx_dump_fisa_stats(struct dp_soc *soc)
 		&((struct dp_fisa_rx_sw_ft *)rx_fst->base)[0];
 	int ft_size = rx_fst->max_entries;
 	int i;
-<<<<<<< Updated upstream
-=======
 	uint64_t avg_aggregated;
->>>>>>> Stashed changes
 
 	dp_info("Num of flows programmed %d", rx_fst->add_flow_count);
 	dp_info("Num of flows evicted %d", rx_fst->del_flow_count);
@@ -1334,17 +1292,10 @@ QDF_STATUS dp_rx_dump_fisa_stats(struct dp_soc *soc)
 			sw_ft_entry->napi_id);
 		dp_info("num msdu aggr %d", sw_ft_entry->aggr_count);
 		dp_info("flush count %d", sw_ft_entry->flush_count);
-<<<<<<< Updated upstream
-		dp_info("bytes_aggregated %d", sw_ft_entry->bytes_aggregated);
-		dp_info("avg aggregation %d",
-			sw_ft_entry->bytes_aggregated / sw_ft_entry->flush_count
-			);
-=======
 		dp_info("bytes_aggregated %llu", sw_ft_entry->bytes_aggregated);
 		avg_aggregated = sw_ft_entry->bytes_aggregated;
 		qdf_do_div(avg_aggregated, sw_ft_entry->flush_count);
 		dp_info("avg aggregation %llu", avg_aggregated);
->>>>>>> Stashed changes
 		print_flow_tuple(&sw_ft_entry->rx_flow_tuple_info);
 	}
 	return QDF_STATUS_SUCCESS;

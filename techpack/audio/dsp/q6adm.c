@@ -1,11 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2012-2021, The Linux Foundation. All rights reserved.
  * Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  */
 #include <linux/module.h>
 #include <linux/slab.h>
@@ -100,10 +96,7 @@ struct adm_ctl {
 	struct param_outband outband_memmap;
 	struct source_tracking_data sourceTrackingData;
 
-<<<<<<< Updated upstream
-=======
 	struct mutex adm_apr_lock;
->>>>>>> Stashed changes
 	int set_custom_topology;
 	int ec_ref_rx;
 	int num_ec_ref_rx_chans;
@@ -879,8 +872,6 @@ exit:
 EXPORT_SYMBOL(adm_set_custom_chmix_cfg);
 
 /*
-<<<<<<< Updated upstream
-=======
  * adm_apr_send_pkt : returns 0 on success, negative otherwise.
  */
 int adm_apr_send_pkt(void *data, wait_queue_head_t *wait,
@@ -946,7 +937,6 @@ int adm_apr_send_pkt(void *data, wait_queue_head_t *wait,
 }
 
 /*
->>>>>>> Stashed changes
  * With pre-packed data, only the opcode differes from V5 and V6.
  * Use q6common_pack_pp_params to pack the data correctly.
  */
@@ -957,10 +947,6 @@ int adm_set_pp_params(int port_id, int copp_idx,
 	struct adm_cmd_set_pp_params *adm_set_params = NULL;
 	int size = 0;
 	int port_idx = 0;
-<<<<<<< Updated upstream
-	atomic_t *copp_stat = NULL;
-=======
->>>>>>> Stashed changes
 	int ret = 0;
 
 	port_id = afe_convert_virtual_to_portid(port_id);
@@ -1018,38 +1004,9 @@ int adm_set_pp_params(int port_id, int copp_idx,
 		ret = -EINVAL;
 		goto done;
 	}
-<<<<<<< Updated upstream
-
-	copp_stat = &this_adm.copp.stat[port_idx][copp_idx];
-	atomic_set(copp_stat, -1);
-	ret = apr_send_pkt(this_adm.apr, (uint32_t *) adm_set_params);
-	if (ret < 0) {
-		pr_err("%s: Set params APR send failed port = 0x%x ret %d\n",
-		       __func__, port_id, ret);
-		goto done;
-	}
-	ret = wait_event_timeout(this_adm.copp.wait[port_idx][copp_idx],
-				 atomic_read(copp_stat) >= 0,
-				 msecs_to_jiffies(TIMEOUT_MS));
-	if (!ret) {
-		pr_err("%s: Set params timed out port = 0x%x\n", __func__,
-		       port_id);
-		ret = -ETIMEDOUT;
-		goto done;
-	}
-	if (atomic_read(copp_stat) > 0) {
-		pr_err("%s: DSP returned error[%s]\n", __func__,
-		       adsp_err_get_err_str(atomic_read(copp_stat)));
-		ret = adsp_err_get_lnx_err_code(atomic_read(copp_stat));
-		goto done;
-	}
-
-	ret = 0;
-=======
 	ret = adm_apr_send_pkt((uint32_t *) adm_set_params,
 			&this_adm.copp.wait[port_idx][copp_idx],
 			port_idx, copp_idx, adm_set_params->apr_hdr.opcode);
->>>>>>> Stashed changes
 done:
 	kfree(adm_set_params);
 	return ret;
@@ -1102,10 +1059,6 @@ int adm_get_pp_params(int port_id, int copp_idx, uint32_t client_id,
 	int returned_param_size_in_bytes = 0;
 	int port_idx = 0;
 	int idx = 0;
-<<<<<<< Updated upstream
-	atomic_t *copp_stat = NULL;
-=======
->>>>>>> Stashed changes
 	int ret = 0;
 
 	if (param_hdr == NULL) {
@@ -1153,39 +1106,9 @@ int adm_get_pp_params(int port_id, int copp_idx, uint32_t client_id,
 	else
 		adm_get_params.apr_hdr.opcode = ADM_CMD_GET_PP_PARAMS_V5;
 
-<<<<<<< Updated upstream
-	copp_stat = &this_adm.copp.stat[port_idx][copp_idx];
-	atomic_set(copp_stat, -1);
-
-	ret = apr_send_pkt(this_adm.apr, (uint32_t *) &adm_get_params);
-	if (ret < 0) {
-		pr_err("%s: Get params APR send failed port = 0x%x ret %d\n",
-		       __func__, port_id, ret);
-		ret = -EINVAL;
-		goto done;
-	}
-	ret = wait_event_timeout(this_adm.copp.wait[port_idx][copp_idx],
-				 atomic_read(copp_stat) >= 0,
-				 msecs_to_jiffies(TIMEOUT_MS));
-	if (!ret) {
-		pr_err("%s: Get params timed out port = 0x%x\n", __func__,
-		       port_id);
-		ret = -ETIMEDOUT;
-		goto done;
-	}
-	if (atomic_read(copp_stat) > 0) {
-		pr_err("%s: DSP returned error[%s]\n", __func__,
-		       adsp_err_get_err_str(atomic_read(copp_stat)));
-		ret = adsp_err_get_lnx_err_code(atomic_read(copp_stat));
-		goto done;
-	}
-
-	ret = 0;
-=======
 	ret = adm_apr_send_pkt((uint32_t *) &adm_get_params,
 			&this_adm.copp.wait[port_idx][copp_idx],
 			port_idx, copp_idx, adm_get_params.apr_hdr.opcode);
->>>>>>> Stashed changes
 
 	/* Copy data to caller if sent in band */
 	if (!returned_param_data) {
@@ -1213,10 +1136,6 @@ int adm_get_pp_params(int port_id, int copp_idx, uint32_t client_id,
 
 	memcpy(returned_param_data, &adm_get_parameters[idx + 1],
 	       returned_param_size_in_bytes);
-<<<<<<< Updated upstream
-done:
-=======
->>>>>>> Stashed changes
 	return ret;
 }
 EXPORT_SYMBOL(adm_get_pp_params);
@@ -1632,11 +1551,7 @@ static int32_t adm_callback(struct apr_client_data *data, void *priv)
 {
 	uint32_t *payload;
 	int port_idx, copp_idx, idx, client_id;
-<<<<<<< Updated upstream
-	int num_modules;
-=======
 	uint32_t num_modules;
->>>>>>> Stashed changes
 	int ret;
 
 	if (data == NULL) {
@@ -1703,10 +1618,6 @@ static int32_t adm_callback(struct apr_client_data *data, void *priv)
 					this_adm.sourceTrackingData.
 						apr_cmd_status = payload[1];
 				else if (rtac_make_adm_callback(payload,
-<<<<<<< Updated upstream
-							data->payload_size))
-					break;
-=======
 						data->payload_size)) {
 					pr_debug("%s: rtac cmd response\n",
 						 __func__);
@@ -1716,7 +1627,6 @@ static int32_t adm_callback(struct apr_client_data *data, void *priv)
 				wake_up(
 				&this_adm.copp.wait[port_idx][copp_idx]);
 				break;
->>>>>>> Stashed changes
 				/*
 				 * if soft volume is called and already
 				 * interrupted break out of the sequence here
@@ -1725,13 +1635,8 @@ static int32_t adm_callback(struct apr_client_data *data, void *priv)
 			case ADM_CMD_DEVICE_CLOSE_V5:
 			case ADM_CMD_DEVICE_OPEN_V6:
 			case ADM_CMD_DEVICE_OPEN_V8:
-<<<<<<< Updated upstream
-				pr_debug("%s: Basic callback received, wake up.\n",
-					__func__);
-=======
 				pr_debug("%s: Basic callback received for 0x%x, wake up.\n",
 					__func__, payload[0]);
->>>>>>> Stashed changes
 				atomic_set(&this_adm.copp.stat[port_idx]
 						[copp_idx], payload[1]);
 				wake_up(
@@ -1864,10 +1769,6 @@ static int32_t adm_callback(struct apr_client_data *data, void *priv)
 				this_adm.sourceTrackingData.apr_cmd_status =
 					payload[0];
 			else if (rtac_make_adm_callback(payload,
-<<<<<<< Updated upstream
-							data->payload_size))
-				break;
-=======
 						data->payload_size)) {
 				pr_debug("%s: rtac cmd response\n", __func__);
 				atomic_set(&this_adm.copp.stat[port_idx][copp_idx],
@@ -1875,7 +1776,6 @@ static int32_t adm_callback(struct apr_client_data *data, void *priv)
 				wake_up(&this_adm.copp.wait[port_idx][copp_idx]);
 				break;
 			}
->>>>>>> Stashed changes
 
 			idx = ADM_GET_PARAMETER_LENGTH * copp_idx;
 			if (payload[0] == 0 && data->payload_size > 0) {
@@ -3416,14 +3316,9 @@ int adm_open(int port_id, int path, int rate, int channel_mode, int topology,
 						ep2_payload_size);
 			}
 
-<<<<<<< Updated upstream
-			ret = apr_send_pkt(this_adm.apr,
-					(uint32_t *)adm_params);
-=======
 			ret = adm_apr_send_pkt((uint32_t *) adm_params,
 				&this_adm.copp.wait[port_idx][copp_idx],
 				port_idx, copp_idx, open_v8.hdr.opcode);
->>>>>>> Stashed changes
 			if (ret < 0) {
 				pr_err("%s: port_id: 0x%x for[0x%x] failed %d for open_v8\n",
 					__func__, tmp_port, port_id, ret);
@@ -3509,13 +3404,6 @@ int adm_open(int port_id, int path, int rate, int channel_mode, int topology,
 				if (ret)
 					return ret;
 
-<<<<<<< Updated upstream
-				ret = apr_send_pkt(this_adm.apr,
-					(uint32_t *)&open_v6);
-			} else {
-				ret = apr_send_pkt(this_adm.apr,
-					(uint32_t *)&open);
-=======
 				ret = adm_apr_send_pkt((uint32_t *) &open_v6,
 					&this_adm.copp.wait[port_idx][copp_idx],
 					port_idx, copp_idx, open_v6.hdr.opcode);
@@ -3523,7 +3411,6 @@ int adm_open(int port_id, int path, int rate, int channel_mode, int topology,
 				ret = adm_apr_send_pkt((uint32_t *) &open,
 					&this_adm.copp.wait[port_idx][copp_idx],
 					port_idx, copp_idx, open.hdr.opcode);
->>>>>>> Stashed changes
 			}
 			if (ret < 0) {
 				pr_err("%s: port_id: 0x%x for[0x%x] failed %d\n",
@@ -3531,29 +3418,6 @@ int adm_open(int port_id, int path, int rate, int channel_mode, int topology,
 				return -EINVAL;
 			}
 		}
-<<<<<<< Updated upstream
-
-		/* Wait for the callback with copp id */
-		ret = wait_event_timeout(this_adm.copp.wait[port_idx][copp_idx],
-			atomic_read(&this_adm.copp.stat
-			[port_idx][copp_idx]) >= 0,
-			msecs_to_jiffies(2 * TIMEOUT_MS));
-		if (!ret) {
-			pr_err("%s: ADM open timedout for port_id: 0x%x for [0x%x]\n",
-						__func__, tmp_port, port_id);
-			return -EINVAL;
-		} else if (atomic_read(&this_adm.copp.stat
-					[port_idx][copp_idx]) > 0) {
-			pr_err("%s: DSP returned error[%s]\n",
-				__func__, adsp_err_get_err_str(
-				atomic_read(&this_adm.copp.stat
-				[port_idx][copp_idx])));
-			return adsp_err_get_lnx_err_code(
-					atomic_read(&this_adm.copp.stat
-						[port_idx][copp_idx]));
-		}
-=======
->>>>>>> Stashed changes
 	}
 	atomic_inc(&this_adm.copp.cnt[port_idx][copp_idx]);
 
@@ -4058,40 +3922,13 @@ int adm_close(int port_id, int perf_mode, int copp_idx)
 
 		clear_bit(ADM_STATUS_CALIBRATION_REQUIRED,
 			(void *)&this_adm.copp.adm_status[port_idx][copp_idx]);
-<<<<<<< Updated upstream
-
-		ret = apr_send_pkt(this_adm.apr, (uint32_t *)&close);
-=======
 		ret = adm_apr_send_pkt((uint32_t *) &close,
 			&this_adm.copp.wait[port_idx][copp_idx],
 			port_idx, copp_idx, close.opcode);
->>>>>>> Stashed changes
 		if (ret < 0) {
 			pr_err("%s: ADM close failed %d\n", __func__, ret);
 			return -EINVAL;
 		}
-<<<<<<< Updated upstream
-
-		ret = wait_event_timeout(this_adm.copp.wait[port_idx][copp_idx],
-			atomic_read(&this_adm.copp.stat
-			[port_idx][copp_idx]) >= 0,
-			msecs_to_jiffies(TIMEOUT_MS));
-		if (!ret) {
-			pr_err("%s: ADM cmd Route timedout for port 0x%x\n",
-				__func__, port_id);
-			return -EINVAL;
-		} else if (atomic_read(&this_adm.copp.stat
-					[port_idx][copp_idx]) > 0) {
-			pr_err("%s: DSP returned error[%s]\n",
-				__func__, adsp_err_get_err_str(
-				atomic_read(&this_adm.copp.stat
-				[port_idx][copp_idx])));
-			return adsp_err_get_lnx_err_code(
-					atomic_read(&this_adm.copp.stat
-						[port_idx][copp_idx]));
-		}
-=======
->>>>>>> Stashed changes
 	}
 
 	if (perf_mode != ULTRA_LOW_LATENCY_PCM_MODE) {
@@ -5661,10 +5498,7 @@ int __init adm_init(void)
 	this_adm.ffecns_port_id = -1;
 	init_waitqueue_head(&this_adm.matrix_map_wait);
 	init_waitqueue_head(&this_adm.adm_wait);
-<<<<<<< Updated upstream
-=======
 	mutex_init(&this_adm.adm_apr_lock);
->>>>>>> Stashed changes
 
 	for (i = 0; i < AFE_MAX_PORTS; i++) {
 		for (j = 0; j < MAX_COPPS_PER_PORT; j++) {
@@ -5689,10 +5523,7 @@ int __init adm_init(void)
 
 void adm_exit(void)
 {
-<<<<<<< Updated upstream
-=======
 	mutex_destroy(&this_adm.adm_apr_lock);
->>>>>>> Stashed changes
 	if (this_adm.apr)
 		adm_reset_data();
 	adm_delete_cal_data();

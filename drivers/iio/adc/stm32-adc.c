@@ -1311,8 +1311,6 @@ static void stm32_adc_dma_buffer_done(void *data)
 	struct stm32_adc *adc = iio_priv(indio_dev);
 	int residue = stm32_adc_dma_residue(adc);
 
-<<<<<<< Updated upstream
-=======
 	/*
 	 * In DMA mode the trigger services of IIO are not used
 	 * (e.g. no call to iio_trigger_poll).
@@ -1322,7 +1320,6 @@ static void stm32_adc_dma_buffer_done(void *data)
 	 * This implementation avoids to call trigger irq handler that
 	 * may sleep, in an atomic context (DMA irq handler context).
 	 */
->>>>>>> Stashed changes
 	dev_dbg(&indio_dev->dev, "%s bufi=%d\n", __func__, adc->bufi);
 
 	while (residue >= indio_dev->scan_bytes) {

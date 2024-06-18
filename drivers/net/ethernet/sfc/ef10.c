@@ -6147,14 +6147,11 @@ static int efx_ef10_mtd_probe(struct efx_nic *efx)
 		if (rc)
 			goto fail;
 		n_parts++;
-<<<<<<< Updated upstream
-=======
 	}
 
 	if (!n_parts) {
 		kfree(parts);
 		return 0;
->>>>>>> Stashed changes
 	}
 
 	rc = efx_mtd_add(efx, &parts[0].common, n_parts, sizeof(*parts));

@@ -295,8 +295,6 @@ static int __uac_clock_find_source(struct snd_usb_audio *chip,
 		ret = __uac_clock_find_source(chip, fmt,
 					      selector->baCSourceID[ret - 1],
 					      visited, validate);
-<<<<<<< Updated upstream
-=======
 		if (ret > 0) {
 			/*
 			 * For Samsung USBC Headset (AKG), setting clock selector again
@@ -309,7 +307,6 @@ static int __uac_clock_find_source(struct snd_usb_audio *chip,
 				return err;
 		}
 
->>>>>>> Stashed changes
 		if (!validate || ret > 0 || !chip->autoclock)
 			return ret;
 

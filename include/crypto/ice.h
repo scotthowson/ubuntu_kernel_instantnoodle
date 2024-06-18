@@ -1,10 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2014-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2014-2020, 2021 The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #ifndef _QCOM_INLINE_CRYPTO_ENGINE_H_

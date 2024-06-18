@@ -885,7 +885,6 @@ rio_dma_transfer(struct file *filp, u32 transfer_mode,
 				nr_pages = pinned;
 			}
 			ret = -EFAULT;
-			nr_pages = pinned;
 			goto err_pg;
 		}
 

@@ -751,11 +751,7 @@ static int smp_add_core(struct sclp_core_entry *core, cpumask_t *avail,
 static int __smp_rescan_cpus(struct sclp_core_info *info, bool early)
 {
 	struct sclp_core_entry *core;
-<<<<<<< Updated upstream
-	cpumask_t avail;
-=======
 	static cpumask_t avail;
->>>>>>> Stashed changes
 	bool configured;
 	u16 core_id;
 	int nr, i;

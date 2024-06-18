@@ -1457,14 +1457,7 @@ static void wma_process_cli_set_cmd(tp_wma_handle wma,
 			break;
 		case WMI_PDEV_PARAM_TXPOWER_LIMIT2G:
 			wma->pdevconfig.txpow2g = privcmd->param_value;
-<<<<<<< Updated upstream
-			if ((mac->mlme_cfg->gen.band_capability ==
-			     BAND_ALL) ||
-			    (mac->mlme_cfg->gen.band_capability ==
-			     BAND_2G))
-=======
 			if (mac->mlme_cfg->gen.band_capability & BIT(REG_BAND_2G))
->>>>>>> Stashed changes
 				mac->mlme_cfg->power.current_tx_power_level =
 					(uint8_t)privcmd->param_value;
 			else
@@ -1472,14 +1465,7 @@ static void wma_process_cli_set_cmd(tp_wma_handle wma,
 			break;
 		case WMI_PDEV_PARAM_TXPOWER_LIMIT5G:
 			wma->pdevconfig.txpow5g = privcmd->param_value;
-<<<<<<< Updated upstream
-			if ((mac->mlme_cfg->gen.band_capability ==
-			     BAND_ALL) ||
-			    (mac->mlme_cfg->gen.band_capability ==
-			     BAND_5G))
-=======
 			if (mac->mlme_cfg->gen.band_capability & BIT(REG_BAND_5G))
->>>>>>> Stashed changes
 				mac->mlme_cfg->power.current_tx_power_level =
 					(uint8_t)privcmd->param_value;
 			else
@@ -2881,10 +2867,6 @@ QDF_STATUS wma_open(struct wlan_objmgr_psoc *psoc,
 	bool val = 0;
 	void *cds_context;
 	target_resource_config *wlan_res_cfg;
-<<<<<<< Updated upstream
-	uint8_t delay_before_vdev_stop;
-=======
->>>>>>> Stashed changes
 	uint32_t self_gen_frm_pwr = 0;
 
 	WMA_LOGD("%s: Enter", __func__);
@@ -3059,19 +3041,9 @@ QDF_STATUS wma_open(struct wlan_objmgr_psoc *psoc,
 		goto err_scn_context;
 	}
 
-<<<<<<< Updated upstream
-	for (i = 0; i < wma_handle->max_bssid; ++i) {
-		wma_vdev_init(&wma_handle->interfaces[i]);
-		ucfg_mlme_get_delay_before_vdev_stop(wma_handle->psoc,
-						     &delay_before_vdev_stop);
-		wma_handle->interfaces[i].delay_before_vdev_stop =
-							delay_before_vdev_stop;
-	}
-=======
 	for (i = 0; i < wma_handle->max_bssid; ++i)
 		wma_vdev_init(&wma_handle->interfaces[i]);
 
->>>>>>> Stashed changes
 	/* Register the debug print event handler */
 	wmi_unified_register_event_handler(wma_handle->wmi_handle,
 					wmi_debug_print_event_id,
@@ -3262,15 +3234,6 @@ QDF_STATUS wma_open(struct wlan_objmgr_psoc *psoc,
 	wma_handle->staDynamicDtim =
 			ucfg_pmo_get_sta_dynamic_dtim(wma_handle->psoc);
 
-<<<<<<< Updated upstream
-	/* register for install key completion event */
-	wmi_unified_register_event_handler(wma_handle->wmi_handle,
-				wmi_vdev_install_key_complete_event_id,
-				wma_vdev_install_key_complete_event_handler,
-				WMA_RX_SERIALIZER_CTX);
-
-=======
->>>>>>> Stashed changes
 #ifdef WLAN_FEATURE_STATS_EXT
 	/* register for extended stats event */
 	wmi_unified_register_event_handler(wma_handle->wmi_handle,
@@ -5182,43 +5145,24 @@ wma_update_sar_version(struct wlan_psoc_host_service_ext_param *param,
  * wma_update_hdd_band_cap() - update band cap which hdd understands
  * @supported_band: supported band which has been given by FW
  * @tgt_cfg: target configuration to be updated
-<<<<<<< Updated upstream
-=======
  * @psoc: psoc ptr
->>>>>>> Stashed changes
  *
  * Convert WMA given supported band to enum which HDD understands
  *
  * Return: None
  */
 static void wma_update_hdd_band_cap(WMI_PHY_CAPABILITY supported_band,
-<<<<<<< Updated upstream
-				    struct wma_tgt_cfg *tgt_cfg)
-=======
 				    struct wma_tgt_cfg *tgt_cfg,
 				    struct wlan_objmgr_psoc *psoc)
->>>>>>> Stashed changes
 {
 	switch (supported_band) {
 	case WMI_11G_CAPABILITY:
 	case WMI_11NG_CAPABILITY:
-<<<<<<< Updated upstream
-		tgt_cfg->band_cap = BAND_2G;
-=======
 		tgt_cfg->band_cap = BIT(REG_BAND_2G);
->>>>>>> Stashed changes
 		break;
 	case WMI_11A_CAPABILITY:
 	case WMI_11NA_CAPABILITY:
 	case WMI_11AC_CAPABILITY:
-<<<<<<< Updated upstream
-		tgt_cfg->band_cap = BAND_5G;
-		break;
-	case WMI_11AG_CAPABILITY:
-	case WMI_11NAG_CAPABILITY:
-	default:
-		tgt_cfg->band_cap = BAND_ALL;
-=======
 		tgt_cfg->band_cap = BIT(REG_BAND_5G);
 		break;
 	case WMI_11AG_CAPABILITY:
@@ -5232,7 +5176,6 @@ static void wma_update_hdd_band_cap(WMI_PHY_CAPABILITY supported_band,
 		tgt_cfg->band_cap = (BIT(REG_BAND_2G) |
 				     BIT(REG_BAND_5G) |
 				     BIT(REG_BAND_6G));
->>>>>>> Stashed changes
 	}
 }
 
@@ -5560,11 +5503,7 @@ static int wma_update_hdd_cfg(tp_wma_handle wma_handle)
 	tgt_cfg.dfs_cac_offload = wma_handle->is_dfs_offloaded;
 	tgt_cfg.rcpi_enabled = wma_handle->rcpi_enabled;
 	wma_update_hdd_band_cap(target_if_get_phy_capability(tgt_hdl),
-<<<<<<< Updated upstream
-				&tgt_cfg);
-=======
 				&tgt_cfg, wma_handle->psoc);
->>>>>>> Stashed changes
 	wma_update_sar_version(service_ext_param, &tgt_cfg);
 	tgt_cfg.fine_time_measurement_cap =
 		target_if_get_wmi_fw_sub_feat_caps(tgt_hdl);
@@ -6839,12 +6778,8 @@ int wma_rx_service_ready_ext_event(void *handle, uint8_t *event,
 	 * indicate 3 vdevs and firmware shall add 1 vdev for NAN. So decrement
 	 * the num_vdevs by 1.
 	 */
-<<<<<<< Updated upstream
-	if (ucfg_nan_is_vdev_creation_allowed(wma_handle->psoc)) {
-=======
 	if (ucfg_nan_is_vdev_creation_allowed(wma_handle->psoc) ||
 	    QDF_GLOBAL_FTM_MODE == cds_get_conparam()) {
->>>>>>> Stashed changes
 		wlan_res_cfg->nan_separate_iface_support = true;
 	} else {
 		wlan_res_cfg->num_vdevs--;

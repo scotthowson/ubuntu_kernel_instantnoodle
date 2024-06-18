@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2012-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -76,9 +72,6 @@ static inline enum imem_type read_imem_type(struct platform_device *pdev)
 						IMEM_NONE;
 
 }
-<<<<<<< Updated upstream
-
-=======
 static inline void msm_vidc_free_bus_table(
 		struct msm_vidc_platform_resources *res)
 {
@@ -96,7 +89,6 @@ static inline void msm_vidc_free_bus_table(
 	data->bus_prof_entries = NULL;
 	data->count = 0;
 }
->>>>>>> Stashed changes
 static inline void msm_vidc_free_allowed_clocks_table(
 		struct msm_vidc_platform_resources *res)
 {
@@ -198,10 +190,7 @@ void msm_vidc_free_platform_resources(
 			struct msm_vidc_platform_resources *res)
 {
 	msm_vidc_free_clock_table(res);
-<<<<<<< Updated upstream
-=======
 	msm_vidc_free_bus_table(res);
->>>>>>> Stashed changes
 	msm_vidc_free_regulator_table(res);
 	msm_vidc_free_freq_table(res);
 	msm_vidc_free_platform_version_table(res);
@@ -848,11 +837,8 @@ static int msm_vidc_populate_bus(struct device *dev,
 			&bus->mode);
 	if (!rc && !strcmp(bus->mode, PERF_GOV))
 		bus->is_prfm_gov_used = true;
-<<<<<<< Updated upstream
-=======
 	else
 		bus->is_prfm_gov_used = false;
->>>>>>> Stashed changes
 
 	rc = of_property_read_u32_array(dev->of_node, "qcom,bus-range-kbps",
 			range, ARRAY_SIZE(range));
@@ -1096,9 +1082,6 @@ err_load_clk_prop_fail:
 err_load_clk_table_fail:
 	return rc;
 }
-<<<<<<< Updated upstream
-
-=======
 static int msm_vidc_load_bus_table(struct msm_vidc_platform_resources *res)
 {
 	int rc = 0, i = 0, j = 0;
@@ -1201,7 +1184,6 @@ static int msm_vidc_load_bus_table(struct msm_vidc_platform_resources *res)
 
 	return rc;
 }
->>>>>>> Stashed changes
 int read_platform_resources_from_dt(
 		struct msm_vidc_platform_resources *res)
 {
@@ -1321,8 +1303,6 @@ int read_platform_resources_from_dt(
 		goto err_load_allowed_clocks_table;
 	}
 
-<<<<<<< Updated upstream
-=======
 	rc = msm_vidc_load_bus_table(res);
 	if (rc) {
 		dprintk(VIDC_ERR,
@@ -1330,7 +1310,6 @@ int read_platform_resources_from_dt(
 		goto err_load_bus_table;
 	}
 
->>>>>>> Stashed changes
 	rc = of_property_read_u32(pdev->dev.of_node, "qcom,max-hw-load",
 			&res->max_load);
 	if (rc) {
@@ -1362,12 +1341,6 @@ int read_platform_resources_from_dt(
 	dprintk(VIDC_DBG, "Power collapse supported = %s\n",
 		res->sw_power_collapsible ? "yes" : "no");
 
-<<<<<<< Updated upstream
-	res->never_unload_fw = of_property_read_bool(pdev->dev.of_node,
-			"qcom,never-unload-fw");
-
-=======
->>>>>>> Stashed changes
 	of_property_read_u32(pdev->dev.of_node,
 			"qcom,pm-qos-latency-us", &res->pm_qos_latency_us);
 
@@ -1385,11 +1358,8 @@ int read_platform_resources_from_dt(
 err_setup_legacy_cb:
 err_load_max_hw_load:
 	msm_vidc_free_allowed_clocks_table(res);
-<<<<<<< Updated upstream
-=======
 err_load_bus_table:
 	msm_vidc_free_bus_table(res);
->>>>>>> Stashed changes
 err_load_allowed_clocks_table:
 	msm_vidc_free_cycles_per_mb_table(res);
 err_load_cycles_per_mb_table:

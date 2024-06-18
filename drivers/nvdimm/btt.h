@@ -44,10 +44,7 @@
 #define ent_e_flag(ent) (!!(ent & MAP_ERR_MASK))
 #define ent_z_flag(ent) (!!(ent & MAP_TRIM_MASK))
 #define set_e_flag(ent) (ent |= MAP_ERR_MASK)
-<<<<<<< Updated upstream
-=======
 /* 'normal' is both e and z flags set */
->>>>>>> Stashed changes
 #define ent_normal(ent) (ent_e_flag(ent) && ent_z_flag(ent))
 
 enum btt_init_state {

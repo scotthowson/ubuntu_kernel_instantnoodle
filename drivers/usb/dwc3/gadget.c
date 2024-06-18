@@ -288,10 +288,7 @@ static void dwc3_gadget_del_and_unmap_request(struct dwc3_ep *dep,
 	list_del(&req->list);
 	req->remaining = 0;
 	req->needs_extra_trb = false;
-<<<<<<< Updated upstream
-=======
 	req->num_trbs = 0;
->>>>>>> Stashed changes
 
 	if (req->request.status == -EINPROGRESS)
 		req->request.status = status;
@@ -387,11 +384,7 @@ int dwc3_send_gadget_ep_cmd(struct dwc3_ep *dep, unsigned cmd,
 {
 	const struct usb_endpoint_descriptor *desc = dep->endpoint.desc;
 	struct dwc3		*dwc = dep->dwc;
-<<<<<<< Updated upstream
-	u32			timeout = 3000;
-=======
 	u32			timeout = 5000;
->>>>>>> Stashed changes
 	u32			saved_config = 0;
 	u32			reg;
 
@@ -937,13 +930,10 @@ static void dwc3_stop_active_transfers_to_halt(struct dwc3 *dwc)
 		if (!(dep->flags & DWC3_EP_ENABLED))
 			continue;
 
-<<<<<<< Updated upstream
-=======
 		/*
 		 * If the transfers didn't stop due to some reason
 		 * don't giveback the request to gadget driver.
 		 */
->>>>>>> Stashed changes
 		if (dwc3_stop_active_transfer_noioc(dwc, dep->number, true))
 			continue;
 
@@ -1274,13 +1264,6 @@ static void __dwc3_prepare_one_trb(struct dwc3_ep *dep, struct dwc3_trb *trb,
 		trb->ctrl |= DWC3_TRB_CTRL_SID_SOFN(stream_id);
 
 	/*
-<<<<<<< Updated upstream
-	 * Ensure that updates of buffer address and size happens
-	 * before we set the DWC3_TRB_CTRL_HWO so that core
-	 * does not process any stale TRB.
-	 */
-	mb();
-=======
 	 * As per data book 4.2.3.2TRB Control Bit Rules section
 	 *
 	 * The controller autonomously checks the HWO field of a TRB to determine if the
@@ -1293,7 +1276,6 @@ static void __dwc3_prepare_one_trb(struct dwc3_ep *dep, struct dwc3_trb *trb,
 	 * Add a write memory barrier to prevent CPU re-ordering.
 	 */
 	wmb();
->>>>>>> Stashed changes
 	trb->ctrl |= DWC3_TRB_CTRL_HWO;
 
 	dwc3_ep_inc_enq(dep);
@@ -1334,11 +1316,7 @@ static void dwc3_prepare_one_trb(struct dwc3_ep *dep,
 
 	req->num_trbs++;
 
-<<<<<<< Updated upstream
-	__dwc3_prepare_one_trb(dep, trb, dma, length, chain, node,
-=======
 	__dwc3_prepare_one_trb(dep, trb, dma, trb_length, chain, node,
->>>>>>> Stashed changes
 			stream_id, short_not_ok, no_interrupt);
 }
 
@@ -1376,11 +1354,7 @@ static void dwc3_prepare_one_trb_sg(struct dwc3_ep *dep,
 		 * sgs passed. So mark the chain bit to false if it isthe last
 		 * mapped sg.
 		 */
-<<<<<<< Updated upstream
-		if (i == remaining - 1)
-=======
 		if ((i == remaining - 1) || !length)
->>>>>>> Stashed changes
 			chain = false;
 
 		if (rem && usb_endpoint_dir_out(dep->endpoint.desc) && !chain) {
@@ -1644,11 +1618,7 @@ static int __dwc3_gadget_kick_transfer(struct dwc3_ep *dep)
 		}
 
 		dbg_event(0xFF, "GADGET_EP_CMD Failure", ret);
-<<<<<<< Updated upstream
-		dwc3_stop_active_transfer(dwc, dep->number, true);
-=======
 		dwc3_stop_active_transfer(dwc, dep->number, true, true);
->>>>>>> Stashed changes
 
 		list_for_each_entry_safe(req, n, &dep->started_list, list)
 			dwc3_gadget_move_cancelled_request(req);
@@ -1759,8 +1729,6 @@ static int __dwc3_gadget_ep_queue(struct dwc3_ep *dep, struct dwc3_request *req)
 	__dwc3_gadget_kick_transfer(dep);
 
 	return 0;
-<<<<<<< Updated upstream
-=======
 }
 
 static void dwc3_gadget_wakeup_irq_work(struct irq_work *work)
@@ -1768,7 +1736,6 @@ static void dwc3_gadget_wakeup_irq_work(struct irq_work *work)
 	struct dwc3 *dwc = container_of(work, typeof(*dwc), wakeup_irq_work);
 
 	schedule_work(&dwc->wakeup_work);
->>>>>>> Stashed changes
 }
 
 static int dwc3_gadget_wakeup(struct usb_gadget *g)
@@ -1833,13 +1800,6 @@ static void dwc3_gadget_ep_skip_trbs(struct dwc3_ep *dep, struct dwc3_request *r
 static void dwc3_gadget_ep_cleanup_cancelled_requests(struct dwc3_ep *dep)
 {
 	struct dwc3_request		*req;
-<<<<<<< Updated upstream
-	struct dwc3_request		*tmp;
-
-	list_for_each_entry_safe(req, tmp, &dep->cancelled_list, list) {
-		dwc3_gadget_ep_skip_trbs(dep, req);
-		dwc3_gadget_giveback(dep, req, -ECONNRESET);
-=======
 
 	while (!list_empty(&dep->cancelled_list)) {
 		req = next_request(&dep->cancelled_list);
@@ -1851,7 +1811,6 @@ static void dwc3_gadget_ep_cleanup_cancelled_requests(struct dwc3_ep *dep)
 		 */
 		if (!dep->endpoint.desc)
 			break;
->>>>>>> Stashed changes
 	}
 }
 
@@ -1895,11 +1854,7 @@ static int dwc3_gadget_ep_dequeue(struct usb_ep *ep,
 			struct dwc3_request *t;
 
 			/* wait until it is processed */
-<<<<<<< Updated upstream
-			dwc3_stop_active_transfer(dwc, dep->number, true);
-=======
 			dwc3_stop_active_transfer(dwc, dep->number, true, true);
->>>>>>> Stashed changes
 
 			if (!r->trb)
 				goto out0;
@@ -1924,10 +1879,7 @@ static int dwc3_gadget_ep_dequeue(struct usb_ep *ep,
 
 out1:
 	dbg_ep_dequeue(dep->number, req);
-<<<<<<< Updated upstream
-=======
 	dwc3_gadget_ep_skip_trbs(dep, req);
->>>>>>> Stashed changes
 	dwc3_gadget_giveback(dep, req, -ECONNRESET);
 
 out0:
@@ -2592,14 +2544,11 @@ static int dwc3_gadget_pullup(struct usb_gadget *g, int is_on)
 	ret = dwc3_gadget_run_stop_util(dwc);
 	spin_unlock_irqrestore(&dwc->lock, flags);
 	if (!is_on && ret == -ETIMEDOUT) {
-<<<<<<< Updated upstream
-=======
 		/*
 		 * If we fail to stop the controller then mark it as an error
 		 * event since it can lead the controller to go into an unknown
 		 * state.
 		 */
->>>>>>> Stashed changes
 		dbg_log_string("%s: error event seen\n", __func__);
 		dwc->err_evt_seen = true;
 		dwc3_notify_event(dwc, DWC3_CONTROLLER_ERROR_EVENT, 0);
@@ -2637,13 +2586,10 @@ static void dwc3_gadget_enable_irq(struct dwc3 *dwc)
 		reg |= DWC3_DEVTEN_ULSTCNGEN;
 	else
 		reg |= DWC3_DEVTEN_EOPFEN;
-<<<<<<< Updated upstream
-=======
 
 	/* On 2.30a and above this bit enables U3/L2-L1 Suspend Events */
 	if (dwc->revision >= DWC3_REVISION_230A)
 		reg |= DWC3_DEVTEN_EOPFEN;
->>>>>>> Stashed changes
 
 	dwc3_writel(dwc->regs, DWC3_DEVTEN, reg);
 }
@@ -3160,13 +3106,10 @@ static int dwc3_gadget_ep_reclaim_completed_trb(struct dwc3_ep *dep,
 	if (event->status & DEPEVT_STATUS_SHORT && !chain)
 		return 1;
 
-<<<<<<< Updated upstream
-=======
 	if ((trb->ctrl & DWC3_TRB_CTRL_ISP_IMI) &&
 	    DWC3_TRB_SIZE_TRBSTS(trb->size) == DWC3_TRBSTS_MISSED_ISOC)
 		return 1;
 
->>>>>>> Stashed changes
 	if ((trb->ctrl & DWC3_TRB_CTRL_IOC) ||
 	    (trb->ctrl & DWC3_TRB_CTRL_LST))
 		return 1;
@@ -3212,11 +3155,7 @@ static int dwc3_gadget_ep_reclaim_trb_linear(struct dwc3_ep *dep,
 
 static bool dwc3_gadget_ep_request_completed(struct dwc3_request *req)
 {
-<<<<<<< Updated upstream
-	return req->num_pending_sgs == 0;
-=======
 	return req->num_pending_sgs == 0 && req->num_queued_sgs == 0;
->>>>>>> Stashed changes
 }
 
 static int dwc3_gadget_ep_cleanup_completed_request(struct dwc3_ep *dep,
@@ -3244,22 +3183,9 @@ static int dwc3_gadget_ep_cleanup_completed_request(struct dwc3_ep *dep,
 		ret = dwc3_gadget_ep_reclaim_trb_linear(dep, req, event,
 				status);
 
-<<<<<<< Updated upstream
-	if (req->needs_extra_trb) {
-		ret = dwc3_gadget_ep_reclaim_trb_linear(dep, req, event,
-				status);
-		req->needs_extra_trb = false;
-	}
-
-	req->request.actual = req->request.length - req->remaining;
-
-	if (!dwc3_gadget_ep_request_completed(req)) {
-		__dwc3_gadget_kick_transfer(dep);
-=======
 	req->request.actual = req->request.length - req->remaining;
 
 	if (!dwc3_gadget_ep_request_completed(req))
->>>>>>> Stashed changes
 		goto out;
 
 	if (req->needs_extra_trb) {
@@ -3378,10 +3304,6 @@ static void dwc3_gadget_endpoint_transfer_in_progress(struct dwc3_ep *dep,
 
 	dwc3_gadget_ep_cleanup_completed_requests(dep, event, status);
 
-<<<<<<< Updated upstream
-	if (stop)
-		dwc3_stop_active_transfer(dwc, dep->number, true);
-=======
 	if (usb_endpoint_xfer_isoc(dep->endpoint.desc) &&
 					(list_empty(&dep->started_list))) {
 		stop = true;
@@ -3392,7 +3314,6 @@ static void dwc3_gadget_endpoint_transfer_in_progress(struct dwc3_ep *dep,
 		dwc3_stop_active_transfer(dwc, dep->number, true, true);
 	else if (dwc3_gadget_ep_should_continue(dep))
 		__dwc3_gadget_kick_transfer(dep);
->>>>>>> Stashed changes
 	/*
 	 * WORKAROUND: This is the 2nd half of U1/U2 -> U0 workaround.
 	 * See dwc3_gadget_linksts_change_interrupt() for 1st half.
@@ -3634,14 +3555,11 @@ int dwc3_stop_active_transfer_noioc(struct dwc3 *dwc, u32 epnum, bool force)
 
 	dbg_log_string("%s(%d): endxfer ret:%d)",
 			dep->name, dep->number, ret);
-<<<<<<< Updated upstream
-=======
 
 	/* Clear DWC3_EP_TRANSFER_STARTED if endxfer fails */
 	if (ret)
 		dep->flags &= ~DWC3_EP_TRANSFER_STARTED;
 
->>>>>>> Stashed changes
 	return ret;
 }
 

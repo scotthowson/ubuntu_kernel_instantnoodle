@@ -556,15 +556,6 @@ int schedtune_task_boost(struct task_struct *p)
 	return task_boost;
 }
 
-<<<<<<< Updated upstream
-#ifdef CONFIG_RATP
-
-bool prefer_sched_group(struct task_struct *p)
-{
-	struct schedtune *st;
-	int idx;
-	bool ret = false;
-=======
 /*  The same as schedtune_task_boost except assuming the caller has the rcu read
  *  lock.
  */
@@ -572,59 +563,17 @@ int schedtune_task_boost_rcu_locked(struct task_struct *p)
 {
 	struct schedtune *st;
 	int task_boost;
->>>>>>> Stashed changes
 
 	if (unlikely(!schedtune_initialized))
 		return 0;
 
 	/* Get task boost value */
-<<<<<<< Updated upstream
-	rcu_read_lock();
-	st = task_schedtune(p);
-	idx = st->idx;
-	//cgroup_name(st->css.cgroup, name_buf, GROUP_NAME_MAX + 1);
-	rcu_read_unlock();
-
-	if (idx == stune_map[STUNE_FG - 1] || idx == stune_map[STUNE_TOP - 1])
-		ret = true;
-
-	trace_sched_tune_group(p, idx, ret);
-
-	return ret;
-}
-
-bool prefer_top(struct task_struct *p)
-{
-	struct schedtune *st;
-	int idx;
-	bool ret = false;
-
-	if (unlikely(!schedtune_initialized))
-		return 0;
-
-	/* Get task boost value */
-	rcu_read_lock();
-	st = task_schedtune(p);
-	idx = st->idx;
-	rcu_read_unlock();
-
-	if (idx == stune_map[STUNE_TOP - 1])
-		ret = true;
-
-	trace_sched_tune_group(p, idx, ret);
-
-	return ret;
-}
-#endif
-
-=======
 	st = task_schedtune(p);
 	task_boost = st->boost;
 
 	return task_boost;
 }
 
->>>>>>> Stashed changes
 int schedtune_prefer_idle(struct task_struct *p)
 {
 	struct schedtune *st;

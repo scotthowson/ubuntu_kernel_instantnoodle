@@ -1,10 +1,6 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2013-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2013-2021 The Linux Foundation. All rights reserved.
  * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -400,8 +396,6 @@ void hdd_reset_pktcapture_cb(uint8_t pdev_id)
 
 void hdd_send_rps_ind(struct hdd_adapter *adapter);
 void hdd_send_rps_disable_ind(struct hdd_adapter *adapter);
-<<<<<<< Updated upstream
-=======
 
 /**
  * hdd_adapter_set_rps() - Enable/disable RPS for mode specified
@@ -421,7 +415,6 @@ void hdd_adapter_set_rps(uint8_t vdev_id, bool enable)
 }
 #endif
 
->>>>>>> Stashed changes
 void wlan_hdd_classify_pkt(struct sk_buff *skb);
 
 #ifdef WLAN_FEATURE_DP_BUS_BANDWIDTH

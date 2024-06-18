@@ -55,8 +55,6 @@ EXPORT_SYMBOL(panic_notifier_list);
 void (*vendor_panic_cb)(u64 sp);
 EXPORT_SYMBOL_GPL(vendor_panic_cb);
 
-<<<<<<< Updated upstream
-=======
 #ifdef CONFIG_SYSCTL
 static struct ctl_table kern_panic_table[] = {
 	{
@@ -96,7 +94,6 @@ static __init int kernel_panic_sysfs_init(void)
 late_initcall(kernel_panic_sysfs_init);
 #endif
 
->>>>>>> Stashed changes
 static long no_blink(int state)
 {
 	return 0;
@@ -248,20 +245,8 @@ void panic(const char *fmt, ...)
 	vsnprintf(buf, sizeof(buf), fmt, args);
 	va_end(args);
 	dump_stack_minidump(0);
-<<<<<<< Updated upstream
-
-#ifdef CONFIG_PANIC_FLUSH
-	if (!oem_get_download_mode())
-		panic_flush_device_cache(2000);
-#endif
-
 	if (vendor_panic_cb)
 		vendor_panic_cb(0);
-
-=======
-	if (vendor_panic_cb)
-		vendor_panic_cb(0);
->>>>>>> Stashed changes
 	pr_emerg("Kernel panic - not syncing: %s\n", buf);
 #ifdef CONFIG_DEBUG_BUGVERBOSE
 	/*

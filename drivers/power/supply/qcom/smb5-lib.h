@@ -1,10 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2018-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2018-2021 The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #ifndef __SMB5_CHARGER_H
@@ -959,10 +955,7 @@ extern bool get_prop_fast_chg_started(struct smb_charger *chg);
 extern void mcu_en_gpio_set(int value);
 extern void switch_mode_to_normal(void);
 extern void enhance_dash_type_set(int type);
-<<<<<<< Updated upstream
-=======
 #ifdef CONFIG_ONEPLUS_WIRELESSCHG
->>>>>>> Stashed changes
 extern void notify_pd_in_to_wireless(void);
 #else
 static inline void notify_pd_in_to_wireless(void){}
@@ -1235,10 +1228,7 @@ int smblib_get_qc3_main_icl_offset(struct smb_charger *chg, int *offset_ua);
 
 int smblib_init(struct smb_charger *chg);
 int smblib_deinit(struct smb_charger *chg);
-<<<<<<< Updated upstream
-=======
 #ifdef CONFIG_ONEPLUS_WIRELESSCHG
->>>>>>> Stashed changes
 extern void exchg_information_register(struct smb_charger *chg);
 #else
 static inline void exchg_information_register(struct smb_charger *chg){}

@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2016-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2016-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include <linux/atomic.h>
@@ -506,12 +502,7 @@ int rpmh_write_batch(const struct device *dev, enum rpmh_state state,
 			 * we've returned from this function.
 			 */
 			rpmh_rsc_debug(ctrlr_to_drv(ctrlr), &compls[i]);
-<<<<<<< Updated upstream
-			ret = -ETIMEDOUT;
-			goto exit;
-=======
 			BUG_ON(1);
->>>>>>> Stashed changes
 		}
 	}
 

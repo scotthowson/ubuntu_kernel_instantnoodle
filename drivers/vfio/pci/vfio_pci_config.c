@@ -1738,8 +1738,6 @@ int vfio_config_init(struct vfio_pci_device *vdev)
 				 vconfig[PCI_INTERRUPT_PIN]);
 
 		vconfig[PCI_INTERRUPT_PIN] = 0; /* Gratuitous for good VFs */
-<<<<<<< Updated upstream
-=======
 
 		/*
 		 * VFs do no implement the memory enable bit of the COMMAND
@@ -1749,7 +1747,6 @@ int vfio_config_init(struct vfio_pci_device *vdev)
 		 */
 		*(__le16 *)&vconfig[PCI_COMMAND] |=
 					cpu_to_le16(PCI_COMMAND_MEMORY);
->>>>>>> Stashed changes
 	}
 
 	if (!IS_ENABLED(CONFIG_VFIO_PCI_INTX) || vdev->nointx)

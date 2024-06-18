@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
-<<<<<<< Updated upstream
-/* Copyright (c) 2015-2019, The Linux Foundation. All rights reserved.
-=======
 /*
  * Copyright (c) 2015-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include <linux/kernel.h>
@@ -14,11 +10,8 @@
 #include <linux/of.h>
 #include <linux/clk.h>
 #include <linux/clk-provider.h>
-<<<<<<< Updated upstream
-=======
 #include <linux/gpio.h>
 #include <linux/of_gpio.h>
->>>>>>> Stashed changes
 #include "../../../drivers/clk/qcom/common.h"
 #include <linux/pinctrl/consumer.h>
 #include <linux/platform_device.h>
@@ -39,11 +32,8 @@ enum {
 	AUDIO_EXT_CLK_LPASS_CORE_HW_VOTE,
 	AUDIO_EXT_CLK_LPASS8,
 	AUDIO_EXT_CLK_LPASS_AUDIO_HW_VOTE,
-<<<<<<< Updated upstream
-=======
 	AUDIO_EXT_CLK_PM660_PMI,
 	AUDIO_EXT_CLK_DIV_CLK2,
->>>>>>> Stashed changes
 	AUDIO_EXT_CLK_LPASS_MAX,
 	AUDIO_EXT_CLK_EXTERNAL_PLL = AUDIO_EXT_CLK_LPASS_MAX,
 	AUDIO_EXT_CLK_MAX,
@@ -59,10 +49,7 @@ struct pinctrl_info {
 struct audio_ext_clk {
 	struct pinctrl_info pnctrl_info;
 	struct clk_fixed_factor fact;
-<<<<<<< Updated upstream
-=======
 	int gpio;
->>>>>>> Stashed changes
 };
 
 struct audio_ext_clk_priv {
@@ -124,11 +111,7 @@ static void audio_ext_clk_unprepare(struct clk_hw *hw)
 		ret = pinctrl_select_state(pnctrl_info->pinctrl,
 					   pnctrl_info->sleep);
 		if (ret) {
-<<<<<<< Updated upstream
-			pr_err("%s: active state select failed with %d\n",
-=======
 			pr_err("%s: sleep state select failed with %d\n",
->>>>>>> Stashed changes
 				__func__, ret);
 			return;
 		}
@@ -410,8 +393,6 @@ static struct audio_ext_clk audio_clk_array[] = {
 			},
 		},
 	},
-<<<<<<< Updated upstream
-=======
 	{
 		.gpio = -EINVAL,
 		.fact = {
@@ -438,7 +419,6 @@ static struct audio_ext_clk audio_clk_array[] = {
 			},
 		},
 	},
->>>>>>> Stashed changes
 };
 
 static int audio_get_pinctrl(struct platform_device *pdev)
@@ -562,10 +542,7 @@ static int audio_ref_clk_probe(struct platform_device *pdev)
 	int ret;
 	struct audio_ext_clk_priv *clk_priv;
 	u32 clk_freq = 0, clk_id = 0, clk_src = 0, use_pinctrl = 0;
-<<<<<<< Updated upstream
-=======
 	int clk_gpio;
->>>>>>> Stashed changes
 
 	clk_priv = devm_kzalloc(&pdev->dev, sizeof(*clk_priv), GFP_KERNEL);
 	if (!clk_priv)
@@ -637,8 +614,6 @@ static int audio_ref_clk_probe(struct platform_device *pdev)
 		}
 	}
 
-<<<<<<< Updated upstream
-=======
 	clk_gpio = of_get_named_gpio(pdev->dev.of_node,
 				"qcom,audio-ref-clk-gpio", 0);
 	if (clk_gpio > 0) {
@@ -655,19 +630,14 @@ static int audio_ref_clk_probe(struct platform_device *pdev)
 		}
 	}
 
->>>>>>> Stashed changes
 	ret = audio_get_clk_data(pdev);
 	if (ret) {
 		dev_err(&pdev->dev, "%s: clk_init is failed\n",
 			__func__);
-<<<<<<< Updated upstream
-		audio_put_pinctrl(pdev);
-=======
 		if (use_pinctrl)
 			audio_put_pinctrl(pdev);
 		if (clk_priv->audio_clk.gpio > 0)
 			gpio_free(clk_priv->audio_clk.gpio);
->>>>>>> Stashed changes
 		return ret;
 	}
 	return 0;
@@ -675,15 +645,11 @@ static int audio_ref_clk_probe(struct platform_device *pdev)
 
 static int audio_ref_clk_remove(struct platform_device *pdev)
 {
-<<<<<<< Updated upstream
-	audio_put_pinctrl(pdev);
-=======
 	struct audio_ext_clk_priv *clk_priv = platform_get_drvdata(pdev);
 
 	audio_put_pinctrl(pdev);
 	if (clk_priv->audio_clk.gpio > 0)
 		gpio_free(clk_priv->audio_clk.gpio);
->>>>>>> Stashed changes
 
 	return 0;
 }

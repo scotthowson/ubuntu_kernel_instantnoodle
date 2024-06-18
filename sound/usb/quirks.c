@@ -1191,11 +1191,8 @@ bool snd_usb_get_sample_rate_quirk(struct snd_usb_audio *chip)
 	case USB_ID(0x1901, 0x0191): /* GE B850V3 CP2114 audio interface */
 	case USB_ID(0x21B4, 0x0081): /* AudioQuest DragonFly */
 	case USB_ID(0x2912, 0x30c8): /* Audioengine D1 */
-<<<<<<< Updated upstream
-=======
 	case USB_ID(0x413c, 0xa506): /* Dell AE515 sound bar */
 	case USB_ID(0x046d, 0x084c): /* Logitech ConferenceCam Connect */
->>>>>>> Stashed changes
 		return true;
 	}
 
@@ -1409,10 +1406,7 @@ u64 snd_usb_interface_dsd_format_quirks(struct snd_usb_audio *chip,
 	/* XMOS based USB DACs */
 	switch (chip->usb_id) {
 	case USB_ID(0x1511, 0x0037): /* AURALiC VEGA */
-<<<<<<< Updated upstream
-=======
 	case USB_ID(0x21ed, 0xd75a): /* Accuphase DAC-60 option card */
->>>>>>> Stashed changes
 	case USB_ID(0x2522, 0x0012): /* LH Labs VI DAC Infinity */
 	case USB_ID(0x2772, 0x0230): /* Pro-Ject Pre Box S2 Digital */
 		if (fp->altsetting == 2)
@@ -1421,11 +1415,7 @@ u64 snd_usb_interface_dsd_format_quirks(struct snd_usb_audio *chip,
 
 	case USB_ID(0x0d8c, 0x0316): /* Hegel HD12 DSD */
 	case USB_ID(0x10cb, 0x0103): /* The Bit Opus #3; with fp->dsd_raw */
-<<<<<<< Updated upstream
-	case USB_ID(0x16b0, 0x06b2): /* NuPrime DAC-10 */
-=======
 	case USB_ID(0x16d0, 0x06b2): /* NuPrime DAC-10 */
->>>>>>> Stashed changes
 	case USB_ID(0x16d0, 0x09dd): /* Encore mDSD */
 	case USB_ID(0x16d0, 0x0733): /* Furutech ADL Stratos */
 	case USB_ID(0x16d0, 0x09db): /* NuPrime Audio DAC-9 */
@@ -1491,10 +1481,7 @@ u64 snd_usb_interface_dsd_format_quirks(struct snd_usb_audio *chip,
 	case 0x25ce:  /* Mytek devices */
 	case 0x278b:  /* Rotel? */
 	case 0x292b:  /* Gustard/Ess based devices */
-<<<<<<< Updated upstream
-=======
 	case 0x2972:  /* FiiO devices */
->>>>>>> Stashed changes
 	case 0x2ab6:  /* T+A devices */
 	case 0x3353:  /* Khadas devices */
 	case 0x3842:  /* EVGA */

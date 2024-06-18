@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2018-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2018-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include <linux/init.h>
@@ -48,8 +44,6 @@ static const unsigned int ep92_dsd_freq_table[4] = {
 	64, 128, 256, 0
 };
 
-<<<<<<< Updated upstream
-=======
 /* EP92 register default values */
 static struct reg_default ep92_reg_defaults[] = {
 	{EP92_BI_VENDOR_ID_0,                   0x17},
@@ -105,7 +99,6 @@ static struct reg_default ep92_reg_defaults[] = {
 	{EP92_OTHER_PACKETS_GC_PACKET_2,        0x00},
 };
 
->>>>>>> Stashed changes
 static bool ep92_volatile_register(struct device *dev, unsigned int reg)
 {
 	/* do not cache register state in regmap */
@@ -177,8 +170,6 @@ struct ep92_pdata {
 #endif /* CONFIG_DEBUG_FS */
 };
 
-<<<<<<< Updated upstream
-=======
 struct ep92_mclk_cfg_info {
 	uint32_t in_sample_rate;
 	uint32_t out_mclk_freq;
@@ -250,7 +241,6 @@ int ep92_set_ext_mclk(struct snd_soc_codec *codec, uint32_t mclk_freq)
 }
 EXPORT_SYMBOL(ep92_set_ext_mclk);
 
->>>>>>> Stashed changes
 #if IS_ENABLED(CONFIG_DEBUG_FS)
 static int debugfs_codec_open_op(struct inode *inode, struct file *file)
 {

@@ -77,10 +77,7 @@ struct pci_epc_mem {
 	unsigned long	*bitmap;
 	size_t		page_size;
 	int		pages;
-<<<<<<< Updated upstream
-=======
 	/* mutex to protect against concurrent access for memory allocation*/
->>>>>>> Stashed changes
 	struct mutex	lock;
 };
 

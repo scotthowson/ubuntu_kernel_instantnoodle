@@ -1326,36 +1326,7 @@ thermal_zone_device_register(const char *type, int trips, int mask,
 	/* A new thermal zone needs to be updated anyway. */
 	atomic_set(&tz->need_update, 1);
 
-<<<<<<< Updated upstream
-	/*To unify the common skin thermal node that readable easier.
-	 * Use
-	 * /sys/class/thermal/msm-therm/ and /sys/class/thermal/skin-therm/
-	 * instead of
-	 * /sys/class/thermal/thermal_zone49/ and /sys/class/thermal/thermal_zone79
-	 */
-	if (strcmp(tz->type, "skin-therm") ==  0) {
-		dev_set_name(&tz->device, tz->type);
-		skin_tz = tz;
-	} else if (strcmp(tz->type, "msm-therm") ==  0) {
-		dev_set_name(&tz->device, tz->type);
-		msm_tz = tz;
-	} else if (strcmp(tz->type, "camera-flash-therm") ==  0) {
-		dev_set_name(&tz->device, tz->type);
-	} else
-		dev_set_name(&tz->device, "thermal_zone%d", tz->id);
-
-	if (strcmp(tz->type, "xo-therm-usr") ==  0)
-		xo_mmw1_tz = tz;
-	else if (strcmp(tz->type, "modem-mmw2-usr") ==  0)
-		modem_mmw2_tz = tz;
-	else if (strcmp(tz->type, "mmw-pa1-usr") ==  0)
-		pa1_mmw0_tz = tz;
-	else if (strcmp(tz->type, "skin-therm-usr") ==  0)
-		modem_skin_tz = tz;
-
-=======
 	dev_set_name(&tz->device, "thermal_zone%d", tz->id);
->>>>>>> Stashed changes
 	result = device_register(&tz->device);
 	if (result)
 		goto remove_device_groups;
@@ -1520,8 +1491,6 @@ exit:
 }
 EXPORT_SYMBOL_GPL(thermal_zone_get_zone_by_name);
 
-<<<<<<< Updated upstream
-=======
 /**
  * thermal_zone_get_cdev_by_name() - search for a cooling device and returns
  * its ref.
@@ -1533,7 +1502,6 @@ EXPORT_SYMBOL_GPL(thermal_zone_get_zone_by_name);
  * with matching name equals to @name, an ERR_PTR otherwise (-EINVAL for
  * invalid paramenters, -ENODEV for not found and -EEXIST for multiple matches).
  */
->>>>>>> Stashed changes
 struct thermal_cooling_device *thermal_zone_get_cdev_by_name(const char *name)
 {
 	struct thermal_cooling_device *pos = NULL, *ref = ERR_PTR(-EINVAL);
@@ -1723,17 +1691,6 @@ static int __init thermal_init(void)
 		pr_warn("Thermal: Can not register suspend notifier, return %d\n",
 			result);
 
-<<<<<<< Updated upstream
-	/*Power Teams add dynamic thermal qos notify */
-	pm_qos_add_notifier(PM_QOS_MSM_THERMAL, &msm_thermal_qos_notifier);
-	pm_qos_add_notifier(PM_QOS_SKIN_THERMAL, &skin_thermal_qos_notifier);
-	pm_qos_add_notifier(PM_QOS_MODEM_SKIN_THERMAL, &modem_skin_thermal_qos_notifier);
-	pm_qos_add_notifier(PM_QOS_MMW1_THERMAL, &xo_mmw1_thermal_qos_notifier);
-	pm_qos_add_notifier(PM_QOS_MMW0_THERMAL, &pa1_mmw0_thermal_qos_notifier);
-	pm_qos_add_notifier(PM_QOS_MMW2_THERMAL, &modem_mmw2_qos_notifier);
-
-=======
->>>>>>> Stashed changes
 	return 0;
 
 exit_zone_parse:

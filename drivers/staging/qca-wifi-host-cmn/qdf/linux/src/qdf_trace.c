@@ -1,9 +1,5 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2014-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2014-2021 The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -1561,18 +1557,6 @@ void qdf_dp_log_proto_pkt_info(uint8_t *sa, uint8_t *da, uint8_t type,
 		last_ticks_rx[subtype] = curr_ticks;
 
 	if (status == QDF_TX_RX_STATUS_INVALID)
-<<<<<<< Updated upstream
-		qdf_nofl_debug("%s %s: SA:"QDF_MAC_ADDR_FMT" DA:"QDF_MAC_ADDR_FMT,
-			       qdf_get_pkt_type_string(type, subtype),
-			       dir ? "RX":"TX", QDF_MAC_ADDR_REF(sa),
-			       QDF_MAC_ADDR_REF(da));
-	else
-		qdf_nofl_debug("%s %s: SA:"QDF_MAC_ADDR_FMT" DA:"QDF_MAC_ADDR_FMT" msdu_id:%d status: %s",
-			       qdf_get_pkt_type_string(type, subtype),
-			       dir ? "RX":"TX", QDF_MAC_ADDR_REF(sa),
-			       QDF_MAC_ADDR_REF(da), msdu_id,
-			       qdf_get_pkt_status_string(status));
-=======
 		qdf_nofl_info("%s %s: SA:" QDF_MAC_ADDR_FMT " DA:" QDF_MAC_ADDR_FMT,
 			      qdf_get_pkt_type_string(type, subtype),
 			      dir ? "RX" : "TX", QDF_MAC_ADDR_REF(sa),
@@ -1583,7 +1567,6 @@ void qdf_dp_log_proto_pkt_info(uint8_t *sa, uint8_t *da, uint8_t type,
 			      dir ? "RX" : "TX", QDF_MAC_ADDR_REF(sa),
 			      QDF_MAC_ADDR_REF(da), msdu_id,
 			      qdf_get_pkt_status_string(status));
->>>>>>> Stashed changes
 }
 
 qdf_export_symbol(qdf_dp_log_proto_pkt_info);
@@ -3179,10 +3162,7 @@ struct category_name_info g_qdf_category_name[MAX_SUPPORTED_CATEGORY] = {
 	[QDF_MODULE_ID_MON_FILTER] = {"Monitor Filter"},
 	[QDF_MODULE_ID_ANY] = {"ANY"},
 	[QDF_MODULE_ID_PKT_CAPTURE] = {"pkt_capture"},
-<<<<<<< Updated upstream
-=======
 	[QDF_MODULE_ID_GPIO] = {"GPIO_CFG"},
->>>>>>> Stashed changes
 };
 qdf_export_symbol(g_qdf_category_name);
 
@@ -3644,10 +3624,7 @@ static void set_default_trace_levels(struct category_info *cinfo)
 		[QDF_MODULE_ID_MON_FILTER] = QDF_TRACE_LEVEL_INFO,
 		[QDF_MODULE_ID_ANY] = QDF_TRACE_LEVEL_INFO,
 		[QDF_MODULE_ID_PKT_CAPTURE] = QDF_TRACE_LEVEL_NONE,
-<<<<<<< Updated upstream
-=======
 		[QDF_MODULE_ID_GPIO] = QDF_TRACE_LEVEL_NONE,
->>>>>>> Stashed changes
 	};
 
 	for (i = 0; i < MAX_SUPPORTED_CATEGORY; i++) {

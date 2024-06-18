@@ -1,9 +1,6 @@
 /*
  * Copyright (c) 2012-2020 The Linux Foundation. All rights reserved.
-<<<<<<< Updated upstream
-=======
  * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -450,10 +447,6 @@ lim_fill_sme_assoc_ind_params(
 	struct mac_context *mac_ctx,
 	tpLimMlmAssocInd assoc_ind, struct assoc_ind *sme_assoc_ind,
 	struct pe_session *session_entry, bool assoc_req_alloc);
-<<<<<<< Updated upstream
-void lim_send_mlm_assoc_ind(struct mac_context *mac, tpDphHashNode sta,
-			    struct pe_session *pe_session);
-=======
 
 /**
  * lim_send_mlm_assoc_ind() - Sends assoc indication to SME
@@ -469,7 +462,6 @@ void lim_send_mlm_assoc_ind(struct mac_context *mac, tpDphHashNode sta,
 QDF_STATUS lim_send_mlm_assoc_ind(struct mac_context *mac,
 				  tpDphHashNode sta,
 				  struct pe_session *pe_session);
->>>>>>> Stashed changes
 
 void lim_process_assoc_rsp_frame(struct mac_context *, uint8_t *, uint8_t, struct pe_session *);
 void lim_process_disassoc_frame(struct mac_context *, uint8_t *, struct pe_session *);
@@ -1251,8 +1243,6 @@ void lim_process_assoc_failure_timeout(struct mac_context *mac_ctx,
 				       uint32_t msg_type);
 
 /**
-<<<<<<< Updated upstream
-=======
  * lim_process_sae_auth_timeout() - This function is called to process sae
  * auth timeout
  * @mac_ctx: Pointer to Global MAC structure
@@ -1262,7 +1252,6 @@ void lim_process_assoc_failure_timeout(struct mac_context *mac_ctx,
 void lim_process_sae_auth_timeout(struct mac_context *mac_ctx);
 
 /**
->>>>>>> Stashed changes
  * lim_send_frame() - API to send frame
  * @mac_ctx Pointer to Global MAC structure
  * @vdev_id: vdev id

@@ -189,10 +189,7 @@ static void *typec_mux_match(struct device_connection *con, int ep, void *data)
 	bool match;
 	int nval;
 	u16 *val;
-<<<<<<< Updated upstream
-=======
 	int ret;
->>>>>>> Stashed changes
 	int i;
 
 	if (!con->fwnode) {
@@ -227,17 +224,10 @@ static void *typec_mux_match(struct device_connection *con, int ep, void *data)
 	if (!val)
 		return ERR_PTR(-ENOMEM);
 
-<<<<<<< Updated upstream
-	nval = fwnode_property_read_u16_array(con->fwnode, "svid", val, nval);
-	if (nval < 0) {
-		kfree(val);
-		return ERR_PTR(nval);
-=======
 	ret = fwnode_property_read_u16_array(con->fwnode, "svid", val, nval);
 	if (ret < 0) {
 		kfree(val);
 		return ERR_PTR(ret);
->>>>>>> Stashed changes
 	}
 
 	for (i = 0; i < nval; i++) {
@@ -254,11 +244,7 @@ find_mux:
 	dev = class_find_device(&typec_mux_class, NULL, con->fwnode,
 				mux_fwnode_match);
 
-<<<<<<< Updated upstream
-	return dev ? to_typec_switch(dev) : ERR_PTR(-EPROBE_DEFER);
-=======
 	return dev ? to_typec_mux(dev) : ERR_PTR(-EPROBE_DEFER);
->>>>>>> Stashed changes
 }
 
 /**

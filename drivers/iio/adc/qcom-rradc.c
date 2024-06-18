@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2016-2017, 2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2016-2017, 2020-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #define pr_fmt(fmt) "RRADC: %s: " fmt, __func__
@@ -190,10 +186,7 @@
 #define FG_RR_ADC_STS_CHANNEL_STS		0x2
 
 #define FG_RR_CONV_CONTINUOUS_TIME_MIN_MS	50
-<<<<<<< Updated upstream
-=======
 #define FG_RR_CONV_CONT_CBK_TIME_MIN_MS	10
->>>>>>> Stashed changes
 #define FG_RR_CONV_MAX_RETRY_CNT		50
 #define FG_RR_TP_REV_VERSION1		21
 #define FG_RR_TP_REV_VERSION2		29
@@ -236,15 +229,12 @@ struct rradc_chip {
 	struct pmic_revid_data		*pmic_fab_id;
 	int volt;
 	struct power_supply		*usb_trig;
-<<<<<<< Updated upstream
-=======
 	struct power_supply		*batt_psy;
 	struct power_supply		*bms_psy;
 	struct notifier_block		nb;
 	bool				conv_cbk;
 	bool				rradc_fg_reset_wa;
 	struct work_struct	psy_notify_work;
->>>>>>> Stashed changes
 };
 
 struct rradc_channels {
@@ -689,8 +679,6 @@ static const struct rradc_channels rradc_chans[] = {
 			FG_ADC_RR_AUX_THERM_STS)
 };
 
-<<<<<<< Updated upstream
-=======
 static bool rradc_is_batt_psy_available(struct rradc_chip *chip)
 {
 	if (!chip->batt_psy)
@@ -713,7 +701,6 @@ static bool rradc_is_bms_psy_available(struct rradc_chip *chip)
 	return true;
 }
 
->>>>>>> Stashed changes
 static int rradc_enable_continuous_mode(struct rradc_chip *chip)
 {
 	int rc = 0;
@@ -783,10 +770,7 @@ static int rradc_check_status_ready_with_retry(struct rradc_chip *chip,
 		struct rradc_chan_prop *prop, u8 *buf, u16 status)
 {
 	int rc = 0, retry_cnt = 0, mask = 0;
-<<<<<<< Updated upstream
-=======
 	union power_supply_propval pval = {0, };
->>>>>>> Stashed changes
 
 	switch (prop->channel) {
 	case RR_ADC_BATT_ID:
@@ -812,15 +796,11 @@ static int rradc_check_status_ready_with_retry(struct rradc_chip *chip,
 			break;
 		}
 
-<<<<<<< Updated upstream
-		msleep(FG_RR_CONV_CONTINUOUS_TIME_MIN_MS);
-=======
 		if ((chip->conv_cbk) && (prop->channel == RR_ADC_USBIN_V))
 			msleep(FG_RR_CONV_CONT_CBK_TIME_MIN_MS);
 		else
 			msleep(FG_RR_CONV_CONTINUOUS_TIME_MIN_MS);
 
->>>>>>> Stashed changes
 		retry_cnt++;
 		rc = rradc_read(chip, status, buf, 1);
 		if (rc < 0) {
@@ -829,10 +809,6 @@ static int rradc_check_status_ready_with_retry(struct rradc_chip *chip,
 		}
 	}
 
-<<<<<<< Updated upstream
-	if (retry_cnt >= FG_RR_CONV_MAX_RETRY_CNT)
-		rc = -ENODATA;
-=======
 	if ((retry_cnt >= FG_RR_CONV_MAX_RETRY_CNT) &&
 		((prop->channel != RR_ADC_DCIN_V) ||
 		(prop->channel != RR_ADC_DCIN_I)) &&
@@ -854,7 +830,6 @@ static int rradc_check_status_ready_with_retry(struct rradc_chip *chip,
 		if (retry_cnt >= FG_RR_CONV_MAX_RETRY_CNT)
 			rc = -ENODATA;
 	}
->>>>>>> Stashed changes
 
 	return rc;
 }
@@ -1166,8 +1141,6 @@ static int rradc_read_raw(struct iio_dev *indio_dev,
 	return rc;
 }
 
-<<<<<<< Updated upstream
-=======
 static void psy_notify_work(struct work_struct *work)
 {
 	struct rradc_chip *chip = container_of(work,
@@ -1229,7 +1202,6 @@ static int rradc_psy_notifier_cb(struct notifier_block *nb,
 	return NOTIFY_OK;
 }
 
->>>>>>> Stashed changes
 static const struct iio_info rradc_info = {
 	.read_raw	= &rradc_read_raw,
 };
@@ -1282,12 +1254,9 @@ static int rradc_get_dt_data(struct rradc_chip *chip, struct device_node *node)
 		}
 	}
 
-<<<<<<< Updated upstream
-=======
 	chip->rradc_fg_reset_wa =
 		of_property_read_bool(node, "qcom,rradc-fg-reset-wa");
 
->>>>>>> Stashed changes
 	iio_chan = chip->iio_chans;
 
 	for (i = 0; i < RR_ADC_MAX; i++) {
@@ -1349,8 +1318,6 @@ static int rradc_probe(struct platform_device *pdev)
 	if (!chip->usb_trig)
 		pr_debug("Error obtaining usb power supply\n");
 
-<<<<<<< Updated upstream
-=======
 	if (chip->rradc_fg_reset_wa) {
 		chip->nb.notifier_call = rradc_psy_notifier_cb;
 		rc = power_supply_reg_notifier(&chip->nb);
@@ -1360,7 +1327,6 @@ static int rradc_probe(struct platform_device *pdev)
 		INIT_WORK(&chip->psy_notify_work, psy_notify_work);
 	}
 
->>>>>>> Stashed changes
 	return devm_iio_device_register(dev, indio_dev);
 }
 

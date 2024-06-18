@@ -74,8 +74,6 @@ static int virtio_gpu_pci_quirk(struct drm_device *dev, struct virtio_device *vd
 	if (vga)
 		virtio_pci_kick_out_firmware_fb(pdev);
 
-<<<<<<< Updated upstream
-=======
 	/*
 	 * Normally the drm_dev_set_unique() call is done by core DRM.
 	 * The following comment covers, why virtio cannot rely on it.
@@ -107,7 +105,6 @@ static int virtio_gpu_pci_quirk(struct drm_device *dev, struct virtio_device *vd
 	 * for the next person who feels like removing this
 	 * drm_dev_set_unique() quirk.
 	 */
->>>>>>> Stashed changes
 	snprintf(unique, sizeof(unique), "pci:%s", pname);
 	return drm_dev_set_unique(dev, unique);
 }

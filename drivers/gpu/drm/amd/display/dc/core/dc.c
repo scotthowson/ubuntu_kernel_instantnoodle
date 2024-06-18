@@ -1006,11 +1006,8 @@ static bool is_flip_pending_in_pipes(struct dc *dc, struct dc_state *context)
 
 		if (!pipe->plane_state)
 			continue;
-<<<<<<< Updated upstream
-=======
 
 		/* Must set to false to start with, due to OR in update function */
->>>>>>> Stashed changes
 		pipe->plane_state->status.is_flip_pending = false;
 		dc->hwss.update_pending_status(pipe);
 		if (pipe->plane_state->status.is_flip_pending)

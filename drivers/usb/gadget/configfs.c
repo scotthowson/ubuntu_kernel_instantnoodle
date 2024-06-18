@@ -165,11 +165,7 @@ static int usb_string_copy(const char *s, char **s_copy)
 		if (!str)
 			return -ENOMEM;
 	}
-<<<<<<< Updated upstream
-	strlcpy(str, s, MAX_USB_STRING_WITH_NULL_LEN);
-=======
 	strcpy(str, s);
->>>>>>> Stashed changes
 	if (str[ret - 1] == '\n')
 		str[ret - 1] = '\0';
 	*s_copy = str;

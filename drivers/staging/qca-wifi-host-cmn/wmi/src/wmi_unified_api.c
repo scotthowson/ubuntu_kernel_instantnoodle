@@ -1587,11 +1587,7 @@ bool wmi_service_enabled(wmi_unified_t wmi_handle, uint32_t service_id)
 				wmi_handle->services[service_id]);
 		}
 	} else {
-<<<<<<< Updated upstream
-		WMI_LOGI("Service %d not supported", service_id);
-=======
 		wmi_info("Service %d not supported", service_id);
->>>>>>> Stashed changes
 	}
 
 	return false;
@@ -3128,8 +3124,6 @@ wmi_unified_extract_roam_11kv_stats(wmi_unified_t wmi, void *evt_buf,
 	return QDF_STATUS_E_FAILURE;
 }
 
-<<<<<<< Updated upstream
-=======
 QDF_STATUS
 wmi_unified_extract_roam_msg_info(wmi_unified_t wmi, void *evt_buf,
 				   struct wmi_roam_msg_info *dst, uint8_t idx)
@@ -3140,7 +3134,6 @@ wmi_unified_extract_roam_msg_info(wmi_unified_t wmi, void *evt_buf,
 	return QDF_STATUS_E_FAILURE;
 }
 
->>>>>>> Stashed changes
 #ifdef FEATURE_WLAN_TIME_SYNC_FTM
 QDF_STATUS wmi_unified_send_wlan_time_sync_ftm_trigger(wmi_unified_t wmi_handle,
 						       uint32_t vdev_id,

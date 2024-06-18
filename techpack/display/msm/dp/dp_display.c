@@ -1,11 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2017-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
  * Copyright (c) 2017-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include <linux/module.h>
@@ -986,11 +982,8 @@ static int dp_display_process_hpd_high(struct dp_display_private *dp)
 
 	dp->dp_display.max_pclk_khz = min(dp->parser->max_pclk_khz,
 					dp->debug->max_pclk_khz);
-<<<<<<< Updated upstream
-=======
 	dp->dp_display.max_hdisplay = dp->parser->max_hdisplay;
 	dp->dp_display.max_vdisplay = dp->parser->max_vdisplay;
->>>>>>> Stashed changes
 
 	/*
 	 * If dp video session is not restored from a previous session teardown
@@ -2483,11 +2476,7 @@ static enum drm_mode_status dp_display_validate_mode(
 		const struct msm_resource_caps_info *avail_res)
 {
 	struct dp_display_private *dp;
-<<<<<<< Updated upstream
-	u32 mode_rate_khz = 0, supported_rate_khz = 0, mode_bpp = 0;
-=======
 
->>>>>>> Stashed changes
 	struct dp_panel *dp_panel;
 	struct dp_debug *debug;
 	enum drm_mode_status mode_status = MODE_BAD;
@@ -2509,28 +2498,8 @@ static enum drm_mode_status dp_display_validate_mode(
 	}
 
 	debug = dp->debug;
-<<<<<<< Updated upstream
-	if (!debug)
-		goto end;
-
-	dp_display->convert_to_dp_mode(dp_display, panel, mode, &dp_mode);
-
-	dsc_en = dp_mode.timing.comp_info.comp_ratio ? true : false;
-	mode_bpp = dsc_en ? dp_mode.timing.comp_info.dsc_info.bpp :
-			dp_mode.timing.bpp;
-
-	mode_rate_khz = mode->clock * mode_bpp;
-	rate = drm_dp_bw_code_to_link_rate(dp->link->link_params.bw_code);
-	supported_rate_khz = dp->link->link_params.lane_count * rate * 8;
-	tmds_max_clock = dp_panel->connector->display_info.max_tmds_clock;
-
-	if (mode_rate_khz > supported_rate_khz) {
-		DP_MST_DEBUG("pclk:%d, supported_rate:%d\n",
-				mode->clock, supported_rate_khz);
-=======
 	if (!debug) {
 		DP_ERR("invalid debug node\n");
->>>>>>> Stashed changes
 		goto end;
 	}
 

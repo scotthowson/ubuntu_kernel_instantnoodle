@@ -11,10 +11,7 @@
 #include "sde_connector.h"
 #include "dsi_drm.h"
 #include "sde_trace.h"
-<<<<<<< Updated upstream
-=======
 #include "sde_dbg.h"
->>>>>>> Stashed changes
 #include "sde_encoder.h"
 #include "sde_dbg.h"
 
@@ -880,19 +877,6 @@ int dsi_connector_get_modes(struct drm_connector *connector, void *data,
 		}
 		m->width_mm = connector->display_info.width_mm;
 		m->height_mm = connector->display_info.height_mm;
-<<<<<<< Updated upstream
-
-		if (display->cmdline_timing != NO_OVERRIDE) {
-			/* get the preferred mode from dsi display mode */
-			if (modes[i].is_preferred)
-				m->type |= DRM_MODE_TYPE_PREFERRED;
-		} else if (i == 0) {
-			/* set the first mode in list as preferred */
-			m->type |= DRM_MODE_TYPE_PREFERRED;
-		}
-		drm_mode_probed_add(connector, m);
-=======
->>>>>>> Stashed changes
 
 		if (display->cmdline_timing != NO_OVERRIDE) {
 			/* get the preferred mode from dsi display mode */

@@ -255,10 +255,7 @@ void snd_seq_check_queue(struct snd_seq_queue *q, int atomic, int hop)
 	struct snd_seq_event_cell *cell;
 	snd_seq_tick_time_t cur_tick;
 	snd_seq_real_time_t cur_time;
-<<<<<<< Updated upstream
-=======
 	int processed = 0;
->>>>>>> Stashed changes
 
 	if (q == NULL)
 		return;

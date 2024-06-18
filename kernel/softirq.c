@@ -1023,20 +1023,6 @@ static void tasklet_action_common(struct softirq_action *a,
 
 		list = list->next;
 
-<<<<<<< Updated upstream
-		if (tasklet_trylock(t)) {
-			if (!atomic_read(&t->count)) {
-				if (!test_and_clear_bit(TASKLET_STATE_SCHED,
-							&t->state))
-					BUG();
-				trace_tasklet_entry(t->func);
-				t->func(t->data);
-				trace_tasklet_exit(t->func);
-				tasklet_unlock(t);
-				continue;
-			}
-			tasklet_unlock(t);
-=======
 		/*
 		 * Should always succeed - after a tasklist got on the
 		 * list (after getting the SCHED bit set from 0 to 1),
@@ -1046,7 +1032,6 @@ static void tasklet_action_common(struct softirq_action *a,
 		if (!tasklet_trylock(t)) {
 			WARN_ON(1);
 			continue;
->>>>>>> Stashed changes
 		}
 
 		t->next = NULL;

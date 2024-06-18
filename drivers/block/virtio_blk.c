@@ -31,8 +31,6 @@ struct virtio_blk_vq {
 } ____cacheline_aligned_in_smp;
 
 struct virtio_blk {
-<<<<<<< Updated upstream
-=======
 	/*
 	 * This mutex must be held by anything that may run after
 	 * virtblk_remove() sets vblk->vdev to NULL.
@@ -41,7 +39,6 @@ struct virtio_blk {
 	 * shut down before vblk->vdev is set to NULL and therefore do not need
 	 * to hold this mutex.
 	 */
->>>>>>> Stashed changes
 	struct mutex vdev_mutex;
 	struct virtio_device *vdev;
 
@@ -53,7 +50,6 @@ struct virtio_blk {
 
 	/* Process context for config space updates */
 	struct work_struct config_work;
-	refcount_t refs;
 
 	/*
 	 * Tracks references from block_device_operations open/release and
@@ -741,10 +737,7 @@ static int virtblk_probe(struct virtio_device *vdev)
 		goto out_free_index;
 	}
 
-<<<<<<< Updated upstream
-=======
 	/* This reference is dropped in virtblk_remove(). */
->>>>>>> Stashed changes
 	refcount_set(&vblk->refs, 1);
 	mutex_init(&vblk->vdev_mutex);
 
@@ -923,13 +916,9 @@ static void virtblk_remove(struct virtio_device *vdev)
 	/* Stop all the virtqueues. */
 	vdev->config->reset(vdev);
 
-<<<<<<< Updated upstream
-	vblk->vdev = NULL;
-=======
 	/* Virtqueues are stopped, nothing can use vblk->vdev anymore. */
 	vblk->vdev = NULL;
 
->>>>>>> Stashed changes
 	put_disk(vblk->disk);
 	vdev->config->del_vqs(vdev);
 	kfree(vblk->vqs);

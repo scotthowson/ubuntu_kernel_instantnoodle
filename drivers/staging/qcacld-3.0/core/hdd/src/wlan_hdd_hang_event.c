@@ -1,9 +1,5 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2020-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -49,19 +45,12 @@ static int wlan_hdd_recovery_notifier_call(struct notifier_block *block,
 	struct hdd_context *hdd_ctx;
 	struct qdf_notifer_data *hdd_hang_data = data;
 	uint8_t *hdd_buf_ptr;
-<<<<<<< Updated upstream
-	struct hdd_adapter *adapter;
-=======
 	struct hdd_adapter *adapter, *next_adapter = NULL;
->>>>>>> Stashed changes
 	uint32_t total_len;
 	struct wlan_objmgr_vdev *vdev;
 	struct hdd_hang_event_fixed_param *cmd;
 	struct hdd_scan_fixed_param *cmd_scan;
-<<<<<<< Updated upstream
-=======
 	wlan_net_dev_ref_dbgid dbgid = NET_DEV_HOLD_RECOVERY_NOTIFIER_CALL;
->>>>>>> Stashed changes
 
 	if (!data)
 		return NOTIFY_STOP_MASK;
@@ -88,18 +77,11 @@ static int wlan_hdd_recovery_notifier_call(struct notifier_block *block,
 		hdd_hang_data->offset += total_len;
 	}
 
-<<<<<<< Updated upstream
-	hdd_for_each_adapter_dev_held(hdd_ctx, adapter) {
-		vdev = hdd_objmgr_get_vdev(adapter);
-		if (!vdev) {
-			dev_put(adapter->dev);
-=======
 	hdd_for_each_adapter_dev_held_safe(hdd_ctx, adapter, next_adapter,
 					   dbgid) {
 		vdev = hdd_objmgr_get_vdev(adapter);
 		if (!vdev) {
 			hdd_adapter_dev_put_debug(adapter, dbgid);
->>>>>>> Stashed changes
 			continue;
 		}
 		total_len = sizeof(*cmd);
@@ -107,14 +89,10 @@ static int wlan_hdd_recovery_notifier_call(struct notifier_block *block,
 		if (hdd_hang_data->offset + total_len >
 				QDF_WLAN_HANG_FW_OFFSET) {
 			hdd_objmgr_put_vdev(vdev);
-<<<<<<< Updated upstream
-			dev_put(adapter->dev);
-=======
 			hdd_adapter_dev_put_debug(adapter, dbgid);
 			if (next_adapter)
 				hdd_adapter_dev_put_debug(next_adapter,
 							  dbgid);
->>>>>>> Stashed changes
 			return NOTIFY_STOP_MASK;
 		}
 		cmd = (struct hdd_hang_event_fixed_param *)hdd_buf_ptr;
@@ -127,11 +105,7 @@ static int wlan_hdd_recovery_notifier_call(struct notifier_block *block,
 		cmd->vdev_substate = wlan_vdev_mlme_get_substate(vdev);
 		hdd_hang_data->offset += total_len;
 		hdd_objmgr_put_vdev(vdev);
-<<<<<<< Updated upstream
-		dev_put(adapter->dev);
-=======
 		hdd_adapter_dev_put_debug(adapter, dbgid);
->>>>>>> Stashed changes
 	}
 
 	return NOTIFY_OK;

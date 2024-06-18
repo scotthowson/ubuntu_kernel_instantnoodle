@@ -3124,11 +3124,6 @@ vm_fault_t do_swap_page(struct vm_fault *vmf)
 	swapcache = page;
 
 	if (!page) {
-<<<<<<< Updated upstream
-		if (skip_swapcache) {
-			page = alloc_page_vma(GFP_HIGHUSER_MOVABLE | __GFP_CMA,
-					      vma, vmf->address);
-=======
 		struct swap_info_struct *si = swp_swap_info(entry);
 
 		if (si->flags & SWP_SYNCHRONOUS_IO &&
@@ -3136,7 +3131,6 @@ vm_fault_t do_swap_page(struct vm_fault *vmf)
 			/* skip swapcache */
 			page = alloc_page_vma(GFP_HIGHUSER_MOVABLE, vma,
 							vmf->address);
->>>>>>> Stashed changes
 			if (page) {
 				__SetPageLocked(page);
 				__SetPageSwapBacked(page);
@@ -4018,13 +4012,6 @@ static vm_fault_t do_fault(struct vm_fault *vmf)
 		ret = do_cow_fault(vmf);
 	else
 		ret = do_shared_fault(vmf);
-<<<<<<< Updated upstream
-#ifdef CONFIG_MEMPLUS
-		count_vm_event(SHAREDFAULT);
-#endif
-	}
-=======
->>>>>>> Stashed changes
 
 	/* preallocated pagetable is unused: free it */
 	if (vmf->prealloc_pte) {
@@ -4256,10 +4243,6 @@ static vm_fault_t handle_pte_fault(struct vm_fault *vmf)
 
 	if (!pte_present(vmf->orig_pte))
 		return do_swap_page(vmf);
-<<<<<<< Updated upstream
-	}
-=======
->>>>>>> Stashed changes
 
 	if (pte_protnone(vmf->orig_pte) && vma_is_accessible(vmf->vma))
 		return do_numa_page(vmf);
@@ -4349,12 +4332,6 @@ static vm_fault_t __handle_mm_fault(struct vm_area_struct *vma,
 	vmf.pmd = pmd_alloc(mm, vmf.pud, address);
 	if (!vmf.pmd)
 		return VM_FAULT_OOM;
-<<<<<<< Updated upstream
-#ifdef CONFIG_SPECULATIVE_PAGE_FAULT
-	vmf.sequence = raw_read_seqcount(&vma->vm_sequence);
-#endif
-=======
->>>>>>> Stashed changes
 	if (pmd_none(*vmf.pmd) && __transparent_hugepage_enabled(vma)) {
 		ret = create_huge_pmd(&vmf);
 		if (!(ret & VM_FAULT_FALLBACK))

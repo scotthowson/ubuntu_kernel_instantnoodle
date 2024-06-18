@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2012, 2015-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2012, 2015-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 #define pr_fmt(fmt)	"%s: " fmt, __func__
 
@@ -140,12 +136,6 @@ static bool force_on_xin_clk(u32 bit_off, u32 clk_ctl_reg_off, bool enable)
 
 void vbif_lock(struct platform_device *parent_pdev)
 {
-<<<<<<< Updated upstream
-	if (!parent_pdev)
-		return;
-
-//	mdp_vbif_lock(parent_pdev, true);
-=======
 #ifdef CONFIG_FB_MSM_MDSS
 	struct sde_rot_data_type *mdata = sde_rot_get_mdata();
 
@@ -157,17 +147,10 @@ void vbif_lock(struct platform_device *parent_pdev)
 
 	mdp_vbif_lock(parent_pdev, true);
 #endif
->>>>>>> Stashed changes
 }
 
 void vbif_unlock(struct platform_device *parent_pdev)
 {
-<<<<<<< Updated upstream
-	if (!parent_pdev)
-		return;
-
-//	mdp_vbif_lock(parent_pdev, false);
-=======
 #ifdef CONFIG_FB_MSM_MDSS
 	struct sde_rot_data_type *mdata = sde_rot_get_mdata();
 
@@ -179,7 +162,6 @@ void vbif_unlock(struct platform_device *parent_pdev)
 
 	mdp_vbif_lock(parent_pdev, false);
 #endif
->>>>>>> Stashed changes
 }
 
 void sde_mdp_halt_vbif_xin(struct sde_mdp_vbif_halt_params *params)
@@ -211,10 +193,7 @@ void sde_mdp_halt_vbif_xin(struct sde_mdp_vbif_halt_params *params)
 	SDE_VBIF_WRITE(mdata, MMSS_VBIF_XIN_HALT_CTRL0,
 		reg_val | BIT(params->xin_id));
 
-<<<<<<< Updated upstream
-=======
 	/* this is a polling operation */
->>>>>>> Stashed changes
 	rc = sde_mdp_wait_for_xin_halt(params->xin_id);
 	if (rc == -ETIMEDOUT)
 		params->xin_timeout = BIT(params->xin_id);
@@ -241,11 +220,6 @@ u32 sde_mdp_get_ot_limit(u32 width, u32 height, u32 pixfmt, u32 fps, u32 is_rd)
 	ot_lim = (is_rd) ? mdata->default_ot_rd_limit :
 				mdata->default_ot_wr_limit;
 
-<<<<<<< Updated upstream
-	if (ot_lim == 0)
-		goto exit;
-
-=======
 	/*
 	 * If default ot is not set from dt,
 	 * then do not configure it.
@@ -254,7 +228,6 @@ u32 sde_mdp_get_ot_limit(u32 width, u32 height, u32 pixfmt, u32 fps, u32 is_rd)
 		goto exit;
 
 	/* Modify the limits if the target and the use case requires it */
->>>>>>> Stashed changes
 	if (false == test_bit(SDE_QOS_OTLIM, mdata->sde_qos_map))
 		goto exit;
 
@@ -276,10 +249,6 @@ u32 sde_mdp_get_ot_limit(u32 width, u32 height, u32 pixfmt, u32 fps, u32 is_rd)
 	SDEROT_DBG("w:%d h:%d fps:%d pixfmt:%8.8x yuv:%d res:%llu rd:%d\n",
 		width, height, fps, pixfmt, is_yuv, res, is_rd);
 
-<<<<<<< Updated upstream
-	switch (mdata->mdss_version) {
-	case SDE_MDP_HW_REV_540:
-=======
 	/*
 	 * If (total_source_pixels <= 62208000  && YUV) -> RD/WROT=2 //1080p30
 	 * If (total_source_pixels <= 124416000 && YUV) -> RD/WROT=4 //1080p60
@@ -288,7 +257,6 @@ u32 sde_mdp_get_ot_limit(u32 width, u32 height, u32 pixfmt, u32 fps, u32 is_rd)
 	switch (mdata->mdss_version) {
 	case SDE_MDP_HW_REV_540:
 	case SDE_MDP_HW_REV_320:
->>>>>>> Stashed changes
 		if (is_yuv) {
 			if (res <= (RES_1080p * 30))
 				ot_lim = 2;
@@ -301,10 +269,6 @@ u32 sde_mdp_get_ot_limit(u32 width, u32 height, u32 pixfmt, u32 fps, u32 is_rd)
 		} else if (fmt->bpp == 4 && res <= (RES_WQXGA * 60)) {
 			ot_lim = 16;
 		}
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
 		break;
 	default:
 		if (res <= (RES_1080p * 30))
@@ -331,13 +295,10 @@ static u32 get_ot_limit(u32 reg_off, u32 bit_off,
 			params->fmt, params->fps,
 			params->reg_off_vbif_lim_conf == MMSS_VBIF_RD_LIM_CONF);
 
-<<<<<<< Updated upstream
-=======
 	/*
 	 * If default ot is not set from dt,
 	 * then do not configure it.
 	 */
->>>>>>> Stashed changes
 	if (ot_lim == 0)
 		goto exit;
 
@@ -433,12 +394,9 @@ static void sde_mdp_set_vbif_memtype(struct sde_rot_data_type *mdata,
 	u32 bit_off;
 	u32 reg_val;
 
-<<<<<<< Updated upstream
-=======
 	/*
 	 * Assume 4 bits per bit field, 8 fields per 32-bit register.
 	 */
->>>>>>> Stashed changes
 	if (xin_id >= 8)
 		return;
 
@@ -849,17 +807,6 @@ static int sde_mdp_parse_dt_misc(struct platform_device *pdev,
 
 	sde_mdp_parse_inline_rot_lut_setting(pdev, mdata);
 
-<<<<<<< Updated upstream
-	rc = of_property_read_u32(pdev->dev.of_node,
-		"qcom,mdss-rot-qos-cpu-mask", &data);
-	mdata->rot_pm_qos_cpu_mask = (!rc ? data : 0);
-
-	rc = of_property_read_u32(pdev->dev.of_node,
-		 "qcom,mdss-rot-qos-cpu-dma-latency", &data);
-	mdata->rot_pm_qos_cpu_dma_latency = (!rc ? data : 0);
-
-=======
->>>>>>> Stashed changes
 	mdata->mdp_base = mdata->sde_io.base + SDE_MDP_OFFSET;
 
 	return 0;

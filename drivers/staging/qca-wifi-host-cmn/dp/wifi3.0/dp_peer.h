@@ -1,9 +1,6 @@
 /*
  * Copyright (c) 2016-2020 The Linux Foundation. All rights reserved.
-<<<<<<< Updated upstream
-=======
  * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -26,13 +23,10 @@
 #include <qdf_lock.h>
 #include "dp_types.h"
 
-<<<<<<< Updated upstream
-=======
 #ifdef DUMP_REO_QUEUE_INFO_IN_DDR
 #include "hal_reo.h"
 #endif
 
->>>>>>> Stashed changes
 #define DP_INVALID_PEER_ID 0xffff
 
 #define DP_FW_PEER_STATS_CMP_TIMEOUT_MSEC 5000
@@ -349,8 +343,6 @@ dp_peer_update_pkt_capture_params(ol_txrx_soc_handle soc,
 void dp_rx_tid_delete_cb(struct dp_soc *soc,
 			 void *cb_ctxt,
 			 union hal_reo_status *reo_status);
-<<<<<<< Updated upstream
-=======
 
 #ifdef DUMP_REO_QUEUE_INFO_IN_DDR
 /**
@@ -402,5 +394,4 @@ static inline void dp_get_rx_reo_queue_info(
 {
 }
 #endif /* DUMP_REO_QUEUE_INFO_IN_DDR */
->>>>>>> Stashed changes
 #endif /* _DP_PEER_H_ */

@@ -696,14 +696,10 @@ static struct stats dx_show_leaf(struct inode *dir,
 						name = fname_crypto_str.name;
 						len = fname_crypto_str.len;
 					}
-<<<<<<< Updated upstream
-					ext4fs_dirhash(dir, de->name,
-=======
 					if (IS_CASEFOLDED(dir))
 						h.hash = EXT4_DIRENT_HASH(de);
 					else
 						ext4fs_dirhash(dir, de->name,
->>>>>>> Stashed changes
 						       de->name_len, &h);
 					printk("%*.s:(E)%x.%u ", len, name,
 					       h.hash, (unsigned) ((char *) de
@@ -818,13 +814,9 @@ dx_probe(struct ext4_filename *fname, struct inode *dir,
 	if (hinfo->hash_version <= DX_HASH_TEA)
 		hinfo->hash_version += EXT4_SB(dir->i_sb)->s_hash_unsigned;
 	hinfo->seed = EXT4_SB(dir->i_sb)->s_hash_seed;
-<<<<<<< Updated upstream
-	if (fname && fname_name(fname))
-=======
 	/* hash is already computed for encrypted casefolded directory */
 	if (fname && fname_name(fname) &&
 				!(IS_ENCRYPTED(dir) && IS_CASEFOLDED(dir)))
->>>>>>> Stashed changes
 		ext4fs_dirhash(dir, fname_name(fname), fname_len(fname), hinfo);
 	hash = hinfo->hash;
 
@@ -1091,9 +1083,6 @@ static int htree_dirblock_to_tree(struct file *dir_file,
 			/* silently ignore the rest of the block */
 			break;
 		}
-<<<<<<< Updated upstream
-		ext4fs_dirhash(dir, de->name, de->name_len, hinfo);
-=======
 		if (ext4_hash_in_dirent(dir)) {
 			if (de->name_len && de->inode) {
 				hinfo->hash = EXT4_DIRENT_HASH(de);
@@ -1105,7 +1094,6 @@ static int htree_dirblock_to_tree(struct file *dir_file,
 		} else {
 			ext4fs_dirhash(dir, de->name, de->name_len, hinfo);
 		}
->>>>>>> Stashed changes
 		if ((hinfo->hash < start_hash) ||
 		    ((hinfo->hash == start_hash) &&
 		     (hinfo->minor_hash < start_minor_hash)))
@@ -1306,14 +1294,10 @@ static int dx_make_map(struct inode *dir, struct buffer_head *bh,
 					 ((char *)de) - base))
 			return -EFSCORRUPTED;
 		if (de->name_len && de->inode) {
-<<<<<<< Updated upstream
-			ext4fs_dirhash(dir, de->name, de->name_len, &h);
-=======
 			if (ext4_hash_in_dirent(dir))
 				h.hash = EXT4_DIRENT_HASH(de);
 			else
 				ext4fs_dirhash(dir, de->name, de->name_len, &h);
->>>>>>> Stashed changes
 			map_tail--;
 			map_tail->hash = h.hash;
 			map_tail->offs = ((char *) de - base)>>2;
@@ -1376,20 +1360,6 @@ static void dx_insert_block(struct dx_frame *frame, u32 hash, ext4_lblk_t block)
  * Returns: 0 if the directory entry matches, more than 0 if it
  * doesn't match or less than zero on error.
  */
-<<<<<<< Updated upstream
-int ext4_ci_compare(const struct inode *parent, const struct qstr *name,
-		    const struct qstr *entry, bool quick)
-{
-	const struct super_block *sb = parent->i_sb;
-	const struct unicode_map *um = sb->s_encoding;
-	int ret;
-
-	if (quick)
-		ret = utf8_strncasecmp_folded(um, name, entry);
-	else
-		ret = utf8_strncasecmp(um, name, entry);
-
-=======
 static int ext4_ci_compare(const struct inode *parent, const struct qstr *name,
 			   u8 *de_name, size_t de_name_len, bool quick)
 {
@@ -1418,33 +1388,10 @@ static int ext4_ci_compare(const struct inode *parent, const struct qstr *name,
 		ret = utf8_strncasecmp_folded(um, name, &entry);
 	else
 		ret = utf8_strncasecmp(um, name, &entry);
->>>>>>> Stashed changes
 	if (ret < 0) {
 		/* Handle invalid character sequence as either an error
 		 * or as an opaque byte sequence.
 		 */
-<<<<<<< Updated upstream
-		if (sb_has_enc_strict_mode(sb))
-			return -EINVAL;
-
-		if (name->len != entry->len)
-			return 1;
-
-		return !!memcmp(name->name, entry->name, name->len);
-	}
-
-	return ret;
-}
-
-void ext4_fname_setup_ci_filename(struct inode *dir, const struct qstr *iname,
-				  struct fscrypt_str *cf_name)
-{
-	int len;
-
-	if (!needs_casefold(dir)) {
-		cf_name->name = NULL;
-		return;
-=======
 		if (sb_has_strict_encoding(sb))
 			ret = -EINVAL;
 		else if (name->len != entry.len)
@@ -1468,16 +1415,11 @@ int ext4_fname_setup_ci_filename(struct inode *dir, const struct qstr *iname,
 	    (IS_ENCRYPTED(dir) && !fscrypt_has_encryption_key(dir))) {
 		cf_name->name = NULL;
 		return 0;
->>>>>>> Stashed changes
 	}
 
 	cf_name->name = kmalloc(EXT4_NAME_LEN, GFP_NOFS);
 	if (!cf_name->name)
-<<<<<<< Updated upstream
-		return;
-=======
 		return -ENOMEM;
->>>>>>> Stashed changes
 
 	len = utf8_casefold(dir->i_sb->s_encoding,
 			    iname, cf_name->name,
@@ -1485,12 +1427,6 @@ int ext4_fname_setup_ci_filename(struct inode *dir, const struct qstr *iname,
 	if (len <= 0) {
 		kfree(cf_name->name);
 		cf_name->name = NULL;
-<<<<<<< Updated upstream
-		return;
-	}
-	cf_name->len = (unsigned) len;
-
-=======
 	}
 	cf_name->len = (unsigned) len;
 	if (!IS_ENCRYPTED(dir))
@@ -1503,7 +1439,6 @@ int ext4_fname_setup_ci_filename(struct inode *dir, const struct qstr *iname,
 	else
 		ext4fs_dirhash(dir, iname->name, iname->len, hinfo);
 	return 0;
->>>>>>> Stashed changes
 }
 #endif
 
@@ -1512,20 +1447,11 @@ int ext4_fname_setup_ci_filename(struct inode *dir, const struct qstr *iname,
  *
  * Return: %true if the directory entry matches, otherwise %false.
  */
-<<<<<<< Updated upstream
-static inline bool ext4_match(const struct inode *parent,
-			      const struct ext4_filename *fname,
-			      const struct ext4_dir_entry_2 *de)
-=======
 static bool ext4_match(struct inode *parent,
 			      const struct ext4_filename *fname,
 			      struct ext4_dir_entry_2 *de)
->>>>>>> Stashed changes
 {
 	struct fscrypt_name f;
-#ifdef CONFIG_UNICODE
-	const struct qstr entry = {.name = de->name, .len = de->name_len};
-#endif
 
 	if (!de->inode)
 		return false;
@@ -1537,16 +1463,6 @@ static bool ext4_match(struct inode *parent,
 #endif
 
 #ifdef CONFIG_UNICODE
-<<<<<<< Updated upstream
-	if (needs_casefold(parent)) {
-		if (fname->cf_name.name) {
-			struct qstr cf = {.name = fname->cf_name.name,
-					  .len = fname->cf_name.len};
-			return !ext4_ci_compare(parent, &cf, &entry, true);
-		}
-		return !ext4_ci_compare(parent, fname->usr_fname, &entry,
-					false);
-=======
 	if (parent->i_sb->s_encoding && IS_CASEFOLDED(parent) &&
 	    (!IS_ENCRYPTED(parent) || fscrypt_has_encryption_key(parent))) {
 		if (fname->cf_name.name) {
@@ -1565,7 +1481,6 @@ static bool ext4_match(struct inode *parent,
 		}
 		return !ext4_ci_compare(parent, fname->usr_fname, de->name,
 						de->name_len, false);
->>>>>>> Stashed changes
 	}
 #endif
 
@@ -1809,11 +1724,7 @@ static struct buffer_head *ext4_lookup_entry(struct inode *dir,
 	struct buffer_head *bh;
 
 	err = ext4_fname_prepare_lookup(dir, dentry, &fname);
-<<<<<<< Updated upstream
-	generic_set_encrypted_ci_d_ops(dir, dentry);
-=======
 	generic_set_encrypted_ci_d_ops(dentry);
->>>>>>> Stashed changes
 	if (err == -ENOENT)
 		return NULL;
 	if (err)
@@ -2356,15 +2267,11 @@ static int make_indexed_dir(handle_t *handle, struct ext4_filename *fname,
 	if (fname->hinfo.hash_version <= DX_HASH_TEA)
 		fname->hinfo.hash_version += EXT4_SB(dir->i_sb)->s_hash_unsigned;
 	fname->hinfo.seed = EXT4_SB(dir->i_sb)->s_hash_seed;
-<<<<<<< Updated upstream
-	ext4fs_dirhash(dir, fname_name(fname), fname_len(fname), &fname->hinfo);
-=======
 
 	/* casefolded encrypted hashes are computed on fname setup */
 	if (!ext4_hash_in_dirent(dir))
 		ext4fs_dirhash(dir, fname_name(fname),
 				fname_len(fname), &fname->hinfo);
->>>>>>> Stashed changes
 
 	memset(frames, 0, sizeof(frames));
 	frame = frames;
@@ -2433,21 +2340,14 @@ static int ext4_add_entry(handle_t *handle, struct dentry *dentry,
 		return -EINVAL;
 
 #ifdef CONFIG_UNICODE
-<<<<<<< Updated upstream
-	if (sb_has_enc_strict_mode(sb) && IS_CASEFOLDED(dir) &&
-=======
 	if (sb_has_strict_encoding(sb) && IS_CASEFOLDED(dir) &&
->>>>>>> Stashed changes
 	    sb->s_encoding && utf8_validate(sb->s_encoding, &dentry->d_name))
 		return -EINVAL;
 #endif
 
-<<<<<<< Updated upstream
-=======
 	if (fscrypt_is_nokey_name(dentry))
 		return -ENOKEY;
 
->>>>>>> Stashed changes
 	retval = ext4_fname_setup_filename(dir, &dentry->d_name, 0, &fname);
 	if (retval)
 		return retval;
@@ -3140,16 +3040,8 @@ bool ext4_empty_dir(struct inode *inode)
 		de = (struct ext4_dir_entry_2 *) (bh->b_data +
 					(offset & (sb->s_blocksize - 1)));
 		if (ext4_check_dir_entry(inode, NULL, de, bh,
-<<<<<<< Updated upstream
-					 bh->b_data, bh->b_size, offset)) {
-			offset = (offset | (sb->s_blocksize - 1)) + 1;
-			continue;
-		}
-		if (le32_to_cpu(de->inode)) {
-=======
 					 bh->b_data, bh->b_size, offset) ||
 		    le32_to_cpu(de->inode)) {
->>>>>>> Stashed changes
 			brelse(bh);
 			return false;
 		}

@@ -389,10 +389,7 @@ static int clear_io_resources(struct hinic_hwdev *hwdev)
 		return -EINVAL;
 	}
 
-<<<<<<< Updated upstream
-=======
 	/* sleep 100ms to wait for firmware stopping I/O */
->>>>>>> Stashed changes
 	msleep(100);
 
 	cmd_clear_io_res.func_idx = HINIC_HWIF_FUNC_IDX(hwif);

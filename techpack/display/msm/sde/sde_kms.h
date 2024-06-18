@@ -281,14 +281,7 @@ struct sde_kms {
 	bool first_kickoff;
 	bool qdss_enabled;
 
-<<<<<<< Updated upstream
-	cpumask_t irq_cpu_mask;
 	struct pm_qos_request pm_qos_irq_req;
-	struct irq_affinity_notify affinity_notify;
-	bool pm_qos_irq_req_en;
-=======
-	struct pm_qos_request pm_qos_irq_req;
->>>>>>> Stashed changes
 };
 
 /**

@@ -1,10 +1,6 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2018-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2018-2021 The Linux Foundation. All rights reserved.
  * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -33,12 +29,9 @@
 #include <wmi_unified_param.h>
 #include <sir_api.h>
 
-<<<<<<< Updated upstream
-=======
 #define OWE_TRANSITION_OUI_TYPE "\x50\x6f\x9a\x1c"
 #define OWE_TRANSITION_OUI_SIZE 4
 
->>>>>>> Stashed changes
 #define CFG_PMKID_MODES_OKC                        (0x1)
 #define CFG_PMKID_MODES_PMKSA_CACHING              (0x2)
 
@@ -1131,8 +1124,6 @@ struct wlan_mlme_chainmask {
 	bool enable_bt_chain_separation;
 };
 
-<<<<<<< Updated upstream
-=======
 /**
  * enum wlan_mlme_ratemask_type: Type of PHY for ratemask
  * @WLAN_MLME_RATEMASK_TYPE_NO_MASK: no ratemask set
@@ -1169,7 +1160,6 @@ struct wlan_mlme_ratemask {
 	uint32_t higher32_2;
 };
 
->>>>>>> Stashed changes
 /* struct wlan_mlme_generic - Generic CFG config items
  *
  * @band_capability: HW Band Capability - Both or 2.4G only or 5G only
@@ -1212,13 +1202,8 @@ struct wlan_mlme_ratemask {
  * @sae_connect_retries: sae connect retry bitmask
  */
 struct wlan_mlme_generic {
-<<<<<<< Updated upstream
-	enum band_info band_capability;
-	enum band_info band;
-=======
 	uint32_t band_capability;
 	uint32_t band;
->>>>>>> Stashed changes
 	uint8_t select_5ghz_margin;
 	uint8_t sub_20_chan_width;
 	uint8_t ito_repeat_count;
@@ -1351,10 +1336,7 @@ struct wlan_mlme_cfg_twt {
  * @is_override_ht20_40_24g: use channel bonding in 2.4 GHz
  * @obss_detection_offload_enabled:       Enable OBSS detection offload
  * @obss_color_collision_offload_enabled: Enable obss color collision
-<<<<<<< Updated upstream
-=======
  * @bss_color_collision_det_sta: STA BSS color collision detection offload
->>>>>>> Stashed changes
  */
 struct wlan_mlme_obss_ht40 {
 	uint32_t active_dwelltime;
@@ -1367,10 +1349,7 @@ struct wlan_mlme_obss_ht40 {
 	bool is_override_ht20_40_24g;
 	bool obss_detection_offload_enabled;
 	bool obss_color_collision_offload_enabled;
-<<<<<<< Updated upstream
-=======
 	bool bss_color_collision_det_sta;
->>>>>>> Stashed changes
 };
 
 /**
@@ -1919,10 +1898,7 @@ struct wlan_mlme_wmm_params {
  * @pcl_weightage: PCL weightage
  * @channel_congestion_weightage: channel congestion weightage
  * @oce_wan_weightage: OCE WAN metrics weightage
-<<<<<<< Updated upstream
-=======
  * @sae_pk_ap_weightage: SAE-PK AP weigtage
->>>>>>> Stashed changes
  */
 struct  wlan_mlme_weight_config {
 	uint8_t rssi_weightage;
@@ -1936,10 +1912,7 @@ struct  wlan_mlme_weight_config {
 	uint8_t pcl_weightage;
 	uint8_t channel_congestion_weightage;
 	uint8_t oce_wan_weightage;
-<<<<<<< Updated upstream
-=======
 	uint8_t sae_pk_ap_weightage;
->>>>>>> Stashed changes
 };
 
 /**
@@ -2254,10 +2227,7 @@ struct wlan_mlme_btm {
  */
 struct wlan_mlme_fe_wlm {
 	bool latency_enable;
-<<<<<<< Updated upstream
-=======
 	bool latency_reset;
->>>>>>> Stashed changes
 	uint8_t latency_level;
 	uint32_t latency_flags[MLME_NUM_WLM_LATENCY_LEVEL];
 };
@@ -2296,12 +2266,6 @@ struct wlan_mlme_mwc {
 #endif
 
 /**
-<<<<<<< Updated upstream
- * struct wlan_mlme_reg - REG related configs
- * @self_gen_frm_pwr: self-generated frame power in tx chain mask
- * for CCK rates
- * @etsi13_srd_chan_in_master_mode: etsi13 srd chan in master mode
-=======
  * enum mlme_reg_srd_master_modes  - Bitmap of SRD master modes supported
  * @MLME_SRD_MASTER_MODE_SAP: SRD master mode for SAP
  * @MLME_SRD_MASTER_MODE_P2P_GO: SRD master mode for P2P-GO
@@ -2318,7 +2282,6 @@ enum mlme_reg_srd_master_modes {
  * @self_gen_frm_pwr: self-generated frame power in tx chain mask
  * for CCK rates
  * @etsi_srd_chan_in_master_mode: etsi srd chan in master mode
->>>>>>> Stashed changes
  * @restart_beaconing_on_ch_avoid: restart beaconing on ch avoid
  * @indoor_channel_support: indoor channel support
  * @scan_11d_interval: scan 11d interval
@@ -2334,18 +2297,11 @@ enum mlme_reg_srd_master_modes {
  * @enable_pending_chan_list_req: enables/disables scan channel
  * list command to FW till the current scan is complete.
  * @retain_nol_across_regdmn_update: Retain the NOL list across the regdomain.
-<<<<<<< Updated upstream
- */
-struct wlan_mlme_reg {
-	uint32_t self_gen_frm_pwr;
-	bool etsi13_srd_chan_in_master_mode;
-=======
  * @enable_nan_on_indoor_channels: Enable nan on Indoor channels
  */
 struct wlan_mlme_reg {
 	uint32_t self_gen_frm_pwr;
 	uint8_t etsi_srd_chan_in_master_mode;
->>>>>>> Stashed changes
 	enum restart_beaconing_on_ch_avoid_rule
 		restart_beaconing_on_ch_avoid;
 	bool indoor_channel_support;
@@ -2362,10 +2318,7 @@ struct wlan_mlme_reg {
 	bool ignore_fw_reg_offload_ind;
 	bool enable_pending_chan_list_req;
 	bool retain_nol_across_regdmn_update;
-<<<<<<< Updated upstream
-=======
 	bool enable_nan_on_indoor_channels;
->>>>>>> Stashed changes
 };
 
 /**
@@ -2486,12 +2439,8 @@ struct wlan_mlme_cfg {
 	struct wlan_mlme_dot11_mode dot11_mode;
 	struct wlan_mlme_reg reg;
 	struct roam_trigger_score_delta trig_score_delta[NUM_OF_ROAM_TRIGGERS];
-<<<<<<< Updated upstream
-	struct roam_trigger_min_rssi trig_min_rssi[NUM_OF_ROAM_TRIGGERS];
-=======
 	struct roam_trigger_min_rssi trig_min_rssi[NUM_OF_ROAM_MIN_RSSI];
 	struct wlan_mlme_ratemask ratemask_cfg;
->>>>>>> Stashed changes
 };
 
 enum pkt_origin {

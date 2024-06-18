@@ -1562,11 +1562,7 @@ send_roam_scan_offload_ap_profile_cmd_tlv(wmi_unified_t wmi_handle,
 	len += WMI_TLV_HDR_SIZE;
 	len += NUM_OF_ROAM_TRIGGERS * sizeof(*score_delta_param);
 	len += WMI_TLV_HDR_SIZE;
-<<<<<<< Updated upstream
-	len += NUM_OF_ROAM_TRIGGERS * sizeof(*min_rssi_param);
-=======
 	len += NUM_OF_ROAM_MIN_RSSI * sizeof(*min_rssi_param);
->>>>>>> Stashed changes
 	buf = wmi_buf_alloc(wmi_handle, len);
 	if (!buf) {
 		return QDF_STATUS_E_NOMEM;
@@ -1759,11 +1755,7 @@ send_roam_scan_offload_ap_profile_cmd_tlv(wmi_unified_t wmi_handle,
 
 	buf_ptr += sizeof(*score_delta_param);
 	WMITLV_SET_HDR(buf_ptr, WMITLV_TAG_ARRAY_STRUC,
-<<<<<<< Updated upstream
-		       (NUM_OF_ROAM_TRIGGERS * sizeof(*min_rssi_param)));
-=======
 		       (NUM_OF_ROAM_MIN_RSSI * sizeof(*min_rssi_param)));
->>>>>>> Stashed changes
 	buf_ptr += WMI_TLV_HDR_SIZE;
 
 	min_rssi_param = (wmi_roam_cnd_min_rssi_param *)buf_ptr;
@@ -1789,8 +1781,6 @@ send_roam_scan_offload_ap_profile_cmd_tlv(wmi_unified_t wmi_handle,
 	min_rssi_param->candidate_min_rssi =
 		ap_profile->min_rssi_params[BMISS_MIN_RSSI].min_rssi;
 
-<<<<<<< Updated upstream
-=======
 	buf_ptr += sizeof(*min_rssi_param);
 	min_rssi_param = (wmi_roam_cnd_min_rssi_param *)buf_ptr;
 	WMITLV_SET_HDR(&min_rssi_param->tlv_header,
@@ -1803,7 +1793,6 @@ send_roam_scan_offload_ap_profile_cmd_tlv(wmi_unified_t wmi_handle,
 	min_rssi_param->candidate_min_rssi =
 		ap_profile->min_rssi_params[MIN_RSSI_2G_TO_5G_ROAM].min_rssi;
 
->>>>>>> Stashed changes
 	wmi_mtrace(WMI_ROAM_AP_PROFILE, NO_SESSION, 0);
 	status = wmi_unified_cmd_send(wmi_handle, buf,
 				      len, WMI_ROAM_AP_PROFILE);

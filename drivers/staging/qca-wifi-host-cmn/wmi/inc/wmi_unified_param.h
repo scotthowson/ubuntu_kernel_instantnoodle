@@ -1,9 +1,5 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2016-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2016-2021 The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -624,10 +620,7 @@ typedef enum {
  * @set_agile: is agile mode
  * @allow_he: HE allowed on chan
  * @psc_channel: 6 ghz preferred scan chan
-<<<<<<< Updated upstream
-=======
  * @nan_disabled: is NAN disabled on @mhz
->>>>>>> Stashed changes
  * @phy_mode: phymode (vht80 or ht40 or ...)
  * @cfreq1: centre frequency on primary
  * @cfreq2: centre frequency on secondary
@@ -652,12 +645,8 @@ struct channel_param {
 		allow_vht:1,
 		set_agile:1,
 		allow_he:1,
-<<<<<<< Updated upstream
-		psc_channel:1;
-=======
 		psc_channel:1,
 		nan_disabled:1;
->>>>>>> Stashed changes
 	uint32_t phy_mode;
 	uint32_t cfreq1;
 	uint32_t cfreq2;
@@ -3506,8 +3495,6 @@ enum wmi_host_preamble_type {
 };
 
 /**
-<<<<<<< Updated upstream
-=======
  * enum wmi_ratemask_type: ratemask type
  * @WMI_RATEMASK_TYPE_CCK: CCK rate mask type
  * @WMI_RATEMASK_TYPE_HT:  HT rate mask type
@@ -3524,7 +3511,6 @@ enum wmi_ratemask_type {
 };
 
 /**
->>>>>>> Stashed changes
  * struct packet_power_info_params - packet power info params
  * @chainmask: chain mask
  * @chan_width: channel bandwidth
@@ -3546,26 +3532,6 @@ struct packet_power_info_params {
 };
 
 /**
-<<<<<<< Updated upstream
- * WMI_GPIO_CONFIG_CMDID
- */
-enum {
-	WMI_HOST_GPIO_PULL_NONE,
-	WMI_HOST_GPIO_PULL_UP,
-	WMI_HOST_GPIO_PULL_DOWN,
-};
-
-/**
- * WMI_GPIO_INTTYPE
- */
-enum {
-	WMI_HOST_GPIO_INTTYPE_DISABLE,
-	WMI_HOST_GPIO_INTTYPE_RISING_EDGE,
-	WMI_HOST_GPIO_INTTYPE_FALLING_EDGE,
-	WMI_HOST_GPIO_INTTYPE_BOTH_EDGE,
-	WMI_HOST_GPIO_INTTYPE_LEVEL_LOW,
-	WMI_HOST_GPIO_INTTYPE_LEVEL_HIGH
-=======
  * enum gpio_pull_type - GPIO PULL TYPE
  * @WMI_HOST_GPIO_PULL_NONE: set gpio pull type to none
  * @WMI_HOST_GPIO_PULL_UP: set gpio to pull up
@@ -3677,7 +3643,6 @@ enum gpio_drive {
 enum gpio_mux_config {
 	WMI_HOST_GPIO_MUX_DEFAULT = 0,
 	WMI_HOST_GPIO_MUX_MAX = 15,
->>>>>>> Stashed changes
 };
 
 /**
@@ -3690,18 +3655,6 @@ typedef struct {
 
 /**
  * struct gpio_config_params - GPIO config params
-<<<<<<< Updated upstream
- * @gpio_num: GPIO number to config
- * @input: input/output
- * @pull_type: pull type
- * @intr_mode: int mode
- */
-struct gpio_config_params {
-	uint32_t gpio_num;
-	uint32_t input;
-	uint32_t pull_type;
-	uint32_t intr_mode;
-=======
  * @pin_num: GPIO number to config
  * @pin_dir: gpio direction, 1-input/0-output
  * @pin_pull_type: pull type define in gpio_pull_type
@@ -3715,26 +3668,16 @@ struct gpio_config_params {
 	enum gpio_mux_config mux_config_val;
 	enum gpio_drive drive;
 	enum gpio_init_enable init_enable;
->>>>>>> Stashed changes
 };
 
 /**
  * struct gpio_output_params - GPIO output params
-<<<<<<< Updated upstream
- * @gpio_num: GPIO number to configure
- * @set: set/reset
- */
-struct gpio_output_params {
-	uint32_t gpio_num;
-	uint32_t set;
-=======
  * @pin_num: GPIO number to configure
  * @pinset: 1 mean gpio output high level, 0 mean gpio output low level
  */
 struct gpio_output_params {
 	uint32_t pin_num;
 	enum gpio_value pin_set;
->>>>>>> Stashed changes
 };
 
 /* flags bit 0: to configure wlan priority bitmap */
@@ -7895,8 +7838,6 @@ struct wmi_neighbor_report_data {
 };
 
 /**
-<<<<<<< Updated upstream
-=======
  * struct wmi_roam_msg_info - Roam message related information
  * @present:    Flag to check if the roam msg info tlv is present
  * @timestamp:  Timestamp is the absolute time w.r.t host timer which is
@@ -7916,7 +7857,6 @@ struct wmi_roam_msg_info {
 };
 
 /**
->>>>>>> Stashed changes
  * struct wmi_roam_trigger_info() - Roam trigger related details
  * @present:            Flag to check if the roam_trigger_info tlv is present
  * @trigger_reason:     Roam trigger reason(enum WMI_ROAM_TRIGGER_REASON_ID)
@@ -8388,8 +8328,6 @@ struct wmi_host_ani_level_event {
 	uint32_t ani_level;
 };
 #endif /* FEATURE_ANI_LEVEL_REQUEST */
-<<<<<<< Updated upstream
-=======
 
 /**
  * struct wmi_install_key_comp_event - params of install key complete event
@@ -8407,5 +8345,4 @@ struct wmi_install_key_comp_event {
 	uint8_t peer_macaddr[QDF_MAC_ADDR_SIZE];
 };
 
->>>>>>> Stashed changes
 #endif /* _WMI_UNIFIED_PARAM_H_ */

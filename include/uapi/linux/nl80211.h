@@ -2340,11 +2340,7 @@ enum nl80211_commands {
  *      Defined by IEEE P802.11ay/D4.0 section 9.4.2.251, Table 13.
  *
  * @NL80211_ATTR_VLAN_ID: VLAN ID (1..4094) for the station and VLAN group key
-<<<<<<< Updated upstream
- *      (u16).
-=======
  *	(u16).
->>>>>>> Stashed changes
  *
  * @NL80211_ATTR_HE_BSS_COLOR: nested attribute for BSS Color Settings.
  *
@@ -2355,12 +2351,9 @@ enum nl80211_commands {
  *	%NL80211_ATTR_AKM_SUITES are default capabilities if AKM suites not
  *	advertised for a specific interface type.
  *
-<<<<<<< Updated upstream
-=======
  * @NL80211_ATTR_HE_6GHZ_CAPABILITY: HE 6 GHz Band Capability element (from
  *	association request when used with NL80211_CMD_NEW_STATION).
  *
->>>>>>> Stashed changes
  * @NUM_NL80211_ATTR: total number of nl80211_attrs available
  * @NL80211_ATTR_MAX: highest attribute number currently defined
  * @__NL80211_ATTR_AFTER_LAST: internal use
@@ -2828,11 +2821,8 @@ enum nl80211_attrs {
 	NL80211_ATTR_HE_BSS_COLOR,
 
 	NL80211_ATTR_IFTYPE_AKM_SUITES,
-<<<<<<< Updated upstream
-=======
 	NL80211_ATTR_HE_6GHZ_CAPABILITY =
 	NL80211_ATTR_WIPHY_EDMG_BW_CONFIG + 12,
->>>>>>> Stashed changes
 
 	/* add attributes here, update the policy in nl80211.c */
 
@@ -5438,12 +5428,9 @@ enum nl80211_feature_flags {
  * @NL80211_EXT_FEATURE_BEACON_PROTECTION: The driver supports Beacon protection
  *	and can receive key configuration for BIGTK using key indexes 6 and 7.
  *
-<<<<<<< Updated upstream
-=======
  * @NL80211_EXT_FEATURE_OPERATING_CHANNEL_VALIDATION: Driver supports Operating
  *	Channel Validation (OCV) when using driver's SME for RSNA handshakes.
  *
->>>>>>> Stashed changes
  * @NUM_NL80211_EXT_FEATURES: number of extended features.
  * @MAX_NL80211_EXT_FEATURES: highest extended feature index.
  */
@@ -5490,8 +5477,6 @@ enum nl80211_ext_feature_index {
 	NL80211_EXT_FEATURE_VLAN_OFFLOAD,
 	NL80211_EXT_FEATURE_AQL,
 	NL80211_EXT_FEATURE_BEACON_PROTECTION,
-<<<<<<< Updated upstream
-=======
 	NL80211_EXT_FEATURE_CONTROL_PORT_NO_PREAUTH,
 	NL80211_EXT_FEATURE_PROTECTED_TWT,
 	NL80211_EXT_FEATURE_DEL_IBSS_STA,
@@ -5500,7 +5485,6 @@ enum nl80211_ext_feature_index {
 	NL80211_EXT_FEATURE_SCAN_FREQ_KHZ,
 	NL80211_EXT_FEATURE_CONTROL_PORT_OVER_NL80211_TX_STATUS,
 	NL80211_EXT_FEATURE_OPERATING_CHANNEL_VALIDATION,
->>>>>>> Stashed changes
 
 	/* add new features before the definition below */
 	NUM_NL80211_EXT_FEATURES,

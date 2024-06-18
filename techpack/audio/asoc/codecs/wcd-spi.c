@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2016-2019, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2016-2020, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include <linux/init.h>
@@ -723,11 +719,7 @@ static int wcd_spi_clk_ctrl(struct spi_device *spi,
 		 * flags.
 		 */
 		if (flags == WCD_SPI_CLK_FLAG_DELAYED) {
-<<<<<<< Updated upstream
-			schedule_delayed_work(&wcd_spi->clk_dwork,
-=======
 			queue_delayed_work(system_power_efficient_wq, &wcd_spi->clk_dwork,
->>>>>>> Stashed changes
 				msecs_to_jiffies(WCD_SPI_CLK_OFF_TIMER_MS));
 		} else {
 			ret = wcd_spi_clk_disable(spi);
@@ -1539,8 +1531,6 @@ static const struct component_ops wcd_spi_component_ops = {
 	.unbind = wcd_spi_component_unbind,
 };
 
-<<<<<<< Updated upstream
-=======
 #ifdef CONFIG_WCD_SPI_DMA_MASKING
 static void arch_setup_spi_archdata(struct spi_device *spi)
 {
@@ -1552,7 +1542,6 @@ static void arch_setup_spi_archdata(struct spi_device *spi)
 }
 #endif
 
->>>>>>> Stashed changes
 static int wcd_spi_probe(struct spi_device *spi)
 {
 	struct wcd_spi_priv *wcd_spi;
@@ -1579,16 +1568,11 @@ static int wcd_spi_probe(struct spi_device *spi)
 	mutex_init(&wcd_spi->xfer_mutex);
 	INIT_DELAYED_WORK(&wcd_spi->clk_dwork, wcd_spi_clk_work);
 	init_completion(&wcd_spi->resume_comp);
-<<<<<<< Updated upstream
-	arch_setup_dma_ops(&spi->dev, 0, 0, NULL, true);
-
-=======
 #ifdef CONFIG_WCD_SPI_DMA_MASKING
 	arch_setup_spi_archdata(spi);
 #endif
 
 	arch_setup_dma_ops(&spi->dev, 0, 0, NULL, true);
->>>>>>> Stashed changes
 	wcd_spi->spi = spi;
 	spi_set_drvdata(spi, wcd_spi);
 

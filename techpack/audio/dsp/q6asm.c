@@ -1,10 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
-<<<<<<< Updated upstream
-=======
  * Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  * Author: Brian Swetland <swetland@google.com>
  *
  * This software is licensed under the terms of the GNU General Public
@@ -2293,8 +2290,6 @@ static int32_t q6asm_callback(struct apr_client_data *data, void *priv)
 
 		config_debug_fs_read_cb();
 
-<<<<<<< Updated upstream
-=======
 		if (data->payload_size != (READDONE_IDX_SEQ_ID + 1) * sizeof(uint32_t)) {
 			pr_err("%s:  payload size of %d is less than expected %d.\n",
 					__func__, data->payload_size,
@@ -2304,7 +2299,6 @@ static int32_t q6asm_callback(struct apr_client_data *data, void *priv)
 				flags);
 			return -EINVAL;
 		}
->>>>>>> Stashed changes
 		dev_vdbg(ac->dev, "%s: ReadDone: status=%d buff_add=0x%x act_size=%d offset=%d\n",
 				__func__, payload[READDONE_IDX_STATUS],
 				payload[READDONE_IDX_BUFADD_LSW],
@@ -2411,9 +2405,6 @@ static int32_t q6asm_callback(struct apr_client_data *data, void *priv)
 				__func__, data->payload_size);
 		break;
 	case ASM_SESSION_CMDRSP_GET_MTMX_STRTR_PARAMS_V2:
-<<<<<<< Updated upstream
-		q6asm_process_mtmx_get_param_rsp(ac, (void *) payload);
-=======
 		payload_size = sizeof(struct asm_mtmx_strtr_get_params_cmdrsp);
 		if (data->payload_size < payload_size) {
 			pr_err("%s: insufficient payload size = %d\n",
@@ -2424,7 +2415,6 @@ static int32_t q6asm_callback(struct apr_client_data *data, void *priv)
 		}
 		q6asm_process_mtmx_get_param_rsp(ac,
 			(struct asm_mtmx_strtr_get_params_cmdrsp *) payload);
->>>>>>> Stashed changes
 		break;
 	case ASM_STREAM_PP_EVENT:
 	case ASM_STREAM_CMD_ENCDEC_EVENTS:
@@ -8515,10 +8505,7 @@ static int q6asm_memory_map_regions(struct audio_client *ac, int dir,
 	if (mmap_region_cmd == NULL) {
 		rc = -EINVAL;
 		kfree(buffer_node);
-<<<<<<< Updated upstream
-=======
 		buffer_node = NULL;
->>>>>>> Stashed changes
 		return rc;
 	}
 	mmap_regions = (struct avs_cmd_shared_mem_map_regions *)
@@ -8555,10 +8542,7 @@ static int q6asm_memory_map_regions(struct audio_client *ac, int dir,
 					mmap_regions->hdr.opcode, rc);
 		rc = -EINVAL;
 		kfree(buffer_node);
-<<<<<<< Updated upstream
-=======
 		buffer_node = NULL;
->>>>>>> Stashed changes
 		goto fail_cmd;
 	}
 
@@ -8570,10 +8554,7 @@ static int q6asm_memory_map_regions(struct audio_client *ac, int dir,
 		pr_err("%s: timeout. waited for memory_map\n", __func__);
 		rc = -ETIMEDOUT;
 		kfree(buffer_node);
-<<<<<<< Updated upstream
-=======
 		buffer_node = NULL;
->>>>>>> Stashed changes
 		goto fail_cmd;
 	}
 	if (atomic_read(&ac->mem_state) > 0) {
@@ -8583,10 +8564,7 @@ static int q6asm_memory_map_regions(struct audio_client *ac, int dir,
 		rc = adsp_err_get_lnx_err_code(
 			atomic_read(&ac->mem_state));
 		kfree(buffer_node);
-<<<<<<< Updated upstream
-=======
 		buffer_node = NULL;
->>>>>>> Stashed changes
 		goto fail_cmd;
 	}
 	mutex_lock(&ac->cmd_lock);
@@ -8606,10 +8584,7 @@ static int q6asm_memory_map_regions(struct audio_client *ac, int dir,
 	rc = 0;
 fail_cmd:
 	kfree(mmap_region_cmd);
-<<<<<<< Updated upstream
-=======
 	mmap_region_cmd = NULL;
->>>>>>> Stashed changes
 	return rc;
 }
 EXPORT_SYMBOL(q6asm_memory_map_regions);
@@ -8705,10 +8680,7 @@ fail_cmd:
 		if (buf_node->buf_phys_addr == buf_add) {
 			list_del(&buf_node->list);
 			kfree(buf_node);
-<<<<<<< Updated upstream
-=======
 			buf_node = NULL;
->>>>>>> Stashed changes
 			break;
 		}
 	}

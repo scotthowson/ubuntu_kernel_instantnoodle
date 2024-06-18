@@ -206,10 +206,7 @@ struct wlan_fwol_neighbor_report_cfg {
  * @enable_dhcp_server_offload: DHCP Offload is enabled or not
  * @dhcp_max_num_clients: Max number of DHCP client supported
  * @dwelltime_params: adaptive dwell time parameters
-<<<<<<< Updated upstream
-=======
  * @disable_hw_assist: Flag to configure HW assist feature in FW
->>>>>>> Stashed changes
  */
 struct wlan_fwol_cfg {
 	/* Add CFG and INI items here */
@@ -262,10 +259,7 @@ struct wlan_fwol_cfg {
 	uint32_t dhcp_max_num_clients;
 #endif
 	struct adaptive_dwelltime_params dwelltime_params;
-<<<<<<< Updated upstream
-=======
 	bool disable_hw_assist;
->>>>>>> Stashed changes
 };
 
 /**
@@ -377,8 +371,6 @@ fwol_init_adapt_dwelltime_in_cfg(
 QDF_STATUS
 fwol_set_adaptive_dwelltime_config(
 			struct adaptive_dwelltime_params *dwelltime_params);
-<<<<<<< Updated upstream
-=======
 
 /**
  * fwol_configure_hw_assist() - API to configure HW assist feature in FW
@@ -390,5 +382,4 @@ fwol_set_adaptive_dwelltime_config(
 QDF_STATUS fwol_configure_hw_assist(struct wlan_objmgr_pdev *pdev,
 				    bool disable_hw_assist);
 
->>>>>>> Stashed changes
 #endif

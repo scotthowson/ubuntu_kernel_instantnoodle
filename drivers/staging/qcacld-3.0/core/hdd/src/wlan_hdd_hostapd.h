@@ -297,8 +297,6 @@ hdd_check_and_disconnect_sta_on_invalid_channel(struct hdd_context *hdd_ctx,
  */
 void hdd_stop_sap_due_to_invalid_channel(struct work_struct *work);
 
-<<<<<<< Updated upstream
-=======
 /**
  * hdd_is_any_sta_connecting() - check if any sta is connecting
  * @hdd_ctx: hdd context
@@ -306,5 +304,4 @@ void hdd_stop_sap_due_to_invalid_channel(struct work_struct *work);
  * Return: true if any sta is connecting
  */
 bool hdd_is_any_sta_connecting(struct hdd_context *hdd_ctx);
->>>>>>> Stashed changes
 #endif /* end #if !defined(WLAN_HDD_HOSTAPD_H) */

@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2017-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2017-2021. The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include <linux/ipa_wdi3.h>
@@ -255,11 +251,7 @@ int ipa_wdi_reg_intf(struct ipa_wdi_reg_intf_in_params *in)
 	tx_prop = kmalloc(
 		sizeof(*tx_prop) * IPA_TX_MAX_INTF_PROP, GFP_KERNEL);
 	if (!tx_prop) {
-<<<<<<< Updated upstream
-		IPAERR("failed to allocate memory\n");
-=======
 		IPA_WDI_ERR("failed to allocate memory\n");
->>>>>>> Stashed changes
 		ret = -ENOMEM;
 		goto fail_commit_hdr;
 	}
@@ -299,11 +291,7 @@ int ipa_wdi_reg_intf(struct ipa_wdi_reg_intf_in_params *in)
 	rx_prop = kmalloc(
 		sizeof(*rx_prop) * IPA_RX_MAX_INTF_PROP, GFP_KERNEL);
 	if (!rx_prop) {
-<<<<<<< Updated upstream
-		IPAERR("failed to allocate memory\n");
-=======
 		IPA_WDI_ERR("failed to allocate memory\n");
->>>>>>> Stashed changes
 		ret = -ENOMEM;
 		goto fail_commit_hdr;
 	}

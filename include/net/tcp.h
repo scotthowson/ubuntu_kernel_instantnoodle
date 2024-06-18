@@ -362,10 +362,6 @@ extern int tcp_proc_delayed_ack_control(struct ctl_table *table, int write,
 				void __user *buffer, size_t *length,
 				loff_t *ppos);
 
-<<<<<<< Updated upstream
-void tcp_enter_quickack_mode(struct sock *sk, unsigned int max_quickacks);
-=======
->>>>>>> Stashed changes
 static inline void tcp_dec_quickack_mode(struct sock *sk,
 					 const unsigned int pkts)
 {
@@ -1397,12 +1393,6 @@ static inline int tcp_full_space(const struct sock *sk)
 	return tcp_win_from_space(sk, sk->sk_rcvbuf);
 }
 
-<<<<<<< Updated upstream
-static inline bool tcp_rmem_pressure(const struct sock *sk)
-{
-	int rcvbuf = READ_ONCE(sk->sk_rcvbuf);
-	int threshold = rcvbuf - (rcvbuf >> 3);
-=======
 /* We provision sk_rcvbuf around 200% of sk_rcvlowat.
  * If 87.5 % (7/8) of the space has been consumed, we want to override
  * SO_RCVLOWAT constraint, since we are receiving skbs with too small
@@ -1417,7 +1407,6 @@ static inline bool tcp_rmem_pressure(const struct sock *sk)
 
 	rcvbuf = READ_ONCE(sk->sk_rcvbuf);
 	threshold = rcvbuf - (rcvbuf >> 3);
->>>>>>> Stashed changes
 
 	return atomic_read(&sk->sk_rmem_alloc) > threshold;
 }

@@ -194,11 +194,6 @@ static bool vmpressure_event(struct vmpressure *vmpr,
 {
 	struct vmpressure_event *ev;
 	bool ret = false;
-<<<<<<< Updated upstream
-	unsigned long cache = global_node_page_state(NR_INACTIVE_FILE) +
-					global_node_page_state(NR_ACTIVE_FILE);
-=======
->>>>>>> Stashed changes
 
 	mutex_lock(&vmpr->events_lock);
 	list_for_each_entry(ev, &vmpr->events, node) {
@@ -512,11 +507,7 @@ void vmpressure_prio(gfp_t gfp, struct mem_cgroup *memcg, int prio, int order)
 	__vmpressure(gfp, memcg, true, true, 0, 0);
 }
 
-<<<<<<< Updated upstream
-#define MAX_VMPRESSURE_ARGS_LEN	(strlen("critical") + strlen("hierarchy") + 2 + (6*2+2))
-=======
 #define MAX_VMPRESSURE_ARGS_LEN	(strlen("critical") + strlen("hierarchy") + 2)
->>>>>>> Stashed changes
 
 /**
  * vmpressure_register_event() - Bind vmpressure notifications to an eventfd

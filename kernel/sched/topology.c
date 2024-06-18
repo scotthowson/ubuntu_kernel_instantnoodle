@@ -1575,22 +1575,9 @@ static void init_numa_topology_type(void)
 void sched_init_numa(void)
 {
 	struct sched_domain_topology_level *tl;
-<<<<<<< Updated upstream
-	int level = 0;
-	int i, j, k;
-
-	sched_domains_numa_distance = kzalloc(sizeof(int) * (nr_node_ids + 1), GFP_KERNEL);
-	if (!sched_domains_numa_distance)
-		return;
-
-	/* Includes NUMA identity node at level 0. */
-	sched_domains_numa_distance[level++] = curr_distance;
-	sched_domains_numa_levels = level;
-=======
 	unsigned long *distance_map;
 	int nr_levels = 0;
 	int i, j;
->>>>>>> Stashed changes
 
 	/*
 	 * O(nr_nodes^2) deduplicating selection sort -- in order to find the

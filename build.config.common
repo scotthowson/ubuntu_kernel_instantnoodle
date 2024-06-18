@@ -1,13 +1,3 @@
-<<<<<<< Updated upstream
-BRANCH=android-4.19
-KERNEL_DIR=common
-
-CC=clang
-LD=ld.lld
-NM=llvm-nm
-OBJCOPY=llvm-objcopy
-CLANG_PREBUILT_BIN=prebuilts-master/clang/host/linux-x86/clang-r377782c/bin
-=======
 BRANCH=android-4.19-stable
 KMI_GENERATION=0
 
@@ -15,7 +5,6 @@ LLVM=1
 DEPMOD=depmod
 CLANG_PREBUILT_BIN=prebuilts-master/clang/host/linux-x86/clang-r416183b/bin
 BUILDTOOLS_PREBUILT_BIN=build/build-tools/path/linux-x86
->>>>>>> Stashed changes
 
 EXTRA_CMDS=''
 STOP_SHIP_TRACEPRINTK=1

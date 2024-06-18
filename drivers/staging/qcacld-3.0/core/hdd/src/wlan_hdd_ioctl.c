@@ -1,9 +1,5 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2012-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -42,10 +38,7 @@
 #include "wma.h"
 #include "wlan_hdd_napi.h"
 #include "wlan_mlme_ucfg_api.h"
-<<<<<<< Updated upstream
-=======
 #include "target_type.h"
->>>>>>> Stashed changes
 #ifdef FEATURE_WLAN_ESE
 #include <sme_api.h>
 #include <sir_api.h>
@@ -53,10 +46,7 @@
 #include "hif.h"
 #include "wlan_scan_ucfg_api.h"
 #include "wlan_reg_ucfg_api.h"
-<<<<<<< Updated upstream
-=======
 #include "qdf_func_tracker.h"
->>>>>>> Stashed changes
 
 #if defined(LINUX_QCMBR)
 #define SIOCIOCTLTX99 (SIOCDEVPRIVATE+13)
@@ -1078,12 +1068,6 @@ static void hdd_get_band_helper(struct hdd_context *hdd_ctx, int *ui_band)
 }
 
 /**
-<<<<<<< Updated upstream
- * _hdd_parse_bssid_and_chan() - helper function to parse bssid and channel
- * @data:            input data
- * @target_ap_bssid: pointer to bssid (output parameter)
- * @channel:         pointer to channel (output parameter)
-=======
  * hdd_check_and_fill_freq() - to validate chan and convert into freq
  * @in_chan: input as channel number or freq to be checked
  * @freq: frequency for input in_chan (output parameter)
@@ -1113,17 +1097,12 @@ static bool hdd_check_and_fill_freq(uint32_t in_chan, qdf_freq_t *freq)
  * @data:            input data
  * @target_ap_bssid: pointer to bssid (output parameter)
  * @freq:         pointer to freq (output parameter)
->>>>>>> Stashed changes
  *
  * Return: 0 if parsing is successful; -EINVAL otherwise
  */
 static int _hdd_parse_bssid_and_chan(const uint8_t **data,
 				     uint8_t *bssid,
-<<<<<<< Updated upstream
-				     uint8_t *channel)
-=======
 				     qdf_freq_t *freq)
->>>>>>> Stashed changes
 {
 	const uint8_t *in_ptr;
 	int            v = 0;
@@ -1188,29 +1167,17 @@ static int _hdd_parse_bssid_and_chan(const uint8_t **data,
 	if ('\0' == *in_ptr)
 		goto error;
 
-<<<<<<< Updated upstream
-	/* get the next argument ie the channel number */
-=======
 	/* get the next argument ie the channel/freq number */
->>>>>>> Stashed changes
 	v = sscanf(in_ptr, "%31s ", temp_buf);
 	if (1 != v)
 		goto error;
 
 	v = kstrtos32(temp_buf, 10, &temp_int);
-<<<<<<< Updated upstream
-	if ((v < 0) || (temp_int < 0) ||
-	    (temp_int > WNI_CFG_CURRENT_CHANNEL_STAMAX))
-		return -EINVAL;
-
-	*channel = temp_int;
-=======
 	if (v < 0 || temp_int < 0)
 		goto error;
 	else if (!hdd_check_and_fill_freq(temp_int, freq))
 		goto error;
 
->>>>>>> Stashed changes
 	*data = in_ptr;
 	return 0;
 error:
@@ -1219,11 +1186,7 @@ error:
 }
 
 /**
-<<<<<<< Updated upstream
- * hdd_parse_send_action_frame_data() - HDD Parse send action frame data
-=======
  * hdd_parse_send_action_frame_v1_data() - HDD Parse send action frame data
->>>>>>> Stashed changes
  * @command: Pointer to input data
  * @bssid: Pointer to target Ap bssid
  * @channel: Pointer to the Target AP channel
@@ -1233,23 +1196,15 @@ error:
  * @buf_len: Pointer to data length
  *
  * This function parses the send action frame data passed in the format
-<<<<<<< Updated upstream
- * SENDACTIONFRAME<space><bssid><space><channel><space><dwelltime><space><data>
-=======
  * SENDACTIONFRAME<space><bssid><space><channel | frequency><space><dwelltime>
  * <space><data>
->>>>>>> Stashed changes
  *
  * Return: 0 for success non-zero for failure
  */
 static int
 hdd_parse_send_action_frame_v1_data(const uint8_t *command,
 				    uint8_t *bssid,
-<<<<<<< Updated upstream
-				    uint8_t *channel, uint8_t *dwell_time,
-=======
 				    qdf_freq_t *freq, uint8_t *dwell_time,
->>>>>>> Stashed changes
 				    uint8_t **buf, uint8_t *buf_len)
 {
 	const uint8_t *in_ptr = command;
@@ -1261,11 +1216,7 @@ hdd_parse_send_action_frame_v1_data(const uint8_t *command,
 	uint8_t temp_buf[32];
 	uint8_t temp_u8 = 0;
 
-<<<<<<< Updated upstream
-	if (_hdd_parse_bssid_and_chan(&in_ptr, bssid, channel))
-=======
 	if (_hdd_parse_bssid_and_chan(&in_ptr, bssid, freq))
->>>>>>> Stashed changes
 		return -EINVAL;
 
 	/* point to the next argument */
@@ -1352,35 +1303,20 @@ hdd_parse_send_action_frame_v1_data(const uint8_t *command,
  * hdd_parse_reassoc_command_data() - HDD Parse reassoc command data
  * @command: Pointer to input data (its a NULL terminated string)
  * @bssid: Pointer to target Ap bssid
-<<<<<<< Updated upstream
- * @channel: Pointer to the Target AP channel
- *
- * This function parses the reasoc command data passed in the format
- * REASSOC<space><bssid><space><channel>
-=======
  * @freq: Pointer to the Target AP frequency
  *
  * This function parses the reasoc command data passed in the format
  * REASSOC<space><bssid><space><channel/frequency>
->>>>>>> Stashed changes
  *
  * Return: 0 for success non-zero for failure
  */
 static int hdd_parse_reassoc_command_v1_data(const uint8_t *command,
 					     uint8_t *bssid,
-<<<<<<< Updated upstream
-					     uint8_t *channel)
-{
-	const uint8_t *in_ptr = command;
-
-	if (_hdd_parse_bssid_and_chan(&in_ptr, bssid, channel))
-=======
 					     qdf_freq_t *freq)
 {
 	const uint8_t *in_ptr = command;
 
 	if (_hdd_parse_bssid_and_chan(&in_ptr, bssid, freq))
->>>>>>> Stashed changes
 		return -EINVAL;
 
 	return 0;
@@ -1488,15 +1424,6 @@ exit:
  *
  * This function parses the v1 REASSOC command with the format
  *
-<<<<<<< Updated upstream
- *    REASSOC xx:xx:xx:xx:xx:xx CH
- *
- * Where "xx:xx:xx:xx:xx:xx" is the Hex-ASCII representation of the
- * BSSID and CH is the ASCII representation of the channel.  For
- * example
- *
- *    REASSOC 00:0a:0b:11:22:33 48
-=======
  *    REASSOC xx:xx:xx:xx:xx:xx CH/FREQ
  *
  * Where "xx:xx:xx:xx:xx:xx" is the Hex-ASCII representation of the
@@ -1505,24 +1432,11 @@ exit:
  *
  *    REASSOC 00:0a:0b:11:22:33 48
  *    REASSOC 00:0a:0b:11:22:33 2412
->>>>>>> Stashed changes
  *
  * Return: 0 for success non-zero for failure
  */
 static int hdd_parse_reassoc_v1(struct hdd_adapter *adapter, const char *command)
 {
-<<<<<<< Updated upstream
-	uint8_t channel = 0;
-	tSirMacAddr bssid;
-	int ret;
-
-	ret = hdd_parse_reassoc_command_v1_data(command, bssid, &channel);
-	if (ret)
-		hdd_err("Failed to parse reassoc command data");
-	else
-		ret = hdd_reassoc(adapter, bssid,
-				  wlan_chan_to_freq(channel), REASSOC);
-=======
 	qdf_freq_t freq = 0;
 	tSirMacAddr bssid;
 	int ret;
@@ -1532,7 +1446,6 @@ static int hdd_parse_reassoc_v1(struct hdd_adapter *adapter, const char *command
 		hdd_err("Failed to parse reassoc command data");
 	else
 		ret = hdd_reassoc(adapter, bssid, freq, REASSOC);
->>>>>>> Stashed changes
 
 	return ret;
 }
@@ -1556,10 +1469,7 @@ static int hdd_parse_reassoc_v2(struct hdd_adapter *adapter,
 {
 	struct android_wifi_reassoc_params params;
 	tSirMacAddr bssid;
-<<<<<<< Updated upstream
-=======
 	qdf_freq_t freq = 0;
->>>>>>> Stashed changes
 	int ret;
 
 	if (total_len < sizeof(params) + 8) {
@@ -1574,11 +1484,6 @@ static int hdd_parse_reassoc_v2(struct hdd_adapter *adapter,
 		hdd_err("MAC address parsing failed");
 		ret = -EINVAL;
 	} else {
-<<<<<<< Updated upstream
-		ret = hdd_reassoc(adapter, bssid,
-				  wlan_chan_to_freq(params.channel), REASSOC);
-	}
-=======
 		/*
 		 * In Reassoc command, user can send channel number or frequency
 		 * along with BSSID. If params.channel param of REASSOC command
@@ -1591,7 +1496,6 @@ static int hdd_parse_reassoc_v2(struct hdd_adapter *adapter,
 		ret = hdd_reassoc(adapter, bssid, freq, REASSOC);
 	}
 
->>>>>>> Stashed changes
 	return ret;
 }
 
@@ -1617,11 +1521,7 @@ static int hdd_parse_reassoc(struct hdd_adapter *adapter, const char *command,
 
 	/* both versions start with "REASSOC "
 	 * v1 has a bssid and channel # as an ASCII string
-<<<<<<< Updated upstream
-	 *    REASSOC xx:xx:xx:xx:xx:xx CH
-=======
 	 *    REASSOC xx:xx:xx:xx:xx:xx CH/FREQ
->>>>>>> Stashed changes
 	 * v2 has a C struct
 	 *    REASSOC <binary c struct>
 	 *
@@ -1650,11 +1550,7 @@ static int hdd_parse_reassoc(struct hdd_adapter *adapter, const char *command,
  * hdd_sendactionframe() - send a userspace-supplied action frame
  * @adapter:	Adapter upon which the command was received
  * @bssid:	BSSID target of the action frame
-<<<<<<< Updated upstream
- * @channel:	Channel upon which to send the frame
-=======
  * @freq:	Frequency upon which to send the frame
->>>>>>> Stashed changes
  * @dwell_time:	Amount of time to dwell when the frame is sent
  * @payload_len:Length of the payload
  * @payload:	Payload of the frame
@@ -1665,18 +1561,10 @@ static int hdd_parse_reassoc(struct hdd_adapter *adapter, const char *command,
  */
 static int
 hdd_sendactionframe(struct hdd_adapter *adapter, const uint8_t *bssid,
-<<<<<<< Updated upstream
-		    const uint8_t channel, const uint8_t dwell_time,
-		    const int payload_len, const uint8_t *payload)
-{
-	struct ieee80211_channel chan;
-	uint8_t conn_info_channel;
-=======
 		    const qdf_freq_t freq, const uint8_t dwell_time,
 		    const int payload_len, const uint8_t *payload)
 {
 	struct ieee80211_channel chan;
->>>>>>> Stashed changes
 	int frame_len, ret = 0;
 	uint8_t *frame;
 	struct ieee80211_hdr_3addr *hdr;
@@ -1722,31 +1610,13 @@ hdd_sendactionframe(struct hdd_adapter *adapter, const uint8_t *bssid,
 		goto exit;
 	}
 
-<<<<<<< Updated upstream
-	chan.center_freq = sme_chn_to_freq(channel);
-=======
 	chan.center_freq = freq;
->>>>>>> Stashed changes
 	/* Check if it is specific action frame */
 	if (vendor->category ==
 	    SIR_MAC_ACTION_VENDOR_SPECIFIC_CATEGORY) {
 		static const uint8_t oui[] = { 0x00, 0x00, 0xf0 };
 
 		if (!qdf_mem_cmp(vendor->Oui, oui, 3)) {
-<<<<<<< Updated upstream
-			conn_info_channel = wlan_reg_freq_to_chan(
-						hdd_ctx->pdev,
-						sta_ctx->conn_info.chan_freq);
-			/*
-			 * if the channel number is different from operating
-			 * channel then no need to send action frame
-			 */
-			if (channel != 0) {
-				if (channel != conn_info_channel) {
-					hdd_warn("channel(%u) is different from operating channel(%u)",
-						 channel,
-						 conn_info_channel);
-=======
 			/*
 			 * if the freq number is different from operating
 			 * freq then no need to send action frame
@@ -1756,7 +1626,6 @@ hdd_sendactionframe(struct hdd_adapter *adapter, const uint8_t *bssid,
 					hdd_warn("freq(%u) is different from operating freq(%u)",
 						 freq,
 						 sta_ctx->conn_info.chan_freq);
->>>>>>> Stashed changes
 					ret = -EINVAL;
 					goto exit;
 				}
@@ -1772,11 +1641,7 @@ hdd_sendactionframe(struct hdd_adapter *adapter, const uint8_t *bssid,
 						    adapter->vdev_id);
 			} else {
 				/*
-<<<<<<< Updated upstream
-				 * 0 is accepted as current home channel,
-=======
 				 * 0 is accepted as current home frequency,
->>>>>>> Stashed changes
 				 * delayed transmission of action frame is ok.
 				 */
 				chan.center_freq = sta_ctx->conn_info.chan_freq;
@@ -1784,11 +1649,7 @@ hdd_sendactionframe(struct hdd_adapter *adapter, const uint8_t *bssid,
 		}
 	}
 	if (chan.center_freq == 0) {
-<<<<<<< Updated upstream
-		hdd_err("Invalid channel number: %d", channel);
-=======
 		hdd_nofl_err("Invalid freq : %d", freq);
->>>>>>> Stashed changes
 		ret = -EINVAL;
 		goto exit;
 	}
@@ -1854,26 +1715,13 @@ exit:
 static int
 hdd_parse_sendactionframe_v1(struct hdd_adapter *adapter, const char *command)
 {
-<<<<<<< Updated upstream
-	uint8_t channel = 0;
-=======
 	qdf_freq_t freq = 0;
->>>>>>> Stashed changes
 	uint8_t dwell_time = 0;
 	uint8_t payload_len = 0;
 	uint8_t *payload = NULL;
 	tSirMacAddr bssid;
 	int ret;
 
-<<<<<<< Updated upstream
-	ret = hdd_parse_send_action_frame_v1_data(command, bssid, &channel,
-						  &dwell_time, &payload,
-						  &payload_len);
-	if (ret) {
-		hdd_err("Failed to parse send action frame data");
-	} else {
-		ret = hdd_sendactionframe(adapter, bssid, channel,
-=======
 	ret = hdd_parse_send_action_frame_v1_data(command, bssid, &freq,
 						  &dwell_time, &payload,
 						  &payload_len);
@@ -1881,7 +1729,6 @@ hdd_parse_sendactionframe_v1(struct hdd_adapter *adapter, const char *command)
 		hdd_nofl_err("Failed to parse send action frame data");
 	} else {
 		ret = hdd_sendactionframe(adapter, bssid, freq,
->>>>>>> Stashed changes
 					  dwell_time, payload_len, payload);
 		qdf_mem_free(payload);
 	}
@@ -1910,10 +1757,7 @@ hdd_parse_sendactionframe_v2(struct hdd_adapter *adapter,
 	tSirMacAddr bssid;
 	int ret;
 	int len_wo_payload = 0;
-<<<<<<< Updated upstream
-=======
 	qdf_freq_t freq = 0;
->>>>>>> Stashed changes
 
 	/* The params are located after "SENDACTIONFRAME " */
 	total_len -= 16;
@@ -1947,10 +1791,6 @@ hdd_parse_sendactionframe_v2(struct hdd_adapter *adapter,
 		return -EINVAL;
 	}
 
-<<<<<<< Updated upstream
-	ret = hdd_sendactionframe(adapter, bssid, params->channel,
-				params->dwell_time, params->len, params->data);
-=======
 	if (!hdd_check_and_fill_freq(params->channel, &freq)) {
 		hdd_err("Invalid channel: %d", params->channel);
 		return -EINVAL;
@@ -1958,7 +1798,6 @@ hdd_parse_sendactionframe_v2(struct hdd_adapter *adapter,
 
 	ret = hdd_sendactionframe(adapter, bssid, freq, params->dwell_time,
 				  params->len, params->data);
->>>>>>> Stashed changes
 
 	return ret;
 }
@@ -3135,8 +2974,6 @@ static int hdd_conc_set_dwell_time(struct hdd_adapter *adapter,
 	return retval;
 }
 
-<<<<<<< Updated upstream
-=======
 static int hdd_enable_unit_test_commands(struct hdd_adapter *adapter,
 					 struct hdd_context *hdd_ctx)
 {
@@ -3276,7 +3113,6 @@ static int hdd_disable_unit_test_commands(struct hdd_adapter *adapter,
 	return 0;
 }
 
->>>>>>> Stashed changes
 static void hdd_get_link_status_cb(uint8_t status, void *context)
 {
 	struct osif_request *request;
@@ -3727,10 +3563,7 @@ static int drv_cmd_set_band(struct hdd_adapter *adapter,
 {
 	int err;
 	uint8_t band;
-<<<<<<< Updated upstream
-=======
 	uint32_t band_bitmap;
->>>>>>> Stashed changes
 
 	/*
 	 * Parse the band value passed from userspace. The first 8 bytes
@@ -3742,13 +3575,9 @@ static int drv_cmd_set_band(struct hdd_adapter *adapter,
 		return err;
 	}
 
-<<<<<<< Updated upstream
-	return hdd_reg_set_band(adapter->dev, band);
-=======
 	band_bitmap = hdd_reg_legacy_setband_to_reg_wifi_band_bitmap(band);
 
 	return hdd_reg_set_band(adapter->dev, band_bitmap);
->>>>>>> Stashed changes
 }
 
 static int drv_cmd_set_wmmps(struct hdd_adapter *adapter,
@@ -4473,19 +4302,6 @@ cleanup:
 
 	return ret;
 }
-<<<<<<< Updated upstream
-#else
-static bool is_roam_ch_from_fw_supported(struct hdd_context *hdd_ctx)
-{
-	return false;
-}
-
-static uint32_t
-hdd_get_roam_chan_from_fw(struct hdd_adapter *adapter, uint32_t *chan_list,
-			  uint8_t *num_channels)
-{
-	return QDF_STATUS_E_INVAL;
-=======
 
 int
 hdd_get_roam_scan_freq(struct hdd_adapter *adapter, mac_handle_t mac_handle,
@@ -4517,7 +4333,6 @@ hdd_get_roam_scan_freq(struct hdd_adapter *adapter, mac_handle_t mac_handle,
 	}
 
 	return ret;
->>>>>>> Stashed changes
 }
 #endif
 
@@ -4535,37 +4350,11 @@ static int drv_cmd_get_roam_scan_channels(struct hdd_adapter *adapter,
 	int len;
 	uint8_t chan;
 
-<<<<<<< Updated upstream
-	if (is_roam_ch_from_fw_supported(hdd_ctx)) {
-		ret = hdd_get_roam_chan_from_fw(adapter, freq_list,
-						&num_channels);
-		if (ret == QDF_STATUS_SUCCESS) {
-			goto fill_ch_resp;
-		} else {
-			hdd_err("failed to get roam scan channel list from FW");
-			ret = -EFAULT;
-			goto exit;
-		}
-	}
-
-	if (QDF_STATUS_SUCCESS !=
-		sme_get_roam_scan_channel_list(hdd_ctx->mac_handle,
-					       freq_list,
-					       &num_channels,
-					       adapter->vdev_id)) {
-		hdd_err("failed to get roam scan channel list");
-		ret = -EFAULT;
-		goto exit;
-	}
-
-fill_ch_resp:
-=======
 	ret = hdd_get_roam_scan_freq(adapter, hdd_ctx->mac_handle, freq_list,
 				     &num_channels);
 	if (ret != QDF_STATUS_SUCCESS)
 		goto exit;
 
->>>>>>> Stashed changes
 	qdf_mtrace(QDF_MODULE_ID_HDD, QDF_MODULE_ID_HDD,
 		   TRACE_CODE_HDD_GETROAMSCANCHANNELS_IOCTL,
 		   adapter->vdev_id, num_channels);
@@ -5434,12 +5223,7 @@ static int drv_cmd_fast_reassoc(struct hdd_adapter *adapter,
 {
 	int ret = 0;
 	uint8_t *value = command;
-<<<<<<< Updated upstream
-	uint8_t channel = 0;
-	uint32_t ch_freq;
-=======
 	qdf_freq_t freq = 0;
->>>>>>> Stashed changes
 	tSirMacAddr bssid;
 	uint32_t roam_id = INVALID_ROAM_ID;
 	tCsrRoamModifyProfileFields mod_fields;
@@ -5465,11 +5249,7 @@ static int drv_cmd_fast_reassoc(struct hdd_adapter *adapter,
 	}
 
 	ret = hdd_parse_reassoc_command_v1_data(value, bssid,
-<<<<<<< Updated upstream
-						&channel);
-=======
 						&freq);
->>>>>>> Stashed changes
 	if (ret) {
 		hdd_err("Failed to parse reassoc command data");
 		goto exit;
@@ -5484,13 +5264,8 @@ static int drv_cmd_fast_reassoc(struct hdd_adapter *adapter,
 			 QDF_MAC_ADDR_SIZE)) {
 		hdd_warn("Reassoc BSSID is same as currently associated AP bssid");
 		if (roaming_offload_enabled(hdd_ctx)) {
-<<<<<<< Updated upstream
-			ch_freq = sta_ctx->conn_info.chan_freq;
-			hdd_wma_send_fastreassoc_cmd(adapter, bssid, ch_freq);
-=======
 			hdd_wma_send_fastreassoc_cmd(
 				adapter, bssid, sta_ctx->conn_info.chan_freq);
->>>>>>> Stashed changes
 		} else {
 			sme_get_modify_profile_fields(mac_handle,
 				adapter->vdev_id,
@@ -5501,22 +5276,6 @@ static int drv_cmd_fast_reassoc(struct hdd_adapter *adapter,
 		return 0;
 	}
 
-<<<<<<< Updated upstream
-	/* Check channel number is a valid channel number */
-	if (channel && (QDF_STATUS_SUCCESS !=
-		wlan_hdd_validate_operation_channel(adapter, channel))) {
-		hdd_err("Invalid Channel [%d]", channel);
-		return -EINVAL;
-	}
-
-	ch_freq = wlan_reg_chan_to_freq(hdd_ctx->pdev, channel);
-	if (roaming_offload_enabled(hdd_ctx)) {
-		hdd_wma_send_fastreassoc_cmd(adapter, bssid, ch_freq);
-		goto exit;
-	}
-	/* Proceed with reassoc */
-	req.ch_freq = ch_freq;
-=======
 	/* Check freq number is a valid freq number */
 	if (freq && QDF_STATUS_SUCCESS !=
 		wlan_hdd_validate_operation_channel(adapter, freq)) {
@@ -5530,7 +5289,6 @@ static int drv_cmd_fast_reassoc(struct hdd_adapter *adapter,
 	}
 	/* Proceed with reassoc */
 	req.ch_freq = freq;
->>>>>>> Stashed changes
 	req.src = FASTREASSOC;
 	qdf_mem_copy(req.bssid.bytes, bssid, sizeof(tSirMacAddr));
 	sme_handoff_request(mac_handle, adapter->vdev_id, &req);
@@ -5820,8 +5578,6 @@ exit:
 	return ret;
 }
 
-<<<<<<< Updated upstream
-=======
 static int drv_cmd_tput_debug_mode_enable(struct hdd_adapter *adapter,
 					  struct hdd_context *hdd_ctx,
 					  u8 *command,
@@ -5840,7 +5596,6 @@ static int drv_cmd_tput_debug_mode_disable(struct hdd_adapter *adapter,
 	return hdd_disable_unit_test_commands(adapter, hdd_ctx);
 }
 
->>>>>>> Stashed changes
 #ifdef FEATURE_WLAN_RMC
 /* Function header is left blank intentionally */
 static int hdd_parse_setrmcenable_command(uint8_t *command,
@@ -6538,11 +6293,8 @@ static int drv_cmd_max_tx_power(struct hdd_adapter *adapter,
 	uint8_t *value = command;
 	struct qdf_mac_addr bssid = QDF_MAC_ADDR_BCAST_INIT;
 	struct qdf_mac_addr selfmac = QDF_MAC_ADDR_BCAST_INIT;
-<<<<<<< Updated upstream
-=======
 	struct hdd_adapter *next_adapter = NULL;
 	wlan_net_dev_ref_dbgid dbgid = NET_DEV_HOLD_DRV_CMD_MAX_TX_POWER;
->>>>>>> Stashed changes
 
 	ret = hdd_parse_setmaxtxpower_command(value, &tx_power);
 	if (ret) {
@@ -6550,12 +6302,8 @@ static int drv_cmd_max_tx_power(struct hdd_adapter *adapter,
 		return ret;
 	}
 
-<<<<<<< Updated upstream
-	hdd_for_each_adapter(hdd_ctx, adapter) {
-=======
 	hdd_for_each_adapter_dev_held_safe(hdd_ctx, adapter, next_adapter,
 					   dbgid) {
->>>>>>> Stashed changes
 		/* Assign correct self MAC address */
 		qdf_copy_macaddr(&bssid,
 				 &adapter->mac_addr);
@@ -6573,11 +6321,6 @@ static int drv_cmd_max_tx_power(struct hdd_adapter *adapter,
 		if (QDF_STATUS_SUCCESS != status) {
 			hdd_err("Set max tx power failed");
 			ret = -EINVAL;
-<<<<<<< Updated upstream
-			goto exit;
-		}
-		hdd_debug("Set max tx power success");
-=======
 			hdd_adapter_dev_put_debug(adapter, dbgid);
 			if (next_adapter)
 				hdd_adapter_dev_put_debug(next_adapter,
@@ -6586,7 +6329,6 @@ static int drv_cmd_max_tx_power(struct hdd_adapter *adapter,
 		}
 		hdd_debug("Set max tx power success");
 		hdd_adapter_dev_put_debug(adapter, dbgid);
->>>>>>> Stashed changes
 	}
 
 exit:
@@ -7910,11 +7652,7 @@ static int hdd_parse_disable_chan_cmd(struct hdd_adapter *adapter, uint8_t *ptr)
 		 * Restore and Free the cache channels when the command is
 		 * received with num channels as 0
 		 */
-<<<<<<< Updated upstream
-		wlan_hdd_restore_channels(hdd_ctx, false);
-=======
 		wlan_hdd_restore_channels(hdd_ctx);
->>>>>>> Stashed changes
 		return 0;
 	}
 
@@ -8305,8 +8043,6 @@ static int drv_cmd_get_ani_level(struct hdd_adapter *adapter,
 	return 0;
 }
 #endif
-<<<<<<< Updated upstream
-=======
 
 #ifdef FUNC_CALL_MAP
 static int drv_cmd_get_function_call_map(struct hdd_adapter *adapter,
@@ -8370,7 +8106,6 @@ static int drv_cmd_get_function_call_map(struct hdd_adapter *adapter,
 }
 #endif
 
->>>>>>> Stashed changes
 /*
  * The following table contains all supported WLAN HDD
  * IOCTL driver commands and the handler for each of them.
@@ -8442,11 +8177,8 @@ static const struct hdd_drv_cmd hdd_drv_cmds[] = {
 	{"GETDWELLTIME",              drv_cmd_get_dwell_time, false},
 	{"SETDWELLTIME",              drv_cmd_set_dwell_time, true},
 	{"MIRACAST",                  drv_cmd_miracast, true},
-<<<<<<< Updated upstream
-=======
 	{"TPUT_DEBUG_MODE_ENABLE",    drv_cmd_tput_debug_mode_enable, false},
 	{"TPUT_DEBUG_MODE_DISABLE",   drv_cmd_tput_debug_mode_disable, false},
->>>>>>> Stashed changes
 	{"SETIBSSBEACONOUIDATA",      drv_cmd_set_ibss_beacon_oui_data, true},
 #ifdef FEATURE_WLAN_RMC
 	{"SETRMCENABLE",              drv_cmd_set_rmc_enable, true},
@@ -8494,12 +8226,9 @@ static const struct hdd_drv_cmd hdd_drv_cmds[] = {
 	{"SET_DISABLE_CHANNEL_LIST",  drv_cmd_set_disable_chan_list, true},
 	{"GET_DISABLE_CHANNEL_LIST",  drv_cmd_get_disable_chan_list, false},
 	{"GET_ANI_LEVEL",             drv_cmd_get_ani_level, false},
-<<<<<<< Updated upstream
-=======
 #ifdef FUNC_CALL_MAP
 	{"GET_FUNCTION_CALL_MAP",     drv_cmd_get_function_call_map, true},
 #endif
->>>>>>> Stashed changes
 	{"STOP",                      drv_cmd_dummy, false},
 	/* Deprecated commands */
 	{"RXFILTER-START",            drv_cmd_dummy, false},

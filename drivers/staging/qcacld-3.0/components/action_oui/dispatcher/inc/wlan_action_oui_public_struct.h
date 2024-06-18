@@ -90,10 +90,7 @@
  * @ACTION_OUI_DISABLE_AGGRESSIVE_TX: disable aggressive TX in firmware
  * @ACTION_OUI_FORCE_MAX_NSS: Force Max NSS connection with few IOT APs
  * @ACTION_OUI_DISABLE_AGGRESSIVE_EDCA: disable aggressive EDCA with the ap
-<<<<<<< Updated upstream
-=======
  * @ACTION_OUI_DISABLE_TWT: disable TWT with the ap
->>>>>>> Stashed changes
  * @ACTION_OUI_HOST_ONLY: host only action id start - placeholder.
  * New Firmware related "ACTION" needs to be added before this placeholder.
  * @ACTION_OUI_HOST_RECONN: reconnect to the same BSSID when wait for
@@ -110,10 +107,7 @@ enum action_oui_id {
 	ACTION_OUI_DISABLE_AGGRESSIVE_TX = 6,
 	ACTION_OUI_FORCE_MAX_NSS = 7,
 	ACTION_OUI_DISABLE_AGGRESSIVE_EDCA = 8,
-<<<<<<< Updated upstream
-=======
 	ACTION_OUI_DISABLE_TWT = 9,
->>>>>>> Stashed changes
 	ACTION_OUI_HOST_ONLY,
 	ACTION_OUI_HOST_RECONN = ACTION_OUI_HOST_ONLY,
 	ACTION_OUI_MAXIMUM_ID

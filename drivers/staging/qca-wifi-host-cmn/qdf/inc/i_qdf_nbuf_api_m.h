@@ -119,8 +119,6 @@ static inline uint8_t qdf_nbuf_is_exc_frame(qdf_nbuf_t buf)
 {
 	return QDF_NBUF_CB_RX_PACKET_EXC_FRAME(buf);
 }
-<<<<<<< Updated upstream
-=======
 
 /**
  * qdf_nbuf_set_rx_reo_dest_ind() - set reo destination indication
@@ -169,5 +167,4 @@ static inline uint8_t qdf_nbuf_is_rx_ipa_smmu_map(qdf_nbuf_t buf)
 {
 	return QDF_NBUF_CB_RX_PACKET_IPA_SMMU_MAP(buf);
 }
->>>>>>> Stashed changes
 #endif /* _QDF_NBUF_M_H */

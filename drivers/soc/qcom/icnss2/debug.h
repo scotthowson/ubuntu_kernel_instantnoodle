@@ -1,10 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2017-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2017-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #ifndef _ICNSS_DEBUG_H
@@ -18,10 +14,7 @@
 
 extern void *icnss_ipc_log_context;
 extern void *icnss_ipc_log_long_context;
-<<<<<<< Updated upstream
-=======
 extern void *icnss_ipc_log_long1_context;
->>>>>>> Stashed changes
 
 #define icnss_ipc_log_string(_x...)                                     \
 	ipc_log_string(icnss_ipc_log_context, _x)
@@ -29,12 +22,9 @@ extern void *icnss_ipc_log_long1_context;
 #define icnss_ipc_log_long_string(_x...)                                \
 	ipc_log_string(icnss_ipc_log_long_context, _x)
 
-<<<<<<< Updated upstream
-=======
 #define icnss_ipc_log_long1_string(_x...)                                \
 	ipc_log_string(icnss_ipc_log_long1_context, _x)
 
->>>>>>> Stashed changes
 #define icnss_pr_err(_fmt, ...) do {                                    \
 	printk("%s" pr_fmt(_fmt), KERN_ERR, ##__VA_ARGS__);             \
 	icnss_ipc_log_string("%s" pr_fmt(_fmt), "",                     \
@@ -63,15 +53,12 @@ extern void *icnss_ipc_log_long1_context;
 	pr_debug(_fmt, ##__VA_ARGS__);                                  \
 	icnss_ipc_log_long_string(pr_fmt(_fmt), ##__VA_ARGS__);         \
 	} while (0)
-<<<<<<< Updated upstream
-=======
 
 #define icnss_pr_vdbg1(_fmt, ...) do {                                   \
 	pr_debug(_fmt, ##__VA_ARGS__);                                  \
 	icnss_ipc_log_long1_string(pr_fmt(_fmt), ##__VA_ARGS__);         \
 	} while (0)
 
->>>>>>> Stashed changes
 #elif defined(DEBUG)
 #define icnss_pr_dbg(_fmt, ...) do {                                    \
 	printk("%s" pr_fmt(_fmt), KERN_DEBUG, ##__VA_ARGS__);           \
@@ -84,8 +71,6 @@ extern void *icnss_ipc_log_long1_context;
 	icnss_ipc_log_long_string("%s" pr_fmt(_fmt), "",                \
 				  ##__VA_ARGS__);                       \
 	} while (0)
-<<<<<<< Updated upstream
-=======
 
 #define icnss_pr_vdbg1(_fmt, ...) do {                                   \
 	pr_debug(_fmt, ##__VA_ARGS__);           \
@@ -93,7 +78,6 @@ extern void *icnss_ipc_log_long1_context;
 				  ##__VA_ARGS__);                       \
 	} while (0)
 
->>>>>>> Stashed changes
 #else
 #define icnss_pr_dbg(_fmt, ...) do {                                    \
 	no_printk("%s" pr_fmt(_fmt), KERN_DEBUG, ##__VA_ARGS__);        \
@@ -106,8 +90,6 @@ extern void *icnss_ipc_log_long1_context;
 	icnss_ipc_log_long_string("%s" pr_fmt(_fmt), "",                \
 				  ##__VA_ARGS__);                       \
 	} while (0)
-<<<<<<< Updated upstream
-=======
 
 #define icnss_pr_vdbg1(_fmt, ...) do {                                   \
 	no_printk("%s" pr_fmt(_fmt), KERN_DEBUG, ##__VA_ARGS__);        \
@@ -115,7 +97,6 @@ extern void *icnss_ipc_log_long1_context;
 				  ##__VA_ARGS__);                       \
 	} while (0)
 
->>>>>>> Stashed changes
 #endif
 
 #ifdef CONFIG_ICNSS2_DEBUG

@@ -1065,10 +1065,7 @@ static void ext4_put_super(struct super_block *sb)
 		crypto_free_shash(sbi->s_chksum_driver);
 	kfree(sbi->s_blockgroup_lock);
 	fs_put_dax(sbi->s_daxdev);
-<<<<<<< Updated upstream
-=======
 	fscrypt_free_dummy_context(&sbi->s_dummy_enc_ctx);
->>>>>>> Stashed changes
 #ifdef CONFIG_UNICODE
 	utf8_unload(sb->s_encoding);
 #endif
@@ -1795,11 +1792,7 @@ static const struct mount_opts {
 	{Opt_jqfmt_vfsv0, QFMT_VFS_V0, MOPT_QFMT},
 	{Opt_jqfmt_vfsv1, QFMT_VFS_V1, MOPT_QFMT},
 	{Opt_max_dir_size_kb, 0, MOPT_GTE0},
-<<<<<<< Updated upstream
-	{Opt_test_dummy_encryption, 0, MOPT_GTE0},
-=======
 	{Opt_test_dummy_encryption, 0, MOPT_STRING},
->>>>>>> Stashed changes
 #ifdef CONFIG_FS_ENCRYPTION_INLINE_CRYPT
 	{Opt_inlinecrypt, EXT4_MOUNT_INLINECRYPT, MOPT_SET},
 #else
@@ -1839,8 +1832,6 @@ static int ext4_sb_read_encoding(const struct ext4_super_block *es,
 }
 #endif
 
-<<<<<<< Updated upstream
-=======
 static int ext4_set_test_dummy_encryption(struct super_block *sb,
 					  const char *opt,
 					  const substring_t *arg,
@@ -1883,7 +1874,6 @@ static int ext4_set_test_dummy_encryption(struct super_block *sb,
 	return 1;
 }
 
->>>>>>> Stashed changes
 static int handle_mount_opt(struct super_block *sb, char *opt, int token,
 			    substring_t *args, unsigned long *journal_devnum,
 			    unsigned int *journal_ioprio, int is_remount)
@@ -3984,15 +3974,6 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 		struct unicode_map *encoding;
 		__u16 encoding_flags;
 
-<<<<<<< Updated upstream
-		if (ext4_has_feature_encrypt(sb)) {
-			ext4_msg(sb, KERN_ERR,
-				 "Can't mount with encoding and encryption");
-			goto failed_mount;
-		}
-
-=======
->>>>>>> Stashed changes
 		if (ext4_sb_read_encoding(es, &encoding_info,
 					  &encoding_flags)) {
 			ext4_msg(sb, KERN_ERR,

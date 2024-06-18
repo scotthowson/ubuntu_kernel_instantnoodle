@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2012-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #define CREATE_TRACE_POINTS
@@ -34,11 +30,6 @@ int msm_vidc_err_recovery_disable = !1;
 	atomic_read(&__binfo->ref_count) >= 2 ? "video driver" : "firmware";\
 })
 
-<<<<<<< Updated upstream
-struct log_cookie ctxt[MAX_SUPPORTED_INSTANCES];
-
-=======
->>>>>>> Stashed changes
 struct core_inst_pair {
 	struct msm_vidc_core *core;
 	struct msm_vidc_inst *inst;
@@ -626,11 +617,7 @@ int get_sid(u32 *sid, u32 session_type)
 		}
 	}
 
-<<<<<<< Updated upstream
-	return (i == MAX_SUPPORTED_INSTANCES);
-=======
 	return (i == vidc_driver->num_ctxt);
->>>>>>> Stashed changes
 }
 
 inline void update_log_ctxt(u32 sid, u32 session_type, u32 fourcc)

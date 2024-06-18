@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2016-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2016-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include <linux/clk.h>
@@ -1609,17 +1605,10 @@ void geni_se_dump_dbg_regs(struct se_geni_rsc *rsc, void __iomem *base,
 	geni_dma_tx_irq_en = geni_read_reg(base, SE_DMA_TX_IRQ_EN);
 	geni_dma_rx_irq_en = geni_read_reg(base, SE_DMA_RX_IRQ_EN);
 
-<<<<<<< Updated upstream
-	GENI_SE_DBG(ipc, false, NULL,
-	"%s: m_cmd0:0x%x, m_irq_status:0x%x, s_irq_status:0x%x, geni_status:0x%x, geni_ios:0x%x\n",
-	__func__, m_cmd0, m_irq_status, s_irq_status, geni_status, geni_ios);
-	GENI_SE_DBG(ipc, false, NULL,
-=======
 	GENI_SE_DBG(ipc, true, rsc->ctrl_dev,
 	"%s: m_cmd0:0x%x, m_irq_status:0x%x, s_irq_status:0x%x, geni_status:0x%x, geni_ios:0x%x\n",
 	__func__, m_cmd0, m_irq_status, s_irq_status, geni_status, geni_ios);
 	GENI_SE_DBG(ipc, true, rsc->ctrl_dev,
->>>>>>> Stashed changes
 	"dma_rx_irq:0x%x, dma_tx_irq:0x%x, rx_fifo_sts:0x%x, tx_fifo_sts:0x%x\n"
 	, dma_rx_irq, dma_tx_irq, rx_fifo_status, tx_fifo_status);
 	GENI_SE_DBG(ipc, true, rsc->ctrl_dev,

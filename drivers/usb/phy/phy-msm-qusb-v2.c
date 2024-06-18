@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2014-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2014-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include <linux/module.h>
@@ -523,12 +519,7 @@ static void qusb_phy_host_init(struct usb_phy *phy)
 			qphy->host_init_seq_len, 0);
 
 	if (qphy->efuse_reg) {
-<<<<<<< Updated upstream
-		if (!qphy->tune_val)
-			qusb_phy_get_tune1_param(qphy);
-=======
 		qusb_phy_get_tune1_param(qphy);
->>>>>>> Stashed changes
 	} else {
 		/* For non fused chips we need to write the TUNE1 param as
 		 * specified in DT otherwise we will end up writing 0 to
@@ -629,12 +620,7 @@ static int qusb_phy_init(struct usb_phy *phy)
 		qusb_phy_write_seq(qphy->base, qphy->qusb_phy_init_seq,
 				qphy->init_seq_len, 0);
 	if (qphy->efuse_reg) {
-<<<<<<< Updated upstream
-		if (!qphy->tune_val)
-			qusb_phy_get_tune1_param(qphy);
-=======
 		qusb_phy_get_tune1_param(qphy);
->>>>>>> Stashed changes
 
 		pr_debug("%s(): Programming TUNE1 parameter as:%x\n", __func__,
 				qphy->tune_val);

@@ -20,8 +20,6 @@ ifeq ($(KERNEL_BUILD), 0)
 		export
 		INCS    +=  -include $(AUDIO_ROOT)/config/sdm660autoconf.h
 	endif
-<<<<<<< Updated upstream
-=======
 	ifeq ($(CONFIG_ARCH_SDM450), y)
 		include $(AUDIO_ROOT)/config/sdm450auto.conf
 		export
@@ -37,7 +35,6 @@ ifeq ($(KERNEL_BUILD), 0)
 		export
 		INCS    +=  -include $(AUDIO_ROOT)/config/sdm450autoconf.h
 	endif
->>>>>>> Stashed changes
 endif
 
 # As per target team, build is done as follows:
@@ -76,13 +73,10 @@ ifdef CONFIG_SND_SOC_DIGITAL_CDC
 	DIGITAL_CDC_OBJS += msm-digital-cdc.o
 	DIGITAL_CDC_OBJS += msm-digital-cdc-regmap.o
 endif
-<<<<<<< Updated upstream
-=======
 ifdef CONFIG_SND_SOC_DIGITAL_CDC_LEGACY
 	DIGITAL_CDC_OBJS += msm-digital-cdc-legacy.o
 	DIGITAL_CDC_OBJS += msm-digital-cdc-legacy-regmap.o
 endif
->>>>>>> Stashed changes
 LINUX_INC +=	-Iinclude/linux
 
 INCS +=		$(COMMON_INC) \
@@ -136,10 +130,5 @@ analog_cdc_dlkm-y := $(ANALOG_CDC_OBJS)
 obj-$(CONFIG_SND_SOC_DIGITAL_CDC) += digital_cdc_dlkm.o
 digital_cdc_dlkm-y := $(DIGITAL_CDC_OBJS)
 
-<<<<<<< Updated upstream
-# inject some build related information
-DEFINES += -DBUILD_TIMESTAMP=\"$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')\"
-=======
 obj-$(CONFIG_SND_SOC_DIGITAL_CDC_LEGACY) += digital_cdc_dlkm.o
 digital_cdc_dlkm-y := $(DIGITAL_CDC_OBJS)
->>>>>>> Stashed changes

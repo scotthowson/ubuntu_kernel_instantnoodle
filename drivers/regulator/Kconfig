@@ -1065,8 +1065,6 @@ config REGULATOR_MEM_ACC
 	  controls delays applied for memory accesses.  This driver
 	  configures the power-mode(corner) for the memory accelerator.
 
-<<<<<<< Updated upstream
-=======
 config REGULATOR_CPR
 	bool "RBCPR regulator driver for APC"
 	depends on OF
@@ -1077,7 +1075,6 @@ config REGULATOR_CPR
 	  to voltage value before writing to a voltage regulator API, such as
 	  that provided by spm-regulator driver.
 
->>>>>>> Stashed changes
 config REGULATOR_CPR3
 	bool "CPR3 regulator core support"
 	help

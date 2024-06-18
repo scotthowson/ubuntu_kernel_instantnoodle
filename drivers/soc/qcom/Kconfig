@@ -816,8 +816,6 @@ config QTI_L2_REUSE
 	  to let the power collapsed cluster's L2 cache usage by the active
 	  cluster cpu. Use sysfs interface to control enabling this feature.
 
-<<<<<<< Updated upstream
-=======
 config QCOM_DCC
 	bool "QCOM Data Capture and Compare engine support"
 	help
@@ -825,7 +823,6 @@ config QCOM_DCC
 	  driver provides interface to configure DCC block and read back
 	  captured data from DCC's internal SRAM.
 
->>>>>>> Stashed changes
 config QTI_RPM_STATS_LOG
 	bool "Qualcomm Technologies RPM Stats Driver"
 	depends on QCOM_RPMH || MSM_RPM_SMD
@@ -834,14 +831,6 @@ config QTI_RPM_STATS_LOG
 	  memory location. These messages provide statistical information about
 	  the low power modes that RPM enters. The drivers outputs the message
 	  via a sysfs node.
-
-config RPMH_MODEM_SLEEPINFO_BUFFER
-	bool 'modem sleepinfo backup support'
-	default y
-	help
-	  This option enables support for the function that make a buffer of
-	  modem subsystem sleep info.
-	  If unsure, say `N'.
 
 config QTI_DDR_STATS_LOG
 	tristate "Qualcomm Technologies Inc (QTI) DDR Stats Driver"
@@ -932,8 +921,6 @@ config QTI_CRYPTO_TZ
 	 performing hardware based file encryption. This means keys are
 	 programmed and managed through SCM calls to TZ where ICE driver
 	 will configure keys.
-<<<<<<< Updated upstream
-=======
 
 config MSM_BAM_DMUX
 	bool "BAM Data Mux Driver"
@@ -944,7 +931,6 @@ config MSM_BAM_DMUX
 	 provides a means to support more logical channels
 	 via muxing than BAM could without muxing.
 
->>>>>>> Stashed changes
 endmenu
 
 config QCOM_HYP_CORE_CTL

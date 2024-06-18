@@ -1351,11 +1351,8 @@ static int b53_arl_op(struct b53_device *dev, int op, int port,
 		return ret;
 
 	switch (ret) {
-<<<<<<< Updated upstream
-=======
 	case -ETIMEDOUT:
 		return ret;
->>>>>>> Stashed changes
 	case -ENOSPC:
 		dev_dbg(dev->dev, "{%pM,%.4d} no space left in ARL\n",
 			addr, vid);

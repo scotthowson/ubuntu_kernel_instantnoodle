@@ -18,19 +18,12 @@
 #include <linux/uaccess.h>
 #include <linux/soc/qcom/smem.h>
 #include <asm/arch_timer.h>
-<<<<<<< Updated upstream
-#include <linux/debugfs.h>
-#include <linux/kobject.h>
-#include <linux/sysfs.h>
-=======
->>>>>>> Stashed changes
 #include "rpmh_master_stat.h"
 
 #define UNIT_DIST 0x14
 #define REG_VALID 0x0
 #define REG_DATA_LO 0x4
 #define REG_DATA_HI 0x8
-#define SUBSYSTEM_COUNT 9
 
 #define GET_ADDR(REG, UNIT_NO) (REG + (UNIT_DIST * UNIT_NO))
 
@@ -128,110 +121,30 @@ static ssize_t msm_rpmh_master_stats_print_data(char *prvbuf, ssize_t length,
 			accumulated_duration);
 }
 
-<<<<<<< Updated upstream
-static bool get_pc_stats(bool start, struct msm_rpmh_master_stats *new_record, int i)
-{
-	static struct msm_rpmh_master_stats record[SUBSYSTEM_COUNT];
-
-	if (i < SUBSYSTEM_COUNT) {
-		if (start == true) {
-			record[i].counts = new_record->counts;
-			record[i].last_entered = new_record->last_entered;
-			record[i].last_exited = new_record->last_exited;
-			record[i].accumulated_duration = new_record->accumulated_duration;
-		} else {
-			if (record[i].counts == new_record->counts &&
-				new_record->last_exited > new_record->last_entered) {
-				if (i == (SUBSYSTEM_COUNT - 1))
-					pr_err("Name:APPS");
-				else {
-					pr_err("Name:%s", rpmh_masters[i].master_name);
-					panic("Because %s without entering PC", rpmh_masters[i].master_name);
-				}
-				pr_err("\tSleep Count:0x%x\n"
-						"\tSleep Last Entered At:0x%llx\n"
-						"\tSleep Last Exited At:0x%llx\n"
-						"\tSleep Accumulated Duration:0x%llx\n\n",
-						record[i].counts, record[i].last_entered,
-						record[i].last_exited,
-						new_record->accumulated_duration - record[i].accumulated_duration);
-				return false;
-			}
-		}
-	}
-
-	return true;
-}
-bool get_apps_stats(bool start)
-{
-	if (get_pc_stats(start,  &apss_master_stats, (SUBSYSTEM_COUNT - 1)) == false)
-		return false;
-
-	return true;
-}
-
-bool get_subsystem_stats(bool start)
-{
-	int i = 0;
-	size_t size = 0;
-	struct msm_rpmh_master_stats *record = NULL;
-
-	for (i = 0; i < ARRAY_SIZE(rpmh_masters); i++) {
-		if (i < (SUBSYSTEM_COUNT - 1)) {
-			record = (struct msm_rpmh_master_stats *) qcom_smem_get(
-							rpmh_masters[i].pid,
-							rpmh_masters[i].smem_id, &size);
-			if (!IS_ERR_OR_NULL(record))
-				if (get_pc_stats(start, record, i) == false)
-					return false;
-		}
-	}
-
-	return true;
-}
-
-static int rpmh_master_stats_show(struct seq_file *s, void *data)
-=======
 static ssize_t msm_rpmh_master_stats_show(struct kobject *kobj,
 				struct kobj_attribute *attr, char *buf)
->>>>>>> Stashed changes
 {
 	ssize_t length;
 	int i = 0;
 	struct msm_rpmh_master_stats *record = NULL;
 
 	mutex_lock(&rpmh_stats_mutex);
-<<<<<<< Updated upstream
-
-	/* First Read APSS master stats */
-
-	msm_rpmh_master_stats_print_data(s, &apss_master_stats,
-		"APSS");
-
-=======
 
 	/* First Read APSS master stats */
 
 	length = msm_rpmh_master_stats_print_data(buf, PAGE_SIZE,
 						&apss_master_stats, "APSS");
 
->>>>>>> Stashed changes
 	/* Read SMEM data written by other masters */
 
 	for (i = 0; i < ARRAY_SIZE(rpmh_masters); i++) {
 		record = (struct msm_rpmh_master_stats *) qcom_smem_get(
 					rpmh_masters[i].pid,
-<<<<<<< Updated upstream
-					rpmh_masters[i].smem_id, &size);
-		if (!IS_ERR_OR_NULL(record))
-			msm_rpmh_master_stats_print_data(s, record,
-=======
 					rpmh_masters[i].smem_id, NULL);
 		if (!IS_ERR_OR_NULL(record) && (PAGE_SIZE - length > 0))
 			length += msm_rpmh_master_stats_print_data(
 					buf + length, PAGE_SIZE - length,
 					record,
->>>>>>> Stashed changes
 					rpmh_masters[i].master_name);
 	}
 
@@ -281,70 +194,6 @@ void msm_rpmh_master_stats_update(void)
 	msm_rpmh_apss_master_stats_update(profile_unit);
 }
 EXPORT_SYMBOL(msm_rpmh_master_stats_update);
-
-ssize_t master_stats_show(struct kobject *kobj,
-					  struct kobj_attribute *attr, char *buf)
-{
-	int i = 0;
-	size_t size = 0;
-	struct msm_rpmh_master_stats *record = NULL;
-	char stats_buf[1024];
-	uint64_t temp_accumulated_duration = 0;
-
-	mutex_lock(&rpmh_stats_mutex);
-
-	/* First Read APSS master stats */
-
-	temp_accumulated_duration = apss_master_stats.accumulated_duration;
-
-	if (apss_master_stats.last_entered > apss_master_stats.last_exited)
-		temp_accumulated_duration +=
-				(arch_counter_get_cntvct()
-				- apss_master_stats.last_entered);
-
-	snprintf(stats_buf, sizeof(stats_buf),
-			"APSS\n\tVersion:0x%x\n"
-			"\tSleep Count:0x%x\n"
-			"\tSleep Last Entered At:0x%llx\n"
-			"\tSleep Last Exited At:0x%llx\n"
-			"\tSleep Accumulated Duration:0x%llx\n\n",
-			apss_master_stats.version_id,
-			apss_master_stats.counts, apss_master_stats.last_entered,
-			apss_master_stats.last_exited, temp_accumulated_duration);
-	/*
-	 * Read SMEM data written by masters
-	 */
-
-	for (i = 0; i < ARRAY_SIZE(rpmh_masters); i++) {
-		record = (struct msm_rpmh_master_stats *) qcom_smem_get(
-					rpmh_masters[i].pid,
-					rpmh_masters[i].smem_id, &size);
-		if (!IS_ERR_OR_NULL(record)) {
-			temp_accumulated_duration = record->accumulated_duration;
-
-			if (record->last_entered > record->last_exited)
-				temp_accumulated_duration +=
-						(arch_counter_get_cntvct()
-						- record->last_entered);
-
-			if ((sizeof(stats_buf) - strlen(stats_buf)) > 0) {
-				snprintf(stats_buf + strlen(stats_buf), sizeof(stats_buf) - strlen(stats_buf),
-					"%s\n\tVersion:0x%x\n"
-					"\tSleep Count:0x%x\n"
-					"\tSleep Last Entered At:0x%llx\n"
-					"\tSleep Last Exited At:0x%llx\n"
-					"\tSleep Accumulated Duration:0x%llx\n\n",
-					rpmh_masters[i].master_name, record->version_id,
-					record->counts, record->last_entered,
-					record->last_exited, temp_accumulated_duration);
-			}
-		}
-	}
-
-	mutex_unlock(&rpmh_stats_mutex);
-
-	return snprintf(buf, sizeof(stats_buf), "%s", stats_buf);
-}
 
 static int msm_rpmh_master_stats_probe(struct platform_device *pdev)
 {

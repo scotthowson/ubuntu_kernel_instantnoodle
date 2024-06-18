@@ -27,11 +27,7 @@
 #include <linux/of_device.h>
 #include <soc/qcom/scm.h>
 
-<<<<<<< Updated upstream
-enum common_ev_idx {
-=======
 enum ev_index {
->>>>>>> Stashed changes
 	INST_IDX,
 	CM_IDX,
 	CYC_IDX,
@@ -52,99 +48,12 @@ struct cpu_pmu_stats {
 	ktime_t prev_ts;
 };
 
-<<<<<<< Updated upstream
-/**
- * struct memlat_mon - A specific consumer of cpu_grp generic counters.
- *
- * @is_active:			Whether or not this mon is currently running
- *				memlat.
- * @cpus:			CPUs this mon votes on behalf of. Must be a
- *				subset of @cpu_grp's CPUs. If no CPUs provided,
- *				defaults to using all of @cpu_grp's CPUs.
- * @miss_ev_id:			The event code corresponding to the @miss_ev
- *				perf event. Will be 0 for compute.
- * @access_ev_id:		The event code corresponding to the @access_ev
- *				perf event. Optional - only needed for writeback
- *				percent.
- * @wb_ev_id:			The event code corresponding to the @wb_ev perf
- *				event. Optional - only needed for writeback
- *				percent.
- * @miss_ev:			The cache miss perf event exclusive to this
- *				mon. Will be NULL for compute.
- * @access_ev:			The cache access perf event exclusive to this
- *				mon. Optional - only needed for writeback
- *				percent.
- * @wb_ev:			The cache writeback perf event exclusive to this
- *				mon. Optional - only needed for writeback
- *				percent.
- * @requested_update_ms:	The mon's desired polling rate. The lowest
- *				@requested_update_ms of all mons determines
- *				@cpu_grp's update_ms.
- * @hw:				The memlat_hwmon struct corresponding to this
- *				mon's specific memlat instance.
- * @cpu_grp:			The cpu_grp who owns this mon.
- */
-struct memlat_mon {
-	bool			is_active;
-	cpumask_t		cpus;
-	unsigned int		miss_ev_id;
-	unsigned int		access_ev_id;
-	unsigned int		wb_ev_id;
-	unsigned int		requested_update_ms;
-	struct event_data	*miss_ev;
-	struct event_data	*access_ev;
-	struct event_data	*wb_ev;
-	struct memlat_hwmon	hw;
-
-	struct memlat_cpu_grp	*cpu_grp;
-};
-
-/**
- * struct memlat_cpu_grp - A coordinator of both HW reads and devfreq updates
- * for one or more memlat_mons.
- *
- * @cpus:			The CPUs this cpu_grp will read events from.
- * @common_ev_ids:		The event codes of the events all mons need.
- * @cpus_data:			The cpus data array of length #cpus. Includes
- *				event_data of all the events all mons need as
- *				well as common computed cpu data like freq.
- * @last_update_ts:		Used to avoid redundant reads.
- * @last_ts_delta_us:		The time difference between the most recent
- *				update and the one before that. Used to compute
- *				effective frequency.
- * @work:			The delayed_work used for handling updates.
- * @update_ms:			The frequency with which @work triggers.
- * @num_mons:		The number of @mons for this cpu_grp.
- * @num_inited_mons:	The number of @mons who have probed.
- * @num_active_mons:	The number of @mons currently running
- *				memlat.
- * @mons:			All of the memlat_mon structs representing
- *				the different voters who share this cpu_grp.
- * @mons_lock:		A lock used to protect the @mons.
- */
-struct memlat_cpu_grp {
-	cpumask_t		cpus;
-	unsigned int		common_ev_ids[NUM_COMMON_EVS];
-	struct cpu_data		*cpus_data;
-	ktime_t			last_update_ts;
-	unsigned long		last_ts_delta_us;
-
-	struct delayed_work	work;
-	unsigned int		update_ms;
-
-	unsigned int		num_mons;
-	unsigned int		num_inited_mons;
-	unsigned int		num_active_mons;
-	struct memlat_mon	*mons;
-	struct mutex		mons_lock;
-=======
 struct cpu_grp_info {
 	cpumask_t cpus;
 	unsigned long any_cpu_ev_mask;
 	unsigned int event_ids[NUM_EVENTS];
 	struct cpu_pmu_stats *cpustats;
 	struct memlat_hwmon hw;
->>>>>>> Stashed changes
 };
 
 struct memlat_mon_spec {
@@ -218,18 +127,6 @@ static void read_evs_ipi(void *info)
 
 	read_perf_counters(ipd, cpu);
 
-<<<<<<< Updated upstream
-		for_each_cpu(cpu, &mon->cpus) {
-			unsigned int mon_idx =
-				cpu - cpumask_first(&mon->cpus);
-			read_event(&mon->miss_ev[mon_idx]);
-
-			if (mon->wb_ev_id && mon->access_ev_id) {
-				read_event(&mon->wb_ev[mon_idx]);
-				read_event(&mon->access_ev[mon_idx]);
-			}
-		}
-=======
 	/*
 	 * Wake up the waiter task if we're the final CPU. The ipi_data pointer
 	 * isn't safe to dereference once cpus_left reaches zero, so the waiter
@@ -278,7 +175,6 @@ static void compute_perf_counters(struct ipi_data *ipd, int cpu)
 		devstats->stall_pct = mult_frac(100, stall_cnt, cyc_cnt);
 	} else {
 		devstats->stall_pct = 100;
->>>>>>> Stashed changes
 	}
 }
 
@@ -293,26 +189,6 @@ static unsigned long get_cnt(struct memlat_hwmon *hw)
 	ipd.waiter_task = current;
 	ipd.cpu_grp = cpu_grp;
 
-<<<<<<< Updated upstream
-		devstats->freq = cpu_data->freq;
-		devstats->stall_pct = cpu_data->stall_pct;
-		devstats->inst_count = common_evs[INST_IDX].last_delta;
-
-		if (mon->miss_ev)
-			devstats->mem_count =
-				mon->miss_ev[mon_idx].last_delta;
-		else {
-			devstats->inst_count = 0;
-			devstats->mem_count = 1;
-		}
-
-		if (mon->access_ev_id && mon->wb_ev_id)
-			devstats->wb_pct =
-				mult_frac(100, mon->wb_ev[mon_idx].last_delta,
-					  mon->access_ev[mon_idx].last_delta);
-		else
-			devstats->wb_pct = 0;
-=======
 	/* Dispatch asynchronous IPIs to each CPU to read the perf events */
 	cpus_read_lock();
 	migrate_disable();
@@ -329,7 +205,6 @@ static unsigned long get_cnt(struct memlat_hwmon *hw)
 		if (under_scm_call(cpu) ||
 		    generic_exec_single(cpu, &csd[cpu], read_evs_ipi, &ipd))
 			cpus_read_mask &= ~BIT(cpu);
->>>>>>> Stashed changes
 	}
 	cpus_read_unlock();
 	/* Read this CPU's events while the IPIs run */
@@ -462,133 +337,17 @@ static int start_hwmon(struct memlat_hwmon *hw)
 	int cpu, ret = 0;
 	struct cpu_grp_info *cpu_grp = to_cpu_grp(hw);
 
-<<<<<<< Updated upstream
-	if (!attr)
-		return -ENOMEM;
-
-	mutex_lock(&cpu_grp->mons_lock);
-	should_init_cpu_grp = !(cpu_grp->num_active_mons++);
-	if (should_init_cpu_grp) {
-		ret = init_common_evs(cpu_grp, attr);
-		if (ret)
-			goto unlock_out;
-
-		INIT_DEFERRABLE_WORK(&cpu_grp->work, &memlat_monitor_work);
-	}
-
-	if (mon->miss_ev) {
-		for_each_cpu(cpu, &mon->cpus) {
-			unsigned int idx = cpu - cpumask_first(&mon->cpus);
-
-			ret = set_event(&mon->miss_ev[idx], cpu,
-					mon->miss_ev_id, attr);
-			if (ret)
-				goto unlock_out;
-
-			if (mon->access_ev_id && mon->wb_ev_id) {
-				ret = set_event(&mon->access_ev[idx], cpu,
-						mon->access_ev_id, attr);
-				if (ret)
-					goto unlock_out;
-
-				ret = set_event(&mon->wb_ev[idx], cpu,
-						mon->wb_ev_id, attr);
-				if (ret)
-					goto unlock_out;
-			}
-=======
 	for_each_cpu(cpu, &cpu_grp->cpus) {
 		ret = set_events(cpu_grp, cpu);
 		if (ret) {
 			pr_warn("Perf event init failed on CPU%d\n", cpu);
 			break;
->>>>>>> Stashed changes
 		}
 	}
 
 	return ret;
 }
 
-<<<<<<< Updated upstream
-static void stop_hwmon(struct memlat_hwmon *hw)
-{
-	unsigned int cpu;
-	struct memlat_mon *mon = to_mon(hw);
-	struct memlat_cpu_grp *cpu_grp = mon->cpu_grp;
-
-	mutex_lock(&cpu_grp->mons_lock);
-	mon->is_active = false;
-	cpu_grp->num_active_mons--;
-
-	for_each_cpu(cpu, &mon->cpus) {
-		unsigned int idx = cpu - cpumask_first(&mon->cpus);
-		struct dev_stats *devstats = to_devstats(mon, cpu);
-
-		if (mon->miss_ev)
-			delete_event(&mon->miss_ev[idx]);
-		devstats->inst_count = 0;
-		devstats->mem_count = 0;
-		devstats->freq = 0;
-		devstats->stall_pct = 0;
-		devstats->wb_pct = 0;
-	}
-
-	if (!cpu_grp->num_active_mons) {
-		cancel_delayed_work(&cpu_grp->work);
-		free_common_evs(cpu_grp);
-	}
-	mutex_unlock(&cpu_grp->mons_lock);
-}
-
-/**
- * We should set update_ms to the lowest requested_update_ms of all of the
- * active mons, or 0 (i.e. stop polling) if ALL active mons have 0.
- * This is expected to be called with cpu_grp->mons_lock taken.
- */
-static void set_update_ms(struct memlat_cpu_grp *cpu_grp)
-{
-	struct memlat_mon *mon;
-	unsigned int i, new_update_ms = UINT_MAX;
-
-	for (i = 0; i < cpu_grp->num_mons; i++) {
-		mon = &cpu_grp->mons[i];
-		if (mon->is_active && mon->requested_update_ms)
-			new_update_ms =
-				min(new_update_ms, mon->requested_update_ms);
-	}
-
-	if (new_update_ms == UINT_MAX) {
-		cancel_delayed_work(&cpu_grp->work);
-	} else if (cpu_grp->update_ms == UINT_MAX) {
-		queue_delayed_work(memlat_wq, &cpu_grp->work,
-				   msecs_to_jiffies(new_update_ms));
-	} else if (new_update_ms > cpu_grp->update_ms) {
-		cancel_delayed_work(&cpu_grp->work);
-		queue_delayed_work(memlat_wq, &cpu_grp->work,
-				   msecs_to_jiffies(new_update_ms));
-	}
-
-	cpu_grp->update_ms = new_update_ms;
-}
-
-static void request_update_ms(struct memlat_hwmon *hw, unsigned int update_ms)
-{
-	struct devfreq *df = hw->df;
-	struct memlat_mon *mon = to_mon(hw);
-	struct memlat_cpu_grp *cpu_grp = mon->cpu_grp;
-
-	mutex_lock(&df->lock);
-	df->profile->polling_ms = update_ms;
-	mutex_unlock(&df->lock);
-
-	mutex_lock(&cpu_grp->mons_lock);
-	mon->requested_update_ms = update_ms;
-	set_update_ms(cpu_grp);
-	mutex_unlock(&cpu_grp->mons_lock);
-}
-
-=======
->>>>>>> Stashed changes
 static int get_mask_from_dev_handle(struct platform_device *pdev,
 					cpumask_t *mask)
 {
@@ -720,155 +479,6 @@ static int arm_memlat_mon_driver_probe(struct platform_device *pdev)
 	if (ret)
 		pr_err("Mem Latency Gov registration failed\n");
 
-<<<<<<< Updated upstream
-	mutex_init(&cpu_grp->mons_lock);
-	cpu_grp->update_ms = DEFAULT_UPDATE_MS;
-
-	dev_set_drvdata(dev, cpu_grp);
-
-	return 0;
-}
-
-static int memlat_mon_probe(struct platform_device *pdev, bool is_compute)
-{
-	struct device *dev = &pdev->dev;
-	int ret = 0;
-	struct memlat_cpu_grp *cpu_grp;
-	struct memlat_mon *mon;
-	struct memlat_hwmon *hw;
-	unsigned int event_id, num_cpus, cpu;
-
-	if (!memlat_wq)
-		memlat_wq = create_freezable_workqueue("memlat_wq");
-
-	if (!memlat_wq) {
-		dev_err(dev, "Couldn't create memlat workqueue.\n");
-		return -ENOMEM;
-	}
-
-	cpu_grp = dev_get_drvdata(dev->parent);
-	if (!cpu_grp) {
-		dev_err(dev, "Mon initialized without cpu_grp.\n");
-		return -ENODEV;
-	}
-
-	mutex_lock(&cpu_grp->mons_lock);
-	mon = &cpu_grp->mons[cpu_grp->num_inited_mons];
-	mon->is_active = false;
-	mon->requested_update_ms = 0;
-	mon->cpu_grp = cpu_grp;
-
-	if (get_mask_from_dev_handle(pdev, &mon->cpus)) {
-		cpumask_copy(&mon->cpus, &cpu_grp->cpus);
-	} else {
-		if (!cpumask_subset(&mon->cpus, &cpu_grp->cpus)) {
-			dev_err(dev,
-				"Mon CPUs must be a subset of cpu_grp CPUs. mon=%*pbl cpu_grp=%*pbl\n",
-				mon->cpus, cpu_grp->cpus);
-			ret = -EINVAL;
-			goto unlock_out;
-		}
-	}
-
-	num_cpus = cpumask_weight(&mon->cpus);
-
-	hw = &mon->hw;
-	hw->of_node = of_parse_phandle(dev->of_node, "qcom,target-dev", 0);
-	if (!hw->of_node) {
-		dev_err(dev, "Couldn't find a target device.\n");
-		ret = -ENODEV;
-		goto unlock_out;
-	}
-	hw->dev = dev;
-	hw->num_cores = num_cpus;
-	hw->should_ignore_df_monitor = true;
-	hw->core_stats = devm_kzalloc(dev, num_cpus * sizeof(*(hw->core_stats)),
-				      GFP_KERNEL);
-	if (!hw->core_stats) {
-		ret = -ENOMEM;
-		goto unlock_out;
-	}
-
-	for_each_cpu(cpu, &mon->cpus)
-		to_devstats(mon, cpu)->id = cpu;
-
-	hw->start_hwmon = &start_hwmon;
-	hw->stop_hwmon = &stop_hwmon;
-	hw->get_cnt = &get_cnt;
-	if (of_get_child_count(dev->of_node))
-		hw->get_child_of_node = &parse_child_nodes;
-	hw->request_update_ms = &request_update_ms;
-
-	/*
-	 * Compute mons rely solely on common events.
-	 */
-	if (is_compute) {
-		mon->miss_ev_id = 0;
-		mon->access_ev_id = 0;
-		mon->wb_ev_id = 0;
-		ret = register_compute(dev, hw);
-	} else {
-		mon->miss_ev =
-			devm_kzalloc(dev, num_cpus * sizeof(*mon->miss_ev),
-				     GFP_KERNEL);
-		if (!mon->miss_ev) {
-			ret = -ENOMEM;
-			goto unlock_out;
-		}
-
-		ret = of_property_read_u32(dev->of_node, "qcom,cachemiss-ev",
-						&event_id);
-		if (ret) {
-			dev_err(dev, "Cache miss event missing for mon: %d\n",
-					ret);
-			ret = -EINVAL;
-			goto unlock_out;
-		}
-		mon->miss_ev_id = event_id;
-
-		ret = of_property_read_u32(dev->of_node, "qcom,access-ev",
-					   &event_id);
-		if (ret)
-			dev_dbg(dev, "Access event not specified. Skipping.\n");
-		else
-			mon->access_ev_id = event_id;
-
-		ret = of_property_read_u32(dev->of_node, "qcom,wb-ev",
-					   &event_id);
-		if (ret)
-			dev_dbg(dev, "WB event not specified. Skipping.\n");
-		else
-			mon->wb_ev_id = event_id;
-
-		if (mon->wb_ev_id && mon->access_ev_id) {
-			mon->access_ev =
-				devm_kzalloc(dev, num_cpus *
-					     sizeof(*mon->access_ev),
-					     GFP_KERNEL);
-			if (!mon->access_ev) {
-				ret = -ENOMEM;
-				goto unlock_out;
-			}
-
-			mon->wb_ev =
-				devm_kzalloc(dev, num_cpus *
-					     sizeof(*mon->wb_ev), GFP_KERNEL);
-			if (!mon->wb_ev) {
-				ret = -ENOMEM;
-				goto unlock_out;
-			}
-		}
-
-		ret = register_memlat(dev, hw);
-	}
-
-	if (!ret)
-		cpu_grp->num_inited_mons++;
-
-unlock_out:
-	mutex_unlock(&cpu_grp->mons_lock);
-=======
->>>>>>> Stashed changes
 	return ret;
 }
 

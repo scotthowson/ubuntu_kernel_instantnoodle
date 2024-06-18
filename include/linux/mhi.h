@@ -16,11 +16,6 @@ struct mhi_sfr_info;
 
 #define REG_WRITE_QUEUE_LEN 1024
 
-<<<<<<< Updated upstream
-#define SFR_BUF_SIZE 256
-
-=======
->>>>>>> Stashed changes
 /**
  * enum MHI_CB - MHI callback
  * @MHI_CB_IDLE: MHI entered idle state
@@ -621,10 +616,7 @@ int mhi_device_get_sync(struct mhi_device *mhi_dev, int vote);
  * mhi_device_get_sync_atomic - Asserts device_wait and moves device to M0
  * @mhi_dev: Device associated with the channels
  * @timeout_us: timeout, in micro-seconds
-<<<<<<< Updated upstream
-=======
  * @in_panic: If requested while kernel is in panic state and no ISRs expected
->>>>>>> Stashed changes
  *
  * The device_wake is asserted to keep device in M0 or bring it to M0.
  * If device is not in M0 state, then this function will wait for device to
@@ -636,11 +628,8 @@ int mhi_device_get_sync(struct mhi_device *mhi_dev, int vote);
  * Clients can ignore that transition after this function returns as the device
  * is expected to immediately  move from M2 to M0 as wake is asserted and
  * wouldn't enter low power state.
-<<<<<<< Updated upstream
-=======
  * If in_panic boolean is set, no ISRs are expected, hence this API will have to
  * resort to reading the MHI status register and poll on M0 state change.
->>>>>>> Stashed changes
  *
  * Returns:
  * 0 if operation was successful (however, M0 -> M2 -> M0 is possible later) as
@@ -824,23 +813,6 @@ int mhi_force_rddm_mode(struct mhi_controller *mhi_cntrl);
  * @mhi_cntrl: MHI controller
  */
 void mhi_dump_sfr(struct mhi_controller *mhi_cntrl);
-
-/**
- * mhi_get_remote_time - Get external modem time relative to host time
- * Trigger event to capture modem time, also capture host time so client
- * can do a relative drift comparision.
- * Recommended only tsync device calls this method and do not call this
- * from atomic context
- * @mhi_dev: Device associated with the channels
- * @sequence:unique sequence id track event
- * @cb_func: callback function to call back
- */
-int mhi_get_remote_time(struct mhi_device *mhi_dev,
-			u32 sequence,
-			void (*cb_func)(struct mhi_device *mhi_dev,
-					u32 sequence,
-					u64 local_time,
-					u64 remote_time));
 
 /**
  * mhi_get_remote_time - Get external modem time relative to host time

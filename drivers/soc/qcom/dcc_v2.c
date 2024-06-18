@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2015-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2015-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include <linux/module.h>
@@ -1871,13 +1867,10 @@ static int dcc_probe(struct platform_device *pdev)
 			sizeof(uint32_t), GFP_KERNEL);
 	if (!drvdata->nr_config)
 		return -ENOMEM;
-<<<<<<< Updated upstream
-=======
 	drvdata->cti_trig = devm_kzalloc(dev, drvdata->nr_link_list *
 			sizeof(uint8_t), GFP_KERNEL);
 	if (!drvdata->cti_trig)
 		return -ENOMEM;
->>>>>>> Stashed changes
 	drvdata->cfg_head = devm_kzalloc(dev, drvdata->nr_link_list *
 			sizeof(struct list_head), GFP_KERNEL);
 	if (!drvdata->cfg_head)
@@ -1902,10 +1895,7 @@ static int dcc_probe(struct platform_device *pdev)
 
 	dcc_configure_list(drvdata, pdev->dev.of_node);
 
-<<<<<<< Updated upstream
-=======
 	/* Add dcc info to minidump table */
->>>>>>> Stashed changes
 	strlcpy(md_entry.name, "KDCCDATA", sizeof(md_entry.name));
 	md_entry.virt_addr = (uintptr_t)drvdata->ram_base;
 	md_entry.phys_addr = res->start;

@@ -61,77 +61,28 @@ struct merkle_tree_params {
 	u64 level_start[FS_VERITY_MAX_LEVELS];
 };
 
-<<<<<<< Updated upstream
-/**
-=======
 /*
->>>>>>> Stashed changes
  * fsverity_info - cached verity metadata for an inode
  *
  * When a verity file is first opened, an instance of this struct is allocated
  * and stored in ->i_verity_info; it remains until the inode is evicted.  It
  * caches information about the Merkle tree that's needed to efficiently verify
-<<<<<<< Updated upstream
- * data read from the file.  It also caches the file measurement.  The Merkle
- * tree pages themselves are not cached here, but the filesystem may cache them.
-=======
  * data read from the file.  It also caches the file digest.  The Merkle tree
  * pages themselves are not cached here, but the filesystem may cache them.
->>>>>>> Stashed changes
  */
 struct fsverity_info {
 	struct merkle_tree_params tree_params;
 	u8 root_hash[FS_VERITY_MAX_DIGEST_SIZE];
-<<<<<<< Updated upstream
-	u8 measurement[FS_VERITY_MAX_DIGEST_SIZE];
-	const struct inode *inode;
-};
-
-/*
- * Merkle tree properties.  The file measurement is the hash of this structure
- * excluding the signature and with the sig_size field set to 0.
- */
-struct fsverity_descriptor {
-	__u8 version;		/* must be 1 */
-	__u8 hash_algorithm;	/* Merkle tree hash algorithm */
-	__u8 log_blocksize;	/* log2 of size of data and tree blocks */
-	__u8 salt_size;		/* size of salt in bytes; 0 if none */
-	__le32 sig_size;	/* size of signature in bytes; 0 if none */
-	__le64 data_size;	/* size of file the Merkle tree is built over */
-	__u8 root_hash[64];	/* Merkle tree root hash */
-	__u8 salt[32];		/* salt prepended to each hashed block */
-	__u8 __reserved[144];	/* must be 0's */
-	__u8 signature[];	/* optional PKCS#7 signature */
-};
-
-=======
 	u8 file_digest[FS_VERITY_MAX_DIGEST_SIZE];
 	const struct inode *inode;
 };
 
->>>>>>> Stashed changes
 /* Arbitrary limit to bound the kmalloc() size.  Can be changed. */
 #define FS_VERITY_MAX_DESCRIPTOR_SIZE	16384
 
 #define FS_VERITY_MAX_SIGNATURE_SIZE	(FS_VERITY_MAX_DESCRIPTOR_SIZE - \
 					 sizeof(struct fsverity_descriptor))
 
-<<<<<<< Updated upstream
-/*
- * Format in which verity file measurements are signed.  This is the same as
- * 'struct fsverity_digest', except here some magic bytes are prepended to
- * provide some context about what is being signed in case the same key is used
- * for non-fsverity purposes, and here the fields have fixed endianness.
- */
-struct fsverity_signed_digest {
-	char magic[8];			/* must be "FSVerity" */
-	__le16 digest_algorithm;
-	__le16 digest_size;
-	__u8 digest[];
-};
-
-=======
->>>>>>> Stashed changes
 /* hash_algs.c */
 
 extern struct fsverity_hash_alg fsverity_hash_algs[];
@@ -153,11 +104,7 @@ void __init fsverity_check_hash_algs(void);
 
 /* init.c */
 
-<<<<<<< Updated upstream
-extern void __printf(3, 4) __cold
-=======
 void __printf(3, 4) __cold
->>>>>>> Stashed changes
 fsverity_msg(const struct inode *inode, const char *level,
 	     const char *fmt, ...);
 
@@ -175,24 +122,17 @@ int fsverity_init_merkle_tree_params(struct merkle_tree_params *params,
 				     const u8 *salt, size_t salt_size);
 
 struct fsverity_info *fsverity_create_info(const struct inode *inode,
-<<<<<<< Updated upstream
-					   void *desc, size_t desc_size);
-=======
 					   struct fsverity_descriptor *desc,
 					   size_t desc_size);
->>>>>>> Stashed changes
 
 void fsverity_set_info(struct inode *inode, struct fsverity_info *vi);
 
 void fsverity_free_info(struct fsverity_info *vi);
 
-<<<<<<< Updated upstream
-=======
 int fsverity_get_descriptor(struct inode *inode,
 			    struct fsverity_descriptor **desc_ret,
 			    size_t *desc_size_ret);
 
->>>>>>> Stashed changes
 int __init fsverity_init_info_cache(void);
 void __init fsverity_exit_info_cache(void);
 
@@ -200,23 +140,13 @@ void __init fsverity_exit_info_cache(void);
 
 #ifdef CONFIG_FS_VERITY_BUILTIN_SIGNATURES
 int fsverity_verify_signature(const struct fsverity_info *vi,
-<<<<<<< Updated upstream
-			      const struct fsverity_descriptor *desc,
-			      size_t desc_size);
-=======
 			      const u8 *signature, size_t sig_size);
->>>>>>> Stashed changes
 
 int __init fsverity_init_signature(void);
 #else /* !CONFIG_FS_VERITY_BUILTIN_SIGNATURES */
 static inline int
 fsverity_verify_signature(const struct fsverity_info *vi,
-<<<<<<< Updated upstream
-			  const struct fsverity_descriptor *desc,
-			  size_t desc_size)
-=======
 			  const u8 *signature, size_t sig_size)
->>>>>>> Stashed changes
 {
 	return 0;
 }

@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2016-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2016-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include <linux/completion.h>
@@ -426,11 +422,8 @@ struct usbpd {
 	bool			peer_usb_comm;
 	bool			peer_pr_swap;
 	bool			peer_dr_swap;
-<<<<<<< Updated upstream
-=======
 	bool			no_usb3dp_concurrency;
 	bool			pd20_source_only;
->>>>>>> Stashed changes
 	bool		oem_bypass;
 	bool		periph_direct;
 	bool		probe_done;
@@ -595,11 +588,7 @@ static inline void start_usb_host(struct usbpd *pd, bool ss)
 	extcon_set_state_sync(pd->extcon, EXTCON_USB_HOST, 1);
 
 	/* blocks until USB host is completely started */
-<<<<<<< Updated upstream
-	ret = extcon_blocking_sync(pd->extcon, EXTCON_USB_HOST, 1);
-=======
 	ret = extcon_blocking_sync(pd->extcon, EXTCON_USB_HOST, START_USB_HOST);
->>>>>>> Stashed changes
 	if (ret) {
 		usbpd_err(&pd->dev, "err(%d) starting host", ret);
 		return;
@@ -3756,10 +3745,7 @@ static void usbpd_sm(struct work_struct *w)
 	usbpd_dbg(&pd->dev, "handle state %s\n",
 			usbpd_state_strings[pd->current_state]);
 
-<<<<<<< Updated upstream
-=======
 	/* Register typec partner in case AAA is connected */
->>>>>>> Stashed changes
 	if (pd->typec_mode == POWER_SUPPLY_TYPEC_SINK_AUDIO_ADAPTER) {
 		if (!pd->partner) {
 			memset(&pd->partner_identity, 0,
@@ -3785,14 +3771,11 @@ static void usbpd_sm(struct work_struct *w)
 	if (pd->current_pr == PR_NONE) {
 		if (pd->current_state == PE_UNKNOWN &&
 				pd->current_dr == DR_NONE) {
-<<<<<<< Updated upstream
-=======
 			/*
 			 * Since PD stack will not be loaded in case AAA is
 			 * connected, call disconnect to unregister typec
 			 * partner
 			 */
->>>>>>> Stashed changes
 			if (!pd->typec_analog_audio_connected &&
 					pd->partner)
 				handle_disconnect(pd);
@@ -5166,11 +5149,8 @@ struct usbpd *usbpd_create(struct device *parent)
 		}
 	}
 
-<<<<<<< Updated upstream
-=======
 	pd->pps_disabled = device_property_read_bool(parent,
 				"qcom,pps-disabled");
->>>>>>> Stashed changes
 	pd->oem_bypass = true;
 	pd->periph_direct = false;
 	pd->probe_done = true;

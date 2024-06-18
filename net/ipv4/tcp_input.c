@@ -4737,12 +4737,8 @@ void tcp_data_ready(struct sock *sk)
 	int avail = tp->rcv_nxt - tp->copied_seq;
 
 	if (avail < sk->sk_rcvlowat && !tcp_rmem_pressure(sk) &&
-<<<<<<< Updated upstream
-	    !sock_flag(sk, SOCK_DONE))
-=======
 	    !sock_flag(sk, SOCK_DONE) &&
 	    tcp_receive_window(tp) > inet_csk(sk)->icsk_ack.rcv_mss)
->>>>>>> Stashed changes
 		return;
 
 	sk->sk_data_ready(sk);
@@ -6010,11 +6006,7 @@ discard:
 		}
 
 		WRITE_ONCE(tp->rcv_nxt, TCP_SKB_CB(skb)->seq + 1);
-<<<<<<< Updated upstream
-		tp->copied_seq = tp->rcv_nxt;
-=======
 		WRITE_ONCE(tp->copied_seq, tp->rcv_nxt);
->>>>>>> Stashed changes
 		tp->rcv_wup = TCP_SKB_CB(skb)->seq + 1;
 
 		/* RFC1323: The window in SYN & SYN/ACK segments is

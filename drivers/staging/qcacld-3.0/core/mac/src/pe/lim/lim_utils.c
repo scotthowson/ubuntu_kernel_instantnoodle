@@ -1,9 +1,6 @@
 /*
  * Copyright (c) 2011-2020 The Linux Foundation. All rights reserved.
-<<<<<<< Updated upstream
-=======
  * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -73,10 +70,7 @@
 #include <wlan_scan_ucfg_api.h>
 #include <wlan_blm_api.h>
 #include <lim_assoc_utils.h>
-<<<<<<< Updated upstream
-=======
 #include "wlan_mlme_ucfg_api.h"
->>>>>>> Stashed changes
 
 #define ASCII_SPACE_CHARACTER 0x20
 
@@ -560,8 +554,6 @@ void lim_deactivate_timers(struct mac_context *mac_ctx)
 	tx_timer_deactivate(&lim_timer->sae_auth_timer);
 }
 
-<<<<<<< Updated upstream
-=======
 void lim_deactivate_timers_for_vdev(struct mac_context *mac_ctx,
 				    uint8_t vdev_id)
 {
@@ -623,7 +615,6 @@ void lim_deactivate_timers_for_vdev(struct mac_context *mac_ctx,
 	}
 }
 
->>>>>>> Stashed changes
 
 /**
  * lim_cleanup_mlm() - This function is called to cleanup
@@ -840,13 +831,8 @@ uint8_t lim_write_deferred_msg_q(struct mac_context *mac_ctx,
 			 * We reach the quota for management frames,
 			 * drop this one
 			 */
-<<<<<<< Updated upstream
-			pe_warn("Too many queue->MsgQ Msg: %d count: %d",
-				lim_msg->type, count);
-=======
 			pe_warn_rl("Too many queue->MsgQ Msg: %d count: %d",
 				   lim_msg->type, count);
->>>>>>> Stashed changes
 			/* Return error, caller knows what to do */
 			return TX_QUEUE_FULL;
 		}
@@ -1948,24 +1934,6 @@ static void __lim_process_channel_switch_timeout(struct pe_session *pe_session)
 		}
 
 		/*
-<<<<<<< Updated upstream
-		 * If the channel-list that AP is asking us to switch is invalid
-		 * then we cannot switch the channel. Just disassociate from AP.
-		 * We will find a better AP !!!
-		 */
-		if ((pe_session->limMlmState ==
-		   eLIM_MLM_LINK_ESTABLISHED_STATE) &&
-		   (pe_session->limSmeState != eLIM_SME_WT_DISASSOC_STATE) &&
-		   (pe_session->limSmeState != eLIM_SME_WT_DEAUTH_STATE)) {
-			pe_err("Invalid channel! Disconnect");
-			lim_tear_down_link_with_ap(mac,
-					   mac->lim.lim_timers.
-					   gLimChannelSwitchTimer.sessionId,
-					   eSIR_MAC_UNSUPPORTED_CHANNEL_CSA,
-					   eLIM_LINK_MONITORING_DISASSOC);
-			return;
-		}
-=======
 		 * The channel switch request received from AP is carrying
 		 * invalid channel. It's ok to ignore this channel switch
 		 * request as it might be from spoof AP. If it's from genuine
@@ -1976,7 +1944,6 @@ static void __lim_process_channel_switch_timeout(struct pe_session *pe_session)
 		pe_err("Invalid channel freq %u Ignore CSA request",
 		       channel_freq);
 		return;
->>>>>>> Stashed changes
 	}
 	switch (pe_session->gLimChannelSwitch.state) {
 	case eLIM_CHANNEL_SWITCH_PRIMARY_ONLY:
@@ -2287,11 +2254,6 @@ void lim_switch_channel_cback(struct mac_context *mac, QDF_STATUS status,
 {
 	struct scheduler_msg mmhMsg = { 0 };
 	struct switch_channel_ind *pSirSmeSwitchChInd;
-<<<<<<< Updated upstream
-	enum reg_wifi_band band;
-	uint8_t band_mask;
-
-=======
 	struct wlan_channel *des_chan;
 	struct vdev_mlme_obj *mlme_obj;
 
@@ -2306,7 +2268,6 @@ void lim_switch_channel_cback(struct mac_context *mac, QDF_STATUS status,
 		pe_err("des_chan is NULL");
 		return;
 	}
->>>>>>> Stashed changes
 	pe_session->curr_op_freq = pe_session->curr_req_chan_freq;
 	/* We need to restore pre-channelSwitch state on the STA */
 	if (lim_restore_pre_channel_switch_state(mac, pe_session) !=
@@ -2322,31 +2283,6 @@ void lim_switch_channel_cback(struct mac_context *mac, QDF_STATUS status,
 
 	pSirSmeSwitchChInd->messageType = eWNI_SME_SWITCH_CHL_IND;
 	pSirSmeSwitchChInd->length = sizeof(*pSirSmeSwitchChInd);
-<<<<<<< Updated upstream
-	pSirSmeSwitchChInd->freq = pe_session->gLimChannelSwitch.sw_target_freq;
-	pSirSmeSwitchChInd->sessionId = pe_session->smeSessionId;
-	pSirSmeSwitchChInd->chan_params.ch_width =
-			pe_session->gLimChannelSwitch.ch_width;
-	pSirSmeSwitchChInd->chan_params.sec_ch_offset =
-			pe_session->gLimChannelSwitch.sec_ch_offset;
-	pSirSmeSwitchChInd->chan_params.center_freq_seg0 =
-			pe_session->gLimChannelSwitch.ch_center_freq_seg0;
-	pSirSmeSwitchChInd->chan_params.center_freq_seg1 =
-			pe_session->gLimChannelSwitch.ch_center_freq_seg1;
-	band = wlan_reg_freq_to_band(pSirSmeSwitchChInd->freq);
-	band_mask = 1 << band;
-
-	if (pe_session->gLimChannelSwitch.ch_center_freq_seg0)
-		pSirSmeSwitchChInd->chan_params.mhz_freq_seg0 =
-			wlan_reg_chan_band_to_freq(mac->pdev,
-			    pe_session->gLimChannelSwitch.ch_center_freq_seg0,
-			    band_mask);
-	if (pe_session->gLimChannelSwitch.ch_center_freq_seg1)
-		pSirSmeSwitchChInd->chan_params.mhz_freq_seg1 =
-			wlan_reg_chan_band_to_freq(mac->pdev,
-			    pe_session->gLimChannelSwitch.ch_center_freq_seg1,
-			    band_mask);
-=======
 	pSirSmeSwitchChInd->freq = des_chan->ch_freq;
 	pSirSmeSwitchChInd->sessionId = pe_session->smeSessionId;
 	pSirSmeSwitchChInd->chan_params.ch_width = des_chan->ch_width;
@@ -2362,7 +2298,6 @@ void lim_switch_channel_cback(struct mac_context *mac, QDF_STATUS status,
 		pSirSmeSwitchChInd->chan_params.mhz_freq_seg1 =
 							des_chan->ch_cfreq2;
 	}
->>>>>>> Stashed changes
 
 	pSirSmeSwitchChInd->status = status;
 	qdf_mem_copy(pSirSmeSwitchChInd->bssid.bytes, pe_session->bssId,
@@ -7652,8 +7587,6 @@ void lim_set_he_caps(struct mac_context *mac, struct pe_session *session,
 	}
 }
 
-<<<<<<< Updated upstream
-=======
 static void lim_intersect_he_ch_width_2g(struct mac_context *mac,
 					 struct he_capability_info *he_cap)
 {
@@ -7705,28 +7638,20 @@ static uint8_t lim_set_he_caps_ppet(struct mac_context *mac, uint8_t *ie,
 	return num_ppe_th;
 }
 
->>>>>>> Stashed changes
 QDF_STATUS lim_send_he_caps_ie(struct mac_context *mac_ctx,
 			       struct pe_session *session,
 			       enum QDF_OPMODE device_mode,
 			       uint8_t vdev_id)
 {
 	uint8_t he_caps[SIR_MAC_HE_CAP_MIN_LEN + HE_CAP_OUI_LEN +
-<<<<<<< Updated upstream
-			HE_CAP_160M_MCS_MAP_LEN + HE_CAP_80P80_MCS_MAP_LEN];
-=======
 			HE_CAP_160M_MCS_MAP_LEN + HE_CAP_80P80_MCS_MAP_LEN +
 			WNI_CFG_HE_PPET_LEN];
->>>>>>> Stashed changes
 	struct he_capability_info *he_cap;
 	QDF_STATUS status_5g, status_2g;
 	uint8_t he_cap_total_len = SIR_MAC_HE_CAP_MIN_LEN + HE_CAP_OUI_LEN +
 				   HE_CAP_160M_MCS_MAP_LEN +
 				   HE_CAP_80P80_MCS_MAP_LEN;
-<<<<<<< Updated upstream
-=======
 	uint8_t num_ppe_th = 0;
->>>>>>> Stashed changes
 
 	/* Sending only minimal info(no PPET) to FW now, update if required */
 	qdf_mem_zero(he_caps, he_cap_total_len);
@@ -7735,10 +7660,6 @@ QDF_STATUS lim_send_he_caps_ie(struct mac_context *mac_ctx,
 	qdf_mem_copy(&he_caps[2], HE_CAP_OUI_TYPE, HE_CAP_OUI_SIZE);
 	lim_set_he_caps(mac_ctx, session, he_caps, he_cap_total_len);
 	he_cap = (struct he_capability_info *) (&he_caps[2 + HE_CAP_OUI_SIZE]);
-<<<<<<< Updated upstream
-	he_cap->ppet_present = 0;
-=======
->>>>>>> Stashed changes
 	if(device_mode == QDF_NDI_MODE) {
 		he_cap->su_beamformee = 0;
 		he_cap->su_beamformer = 0;
@@ -7750,11 +7671,6 @@ QDF_STATUS lim_send_he_caps_ie(struct mac_context *mac_ctx,
 		he_cap->su_feedback_tone16 = 0;
 		he_cap->mu_feedback_tone16 = 0;
 	}
-<<<<<<< Updated upstream
-	status_5g = lim_send_ie(mac_ctx, vdev_id, DOT11F_EID_HE_CAP,
-			CDS_BAND_5GHZ, &he_caps[2],
-			he_caps[1] + 1);
-=======
 
 	if (he_cap->ppet_present)
 		num_ppe_th = lim_set_he_caps_ppet(mac_ctx, he_caps,
@@ -7763,16 +7679,10 @@ QDF_STATUS lim_send_he_caps_ie(struct mac_context *mac_ctx,
 	status_5g = lim_send_ie(mac_ctx, vdev_id, DOT11F_EID_HE_CAP,
 			CDS_BAND_5GHZ, &he_caps[2],
 			he_caps[1] + 1 + num_ppe_th);
->>>>>>> Stashed changes
 	if (QDF_IS_STATUS_ERROR(status_5g))
 		pe_err("Unable send HE Cap IE for 5GHZ band, status: %d",
 			status_5g);
 
-<<<<<<< Updated upstream
-	status_2g = lim_send_ie(mac_ctx, vdev_id, DOT11F_EID_HE_CAP,
-			CDS_BAND_2GHZ, &he_caps[2],
-			he_caps[1] + 1);
-=======
 	lim_intersect_he_ch_width_2g(mac_ctx, he_cap);
 
 	if (he_cap->ppet_present)
@@ -7782,7 +7692,6 @@ QDF_STATUS lim_send_he_caps_ie(struct mac_context *mac_ctx,
 	status_2g = lim_send_ie(mac_ctx, vdev_id, DOT11F_EID_HE_CAP,
 			CDS_BAND_2GHZ, &he_caps[2],
 			he_caps[1] + 1 + num_ppe_th);
->>>>>>> Stashed changes
 	if (QDF_IS_STATUS_ERROR(status_2g))
 		pe_err("Unable send HE Cap IE for 2GHZ band, status: %d",
 			status_2g);
@@ -9019,15 +8928,6 @@ QDF_STATUS lim_pre_vdev_start(struct mac_context *mac,
 			      struct pe_session *session)
 {
 	struct wlan_channel *des_chan;
-<<<<<<< Updated upstream
-
-	des_chan = mlme_obj->vdev->vdev_mlme.des_chan;
-	des_chan->ch_freq = session->curr_op_freq;
-	des_chan->ch_width = session->ch_width;
-	des_chan->ch_freq_seg1 = session->ch_center_freq_seg0;
-	des_chan->ch_freq_seg2 = session->ch_center_freq_seg1;
-	des_chan->ch_ieee = wlan_reg_freq_to_chan(mac->pdev, des_chan->ch_freq);
-=======
 	enum reg_wifi_band band;
 	uint8_t band_mask;
 	struct ch_params ch_params = {0};
@@ -9086,7 +8986,6 @@ QDF_STATUS lim_pre_vdev_start(struct mac_context *mac,
 	session->ch_width = ch_params.ch_width;
 	session->ch_center_freq_seg0 = ch_params.center_freq_seg0;
 	session->ch_center_freq_seg1 = ch_params.center_freq_seg1;
->>>>>>> Stashed changes
 
 	mlme_obj->mgmt.generic.maxregpower = session->maxTxPower;
 	mlme_obj->proto.generic.beacon_interval =
@@ -9099,14 +8998,6 @@ QDF_STATUS lim_pre_vdev_start(struct mac_context *mac,
 	mlme_obj->proto.generic.slot_time = session->shortSlotTimeSupported;
 	mlme_obj->mgmt.rate_info.bcn_tx_rate = session->beacon_tx_rate;
 
-<<<<<<< Updated upstream
-	pe_debug("cac_duration_ms %d beacon_interval %d hidden_ssid: %d dtimPeriod %d slot_time %d bcn tx rate %d",
-		 session->cac_duration_ms, session->beaconParams.beaconInterval,
-		 session->ssidHidden, session->dtimPeriod,
-		 mlme_obj->proto.generic.slot_time, session->beacon_tx_rate);
-
-=======
->>>>>>> Stashed changes
 	mlme_obj->proto.ht_info.allow_ht = !!session->htCapability;
 	mlme_obj->proto.vht_info.allow_vht = !!session->vhtCapability;
 

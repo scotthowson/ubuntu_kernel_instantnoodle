@@ -18,15 +18,6 @@
 #include <trace/events/power.h>
 #include <linux/sched/sysctl.h>
 
-<<<<<<< Updated upstream
-#ifdef CONFIG_HOUSTON
-#include <oneplus/houston/houston_helper.h>
-#endif
-#ifdef CONFIG_CONTROL_CENTER
-#include <oneplus/control_center/control_center_helper.h>
-#endif
-=======
->>>>>>> Stashed changes
 struct sugov_tunables {
 	struct gov_attr_set	attr_set;
 	unsigned int		up_rate_limit_us;
@@ -173,111 +164,6 @@ static bool sugov_update_next_freq(struct sugov_policy *sg_policy, u64 time,
 	return true;
 }
 
-<<<<<<< Updated upstream
-static unsigned long freq_to_util(struct sugov_policy *sg_policy,
-				  unsigned int freq)
-{
-	return mult_frac(sg_policy->max, freq,
-			 sg_policy->policy->cpuinfo.max_freq);
-}
-
-#define KHZ 1000
-static void sugov_track_cycles(struct sugov_policy *sg_policy,
-				unsigned int prev_freq,
-				u64 upto)
-{
-	u64 delta_ns, cycles;
-	u64 next_ws = sg_policy->last_ws + sched_ravg_window;
-
-	if (use_pelt())
-		return;
-
-	upto = min(upto, next_ws);
-	/* Track cycles in current window */
-	delta_ns = upto - sg_policy->last_cyc_update_time;
-	delta_ns *= prev_freq;
-	do_div(delta_ns, (NSEC_PER_SEC / KHZ));
-	cycles = delta_ns;
-	sg_policy->curr_cycles += cycles;
-	sg_policy->last_cyc_update_time = upto;
-}
-
-static void sugov_calc_avg_cap(struct sugov_policy *sg_policy, u64 curr_ws,
-				unsigned int prev_freq)
-{
-	u64 last_ws = sg_policy->last_ws;
-	unsigned int avg_freq;
-
-	if (use_pelt())
-		return;
-
-	BUG_ON(curr_ws < last_ws);
-	if (curr_ws <= last_ws)
-		return;
-
-	/* If we skipped some windows */
-	if (curr_ws > (last_ws + sched_ravg_window)) {
-		avg_freq = prev_freq;
-		/* Reset tracking history */
-		sg_policy->last_cyc_update_time = curr_ws;
-	} else {
-		sugov_track_cycles(sg_policy, prev_freq, curr_ws);
-		avg_freq = sg_policy->curr_cycles;
-		avg_freq /= sched_ravg_window / (NSEC_PER_SEC / KHZ);
-	}
-	sg_policy->avg_cap = freq_to_util(sg_policy, avg_freq);
-	sg_policy->curr_cycles = 0;
-	sg_policy->last_ws = curr_ws;
-}
-
-#ifdef CONFIG_CONTROL_CENTER
-unsigned int cc_cal_next_freq_with_extra_util(
-	struct cpufreq_policy *policy,
-	unsigned int next_freq
-)
-{
-	/* scale util by turbo boost */
-	int type = CCDM_TB_CLUS_0_FREQ_BOOST;
-	unsigned long extra_util = 0;
-
-	switch (policy->cpu) {
-/* RATP is used for low-end platform, so use this config to distinctguish CPU arch */
-#ifdef CONFIG_RATP
-	case 6: case 7:
-		type = CCDM_TB_CLUS_1_FREQ_BOOST;
-		break;
-#else
-	case 4: case 5: case 6:
-		type = CCDM_TB_CLUS_1_FREQ_BOOST;
-		break;
-	case 7:
-		type = CCDM_TB_CLUS_2_FREQ_BOOST;
-		break;
-#endif
-	}
-
-	extra_util = ccdm_get_hint(type);
-	if (extra_util) {
-		unsigned long orig_util = 0;
-		unsigned long max = arch_scale_cpu_capacity(NULL, policy->cpu);
-		unsigned int freq = arch_scale_freq_invariant() ?
-				policy->cpuinfo.max_freq : policy->cur;
-		struct sugov_cpu *sg_cpu = &per_cpu(sugov_cpu, policy->cpu);
-
-		if (max) {
-			orig_util = freq_to_util(sg_cpu->sg_policy, next_freq);
-			extra_util = orig_util + extra_util * max / 100;
-			next_freq = freq * extra_util / max;
-		}
-	}
-	next_freq = cpufreq_driver_resolve_freq(policy, next_freq);
-	return next_freq;
-}
-EXPORT_SYMBOL(cc_cal_next_freq_with_extra_util);
-#endif
-
-=======
->>>>>>> Stashed changes
 static void sugov_fast_switch(struct sugov_policy *sg_policy, u64 time,
 			      unsigned int next_freq)
 {
@@ -332,33 +218,9 @@ static unsigned int get_next_freq(struct sugov_policy *sg_policy,
 	struct cpufreq_policy *policy = sg_policy->policy;
 	unsigned int freq = arch_scale_freq_invariant() ?
 				policy->cpuinfo.max_freq : policy->cur;
-<<<<<<< Updated upstream
-#ifdef CONFIG_CONTROL_CENTER
-	unsigned int req_freq;
-
-	freq = map_util_freq(util, freq, max);
-
-	if (freq == sg_policy->cached_raw_freq && !sg_policy->need_freq_update) {
-		req_freq = sg_policy->next_freq;
-		goto out;
-	}
-
-	sg_policy->need_freq_update = false;
-	sg_policy->cached_raw_freq = freq;
-	req_freq = cpufreq_driver_resolve_freq(policy, freq);
-out:
-	/* keep resolved freq */
-	sg_policy->policy->req_freq = req_freq;
-	trace_sugov_next_freq(policy->cpu, util, max, freq, req_freq);
-	return req_freq;
-#else
-	freq = map_util_freq(util, freq, max);
-	trace_sugov_next_freq(policy->cpu, util, max, freq);
-=======
 	unsigned int idx, l_freq, h_freq;
 
 	freq = map_util_freq(util, freq, max);
->>>>>>> Stashed changes
 
 	if (freq == sg_policy->cached_raw_freq && !sg_policy->need_freq_update)
 		return sg_policy->next_freq;
@@ -366,10 +228,6 @@ out:
 	sg_policy->need_freq_update = false;
 	sg_policy->prev_cached_raw_freq = sg_policy->cached_raw_freq;
 	sg_policy->cached_raw_freq = freq;
-<<<<<<< Updated upstream
-	return cpufreq_driver_resolve_freq(policy, freq);
-#endif
-=======
 	l_freq = cpufreq_driver_resolve_freq(policy, freq);
 	idx = cpufreq_frequency_table_target(policy, freq, CPUFREQ_RELATION_H);
 	h_freq = policy->freq_table[idx].frequency;
@@ -385,7 +243,6 @@ out:
 		return h_freq;
 
 	return l_freq;
->>>>>>> Stashed changes
 }
 
 extern long
@@ -421,11 +278,7 @@ unsigned long schedutil_cpu_util(int cpu, unsigned long util_cfs,
 	unsigned long dl_util, util, irq;
 	struct rq *rq = cpu_rq(cpu);
 
-<<<<<<< Updated upstream
-	if (sched_feat(SUGOV_RT_MAX_FREQ) && !IS_BUILTIN(CONFIG_UCLAMP_TASK) &&
-=======
 	if (sched_feat(SUGOV_RT_MAX_FREQ) && !uclamp_is_used() &&
->>>>>>> Stashed changes
 	    type == FREQUENCY_UTIL && rt_rq_is_runnable(&rq->rt)) {
 		return max;
 	}
@@ -453,15 +306,11 @@ unsigned long schedutil_cpu_util(int cpu, unsigned long util_cfs,
 	 */
 	util = util_cfs + cpu_util_rt(rq);
 	if (type == FREQUENCY_UTIL)
-<<<<<<< Updated upstream
-		util = uclamp_rq_util_with(rq, util, p);
-=======
 #ifdef CONFIG_SCHED_TUNE
 		util += schedtune_cpu_margin_with(util, cpu, p);
 #else
 		util = uclamp_rq_util_with(rq, util, p);
 #endif
->>>>>>> Stashed changes
 
 	dl_util = cpu_util_dl(rq);
 
@@ -527,19 +376,8 @@ static unsigned long sugov_get_util(struct sugov_cpu *sg_cpu)
 static unsigned long sugov_get_util(struct sugov_cpu *sg_cpu)
 {
 	struct rq *rq = cpu_rq(sg_cpu->cpu);
-<<<<<<< Updated upstream
-
-#ifdef CONFIG_SCHED_TUNE
-	unsigned long util = stune_util(sg_cpu->cpu, cpu_util_rt(rq), NULL);
-#else
-	unsigned long util = cpu_util_freq(sg_cpu->cpu, NULL);
-#endif
-	unsigned long util_cfs = util - cpu_util_rt(rq);
-	unsigned long max = arch_scale_cpu_capacity(NULL, sg_cpu->cpu);
-=======
 	unsigned long util_cfs = cpu_util_cfs(rq);
 	unsigned long max = arch_scale_cpu_capacity(sg_cpu->cpu);
->>>>>>> Stashed changes
 
 	sg_cpu->max = max;
 	sg_cpu->bw_dl = cpu_bw_dl(rq);
@@ -699,16 +537,9 @@ static void sugov_update_single(struct update_util_data *hook, u64 time,
 {
 	struct sugov_cpu *sg_cpu = container_of(hook, struct sugov_cpu, update_util);
 	struct sugov_policy *sg_policy = sg_cpu->sg_policy;
-<<<<<<< Updated upstream
-	unsigned long util, max, hs_util, boost_util;
-=======
 	unsigned long util, max;
->>>>>>> Stashed changes
 	unsigned int next_f;
 	bool busy;
-#ifdef CONFIG_CONTROL_CENTER
-	struct cpufreq_policy *policy = sg_policy->policy;
-#endif
 
 	if (flags & SCHED_CPUFREQ_PL)
 		return;
@@ -805,14 +636,7 @@ sugov_update_shared(struct update_util_data *hook, u64 time, unsigned int flags)
 {
 	struct sugov_cpu *sg_cpu = container_of(hook, struct sugov_cpu, update_util);
 	struct sugov_policy *sg_policy = sg_cpu->sg_policy;
-<<<<<<< Updated upstream
-	unsigned long hs_util, boost_util;
-=======
->>>>>>> Stashed changes
 	unsigned int next_f;
-#ifdef CONFIG_CONTROL_CENTER
-	struct cpufreq_policy *policy = sg_policy->policy;
-#endif
 
 	if (flags & SCHED_CPUFREQ_PL)
 		return;
@@ -1202,12 +1026,6 @@ static int sugov_start(struct cpufreq_policy *policy)
 							sugov_update_shared :
 							sugov_update_single);
 	}
-<<<<<<< Updated upstream
-#ifdef CONFIG_CONTROL_CENTER
-	policy->cc_enable = true;
-#endif
-=======
->>>>>>> Stashed changes
 	return 0;
 }
 

@@ -1912,11 +1912,7 @@ int sde_crtc_get_secure_transition_ops(struct drm_crtc *crtc,
 	switch (translation_mode) {
 	case SDE_DRM_FB_SEC_DIR_TRANS:
 		_sde_drm_fb_sec_dir_trans(smmu_state, secure_level,
-<<<<<<< Updated upstream
-				catalog, old_valid_fb, &ops);
-=======
 			catalog, old_valid_fb, &ops, old_crtc_state);
->>>>>>> Stashed changes
 		if (clone_mode && (ops & SDE_KMS_OPS_SECURE_STATE_CHANGE))
 			ops |= SDE_KMS_OPS_WAIT_FOR_TX_DONE;
 		break;
@@ -4918,20 +4914,6 @@ static int _sde_crtc_check_secure_state_smmu_translation(struct drm_crtc *crtc,
 		goto sec_err;
 
 	/*
-	 * Secure display to secure camera needs without direct
-	 * transition is currently not allowed
-	 */
-	if (fb_sec_dir && secure == SDE_DRM_SEC_NON_SEC &&
-		smmu_state->state != ATTACHED &&
-		smmu_state->secure_level == SDE_DRM_SEC_ONLY) {
-
-		SDE_EVT32(DRMID(crtc), fb_ns, fb_sec_dir,
-			smmu_state->state, smmu_state->secure_level,
-			secure);
-		goto sec_err;
-	}
-
-	/*
 	 * In video mode check for null commit before transition
 	 * from secure to non secure and vice versa
 	 */
@@ -5730,8 +5712,6 @@ static void sde_kms_add_ubwc_info(struct sde_kms_info *info,
 		sde_kms_info_add_keystr(info, "DDR version", "DDR5");
 }
 
-<<<<<<< Updated upstream
-=======
 /**
  * _sde_crtc_install_cp_properties - install color properties for crtc
  * @info: Pointer to kms info structure
@@ -5752,7 +5732,6 @@ static void _sde_crtc_install_cp_properties(struct sde_kms_info *info,
 				catalog->dspp[0].sblk->rc.mem_total_size);
 }
 
->>>>>>> Stashed changes
 /**
  * sde_crtc_install_properties - install all drm properties for crtc
  * @crtc: Pointer to drm crtc structure

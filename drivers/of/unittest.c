@@ -1138,11 +1138,8 @@ static void attach_node_and_children(struct device_node *np)
 	const char *full_name;
 
 	full_name = kasprintf(GFP_KERNEL, "%pOF", np);
-<<<<<<< Updated upstream
-=======
 	if (!full_name)
 		return;
->>>>>>> Stashed changes
 
 	if (!strcmp(full_name, "/__local_fixups__") ||
 	    !strcmp(full_name, "/__fixups__")) {

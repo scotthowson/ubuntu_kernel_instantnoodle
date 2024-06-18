@@ -1283,11 +1283,7 @@ static void throttle(struct tty_struct * tty)
 	if (C_CRTSCTS(tty)) {
 		spin_lock_irqsave(&info->lock,flags);
 		info->signals &= ~SerialSignal_RTS;
-<<<<<<< Updated upstream
-		set_signals(info);
-=======
 		set_gtsignals(info);
->>>>>>> Stashed changes
 		spin_unlock_irqrestore(&info->lock,flags);
 	}
 }
@@ -1312,11 +1308,7 @@ static void unthrottle(struct tty_struct * tty)
 	if (C_CRTSCTS(tty)) {
 		spin_lock_irqsave(&info->lock,flags);
 		info->signals |= SerialSignal_RTS;
-<<<<<<< Updated upstream
-		set_signals(info);
-=======
 		set_gtsignals(info);
->>>>>>> Stashed changes
 		spin_unlock_irqrestore(&info->lock,flags);
 	}
 }
@@ -3148,11 +3140,7 @@ static int tiocmset(struct tty_struct *tty,
 		info->signals &= ~SerialSignal_DTR;
 
 	spin_lock_irqsave(&info->lock,flags);
-<<<<<<< Updated upstream
-	set_signals(info);
-=======
 	set_gtsignals(info);
->>>>>>> Stashed changes
 	spin_unlock_irqrestore(&info->lock,flags);
 	return 0;
 }
@@ -3163,11 +3151,7 @@ static int carrier_raised(struct tty_port *port)
 	struct slgt_info *info = container_of(port, struct slgt_info, port);
 
 	spin_lock_irqsave(&info->lock,flags);
-<<<<<<< Updated upstream
-	get_signals(info);
-=======
 	get_gtsignals(info);
->>>>>>> Stashed changes
 	spin_unlock_irqrestore(&info->lock,flags);
 	return (info->signals & SerialSignal_DCD) ? 1 : 0;
 }
@@ -3182,11 +3166,7 @@ static void dtr_rts(struct tty_port *port, int on)
 		info->signals |= SerialSignal_RTS | SerialSignal_DTR;
 	else
 		info->signals &= ~(SerialSignal_RTS | SerialSignal_DTR);
-<<<<<<< Updated upstream
-	set_signals(info);
-=======
 	set_gtsignals(info);
->>>>>>> Stashed changes
 	spin_unlock_irqrestore(&info->lock,flags);
 }
 

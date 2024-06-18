@@ -1,11 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2002,2007-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2002,2007-2021, The Linux Foundation. All rights reserved.
  * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  */
 #include <linux/delay.h>
 #include <linux/io.h>
@@ -61,11 +57,6 @@ static struct adreno_device device_3d0 = {
 	.ft_policy = KGSL_FT_DEFAULT_POLICY,
 	.ft_pf_policy = KGSL_FT_PAGEFAULT_DEFAULT_POLICY,
 	.long_ib_detect = 1,
-<<<<<<< Updated upstream
-	.input_work = __WORK_INITIALIZER(device_3d0.input_work,
-		adreno_input_work),
-=======
->>>>>>> Stashed changes
 	.pwrctrl_flag = BIT(ADRENO_THROTTLING_CTRL) | BIT(ADRENO_HWCG_CTRL),
 	.profile.enabled = false,
 	.active_list = LIST_HEAD_INIT(device_3d0.active_list),
@@ -922,10 +913,7 @@ static void adreno_of_get_bimc_iface_clk(struct adreno_device *adreno_dev,
 	struct kgsl_device *device = KGSL_DEVICE(adreno_dev);
 	struct kgsl_pwrctrl *pwr = &device->pwrctrl;
 
-<<<<<<< Updated upstream
-=======
 	/* Getting gfx-bimc-interface-clk frequency */
->>>>>>> Stashed changes
 	if (!of_property_read_u32(node, "qcom,gpu-bimc-interface-clk-freq",
 				&pwr->gpu_bimc_int_clk_freq)) {
 		pwr->gpu_bimc_int_clk = devm_clk_get(&device->pdev->dev,
@@ -1301,8 +1289,6 @@ static int adreno_read_speed_bin(struct platform_device *pdev,
 	}
 
 	return PTR_ERR_OR_ZERO(buf);
-<<<<<<< Updated upstream
-=======
 }
 
 static int adreno_read_gpu_model_fuse(struct platform_device *pdev)
@@ -1405,7 +1391,6 @@ static u32 adreno_get_vk_device_id(struct kgsl_device *device)
 	of_node_put(node);
 
 	return device_id;
->>>>>>> Stashed changes
 }
 
 static int adreno_probe_efuse(struct platform_device *pdev,
@@ -1488,17 +1473,6 @@ static int adreno_probe(struct platform_device *pdev)
 	if (adreno_is_a6xx(adreno_dev))
 		device->mmu.features |= KGSL_MMU_SMMU_APERTURE;
 
-<<<<<<< Updated upstream
-	if (ADRENO_FEATURE(adreno_dev, ADRENO_USE_SHMEM))
-		device->flags |= KGSL_FLAG_USE_SHMEM;
-
-	if (ADRENO_FEATURE(adreno_dev, ADRENO_PROCESS_RECLAIM)) {
-		device->flags |= KGSL_FLAG_USE_SHMEM;
-		device->flags |= KGSL_FLAG_PROCESS_RECLAIM;
-	}
-
-=======
->>>>>>> Stashed changes
 	device->pwrctrl.bus_width = adreno_dev->gpucore->bus_width;
 
 	status = kgsl_device_platform_probe(device);
@@ -2477,13 +2451,10 @@ int adreno_reset(struct kgsl_device *device, int fault)
 	if (ret) {
 		unsigned long flags = device->pwrctrl.ctrl_flags;
 
-<<<<<<< Updated upstream
-=======
 		/*
 		 * Clear ctrl_flags to ensure clocks and regulators are
 		 * turned off
 		 */
->>>>>>> Stashed changes
 		device->pwrctrl.ctrl_flags = 0;
 
 		/* If soft reset failed/skipped, then pull the power */

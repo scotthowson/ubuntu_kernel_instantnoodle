@@ -426,12 +426,7 @@ static void __rxrpc_put_peer(struct rxrpc_peer *peer)
 	list_del_init(&peer->keepalive_link);
 	spin_unlock_bh(&rxnet->peer_hash_lock);
 
-<<<<<<< Updated upstream
-	rxrpc_put_local(peer->local);
-	kfree_rcu(peer, rcu);
-=======
 	rxrpc_free_peer(peer);
->>>>>>> Stashed changes
 }
 
 /*
@@ -467,12 +462,7 @@ void rxrpc_put_peer_locked(struct rxrpc_peer *peer)
 	if (n == 0) {
 		hash_del_rcu(&peer->hash_link);
 		list_del_init(&peer->keepalive_link);
-<<<<<<< Updated upstream
-		rxrpc_put_local(peer->local);
-		kfree_rcu(peer, rcu);
-=======
 		rxrpc_free_peer(peer);
->>>>>>> Stashed changes
 	}
 }
 

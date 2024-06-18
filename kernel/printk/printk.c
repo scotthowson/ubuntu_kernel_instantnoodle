@@ -851,21 +851,12 @@ static ssize_t devkmsg_write(struct kiocb *iocb, struct iov_iter *from)
 	/* Ignore when user logging is disabled. */
 	if (devkmsg_log & DEVKMSG_LOG_MASK_OFF)
 		return len;
-#ifdef OEM_TARGET_PRODUCT_EBBA
-#ifdef WT_FINAL_RELEASE
+
 	/* Ratelimit when not explicitly enabled. */
 	if (!(devkmsg_log & DEVKMSG_LOG_MASK_ON)) {
 		if (!___ratelimit(&user->rs, current->comm))
 			return ret;
 	}
-#endif
-#else
-	/* Ratelimit when not explicitly enabled. */
-	if (!(devkmsg_log & DEVKMSG_LOG_MASK_ON)) {
-		if (!___ratelimit(&user->rs, current->comm))
-			return ret;
-	}
-#endif
 
 	buf[len] = '\0';
 	if (!copy_from_iter_full(buf, len, from)) {
@@ -1182,16 +1173,10 @@ static inline void log_buf_add_cpu(void) {}
 
 static void __init set_percpu_data_ready(void)
 {
-<<<<<<< Updated upstream
-	pr_info("ftm_silent_log\n");
-	console_silent();
-	return 0;
-=======
 	printk_safe_init();
 	/* Make sure we set this flag only after printk_safe() init is done */
 	barrier();
 	__printk_percpu_data_ready = true;
->>>>>>> Stashed changes
 }
 
 void __init setup_log_buf(int early)
@@ -1199,8 +1184,6 @@ void __init setup_log_buf(int early)
 	unsigned long flags;
 	char *new_log_buf;
 	unsigned int free;
-<<<<<<< Updated upstream
-=======
 
 	/*
 	 * Some archs call setup_log_buf() multiple times - first is very
@@ -1209,7 +1192,6 @@ void __init setup_log_buf(int early)
 	 */
 	if (!early)
 		set_percpu_data_ready();
->>>>>>> Stashed changes
 
 	if (log_buf != __log_buf)
 		return;
@@ -2048,8 +2030,6 @@ asmlinkage int vprintk_emit(int facility, int level,
 	bool in_sched = false, pending_output;
 	unsigned long flags;
 	u64 curr_log_seq;
-<<<<<<< Updated upstream
-=======
 
 	/*
 	 * Fall back to early_printk if a debugging subsystem has
@@ -2057,7 +2037,6 @@ asmlinkage int vprintk_emit(int facility, int level,
 	 */
 	if (unlikely(forced_early_printk(fmt, args)))
 		return 1;
->>>>>>> Stashed changes
 
 	if (level == LOGLEVEL_SCHED) {
 		level = LOGLEVEL_DEFAULT;
@@ -2076,8 +2055,6 @@ asmlinkage int vprintk_emit(int facility, int level,
 
 	/* If called from the scheduler, we can not call up(). */
 	if (!in_sched && pending_output) {
-<<<<<<< Updated upstream
-=======
 		int may_trylock = 1;
 
 #ifdef CONFIG_PREEMPT_RT_FULL
@@ -2088,7 +2065,6 @@ asmlinkage int vprintk_emit(int facility, int level,
 		if (!(preempt_count() == 0 && !irqs_disabled()))
 			may_trylock = 0;
 #endif
->>>>>>> Stashed changes
 		/*
 		 * Disable preemption to avoid being preempted while holding
 		 * console_sem which would prevent anyone from printing to

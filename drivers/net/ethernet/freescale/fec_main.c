@@ -3721,13 +3721,9 @@ fec_drv_remove(struct platform_device *pdev)
 
 	ret = pm_runtime_get_sync(&pdev->dev);
 	if (ret < 0)
-<<<<<<< Updated upstream
-		return ret;
-=======
 		dev_err(&pdev->dev,
 			"Failed to resume device in remove callback (%pe)\n",
 			ERR_PTR(ret));
->>>>>>> Stashed changes
 
 	cancel_work_sync(&fep->tx_timeout_work);
 	fec_ptp_stop(pdev);
@@ -3740,13 +3736,6 @@ fec_drv_remove(struct platform_device *pdev)
 		of_phy_deregister_fixed_link(np);
 	of_node_put(fep->phy_node);
 
-<<<<<<< Updated upstream
-	clk_disable_unprepare(fep->clk_ahb);
-	clk_disable_unprepare(fep->clk_ipg);
-	pm_runtime_put_noidle(&pdev->dev);
-	pm_runtime_disable(&pdev->dev);
-
-=======
 	/* After pm_runtime_get_sync() failed, the clks are still off, so skip
 	 * disabling them again.
 	 */
@@ -3758,7 +3747,6 @@ fec_drv_remove(struct platform_device *pdev)
 	pm_runtime_disable(&pdev->dev);
 
 	free_netdev(ndev);
->>>>>>> Stashed changes
 	return 0;
 }
 

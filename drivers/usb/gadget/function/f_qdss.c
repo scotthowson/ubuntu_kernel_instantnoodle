@@ -2,11 +2,7 @@
 /*
  * f_qdss.c -- QDSS function Driver
  *
-<<<<<<< Updated upstream
- * Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2012-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include <linux/init.h>
@@ -915,14 +911,6 @@ void usb_qdss_close(struct usb_qdss_ch *ch)
 	while (!list_empty(&qdss->queued_data_pool)) {
 		qreq = list_first_entry(&qdss->queued_data_pool,
 				struct qdss_req, list);
-<<<<<<< Updated upstream
-		spin_unlock_irqrestore(&channel_lock, flags);
-		usb_ep_dequeue(qdss->port.data, qreq->usb_req);
-		wait_for_completion(&qreq->write_done);
-		spin_lock_irqsave(&channel_lock, flags);
-	}
-
-=======
 		spin_unlock(&qdss->lock);
 		spin_unlock_irqrestore(&channel_lock, flags);
 		qdss_log("dequeue req:%pK\n", qreq->usb_req);
@@ -933,7 +921,6 @@ void usb_qdss_close(struct usb_qdss_ch *ch)
 	}
 
 	spin_unlock(&qdss->lock);
->>>>>>> Stashed changes
 	spin_unlock_irqrestore(&channel_lock, flags);
 	usb_qdss_free_req(ch);
 	spin_lock_irqsave(&channel_lock, flags);
@@ -949,11 +936,8 @@ close:
 
 	if (qdss->endless_req) {
 		spin_unlock_irqrestore(&channel_lock, flags);
-<<<<<<< Updated upstream
-=======
 		/* Flush connect work before proceeding with de-queue */
 		flush_work(&qdss->connect_w);
->>>>>>> Stashed changes
 		usb_ep_dequeue(qdss->port.data, qdss->endless_req);
 		spin_lock_irqsave(&channel_lock, flags);
 	}

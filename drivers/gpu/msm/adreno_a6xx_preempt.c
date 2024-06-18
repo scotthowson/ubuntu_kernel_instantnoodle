@@ -1,10 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (c) 2017-2020, The Linux Foundation. All rights reserved.
-<<<<<<< Updated upstream
-=======
  * Copyright (c) 2022-2023, Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include "adreno.h"
@@ -44,34 +41,8 @@ static void _update_wptr(struct adreno_device *adreno_dev, bool reset_timer,
 		 * dispatcher context. Do it now.
 		 */
 		if (rb->skip_inline_wptr) {
-<<<<<<< Updated upstream
-			/*
-			 * There could be a situation where GPU comes out of
-			 * ifpc after a fenced write transaction but before
-			 * reading AHB_FENCE_STATUS from KMD, it goes back to
-			 * ifpc due to inactivity (kernel scheduler plays a
-			 * role here). Thus, the GPU could technically be
-			 * re-collapsed between subsequent register writes
-			 * leading to a prolonged preemption sequence. The
-			 * keepalive bit prevents any further power collapse
-			 * while it is set.
-			 */
-			if (gmu_core_isenabled(device))
-				gmu_core_regrmw(device, A6XX_GMU_AO_SPARE_CNTL,
-					0x0, 0x2);
-
-			ret = adreno_gmu_fenced_write(adreno_dev,
-				ADRENO_REG_CP_RB_WPTR, rb->wptr,
-				FENCE_STATUS_WRITEDROPPED0_MASK);
-=======
 			write = true;
 			val = rb->wptr;
->>>>>>> Stashed changes
-
-			/* Clear the keep alive */
-			if (gmu_core_isenabled(device))
-				gmu_core_regrmw(device, A6XX_GMU_AO_SPARE_CNTL,
-					0x2, 0x0);
 
 			reset_timer = true;
 			rb->skip_inline_wptr = false;
@@ -581,12 +552,7 @@ unsigned int a6xx_preemption_pre_ibsubmit(
 	if (context) {
 		struct adreno_context *drawctxt = ADRENO_CONTEXT(context);
 		struct adreno_ringbuffer *rb = drawctxt->rb;
-<<<<<<< Updated upstream
-		uint64_t dest = adreno_dev->preempt.scratch.gpuaddr +
-			sizeof(u64) * rb->id;
-=======
 		uint64_t dest = PREEMPT_SCRATCH_ADDR(adreno_dev, rb->id);
->>>>>>> Stashed changes
 
 		*cmds++ = cp_mem_packet(adreno_dev, CP_MEM_WRITE, 2, 2);
 		cmds += cp_gpuaddr(adreno_dev, cmds, dest);
@@ -619,12 +585,7 @@ unsigned int a6xx_preemption_post_ibsubmit(struct adreno_device *adreno_dev,
 	struct adreno_ringbuffer *rb = adreno_dev->cur_rb;
 
 	if (rb) {
-<<<<<<< Updated upstream
-		uint64_t dest = adreno_dev->preempt.scratch.gpuaddr +
-			sizeof(u64) * rb->id;
-=======
 		uint64_t dest = PREEMPT_SCRATCH_ADDR(adreno_dev, rb->id);
->>>>>>> Stashed changes
 
 		*cmds++ = cp_mem_packet(adreno_dev, CP_MEM_WRITE, 2, 2);
 		cmds += cp_gpuaddr(adreno_dev, cmds, dest);
@@ -824,13 +785,8 @@ int a6xx_preemption_init(struct adreno_device *adreno_dev)
 
 	timer_setup(&preempt->timer, _a6xx_preemption_timer, 0);
 
-<<<<<<< Updated upstream
-	ret = kgsl_allocate_global(device, &preempt->scratch, PAGE_SIZE, 0, 0,
-			"preemption_scratch");
-=======
 	ret = kgsl_allocate_global(device, &preempt->scratch, PAGE_SIZE, 0,
 			flags, "preemption_scratch");
->>>>>>> Stashed changes
 
 	/* Allocate mem for storing preemption switch record */
 	FOR_EACH_RINGBUFFER(adreno_dev, rb, i) {

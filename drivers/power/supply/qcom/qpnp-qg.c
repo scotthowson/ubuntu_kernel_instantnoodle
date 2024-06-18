@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2018-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2018-2021 The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #define pr_fmt(fmt)	"QG-K: %s: " fmt, __func__
@@ -1282,12 +1278,9 @@ static void process_udata_work(struct work_struct *work)
 	if (chip->udata.param[QG_V_IBAT].valid)
 		chip->qg_v_ibat = chip->udata.param[QG_V_IBAT].data;
 
-<<<<<<< Updated upstream
-=======
 	if (chip->udata.param[QG_CHARGE_COUNTER].valid)
 		chip->qg_charge_counter = chip->udata.param[QG_CHARGE_COUNTER].data;
 
->>>>>>> Stashed changes
 	if (chip->udata.param[QG_SOC].valid ||
 			chip->udata.param[QG_SYS_SOC].valid) {
 
@@ -4535,11 +4528,7 @@ static int qg_parse_dt(struct qpnp_qg *chip)
 	else
 		chip->dt.esr_low_temp_threshold = (int)temp;
 
-<<<<<<< Updated upstream
-	rc = of_property_read_u32(node, "qcom,shutdown_soc_threshold", &temp);
-=======
 	rc = of_property_read_u32(node, "qcom,shutdown-soc-threshold", &temp);
->>>>>>> Stashed changes
 	if (rc < 0)
 		chip->dt.shutdown_soc_threshold = -EINVAL;
 	else
@@ -5201,17 +5190,6 @@ static int qpnp_qg_probe(struct platform_device *pdev)
 	chip->esr_nominal = -EINVAL;
 	chip->batt_age_level = -EINVAL;
 	chip->qg_charge_counter = -EINVAL;
-
-	chip->qg_version = (u8)of_device_get_match_data(&pdev->dev);
-
-	switch (chip->qg_version) {
-	case QG_LITE:
-		chip->max_fifo_length = 5;
-		break;
-	default:
-		chip->max_fifo_length = 8;
-		break;
-	}
 
 	chip->qg_version = (u8)of_device_get_match_data(&pdev->dev);
 

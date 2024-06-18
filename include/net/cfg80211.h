@@ -52,9 +52,6 @@
 /* Indicate backport support for key configuration for Beacon protection*/
 #define CFG80211_BIGTK_CONFIGURATION_SUPPORT 1
 
-<<<<<<< Updated upstream
-#define CFG80211_REKEY_DATA_KEK_LEN 1
-=======
 /* Indicate support for including KEK length in rekey data */
 #define CFG80211_REKEY_DATA_KEK_LEN 1
 /* Indicate backport support for 6GHz band */
@@ -62,7 +59,6 @@
 /* Indicate backport support for OCV feature flag*/
 #define CFG80211_OCV_CONFIGURATION_SUPPORT 1
 
->>>>>>> Stashed changes
 /**
  * DOC: Introduction
  *

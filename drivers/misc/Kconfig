@@ -630,8 +630,6 @@ config QTI_MAXIM_FAN_CONTROLLER
 	  Also, this driver initializes the power for the fan controller
 	  and exposes sysfs node to control different speeds of fan.
 
-<<<<<<< Updated upstream
-=======
 config KINECTICS_XR_NORDIC
 	tristate "Nordic Misc driver support in XR Reference devices"
 	help
@@ -641,7 +639,6 @@ config KINECTICS_XR_NORDIC
 	  this also parses the gpios and interrupts from device tree and sets
 	  the gpios and interrupt handler for handling the interrupt.
 
->>>>>>> Stashed changes
 source "drivers/misc/c2port/Kconfig"
 source "drivers/misc/eeprom/Kconfig"
 source "drivers/misc/cb710/Kconfig"
@@ -657,10 +654,7 @@ source "drivers/misc/cxl/Kconfig"
 source "drivers/misc/ocxl/Kconfig"
 source "drivers/misc/cardreader/Kconfig"
 source "drivers/misc/fpr_FingerprintCard/Kconfig"
-<<<<<<< Updated upstream
-=======
 source "drivers/misc/qrc/Kconfig"
->>>>>>> Stashed changes
 endmenu
 
 config OKL4_USER_VIPC

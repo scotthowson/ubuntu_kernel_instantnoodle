@@ -1,11 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2009-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2009-2021, The Linux Foundation. All rights reserved.
  * Copyright (c) 2022-2023, Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #define pr_fmt(fmt) "%s: " fmt, __func__
@@ -369,13 +365,10 @@ static struct msm_soc_info cpu_of_id[] = {
 	/* kona ID */
 	[356] = {MSM_CPU_KONA, "KONA"},
 	[455] = {MSM_CPU_KONA, "KONA"},
-<<<<<<< Updated upstream
-=======
 	[496] = {MSM_CPU_KONA, "KONA"},
 
 	/* kona-7230-iot ID */
 	[548] = {MSM_CPU_KONA_IOT, "KONA-7230-IOT"},
->>>>>>> Stashed changes
 
 	/* Lito ID */
 	[400] = {MSM_CPU_LITO, "LITO"},
@@ -412,11 +405,8 @@ static struct msm_soc_info cpu_of_id[] = {
 	/* Scuba ID */
 	[441] = {MSM_CPU_SCUBA, "SCUBA"},
 	[471] = {MSM_CPU_SCUBA, "SCUBA"},
-<<<<<<< Updated upstream
-=======
 
 	/* Scuba IIOT  ID */
->>>>>>> Stashed changes
 	[473] = {MSM_CPU_SCUBAIOT, "SCUBAIIOT"},
 	[474] = {MSM_CPU_SCUBAPIOT, "SCUBAPIIOT"},
 
@@ -425,8 +415,6 @@ static struct msm_soc_info cpu_of_id[] = {
 
 	/* BENGALP-IOT ID */
 	[470] = {MSM_CPU_BENGALP_IOT, "BENGALP-IOT"},
-<<<<<<< Updated upstream
-=======
 
 	/* MSM8937 ID */
 	[294] = {MSM_CPU_8937, "MSM8937"},
@@ -452,7 +440,6 @@ static struct msm_soc_info cpu_of_id[] = {
 
 	/* SDM450 ID */
 	[338] = {MSM_CPU_SDM450, "SDM450"},
->>>>>>> Stashed changes
 
 	/* Uninitialized IDs are not known to run Linux.
 	 * MSM_CPU_UNKNOWN is set to 0 to ensure these IDs are
@@ -1644,8 +1631,6 @@ static void * __init setup_dummy_socinfo(void)
 		dummy_socinfo.id = 470;
 		strlcpy(dummy_socinfo.build_id, "bengalp-iot - ",
 		sizeof(dummy_socinfo.build_id));
-<<<<<<< Updated upstream
-=======
 	} else if (early_machine_is_msm8937()) {
 		dummy_socinfo.id = 294;
 		strlcpy(dummy_socinfo.build_id, "msm8937 - ",
@@ -1678,7 +1663,6 @@ static void * __init setup_dummy_socinfo(void)
 		dummy_socinfo.id = 548;
 		strlcpy(dummy_socinfo.build_id, "kona-7230-iot - ",
 		sizeof(dummy_socinfo.build_id));
->>>>>>> Stashed changes
 	} else
 		strlcat(dummy_socinfo.build_id, "Dummy socinfo",
 			sizeof(dummy_socinfo.build_id));

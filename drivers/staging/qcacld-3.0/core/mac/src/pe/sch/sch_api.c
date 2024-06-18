@@ -1,9 +1,6 @@
 /*
  * Copyright (c) 2011-2020 The Linux Foundation. All rights reserved.
-<<<<<<< Updated upstream
-=======
  * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -376,20 +373,12 @@ uint32_t lim_send_probe_rsp_template_to_hal(struct mac_context *mac,
  * @timestamp_offset: return for the offset of the timestamp field
  * @time_value_offset: return for the time_value field in the TA IE
  *
-<<<<<<< Updated upstream
- * Return: the length of the buffer.
-=======
  * Return: the length of the buffer on success and error code on failure.
->>>>>>> Stashed changes
  */
 int sch_gen_timing_advert_frame(struct mac_context *mac_ctx, tSirMacAddr self_addr,
 	uint8_t **buf, uint32_t *timestamp_offset, uint32_t *time_value_offset)
 {
-<<<<<<< Updated upstream
-	tDot11fTimingAdvertisementFrame frame;
-=======
 	tDot11fTimingAdvertisementFrame frame = {0};
->>>>>>> Stashed changes
 	uint32_t payload_size, buf_size;
 	int status;
 	struct qdf_mac_addr wildcard_bssid = {
@@ -400,34 +389,15 @@ int sch_gen_timing_advert_frame(struct mac_context *mac_ctx, tSirMacAddr self_ad
 
 	/* Populate the TA fields */
 	status = populate_dot11f_timing_advert_frame(mac_ctx, &frame);
-<<<<<<< Updated upstream
-	if (status) {
-		pe_err("Error populating TA frame %x", status);
-		return status;
-=======
 	if (!QDF_IS_STATUS_SUCCESS(status)) {
 		pe_err("Error populating TA frame %x", status);
 		return qdf_status_to_os_return(status);
->>>>>>> Stashed changes
 	}
 
 	status = dot11f_get_packed_timing_advertisement_frame_size(mac_ctx,
 		&frame, &payload_size);
 	if (DOT11F_FAILED(status)) {
 		pe_err("Error getting packed frame size %x", status);
-<<<<<<< Updated upstream
-		return status;
-	} else if (DOT11F_WARNED(status)) {
-		pe_warn("Warning getting packed frame size");
-	}
-
-	buf_size = sizeof(tSirMacMgmtHdr) + payload_size;
-	*buf = qdf_mem_malloc(buf_size);
-	if (!*buf) {
-		pe_err("Cannot allocate memory");
-		return QDF_STATUS_E_FAILURE;
-	}
-=======
 		return -EINVAL;
 	}
 
@@ -438,22 +408,11 @@ int sch_gen_timing_advert_frame(struct mac_context *mac_ctx, tSirMacAddr self_ad
 	*buf = qdf_mem_malloc(buf_size);
 	if (!*buf)
 		return -ENOMEM;
->>>>>>> Stashed changes
 
 	payload_size = 0;
 	status = dot11f_pack_timing_advertisement_frame(mac_ctx, &frame,
 		*buf + sizeof(tSirMacMgmtHdr), buf_size -
 		sizeof(tSirMacMgmtHdr), &payload_size);
-<<<<<<< Updated upstream
-	pe_err("TA payload size2 = %d", payload_size);
-	if (DOT11F_FAILED(status)) {
-		pe_err("Error packing frame %x", status);
-		goto fail;
-	} else if (DOT11F_WARNED(status)) {
-		pe_warn("Warning packing frame");
-	}
-
-=======
 	pe_debug("TA payload size2 = %d", payload_size);
 	if (DOT11F_FAILED(status)) {
 		pe_err("Error packing frame %x", status);
@@ -463,7 +422,6 @@ int sch_gen_timing_advert_frame(struct mac_context *mac_ctx, tSirMacAddr self_ad
 	if (DOT11F_WARNED(status))
 		pe_warn("Warning packing frame");
 
->>>>>>> Stashed changes
 	lim_populate_mac_header(mac_ctx, *buf, SIR_MAC_MGMT_FRAME,
 		SIR_MAC_MGMT_TIME_ADVERT, wildcard_bssid.bytes, self_addr);
 
@@ -489,13 +447,7 @@ int sch_gen_timing_advert_frame(struct mac_context *mac_ctx, tSirMacAddr self_ad
 	return payload_size + sizeof(tSirMacMgmtHdr);
 
 fail:
-<<<<<<< Updated upstream
-	if (*buf)
-		qdf_mem_free(*buf);
-	return status;
-=======
 	qdf_mem_free(*buf);
 	*buf = NULL;
 	return -EINVAL;
->>>>>>> Stashed changes
 }

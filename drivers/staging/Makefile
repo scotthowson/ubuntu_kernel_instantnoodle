@@ -51,8 +51,4 @@ obj-$(CONFIG_SOC_MT7621)	+= mt7621-eth/
 obj-$(CONFIG_SOC_MT7621)	+= mt7621-dts/
 obj-$(CONFIG_STAGING_GASKET_FRAMEWORK)	+= gasket/
 obj-$(CONFIG_XIL_AXIS_FIFO)	+= axis-fifo/
-<<<<<<< Updated upstream
-obj-$(CONFIG_EROFS_FS)		+= erofs/
-=======
->>>>>>> Stashed changes
 obj-$(CONFIG_QCA_CLD_WLAN)	+= qcacld-3.0/

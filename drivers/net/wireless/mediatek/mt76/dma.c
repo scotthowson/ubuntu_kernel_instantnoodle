@@ -395,13 +395,6 @@ mt76_add_fragment(struct mt76_dev *dev, struct mt76_queue *q, void *data,
 {
 	struct sk_buff *skb = q->rx_head;
 	struct skb_shared_info *shinfo = skb_shinfo(skb);
-<<<<<<< Updated upstream
-
-	if (shinfo->nr_frags < ARRAY_SIZE(shinfo->frags)) {
-		offset += q->buf_offset;
-		skb_add_rx_frag(skb, shinfo->nr_frags, page, offset, len,
-				q->buf_size);
-=======
 	int nr_frags = shinfo->nr_frags;
 
 	if (nr_frags < ARRAY_SIZE(shinfo->frags)) {
@@ -411,7 +404,6 @@ mt76_add_fragment(struct mt76_dev *dev, struct mt76_queue *q, void *data,
 		skb_add_rx_frag(skb, nr_frags, page, offset, len, q->buf_size);
 	} else {
 		skb_free_frag(data);
->>>>>>> Stashed changes
 	}
 
 	if (more)

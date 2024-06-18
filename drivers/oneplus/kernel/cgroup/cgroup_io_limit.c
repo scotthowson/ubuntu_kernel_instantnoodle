@@ -190,12 +190,6 @@ static int iolimit_enable_seq_show(struct seq_file *seq, void *p)
 static ssize_t iolimit_enable_write(struct file *filp, const char __user *ubuf,
 	size_t cnt, loff_t *ppos)
 {
-<<<<<<< Updated upstream
-	int user_set_value = 0;
-	int ret = -1;
-
-    ret = kstrtoint_from_user(ubuf, cnt, 0, &user_set_value);
-=======
 	char buf[64] = { 0 };
 	int user_set_value = 0;
 	int ret = -1;
@@ -207,7 +201,6 @@ static ssize_t iolimit_enable_write(struct file *filp, const char __user *ubuf,
 		return -EFAULT;
 
 	ret = kstrtoint(strstrip(&buf[0]), 0, &user_set_value);
->>>>>>> Stashed changes
 
 	if (ret < 0)
 		return ret;

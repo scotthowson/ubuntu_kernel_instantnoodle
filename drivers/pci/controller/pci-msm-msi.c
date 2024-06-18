@@ -410,11 +410,7 @@ int msm_msi_init(struct device *dev)
 		else if (strncmp(devname, rc2_name, 17) == 0) /* pcie2: qcom,pcie@1c10000 */
 			desc->action->name = "qcommsi-rc2";
 		else
-<<<<<<< Updated upstream
-			desc->action->name = "qcommsi-rc1"; /* pcie1£ºqcom,pcie@1c08000 */
-=======
 			desc->action->name = "qcommsi-rc1"; /* pcie1Â£Âºqcom,pcie@1c08000 */
->>>>>>> Stashed changes
 	}
 
 	return 0;

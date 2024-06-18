@@ -1052,17 +1052,12 @@ static int init_chip_info(void)
 	unsigned int *chip;
 	unsigned int cpu, i;
 	unsigned int prev_chip_id = UINT_MAX;
-<<<<<<< Updated upstream
-=======
 	cpumask_t *chip_cpu_mask;
->>>>>>> Stashed changes
 	int ret = 0;
 
 	chip = kcalloc(num_possible_cpus(), sizeof(*chip), GFP_KERNEL);
 	if (!chip)
 		return -ENOMEM;
-<<<<<<< Updated upstream
-=======
 
 	/* Allocate a chip cpu mask large enough to fit mask for all chips */
 	chip_cpu_mask = kcalloc(MAX_NR_CHIPS, sizeof(cpumask_t), GFP_KERNEL);
@@ -1070,7 +1065,6 @@ static int init_chip_info(void)
 		ret = -ENOMEM;
 		goto free_and_return;
 	}
->>>>>>> Stashed changes
 
 	for_each_possible_cpu(cpu) {
 		unsigned int id = cpu_to_chip_id(cpu);
@@ -1085,11 +1079,7 @@ static int init_chip_info(void)
 	chips = kcalloc(nr_chips, sizeof(struct chip), GFP_KERNEL);
 	if (!chips) {
 		ret = -ENOMEM;
-<<<<<<< Updated upstream
-		goto free_and_return;
-=======
 		goto out_free_chip_cpu_mask;
->>>>>>> Stashed changes
 	}
 
 	for (i = 0; i < nr_chips; i++) {
@@ -1100,11 +1090,8 @@ static int init_chip_info(void)
 			per_cpu(chip_info, cpu) =  &chips[i];
 	}
 
-<<<<<<< Updated upstream
-=======
 out_free_chip_cpu_mask:
 	kfree(chip_cpu_mask);
->>>>>>> Stashed changes
 free_and_return:
 	kfree(chip);
 	return ret;
@@ -1114,10 +1101,7 @@ static inline void clean_chip_info(void)
 {
 	int i;
 
-<<<<<<< Updated upstream
-=======
 	/* flush any pending work items */
->>>>>>> Stashed changes
 	if (chips)
 		for (i = 0; i < nr_chips; i++)
 			cancel_work_sync(&chips[i].throttle);

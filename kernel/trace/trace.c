@@ -4431,12 +4431,6 @@ int set_tracer_flag(struct trace_array *tr, unsigned int mask, int enabled)
 		trace_event_enable_cmd_record(enabled);
 
 	if (mask == TRACE_ITER_RECORD_TGID) {
-<<<<<<< Updated upstream
-		if (!tgid_map)
-			tgid_map = kvcalloc(PID_MAX_DEFAULT + 1,
-					   sizeof(*tgid_map),
-					   GFP_KERNEL);
-=======
 		if (!tgid_map) {
 			tgid_map_max = pid_max;
 			map = kvcalloc(tgid_map_max + 1, sizeof(*tgid_map),
@@ -4450,7 +4444,6 @@ int set_tracer_flag(struct trace_array *tr, unsigned int mask, int enabled)
 			 */
 			smp_store_release(&tgid_map, map);
 		}
->>>>>>> Stashed changes
 		if (!tgid_map) {
 			tr->trace_flags &= ~TRACE_ITER_RECORD_TGID;
 			return -ENOMEM;
@@ -7824,9 +7817,6 @@ static int allocate_trace_buffers(struct trace_array *tr, int size)
 	 */
 	allocate_snapshot = false;
 #endif
-<<<<<<< Updated upstream
-	vmalloc_sync_mappings();
-=======
 
 	/*
 	 * Because of some magic with the way alloc_percpu() works on
@@ -7840,7 +7830,6 @@ static int allocate_trace_buffers(struct trace_array *tr, int size)
 	 */
 	vmalloc_sync_mappings();
 
->>>>>>> Stashed changes
 	return 0;
 }
 

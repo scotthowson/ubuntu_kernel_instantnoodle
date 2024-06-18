@@ -62,11 +62,7 @@
 
 //---Touch info.---
 #define TOUCH_DEFAULT_MAX_WIDTH 1080
-<<<<<<< Updated upstream
-#define TOUCH_DEFAULT_MAX_HEIGHT 1920
-=======
 #define TOUCH_DEFAULT_MAX_HEIGHT 2408
->>>>>>> Stashed changes
 #define TOUCH_MAX_FINGER_NUM 10
 #define TOUCH_KEY_NUM 0
 #if TOUCH_KEY_NUM > 0
@@ -86,11 +82,7 @@ extern const uint16_t touch_key_array[TOUCH_KEY_NUM];
 #if WAKEUP_GESTURE
 extern const uint16_t gesture_key_array[];
 #endif
-<<<<<<< Updated upstream
-#define BOOT_UPDATE_FIRMWARE 0
-=======
 #define BOOT_UPDATE_FIRMWARE 1
->>>>>>> Stashed changes
 #define BOOT_UPDATE_FIRMWARE_NAME "novatek_ts_fw.bin"
 
 //---ESD Protect.---

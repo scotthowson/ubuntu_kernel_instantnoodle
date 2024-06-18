@@ -47,10 +47,7 @@ struct thread_info {
 #ifdef CONFIG_SHADOW_CALL_STACK
 	void			*shadow_call_stack;
 #endif
-<<<<<<< Updated upstream
-=======
 	int			preempt_lazy_count; /* 0 => preemptable, <0 => bug */
->>>>>>> Stashed changes
 };
 
 #define thread_saved_pc(tsk)	\

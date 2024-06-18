@@ -32,8 +32,6 @@
 
 #include "cpu.h"
 
-#include "cpu.h"
-
 static void __init spectre_v1_select_mitigation(void);
 static void __init spectre_v2_select_mitigation(void);
 static void __init retbleed_select_mitigation(void);
@@ -41,17 +39,12 @@ static void __init spectre_v2_user_select_mitigation(void);
 static void __init ssb_select_mitigation(void);
 static void __init l1tf_select_mitigation(void);
 static void __init mds_select_mitigation(void);
-<<<<<<< Updated upstream
-static void __init mds_print_mitigation(void);
-static void __init taa_select_mitigation(void);
-=======
 static void __init md_clear_update_mitigation(void);
 static void __init md_clear_select_mitigation(void);
 static void __init taa_select_mitigation(void);
 static void __init mmio_select_mitigation(void);
 static void __init srbds_select_mitigation(void);
 static void __init gds_select_mitigation(void);
->>>>>>> Stashed changes
 
 /* The base value of the SPEC_CTRL MSR without task-specific bits set */
 u64 x86_spec_ctrl_base;
@@ -155,53 +148,9 @@ void __init cpu_select_mitigations(void)
 	spectre_v2_user_select_mitigation();
 	ssb_select_mitigation();
 	l1tf_select_mitigation();
-<<<<<<< Updated upstream
-	mds_select_mitigation();
-	taa_select_mitigation();
-
-	/*
-	 * As MDS and TAA mitigations are inter-related, print MDS
-	 * mitigation until after TAA mitigation selection is done.
-	 */
-	mds_print_mitigation();
-
-	arch_smt_update();
-
-#ifdef CONFIG_X86_32
-	/*
-	 * Check whether we are able to run this kernel safely on SMP.
-	 *
-	 * - i386 is no longer supported.
-	 * - In order to run on anything without a TSC, we need to be
-	 *   compiled for a i486.
-	 */
-	if (boot_cpu_data.x86 < 4)
-		panic("Kernel requires i486+ for 'invlpg' and other features");
-
-	init_utsname()->machine[1] =
-		'0' + (boot_cpu_data.x86 > 6 ? 6 : boot_cpu_data.x86);
-	alternative_instructions();
-
-	fpu__init_check_bugs();
-#else /* CONFIG_X86_64 */
-	alternative_instructions();
-
-	/*
-	 * Make sure the first 2MB area is not mapped by huge pages
-	 * There are typically fixed size MTRRs in there and overlapping
-	 * MTRRs into large pages causes slow downs.
-	 *
-	 * Right now we don't do that with gbpages because there seems
-	 * very little benefit for that case.
-	 */
-	if (!direct_gbpages)
-		set_memory_4k((unsigned long)__va(0), 1);
-#endif
-=======
 	md_clear_select_mitigation();
 	srbds_select_mitigation();
 	gds_select_mitigation();
->>>>>>> Stashed changes
 }
 
 /*
@@ -293,17 +242,6 @@ static void __init mds_select_mitigation(void)
 		    (mds_nosmt || cpu_mitigations_auto_nosmt()))
 			cpu_smt_disable(false);
 	}
-<<<<<<< Updated upstream
-}
-
-static void __init mds_print_mitigation(void)
-{
-	if (!boot_cpu_has_bug(X86_BUG_MDS) || cpu_mitigations_off())
-		return;
-
-	pr_info("%s\n", mds_strings[mds_mitigation]);
-=======
->>>>>>> Stashed changes
 }
 
 static int __init mds_cmdline(char *str)
@@ -353,11 +291,7 @@ static void __init taa_select_mitigation(void)
 	/* TSX previously disabled by tsx=off */
 	if (!boot_cpu_has(X86_FEATURE_RTM)) {
 		taa_mitigation = TAA_MITIGATION_TSX_DISABLED;
-<<<<<<< Updated upstream
-		goto out;
-=======
 		return;
->>>>>>> Stashed changes
 	}
 
 	if (cpu_mitigations_off()) {
@@ -371,11 +305,7 @@ static void __init taa_select_mitigation(void)
 	 */
 	if (taa_mitigation == TAA_MITIGATION_OFF &&
 	    mds_mitigation == MDS_MITIGATION_OFF)
-<<<<<<< Updated upstream
-		goto out;
-=======
 		return;
->>>>>>> Stashed changes
 
 	if (boot_cpu_has(X86_FEATURE_MD_CLEAR))
 		taa_mitigation = TAA_MITIGATION_VERW;
@@ -407,21 +337,6 @@ static void __init taa_select_mitigation(void)
 
 	if (taa_nosmt || cpu_mitigations_auto_nosmt())
 		cpu_smt_disable(false);
-<<<<<<< Updated upstream
-
-	/*
-	 * Update MDS mitigation, if necessary, as the mds_user_clear is
-	 * now enabled for TAA mitigation.
-	 */
-	if (mds_mitigation == MDS_MITIGATION_OFF &&
-	    boot_cpu_has_bug(X86_BUG_MDS)) {
-		mds_mitigation = MDS_MITIGATION_FULL;
-		mds_select_mitigation();
-	}
-out:
-	pr_info("%s\n", taa_strings[taa_mitigation]);
-=======
->>>>>>> Stashed changes
 }
 
 static int __init tsx_async_abort_parse_cmdline(char *str)
@@ -446,8 +361,6 @@ static int __init tsx_async_abort_parse_cmdline(char *str)
 early_param("tsx_async_abort", tsx_async_abort_parse_cmdline);
 
 #undef pr_fmt
-<<<<<<< Updated upstream
-=======
 #define pr_fmt(fmt)	"MMIO Stale Data: " fmt
 
 enum mmio_mitigations {
@@ -832,7 +745,6 @@ static int __init gds_parse_cmdline(char *str)
 early_param("gather_data_sampling", gds_parse_cmdline);
 
 #undef pr_fmt
->>>>>>> Stashed changes
 #define pr_fmt(fmt)     "Spectre V1 : " fmt
 
 enum spectre_v1_mitigation {
@@ -1688,10 +1600,7 @@ static void update_mds_branch_idle(void)
 
 #define MDS_MSG_SMT "MDS CPU bug present and SMT on, data leak possible. See https://www.kernel.org/doc/html/latest/admin-guide/hw-vuln/mds.html for more details.\n"
 #define TAA_MSG_SMT "TAA CPU bug present and SMT on, data leak possible. See https://www.kernel.org/doc/html/latest/admin-guide/hw-vuln/tsx_async_abort.html for more details.\n"
-<<<<<<< Updated upstream
-=======
 #define MMIO_MSG_SMT "MMIO Stale Data CPU bug present and SMT on, data leak possible. See https://www.kernel.org/doc/html/latest/admin-guide/hw-vuln/processor_mmio_stale_data.html for more details.\n"
->>>>>>> Stashed changes
 
 void arch_smt_update(void)
 {
@@ -1736,8 +1645,6 @@ void arch_smt_update(void)
 		break;
 	}
 
-<<<<<<< Updated upstream
-=======
 	switch (mmio_mitigation) {
 	case MMIO_MITIGATION_VERW:
 	case MMIO_MITIGATION_UCODE_NEEDED:
@@ -1748,7 +1655,6 @@ void arch_smt_update(void)
 		break;
 	}
 
->>>>>>> Stashed changes
 	mutex_unlock(&spec_ctrl_mutex);
 }
 
@@ -2292,8 +2198,6 @@ static ssize_t tsx_async_abort_show_state(char *buf)
 		       sched_smt_active() ? "vulnerable" : "disabled");
 }
 
-<<<<<<< Updated upstream
-=======
 static ssize_t mmio_stale_data_show_state(char *buf)
 {
 	if (boot_cpu_has_bug(X86_BUG_MMIO_UNKNOWN))
@@ -2311,7 +2215,6 @@ static ssize_t mmio_stale_data_show_state(char *buf)
 			  sched_smt_active() ? "vulnerable" : "disabled");
 }
 
->>>>>>> Stashed changes
 static char *stibp_state(void)
 {
 	if (spectre_v2_in_eibrs_mode(spectre_v2_enabled))
@@ -2433,8 +2336,6 @@ static ssize_t cpu_show_common(struct device *dev, struct device_attribute *attr
 	case X86_BUG_ITLB_MULTIHIT:
 		return itlb_multihit_show_state(buf);
 
-<<<<<<< Updated upstream
-=======
 	case X86_BUG_SRBDS:
 		return srbds_show_state(buf);
 
@@ -2448,7 +2349,6 @@ static ssize_t cpu_show_common(struct device *dev, struct device_attribute *attr
 	case X86_BUG_GDS:
 		return gds_show_state(buf);
 
->>>>>>> Stashed changes
 	default:
 		break;
 	}
@@ -2495,8 +2395,6 @@ ssize_t cpu_show_itlb_multihit(struct device *dev, struct device_attribute *attr
 {
 	return cpu_show_common(dev, attr, buf, X86_BUG_ITLB_MULTIHIT);
 }
-<<<<<<< Updated upstream
-=======
 
 ssize_t cpu_show_srbds(struct device *dev, struct device_attribute *attr, char *buf)
 {
@@ -2520,5 +2418,4 @@ ssize_t cpu_show_gds(struct device *dev, struct device_attribute *attr, char *bu
 {
 	return cpu_show_common(dev, attr, buf, X86_BUG_GDS);
 }
->>>>>>> Stashed changes
 #endif

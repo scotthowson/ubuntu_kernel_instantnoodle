@@ -3,11 +3,7 @@
 #define _UAPI_LINUX_SWAB_H
 
 #include <linux/types.h>
-<<<<<<< Updated upstream
-#include <linux/compiler.h>
-=======
 #include <linux/stddef.h>
->>>>>>> Stashed changes
 #include <asm/bitsperlong.h>
 #include <asm/swab.h>
 

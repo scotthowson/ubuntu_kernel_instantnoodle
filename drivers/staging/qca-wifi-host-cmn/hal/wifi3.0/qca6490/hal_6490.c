@@ -1210,8 +1210,6 @@ static inline uint32_t hal_rx_msdu_flow_idx_get_6490(uint8_t *buf)
 }
 
 /**
-<<<<<<< Updated upstream
-=======
  * hal_rx_msdu_get_reo_destination_indication_6490: API to get
  * reo_destination_indication from rx_msdu_end TLV
  * @buf: pointer to the start of RX PKT TLV headers
@@ -1230,7 +1228,6 @@ hal_rx_msdu_get_reo_destination_indication_6490(uint8_t *buf,
 }
 
 /**
->>>>>>> Stashed changes
  * hal_rx_msdu_flow_idx_invalid_6490: API to get flow index invalid
  * from rx_msdu_end TLV
  * @buf: pointer to the start of RX PKT TLV headers
@@ -1591,10 +1588,7 @@ struct hal_hw_txrx_ops qca6490_hal_hw_txrx_ops = {
 	hal_rx_get_flow_agg_continuation_6490,
 	hal_rx_get_flow_agg_count_6490,
 	hal_rx_get_fisa_timeout_6490,
-<<<<<<< Updated upstream
-=======
 	hal_rx_msdu_get_reo_destination_indication_6490
->>>>>>> Stashed changes
 };
 
 struct hal_hw_srng_config hw_srng_table_6490[] = {
@@ -1880,15 +1874,11 @@ struct hal_hw_srng_config hw_srng_table_6490[] = {
 	},
 	{ /* WBM2SW_RELEASE */
 		.start_ring_id = HAL_SRNG_WBM2SW0_RELEASE,
-<<<<<<< Updated upstream
-		.max_rings = 4,
-=======
 #ifdef CONFIG_PLD_PCIE_FW_SIM
 		.max_rings = 5,
 #else
 		.max_rings = 4,
 #endif
->>>>>>> Stashed changes
 		.entry_size = sizeof(struct wbm_release_ring) >> 2,
 		.lmac_ring = FALSE,
 		.ring_dir = HAL_SRNG_DST_RING,

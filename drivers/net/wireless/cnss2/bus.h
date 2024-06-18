@@ -1,9 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
-<<<<<<< Updated upstream
-/* Copyright (c) 2018-2020, The Linux Foundation. All rights reserved. */
-=======
 /* Copyright (c) 2018-2021, The Linux Foundation. All rights reserved. */
->>>>>>> Stashed changes
 
 #ifndef _CNSS_BUS_H
 #define _CNSS_BUS_H

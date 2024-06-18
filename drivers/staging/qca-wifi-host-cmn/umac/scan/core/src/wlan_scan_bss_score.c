@@ -1,10 +1,6 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2017-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2017-2021 The Linux Foundation. All rights reserved.
  * Copyright (c) 2021 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -31,10 +27,7 @@
 #include "wlan_policy_mgr_api.h"
 #endif
 #include "wlan_reg_services_api.h"
-<<<<<<< Updated upstream
-=======
 #include "wlan_crypto_global_api.h"
->>>>>>> Stashed changes
 
 #define SCM_20MHZ_BW_INDEX                  0
 #define SCM_40MHZ_BW_INDEX                  1
@@ -125,17 +118,10 @@ void scm_validate_scoring_config(struct scoring_config *score_cfg)
 		       score_cfg->weight_cfg.channel_congestion_weightage +
 		       score_cfg->weight_cfg.oce_wan_weightage;
 
-<<<<<<< Updated upstream
-	if (total_weight > BEST_CANDIDATE_MAX_WEIGHT) {
-
-		scm_err("total weight is greater than %d fallback to default values",
-			BEST_CANDIDATE_MAX_WEIGHT);
-=======
 	if (total_weight > MAX_BSS_SCORE) {
 
 		scm_err("total weight is greater than %d fallback to default values",
 			MAX_BSS_SCORE);
->>>>>>> Stashed changes
 
 		score_cfg->weight_cfg.rssi_weightage = RSSI_WEIGHTAGE;
 		score_cfg->weight_cfg.ht_caps_weightage =
@@ -687,8 +673,6 @@ static uint32_t scm_get_sta_nss(struct wlan_objmgr_psoc *psoc,
 }
 #endif
 
-<<<<<<< Updated upstream
-=======
 /**
  * scm_calculate_sae_pk_ap_weightage() - Calculate SAE-PK AP weightage
  * @entry: bss entry
@@ -719,7 +703,6 @@ scm_calculate_sae_pk_ap_weightage(struct scan_cache_entry *entry,
 	return 0;
 }
 
->>>>>>> Stashed changes
 int scm_calculate_bss_score(struct wlan_objmgr_psoc *psoc,
 		struct scan_default_params *params,
 		struct scan_cache_entry *entry,
@@ -744,11 +727,8 @@ int scm_calculate_bss_score(struct wlan_objmgr_psoc *psoc,
 	int8_t rssi_pref_5g_rssi_thresh;
 	bool same_bucket = false;
 	bool ap_su_beam_former = false;
-<<<<<<< Updated upstream
-=======
 	uint32_t sae_pk_score = 0;
 	bool sae_pk_cap_present = 0;
->>>>>>> Stashed changes
 	struct wlan_ie_vhtcaps *vht_cap;
 	struct scoring_config *score_config;
 	struct weight_config *weight_config;
@@ -859,13 +839,10 @@ int scm_calculate_bss_score(struct wlan_objmgr_psoc *psoc,
 		score += oce_wan_score;
 	}
 
-<<<<<<< Updated upstream
-=======
 	sae_pk_score = scm_calculate_sae_pk_ap_weightage(entry, score_config,
 							&sae_pk_cap_present);
 	score += sae_pk_score;
 
->>>>>>> Stashed changes
 	pdev = wlan_objmgr_get_pdev_by_id(psoc, entry->pdev_id, WLAN_SCAN_ID);
 	if (!pdev) {
 		scm_err("pdev is NULL");
@@ -895,26 +872,13 @@ int scm_calculate_bss_score(struct wlan_objmgr_psoc *psoc,
 		       score_config->beamformee_cap, score_config->cb_mode_24G,
 		       score_config->cb_mode_5G, sta_nss);
 
-<<<<<<< Updated upstream
-	scm_nofl_debug("Candidate("QDF_MAC_ADDR_FMT" freq %d): rssi %d HT %d VHT %d HE %d su bfer %d phy %d  air time frac %d qbss %d cong_pct %d NSS %d",
-=======
 	scm_nofl_debug("Candidate("QDF_MAC_ADDR_FMT" freq %d): rssi %d HT %d VHT %d HE %d su bfer %d phy %d  air time frac %d qbss %d cong_pct %d NSS %d sae_pk_cap_present %d",
->>>>>>> Stashed changes
 		       QDF_MAC_ADDR_REF(entry->bssid.bytes),
 		       entry->channel.chan_freq,
 		       entry->rssi_raw, util_scan_entry_htcap(entry) ? 1 : 0,
 		       util_scan_entry_vhtcap(entry) ? 1 : 0,
 		       util_scan_entry_hecap(entry) ? 1 : 0, ap_su_beam_former,
 		       entry->phy_mode, entry->air_time_fraction,
-<<<<<<< Updated upstream
-		       entry->qbss_chan_load, congestion_pct, entry->nss);
-
-	scm_nofl_debug("Scores: prorated_pcnt %d rssi %d pcl %d ht %d vht %d he %d bfee %d bw %d band %d congestion %d nss %d oce wan %d TOTAL %d",
-		       prorated_pcnt, rssi_score, pcl_score, ht_score,
-		       vht_score, he_score, beamformee_score, bandwidth_score,
-		       band_score, congestion_score, nss_score, oce_wan_score,
-		       score);
-=======
 		       entry->qbss_chan_load, congestion_pct, entry->nss,
 		       sae_pk_cap_present);
 
@@ -923,7 +887,6 @@ int scm_calculate_bss_score(struct wlan_objmgr_psoc *psoc,
 		       vht_score, he_score, beamformee_score, bandwidth_score,
 		       band_score, congestion_score, nss_score, oce_wan_score,
 		       sae_pk_score, score);
->>>>>>> Stashed changes
 
 	entry->bss_score = score;
 	return score;

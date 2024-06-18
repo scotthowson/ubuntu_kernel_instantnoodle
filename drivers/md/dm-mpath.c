@@ -588,7 +588,6 @@ static struct pgpath *__map_bio(struct multipath *m, struct bio *bio)
 	pgpath = READ_ONCE(m->current_pgpath);
 	if (!pgpath || !test_bit(MPATHF_QUEUE_IO, &m->flags))
 		pgpath = choose_pgpath(m, bio->bi_iter.bi_size);
-	queue_io = test_bit(MPATHF_QUEUE_IO, &m->flags);
 
 	/* MPATHF_QUEUE_IO might have been cleared by choose_pgpath. */
 	queue_io = test_bit(MPATHF_QUEUE_IO, &m->flags);

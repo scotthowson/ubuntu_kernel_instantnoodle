@@ -800,15 +800,10 @@ int dp_pll_clock_register_14nm(struct platform_device *pdev,
 
 	clk_data->clks = devm_kzalloc(&pdev->dev, (num_clks *
 				sizeof(struct clk *)), GFP_KERNEL);
-<<<<<<< Updated upstream
-	if (!clk_data->clks)
-		return -ENOMEM;
-=======
 	if (!clk_data->clks) {
 		devm_kfree(&pdev->dev, clk_data);
 		return -ENOMEM;
 	}
->>>>>>> Stashed changes
 	clk_data->clk_num = num_clks;
 
 	pll_res->priv = &dp_pdb;
@@ -847,10 +842,7 @@ int dp_pll_clock_register_14nm(struct platform_device *pdev,
 	}
 	return 0;
 clk_reg_fail:
-<<<<<<< Updated upstream
-=======
 	devm_kfree(&pdev->dev, clk_data->clks);
 	devm_kfree(&pdev->dev, clk_data);
->>>>>>> Stashed changes
 	return rc;
 }

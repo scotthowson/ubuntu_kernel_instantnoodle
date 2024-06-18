@@ -26,9 +26,6 @@ ldflags-y := -shared -nostdlib -soname=linux-vdso.so.1 --hash-style=sysv \
 
 ccflags-y += $(DISABLE_LTO)
 
-<<<<<<< Updated upstream
-CFLAGS_REMOVE_vgettimeofday.o += $(CC_FLAGS_SCS)
-=======
 ccflags-y := -fno-common -fno-builtin -fno-stack-protector -ffixed-x18
 ccflags-y += -DDISABLE_BRANCH_PROFILING -DBUILD_VDSO
 
@@ -52,7 +49,6 @@ ifeq ($(CONFIG_CC_IS_CLANG), y)
     CFLAGS_REMOVE_vgettimeofday.o += -mcmodel=tiny
   endif
 endif
->>>>>>> Stashed changes
 
 # Disable gcov profiling for VDSO code
 GCOV_PROFILE := n

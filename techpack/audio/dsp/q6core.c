@@ -1,11 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2012-2021, The Linux Foundation. All rights reserved.
  * Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include <linux/kernel.h>
@@ -209,11 +205,7 @@ EXPORT_SYMBOL(q6core_send_uevent);
 static int parse_fwk_version_info(uint32_t *payload, uint16_t payload_size)
 {
 	size_t ver_size;
-<<<<<<< Updated upstream
-	int num_services;
-=======
 	uint16_t num_services;
->>>>>>> Stashed changes
 
 	pr_debug("%s: Payload info num services %d\n",
 		 __func__, payload[4]);
@@ -483,8 +475,6 @@ static int32_t aprv2_core_fn_q(struct apr_client_data *data, void *priv)
 	case AVCS_CMD_RSP_LOAD_MODULES:
 		pr_debug("%s: Received AVCS_CMD_RSP_LOAD_MODULES\n",
 			 __func__);
-<<<<<<< Updated upstream
-=======
 		if (!rsp_payload)
 			return -EINVAL;
 		if (data->payload_size != ((sizeof(struct avcs_load_unload_modules_sec_payload)
@@ -493,7 +483,6 @@ static int32_t aprv2_core_fn_q(struct apr_client_data *data, void *priv)
 				__func__,data->payload_size);
 			return -EINVAL;
 		}
->>>>>>> Stashed changes
 		memcpy(rsp_payload, data->payload, data->payload_size);
 		q6core_lcl.avcs_module_resp_received = 1;
 		wake_up(&q6core_lcl.avcs_module_load_unload_wait);
@@ -760,8 +749,6 @@ int q6core_get_avcs_api_version_per_service(uint32_t service_id)
 EXPORT_SYMBOL(q6core_get_avcs_api_version_per_service);
 
 /**
-<<<<<<< Updated upstream
-=======
  * q6core_get_avcs_avs_build_version_info - Get AVS build version information
  *
  * @build_major_version - pointer to build major version
@@ -800,7 +787,6 @@ int q6core_get_avcs_avs_build_version_info(
 EXPORT_SYMBOL(q6core_get_avcs_avs_build_version_info);
 
 /**
->>>>>>> Stashed changes
  * core_set_license -
  *       command to set license for module
  *
@@ -1019,14 +1005,11 @@ int32_t q6core_avcs_load_unload_modules(struct avcs_load_unload_modules_payload
 				break;
 			}
 
-<<<<<<< Updated upstream
-=======
 			/*
 			 * ADSP will be coming up after boot up and AVS might
 			 * not be fully up with all modules when the control reaches here.
 			 * So, wait for 50msec before checking ADSP state again.
 			 */
->>>>>>> Stashed changes
 			msleep(50);
 		} while (time_after(timeout, jiffies));
 
@@ -1062,11 +1045,8 @@ int32_t q6core_avcs_load_unload_modules(struct avcs_load_unload_modules_payload
 		return -ENOMEM;
 	}
 
-<<<<<<< Updated upstream
-=======
 	rsp_payload->num_modules = num_modules;
 
->>>>>>> Stashed changes
 	memcpy((uint8_t *)mod + sizeof(struct apr_hdr) +
 		sizeof(struct avcs_load_unload_modules_meminfo),
 		payload, payload_size);
@@ -1121,10 +1101,7 @@ int32_t q6core_avcs_load_unload_modules(struct avcs_load_unload_modules_payload
 done:
 	kfree(mod);
 	kfree(rsp_payload);
-<<<<<<< Updated upstream
-=======
 	rsp_payload = NULL;
->>>>>>> Stashed changes
 	mutex_unlock(&(q6core_lcl.cmd_lock));
 	return ret;
 }

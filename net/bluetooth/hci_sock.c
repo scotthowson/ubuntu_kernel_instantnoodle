@@ -881,13 +881,6 @@ static int hci_sock_release(struct socket *sock)
 	}
 
 	sock_orphan(sk);
-<<<<<<< Updated upstream
-
-	skb_queue_purge(&sk->sk_receive_queue);
-	skb_queue_purge(&sk->sk_write_queue);
-
-=======
->>>>>>> Stashed changes
 	release_sock(sk);
 	sock_put(sk);
 	return 0;

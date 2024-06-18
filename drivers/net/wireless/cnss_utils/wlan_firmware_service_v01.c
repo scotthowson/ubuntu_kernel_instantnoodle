@@ -1,9 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0-only
-<<<<<<< Updated upstream
-/* Copyright (c) 2015-2020, The Linux Foundation. All rights reserved. */
-=======
 /* Copyright (c) 2021, The Linux Foundation. All rights reserved. */
->>>>>>> Stashed changes
 
 #include "wlan_firmware_service_v01.h"
 
@@ -461,8 +457,6 @@ static struct qmi_elem_info wlfw_host_ddr_range_s_v01_ei[] = {
 	},
 };
 
-<<<<<<< Updated upstream
-=======
 static struct qmi_elem_info wlfw_m3_segment_info_s_v01_ei[] = {
 	{
 		.data_type      = QMI_SIGNED_4_BYTE_ENUM,
@@ -539,7 +533,6 @@ static struct qmi_elem_info wlfw_dev_mem_info_s_v01_ei[] = {
 	},
 };
 
->>>>>>> Stashed changes
 struct qmi_elem_info wlfw_ind_register_req_msg_v01_ei[] = {
 	{
 		.data_type      = QMI_OPT_FLAG,
@@ -884,8 +877,6 @@ struct qmi_elem_info wlfw_ind_register_req_msg_v01_ei[] = {
 					   qdss_mem_ready_enable),
 	},
 	{
-<<<<<<< Updated upstream
-=======
 		.data_type      = QMI_OPT_FLAG,
 		.elem_len       = 1,
 		.elem_size      = sizeof(u8),
@@ -907,7 +898,6 @@ struct qmi_elem_info wlfw_ind_register_req_msg_v01_ei[] = {
 					   m3_dump_upload_segments_req_enable),
 	},
 	{
->>>>>>> Stashed changes
 		.data_type      = QMI_EOTI,
 		.array_type       = NO_ARRAY,
 		.tlv_type       = QMI_COMMON_TLV_TYPE,
@@ -1569,8 +1559,6 @@ struct qmi_elem_info wlfw_cap_resp_msg_v01_ei[] = {
 					   rd_card_chain_cap),
 	},
 	{
-<<<<<<< Updated upstream
-=======
 		.data_type      = QMI_OPT_FLAG,
 		.elem_len       = 1,
 		.elem_size      = sizeof(u8),
@@ -1592,7 +1580,6 @@ struct qmi_elem_info wlfw_cap_resp_msg_v01_ei[] = {
 		.ei_array      = wlfw_dev_mem_info_s_v01_ei,
 	},
 	{
->>>>>>> Stashed changes
 		.data_type      = QMI_EOTI,
 		.array_type       = NO_ARRAY,
 		.tlv_type       = QMI_COMMON_TLV_TYPE,
@@ -1828,8 +1815,6 @@ struct qmi_elem_info wlfw_cal_report_req_msg_v01_ei[] = {
 					   cal_remove_supported),
 	},
 	{
-<<<<<<< Updated upstream
-=======
 		.data_type      = QMI_OPT_FLAG,
 		.elem_len       = 1,
 		.elem_size      = sizeof(u8),
@@ -1850,7 +1835,6 @@ struct qmi_elem_info wlfw_cal_report_req_msg_v01_ei[] = {
 					   cal_file_download_size),
 	},
 	{
->>>>>>> Stashed changes
 		.data_type      = QMI_EOTI,
 		.array_type       = NO_ARRAY,
 		.tlv_type       = QMI_COMMON_TLV_TYPE,
@@ -4439,8 +4423,6 @@ struct qmi_elem_info wlfw_device_info_resp_msg_v01_ei[] = {
 					   bar_size),
 	},
 	{
-<<<<<<< Updated upstream
-=======
 		.data_type      = QMI_OPT_FLAG,
 		.elem_len       = 1,
 		.elem_size      = sizeof(u8),
@@ -4481,7 +4463,6 @@ struct qmi_elem_info wlfw_device_info_resp_msg_v01_ei[] = {
 					   mhi_state_info_size),
 	},
 	{
->>>>>>> Stashed changes
 		.data_type      = QMI_EOTI,
 		.array_type       = NO_ARRAY,
 		.tlv_type       = QMI_COMMON_TLV_TYPE,
@@ -4657,11 +4638,7 @@ struct qmi_elem_info wlfw_power_save_resp_msg_v01_ei[] = {
 	},
 	{
 		.data_type      = QMI_EOTI,
-<<<<<<< Updated upstream
-		.array_type      = NO_ARRAY,
-=======
 		.array_type       = NO_ARRAY,
->>>>>>> Stashed changes
 		.tlv_type       = QMI_COMMON_TLV_TYPE,
 	},
 };
@@ -4839,8 +4816,6 @@ struct qmi_elem_info wlfw_pcie_gen_switch_resp_msg_v01_ei[] = {
 	},
 };
 
-<<<<<<< Updated upstream
-=======
 struct qmi_elem_info wlfw_m3_dump_upload_segments_req_ind_msg_v01_ei[] = {
 	{
 		.data_type      = QMI_UNSIGNED_4_BYTE,
@@ -4883,4 +4858,3 @@ struct qmi_elem_info wlfw_m3_dump_upload_segments_req_ind_msg_v01_ei[] = {
 	},
 };
 
->>>>>>> Stashed changes

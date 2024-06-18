@@ -255,11 +255,7 @@ static int sonic_send_packet(struct sk_buff *skb, struct net_device *dev)
 	 */
 
 	laddr = dma_map_single(lp->device, skb->data, length, DMA_TO_DEVICE);
-<<<<<<< Updated upstream
-	if (!laddr) {
-=======
 	if (dma_mapping_error(lp->device, laddr)) {
->>>>>>> Stashed changes
 		pr_err_ratelimited("%s: failed to map tx DMA buffer.\n", dev->name);
 		dev_kfree_skb_any(skb);
 		return NETDEV_TX_OK;
@@ -477,11 +473,7 @@ static bool sonic_alloc_rb(struct net_device *dev, struct sonic_local *lp,
 
 	*new_addr = dma_map_single(lp->device, skb_put(*new_skb, SONIC_RBSIZE),
 				   SONIC_RBSIZE, DMA_FROM_DEVICE);
-<<<<<<< Updated upstream
-	if (!*new_addr) {
-=======
 	if (dma_mapping_error(lp->device, *new_addr)) {
->>>>>>> Stashed changes
 		dev_kfree_skb(*new_skb);
 		*new_skb = NULL;
 		return false;

@@ -212,10 +212,7 @@ static void *map_seq_next(struct seq_file *m, void *v, loff_t *pos)
 		map_iter(m)->done = true;
 		key = NULL;
 	}
-<<<<<<< Updated upstream
-=======
 	rcu_read_unlock();
->>>>>>> Stashed changes
 	return key;
 }
 

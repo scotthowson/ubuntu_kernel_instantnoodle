@@ -1,9 +1,5 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2011, 2014-2019 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2011, 2014-2019, 2021 The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -153,10 +149,7 @@ ol_rx_fwd_check(struct ol_txrx_vdev_t *vdev,
 	while (msdu) {
 		struct ol_txrx_vdev_t *tx_vdev;
 		void *rx_desc;
-<<<<<<< Updated upstream
-=======
 		uint16_t off = 0;
->>>>>>> Stashed changes
 		/*
 		 * Remember the next list elem, because our processing
 		 * may cause the MSDU to get linked into a different list.
@@ -211,8 +204,6 @@ ol_rx_fwd_check(struct ol_txrx_vdev_t *vdev,
 				continue;
 			}
 
-<<<<<<< Updated upstream
-=======
 			if (pdev->cfg.is_high_latency)
 				off = htt_rx_msdu_rx_desc_size_hl(
 								 pdev->htt_pdev,
@@ -233,7 +224,6 @@ ol_rx_fwd_check(struct ol_txrx_vdev_t *vdev,
 				continue;
 			}
 
->>>>>>> Stashed changes
 			/*
 			 * This MSDU needs to be forwarded to the tx path.
 			 * Check whether it also needs to be sent to the OS

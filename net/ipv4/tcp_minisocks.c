@@ -470,11 +470,7 @@ struct sock *tcp_create_openreq_child(const struct sock *sk,
 
 	seq = treq->rcv_isn + 1;
 	newtp->rcv_wup = seq;
-<<<<<<< Updated upstream
-	newtp->copied_seq = seq;
-=======
 	WRITE_ONCE(newtp->copied_seq, seq);
->>>>>>> Stashed changes
 	WRITE_ONCE(newtp->rcv_nxt, seq);
 	newtp->segs_in = 1;
 

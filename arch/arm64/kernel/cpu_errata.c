@@ -677,8 +677,6 @@ static void run_workaround_1542418_asid_rollover(const struct arm64_cpu_capabili
 }
 #endif
 
-<<<<<<< Updated upstream
-=======
 static bool __maybe_unused
 has_neoverse_n1_erratum_1542419(const struct arm64_cpu_capabilities *entry,
 				int scope)
@@ -691,7 +689,6 @@ has_neoverse_n1_erratum_1542419(const struct arm64_cpu_capabilities *entry,
 	return is_midr_in_range(midr, &range) && has_dic;
 }
 
->>>>>>> Stashed changes
 #ifdef CONFIG_HARDEN_EL2_VECTORS
 
 static const struct midr_range arm64_harden_el2_vectors[] = {
@@ -950,8 +947,6 @@ const struct arm64_cpu_capabilities arm64_errata[] = {
 		.cpu_enable = run_workaround_1542418_asid_rollover,
 	},
 #endif
-<<<<<<< Updated upstream
-=======
 #ifdef CONFIG_ARM64_ERRATUM_1542419
 	{
 		/* we depend on the firmware portion for correctness */
@@ -970,7 +965,6 @@ const struct arm64_cpu_capabilities arm64_errata[] = {
 		.type = ARM64_CPUCAP_LOCAL_CPU_ERRATUM,
 	},
 #endif
->>>>>>> Stashed changes
 	{
 	}
 };

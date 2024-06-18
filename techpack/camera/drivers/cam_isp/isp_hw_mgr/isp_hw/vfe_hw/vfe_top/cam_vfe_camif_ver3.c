@@ -307,8 +307,6 @@ static int cam_vfe_camif_ver3_resource_init(
 			CAM_ERR(CAM_ISP,
 				"failed to enable dsp clk, rc = %d", rc);
 	}
-<<<<<<< Updated upstream
-=======
 	camif_data->sof_ts.tv_sec = 0;
 	camif_data->sof_ts.tv_usec = 0;
 	camif_data->epoch_ts.tv_sec = 0;
@@ -317,7 +315,6 @@ static int cam_vfe_camif_ver3_resource_init(
 	camif_data->eof_ts.tv_usec = 0;
 	camif_data->error_ts.tv_sec = 0;
 	camif_data->error_ts.tv_usec = 0;
->>>>>>> Stashed changes
 
 	return rc;
 }

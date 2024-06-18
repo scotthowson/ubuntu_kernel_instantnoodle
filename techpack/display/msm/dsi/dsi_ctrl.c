@@ -266,8 +266,6 @@ static int dsi_ctrl_debugfs_deinit(struct dsi_ctrl *dsi_ctrl)
 static int dsi_ctrl_debugfs_init(struct dsi_ctrl *dsi_ctrl,
 				 struct dentry *parent)
 {
-<<<<<<< Updated upstream
-=======
 	char dbg_name[DSI_DEBUG_NAME_LEN];
 
 	snprintf(dbg_name, DSI_DEBUG_NAME_LEN, "dsi%d_ctrl",
@@ -275,7 +273,6 @@ static int dsi_ctrl_debugfs_init(struct dsi_ctrl *dsi_ctrl,
 	sde_dbg_reg_register_base(dbg_name,
 			dsi_ctrl->hw.base,
 			msm_iomap_size(dsi_ctrl->pdev, "dsi_ctrl"));
->>>>>>> Stashed changes
 	return 0;
 }
 static int dsi_ctrl_debugfs_deinit(struct dsi_ctrl *dsi_ctrl)
@@ -1210,18 +1207,6 @@ int dsi_message_validate_tx_mode(struct dsi_ctrl *dsi_ctrl,
 	} else if (*flags & DSI_CTRL_CMD_FETCH_MEMORY) {
 		const size_t transfer_size = dsi_ctrl->cmd_len + cmd_len + 4;
 
-<<<<<<< Updated upstream
-	if (*flags & DSI_CTRL_CMD_FETCH_MEMORY) {
-		if ((dsi_ctrl->cmd_len + cmd_len + 4) > SZ_4K) {
-#if defined(CONFIG_PXLW_IRIS)
-			if (iris_is_chip_supported()) {
-				if ((dsi_ctrl->cmd_len + cmd_len + 4) <= SZ_256K)
-					return rc;
-				DSI_CTRL_ERR(dsi_ctrl, "Cannot transfer, size is greater than 256K\n");
-			}
-#endif
-			DSI_CTRL_ERR(dsi_ctrl, "Cannot transfer,size is greater than 4096\n");
-=======
 #if defined(CONFIG_PXLW_IRIS)
 		if (iris_is_chip_supported()) {
 			if ((dsi_ctrl->cmd_len + cmd_len + 4) <= SZ_256K)
@@ -1233,7 +1218,6 @@ int dsi_message_validate_tx_mode(struct dsi_ctrl *dsi_ctrl,
 			DSI_CTRL_ERR(dsi_ctrl,"Cannot transfer, size: %zu is greater than %d\n",
 			       transfer_size,
 			       DSI_EMBEDDED_MODE_DMA_MAX_SIZE_BYTES);
->>>>>>> Stashed changes
 			return -ENOTSUPP;
 		}
 	}
@@ -1451,13 +1435,10 @@ static int dsi_message_tx(struct dsi_ctrl *dsi_ctrl,
 	if (dsi_ctrl->dma_wait_queued)
 		dsi_ctrl_flush_cmd_dma_queue(dsi_ctrl);
 
-<<<<<<< Updated upstream
-=======
 	DSI_CTRL_DEBUG(dsi_ctrl, "cmd tx type=%02x cmd=%02x len=%d last=%d\n",
 		 msg->type, msg->tx_len ? *((u8 *)msg->tx_buf) : 0, msg->tx_len,
 		 (msg->flags & MIPI_DSI_MSG_LASTCOMMAND) != 0);
 
->>>>>>> Stashed changes
 	if (*flags & DSI_CTRL_CMD_NON_EMBEDDED_MODE) {
 		cmd_mem.offset = dsi_ctrl->cmd_buffer_iova;
 		cmd_mem.en_broadcast = (*flags & DSI_CTRL_CMD_BROADCAST) ?
@@ -1491,8 +1472,6 @@ static int dsi_message_tx(struct dsi_ctrl *dsi_ctrl,
 		packet.header[3] |= BIT(7);//set the last cmd bit in header.
 
 	if (*flags & DSI_CTRL_CMD_FETCH_MEMORY) {
-<<<<<<< Updated upstream
-=======
 		msm_gem_sync(dsi_ctrl->tx_cmd_buf);
 		cmdbuf = dsi_ctrl->vaddr + dsi_ctrl->cmd_len;
 
@@ -1503,7 +1482,6 @@ static int dsi_message_tx(struct dsi_ctrl *dsi_ctrl,
 			goto error;
 		}
 	
->>>>>>> Stashed changes
 		/* Embedded mode config is selected */
 		cmd_mem.offset = dsi_ctrl->cmd_buffer_iova;
 		cmd_mem.en_broadcast = (*flags & DSI_CTRL_CMD_BROADCAST) ?
@@ -1513,21 +1491,6 @@ static int dsi_message_tx(struct dsi_ctrl *dsi_ctrl,
 		cmd_mem.use_lpm = (msg->flags & MIPI_DSI_MSG_USE_LPM) ?
 			true : false;
 
-<<<<<<< Updated upstream
-		cmdbuf = (u8 *)(dsi_ctrl->vaddr);
-
-#if defined(CONFIG_PXLW_IRIS)
-		if (!iris_is_chip_supported())
-			msm_gem_sync(dsi_ctrl->tx_cmd_buf);
-#else
-		msm_gem_sync(dsi_ctrl->tx_cmd_buf);
-#endif
-
-		for (cnt = 0; cnt < length; cnt++)
-			cmdbuf[dsi_ctrl->cmd_len + cnt] = buffer[cnt];
-
-=======
->>>>>>> Stashed changes
 		dsi_ctrl->cmd_len += length;
 
 		if (!(msg->flags & MIPI_DSI_MSG_LASTCOMMAND)) {
@@ -1538,8 +1501,6 @@ static int dsi_message_tx(struct dsi_ctrl *dsi_ctrl,
 		}
 
 	} else if (*flags & DSI_CTRL_CMD_FIFO_STORE) {
-<<<<<<< Updated upstream
-=======
 		buffer = devm_kzalloc(&dsi_ctrl->pdev->dev, length,
 					   GFP_KERNEL);
 		if (!buffer) {
@@ -1554,7 +1515,6 @@ static int dsi_message_tx(struct dsi_ctrl *dsi_ctrl,
 			goto error;
 		}
 
->>>>>>> Stashed changes
 		cmd.command =  (u32 *)buffer;
 		cmd.size = length;
 		cmd.en_broadcast = (*flags & DSI_CTRL_CMD_BROADCAST) ?
@@ -2864,11 +2824,7 @@ void dsi_ctrl_enable_status_interrupt(struct dsi_ctrl *dsi_ctrl,
 		return;
 
 	SDE_EVT32(dsi_ctrl->cell_index, SDE_EVTLOG_FUNC_ENTRY, intr_idx);
-<<<<<<< Updated upstream
-	spin_lock_irqsave(&dsi_ctrl->irq_info.irq_lock, flags);
-=======
 	raw_spin_lock_irqsave(&dsi_ctrl->irq_info.irq_lock, flags);
->>>>>>> Stashed changes
 
 	if (dsi_ctrl->irq_info.irq_stat_refcount[intr_idx] == 0) {
 		/* enable irq on first request */
@@ -2901,11 +2857,7 @@ void dsi_ctrl_disable_status_interrupt(struct dsi_ctrl *dsi_ctrl,
 		return;
 
 	SDE_EVT32_IRQ(dsi_ctrl->cell_index, SDE_EVTLOG_FUNC_ENTRY, intr_idx);
-<<<<<<< Updated upstream
-	spin_lock_irqsave(&dsi_ctrl->irq_info.irq_lock, flags);
-=======
 	raw_spin_lock_irqsave(&dsi_ctrl->irq_info.irq_lock, flags);
->>>>>>> Stashed changes
 
 	if (dsi_ctrl->irq_info.irq_stat_refcount[intr_idx])
 		if (--(dsi_ctrl->irq_info.irq_stat_refcount[intr_idx]) == 0) {

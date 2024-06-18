@@ -647,13 +647,10 @@ static int gs_can_open(struct net_device *netdev)
 					   rc);
 
 				usb_unanchor_urb(urb);
-<<<<<<< Updated upstream
-=======
 				usb_free_coherent(dev->udev,
 						  sizeof(struct gs_host_frame),
 						  buf,
 						  buf_dma);
->>>>>>> Stashed changes
 				usb_free_urb(urb);
 				break;
 			}

@@ -18,12 +18,6 @@
 #include <linux/input.h>
 #include <linux/kthread.h>
 #include <linux/sched/core_ctl.h>
-<<<<<<< Updated upstream
-#ifdef CONFIG_CONTROL_CENTER
-#include <linux/oem/control_center.h>
-#endif
-=======
->>>>>>> Stashed changes
 
 /*
  * Sched will provide the data for every 20ms window,

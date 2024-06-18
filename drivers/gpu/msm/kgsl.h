@@ -1,11 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2008-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2008-2021, The Linux Foundation. All rights reserved.
  * Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  */
 #ifndef __KGSL_H
 #define __KGSL_H
@@ -74,14 +70,11 @@
 #define SCRATCH_RPTR_GPU_ADDR(dev, id) \
 	((dev)->scratch.gpuaddr + SCRATCH_RPTR_OFFSET(id))
 
-<<<<<<< Updated upstream
-=======
 /* OFFSET to KMD postamble packets in scratch buffer */
 #define SCRATCH_POSTAMBLE_OFFSET (100 * sizeof(u64))
 #define SCRATCH_POSTAMBLE_ADDR(dev) \
 	((dev)->scratch.gpuaddr + SCRATCH_POSTAMBLE_OFFSET)
 
->>>>>>> Stashed changes
 /* Timestamp window used to detect rollovers (half of integer range) */
 #define KGSL_TIMESTAMP_WINDOW 0x80000000
 
@@ -201,10 +194,6 @@ struct kgsl_memdesc_ops {
 #define KGSL_MEMDESC_RECLAIMED BIT(12)
 /* Skip reclaim of the memdesc pages */
 #define KGSL_MEMDESC_SKIP_RECLAIM BIT(13)
-<<<<<<< Updated upstream
-#define KGSL_MEMDESC_USE_SHMEM BIT(14)
-=======
->>>>>>> Stashed changes
 
 /**
  * struct kgsl_memdesc - GPU memory object descriptor
@@ -243,13 +232,6 @@ struct kgsl_memdesc {
 	unsigned int cur_bindings;
 	struct file *shmem_filp;
 	/**
-<<<<<<< Updated upstream
-	 * @vma: Pointer to the vm_area_struct this memdesc is mapped to
-	 */
-	struct vm_area_struct *vma;
-	/**
-=======
->>>>>>> Stashed changes
 	 * @lock: Spinlock to protect the pages array
 	 */
 	spinlock_t lock;
@@ -257,14 +239,11 @@ struct kgsl_memdesc {
 	 * @reclaimed_page_count: Total number of pages reclaimed
 	 */
 	int reclaimed_page_count;
-<<<<<<< Updated upstream
-=======
 	/*
 	 * @gpuaddr_lock: Spinlock to protect the gpuaddr from being accessed by
 	 * multiple entities trying to map the same SVM region at once
 	 */
 	spinlock_t gpuaddr_lock;
->>>>>>> Stashed changes
 };
 
 /*

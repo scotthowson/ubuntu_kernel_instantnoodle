@@ -1033,10 +1033,6 @@ static int of_link_to_phandle(struct device *dev, struct device_node *sup_np,
 	 * Find the device node that contains the supplier phandle.  It may be
 	 * @sup_np or it may be an ancestor of @sup_np.
 	 */
-<<<<<<< Updated upstream
-	while (sup_np && !of_find_property(sup_np, "compatible", NULL))
-		sup_np = of_get_next_parent(sup_np);
-=======
 	while (sup_np) {
 
 		/* Don't allow linking to a disabled supplier */
@@ -1051,7 +1047,6 @@ static int of_link_to_phandle(struct device *dev, struct device_node *sup_np,
 		sup_np = of_get_next_parent(sup_np);
 	}
 
->>>>>>> Stashed changes
 	if (!sup_np) {
 		dev_dbg(dev, "Not linking to %pOFP - No device\n", tmp_np);
 		return -ENODEV;
@@ -1249,9 +1244,6 @@ DEFINE_SIMPLE_PROP(pinctrl2, "pinctrl-2", NULL)
 DEFINE_SIMPLE_PROP(pinctrl3, "pinctrl-3", NULL)
 DEFINE_SUFFIX_PROP(regulators, "-supply", NULL)
 DEFINE_SUFFIX_PROP(gpio, "-gpio", "#gpio-cells")
-<<<<<<< Updated upstream
-DEFINE_SUFFIX_PROP(gpios, "-gpios", "#gpio-cells")
-=======
 
 static struct device_node *parse_gpios(struct device_node *np,
 				       const char *prop_name, int index)
@@ -1262,7 +1254,6 @@ static struct device_node *parse_gpios(struct device_node *np,
 	return parse_suffix_prop_cells(np, prop_name, index, "-gpios",
 				       "#gpio-cells");
 }
->>>>>>> Stashed changes
 
 static struct device_node *parse_iommu_maps(struct device_node *np,
 					    const char *prop_name, int index)
@@ -1359,11 +1350,7 @@ static int of_link_to_suppliers(struct device *dev,
 		if (of_link_property(dev, con_np, p->name))
 			ret = -ENODEV;
 
-<<<<<<< Updated upstream
-	for_each_child_of_node(con_np, child)
-=======
 	for_each_available_child_of_node(con_np, child)
->>>>>>> Stashed changes
 		if (of_link_to_suppliers(dev, child) && !ret)
 			ret = -EAGAIN;
 

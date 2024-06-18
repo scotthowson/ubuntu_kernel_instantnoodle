@@ -1,5 +1,2 @@
 #include "bengal-idp.dtsi"
-<<<<<<< Updated upstream
-=======
 #include "bengal-idp-pmi632.dtsi"
->>>>>>> Stashed changes

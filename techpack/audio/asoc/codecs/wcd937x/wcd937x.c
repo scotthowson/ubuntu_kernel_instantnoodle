@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2018-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2018-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include <linux/module.h>
@@ -117,10 +113,6 @@ static int wcd937x_handle_post_irq(void *data)
 
 static int wcd937x_init_reg(struct snd_soc_component *component)
 {
-<<<<<<< Updated upstream
-	snd_soc_component_update_bits(component, WCD937X_SLEEP_CTL,
-				0x0E, 0x0E);
-=======
 	u32 val =0;
 
 	val = snd_soc_component_read32(component, WCD937X_DIGITAL_EFUSE_REG_29)
@@ -134,7 +126,6 @@ static int wcd937x_init_reg(struct snd_soc_component *component)
 		snd_soc_component_update_bits(component, WCD937X_SLEEP_CTL,
 				0x0E, 0x0E);
 	}
->>>>>>> Stashed changes
 	snd_soc_component_update_bits(component, WCD937X_SLEEP_CTL,
 				0x80, 0x80);
 	usleep_range(1000, 1010);
@@ -161,8 +152,6 @@ static int wcd937x_init_reg(struct snd_soc_component *component)
 				0xFF, 0xFA);
 	snd_soc_component_update_bits(component, WCD937X_MICB3_TEST_CTL_1,
 				0xFF, 0xFA);
-<<<<<<< Updated upstream
-=======
 	snd_soc_component_update_bits(component, WCD937X_MICB1_TEST_CTL_2,
 				      0x38, 0x00);
 	snd_soc_component_update_bits(component, WCD937X_MICB2_TEST_CTL_2,
@@ -185,7 +174,6 @@ static int wcd937x_init_reg(struct snd_soc_component *component)
 		snd_soc_component_update_bits(component,
 				WCD937X_HPH_NEW_INT_RDAC_GAIN_CTL , 0xF0, 0x50);
 	}
->>>>>>> Stashed changes
 	return 0;
 }
 
@@ -470,15 +458,12 @@ static int wcd937x_codec_hphl_dac_event(struct snd_soc_dapm_widget *w,
 		set_bit(HPH_COMP_DELAY, &wcd937x->status_mask);
 		break;
 	case SND_SOC_DAPM_POST_PMU:
-<<<<<<< Updated upstream
-=======
 		if ((snd_soc_component_read32(component,
 		   WCD937X_DIGITAL_EFUSE_REG_16) == 0x02) &&
 		   ((snd_soc_component_read32(component,
 			WCD937X_ANA_HPH) & 0x0C) == 0x0C))
 			snd_soc_component_update_bits(component,
 			WCD937X_RX_BIAS_HPH_LOWPOWER, 0xF0, 0x90);
->>>>>>> Stashed changes
 		if (hph_mode == CLS_AB_HIFI || hph_mode == CLS_H_HIFI)
 			snd_soc_component_update_bits(component,
 				WCD937X_HPH_NEW_INT_RDAC_HD2_CTL_L,
@@ -520,15 +505,12 @@ static int wcd937x_codec_hphl_dac_event(struct snd_soc_dapm_widget *w,
 				WCD937X_HPH_NEW_INT_HPH_TIMER1, 0x02, 0x00);
 		break;
 	case SND_SOC_DAPM_POST_PMD:
-<<<<<<< Updated upstream
-=======
 		if ((snd_soc_component_read32(component,
 		   WCD937X_DIGITAL_EFUSE_REG_16) == 0x02) &&
 		   ((snd_soc_component_read32(component,
 			WCD937X_ANA_HPH) & 0x0C) == 0x0C))
 			snd_soc_component_update_bits(component,
 			WCD937X_RX_BIAS_HPH_LOWPOWER, 0xF0, 0x80);
->>>>>>> Stashed changes
 		snd_soc_component_update_bits(component,
 			WCD937X_HPH_NEW_INT_RDAC_HD2_CTL_L,
 			0x0F, 0x01);
@@ -562,15 +544,12 @@ static int wcd937x_codec_hphr_dac_event(struct snd_soc_dapm_widget *w,
 		set_bit(HPH_COMP_DELAY, &wcd937x->status_mask);
 		break;
 	case SND_SOC_DAPM_POST_PMU:
-<<<<<<< Updated upstream
-=======
 		if ((snd_soc_component_read32(component,
 		   WCD937X_DIGITAL_EFUSE_REG_16) == 0x02) &&
 		   ((snd_soc_component_read32(component,
 			WCD937X_ANA_HPH) & 0x0C) == 0x0C))
 			snd_soc_component_update_bits(component,
 			WCD937X_RX_BIAS_HPH_LOWPOWER, 0xF0, 0x90);
->>>>>>> Stashed changes
 		if (hph_mode == CLS_AB_HIFI || hph_mode == CLS_H_HIFI)
 			snd_soc_component_update_bits(component,
 				WCD937X_HPH_NEW_INT_RDAC_HD2_CTL_R,
@@ -612,15 +591,12 @@ static int wcd937x_codec_hphr_dac_event(struct snd_soc_dapm_widget *w,
 				WCD937X_HPH_NEW_INT_HPH_TIMER1, 0x02, 0x00);
 		break;
 	case SND_SOC_DAPM_POST_PMD:
-<<<<<<< Updated upstream
-=======
 		if ((snd_soc_component_read32(component,
 		   WCD937X_DIGITAL_EFUSE_REG_16) == 0x02) &&
 		   ((snd_soc_component_read32(component,
 			WCD937X_ANA_HPH) & 0x0C) == 0x0C))
 			snd_soc_component_update_bits(component,
 			WCD937X_RX_BIAS_HPH_LOWPOWER, 0xF0, 0x80);
->>>>>>> Stashed changes
 		snd_soc_component_update_bits(component,
 			WCD937X_HPH_NEW_INT_RDAC_HD2_CTL_R,
 			0x0F, 0x01);
@@ -1068,8 +1044,6 @@ static int wcd937x_codec_enable_ear_pa(struct snd_soc_dapm_widget *w,
 			snd_soc_component_update_bits(component,
 					WCD937X_DIGITAL_PDM_WD_CTL0,
 					0x17, 0x00);
-<<<<<<< Updated upstream
-=======
 		usleep_range(10000, 10010);
 		/* disable EAR CnP FSM */
 		snd_soc_component_update_bits(component,
@@ -1086,7 +1060,6 @@ static int wcd937x_codec_enable_ear_pa(struct snd_soc_dapm_widget *w,
 		snd_soc_component_update_bits(component,
 					WCD937X_EAR_EAR_EN_REG,
 					0x02, 0x02);
->>>>>>> Stashed changes
 		break;
 	};
 	return ret;

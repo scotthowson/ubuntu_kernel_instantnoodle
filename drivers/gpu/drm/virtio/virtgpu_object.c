@@ -36,8 +36,6 @@ static int virtio_gpu_resource_id_get(struct virtio_gpu_device *vgdev,
 				       uint32_t *resid)
 {
 	if (virtio_gpu_virglrenderer_workaround) {
-<<<<<<< Updated upstream
-=======
 		/*
 		 * Hack to avoid re-using resource IDs.
 		 *
@@ -46,7 +44,6 @@ static int virtio_gpu_resource_id_get(struct virtio_gpu_device *vgdev,
 		 * "f91a9dd35715 Fix unlinking resources from hash
 		 * table." (Feb 2019) fixes the bug.
 		 */
->>>>>>> Stashed changes
 		static atomic_t seqno = ATOMIC_INIT(0);
 		int handle = atomic_inc_return(&seqno);
 		*resid = handle + 1;

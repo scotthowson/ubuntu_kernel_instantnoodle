@@ -81,15 +81,6 @@ static int nft_cmp_init(const struct nft_ctx *ctx, const struct nft_expr *expr,
 			    tb[NFTA_CMP_DATA]);
 	if (err < 0)
 		return err;
-<<<<<<< Updated upstream
-
-	if (desc.type != NFT_DATA_VALUE) {
-		err = -EINVAL;
-		nft_data_release(&priv->data, desc.type);
-		return err;
-	}
-=======
->>>>>>> Stashed changes
 
 	if (desc.type != NFT_DATA_VALUE) {
 		err = -EINVAL;

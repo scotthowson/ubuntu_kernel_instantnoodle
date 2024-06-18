@@ -138,11 +138,7 @@ int utf8_casefold_hash(const struct unicode_map *um, const void *salt,
 
 	while ((c = utf8byte(&cur))) {
 		if (c < 0)
-<<<<<<< Updated upstream
-			return c;
-=======
 			return -EINVAL;
->>>>>>> Stashed changes
 		hash = partial_name_hash((unsigned char)c, hash);
 	}
 	str->hash = end_name_hash(hash);

@@ -438,10 +438,6 @@ nfs_destroy_unlinked_subrequests(struct nfs_page *destroy_list,
 		}
 		nfs_page_clear_headlock(subreq);
 
-<<<<<<< Updated upstream
-		subreq->wb_head = subreq;
-=======
->>>>>>> Stashed changes
 		nfs_release_request(old_head);
 
 		if (test_and_clear_bit(PG_INODE_REF, &subreq->wb_flags)) {

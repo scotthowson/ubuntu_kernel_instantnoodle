@@ -140,9 +140,6 @@ static void __rwsem_mark_wake(struct rw_semaphore *sem,
 
 	if (waiter->type == RWSEM_WAITING_FOR_WRITE) {
 		if (wake_type == RWSEM_WAKE_ANY) {
-#ifdef CONFIG_UXCHAIN_V2
-			uxchain_rwsem_wake(waiter->task, sem);
-#endif
 			/*
 			 * Mark writer at the front of the queue for wakeup.
 			 * Until the task is actually later awoken later by
@@ -235,9 +232,6 @@ static void __rwsem_mark_wake(struct rw_semaphore *sem,
 		 * to the task to wakeup.
 		 */
 		smp_store_release(&waiter->task, NULL);
-#ifdef CONFIG_UXCHAIN_V2
-		uxchain_rwsem_wake(tsk, sem);
-#endif
 		/*
 		 * Ensure issuing the wakeup (either by us or someone else)
 		 * after setting the reader waiter to nil.
@@ -295,13 +289,7 @@ __rwsem_down_read_failed_common(struct rw_semaphore *sem, int state)
 			raw_spin_unlock_irq(&sem->wait_lock);
 			break;
 		}
-#ifdef CONFIG_ONEPLUS_HEALTHINFO
-		current->in_downread = 1;
-#endif /*CONFIG_ONEPLUS_HEALTHINFO*/
 		schedule();
-#ifdef CONFIG_ONEPLUS_HEALTHINFO
-		current->in_downread = 0;
-#endif /*CONFIG_ONEPLUS_HEALTHINFO*/
 	}
 
 	__set_current_state(TASK_RUNNING);
@@ -602,13 +590,7 @@ __rwsem_down_write_failed_common(struct rw_semaphore *sem, int state)
 			if (signal_pending_state(state, current))
 				goto out_nolock;
 
-#ifdef CONFIG_ONEPLUS_HEALTHINFO
-			current->in_downwrite = 1;
-#endif /*CONFIG_ONEPLUS_HEALTHINFO*/
 			schedule();
-#ifdef CONFIG_ONEPLUS_HEALTHINFO
-			current->in_downwrite = 0;
-#endif /*CONFIG_ONEPLUS_HEALTHINFO*/
 			set_current_state(state);
 		} while ((count = atomic_long_read(&sem->count)) & RWSEM_ACTIVE_MASK);
 

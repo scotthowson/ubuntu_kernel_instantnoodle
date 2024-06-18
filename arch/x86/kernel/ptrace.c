@@ -374,11 +374,7 @@ static unsigned long task_seg_base(struct task_struct *task,
 		 */
 		mutex_lock(&task->mm->context.lock);
 		ldt = task->mm->context.ldt;
-<<<<<<< Updated upstream
-		if (unlikely(idx >= ldt->nr_entries))
-=======
 		if (unlikely(!ldt || idx >= ldt->nr_entries))
->>>>>>> Stashed changes
 			base = 0;
 		else
 			base = get_desc_base(ldt->entries + idx);

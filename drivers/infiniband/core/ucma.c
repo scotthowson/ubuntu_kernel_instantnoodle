@@ -598,10 +598,6 @@ static int ucma_free_ctx(struct ucma_context *ctx)
 		kfree(uevent);
 	}
 
-<<<<<<< Updated upstream
-	events_reported = ctx->events_reported;
-=======
->>>>>>> Stashed changes
 	mutex_destroy(&ctx->mutex);
 	kfree(ctx);
 	return events_reported;

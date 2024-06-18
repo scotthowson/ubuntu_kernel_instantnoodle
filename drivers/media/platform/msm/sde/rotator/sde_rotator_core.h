@@ -19,20 +19,6 @@
 #include "sde_rotator_util.h"
 #include "sde_rotator_sync.h"
 
-<<<<<<< Updated upstream
-#define SDE_ROTATION_NOP	0x01
-#define SDE_ROTATION_FLIP_LR	0x02
-#define SDE_ROTATION_FLIP_UD	0x04
-#define SDE_ROTATION_90	0x08
-#define SDE_ROTATION_180	(SDE_ROTATION_FLIP_LR | SDE_ROTATION_FLIP_UD)
-#define SDE_ROTATION_270	(SDE_ROTATION_90 | SDE_ROTATION_180)
-#define SDE_ROTATION_DEINTERLACE	0x10
-#define SDE_ROTATION_SECURE		0x80
-#define SDE_ROTATION_VERIFY_INPUT_ONLY	0x10000
-#define SDE_ROTATION_EXT_DMA_BUF	0x20000
-#define SDE_ROTATION_SECURE_CAMERA	0x40000
-#define SDE_ROTATION_EXT_IOVA		0x80000
-=======
 /**********************************************************************
  * Rotation request flag
  **********************************************************************/
@@ -73,7 +59,6 @@
 #define SDE_ROTATION_EXT_IOVA		0x80000
 
 /* use client provided clock/bandwidth parameters */
->>>>>>> Stashed changes
 #define SDE_ROTATION_EXT_PERF		0x100000
 
 /**********************************************************************

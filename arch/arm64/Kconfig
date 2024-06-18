@@ -578,8 +578,6 @@ config ARM64_ERRATUM_1542418
 
 	  If unsure, say Y.
 
-<<<<<<< Updated upstream
-=======
 config ARM64_ERRATUM_1542419
 	bool "Neoverse-N1: workaround mis-ordering of instruction fetches"
 	default y
@@ -612,7 +610,6 @@ config ARM64_ERRATUM_1742098
 
 	  If unsure, say Y.
 
->>>>>>> Stashed changes
 config CAVIUM_ERRATUM_22375
 	bool "Cavium erratum 22375, 24313"
 	default y
@@ -1015,8 +1012,6 @@ config ARCH_MEMORY_PROBE
 config CC_HAVE_SHADOW_CALL_STACK
 	def_bool $(cc-option, -fsanitize=shadow-call-stack -ffixed-x18)
 
-<<<<<<< Updated upstream
-=======
 config ARM64_DMA_USE_IOMMU
 	bool "ARM64 DMA iommu integration"
 	select ARM_HAS_SG_CHAIN
@@ -1048,7 +1043,6 @@ config ARM64_DMA_IOMMU_ALIGNMENT
 
 endif
 
->>>>>>> Stashed changes
 config SECCOMP
 	bool "Enable seccomp to safely compute untrusted bytecode"
 	---help---
@@ -1214,8 +1208,6 @@ config ARM64_TAGGED_ADDR_ABI
 	  to system calls as pointer arguments. For details, see
 	  Documentation/arm64/tagged-address-abi.rst.
 
-<<<<<<< Updated upstream
-=======
 config COMPAT_VDSO
 	bool "Enable vDSO for 32-bit applications"
 	depends on !CPU_BIG_ENDIAN
@@ -1239,7 +1231,6 @@ config MITIGATE_SPECTRE_BRANCH_HISTORY
 	  When taking an exception from user-space, a sequence of branches
 	  or a firmware call overwrites the branch history.
 
->>>>>>> Stashed changes
 menuconfig ARMV8_DEPRECATED
 	bool "Emulate deprecated/obsolete ARMv8 instructions"
 	depends on COMPAT

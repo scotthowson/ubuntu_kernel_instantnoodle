@@ -270,8 +270,6 @@ static inline uint64_t qdf_log_timestamp_to_usecs(uint64_t time)
 
 	return time;
 }
-<<<<<<< Updated upstream
-=======
 
 /**
  * qdf_get_log_timestamp_lightweight - get time stamp for logging
@@ -287,7 +285,6 @@ static inline uint64_t qdf_get_log_timestamp_lightweight(void)
 {
 	return __qdf_get_log_timestamp();
 }
->>>>>>> Stashed changes
 #else
 #define QDF_LOG_TIMESTAMP_UNIT KERNEL_LOG
 #define QDF_LOG_TIMESTAMP_CYCLES_PER_10_US 10
@@ -297,8 +294,6 @@ static inline uint64_t qdf_log_timestamp_to_usecs(uint64_t time)
 	/* timestamps are already in micro seconds */
 	return time;
 }
-<<<<<<< Updated upstream
-=======
 
 static inline uint64_t qdf_get_log_timestamp_lightweight(void)
 {
@@ -315,7 +310,6 @@ static inline uint64_t qdf_get_log_timestamp_lightweight(void)
 	(uint64_t)__qdf_system_ticks_to_msecs(qdf_system_ticks()) * 1000;
 	return timestamp_us;
 }
->>>>>>> Stashed changes
 #endif /* end of MSM_PLATFORM */
 
 static inline void qdf_log_timestamp_to_secs(uint64_t time, uint64_t *secs,

@@ -20,8 +20,6 @@ ifeq ($(KERNEL_BUILD), 0)
 		export
 		INCS    +=  -include $(AUDIO_ROOT)/config/sdm660autoconf.h
 	endif
-<<<<<<< Updated upstream
-=======
 	ifeq ($(CONFIG_ARCH_SDM450), y)
 		include $(AUDIO_ROOT)/config/sdm450auto.conf
 		export
@@ -37,7 +35,6 @@ ifeq ($(KERNEL_BUILD), 0)
 		export
 		INCS    +=  -include $(AUDIO_ROOT)/config/sdm450autoconf.h
 	endif
->>>>>>> Stashed changes
 endif
 
 # As per target team, build is done as follows:
@@ -122,9 +119,3 @@ endif
 # Module information used by KBuild framework
 obj-$(CONFIG_SND_SOC_MSM_SDW) += msm_sdw_dlkm.o
 msm_sdw_dlkm-y := $(MSM_SDW_OBJS)
-<<<<<<< Updated upstream
-
-# inject some build related information
-DEFINES += -DBUILD_TIMESTAMP=\"$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')\"
-=======
->>>>>>> Stashed changes

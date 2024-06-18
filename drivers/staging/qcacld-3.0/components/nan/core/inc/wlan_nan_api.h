@@ -207,8 +207,6 @@ bool wlan_nan_get_sap_conc_support(struct wlan_objmgr_psoc *psoc);
  * Return: Cleanup NAN state upon NAN disable
  */
 QDF_STATUS nan_disable_cleanup(struct wlan_objmgr_psoc *psoc);
-<<<<<<< Updated upstream
-=======
 
 /**
  * wlan_is_nan_allowed_on_freq() - Check if NAN is allowed on given freq
@@ -221,7 +219,6 @@ QDF_STATUS nan_disable_cleanup(struct wlan_objmgr_psoc *psoc);
  */
 bool wlan_is_nan_allowed_on_freq(struct wlan_objmgr_pdev *pdev, uint32_t freq);
 
->>>>>>> Stashed changes
 #else /* WLAN_FEATURE_NAN */
 static inline QDF_STATUS nan_init(void)
 {
@@ -267,14 +264,11 @@ QDF_STATUS nan_disable_cleanup(struct wlan_objmgr_psoc *psoc)
 {
 	return QDF_STATUS_E_FAILURE;
 }
-<<<<<<< Updated upstream
-=======
 
 static inline
 bool wlan_is_nan_allowed_on_freq(struct wlan_objmgr_pdev *pdev, uint32_t freq)
 {
 	return false;
 }
->>>>>>> Stashed changes
 #endif /* WLAN_FEATURE_NAN */
 #endif /* _WLAN_NAN_API_H_ */

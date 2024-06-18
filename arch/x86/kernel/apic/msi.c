@@ -89,19 +89,13 @@ msi_set_affinity(struct irq_data *irqd, const struct cpumask *mask, bool force)
 	 *   The quirk bit is not set in this case.
 	 * - The new vector is the same as the old vector
 	 * - The old vector is MANAGED_IRQ_SHUTDOWN_VECTOR (interrupt starts up)
-<<<<<<< Updated upstream
-=======
 	 * - The interrupt is not yet started up
->>>>>>> Stashed changes
 	 * - The new destination CPU is the same as the old destination CPU
 	 */
 	if (!irqd_msi_nomask_quirk(irqd) ||
 	    cfg->vector == old_cfg.vector ||
 	    old_cfg.vector == MANAGED_IRQ_SHUTDOWN_VECTOR ||
-<<<<<<< Updated upstream
-=======
 	    !irqd_is_started(irqd) ||
->>>>>>> Stashed changes
 	    cfg->dest_apicid == old_cfg.dest_apicid) {
 		irq_msi_update_msg(irqd, cfg);
 		return ret;
@@ -189,12 +183,8 @@ static struct irq_chip pci_msi_controller = {
 	.irq_retrigger		= irq_chip_retrigger_hierarchy,
 	.irq_compose_msi_msg	= irq_msi_compose_msg,
 	.irq_set_affinity	= msi_set_affinity,
-<<<<<<< Updated upstream
-	.flags			= IRQCHIP_SKIP_SET_WAKE,
-=======
 	.flags			= IRQCHIP_SKIP_SET_WAKE |
 				  IRQCHIP_AFFINITY_PRE_STARTUP,
->>>>>>> Stashed changes
 };
 
 int native_setup_msi_irqs(struct pci_dev *dev, int nvec, int type)
@@ -282,14 +272,9 @@ void __init arch_init_msi_domain(struct irq_domain *parent)
 	if (!msi_default_domain) {
 		irq_domain_free_fwnode(fn);
 		pr_warn("failed to initialize irqdomain for MSI/MSI-x.\n");
-<<<<<<< Updated upstream
-	else
-		msi_default_domain->flags |= IRQ_DOMAIN_MSI_NOMASK_QUIRK;
-=======
 	} else {
 		msi_default_domain->flags |= IRQ_DOMAIN_MSI_NOMASK_QUIRK;
 	}
->>>>>>> Stashed changes
 }
 
 #ifdef CONFIG_IRQ_REMAP

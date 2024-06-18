@@ -1,9 +1,5 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2012-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -648,17 +644,12 @@ void lim_fill_ft_session(struct mac_context *mac,
 					PHY_DOUBLE_CHANNEL_HIGH_PRIMARY)
 				ft_session->ch_center_freq_seg0 =
 					bss_chan_id - 2;
-<<<<<<< Updated upstream
-			else
-				pe_warn("Invalid sec ch offset");
-=======
 			else {
 				pe_warn("Invalid sec ch offset");
 				ft_session->ch_width = CH_WIDTH_20MHZ;
 				ft_session->ch_center_freq_seg0 = 0;
 				ft_session->ch_center_freq_seg1 = 0;
 			}
->>>>>>> Stashed changes
 		}
 	} else {
 		ft_session->ch_width = CH_WIDTH_20MHZ;

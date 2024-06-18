@@ -1136,12 +1136,6 @@ const char * const vmstat_text[] = {
 #if IS_ENABLED(CONFIG_ZSMALLOC)
 	"nr_zspages",
 #endif
-<<<<<<< Updated upstream
-#ifdef CONFIG_ONEPLUS_HEALTHINFO
-	"nr_ioncache_pages",
-#endif
-=======
->>>>>>> Stashed changes
 	"nr_free_cma",
 
 	/* enum numa_stat_item counters */
@@ -1189,10 +1183,7 @@ const char * const vmstat_text[] = {
 
 	"nr_ion_heap",
 	"nr_ion_heap_pool",
-<<<<<<< Updated upstream
-=======
 	"nr_gpu_heap",
->>>>>>> Stashed changes
 	/* enum writeback_stat_item counters */
 	"nr_dirty_threshold",
 	"nr_dirty_background_threshold",

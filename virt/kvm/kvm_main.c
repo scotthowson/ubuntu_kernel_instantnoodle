@@ -52,10 +52,7 @@
 #include <linux/sort.h>
 #include <linux/bsearch.h>
 #include <linux/kthread.h>
-<<<<<<< Updated upstream
-=======
 #include <linux/io.h>
->>>>>>> Stashed changes
 
 #include <asm/processor.h>
 #include <asm/ioctl.h>
@@ -165,20 +162,6 @@ bool kvm_is_zone_device_pfn(kvm_pfn_t pfn)
 	return is_zone_device_page(pfn_to_page(pfn));
 }
 
-bool kvm_is_zone_device_pfn(kvm_pfn_t pfn)
-{
-	/*
-	 * The metadata used by is_zone_device_page() to determine whether or
-	 * not a page is ZONE_DEVICE is guaranteed to be valid if and only if
-	 * the device has been pinned, e.g. by get_user_pages().  WARN if the
-	 * page_count() is zero to help detect bad usage of this helper.
-	 */
-	if (!pfn_valid(pfn) || WARN_ON_ONCE(!page_count(pfn_to_page(pfn))))
-		return false;
-
-	return is_zone_device_page(pfn_to_page(pfn));
-}
-
 bool kvm_is_reserved_pfn(kvm_pfn_t pfn)
 {
 	/*
@@ -188,10 +171,7 @@ bool kvm_is_reserved_pfn(kvm_pfn_t pfn)
 	 */
 	if (pfn_valid(pfn))
 		return PageReserved(pfn_to_page(pfn)) &&
-<<<<<<< Updated upstream
-=======
 		       !is_zero_pfn(pfn) &&
->>>>>>> Stashed changes
 		       !kvm_is_zone_device_pfn(pfn);
 
 	return true;

@@ -325,10 +325,7 @@
 #define   ARLTBL_STATIC			BIT(15)
 #define   ARLTBL_VALID			BIT(16)
 
-<<<<<<< Updated upstream
-=======
 /* Maximum number of bin entries in the ARL for all switches */
->>>>>>> Stashed changes
 #define B53_ARLTBL_MAX_BIN_ENTRIES	4
 
 /* ARL Search Control Register (8 bit) */

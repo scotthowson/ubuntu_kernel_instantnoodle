@@ -61,18 +61,6 @@ static int fixed_mdio_read(struct mii_bus *bus, int phy_addr, int reg_num)
 		if (fp->addr == phy_addr) {
 			struct fixed_phy_status state;
 
-<<<<<<< Updated upstream
-			do {
-				s = read_seqcount_begin(&fp->seqcount);
-				/* Issue callback if user registered it. */
-				if (fp->link_update)
-					fp->link_update(fp->phydev->attached_dev,
-							&fp->status);
-				/* Check the GPIO for change in status */
-				fixed_phy_update(fp);
-				state = fp->status;
-			} while (read_seqcount_retry(&fp->seqcount, s));
-=======
 			/* Issue callback if user registered it. */
 			if (fp->link_update)
 				fp->link_update(fp->phydev->attached_dev,
@@ -81,7 +69,6 @@ static int fixed_mdio_read(struct mii_bus *bus, int phy_addr, int reg_num)
 			/* Check the GPIO for change in status */
 			fixed_phy_update(fp);
 			state = fp->status;
->>>>>>> Stashed changes
 
 			return swphy_read_reg(reg_num, &state);
 		}

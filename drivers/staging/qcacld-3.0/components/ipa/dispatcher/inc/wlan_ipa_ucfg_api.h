@@ -164,8 +164,6 @@ void ucfg_ipa_reg_send_to_nw_cb(struct wlan_objmgr_pdev *pdev,
 				wlan_ipa_send_to_nw cb);
 
 /**
-<<<<<<< Updated upstream
-=======
  * ucfg_ipa_reg_rps_enable_cb() - Register cb to enable RPS
  * @pdev: pdev obj
  * @cb: callback
@@ -184,7 +182,6 @@ void ucfg_ipa_reg_rps_enable_cb(struct wlan_objmgr_pdev *pdev,
 #endif
 
 /**
->>>>>>> Stashed changes
  * ucfg_ipa_set_mcc_mode() - Set MCC mode
  * @pdev: pdev obj
  * @mcc_mode: 0=MCC/1=SCC
@@ -489,15 +486,12 @@ void ucfg_ipa_reg_send_to_nw_cb(struct wlan_objmgr_pdev *pdev,
 }
 
 static inline
-<<<<<<< Updated upstream
-=======
 void ucfg_ipa_reg_rps_enable_cb(struct wlan_objmgr_pdev *pdev,
 				wlan_ipa_rps_enable cb)
 {
 }
 
 static inline
->>>>>>> Stashed changes
 void ucfg_ipa_set_mcc_mode(struct wlan_objmgr_pdev *pdev, bool mcc_mode)
 {
 }

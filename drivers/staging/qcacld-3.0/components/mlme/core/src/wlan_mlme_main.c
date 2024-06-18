@@ -1,10 +1,6 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2018-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2018-2021 The Linux Foundation. All rights reserved.
  * Copyright (c) 2021-2022 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -238,8 +234,6 @@ static void mlme_init_chainmask_cfg(struct wlan_objmgr_psoc *psoc,
 		cfg_get(psoc, CFG_ENABLE_BT_CHAIN_SEPARATION);
 }
 
-<<<<<<< Updated upstream
-=======
 static void mlme_init_ratemask_cfg(struct wlan_objmgr_psoc *psoc,
 				   struct wlan_mlme_ratemask *ratemask_cfg)
 {
@@ -276,7 +270,6 @@ static void mlme_init_ratemask_cfg(struct wlan_objmgr_psoc *psoc,
 			  ratemask_cfg->higher32_2);
 }
 
->>>>>>> Stashed changes
 #ifdef WLAN_FEATURE_11W
 static void mlme_init_pmf_cfg(struct wlan_objmgr_psoc *psoc,
 			      struct wlan_mlme_generic *gen)
@@ -321,11 +314,8 @@ static void mlme_init_generic_cfg(struct wlan_objmgr_psoc *psoc,
 		cfg_get(psoc, CFG_ENABLE_RTT_MAC_RANDOMIZATION);
 	gen->band_capability =
 		cfg_get(psoc, CFG_BAND_CAPABILITY);
-<<<<<<< Updated upstream
-=======
 	if (!gen->band_capability)
 		gen->band_capability = (BIT(REG_BAND_2G) | BIT(REG_BAND_5G));
->>>>>>> Stashed changes
 	gen->band = gen->band_capability;
 	gen->select_5ghz_margin =
 		cfg_get(psoc, CFG_SELECT_5GHZ_MARGIN);
@@ -1105,15 +1095,6 @@ static void mlme_init_he_cap_in_cfg(struct wlan_objmgr_psoc *psoc,
 	he_caps->dot11_he_cap.rx_full_bw_su_he_mu_non_cmpr_sigb =
 			cfg_default(CFG_HE_RX_FULL_BW_MU_NON_CMPR_SIGB);
 	he_caps->dot11_he_cap.rx_he_mcs_map_lt_80 =
-<<<<<<< Updated upstream
-			cfg_default(CFG_HE_RX_MCS_MAP_LT_80);
-	he_caps->dot11_he_cap.tx_he_mcs_map_lt_80 =
-			cfg_default(CFG_HE_TX_MCS_MAP_LT_80);
-	value = cfg_default(CFG_HE_RX_MCS_MAP_160);
-	qdf_mem_copy(he_caps->dot11_he_cap.rx_he_mcs_map_160, &value,
-		     sizeof(uint16_t));
-	value = cfg_default(CFG_HE_TX_MCS_MAP_160);
-=======
 			cfg_get(psoc, CFG_HE_RX_MCS_MAP_LT_80);
 	he_caps->dot11_he_cap.tx_he_mcs_map_lt_80 =
 			cfg_get(psoc, CFG_HE_TX_MCS_MAP_LT_80);
@@ -1121,7 +1102,6 @@ static void mlme_init_he_cap_in_cfg(struct wlan_objmgr_psoc *psoc,
 	qdf_mem_copy(he_caps->dot11_he_cap.rx_he_mcs_map_160, &value,
 		     sizeof(uint16_t));
 	value = cfg_get(psoc, CFG_HE_TX_MCS_MAP_160);
->>>>>>> Stashed changes
 	qdf_mem_copy(he_caps->dot11_he_cap.tx_he_mcs_map_160, &value,
 		     sizeof(uint16_t));
 	value = cfg_default(CFG_HE_RX_MCS_MAP_80_80);
@@ -1258,11 +1238,8 @@ static void mlme_init_obss_ht40_cfg(struct wlan_objmgr_psoc *psoc,
 		(bool)cfg_default(CFG_OBSS_DETECTION_OFFLOAD);
 	obss_ht40->obss_color_collision_offload_enabled =
 		(bool)cfg_default(CFG_OBSS_COLOR_COLLISION_OFFLOAD);
-<<<<<<< Updated upstream
-=======
 	obss_ht40->bss_color_collision_det_sta =
 		cfg_get(psoc, CFG_BSS_CLR_COLLISION_DETCN_STA);
->>>>>>> Stashed changes
 }
 
 static void mlme_init_threshold_cfg(struct wlan_objmgr_psoc *psoc,
@@ -1873,11 +1850,8 @@ static void mlme_init_scoring_cfg(struct wlan_objmgr_psoc *psoc,
 		cfg_get(psoc, CFG_SCORING_CHAN_CONGESTION_WEIGHTAGE);
 	scoring_cfg->weight_cfg.oce_wan_weightage =
 		cfg_get(psoc, CFG_SCORING_OCE_WAN_WEIGHTAGE);
-<<<<<<< Updated upstream
-=======
 	scoring_cfg->weight_cfg.sae_pk_ap_weightage =
 		cfg_get(psoc, CFG_SAE_PK_AP_WEIGHTAGE);
->>>>>>> Stashed changes
 
 	total_weight =  scoring_cfg->weight_cfg.rssi_weightage +
 			scoring_cfg->weight_cfg.ht_caps_weightage +
@@ -1889,26 +1863,16 @@ static void mlme_init_scoring_cfg(struct wlan_objmgr_psoc *psoc,
 			scoring_cfg->weight_cfg.beamforming_cap_weightage +
 			scoring_cfg->weight_cfg.pcl_weightage +
 			scoring_cfg->weight_cfg.channel_congestion_weightage +
-<<<<<<< Updated upstream
-			scoring_cfg->weight_cfg.oce_wan_weightage;
-=======
 			scoring_cfg->weight_cfg.oce_wan_weightage +
 			scoring_cfg->weight_cfg.sae_pk_ap_weightage;
->>>>>>> Stashed changes
 
 	/*
 	 * If configured weights are greater than max weight,
 	 * fallback to default weights
 	 */
-<<<<<<< Updated upstream
-	if (total_weight > BEST_CANDIDATE_MAX_WEIGHT) {
-		mlme_legacy_err("Total weight greater than %d, using default weights",
-				BEST_CANDIDATE_MAX_WEIGHT);
-=======
 	if (total_weight > MAX_BSS_SCORE) {
 		mlme_legacy_err("Total weight greater than %d, using default weights",
 				MAX_BSS_SCORE);
->>>>>>> Stashed changes
 		scoring_cfg->weight_cfg.rssi_weightage = RSSI_WEIGHTAGE;
 		scoring_cfg->weight_cfg.ht_caps_weightage =
 						HT_CAPABILITY_WEIGHTAGE;
@@ -1926,11 +1890,8 @@ static void mlme_init_scoring_cfg(struct wlan_objmgr_psoc *psoc,
 		scoring_cfg->weight_cfg.channel_congestion_weightage =
 						CHANNEL_CONGESTION_WEIGHTAGE;
 		scoring_cfg->weight_cfg.oce_wan_weightage = OCE_WAN_WEIGHTAGE;
-<<<<<<< Updated upstream
-=======
 		scoring_cfg->weight_cfg.sae_pk_ap_weightage =
 						SAE_PK_AP_WEIGHTAGE;
->>>>>>> Stashed changes
 	}
 
 	scoring_cfg->rssi_score.best_rssi_threshold =
@@ -2301,15 +2262,12 @@ mlme_init_roam_score_config(struct wlan_objmgr_psoc *psoc,
 	min_rssi_param->min_rssi =
 		cfg_get(psoc, CFG_BMISS_ROAM_MIN_RSSI);
 	min_rssi_param->trigger_reason = ROAM_TRIGGER_REASON_BMISS;
-<<<<<<< Updated upstream
-=======
 
 	min_rssi_param = &mlme_cfg->trig_min_rssi[MIN_RSSI_2G_TO_5G_ROAM];
 	min_rssi_param->min_rssi =
 		cfg_get(psoc, CFG_2G_TO_5G_ROAM_MIN_RSSI);
 	min_rssi_param->trigger_reason = ROAM_TRIGGER_REASON_HIGH_RSSI;
 
->>>>>>> Stashed changes
 }
 
 /**
@@ -2323,10 +2281,7 @@ static void mlme_init_fe_wlm_in_cfg(struct wlan_objmgr_psoc *psoc,
 				    struct wlan_mlme_fe_wlm *wlm_config)
 {
 	wlm_config->latency_enable = cfg_get(psoc, CFG_LATENCY_ENABLE);
-<<<<<<< Updated upstream
-=======
 	wlm_config->latency_reset = cfg_get(psoc, CFG_LATENCY_RESET);
->>>>>>> Stashed changes
 	wlm_config->latency_level = cfg_get(psoc, CFG_LATENCY_LEVEL);
 	wlm_config->latency_flags[0] = cfg_get(psoc, CFG_LATENCY_FLAGS_NORMAL);
 	wlm_config->latency_flags[1] = cfg_get(psoc, CFG_LATENCY_FLAGS_MOD);
@@ -2427,13 +2382,8 @@ static void mlme_init_reg_cfg(struct wlan_objmgr_psoc *psoc,
 	struct wlan_objmgr_pdev *pdev = NULL;
 
 	reg->self_gen_frm_pwr = cfg_get(psoc, CFG_SELF_GEN_FRM_PWR);
-<<<<<<< Updated upstream
-	reg->etsi13_srd_chan_in_master_mode =
-			cfg_get(psoc, CFG_ETSI13_SRD_CHAN_IN_MASTER_MODE);
-=======
 	reg->etsi_srd_chan_in_master_mode =
 			cfg_get(psoc, CFG_ETSI_SRD_CHAN_IN_MASTER_MODE);
->>>>>>> Stashed changes
 	reg->restart_beaconing_on_ch_avoid =
 			cfg_get(psoc, CFG_RESTART_BEACONING_ON_CH_AVOID);
 	reg->indoor_channel_support = cfg_get(psoc, CFG_INDOOR_CHANNEL_SUPPORT);
@@ -2454,12 +2404,9 @@ static void mlme_init_reg_cfg(struct wlan_objmgr_psoc *psoc,
 			      &valid_channel_list_num);
 	reg->valid_channel_list_num = (uint8_t)valid_channel_list_num;
 
-<<<<<<< Updated upstream
-=======
 	reg->enable_nan_on_indoor_channels =
 		cfg_get(psoc, CFG_INDOOR_CHANNEL_SUPPORT_FOR_NAN);
 
->>>>>>> Stashed changes
 	pdev = wlan_objmgr_get_pdev_by_id(psoc, 0, WLAN_MLME_NB_ID);
 	if (!pdev) {
 		mlme_legacy_err("null pdev");
@@ -2538,10 +2485,7 @@ QDF_STATUS mlme_cfg_on_psoc_enable(struct wlan_objmgr_psoc *psoc)
 	mlme_init_reg_cfg(psoc, &mlme_cfg->reg);
 	mlme_init_btm_cfg(psoc, &mlme_cfg->btm);
 	mlme_init_roam_score_config(psoc, mlme_cfg);
-<<<<<<< Updated upstream
-=======
 	mlme_init_ratemask_cfg(psoc, &mlme_cfg->ratemask_cfg);
->>>>>>> Stashed changes
 
 	return status;
 }
@@ -3025,11 +2969,8 @@ mlme_get_operations_bitmap(struct wlan_objmgr_psoc *psoc, uint8_t vdev_id)
 	}
 
 	bitmap = mlme_priv->mlme_roam.roam_sm.mlme_operations_bitmap;
-<<<<<<< Updated upstream
-=======
 	mlme_legacy_debug("vdev[%d] bitmap[0x%x]", vdev_id,
 			  mlme_priv->mlme_roam.roam_sm.mlme_operations_bitmap);
->>>>>>> Stashed changes
 	wlan_objmgr_vdev_release_ref(vdev, WLAN_MLME_OBJMGR_ID);
 
 	return bitmap;
@@ -3060,11 +3001,6 @@ mlme_set_operations_bitmap(struct wlan_objmgr_psoc *psoc, uint8_t vdev_id,
 		mlme_priv->mlme_roam.roam_sm.mlme_operations_bitmap &= ~reqs;
 	else
 		mlme_priv->mlme_roam.roam_sm.mlme_operations_bitmap |= reqs;
-<<<<<<< Updated upstream
-	wlan_objmgr_vdev_release_ref(vdev, WLAN_MLME_OBJMGR_ID);
-}
-
-=======
 
 	mlme_legacy_debug("vdev[%d] bitmap[0x%x], reqs: %d, clear: %d", vdev_id,
 			  mlme_priv->mlme_roam.roam_sm.mlme_operations_bitmap,
@@ -3125,7 +3061,6 @@ QDF_STATUS mlme_get_cfg_wlm_reset(struct wlan_objmgr_psoc *psoc,
 	return QDF_STATUS_SUCCESS;
 }
 
->>>>>>> Stashed changes
 enum roam_offload_state
 mlme_get_roam_state(struct wlan_objmgr_psoc *psoc, uint8_t vdev_id)
 {
@@ -3180,8 +3115,6 @@ void mlme_set_roam_state(struct wlan_objmgr_psoc *psoc, uint8_t vdev_id,
 	mlme_priv->mlme_roam.roam_sm.state = new_state;
 	wlan_objmgr_vdev_release_ref(vdev, WLAN_MLME_OBJMGR_ID);
 }
-<<<<<<< Updated upstream
-=======
 
 bool wlan_is_vdev_id_up(struct wlan_objmgr_pdev *pdev, uint8_t vdev_id)
 {
@@ -3200,5 +3133,4 @@ bool wlan_is_vdev_id_up(struct wlan_objmgr_pdev *pdev, uint8_t vdev_id)
 
 	return is_up;
 }
->>>>>>> Stashed changes
 #endif

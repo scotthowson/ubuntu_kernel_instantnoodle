@@ -1,9 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0-only
-<<<<<<< Updated upstream
-/* Copyright (c) 2016-2020, The Linux Foundation. All rights reserved. */
-=======
 /* Copyright (c) 2016-2021, The Linux Foundation. All rights reserved. */
->>>>>>> Stashed changes
 
 #include <linux/cma.h>
 #include <linux/firmware.h>
@@ -84,10 +80,6 @@ static DEFINE_SPINLOCK(time_sync_lock);
 #define HSP_HANG_DATA_OFFSET		((2 * 1024 * 1024) - HANG_DATA_LENGTH)
 
 #define MHI_SUSPEND_RETRY_CNT		3
-
-#define HANG_DATA_LENGTH		384
-#define HST_HANG_DATA_OFFSET		((3 * 1024 * 1024) - HANG_DATA_LENGTH)
-#define HSP_HANG_DATA_OFFSET		((2 * 1024 * 1024) - HANG_DATA_LENGTH)
 
 static struct cnss_pci_reg ce_src[] = {
 	{ "SRC_RING_BASE_LSB", QCA6390_CE_SRC_RING_BASE_LSB_OFFSET },
@@ -411,11 +403,7 @@ int cnss_pci_check_link_status(struct cnss_pci_data *pci_priv)
 	if (pci_priv->pci_link_state == PCI_LINK_DOWN) {
 		cnss_pr_dbg("%ps: PCIe link is in suspend state\n",
 			    (void *)_RET_IP_);
-<<<<<<< Updated upstream
-		return -EIO;
-=======
 		return -EACCES;
->>>>>>> Stashed changes
 	}
 
 	if (pci_priv->pci_link_down_ind) {
@@ -713,17 +701,13 @@ static int cnss_set_pci_link(struct cnss_pci_data *pci_priv, bool link_up)
 	enum msm_pcie_pm_opt pm_ops;
 	int retry = 0;
 
-<<<<<<< Updated upstream
-	//cnss_pr_vdbg("%s PCI link\n", link_up ? "Resuming" : "Suspending");
-=======
 	cnss_pr_vdbg("%s PCI link\n", link_up ? "Resuming" : "Suspending");
->>>>>>> Stashed changes
 
 	if (link_up) {
 		pm_ops = MSM_PCIE_RESUME;
 	} else {
 		if (pci_priv->drv_connected_last) {
-			//cnss_pr_vdbg("Use PCIe DRV suspend\n");
+			cnss_pr_vdbg("Use PCIe DRV suspend\n");
 			pm_ops = MSM_PCIE_DRV_SUSPEND;
 			if (pci_priv->device_id != QCA6390_DEVICE_ID)
 				cnss_set_pci_link_status(pci_priv, PCI_GEN1);
@@ -902,10 +886,7 @@ int cnss_pci_recover_link_down(struct cnss_pci_data *pci_priv)
 		  jiffies + msecs_to_jiffies(DEV_RDDM_TIMEOUT));
 
 	mhi_debug_reg_dump(pci_priv->mhi_ctrl);
-<<<<<<< Updated upstream
-=======
 	cnss_pci_soc_scratch_reg_dump(pci_priv);
->>>>>>> Stashed changes
 
 	return 0;
 }
@@ -958,10 +939,6 @@ void cnss_pci_allow_l1(struct device *dev)
 }
 EXPORT_SYMBOL(cnss_pci_allow_l1);
 
-<<<<<<< Updated upstream
-static void cnss_pci_handle_linkdown(struct cnss_pci_data *pci_priv)
-{
-=======
 static void cnss_pci_update_link_event(struct cnss_pci_data *pci_priv,
 				       enum cnss_bus_event_type type,
 				       void *data)
@@ -975,7 +952,6 @@ static void cnss_pci_update_link_event(struct cnss_pci_data *pci_priv,
 
 static void cnss_pci_handle_linkdown(struct cnss_pci_data *pci_priv)
 {
->>>>>>> Stashed changes
 	struct cnss_plat_data *plat_priv = pci_priv->plat_priv;
 	struct pci_dev *pci_dev = pci_priv->pci_dev;
 	unsigned long flags;
@@ -995,11 +971,6 @@ static void cnss_pci_handle_linkdown(struct cnss_pci_data *pci_priv)
 
 	reinit_completion(&pci_priv->wake_event);
 
-<<<<<<< Updated upstream
-	if (pci_dev->device == QCA6174_DEVICE_ID)
-		disable_irq(pci_dev->irq);
-
-=======
 	/* Notify MHI about link down */
 	mhi_control_error(pci_priv->mhi_ctrl);
 
@@ -1012,7 +983,6 @@ static void cnss_pci_handle_linkdown(struct cnss_pci_data *pci_priv)
 	 */
 	cnss_pci_update_link_event(pci_priv, BUS_EVENT_PCI_LINK_DOWN, NULL);
 
->>>>>>> Stashed changes
 	cnss_fatal_err("PCI link down, schedule recovery\n");
 	cnss_schedule_recovery(&pci_dev->dev, CNSS_REASON_LINK_DOWN);
 }
@@ -1281,16 +1251,10 @@ static int cnss_pci_set_mhi_state(struct cnss_pci_data *pci_priv,
 		break;
 	case CNSS_MHI_SUSPEND:
 		mutex_lock(&pci_priv->mhi_ctrl->pm_mutex);
-<<<<<<< Updated upstream
-		if (pci_priv->drv_connected_last)
-=======
 		if (pci_priv->drv_connected_last) {
->>>>>>> Stashed changes
 			ret = mhi_pm_fast_suspend(pci_priv->mhi_ctrl, true);
 		} else {
 			ret = mhi_pm_suspend(pci_priv->mhi_ctrl);
-<<<<<<< Updated upstream
-=======
 			/* in some corner case, when cnss try to suspend,
 			 * there is still packets pending in mhi layer,
 			 * so retry suspend to save roll back effort.
@@ -1302,7 +1266,6 @@ static int cnss_pci_set_mhi_state(struct cnss_pci_data *pci_priv,
 				ret = mhi_pm_suspend(pci_priv->mhi_ctrl);
 			}
 		}
->>>>>>> Stashed changes
 		mutex_unlock(&pci_priv->mhi_ctrl->pm_mutex);
 		break;
 	case CNSS_MHI_RESUME:
@@ -1331,17 +1294,10 @@ static int cnss_pci_set_mhi_state(struct cnss_pci_data *pci_priv,
 	return 0;
 
 out:
-<<<<<<< Updated upstream
-	cnss_pr_err("Failed to set MHI state: %s(%d)\n",
-		    cnss_mhi_state_to_str(mhi_state), mhi_state);
-
-	if (mhi_state == CNSS_MHI_RESUME)
-=======
 	cnss_pr_err("Failed to set MHI state: %s(%d) ret: %d\n",
 		    cnss_mhi_state_to_str(mhi_state), mhi_state, ret);
 
 	if (mhi_state == CNSS_MHI_RESUME && ret != -ETIMEDOUT)
->>>>>>> Stashed changes
 		cnss_force_fw_assert_async(&pci_priv->pci_dev->dev);
 
 	return ret;
@@ -1866,10 +1822,7 @@ static void cnss_pci_dump_mhi_reg(struct cnss_pci_data *pci_priv)
 		return;
 
 	mhi_debug_reg_dump(pci_priv->mhi_ctrl);
-<<<<<<< Updated upstream
-=======
 	cnss_pci_soc_scratch_reg_dump(pci_priv);
->>>>>>> Stashed changes
 }
 
 static void cnss_pci_dump_shadow_reg(struct cnss_pci_data *pci_priv)
@@ -1980,15 +1933,9 @@ static void cnss_pci_dump_qca6390_sram_mem(struct cnss_pci_data *pci_priv)
 	sbl_log_size = (sbl_log_size > QCA6390_DEBUG_SBL_LOG_SRAM_MAX_SIZE ?
 			QCA6390_DEBUG_SBL_LOG_SRAM_MAX_SIZE : sbl_log_size);
 
-<<<<<<< Updated upstream
-	if (sbl_log_start < QCA6390_V2_SBL_DATA_START ||
-	    sbl_log_start > QCA6390_V2_SBL_DATA_END ||
-	    (sbl_log_start + sbl_log_size) > QCA6390_V2_SBL_DATA_END)
-=======
 	if (sbl_log_start < SRAM_START ||
 	    sbl_log_start > SRAM_END ||
 	    (sbl_log_start + sbl_log_size) > SRAM_END)
->>>>>>> Stashed changes
 		goto out;
 
 	cnss_pr_dbg("Dumping SBL log data\n");
@@ -2056,25 +2003,11 @@ static void cnss_pci_dump_bl_sram_mem(struct cnss_pci_data *pci_priv)
 
 	sbl_log_size = (sbl_log_size > QCA6490_DEBUG_SBL_LOG_SRAM_MAX_SIZE ?
 			QCA6490_DEBUG_SBL_LOG_SRAM_MAX_SIZE : sbl_log_size);
-<<<<<<< Updated upstream
-	if (plat_priv->device_version.major_version == FW_V2_NUMBER) {
-		if (sbl_log_start < QCA6490_V2_SBL_DATA_START ||
-		    sbl_log_start > QCA6490_V2_SBL_DATA_END ||
-		    (sbl_log_start + sbl_log_size) > QCA6490_V2_SBL_DATA_END)
-			goto out;
-	} else {
-		if (sbl_log_start < QCA6490_V1_SBL_DATA_START ||
-		    sbl_log_start > QCA6490_V1_SBL_DATA_END ||
-		    (sbl_log_start + sbl_log_size) > QCA6490_V1_SBL_DATA_END)
-			goto out;
-	}
-=======
 
 	if (sbl_log_start < SRAM_START ||
 	    sbl_log_start > SRAM_END ||
 	    (sbl_log_start + sbl_log_size) > SRAM_END)
 		goto out;
->>>>>>> Stashed changes
 
 	cnss_pr_dbg("Dumping SBL log data");
 	for (i = 0; i < sbl_log_size; i += sizeof(val)) {
@@ -2502,15 +2435,9 @@ int cnss_wlan_register_driver(struct cnss_wlan_driver *driver_ops)
 	ret = wait_for_completion_timeout(&plat_priv->cal_complete,
 					  msecs_to_jiffies(timeout));
 	if (!ret) {
-<<<<<<< Updated upstream
-		cnss_pr_err("Timeout waiting for calibration to complete\n");
-		if (!test_bit(CNSS_IN_REBOOT, &plat_priv->driver_state)) {
-			cnss_pci_dump_bl_sram_mem(pci_priv);
-=======
 		cnss_pr_err("Timeout (%ums) waiting for calibration to complete\n",
 			    timeout);
 		if (!test_bit(CNSS_IN_REBOOT, &plat_priv->driver_state)) {
->>>>>>> Stashed changes
 			CNSS_ASSERT(0);
 		}
 
@@ -2552,29 +2479,6 @@ void cnss_wlan_unregister_driver(struct cnss_wlan_driver *driver_ops)
 	}
 
 	mutex_lock(&plat_priv->driver_ops_lock);
-<<<<<<< Updated upstream
-
-	if (plat_priv->device_id == QCA6174_DEVICE_ID)
-		goto skip_wait_power_up;
-
-	timeout = cnss_get_qmi_timeout(plat_priv);
-	ret = wait_for_completion_timeout(&plat_priv->power_up_complete,
-					  msecs_to_jiffies((timeout << 1) +
-							   WLAN_WD_TIMEOUT_MS));
-	if (!ret) {
-		cnss_pr_err("Timeout waiting for driver power up to complete\n");
-		CNSS_ASSERT(0);
-	}
-
-skip_wait_power_up:
-	if (!test_bit(CNSS_DRIVER_RECOVERY, &plat_priv->driver_state) &&
-	    !test_bit(CNSS_DEV_ERR_NOTIFY, &plat_priv->driver_state))
-		goto skip_wait_recovery;
-
-	reinit_completion(&plat_priv->recovery_complete);
-	ret = wait_for_completion_timeout(&plat_priv->recovery_complete,
-					  msecs_to_jiffies(RECOVERY_TIMEOUT));
-=======
 
 	if (plat_priv->device_id == QCA6174_DEVICE_ID)
 		goto skip_wait_power_up;
@@ -2582,15 +2486,12 @@ skip_wait_power_up:
 	timeout = cnss_get_timeout(plat_priv, CNSS_TIMEOUT_WLAN_WATCHDOG);
 	ret = wait_for_completion_timeout(&plat_priv->power_up_complete,
 					  msecs_to_jiffies(timeout));
->>>>>>> Stashed changes
 	if (!ret) {
 		cnss_pr_err("Timeout (%ums) waiting for driver power up to complete\n",
 			    timeout);
 		CNSS_ASSERT(0);
 	}
 
-<<<<<<< Updated upstream
-=======
 skip_wait_power_up:
 	if (!test_bit(CNSS_DRIVER_RECOVERY, &plat_priv->driver_state) &&
 	    !test_bit(CNSS_DEV_ERR_NOTIFY, &plat_priv->driver_state))
@@ -2606,7 +2507,6 @@ skip_wait_power_up:
 		CNSS_ASSERT(0);
 	}
 
->>>>>>> Stashed changes
 skip_wait_recovery:
 	cnss_driver_event_post(plat_priv,
 			       CNSS_DRIVER_EVENT_UNREGISTER_DRIVER,
@@ -2685,11 +2585,8 @@ static void cnss_pci_event_cb(struct msm_pcie_notify *notify)
 {
 	struct pci_dev *pci_dev;
 	struct cnss_pci_data *pci_priv;
-<<<<<<< Updated upstream
-=======
 	struct cnss_plat_data *plat_priv = NULL;
 	int ret = 0;
->>>>>>> Stashed changes
 
 	if (!notify)
 		return;
@@ -2703,8 +2600,6 @@ static void cnss_pci_event_cb(struct msm_pcie_notify *notify)
 		return;
 
 	switch (notify->event) {
-<<<<<<< Updated upstream
-=======
 	case MSM_PCIE_EVENT_LINK_RECOVER:
 		cnss_pr_dbg("PCI link recover callback\n");
 
@@ -2722,7 +2617,6 @@ static void cnss_pci_event_cb(struct msm_pcie_notify *notify)
 		if (ret)
 			cnss_pci_handle_linkdown(pci_priv);
 		break;
->>>>>>> Stashed changes
 	case MSM_PCIE_EVENT_LINKDOWN:
 		cnss_pr_dbg("PCI link down event callback\n");
 		cnss_pci_handle_linkdown(pci_priv);
@@ -3411,17 +3305,11 @@ int cnss_pci_force_wake_request_sync(struct device *dev, int timeout_us)
 		return -EAGAIN;
 
 	if (timeout_us) {
-<<<<<<< Updated upstream
-		return mhi_device_get_sync_atomic(mhi_ctrl->mhi_dev,
-						  timeout_us, false);
-	} else {
-=======
 		/* Busy wait for timeout_us */
 		return mhi_device_get_sync_atomic(mhi_ctrl->mhi_dev,
 						  timeout_us, false);
 	} else {
 		/* Sleep wait for mhi_ctrl->timeout_ms */
->>>>>>> Stashed changes
 		return mhi_device_get_sync(mhi_ctrl->mhi_dev, MHI_VOTE_DEVICE);
 	}
 }
@@ -4138,11 +4026,7 @@ void cnss_get_msi_address(struct device *dev, u32 *msi_addr_low,
 			     &control);
 	pci_read_config_dword(pci_dev, pci_dev->msi_cap + PCI_MSI_ADDRESS_LO,
 			      msi_addr_low);
-<<<<<<< Updated upstream
-
-=======
 	/*return msi high addr only when device support 64 BIT MSI */
->>>>>>> Stashed changes
 	if (control & PCI_MSI_FLAGS_64BIT)
 		pci_read_config_dword(pci_dev,
 				      pci_dev->msi_cap + PCI_MSI_ADDRESS_HI,
@@ -4431,13 +4315,8 @@ static void cnss_pci_remove_dump_seg(struct cnss_pci_data *pci_priv,
 	cnss_minidump_remove_region(plat_priv, type, seg_no, va, pa, size);
 }
 
-<<<<<<< Updated upstream
-int cnss_call_driver_uevent(struct cnss_pci_data *pci_priv,
-			    enum cnss_driver_status status, void *data)
-=======
 int cnss_pci_call_driver_uevent(struct cnss_pci_data *pci_priv,
 				enum cnss_driver_status status, void *data)
->>>>>>> Stashed changes
 {
 	struct cnss_uevent_data uevent_data;
 	struct cnss_wlan_driver *driver_ops;
@@ -4497,11 +4376,7 @@ static void cnss_pci_send_hang_event(struct cnss_pci_data *pci_priv)
 		}
 	}
 
-<<<<<<< Updated upstream
-	cnss_call_driver_uevent(pci_priv, CNSS_HANG_EVENT, &hang_event);
-=======
 	cnss_pci_call_driver_uevent(pci_priv, CNSS_HANG_EVENT, &hang_event);
->>>>>>> Stashed changes
 
 	kfree(hang_event.hang_event_data);
 	hang_event.hang_event_data = NULL;
@@ -4553,7 +4428,6 @@ void cnss_pci_collect_dump_info(struct cnss_pci_data *pci_priv, bool in_panic)
 	cnss_pci_dump_misc_reg(pci_priv);
 	cnss_pci_dump_shadow_reg(pci_priv);
 	cnss_pci_dump_qdss_reg(pci_priv);
-	cnss_pci_dump_bl_sram_mem(pci_priv);
 
 	ret = mhi_download_rddm_img(pci_priv->mhi_ctrl, in_panic);
 	if (ret) {
@@ -4799,11 +4673,7 @@ static void cnss_dev_rddm_timeout_hdlr(struct timer_list *t)
 {
 	struct cnss_pci_data *pci_priv =
 		from_timer(pci_priv, t, dev_rddm_timer);
-<<<<<<< Updated upstream
-	struct mhi_controller *mhi_ctrl = pci_priv->mhi_ctrl;
-=======
 	struct mhi_controller *mhi_ctrl;
->>>>>>> Stashed changes
 
 	if (!pci_priv)
 		return;
@@ -4815,10 +4685,7 @@ static void cnss_dev_rddm_timeout_hdlr(struct timer_list *t)
 		cnss_pr_err("Unable to collect ramdumps due to abrupt reset\n");
 
 	mhi_debug_reg_dump(mhi_ctrl);
-<<<<<<< Updated upstream
-=======
 	cnss_pci_soc_scratch_reg_dump(pci_priv);
->>>>>>> Stashed changes
 
 	cnss_schedule_recovery(&pci_priv->pci_dev->dev, CNSS_REASON_TIMEOUT);
 }
@@ -4890,10 +4757,7 @@ static void cnss_mhi_notify_status(struct mhi_controller *mhi_ctrl, void *priv,
 			cnss_pci_dump_bl_sram_mem(pci_priv);
 			cnss_pci_dump_mhi_reg(pci_priv);
 		}
-<<<<<<< Updated upstream
-=======
 		cnss_reason = CNSS_REASON_TIMEOUT;
->>>>>>> Stashed changes
 		break;
 	default:
 		cnss_pr_err("Unsupported MHI status cb reason: %d\n", reason);

@@ -930,11 +930,8 @@ static void writecache_resume(struct dm_target *ti)
 
 	wc_lock(wc);
 
-<<<<<<< Updated upstream
-=======
 	wc->data_device_sectors = i_size_read(wc->dev->bdev->bd_inode) >> SECTOR_SHIFT;
 
->>>>>>> Stashed changes
 	if (WC_MODE_PMEM(wc)) {
 		persistent_memory_invalidate_cache(wc->memory_map, wc->memory_map_size);
 	} else {

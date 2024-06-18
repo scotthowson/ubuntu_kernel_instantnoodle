@@ -2,11 +2,7 @@
 /*
  * QTI Crypto Engine driver.
  *
-<<<<<<< Updated upstream
- * Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2012-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #define pr_fmt(fmt) "QCE50: %s: " fmt, __func__

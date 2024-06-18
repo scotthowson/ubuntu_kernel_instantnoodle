@@ -342,23 +342,6 @@ int update_devfreq(struct devfreq *devfreq)
 		flags |= DEVFREQ_FLAG_LEAST_UPPER_BOUND; /* Use LUB */
 	}
 
-<<<<<<< Updated upstream
-#ifdef CONFIG_CONTROL_CENTER
-	if (cc_ddr_boost_enabled()) {
-		if (devfreq->dev.cc_marked) {
-			unsigned long val;
-
-			devfreq->dev.parent->cc_marked = devfreq->dev.cc_marked;
-
-			val = cc_get_expect_ddrfreq();
-			if (val)
-				freq = val;
-		}
-	}
-#endif
-
-=======
->>>>>>> Stashed changes
 	if (devfreq->profile->get_cur_freq)
 		devfreq->profile->get_cur_freq(devfreq->dev.parent, &cur_freq);
 	else
@@ -1238,13 +1221,10 @@ static ssize_t min_freq_store(struct device *dev, struct device_attribute *attr,
 	struct devfreq *df = to_devfreq(dev);
 	unsigned long value;
 	int ret;
-<<<<<<< Updated upstream
-=======
 
 	/* Minfreq is managed by devfreq_boost */
 	if (df->is_boost_device)
 		return count;
->>>>>>> Stashed changes
 
 	ret = sscanf(buf, "%lu", &value);
 	if (ret != 1)

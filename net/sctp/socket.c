@@ -1945,14 +1945,10 @@ static int sctp_sendmsg_to_asoc(struct sctp_association *asoc,
 	if (sctp_wspace(asoc) < (int)msg_len)
 		sctp_prsctp_prune(asoc, sinfo, msg_len - sctp_wspace(asoc));
 
-<<<<<<< Updated upstream
-	if (sctp_wspace(asoc) <= 0) {
-=======
 	if (sk_under_memory_pressure(sk))
 		sk_mem_reclaim(sk);
 
 	if (sctp_wspace(asoc) <= 0 || !sk_wmem_schedule(sk, msg_len)) {
->>>>>>> Stashed changes
 		timeo = sock_sndtimeo(sk, msg->msg_flags & MSG_DONTWAIT);
 		err = sctp_wait_for_sndbuf(asoc, &timeo, msg_len);
 		if (err)
@@ -8534,14 +8530,10 @@ static int sctp_wait_for_sndbuf(struct sctp_association *asoc, long *timeo_p,
 			goto do_error;
 		if (signal_pending(current))
 			goto do_interrupted;
-<<<<<<< Updated upstream
-		if ((int)msg_len <= sctp_wspace(asoc))
-=======
 		if (sk_under_memory_pressure(sk))
 			sk_mem_reclaim(sk);
 		if ((int)msg_len <= sctp_wspace(asoc) &&
 		    sk_wmem_schedule(sk, msg_len))
->>>>>>> Stashed changes
 			break;
 
 		/* Let another process have a go.  Since we are going

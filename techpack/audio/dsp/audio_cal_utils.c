@@ -10,11 +10,8 @@
 #include <linux/mutex.h>
 #include <dsp/audio_cal_utils.h>
 
-<<<<<<< Updated upstream
-=======
 struct mutex cal_lock;
 
->>>>>>> Stashed changes
 static int unmap_memory(struct cal_type_data *cal_type,
 			struct cal_block_data *cal_block);
 
@@ -951,13 +948,9 @@ int cal_utils_dealloc_cal(size_t data_size, void *data,
 	if (ret < 0)
 		goto err;
 
-<<<<<<< Updated upstream
-	delete_cal_block(cal_block);
-=======
 	mutex_lock(&cal_lock);
 	delete_cal_block(cal_block);
 	mutex_unlock(&cal_lock);
->>>>>>> Stashed changes
 err:
 	mutex_unlock(&cal_type->lock);
 done:
@@ -1072,14 +1065,11 @@ void cal_utils_mark_cal_used(struct cal_block_data *cal_block)
 }
 EXPORT_SYMBOL(cal_utils_mark_cal_used);
 
-<<<<<<< Updated upstream
-=======
 int __init cal_utils_init(void)
 {
 	mutex_init(&cal_lock);
 	return 0;
 }
->>>>>>> Stashed changes
 /**
  * cal_utils_is_cal_stale
  *
@@ -1089,12 +1079,6 @@ int __init cal_utils_init(void)
  */
 bool cal_utils_is_cal_stale(struct cal_block_data *cal_block)
 {
-<<<<<<< Updated upstream
-	if ((cal_block) && (cal_block->cal_stale))
-		return true;
-
-	return false;
-=======
 	bool ret = false;
 
 	mutex_lock(&cal_lock);
@@ -1109,6 +1093,5 @@ bool cal_utils_is_cal_stale(struct cal_block_data *cal_block)
 unlock:
 	mutex_unlock(&cal_lock);
 	return ret;
->>>>>>> Stashed changes
 }
 EXPORT_SYMBOL(cal_utils_is_cal_stale);

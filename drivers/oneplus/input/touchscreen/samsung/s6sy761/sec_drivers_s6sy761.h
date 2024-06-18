@@ -280,8 +280,6 @@ struct chip_data_s6sy761 {
 	bool 							print_num;
 };
 
-<<<<<<< Updated upstream
-=======
 struct dma_buf_s6sy761 {
 	u8 tBuff[SEC_EVENT_BUFF_SIZE];
 	u8 device_id[3];
@@ -292,5 +290,4 @@ struct dma_buf_s6sy761 {
 	u8 reg_buf[4];
 };
 
->>>>>>> Stashed changes
 #endif

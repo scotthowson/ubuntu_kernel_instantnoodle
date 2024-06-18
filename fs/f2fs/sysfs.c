@@ -11,19 +11,13 @@
 #include <linux/f2fs_fs.h>
 #include <linux/seq_file.h>
 #include <linux/unicode.h>
-<<<<<<< Updated upstream
-=======
 #include <linux/ioprio.h>
 #include <linux/sysfs.h>
->>>>>>> Stashed changes
 
 #include "f2fs.h"
 #include "segment.h"
 #include "gc.h"
-<<<<<<< Updated upstream
-=======
 #include "iostat.h"
->>>>>>> Stashed changes
 #include <trace/events/f2fs.h>
 
 static struct proc_dir_entry *f2fs_proc_root;
@@ -36,11 +30,7 @@ enum {
 	NM_INFO,	/* struct f2fs_nm_info */
 	F2FS_SBI,	/* struct f2fs_sb_info */
 #ifdef CONFIG_F2FS_STAT_FS
-<<<<<<< Updated upstream
-	STAT_INFO,      /* struct f2fs_stat_info */
-=======
 	STAT_INFO,	/* struct f2fs_stat_info */
->>>>>>> Stashed changes
 #endif
 #ifdef CONFIG_F2FS_FAULT_INJECTION
 	FAULT_INFO_RATE,	/* struct f2fs_fault_info */
@@ -95,13 +85,10 @@ static unsigned char *__struct_ptr(struct f2fs_sb_info *sbi, int struct_type)
 	else if (struct_type == STAT_INFO)
 		return (unsigned char *)F2FS_STAT(sbi);
 #endif
-<<<<<<< Updated upstream
-=======
 	else if (struct_type == CPRC_INFO)
 		return (unsigned char *)&sbi->cprc_info;
 	else if (struct_type == ATGC_INFO)
 		return (unsigned char *)&sbi->am;
->>>>>>> Stashed changes
 	return NULL;
 }
 
@@ -117,8 +104,6 @@ static ssize_t free_segments_show(struct f2fs_attr *a,
 {
 	return sprintf(buf, "%llu\n",
 			(unsigned long long)(free_segments(sbi)));
-<<<<<<< Updated upstream
-=======
 }
 
 static ssize_t ovp_segments_show(struct f2fs_attr *a,
@@ -126,7 +111,6 @@ static ssize_t ovp_segments_show(struct f2fs_attr *a,
 {
 	return sprintf(buf, "%llu\n",
 			(unsigned long long)(overprovision_segments(sbi)));
->>>>>>> Stashed changes
 }
 
 static ssize_t lifetime_write_kbytes_show(struct f2fs_attr *a,
@@ -138,14 +122,6 @@ static ssize_t lifetime_write_kbytes_show(struct f2fs_attr *a,
 				sbi->sectors_written_start) >> 1)));
 }
 
-<<<<<<< Updated upstream
-	if (!sb->s_bdev->bd_part)
-		return sprintf(buf, "0\n");
-
-	return sprintf(buf, "%llu\n",
-			(unsigned long long)(sbi->kbytes_written +
-			BD_PART_WRITTEN(sbi)));
-=======
 static ssize_t sb_status_show(struct f2fs_attr *a,
 		struct f2fs_sb_info *sbi, char *buf)
 {
@@ -171,7 +147,6 @@ static ssize_t gc_mode_show(struct f2fs_attr *a,
 		struct f2fs_sb_info *sbi, char *buf)
 {
 	return sprintf(buf, "%s\n", gc_mode_names[sbi->gc_mode]);
->>>>>>> Stashed changes
 }
 
 static ssize_t features_show(struct f2fs_attr *a,
@@ -179,12 +154,6 @@ static ssize_t features_show(struct f2fs_attr *a,
 {
 	int len = 0;
 
-<<<<<<< Updated upstream
-	if (!sb->s_bdev->bd_part)
-		return sprintf(buf, "0\n");
-
-=======
->>>>>>> Stashed changes
 	if (f2fs_sb_has_encrypt(sbi))
 		len += scnprintf(buf, PAGE_SIZE - len, "%s",
 						"encryption");
@@ -221,12 +190,9 @@ static ssize_t features_show(struct f2fs_attr *a,
 	if (f2fs_sb_has_casefold(sbi))
 		len += scnprintf(buf + len, PAGE_SIZE - len, "%s%s",
 				len ? ", " : "", "casefold");
-<<<<<<< Updated upstream
-=======
 	if (f2fs_sb_has_readonly(sbi))
 		len += scnprintf(buf + len, PAGE_SIZE - len, "%s%s",
 				len ? ", " : "", "readonly");
->>>>>>> Stashed changes
 	if (f2fs_sb_has_compression(sbi))
 		len += scnprintf(buf + len, PAGE_SIZE - len, "%s%s",
 				len ? ", " : "", "compression");
@@ -240,8 +206,6 @@ static ssize_t current_reserved_blocks_show(struct f2fs_attr *a,
 					struct f2fs_sb_info *sbi, char *buf)
 {
 	return sprintf(buf, "%u\n", sbi->current_reserved_blocks);
-<<<<<<< Updated upstream
-=======
 }
 
 static ssize_t unusable_show(struct f2fs_attr *a,
@@ -314,73 +278,7 @@ static ssize_t main_blkaddr_show(struct f2fs_attr *a,
 {
 	return snprintf(buf, PAGE_SIZE, "%llu\n",
 			(unsigned long long)MAIN_BLKADDR(sbi));
->>>>>>> Stashed changes
 }
-
-static ssize_t unusable_show(struct f2fs_attr *a,
-		struct f2fs_sb_info *sbi, char *buf)
-{
-	block_t unusable;
-
-	if (test_opt(sbi, DISABLE_CHECKPOINT))
-		unusable = sbi->unusable_block_count;
-	else
-		unusable = f2fs_get_unusable_blocks(sbi);
-	return sprintf(buf, "%llu\n", (unsigned long long)unusable);
-}
-
-static ssize_t encoding_show(struct f2fs_attr *a,
-		struct f2fs_sb_info *sbi, char *buf)
-{
-#ifdef CONFIG_UNICODE
-	struct super_block *sb = sbi->sb;
-
-	if (f2fs_sb_has_casefold(sbi))
-		return snprintf(buf, PAGE_SIZE, "%s (%d.%d.%d)\n",
-			sb->s_encoding->charset,
-			(sb->s_encoding->version >> 16) & 0xff,
-			(sb->s_encoding->version >> 8) & 0xff,
-			sb->s_encoding->version & 0xff);
-#endif
-	return sprintf(buf, "(none)");
-}
-
-static ssize_t mounted_time_sec_show(struct f2fs_attr *a,
-		struct f2fs_sb_info *sbi, char *buf)
-{
-	return sprintf(buf, "%llu", SIT_I(sbi)->mounted_time);
-}
-
-#ifdef CONFIG_F2FS_STAT_FS
-static ssize_t moved_blocks_foreground_show(struct f2fs_attr *a,
-				struct f2fs_sb_info *sbi, char *buf)
-{
-	struct f2fs_stat_info *si = F2FS_STAT(sbi);
-
-	return sprintf(buf, "%llu\n",
-		(unsigned long long)(si->tot_blks -
-			(si->bg_data_blks + si->bg_node_blks)));
-}
-
-static ssize_t moved_blocks_background_show(struct f2fs_attr *a,
-				struct f2fs_sb_info *sbi, char *buf)
-{
-	struct f2fs_stat_info *si = F2FS_STAT(sbi);
-
-	return sprintf(buf, "%llu\n",
-		(unsigned long long)(si->bg_data_blks + si->bg_node_blks));
-}
-
-static ssize_t avg_vblocks_show(struct f2fs_attr *a,
-		struct f2fs_sb_info *sbi, char *buf)
-{
-	struct f2fs_stat_info *si = F2FS_STAT(sbi);
-
-	si->dirty_count = dirty_segments(sbi);
-	f2fs_update_sit_info(sbi);
-	return sprintf(buf, "%llu\n", (unsigned long long)(si->avg_vblocks));
-}
-#endif
 
 static ssize_t f2fs_sbi_show(struct f2fs_attr *a,
 			struct f2fs_sb_info *sbi, char *buf)
@@ -664,10 +562,7 @@ out:
 		return count;
 	}
 
-<<<<<<< Updated upstream
-=======
 #ifdef CONFIG_F2FS_IOSTAT
->>>>>>> Stashed changes
 	if (!strcmp(a->attr.name, "iostat_enable")) {
 		sbi->iostat_enable = !!t;
 		if (!sbi->iostat_enable)
@@ -683,8 +578,6 @@ out:
 		spin_unlock(&sbi->iostat_lock);
 		return count;
 	}
-<<<<<<< Updated upstream
-=======
 #endif
 
 #ifdef CONFIG_F2FS_FS_COMPRESSION
@@ -793,7 +686,6 @@ out:
 		*ui = (unsigned int)t;
 		return count;
 	}
->>>>>>> Stashed changes
 
 	*ui = (unsigned int)t;
 
@@ -846,46 +738,6 @@ static void f2fs_sb_release(struct kobject *kobj)
 	complete(&sbi->s_kobj_unregister);
 }
 
-<<<<<<< Updated upstream
-enum feat_id {
-	FEAT_CRYPTO = 0,
-	FEAT_BLKZONED,
-	FEAT_ATOMIC_WRITE,
-	FEAT_EXTRA_ATTR,
-	FEAT_PROJECT_QUOTA,
-	FEAT_INODE_CHECKSUM,
-	FEAT_FLEXIBLE_INLINE_XATTR,
-	FEAT_QUOTA_INO,
-	FEAT_INODE_CRTIME,
-	FEAT_LOST_FOUND,
-	FEAT_VERITY,
-	FEAT_SB_CHECKSUM,
-	FEAT_CASEFOLD,
-	FEAT_COMPRESSION,
-};
-
-static ssize_t f2fs_feature_show(struct f2fs_attr *a,
-		struct f2fs_sb_info *sbi, char *buf)
-{
-	switch (a->id) {
-	case FEAT_CRYPTO:
-	case FEAT_BLKZONED:
-	case FEAT_ATOMIC_WRITE:
-	case FEAT_EXTRA_ATTR:
-	case FEAT_PROJECT_QUOTA:
-	case FEAT_INODE_CHECKSUM:
-	case FEAT_FLEXIBLE_INLINE_XATTR:
-	case FEAT_QUOTA_INO:
-	case FEAT_INODE_CRTIME:
-	case FEAT_LOST_FOUND:
-	case FEAT_VERITY:
-	case FEAT_SB_CHECKSUM:
-	case FEAT_CASEFOLD:
-	case FEAT_COMPRESSION:
-		return sprintf(buf, "supported\n");
-	}
-	return 0;
-=======
 /*
  * Note that there are three feature list entries:
  * 1) /sys/fs/f2fs/features
@@ -929,7 +781,6 @@ static struct f2fs_attr f2fs_attr_sb_##_name = {		\
 	.attr = {.name = __stringify(_name), .mode = 0444 },	\
 	.show	= f2fs_sb_feature_show,				\
 	.id	= F2FS_FEATURE_##_feat,				\
->>>>>>> Stashed changes
 }
 
 #define F2FS_ATTR_OFFSET(_struct_type, _name, _mode, _show, _store, _offset) \
@@ -967,19 +818,7 @@ static struct f2fs_attr f2fs_attr_##_name = {			\
 	.offset = offsetof(struct _struct_name, _elname),       \
 }
 
-<<<<<<< Updated upstream
-#define F2FS_STAT_ATTR(_struct_type, _struct_name, _name, _elname)	\
-static struct f2fs_attr f2fs_attr_##_name = {			\
-	.attr = {.name = __stringify(_name), .mode = 0444 },	\
-	.show = f2fs_sbi_show,					\
-	.struct_type = _struct_type,				\
-	.offset = offsetof(struct _struct_name, _elname),       \
-}
-
-F2FS_RW_ATTR(GC_THREAD, f2fs_gc_kthread, gc_urgent_sleep_time,
-=======
 F2FS_RO_ATTR(GC_THREAD, f2fs_gc_kthread, gc_urgent_sleep_time,
->>>>>>> Stashed changes
 							urgent_sleep_time);
 F2FS_RW_ATTR(GC_THREAD, f2fs_gc_kthread, gc_min_sleep_time, min_sleep_time);
 F2FS_RW_ATTR(GC_THREAD, f2fs_gc_kthread, gc_max_sleep_time, max_sleep_time);
@@ -987,7 +826,6 @@ F2FS_RW_ATTR(GC_THREAD, f2fs_gc_kthread, gc_no_gc_sleep_time, no_gc_sleep_time);
 F2FS_RW_ATTR(F2FS_SBI, f2fs_sb_info, gc_idle, gc_mode);
 F2FS_RW_ATTR(F2FS_SBI, f2fs_sb_info, gc_urgent, gc_mode);
 F2FS_RW_ATTR(SM_INFO, f2fs_sm_info, reclaim_segments, rec_prefree_segments);
-F2FS_RW_ATTR(SM_INFO, f2fs_sm_info, main_blkaddr, main_blkaddr);
 F2FS_RW_ATTR(DCC_INFO, discard_cmd_control, max_small_discards, max_discards);
 F2FS_RW_ATTR(DCC_INFO, discard_cmd_control, max_discard_request, max_discard_request);
 F2FS_RW_ATTR(DCC_INFO, discard_cmd_control, min_discard_issue_time, min_discard_issue_time);
@@ -1020,10 +858,7 @@ F2FS_RW_ATTR(F2FS_SBI, f2fs_sb_info,
 #ifdef CONFIG_F2FS_IOSTAT
 F2FS_RW_ATTR(F2FS_SBI, f2fs_sb_info, iostat_enable, iostat_enable);
 F2FS_RW_ATTR(F2FS_SBI, f2fs_sb_info, iostat_period_ms, iostat_period_ms);
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 F2FS_RW_ATTR(F2FS_SBI, f2fs_sb_info, readdir_ra, readdir_ra);
 F2FS_RW_ATTR(F2FS_SBI, f2fs_sb_info, max_io_bytes, max_io_bytes);
 F2FS_RW_ATTR(F2FS_SBI, f2fs_sb_info, gc_pin_file_thresh, gc_pin_file_threshold);
@@ -1033,29 +868,21 @@ F2FS_RW_ATTR(FAULT_INFO_RATE, f2fs_fault_info, inject_rate, inject_rate);
 F2FS_RW_ATTR(FAULT_INFO_TYPE, f2fs_fault_info, inject_type, inject_type);
 #endif
 F2FS_RW_ATTR(F2FS_SBI, f2fs_sb_info, data_io_flag, data_io_flag);
-<<<<<<< Updated upstream
-F2FS_GENERAL_RO_ATTR(dirty_segments);
-F2FS_GENERAL_RO_ATTR(free_segments);
-=======
 F2FS_RW_ATTR(F2FS_SBI, f2fs_sb_info, node_io_flag, node_io_flag);
 F2FS_RW_ATTR(F2FS_SBI, f2fs_sb_info, gc_remaining_trials, gc_remaining_trials);
 F2FS_RW_ATTR(CPRC_INFO, ckpt_req_control, ckpt_thread_ioprio, ckpt_thread_ioprio);
 F2FS_GENERAL_RO_ATTR(dirty_segments);
 F2FS_GENERAL_RO_ATTR(free_segments);
 F2FS_GENERAL_RO_ATTR(ovp_segments);
->>>>>>> Stashed changes
 F2FS_GENERAL_RO_ATTR(lifetime_write_kbytes);
 F2FS_GENERAL_RO_ATTR(features);
 F2FS_GENERAL_RO_ATTR(current_reserved_blocks);
 F2FS_GENERAL_RO_ATTR(unusable);
 F2FS_GENERAL_RO_ATTR(encoding);
 F2FS_GENERAL_RO_ATTR(mounted_time_sec);
-<<<<<<< Updated upstream
-=======
 F2FS_GENERAL_RO_ATTR(main_blkaddr);
 F2FS_GENERAL_RO_ATTR(pending_discard);
 F2FS_GENERAL_RO_ATTR(gc_mode);
->>>>>>> Stashed changes
 #ifdef CONFIG_F2FS_STAT_FS
 F2FS_STAT_ATTR(STAT_INFO, f2fs_stat_info, cp_foreground_calls, cp_count);
 F2FS_STAT_ATTR(STAT_INFO, f2fs_stat_info, cp_background_calls, bg_cp_count);
@@ -1076,24 +903,6 @@ F2FS_FEATURE_RO_ATTR(encrypted_casefold);
 #ifdef CONFIG_BLK_DEV_ZONED
 F2FS_FEATURE_RO_ATTR(block_zoned);
 #endif
-<<<<<<< Updated upstream
-F2FS_FEATURE_RO_ATTR(atomic_write, FEAT_ATOMIC_WRITE);
-F2FS_FEATURE_RO_ATTR(extra_attr, FEAT_EXTRA_ATTR);
-F2FS_FEATURE_RO_ATTR(project_quota, FEAT_PROJECT_QUOTA);
-F2FS_FEATURE_RO_ATTR(inode_checksum, FEAT_INODE_CHECKSUM);
-F2FS_FEATURE_RO_ATTR(flexible_inline_xattr, FEAT_FLEXIBLE_INLINE_XATTR);
-F2FS_FEATURE_RO_ATTR(quota_ino, FEAT_QUOTA_INO);
-F2FS_FEATURE_RO_ATTR(inode_crtime, FEAT_INODE_CRTIME);
-F2FS_FEATURE_RO_ATTR(lost_found, FEAT_LOST_FOUND);
-#ifdef CONFIG_FS_VERITY
-F2FS_FEATURE_RO_ATTR(verity, FEAT_VERITY);
-#endif
-F2FS_FEATURE_RO_ATTR(sb_checksum, FEAT_SB_CHECKSUM);
-F2FS_FEATURE_RO_ATTR(casefold, FEAT_CASEFOLD);
-#ifdef CONFIG_F2FS_FS_COMPRESSION
-F2FS_FEATURE_RO_ATTR(compression, FEAT_COMPRESSION);
-#endif
-=======
 F2FS_FEATURE_RO_ATTR(atomic_write);
 F2FS_FEATURE_RO_ATTR(extra_attr);
 F2FS_FEATURE_RO_ATTR(project_quota);
@@ -1138,7 +947,6 @@ F2FS_RW_ATTR(F2FS_SBI, f2fs_sb_info, revoked_atomic_block, revoked_atomic_block)
 /* For block age extent cache */
 F2FS_RW_ATTR(F2FS_SBI, f2fs_sb_info, hot_data_age_threshold, hot_data_age_threshold);
 F2FS_RW_ATTR(F2FS_SBI, f2fs_sb_info, warm_data_age_threshold, warm_data_age_threshold);
->>>>>>> Stashed changes
 
 #define ATTR_LIST(name) (&f2fs_attr_##name.attr)
 static struct attribute *f2fs_attrs[] = {
@@ -1181,10 +989,7 @@ static struct attribute *f2fs_attrs[] = {
 #ifdef CONFIG_F2FS_IOSTAT
 	ATTR_LIST(iostat_enable),
 	ATTR_LIST(iostat_period_ms),
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 	ATTR_LIST(readdir_ra),
 	ATTR_LIST(max_io_bytes),
 	ATTR_LIST(gc_pin_file_thresh),
@@ -1194,17 +999,12 @@ static struct attribute *f2fs_attrs[] = {
 	ATTR_LIST(inject_type),
 #endif
 	ATTR_LIST(data_io_flag),
-<<<<<<< Updated upstream
-	ATTR_LIST(dirty_segments),
-	ATTR_LIST(free_segments),
-=======
 	ATTR_LIST(node_io_flag),
 	ATTR_LIST(gc_remaining_trials),
 	ATTR_LIST(ckpt_thread_ioprio),
 	ATTR_LIST(dirty_segments),
 	ATTR_LIST(free_segments),
 	ATTR_LIST(ovp_segments),
->>>>>>> Stashed changes
 	ATTR_LIST(unusable),
 	ATTR_LIST(lifetime_write_kbytes),
 	ATTR_LIST(features),
@@ -1221,8 +1021,6 @@ static struct attribute *f2fs_attrs[] = {
 	ATTR_LIST(moved_blocks_background),
 	ATTR_LIST(avg_vblocks),
 #endif
-<<<<<<< Updated upstream
-=======
 #ifdef CONFIG_F2FS_FS_COMPRESSION
 	ATTR_LIST(compr_written_block),
 	ATTR_LIST(compr_saved_block),
@@ -1243,7 +1041,6 @@ static struct attribute *f2fs_attrs[] = {
 	ATTR_LIST(revoked_atomic_block),
 	ATTR_LIST(hot_data_age_threshold),
 	ATTR_LIST(warm_data_age_threshold),
->>>>>>> Stashed changes
 	NULL,
 };
 
@@ -1270,12 +1067,6 @@ static struct attribute *f2fs_feat_attrs[] = {
 	ATTR_LIST(verity),
 #endif
 	ATTR_LIST(sb_checksum),
-<<<<<<< Updated upstream
-	ATTR_LIST(casefold),
-#ifdef CONFIG_F2FS_FS_COMPRESSION
-	ATTR_LIST(compression),
-#endif
-=======
 #ifdef CONFIG_UNICODE
 	ATTR_LIST(casefold),
 #endif
@@ -1325,7 +1116,6 @@ static struct attribute *f2fs_sb_feat_attrs[] = {
 	ATTR_LIST(sb_casefold),
 	ATTR_LIST(sb_compression),
 	ATTR_LIST(sb_readonly),
->>>>>>> Stashed changes
 	NULL,
 };
 
@@ -1473,97 +1263,6 @@ static int __maybe_unused segment_bits_seq_show(struct seq_file *seq,
 	return 0;
 }
 
-<<<<<<< Updated upstream
-void f2fs_record_iostat(struct f2fs_sb_info *sbi)
-{
-	unsigned long long iostat_diff[NR_IO_TYPE];
-	int i;
-
-	if (time_is_after_jiffies(sbi->iostat_next_period))
-		return;
-
-	/* Need double check under the lock */
-	spin_lock(&sbi->iostat_lock);
-	if (time_is_after_jiffies(sbi->iostat_next_period)) {
-		spin_unlock(&sbi->iostat_lock);
-		return;
-	}
-	sbi->iostat_next_period = jiffies +
-				msecs_to_jiffies(sbi->iostat_period_ms);
-
-	for (i = 0; i < NR_IO_TYPE; i++) {
-		iostat_diff[i] = sbi->rw_iostat[i] -
-				sbi->prev_rw_iostat[i];
-		sbi->prev_rw_iostat[i] = sbi->rw_iostat[i];
-	}
-	spin_unlock(&sbi->iostat_lock);
-
-	trace_f2fs_iostat(sbi, iostat_diff);
-}
-
-static int __maybe_unused iostat_info_seq_show(struct seq_file *seq,
-					       void *offset)
-{
-	struct super_block *sb = seq->private;
-	struct f2fs_sb_info *sbi = F2FS_SB(sb);
-	time64_t now = ktime_get_real_seconds();
-
-	if (!sbi->iostat_enable)
-		return 0;
-
-	seq_printf(seq, "time:		%-16llu\n", now);
-
-	/* print app write IOs */
-	seq_printf(seq, "app buffered:	%-16llu\n",
-				sbi->rw_iostat[APP_BUFFERED_IO]);
-	seq_printf(seq, "app direct:	%-16llu\n",
-				sbi->rw_iostat[APP_DIRECT_IO]);
-	seq_printf(seq, "app mapped:	%-16llu\n",
-				sbi->rw_iostat[APP_MAPPED_IO]);
-
-	/* print fs write IOs */
-	seq_printf(seq, "fs data:	%-16llu\n",
-				sbi->rw_iostat[FS_DATA_IO]);
-	seq_printf(seq, "fs node:	%-16llu\n",
-				sbi->rw_iostat[FS_NODE_IO]);
-	seq_printf(seq, "fs meta:	%-16llu\n",
-				sbi->rw_iostat[FS_META_IO]);
-	seq_printf(seq, "fs gc data:	%-16llu\n",
-				sbi->rw_iostat[FS_GC_DATA_IO]);
-	seq_printf(seq, "fs gc node:	%-16llu\n",
-				sbi->rw_iostat[FS_GC_NODE_IO]);
-	seq_printf(seq, "fs cp data:	%-16llu\n",
-				sbi->rw_iostat[FS_CP_DATA_IO]);
-	seq_printf(seq, "fs cp node:	%-16llu\n",
-				sbi->rw_iostat[FS_CP_NODE_IO]);
-	seq_printf(seq, "fs cp meta:	%-16llu\n",
-				sbi->rw_iostat[FS_CP_META_IO]);
-
-	/* print app read IOs */
-	seq_printf(seq, "app buffered:	%-16llu\n",
-				sbi->rw_iostat[APP_BUFFERED_READ_IO]);
-	seq_printf(seq, "app direct:	%-16llu\n",
-				sbi->rw_iostat[APP_DIRECT_READ_IO]);
-	seq_printf(seq, "app mapped:	%-16llu\n",
-				sbi->rw_iostat[APP_MAPPED_READ_IO]);
-
-	/* print fs read IOs */
-	seq_printf(seq, "fs data:	%-16llu\n",
-				sbi->rw_iostat[FS_DATA_READ_IO]);
-	seq_printf(seq, "fs node:	%-16llu\n",
-				sbi->rw_iostat[FS_NODE_READ_IO]);
-	seq_printf(seq, "fs meta:	%-16llu\n",
-				sbi->rw_iostat[FS_META_READ_IO]);
-
-	/* print other IOs */
-	seq_printf(seq, "fs discard:	%-16llu\n",
-				sbi->rw_iostat[FS_DISCARD]);
-
-	return 0;
-}
-
-=======
->>>>>>> Stashed changes
 static int __maybe_unused victim_bits_seq_show(struct seq_file *seq,
 						void *offset)
 {
@@ -1621,23 +1320,6 @@ static int __maybe_unused discard_plist_seq_show(struct seq_file *seq,
 		mutex_unlock(&dcc->cmd_lock);
 	}
 
-<<<<<<< Updated upstream
-	f2fs_printk(sbi, KERN_INFO "Extent Size Range: Free Blocks");
-	for (i = 0; i < ARRAY_SIZE(blocks); i++) {
-		if (!blocks[i])
-			continue;
-		else if (i < 8)
-			f2fs_printk(sbi, KERN_INFO
-				"%dK...%dK-: %u", 4<<i, 4<<(i+1), blocks[i]);
-		else
-			f2fs_printk(sbi, KERN_INFO
-				"%dM...%dM-: %u", 1<<(i-8), 1<<(i-7), blocks[i]);
-	}
-
-	score = total_blocks ? (blocks[0] + blocks[1]) * 100ULL / total_blocks : 0;
-	seq_printf(seq, "%u\n", score);
-=======
->>>>>>> Stashed changes
 	return 0;
 }
 
@@ -1679,13 +1361,6 @@ int f2fs_register_sysfs(struct f2fs_sb_info *sbi)
 	init_completion(&sbi->s_kobj_unregister);
 	err = kobject_init_and_add(&sbi->s_kobj, &f2fs_sb_ktype, NULL,
 				"%s", sb->s_id);
-<<<<<<< Updated upstream
-	if (err) {
-		kobject_put(&sbi->s_kobj);
-		wait_for_completion(&sbi->s_kobj_unregister);
-		return err;
-	}
-=======
 	if (err)
 		goto put_sb_kobj;
 
@@ -1703,42 +1378,15 @@ int f2fs_register_sysfs(struct f2fs_sb_info *sbi)
 					&sbi->s_kobj, "feature_list");
 	if (err)
 		goto put_feature_list_kobj;
->>>>>>> Stashed changes
 
 	if (f2fs_proc_root)
 		sbi->s_proc = proc_mkdir(sb->s_id, f2fs_proc_root);
 
 	if (sbi->s_proc) {
-<<<<<<< Updated upstream
-#ifdef CONFIG_F2FS_OF2FS
-		/* [ASTI-147]: add f2fs frag_score and undiscard_score */
-		/* [ASTI-147]: add for oDiscard */
-		proc_create_single_data("frag_score", 0444, sbi->s_proc,
-				frag_score_seq_show, sb);
-		proc_create_single_data("udc_score", 0444, sbi->s_proc,
-				undiscard_score_seq_show, sb);
-		proc_create_data("gc_enable", 0644, sbi->s_proc,
-				 &f2fs_seq_gc_opt_enable_fops, sb);
-		proc_create_data("dc_enable", 0644, sbi->s_proc,
-				 &f2fs_odiscard_enable_fops, sb);
-#endif
-		proc_create_single_data("segment_info", S_IRUGO, sbi->s_proc,
-=======
 		proc_create_single_data("segment_info", 0444, sbi->s_proc,
->>>>>>> Stashed changes
 				segment_info_seq_show, sb);
-		proc_create_single_data("segment_bits", S_IRUGO, sbi->s_proc,
+		proc_create_single_data("segment_bits", 0444, sbi->s_proc,
 				segment_bits_seq_show, sb);
-<<<<<<< Updated upstream
-		proc_create_single_data("iostat_info", S_IRUGO, sbi->s_proc,
-				iostat_info_seq_show, sb);
-		proc_create_single_data("victim_bits", S_IRUGO, sbi->s_proc,
-				victim_bits_seq_show, sb);
-	}
-#ifdef CONFIG_F2FS_BD_STAT
-		f2fs_build_bd_stat(sbi);
-#endif
-=======
 #ifdef CONFIG_F2FS_IOSTAT
 		proc_create_single_data("iostat_info", 0444, sbi->s_proc,
 				iostat_info_seq_show, sb);
@@ -1748,7 +1396,6 @@ int f2fs_register_sysfs(struct f2fs_sb_info *sbi)
 		proc_create_single_data("discard_plist_info", 0444, sbi->s_proc,
 				discard_plist_seq_show, sb);
 	}
->>>>>>> Stashed changes
 	return 0;
 put_feature_list_kobj:
 	kobject_put(&sbi->s_feature_list_kobj);
@@ -1784,8 +1431,5 @@ void f2fs_unregister_sysfs(struct f2fs_sb_info *sbi)
 
 	kobject_del(&sbi->s_kobj);
 	kobject_put(&sbi->s_kobj);
-<<<<<<< Updated upstream
-=======
 	wait_for_completion(&sbi->s_kobj_unregister);
->>>>>>> Stashed changes
 }

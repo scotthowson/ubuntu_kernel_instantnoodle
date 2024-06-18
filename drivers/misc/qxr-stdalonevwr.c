@@ -1,11 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2020-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -19,12 +15,8 @@
 struct qxr_stdalonevwr {
 	struct platform_device *pdev;
 	struct regulator *reg_imu;
-<<<<<<< Updated upstream
-	int ndi_5v_en;
-=======
 	struct regulator *reg_dmic;
 	/*int ndi_5v_en;*/
->>>>>>> Stashed changes
 	bool initDone;
 };
 
@@ -33,10 +25,6 @@ static struct qxr_stdalonevwr *pdata;
 static int qxr_stdalonevwr_allocate_res(void)
 {
 	int rc = -EINVAL;
-<<<<<<< Updated upstream
-	bool gpioEnabled = false;
-=======
->>>>>>> Stashed changes
 
 	if (pdata->initDone) {
 		pr_debug("%s init is done already\n", __func__);
@@ -47,29 +35,6 @@ static int qxr_stdalonevwr_allocate_res(void)
 	if (!IS_ERR(pdata->reg_imu)) {
 		regulator_set_load(pdata->reg_imu, 600000);
 		rc = regulator_enable(pdata->reg_imu);
-<<<<<<< Updated upstream
-		if (rc < 0) {
-			pr_err("%s IMU rail pm8150a_l11 failed\n", __func__);
-			devm_regulator_put(pdata->reg_imu);
-		}
-	}
-
-	if (gpio_is_valid(pdata->ndi_5v_en)) {
-		rc = gpio_request(pdata->ndi_5v_en, "ndi_5v_en");
-		if (!rc) {
-			rc = gpio_direction_output(pdata->ndi_5v_en, 0);
-			if (!rc) {
-				gpio_set_value(pdata->ndi_5v_en, 1);
-				gpioEnabled = true;
-				msleep(20);
-			}
-		}
-	}
-	if (!gpioEnabled) {
-		pr_err("%s NDI_5V_EN gpio failed to allocate\n", __func__);
-		gpio_free(pdata->ndi_5v_en);
-	}
-=======
 		if (rc < 0)
 			pr_err("%s IMU rail pm8150a_l11 failed\n", __func__);
 	}
@@ -84,7 +49,6 @@ static int qxr_stdalonevwr_allocate_res(void)
 					 __func__);
 	}
 
->>>>>>> Stashed changes
 	pdata->initDone = true;
 	pr_debug("%s rc:%d\n", __func__, rc);
 	return rc;
@@ -93,18 +57,10 @@ static int qxr_stdalonevwr_allocate_res(void)
 static void qxr_stdalonevwr_free_res(void)
 {
 	if (pdata->initDone) {
-<<<<<<< Updated upstream
-		if (pdata->reg_imu) {
-			regulator_disable(pdata->reg_imu);
-			devm_regulator_put(pdata->reg_imu);
-		}
-		gpio_free(pdata->ndi_5v_en);
-=======
 		if (pdata->reg_imu)
 			regulator_disable(pdata->reg_imu);
 		if (pdata->reg_dmic)
 			regulator_disable(pdata->reg_dmic);
->>>>>>> Stashed changes
 		pdata->initDone = false;
 	}
 	pr_debug("%s initDone:%d\n", __func__, pdata->initDone);
@@ -118,11 +74,7 @@ static int qxr_stdalonevwr_probe(struct platform_device *pdev)
 		return -ENOMEM;
 
 	pdata->pdev = pdev;
-<<<<<<< Updated upstream
-	pdata->ndi_5v_en = 1237;
-=======
 	/*pdata->ndi_5v_en = 1237;*/
->>>>>>> Stashed changes
 	pdata->initDone = false;
 	qxr_stdalonevwr_allocate_res();
 	pr_info("%s done\n", __func__);

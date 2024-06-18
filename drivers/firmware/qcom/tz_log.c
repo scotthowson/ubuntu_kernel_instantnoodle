@@ -1,12 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2016-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2016-2021, The Linux Foundation. All rights reserved.
  * Copyright (c) 2022, Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  */
+#include <linux/debugfs.h>
 #include <linux/errno.h>
 #include <linux/delay.h>
 #include <linux/io.h>
@@ -1134,11 +1131,7 @@ static ssize_t tzdbgfs_read_unencrypted(struct file *file, char __user *buf,
 	size_t count, loff_t *offp)
 {
 	int len = 0;
-<<<<<<< Updated upstream
-	int *tz_id = PDE_DATA(file_inode(file));
-=======
 	int tz_id = *(int *)(file->private_data);
->>>>>>> Stashed changes
 
 	if (tz_id == TZDBG_BOOT || tz_id == TZDBG_RESET ||
 		tz_id == TZDBG_INTERRUPT || tz_id == TZDBG_GENERAL ||
@@ -1333,8 +1326,6 @@ exit_free_mem:
 	return ret;
 }
 
-<<<<<<< Updated upstream
-=======
 static void tzdbg_free_qsee_log_buf(struct platform_device *pdev)
 {
 	if (!tzdbg.is_encrypted_log_enabled)
@@ -1419,15 +1410,14 @@ static void tzdbg_free_encrypted_log_buf(struct platform_device *pdev)
 			enc_qseelog_info.vaddr, enc_qseelog_info.paddr);
 }
 
->>>>>>> Stashed changes
 static int  tzdbgfs_init(struct platform_device *pdev)
 {
 	int rc = 0;
 	int i;
-	struct proc_dir_entry *dent_dir    = NULL;
-	struct proc_dir_entry *dent        = NULL;
+	struct dentry           *dent_dir;
+	struct dentry           *dent;
 
-	dent_dir = proc_mkdir("tzdbg", NULL);
+	dent_dir = debugfs_create_dir("tzdbg", NULL);
 	if (dent_dir == NULL) {
 		dev_err(&pdev->dev, "tzdbg debugfs_create_dir failed\n");
 		return -ENOMEM;
@@ -1435,9 +1425,9 @@ static int  tzdbgfs_init(struct platform_device *pdev)
 
 	for (i = 0; i < TZDBG_STATS_MAX; i++) {
 		tzdbg.debug_tz[i] = i;
-		dent = proc_create_data(tzdbg.stat[i].name,
-				0444, dent_dir
-				, &tzdbg_fops, &tzdbg.debug_tz[i]);
+		dent = debugfs_create_file_unsafe(tzdbg.stat[i].name,
+				0444, dent_dir,
+				&tzdbg.debug_tz[i], &tzdbg_fops);
 		if (dent == NULL) {
 			dev_err(&pdev->dev, "TZ debugfs_create_file failed\n");
 			rc = -ENOMEM;
@@ -1448,27 +1438,16 @@ static int  tzdbgfs_init(struct platform_device *pdev)
 	platform_set_drvdata(pdev, dent_dir);
 	return 0;
 err:
-	proc_remove(dent_dir);
+	debugfs_remove_recursive(dent_dir);
 
 	return rc;
 }
 
 static void tzdbgfs_exit(struct platform_device *pdev)
 {
-<<<<<<< Updated upstream
-	struct proc_dir_entry *dent_dir;
-
-	if (g_qsee_log) {
-		qtee_shmbridge_deregister(qseelog_shmbridge_handle);
-		dma_free_coherent(&pdev->dev, QSEE_LOG_BUF_SIZE,
-					 (void *)g_qsee_log, coh_pmem);
-	}
-	kzfree(tzdbg.disp_buf);
-=======
 	struct dentry *dent_dir;
->>>>>>> Stashed changes
 	dent_dir = platform_get_drvdata(pdev);
-	proc_remove(dent_dir);
+	debugfs_remove_recursive(dent_dir);
 }
 
 static int __update_hypdbg_base(struct platform_device *pdev,
@@ -1665,17 +1644,6 @@ static int tz_log_probe(struct platform_device *pdev)
 		return -ENOMEM;
 	tzdbg.diag_buf = (struct tzdbg_t *)ptr;
 
-<<<<<<< Updated upstream
-	pr_info("%s: Start init tz procfs\n", __func__);
-	if (tzdbgfs_init(pdev))
-		goto err;
-	pr_info("%s: End init tz procfs\n", __func__);
-
-	tzdbg_register_qsee_log_buf(pdev);
-
-	tzdbg_get_tz_version();
-
-=======
 	/* register unencrypted qsee log buffer */
 	ret = tzdbg_register_qsee_log_buf(pdev);
 	if (ret)
@@ -1705,7 +1673,6 @@ static int tz_log_probe(struct platform_device *pdev)
 
 	if (tzdbgfs_init(pdev))
 		goto exit_free_disp_buf;
->>>>>>> Stashed changes
 	return 0;
 
 exit_free_disp_buf:

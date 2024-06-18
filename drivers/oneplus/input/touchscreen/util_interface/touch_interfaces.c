@@ -69,22 +69,9 @@ int touch_i2c_read_block(struct i2c_client* client, u16 addr, unsigned short len
 
 	msg[0].addr = client->addr;
 	msg[0].flags = 0;
-<<<<<<< Updated upstream
-	msg[0].buf = buffer;
-
-	if (!register_is_16bit) {  // if register is 8bit
-		msg[0].len = 1;
-		msg[0].buf[0] = addr & 0xff;
-	} else {
-		msg[0].len = 2;
-		msg[0].buf[0] = addr >> 8 & 0xff;
-		msg[0].buf[1] = addr & 0xff;
-	}
-=======
 	msg[0].len = 1;
 	msg[0].buf = dma_buffer->read_buf;
 	msg[0].buf[0] = addr & 0xff;
->>>>>>> Stashed changes
 
 	msg[1].addr = client->addr;
 	msg[1].flags = I2C_M_RD;

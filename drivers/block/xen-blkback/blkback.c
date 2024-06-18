@@ -949,16 +949,7 @@ out:
 		pages[i]->handle = BLKBACK_INVALID_HANDLE;
 	}
 
-<<<<<<< Updated upstream
-out_of_memory:
-	pr_alert("%s: out of memory\n", __func__);
-	put_free_pages(ring, pages_to_gnt, segs_to_map);
-	for (i = last_map; i < num; i++)
-		pages[i]->handle = BLKBACK_INVALID_HANDLE;
-	return -ENOMEM;
-=======
 	return ret;
->>>>>>> Stashed changes
 }
 
 static int xen_blkbk_map_seg(struct pending_req *pending_req)

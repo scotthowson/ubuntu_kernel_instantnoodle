@@ -1,11 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2008-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2008-2021, The Linux Foundation. All rights reserved.
  * Copyright (c) 2022-2023, Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  */
 #ifndef __ADRENO_H
 #define __ADRENO_H
@@ -114,20 +110,6 @@
 #define ADRENO_DEPRECATED BIT(20)
 /* The target supports ringbuffer level APRIV */
 #define ADRENO_APRIV BIT(21)
-/*
- * Use SHMEM for page allocation. There will be no support
- * for pools and higher order pages.
- */
-#define ADRENO_USE_SHMEM BIT(22)
-/*
- * Make pages available for reclaim. Process foreground/background
- * activity is known through sysfs exposed per process. Based on
- * this, pages are unpinned and made available to Per Process
- * Reclaim (PPR). SHMEM is used for allocation of pages and
- * support for pools is removed.
- */
-#define ADRENO_PROCESS_RECLAIM BIT(23)
-
 /*
  * Adreno GPU quirks - control bits for various workarounds
  */

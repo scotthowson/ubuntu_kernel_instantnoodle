@@ -291,11 +291,7 @@
 	};
 
 	qupv3_se9_2uart: qcom,qup_uart@98c000 {
-<<<<<<< Updated upstream
-		compatible = "qcom,msm-geni-console-oem";
-=======
 		compatible = "qcom,msm-geni-console";
->>>>>>> Stashed changes
 		reg = <0x98c000 0x4000>;
 		reg-names = "se_phys";
 		clock-names = "se-clk", "m-ahb", "s-ahb";

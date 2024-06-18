@@ -1177,16 +1177,12 @@ static ssize_t uvcg_frame_dw_frame_interval_store(struct config_item *item,
 
 	kfree(ch->dw_frame_interval);
 	ch->dw_frame_interval = frm_intrv;
-<<<<<<< Updated upstream
-	ch->frame.b_frame_interval_type = n;
-=======
 	if (ch->fmt_type == UVCG_UNCOMPRESSED)
 		ch->frame.uf.bFrameIntervalType = n;
 	else if (ch->fmt_type == UVCG_MJPEG)
 		ch->frame.mf.bFrameIntervalType = n;
 	else if (ch->fmt_type == UVCG_H264)
 		ch->frame.hf.bNumFrameIntervals = n;
->>>>>>> Stashed changes
 	sort(ch->dw_frame_interval, n, sizeof(*ch->dw_frame_interval),
 	     uvcg_config_compare_u32, NULL);
 	ret = len;

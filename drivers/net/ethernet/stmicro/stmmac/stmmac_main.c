@@ -3597,10 +3597,7 @@ static int stmmac_change_mtu(struct net_device *dev, int new_mtu)
 {
 	struct stmmac_priv *priv = netdev_priv(dev);
 	int txfifosz = priv->plat->tx_fifo_size;
-<<<<<<< Updated upstream
-=======
 	const int mtu = new_mtu;
->>>>>>> Stashed changes
 
 	if (txfifosz == 0)
 		txfifosz = priv->dma_cap.tx_fifo_size;
@@ -3618,11 +3615,7 @@ static int stmmac_change_mtu(struct net_device *dev, int new_mtu)
 	if ((txfifosz < new_mtu) || (new_mtu > BUF_SIZE_16KiB))
 		return -EINVAL;
 
-<<<<<<< Updated upstream
-	dev->mtu = new_mtu;
-=======
 	dev->mtu = mtu;
->>>>>>> Stashed changes
 
 	netdev_update_features(dev);
 
@@ -4542,14 +4535,11 @@ int stmmac_suspend(struct device *dev)
 	for (chan = 0; chan < priv->plat->tx_queues_to_use; chan++)
 		del_timer_sync(&priv->tx_queue[chan].txtimer);
 
-<<<<<<< Updated upstream
-=======
 	if (priv->eee_enabled) {
 		priv->tx_path_in_lpi_mode = false;
 		del_timer_sync(&priv->eee_ctrl_timer);
 	}
 
->>>>>>> Stashed changes
 	/* Stop TX/RX DMA */
 	stmmac_stop_all_dma(priv);
 

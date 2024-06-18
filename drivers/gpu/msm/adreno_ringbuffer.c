@@ -1,10 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (c) 2002,2007-2020, The Linux Foundation. All rights reserved.
-<<<<<<< Updated upstream
-=======
  * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include <linux/sched/clock.h>
@@ -94,27 +91,10 @@ static void adreno_ringbuffer_wptr(struct adreno_device *adreno_dev,
 			 * been submitted.
 			 */
 			kgsl_pwrscale_busy(device);
-<<<<<<< Updated upstream
-
-			/*
-			 * There could be a situation where GPU comes out of
-			 * ifpc after a fenced write transaction but before
-			 * reading AHB_FENCE_STATUS from KMD, it goes back to
-			 * ifpc due to inactivity (kernel scheduler plays a
-			 * role here). Put a keep alive vote to avoid such
-			 * unlikely scenario.
-			 */
-			if (gpudev->gpu_keepalive)
-				gpudev->gpu_keepalive(adreno_dev, true);
-=======
->>>>>>> Stashed changes
 
 			write = true;
 			val = rb->_wptr;
 			rb->skip_inline_wptr = false;
-			if (gpudev->gpu_keepalive)
-				gpudev->gpu_keepalive(adreno_dev, false);
-
 		}
 	} else {
 		/*

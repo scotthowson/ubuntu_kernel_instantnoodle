@@ -125,11 +125,7 @@
 	status = "okay";
 	clock-frequency = <100000>;
 	i2c-sda-falling-time-ns = <890>;  /* hcnt */
-<<<<<<< Updated upstream
-	i2c-sdl-falling-time-ns = <890>;  /* lcnt */
-=======
 	i2c-scl-falling-time-ns = <890>;  /* lcnt */
->>>>>>> Stashed changes
 
 	adc@14 {
 		compatible = "lltc,ltc2497";

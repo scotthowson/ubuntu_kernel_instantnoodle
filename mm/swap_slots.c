@@ -353,11 +353,6 @@ repeat:
 			goto out;
 	}
 
-<<<<<<< Updated upstream
-	__set_memplus_entry(entry, page_private(page));
-	/* add end */
-=======
->>>>>>> Stashed changes
 	get_swap_pages(1, &entry, 1);
 out:
 	if (mem_cgroup_try_charge_swap(page, entry)) {

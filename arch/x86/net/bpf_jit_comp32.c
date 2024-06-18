@@ -1945,40 +1945,6 @@ static int do_jit(struct bpf_prog *bpf_prog, int *addrs, u8 *image,
 		case BPF_JMP | BPF_JSLE | BPF_X:
 		case BPF_JMP | BPF_JSLT | BPF_X:
 		case BPF_JMP | BPF_JSGE | BPF_X: {
-<<<<<<< Updated upstream
-			u8 dreg_lo = dstk ? IA32_EAX : dst_lo;
-			u8 dreg_hi = dstk ? IA32_EDX : dst_hi;
-			u8 sreg_lo = sstk ? IA32_ECX : src_lo;
-			u8 sreg_hi = sstk ? IA32_EBX : src_hi;
-
-			if (dstk) {
-				EMIT3(0x8B, add_2reg(0x40, IA32_EBP, IA32_EAX),
-				      STACK_VAR(dst_lo));
-				EMIT3(0x8B,
-				      add_2reg(0x40, IA32_EBP,
-					       IA32_EDX),
-				      STACK_VAR(dst_hi));
-			}
-
-			if (sstk) {
-				EMIT3(0x8B, add_2reg(0x40, IA32_EBP, IA32_ECX),
-				      STACK_VAR(src_lo));
-				EMIT3(0x8B,
-				      add_2reg(0x40, IA32_EBP,
-					       IA32_EBX),
-				      STACK_VAR(src_hi));
-			}
-
-			/* cmp dreg_hi,sreg_hi */
-			EMIT2(0x39, add_2reg(0xC0, dreg_hi, sreg_hi));
-			EMIT2(IA32_JNE, 10);
-			/* cmp dreg_lo,sreg_lo */
-			EMIT2(0x39, add_2reg(0xC0, dreg_lo, sreg_lo));
-			goto emit_cond_jmp_signed;
-		}
-		case BPF_JMP | BPF_JSET | BPF_X: {
-=======
->>>>>>> Stashed changes
 			u8 dreg_lo = dstk ? IA32_EAX : dst_lo;
 			u8 dreg_hi = dstk ? IA32_EDX : dst_hi;
 			u8 sreg_lo = sstk ? IA32_ECX : src_lo;

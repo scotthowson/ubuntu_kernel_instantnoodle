@@ -3952,10 +3952,7 @@ EXPORT_SYMBOL(netdev_max_backlog);
 
 int netdev_tstamp_prequeue __read_mostly = 1;
 int netdev_budget __read_mostly = 300;
-<<<<<<< Updated upstream
-=======
 /* Must be at least 2 jiffes to guarantee 1 jiffy timeout */
->>>>>>> Stashed changes
 unsigned int __read_mostly netdev_budget_usecs = 2 * USEC_PER_SEC / HZ;
 int weight_p __read_mostly = 64;           /* old backlog weight */
 int dev_weight_rx_bias __read_mostly = 1;  /* bias for backlog weight */
@@ -4836,15 +4833,10 @@ another_round:
 		ret2 = do_xdp_generic(rcu_dereference(skb->dev->xdp_prog), skb);
 		preempt_enable();
 
-<<<<<<< Updated upstream
-		if (ret2 != XDP_PASS)
-			return NET_RX_DROP;
-=======
 		if (ret2 != XDP_PASS) {
 			ret = NET_RX_DROP;
 			goto out;
 		}
->>>>>>> Stashed changes
 		skb_reset_mac_len(skb);
 	}
 

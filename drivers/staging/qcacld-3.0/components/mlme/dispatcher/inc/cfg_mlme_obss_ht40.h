@@ -1,9 +1,6 @@
 /*
  * Copyright (c) 2012-2019 The Linux Foundation. All rights reserved.
-<<<<<<< Updated upstream
-=======
  * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -247,8 +244,6 @@
 		0, \
 		"Enable obss color collision offload")
 
-<<<<<<< Updated upstream
-=======
 /*
  * <ini>
  * bss_color_collision_det_sta - Enables BSS color collision detection in STA
@@ -270,7 +265,6 @@
 		1, \
 		"BSS color collision detection in STA")
 
->>>>>>> Stashed changes
 #define CFG_OBSS_HT40_ALL \
 	CFG(CFG_OBSS_HT40_SCAN_ACTIVE_DWELL_TIME) \
 	CFG(CFG_OBSS_HT40_SCAN_PASSIVE_DWELL_TIME) \
@@ -281,10 +275,7 @@
 	CFG(CFG_OBSS_HT40_WIDTH_CH_TRANSITION_DELAY) \
 	CFG(CFG_OBSS_HT40_OVERRIDE_HT40_20_24GHZ) \
 	CFG(CFG_OBSS_DETECTION_OFFLOAD) \
-<<<<<<< Updated upstream
-=======
 	CFG(CFG_BSS_CLR_COLLISION_DETCN_STA) \
->>>>>>> Stashed changes
 	CFG(CFG_OBSS_COLOR_COLLISION_OFFLOAD)
 
 #endif /* CFG_MLME_OBSS_HT40_H__ */

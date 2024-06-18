@@ -2,10 +2,7 @@
 
 #include "scuba-iot-low-ram.dtsi"
 #include "scuba-iot-idp.dtsi"
-<<<<<<< Updated upstream
-=======
 #include "scuba-iot-qcs.dtsi"
->>>>>>> Stashed changes
 
 / {
 	model = "Qualcomm Technologies, Inc. Scubap IOT IDP 2GB DDR";

@@ -203,11 +203,7 @@
 		};
 	};
 };
-<<<<<<< Updated upstream
-/* @bsp, Battery & Charging config STRAT */
-=======
 
->>>>>>> Stashed changes
 &qupv3_se16_i2c {
 	oneplus_fastchg@0a{
 		op,swarp_supported;
@@ -311,24 +307,13 @@
 	op,nor-skin-thermal-warm-current-ma = <800>;
 	op,nor-skin-thermal-medium-current-ma = <1000>;
 	op,enable-nor-current-dynamic-adjust;
-<<<<<<< Updated upstream
-
-	op,enable-temp-ctrl-center;
-=======
->>>>>>> Stashed changes
 };
 
 &kona_mtp_batterydata {
 	#include "OP-fg-batterydata-4500mah.dtsi"
 };
-<<<<<<< Updated upstream
-/* @bsp, Battery & Charging config EDN */
-
-/* @bsp, 2019/09/24 usb config START*/
-=======
 
 
->>>>>>> Stashed changes
 &usb2_phy0 {
 	qcom,param-override-seq =
 		<0x67 0x6c/*Disconnection voltage +21.56%*/
@@ -492,7 +477,3 @@
 		status = "disabled";
 	};
 };
-<<<<<<< Updated upstream
-/* @bsp, 2019/09/24 usb config END*/
-=======
->>>>>>> Stashed changes

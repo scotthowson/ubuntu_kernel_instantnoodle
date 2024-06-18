@@ -526,10 +526,7 @@ static void acm_read_bulk_callback(struct urb *urb)
 			"%s - cooling babbling device\n", __func__);
 		usb_mark_last_busy(acm->dev);
 		set_bit(rb->index, &acm->urbs_in_error_delay);
-<<<<<<< Updated upstream
-=======
 		set_bit(ACM_ERROR_DELAY, &acm->flags);
->>>>>>> Stashed changes
 		cooldown = true;
 		break;
 	default:
@@ -555,11 +552,7 @@ static void acm_read_bulk_callback(struct urb *urb)
 
 	if (stopped || stalled || cooldown) {
 		if (stalled)
-<<<<<<< Updated upstream
-			schedule_work(&acm->work);
-=======
 			schedule_delayed_work(&acm->dwork, 0);
->>>>>>> Stashed changes
 		else if (cooldown)
 			schedule_delayed_work(&acm->dwork, HZ / 2);
 		return;
@@ -614,15 +607,9 @@ static void acm_softint(struct work_struct *work)
 	}
 
 	if (test_and_clear_bit(ACM_ERROR_DELAY, &acm->flags)) {
-<<<<<<< Updated upstream
-		for (i = 0; i < ACM_NR; i++)
-			if (test_and_clear_bit(i, &acm->urbs_in_error_delay))
-					acm_submit_read_urb(acm, i, GFP_NOIO);
-=======
 		for (i = 0; i < acm->rx_buflimit; i++)
 			if (test_and_clear_bit(i, &acm->urbs_in_error_delay))
 				acm_submit_read_urb(acm, i, GFP_KERNEL);
->>>>>>> Stashed changes
 	}
 
 	if (test_and_clear_bit(EVENT_TTY_WAKEUP, &acm->flags))
@@ -1432,10 +1419,6 @@ made_compressed_probe:
 	acm->ctrlsize = ctrlsize;
 	acm->readsize = readsize;
 	acm->rx_buflimit = num_rx_buf;
-<<<<<<< Updated upstream
-	INIT_WORK(&acm->work, acm_softint);
-=======
->>>>>>> Stashed changes
 	INIT_DELAYED_WORK(&acm->dwork, acm_softint);
 	init_waitqueue_head(&acm->wioctl);
 	spin_lock_init(&acm->write_lock);
@@ -1654,11 +1637,6 @@ static void acm_disconnect(struct usb_interface *intf)
 		tty_kref_put(tty);
 	}
 
-<<<<<<< Updated upstream
-	acm_kill_urbs(acm);
-	cancel_work_sync(&acm->work);
-=======
->>>>>>> Stashed changes
 	cancel_delayed_work_sync(&acm->dwork);
 
 	tty_unregister_device(acm_tty_driver, acm->minor);
@@ -1700,12 +1678,7 @@ static int acm_suspend(struct usb_interface *intf, pm_message_t message)
 	if (cnt)
 		return 0;
 
-<<<<<<< Updated upstream
-	acm_kill_urbs(acm);
-	cancel_work_sync(&acm->work);
-=======
 	acm_poison_urbs(acm);
->>>>>>> Stashed changes
 	cancel_delayed_work_sync(&acm->dwork);
 	acm->urbs_in_error_delay = 0;
 

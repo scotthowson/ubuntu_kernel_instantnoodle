@@ -182,8 +182,6 @@ int hif_ipci_configure_grp_irq(
 			struct hif_exec_context *exec);
 
 /**
-<<<<<<< Updated upstream
-=======
  * hif_ipci_deconfigure_grp_irq() - deconfigure HW block irq
  * @scn: hif context
  *
@@ -192,7 +190,6 @@ int hif_ipci_configure_grp_irq(
 void hif_ipci_deconfigure_grp_irq(struct hif_softc *scn);
 
 /**
->>>>>>> Stashed changes
  * hif_ipci_display_stats() - display stats
  * @hif_ctx: hif context
  *

@@ -1392,11 +1392,8 @@ static irqreturn_t wigig_sensing_dri_isr_thread(int irq, void *cookie)
 			   ctx, spi_status.b.fill_level, ctx->stm.burst_size);
 		else
 			pr_debug("Change mode in progress, aborting data processing\n");
-<<<<<<< Updated upstream
-=======
 
 finish_data_ready:
->>>>>>> Stashed changes
 		SPI_STATS_MEAS_STOP(ctx, SPI_STATS_MEAS_DATA_READY);
 
 		spi_status.v &= ~INT_DATA_READY;

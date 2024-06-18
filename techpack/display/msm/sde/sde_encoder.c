@@ -1,10 +1,6 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2014-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2014-2021, The Linux Foundation. All rights reserved.
  * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  * Copyright (C) 2013 Red Hat
  * Author: Rob Clark <robdclark@gmail.com>
  *
@@ -297,10 +293,6 @@ struct sde_encoder_virt {
 	struct kthread_work input_event_work;
 	struct kthread_work esd_trigger_work;
 	struct input_handler *input_handler;
-<<<<<<< Updated upstream
-	bool input_handler_registered;
-=======
->>>>>>> Stashed changes
 #if defined(CONFIG_PXLW_IRIS)
 	struct kthread_work disable_autorefresh_work;
 #endif
@@ -2686,11 +2678,6 @@ static int _sde_encoder_rc_idle(struct drm_encoder *drm_enc,
 	struct msm_drm_private *priv;
 	struct sde_kms *sde_kms;
 	struct drm_crtc *crtc = drm_enc->crtc;
-<<<<<<< Updated upstream
-	struct sde_crtc *sde_crtc = to_sde_crtc(crtc);
-
-	priv = drm_enc->dev->dev_private;
-=======
 	struct sde_crtc *sde_crtc;
 
 	priv = drm_enc->dev->dev_private;
@@ -2701,7 +2688,6 @@ static int _sde_encoder_rc_idle(struct drm_encoder *drm_enc,
 	}
 
 	sde_crtc = to_sde_crtc(crtc);
->>>>>>> Stashed changes
 	sde_kms = to_sde_kms(priv->kms);
 
 	mutex_lock(&sde_enc->rc_lock);
@@ -3403,22 +3389,7 @@ static void sde_encoder_virt_enable(struct drm_encoder *drm_enc)
 		return;
 	}
 
-<<<<<<< Updated upstream
-	/* register input handler if not already registered */
-	if (sde_enc->input_handler && !sde_enc->input_handler_registered &&
-			!msm_is_mode_seamless_dms(cur_mode) &&
-		sde_encoder_check_curr_mode(drm_enc, MSM_DISPLAY_CMD_MODE) &&
-			!msm_is_mode_seamless_dyn_clk(cur_mode)) {
-		_sde_encoder_input_handler_register(drm_enc);
-		if (!sde_enc->input_handler || !sde_enc->input_handler->private)
-			SDE_ERROR(
-			"input handler registration failed, rc = %d\n", ret);
-		else
-			sde_enc->input_handler_registered = true;
-	}
-=======
 	_sde_encoder_input_handler_register(drm_enc);
->>>>>>> Stashed changes
 
 	if ((drm_enc->crtc && drm_enc->crtc->state &&
 			drm_enc->crtc->state->connectors_changed &&

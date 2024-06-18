@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2017-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2017-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include "msm_vidc_common.h"
@@ -322,12 +318,6 @@ int msm_comm_set_buses(struct msm_vidc_core *core, u32 sid, bool force_reset)
 				continue;
 			}
 			mutex_unlock(&inst->eosbufs.lock);
-		}
-
-		/* skip inactive session bus bandwidth */
-		if (!is_active_session(inst->last_qbuf_time_ns, curr_time_ns)) {
-			inst->active = false;
-			continue;
 		}
 
 		/* skip inactive session bus bandwidth */
@@ -952,12 +942,6 @@ int msm_vidc_set_clocks(struct msm_vidc_core *core, u32 sid, bool force_reset)
 			continue;
 		}
 
-		/* skip inactive session clock rate */
-		if (!is_active_session(inst->last_qbuf_time_ns, curr_time_ns)) {
-			inst->active = false;
-			continue;
-		}
-
 		if (inst->clk_data.core_id == VIDC_CORE_ID_1)
 			freq_core_1 += inst->clk_data.min_freq;
 		else if (inst->clk_data.core_id == VIDC_CORE_ID_2)
@@ -1087,11 +1071,7 @@ int msm_comm_scale_clocks_and_bus(struct msm_vidc_inst *inst, bool do_bw_calc)
 		inst->active = true;
 	}
 
-<<<<<<< Updated upstream
-	if (msm_comm_scale_clocks(inst)) {
-=======
 	if (msm_comm_scale_clocks(inst, false)) {
->>>>>>> Stashed changes
 		s_vpr_e(inst->sid,
 			"Failed to scale clocks. May impact performance\n");
 	}
@@ -1103,8 +1083,6 @@ int msm_comm_scale_clocks_and_bus(struct msm_vidc_inst *inst, bool do_bw_calc)
 		}
 	}
 
-<<<<<<< Updated upstream
-=======
 	return 0;
 }
 
@@ -1124,7 +1102,6 @@ int msm_comm_reset_clocks_and_bus(struct msm_vidc_inst *inst)
 		s_vpr_e(inst->sid,
 			"Failed to reset DDR bus. May impact perf\n");
 	}
->>>>>>> Stashed changes
 	return 0;
 }
 

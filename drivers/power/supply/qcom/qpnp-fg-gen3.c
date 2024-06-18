@@ -1,9 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0-only
-<<<<<<< Updated upstream
-/* Copyright (c) 2016-2020, The Linux Foundation. All rights reserved.
-=======
 /* Copyright (c) 2016-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #define pr_fmt(fmt)	"FG: %s: " fmt, __func__
@@ -2288,11 +2284,7 @@ static void fg_ttf_update(struct fg_dev *fg)
 	chip->ttf.last_ttf = 0;
 	chip->ttf.last_ms = 0;
 	mutex_unlock(&chip->ttf.lock);
-<<<<<<< Updated upstream
-	schedule_delayed_work(&chip->ttf_work, msecs_to_jiffies(delay_ms));
-=======
 	queue_delayed_work(system_power_efficient_wq, &chip->ttf_work, msecs_to_jiffies(delay_ms));
->>>>>>> Stashed changes
 }
 
 static void restore_cycle_counter(struct fg_dev *fg)
@@ -2960,11 +2952,7 @@ done:
 out:
 	fg->soc_reporting_ready = true;
 	vote(fg->awake_votable, ESR_FCC_VOTER, true, 0);
-<<<<<<< Updated upstream
-	schedule_delayed_work(&chip->pl_enable_work, msecs_to_jiffies(5000));
-=======
 	queue_delayed_work(system_power_efficient_wq, &chip->pl_enable_work, msecs_to_jiffies(5000));
->>>>>>> Stashed changes
 	vote(fg->awake_votable, PROFILE_LOAD, false, 0);
 	if (!work_pending(&fg->status_change_work)) {
 		fg_stay_awake(fg, FG_STATUS_NOTIFY_WAKE);
@@ -2997,11 +2985,7 @@ static void sram_dump_work(struct work_struct *work)
 	fg_dbg(fg, FG_STATUS, "SRAM Dump done at %lld.%d\n",
 		quotient, remainder);
 resched:
-<<<<<<< Updated upstream
-	schedule_delayed_work(&fg->sram_dump_work,
-=======
 	queue_delayed_work(system_power_efficient_wq, &fg->sram_dump_work,
->>>>>>> Stashed changes
 			msecs_to_jiffies(fg_sram_dump_period_ms));
 }
 
@@ -3033,11 +3017,7 @@ static ssize_t sram_dump_en_store(struct device *dev, struct device_attribute
 	chip = power_supply_get_drvdata(bms_psy);
 	fg = &chip->fg;
 	if (fg_sram_dump)
-<<<<<<< Updated upstream
-		schedule_delayed_work(&fg->sram_dump_work,
-=======
 		queue_delayed_work(system_power_efficient_wq, &fg->sram_dump_work,
->>>>>>> Stashed changes
 				msecs_to_jiffies(fg_sram_dump_period_ms));
 	else
 		cancel_delayed_work_sync(&fg->sram_dump_work);
@@ -3632,11 +3612,7 @@ static void ttf_work(struct work_struct *work)
 		/* keep the wake lock and prime the IBATT and VBATT buffers */
 		if (ttf < 0) {
 			/* delay for one FG cycle */
-<<<<<<< Updated upstream
-			schedule_delayed_work(&chip->ttf_work,
-=======
 			queue_delayed_work(system_power_efficient_wq, &chip->ttf_work,
->>>>>>> Stashed changes
 							msecs_to_jiffies(1500));
 			mutex_unlock(&chip->ttf.lock);
 			return;
@@ -3653,11 +3629,7 @@ static void ttf_work(struct work_struct *work)
 	}
 
 	/* recurse every 10 seconds */
-<<<<<<< Updated upstream
-	schedule_delayed_work(&chip->ttf_work, msecs_to_jiffies(10000));
-=======
 	queue_delayed_work(system_power_efficient_wq, &chip->ttf_work, msecs_to_jiffies(10000));
->>>>>>> Stashed changes
 end_work:
 	vote(fg->awake_votable, TTF_PRIMING, false, 0);
 	mutex_unlock(&chip->ttf.lock);
@@ -3794,12 +3766,9 @@ static int fg_psy_get_property(struct power_supply *psy,
 	case POWER_SUPPLY_PROP_CC_STEP_SEL:
 		pval->intval = chip->ttf.cc_step.sel;
 		break;
-<<<<<<< Updated upstream
-=======
 	case POWER_SUPPLY_PROP_FG_RESET_CLOCK:
 		pval->intval = 0;
 		break;
->>>>>>> Stashed changes
 	default:
 		pr_err("unsupported property %d\n", psp);
 		rc = -EINVAL;
@@ -3812,8 +3781,6 @@ static int fg_psy_get_property(struct power_supply *psy,
 	return 0;
 }
 
-<<<<<<< Updated upstream
-=======
 #define BCL_RESET_RETRY_COUNT 4
 static int fg_bcl_reset(struct fg_dev *chip)
 {
@@ -3908,7 +3875,6 @@ unlock:
 		return rc;
 }
 
->>>>>>> Stashed changes
 static int fg_psy_set_property(struct power_supply *psy,
 				  enum power_supply_property psp,
 				  const union power_supply_propval *pval)
@@ -3947,10 +3913,7 @@ static int fg_psy_set_property(struct power_supply *psy,
 			return -EINVAL;
 		}
 		break;
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
 	case POWER_SUPPLY_PROP_CHARGE_FULL:
 		if (chip->cl.active) {
 			pr_warn("Capacity learning active!\n");
@@ -3993,8 +3956,6 @@ static int fg_psy_set_property(struct power_supply *psy,
 			return rc;
 		}
 		break;
-<<<<<<< Updated upstream
-=======
 
 	case POWER_SUPPLY_PROP_FG_RESET_CLOCK:
 		rc = fg_bcl_reset(fg);
@@ -4003,7 +3964,6 @@ static int fg_psy_set_property(struct power_supply *psy,
 			return rc;
 		}
 		break;
->>>>>>> Stashed changes
 	default:
 		break;
 	}
@@ -4118,10 +4078,7 @@ static enum power_supply_property fg_psy_props[] = {
 	POWER_SUPPLY_PROP_CONSTANT_CHARGE_VOLTAGE,
 	POWER_SUPPLY_PROP_CC_STEP,
 	POWER_SUPPLY_PROP_CC_STEP_SEL,
-<<<<<<< Updated upstream
-=======
 	POWER_SUPPLY_PROP_FG_RESET_CLOCK,
->>>>>>> Stashed changes
 };
 
 static const struct power_supply_desc fg_psy_desc = {
@@ -4566,11 +4523,7 @@ static irqreturn_t fg_batt_missing_irq_handler(int irq, void *data)
 	}
 
 	clear_battery_profile(fg);
-<<<<<<< Updated upstream
-	schedule_delayed_work(&fg->profile_load_work, 0);
-=======
 	queue_delayed_work(system_power_efficient_wq, &fg->profile_load_work, 0);
->>>>>>> Stashed changes
 
 	if (fg->fg_psy)
 		power_supply_changed(fg->fg_psy);
@@ -5646,11 +5599,7 @@ static int fg_gen3_probe(struct platform_device *pdev)
 	}
 
 	device_init_wakeup(fg->dev, true);
-<<<<<<< Updated upstream
-	schedule_delayed_work(&fg->profile_load_work, 0);
-=======
 	queue_delayed_work(system_power_efficient_wq, &fg->profile_load_work, 0);
->>>>>>> Stashed changes
 
 	pr_debug("FG GEN3 driver probed successfully\n");
 	return 0;
@@ -5689,15 +5638,9 @@ static int fg_gen3_resume(struct device *dev)
 	if (rc < 0)
 		pr_err("Error in configuring ESR timer, rc=%d\n", rc);
 
-<<<<<<< Updated upstream
-	schedule_delayed_work(&chip->ttf_work, 0);
-	if (fg_sram_dump)
-		schedule_delayed_work(&fg->sram_dump_work,
-=======
 	queue_delayed_work(system_power_efficient_wq, &chip->ttf_work, 0);
 	if (fg_sram_dump)
 		queue_delayed_work(system_power_efficient_wq, &fg->sram_dump_work,
->>>>>>> Stashed changes
 				msecs_to_jiffies(fg_sram_dump_period_ms));
 
 	if (!work_pending(&fg->status_change_work)) {

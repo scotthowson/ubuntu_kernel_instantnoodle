@@ -43,8 +43,6 @@ static bool use_pages(struct drm_gem_object *obj)
 	return !msm_obj->vram_node;
 }
 
-<<<<<<< Updated upstream
-=======
 /*
  * Cache sync.. this is a bit over-complicated, to fit dma-mapping
  * API.  Really GPU cache is out of scope here (handled on cmdstream)
@@ -59,7 +57,6 @@ static bool use_pages(struct drm_gem_object *obj)
  * Let this be a cautionary tail of abstraction gone wrong.
  */
 
->>>>>>> Stashed changes
 static void sync_for_device(struct msm_gem_object *msm_obj)
 {
 	struct device *dev = msm_obj->base.dev->dev;

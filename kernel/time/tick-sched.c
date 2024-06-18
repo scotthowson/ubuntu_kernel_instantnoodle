@@ -67,41 +67,6 @@ static void tick_do_update_jiffies64(ktime_t now)
 	ktime_t delta, nextp;
 
 	/*
-<<<<<<< Updated upstream
-	 * Do a quick check without holding jiffies_lock:
-	 * The READ_ONCE() pairs with two updates done later in this function.
-	 */
-	delta = ktime_sub(now, READ_ONCE(last_jiffies_update));
-	if (delta < tick_period)
-		return;
-
-	/* Reevaluate with jiffies_lock held */
-	write_seqlock(&jiffies_lock);
-
-	delta = ktime_sub(now, last_jiffies_update);
-	if (delta >= tick_period) {
-
-		delta = ktime_sub(delta, tick_period);
-		/* Pairs with the lockless read in this function. */
-		WRITE_ONCE(last_jiffies_update,
-			   ktime_add(last_jiffies_update, tick_period));
-
-		/* Slow path for long timeouts */
-		if (unlikely(delta >= tick_period)) {
-			s64 incr = ktime_to_ns(tick_period);
-
-			ticks = ktime_divns(delta, incr);
-
-			/* Pairs with the lockless read in this function. */
-			WRITE_ONCE(last_jiffies_update,
-				   ktime_add_ns(last_jiffies_update,
-						incr * ticks));
-		}
-		do_timer(++ticks);
-
-		/* Keep the tick_next_period variable up to date */
-		tick_next_period = ktime_add(last_jiffies_update, tick_period);
-=======
 	 * 64bit can do a quick check without holding jiffies lock and
 	 * without looking at the sequence count. The smp_load_acquire()
 	 * pairs with the update done later in this function.
@@ -113,7 +78,6 @@ static void tick_do_update_jiffies64(ktime_t now)
 	if (IS_ENABLED(CONFIG_64BIT)) {
 		if (ktime_before(now, smp_load_acquire(&tick_next_period)))
 			return;
->>>>>>> Stashed changes
 	} else {
 		unsigned int seq;
 

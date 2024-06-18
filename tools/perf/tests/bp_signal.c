@@ -49,12 +49,8 @@ asm (
 	".type __test_function, @function;"
 	"__test_function:\n"
 	"incq (%rdi)\n"
-<<<<<<< Updated upstream
-	"ret\n");
-=======
 	"ret\n"
 	".popsection\n");
->>>>>>> Stashed changes
 #else
 static void __test_function(volatile long *ptr)
 {

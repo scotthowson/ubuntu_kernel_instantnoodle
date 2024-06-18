@@ -40,8 +40,6 @@ config QPNP_SMBLITE
 	  as fuel gauge and USB.
 	  VBUS regulator is registered for supporting OTG.
 
-<<<<<<< Updated upstream
-=======
 config QPNP_VM_BMS
 	tristate "QPNP Voltage-Mode Battery Monitoring System driver"
 	depends on MFD_SPMI_PMIC
@@ -61,7 +59,6 @@ config QPNP_LINEAR_CHARGER
 	  The power supply framework is used to communicate battery and
 	  usb properties to userspace and other driver consumers like USB.
 
->>>>>>> Stashed changes
 config SMB138X_CHARGER
 	tristate "SMB138X Battery Charger"
 	depends on MFD_I2C_PMIC
@@ -95,8 +92,6 @@ config SMB1351_USB_CHARGER
          notification support. The driver controls SMB1351 via I2C and
          supports device-tree interface.
 
-<<<<<<< Updated upstream
-=======
 config SMB1360_CHARGER_FG
 	tristate "SMB1360 Charger and Fuel Gauge"
 	depends on I2C
@@ -108,7 +103,6 @@ config SMB1360_CHARGER_FG
 	  The driver reports the status via the power supply framework.
 	  A status change triggers an IRQ via the device STAT pin.
 
->>>>>>> Stashed changes
 config SMB1355_SLAVE_CHARGER
 	tristate "SMB1355 Slave Battery Charger"
 	depends on MFD_I2C_PMIC
@@ -180,9 +174,5 @@ config SMB1398_CHARGER
 	  (2) DIV2 and 3-level buck combo mode to regulate the output power from
 	      wireless charger receiver and provide the input for downstream
 	      chargers.
-<<<<<<< Updated upstream
-
-=======
 	      
->>>>>>> Stashed changes
 endmenu

@@ -1,10 +1,6 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2017-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2017-2021 The Linux Foundation. All rights reserved.
  * Copyright (c) 2021 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -75,17 +71,12 @@ typedef uint32_t wlan_scan_id;
 #define CHANNEL_CONGESTION_WEIGHTAGE 5
 #define OCE_WAN_WEIGHTAGE 0
 #define BEST_CANDIDATE_MAX_WEIGHT 100
-<<<<<<< Updated upstream
-#define MAX_INDEX_SCORE 100
-#define MAX_INDEX_PER_INI 4
-=======
 #define MAX_BSS_SCORE 200
 #define MAX_INDEX_SCORE 100
 #define MAX_INDEX_PER_INI 4
 #define SAE_PK_AP_WEIGHTAGE 3
 
 #define BEST_CANDIDATE_MAX_BSS_SCORE (MAX_BSS_SCORE * 100)
->>>>>>> Stashed changes
 
 #define WLAN_GET_BITS(_val, _index, _num_bits) \
 	(((_val) >> (_index)) & ((1 << (_num_bits)) - 1))
@@ -99,10 +90,7 @@ typedef uint32_t wlan_scan_id;
 	WLAN_GET_BITS(value32, (8 * (bw_index)), 8)
 #define WLAN_SET_SCORE_PERCENTAGE(value32, score_pcnt, bw_index) \
 	WLAN_SET_BITS(value32, (8 * (bw_index)), 8, score_pcnt)
-<<<<<<< Updated upstream
-=======
 #define TBTT_INFO_COUNT 16
->>>>>>> Stashed changes
 
 /* forward declaration */
 struct wlan_objmgr_vdev;
@@ -179,10 +167,7 @@ struct element_info {
  * @rnrie: reduced neighbor report IE
  * @adaptive_11r: pointer to adaptive 11r IE
  * @single_pmk: Pointer to sae single pmk IE
-<<<<<<< Updated upstream
-=======
  * @rsnxe: Pointer to rsnxe IE
->>>>>>> Stashed changes
  */
 struct ie_list {
 	uint8_t *tim;
@@ -235,10 +220,7 @@ struct ie_list {
 	uint8_t *extender;
 	uint8_t *adaptive_11r;
 	uint8_t *single_pmk;
-<<<<<<< Updated upstream
-=======
 	uint8_t *rsnxe;
->>>>>>> Stashed changes
 };
 
 enum scan_entry_connection_state {
@@ -505,10 +487,7 @@ struct scan_cache_entry {
  * @pcl_weightage: PCL weightage
  * @channel_congestion_weightage: channel congestion weightage
  * @oce_wan_weightage: OCE WAN metrics weightage
-<<<<<<< Updated upstream
-=======
  * @sae_pk_ap_weightage: SAE-PK AP weigtage
->>>>>>> Stashed changes
  */
 struct  weight_config {
 	uint8_t rssi_weightage;
@@ -522,10 +501,7 @@ struct  weight_config {
 	uint8_t pcl_weightage;
 	uint8_t channel_congestion_weightage;
 	uint8_t oce_wan_weightage;
-<<<<<<< Updated upstream
-=======
 	uint8_t sae_pk_ap_weightage;
->>>>>>> Stashed changes
 };
 
 /**

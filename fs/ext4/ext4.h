@@ -1529,12 +1529,9 @@ struct ext4_sb_info {
 	struct ratelimit_state s_warning_ratelimit_state;
 	struct ratelimit_state s_msg_ratelimit_state;
 
-<<<<<<< Updated upstream
-=======
 	/* Encryption context for '-o test_dummy_encryption' */
 	struct fscrypt_dummy_context s_dummy_enc_ctx;
 
->>>>>>> Stashed changes
 	/*
 	 * Barrier between writepages ops and changing any inode's JOURNAL_DATA
 	 * or EXTENTS flag.
@@ -2394,15 +2391,9 @@ extern unsigned ext4_free_clusters_after_init(struct super_block *sb,
 ext4_fsblk_t ext4_inode_to_goal_block(struct inode *);
 
 #ifdef CONFIG_UNICODE
-<<<<<<< Updated upstream
-extern void ext4_fname_setup_ci_filename(struct inode *dir,
-					 const struct qstr *iname,
-					 struct fscrypt_str *fname);
-=======
 extern int ext4_fname_setup_ci_filename(struct inode *dir,
 					 const struct qstr *iname,
 					 struct ext4_filename *fname);
->>>>>>> Stashed changes
 #endif
 
 #ifdef CONFIG_FS_ENCRYPTION
@@ -2433,15 +2424,9 @@ static inline int ext4_fname_setup_filename(struct inode *dir,
 	ext4_fname_from_fscrypt_name(fname, &name);
 
 #ifdef CONFIG_UNICODE
-<<<<<<< Updated upstream
-	ext4_fname_setup_ci_filename(dir, iname, &fname->cf_name);
-#endif
-	return 0;
-=======
 	err = ext4_fname_setup_ci_filename(dir, iname, fname);
 #endif
 	return err;
->>>>>>> Stashed changes
 }
 
 static inline int ext4_fname_prepare_lookup(struct inode *dir,
@@ -2458,15 +2443,9 @@ static inline int ext4_fname_prepare_lookup(struct inode *dir,
 	ext4_fname_from_fscrypt_name(fname, &name);
 
 #ifdef CONFIG_UNICODE
-<<<<<<< Updated upstream
-	ext4_fname_setup_ci_filename(dir, &dentry->d_name, &fname->cf_name);
-#endif
-	return 0;
-=======
 	err = ext4_fname_setup_ci_filename(dir, &dentry->d_name, fname);
 #endif
 	return err;
->>>>>>> Stashed changes
 }
 
 static inline void ext4_fname_free_filename(struct ext4_filename *fname)
@@ -2495,35 +2474,10 @@ static inline int ext4_fname_setup_filename(struct inode *dir,
 	fname->usr_fname = iname;
 	fname->disk_name.name = (unsigned char *) iname->name;
 	fname->disk_name.len = iname->len;
-<<<<<<< Updated upstream
-
-#ifdef CONFIG_UNICODE
-	ext4_fname_setup_ci_filename(dir, iname, &fname->cf_name);
-#endif
-
-	return 0;
-}
-
-static inline int ext4_fname_prepare_lookup(struct inode *dir,
-					    struct dentry *dentry,
-					    struct ext4_filename *fname)
-{
-	return ext4_fname_setup_filename(dir, &dentry->d_name, 1, fname);
-}
-
-static inline void ext4_fname_free_filename(struct ext4_filename *fname)
-{
-#ifdef CONFIG_UNICODE
-	kfree(fname->cf_name.name);
-	fname->cf_name.name = NULL;
-=======
 
 #ifdef CONFIG_UNICODE
 	err = ext4_fname_setup_ci_filename(dir, iname, fname);
->>>>>>> Stashed changes
 #endif
-}
-#endif /* !CONFIG_FS_ENCRYPTION */
 
 	return err;
 }
@@ -2569,12 +2523,8 @@ void ext4_insert_dentry(struct inode *dir, struct inode *inode,
 			struct ext4_filename *fname);
 static inline void ext4_update_dx_flag(struct inode *inode)
 {
-<<<<<<< Updated upstream
-	if (!ext4_has_feature_dir_index(inode->i_sb)) {
-=======
 	if (!ext4_has_feature_dir_index(inode->i_sb) &&
 	    ext4_test_inode_flag(inode, EXT4_INODE_INDEX)) {
->>>>>>> Stashed changes
 		/* ext4_iget() should have caught this... */
 		WARN_ON_ONCE(ext4_has_feature_metadata_csum(inode->i_sb));
 		ext4_clear_inode_flag(inode, EXT4_INODE_INDEX);
@@ -3195,10 +3145,6 @@ static inline void ext4_unlock_group(struct super_block *sb,
 /* dir.c */
 extern const struct file_operations ext4_dir_operations;
 
-#ifdef CONFIG_UNICODE
-extern const struct dentry_operations ext4_dentry_ops;
-#endif
-
 /* file.c */
 extern const struct inode_operations ext4_file_inode_operations;
 extern const struct file_operations ext4_file_operations;
@@ -3291,12 +3237,6 @@ extern void initialize_dirent_tail(struct ext4_dir_entry_tail *t,
 extern int ext4_handle_dirty_dirent_node(handle_t *handle,
 					 struct inode *inode,
 					 struct buffer_head *bh);
-<<<<<<< Updated upstream
-extern int ext4_ci_compare(const struct inode *parent,
-			   const struct qstr *fname,
-			   const struct qstr *entry, bool quick);
-=======
->>>>>>> Stashed changes
 
 #define S_SHIFT 12
 static const unsigned char ext4_type_by_mode[(S_IFMT >> S_SHIFT) + 1] = {

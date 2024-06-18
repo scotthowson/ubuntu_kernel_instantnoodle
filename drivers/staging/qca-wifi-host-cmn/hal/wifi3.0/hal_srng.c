@@ -310,15 +310,9 @@ void hal_get_shadow_config(void *hal_soc,
 qdf_export_symbol(hal_get_shadow_config);
 
 
-<<<<<<< Updated upstream
-static void hal_validate_shadow_register(struct hal_soc *hal,
-				  uint32_t *destination,
-				  uint32_t *shadow_address)
-=======
 static bool hal_validate_shadow_register(struct hal_soc *hal,
 					 uint32_t *destination,
 					 uint32_t *shadow_address)
->>>>>>> Stashed changes
 {
 	unsigned int index;
 	uint32_t *shadow_0_offset = SHADOW_REGISTER(0) + hal->dev_base_addr;
@@ -338,21 +332,13 @@ static bool hal_validate_shadow_register(struct hal_soc *hal,
 			hal->shadow_config[index].addr);
 		goto error;
 	}
-<<<<<<< Updated upstream
-	return;
-=======
 	return true;
->>>>>>> Stashed changes
 error:
 	qdf_print("%s: baddr %pK, desination %pK, shadow_address %pK s0offset %pK index %x",
 		  __func__, hal->dev_base_addr, destination, shadow_address,
 		  shadow_0_offset, index);
 	QDF_BUG(0);
-<<<<<<< Updated upstream
-	return;
-=======
 	return false;
->>>>>>> Stashed changes
 }
 
 static void hal_target_based_configure(struct hal_soc *hal)
@@ -492,10 +478,7 @@ hal_process_reg_write_q_elem(struct hal_soc *hal,
 	}
 
 	q_elem->valid = 0;
-<<<<<<< Updated upstream
-=======
 	srng->last_dequeue_time = q_elem->dequeue_time;
->>>>>>> Stashed changes
 	SRNG_UNLOCK(&srng->lock);
 
 	return write_val;
@@ -525,8 +508,6 @@ static inline void hal_reg_write_fill_sched_delay_hist(struct hal_soc *hal,
 		hist[REG_WRITE_SCHED_DELAY_GT_5000us]++;
 }
 
-<<<<<<< Updated upstream
-=======
 #ifdef SHADOW_WRITE_DELAY
 
 #define SHADOW_WRITE_MIN_DELTA_US	5
@@ -585,7 +566,6 @@ static inline bool hal_reg_write_need_delay(struct hal_reg_write_q_elem *elem)
 }
 #endif
 
->>>>>>> Stashed changes
 /**
  * hal_reg_write_work() - Worker to process delayed writes
  * @arg: hal_soc pointer
@@ -633,13 +613,10 @@ static void hal_reg_write_work(void *arg)
 		hal->stats.wstats.dequeues++;
 		qdf_atomic_dec(&hal->stats.wstats.q_depth);
 
-<<<<<<< Updated upstream
-=======
 		if (hal_reg_write_need_delay(q_elem))
 			hal_verbose_debug("Delay reg writer for srng 0x%x, addr 0x%pK",
 					  q_elem->srng->ring_id, q_elem->addr);
 
->>>>>>> Stashed changes
 		write_val = hal_process_reg_write_q_elem(hal, q_elem);
 		hal_verbose_debug("read_idx %u srng 0x%x, addr 0x%pK dequeue_val %u sched delay %llu us",
 				  hal->read_idx, ring_id, addr, write_val, delta_us);
@@ -686,11 +663,7 @@ static void hal_reg_write_enqueue(struct hal_soc *hal_soc,
 	uint32_t write_idx;
 
 	if (srng->reg_write_in_progress) {
-<<<<<<< Updated upstream
-		hal_verbose_debug("Already in progress srng ring id 0x%x addr 0x%x val %u",
-=======
 		hal_verbose_debug("Already in progress srng ring id 0x%x addr 0x%pK val %u",
->>>>>>> Stashed changes
 				  srng->ring_id, addr, value);
 		qdf_atomic_inc(&hal_soc->stats.wstats.coalesces);
 		srng->wstats.coalesces++;
@@ -742,11 +715,7 @@ static void hal_reg_write_enqueue(struct hal_soc *hal_soc,
 	srng->reg_write_in_progress  = true;
 	qdf_atomic_inc(&hal_soc->active_work_cnt);
 
-<<<<<<< Updated upstream
-	hal_verbose_debug("write_idx %u srng ring id 0x%x addr 0x%x val %u",
-=======
 	hal_verbose_debug("write_idx %u srng ring id 0x%x addr 0x%pK val %u",
->>>>>>> Stashed changes
 			  write_idx, srng->ring_id, addr, value);
 
 	qdf_queue_work(hal_soc->qdf_dev, hal_soc->reg_write_wq,
@@ -1140,19 +1109,6 @@ void hal_reo_read_write_ctrl_ix(hal_soc_handle_t hal_soc_hdl, bool read,
 }
 
 /**
-<<<<<<< Updated upstream
- * hal_srng_dst_set_hp_paddr() - Set physical address to dest ring head pointer
- * @srng: sring pointer
- * @paddr: physical address
- */
-void hal_srng_dst_set_hp_paddr(struct hal_srng *srng,
-			       uint64_t paddr)
-{
-	SRNG_DST_REG_WRITE(srng, HP_ADDR_LSB,
-			   paddr & 0xffffffff);
-	SRNG_DST_REG_WRITE(srng, HP_ADDR_MSB,
-			   paddr >> 32);
-=======
  * hal_srng_dst_set_hp_paddr_confirm() - Set physical address to dest ring head
  *  pointer and confirm that write went through by reading back the value
  * @srng: sring pointer
@@ -1162,7 +1118,6 @@ void hal_srng_dst_set_hp_paddr_confirm(struct hal_srng *srng, uint64_t paddr)
 {
 	SRNG_DST_REG_WRITE_CONFIRM(srng, HP_ADDR_LSB, paddr & 0xffffffff);
 	SRNG_DST_REG_WRITE_CONFIRM(srng, HP_ADDR_MSB, paddr >> 32);
->>>>>>> Stashed changes
 }
 
 /**

@@ -1,9 +1,5 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2013-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2013-2021 The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -400,12 +396,8 @@ static uint16_t wma_match_he_rate(uint16_t raw_rate,
 								guard_interval);
 
 				if (match_rate) {
-<<<<<<< Updated upstream
-					*mcs_rate_flag &= ~TX_RATE_HE80;
-=======
 					*mcs_rate_flag &= ~(TX_RATE_HE80 |
 							    TX_RATE_HE160);
->>>>>>> Stashed changes
 					goto rate_found;
 				}
 			}
@@ -813,10 +805,6 @@ int wma_profile_data_report_event_handler(void *handle, uint8_t *event_buf,
 	wmi_wlan_profile_t *profile_data;
 	uint32_t i = 0;
 	uint32_t entries;
-<<<<<<< Updated upstream
-	uint8_t *buf_ptr;
-=======
->>>>>>> Stashed changes
 	char temp_str[150];
 
 	param_buf = (WMI_WLAN_PROFILE_DATA_EVENTID_param_tlvs *) event_buf;
@@ -824,18 +812,9 @@ int wma_profile_data_report_event_handler(void *handle, uint8_t *event_buf,
 		WMA_LOGE("%s: Invalid profile data event buf", __func__);
 		return -EINVAL;
 	}
-<<<<<<< Updated upstream
-	profile_ctx = param_buf->profile_ctx;
-	buf_ptr = (uint8_t *)profile_ctx;
-	buf_ptr = buf_ptr + sizeof(wmi_wlan_profile_ctx_t) + WMI_TLV_HDR_SIZE;
-	profile_data = (wmi_wlan_profile_t *) buf_ptr;
-	entries = profile_ctx->bin_count;
-
-=======
 
 	profile_ctx = param_buf->profile_ctx;
 	entries = profile_ctx->bin_count;
->>>>>>> Stashed changes
 	if (entries > param_buf->num_profile_data) {
 		WMA_LOGE("FW bin count %d more than data %d in TLV hdr",
 			 entries,
@@ -864,10 +843,7 @@ int wma_profile_data_report_event_handler(void *handle, uint8_t *event_buf,
 	QDF_TRACE(QDF_MODULE_ID_WMA, QDF_TRACE_LEVEL_ERROR,
 		  "Profile ID: Count: TOT: Min: Max: hist_intvl: hist[0]: hist[1]:hist[2]");
 
-<<<<<<< Updated upstream
-=======
 	profile_data = param_buf->profile_data;
->>>>>>> Stashed changes
 	for (i = 0; i < entries; i++) {
 		if (i == WMI_WLAN_PROFILE_MAX_BIN_CNT)
 			break;
@@ -1144,15 +1120,9 @@ wma_fill_tx_stats(struct sir_wifi_ll_ext_stats *ll_stats,
 	struct sir_wifi_tx *tx_stats;
 	struct sir_wifi_ll_ext_peer_stats *peer_stats;
 	uint32_t *tx_mpdu_aggr, *tx_succ_mcs, *tx_fail_mcs, *tx_delay;
-<<<<<<< Updated upstream
-	uint32_t len, dst_len, param_len, tx_mpdu_aggr_array_len,
-		 tx_succ_mcs_array_len, tx_fail_mcs_array_len,
-		 tx_delay_array_len;
-=======
 	uint32_t len, dst_len, param_len, num_entries,
 		 tx_mpdu_aggr_array_len, tx_succ_mcs_array_len,
 		 tx_fail_mcs_array_len, tx_delay_array_len;
->>>>>>> Stashed changes
 
 	result = *buf;
 	dst_len = *buf_length;
@@ -1231,15 +1201,12 @@ wma_fill_tx_stats(struct sir_wifi_ll_ext_stats *ll_stats,
 		return QDF_STATUS_E_FAILURE;
 	}
 
-<<<<<<< Updated upstream
-=======
 	num_entries = fix_param->num_peer_ac_tx_stats * WLAN_MAX_AC;
 	if (num_entries > param_buf->num_tx_stats) {
 		wma_err("tx stats invalid arg, %d", num_entries);
 		return QDF_STATUS_E_FAILURE;
 	}
 
->>>>>>> Stashed changes
 	for (i = 0; i < fix_param->num_peer_ac_tx_stats; i++) {
 		uint32_t peer_id = wmi_peer_tx[i].peer_id;
 		struct sir_wifi_tx *ac;
@@ -2651,11 +2618,8 @@ int wma_unified_link_iface_stats_event_handler(void *handle,
 
 	/* Copy roaming state */
 	iface_stat->info.roaming = link_stats->roam_state;
-<<<<<<< Updated upstream
-=======
 	/* Copy time slicing duty cycle */
 	iface_stat->info.time_slice_duty_cycle = 100;
->>>>>>> Stashed changes
 
 	iface_ac_stats = &iface_stat->ac_stats[0];
 	for (count = 0; count < link_stats->num_ac; count++) {

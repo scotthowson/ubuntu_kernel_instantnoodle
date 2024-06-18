@@ -320,15 +320,12 @@ void sde_encoder_recovery_events_handler(struct drm_encoder *encoder,
  */
 bool sde_encoder_in_clone_mode(struct drm_encoder *enc);
 
-<<<<<<< Updated upstream
-=======
 /*
  * sde_encoder_is_cwb_disabling - check if cwb encoder disable is pending
  * @drm_enc:    Pointer to drm encoder structure
  * @drm_crtc:    Pointer to drm crtc structure
  * @Return: true if cwb encoder disable is pending
  */
->>>>>>> Stashed changes
 bool sde_encoder_is_cwb_disabling(struct drm_encoder *drm_enc,
 	struct drm_crtc *drm_crtc);
 
@@ -375,8 +372,6 @@ void sde_encoder_needs_hw_reset(struct drm_encoder *enc);
  */
 void sde_encoder_uidle_enable(struct drm_encoder *drm_enc, bool enable);
 
-<<<<<<< Updated upstream
-=======
 /**
  * sde_encoder_virt_reset - delay encoder virt reset
  * @drm_enc:	Pointer to drm encoder structure
@@ -404,7 +399,6 @@ static inline struct sde_kms *sde_encoder_get_kms(struct drm_encoder *drm_enc)
 	return to_sde_kms(priv->kms);
 }
 
->>>>>>> Stashed changes
 #if defined(CONFIG_PXLW_IRIS)
 /**
  * sde_encoder_rc_lock - lock the sde encoder resource control.

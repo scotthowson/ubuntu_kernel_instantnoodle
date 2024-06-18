@@ -29,11 +29,8 @@
 	aliases {
 		display0 = &lcd;
 		display1 = &tv0;
-<<<<<<< Updated upstream
-=======
 		/delete-property/ mmc2;
 		/delete-property/ mmc3;
->>>>>>> Stashed changes
 	};
 
 	/* fixed 26MHz oscillator */

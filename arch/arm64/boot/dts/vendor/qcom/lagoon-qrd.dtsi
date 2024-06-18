@@ -121,19 +121,6 @@
 	status = "ok";
 };
 
-<<<<<<< Updated upstream
-&dsi_hx83112_tianma_fhd_video {
-       qcom,panel-supply-entries = <&dsi_panel_pwr_supply>;
-       qcom,mdss-dsi-bl-pmic-control-type = "bl_ctrl_wled";
-       qcom,mdss-dsi-bl-min-level = <1>;
-       qcom,mdss-dsi-bl-max-level = <4095>;
-       qcom,mdss-brightness-max-level = <255>;
-       qcom,platform-reset-gpio = <&pm6150l_gpios 9 0>;
-       qcom,platform-tp-reset-gpio = <&tlmm 21 0>;
-};
-
-=======
->>>>>>> Stashed changes
 &dsi_r66451_amoled_60hz_video {
 	qcom,panel-supply-entries = <&dsi_panel_pwr_supply>;
 	qcom,mdss-dsi-bl-pmic-control-type = "bl_ctrl_dcs";
@@ -162,21 +149,6 @@
 	qcom,platform-reset-gpio = <&pm6150l_gpios 9 0>;
 };
 
-<<<<<<< Updated upstream
-&dsi_s6e3fc3_samsung_amoled_cmd {
-	qcom,panel-supply-entries = <&dsi_panel_pwr_supply>;
-	qcom,mdss-dsi-bl-pmic-control-type = "bl_ctrl_dcs";
-	qcom,mdss-dsi-bl-min-level = <1>;
-	qcom,mdss-dsi-bl-max-level = <255>;
-	qcom,mdss-dsi-bl-max-level = <4095>;
-	qcom,platform-te-gpio = <&tlmm 23 0>;
-	qcom,platform-reset-gpio = <&pm6150l_gpios 3 0>;
-	qcom,vddr-gpio = <&pm7250b_gpios 10 0>;
-};
-
-
-=======
->>>>>>> Stashed changes
 &dsi_r66451_amoled_60hz_cmd {
 	qcom,panel-supply-entries = <&dsi_panel_pwr_supply>;
 	qcom,mdss-dsi-bl-pmic-control-type = "bl_ctrl_dcs";
@@ -209,11 +181,7 @@
 };
 
 &sde_dsi {
-<<<<<<< Updated upstream
-	qcom,dsi-default-panel = <&dsi_hx83112_tianma_fhd_video>;
-=======
 	qcom,dsi-default-panel = <&dsi_r66451_amoled_120hz_video>;
->>>>>>> Stashed changes
 };
 
 &qupv3_se0_i2c {
@@ -278,97 +246,9 @@
 				500000>;
 };
 
-<<<<<<< Updated upstream
-&pm7250b_charger {
-	qcom,dc-icl-ua = <1200000>;
-	qcom,fcc-max-ua = <2000000>;
-	qcom,usb-icl-ua = <1800000>;
-	qcom,fv-max-uv = <4365000>;
-	/* ibatmax setting for different temp regions */
-	ibatmax-little-cold-ma = <350>;
-	ibatmax-cool-ma = <2000>;
-	ibatmax-little-cool-ma = <2000>;
-	ibatmax-pre-normal-ma = <2000>;
-	ibatmax-normal-ma = <2000>;
-	ibatmax-warm-ma = <1150>;
-	ibatmax-warm-lcd-on-ma = <550>;   /* @BSP OEM */
-	ibatmax-little-cool-thr-ma = <1900>;
-	ibatmax-cool-thr-ma = <1150>;
-	/* vbatmax setting for different temp regions */
-	vbatmax-little-cold-mv = <3975>;
-	vbatmax-cool-mv = <4435>;
-	vbatmax-little-cool-mv = <4435>;
-	vbatmax-pre-normal-mv = <4435>;
-	vbatmax-normal-mv = <4435>;
-	vbatmax-warm-mv = <4130>;
-	little-cool-vbat-thr-mv = <4180>;
-	cool-vbat-thr-mv = <4180>;
-	/* vbatdet setting for different temp regions */
-	vbatdet-little-cold-mv = <3675>;
-	vbatdet-cool-mv = <4235>;
-	vbatdet-little-cool-mv = <4335>;
-	vbatdet-pre-normal-mv = <4335>;
-	vbatdet-normal-mv = <4335>;
-	vbatdet-warm-mv = <4030>;
-	/* temp region settings */
-	cold-bat-decidegc = <0>;/*20*/
-	little-cold-bat-decidegc = <5>;/*0*/
-	cool-bat-decidegc = <50>;
-	little-cool-bat-decidegc = <120>;
-	pre-normal-bat-decidegc = <160>;
-	warm-bat-decidegc = <450>;
-	hot-bat-decidegc = <500>;
-	qcom,otg-cl-ua = <1500000>;
-	op,sw-iterm-ma = <310>;
-	op,sw-check-full-enable;
-	/*ffc temp region*/
-	ffc-pre-normal-decidegc = <120>;
-	ffc-normal-decidegc = <350>;
-	ffc-warm-decidegc = <400>;
-	ffc-normal-fcc-ma = <1050>;
-	ffc-warm-fcc-ma = <1100>;
-	ffc-normal-cutoff-ma = <950>;
-	ffc-warm-cutoff-ma = <1000>;
-	ffc-full-vbat-mv = <4480>;
-
-	/* skin thermal temp adjust the dash current */
-	op,skin-thermal-high-threshold-disp-off = <42>;
-	op,skin-thermal-pre-high-threshold-disp-off = <38>;
-	op,skin-thermal-medium-threshold-disp-off = <39>;
-	op,skin-thermal-normal-threshold-disp-off = <37>;
-
-	op,skin-thermal-high-threshold-disp-on = <40>;
-	op,skin-thermal-pre-high-threshold-disp-on = <39>;
-	op,skin-thermal-little-high-threshold-disp-on = <38>;
-	op,skin-thermal-pre-little-high-threshold-disp-on = <37>;
-	op,skin-thermal-medium-threshold-disp-on = <36>;
-	op,skin-thermal-normal-threshold-disp-on = <35>;
-	op,enable-dash-current-dynamic-adjust;
-
-	/* skin thermal temp adjust the pd current */
-	op,pd-skin-thermal-high-threshold = <40>;
-	op,pd-skin-thermal-normal-threshold = <38>;
-	op,pd-skin-thermal-medium-threshold = <39>;
-	op,pd-skin-thermal-pre-high-threshold = <39>;
-	op,enable-pd-current-dynamic-adjust;
-
-	/delete-property/ qcom,sw-jeita-enable;
-
-	/*otg low battery current limit*/
-	op,otg-icl-ctrl-enable;
-	otg-low-battery-thr = <15>;
-	otg-low-bat-icl-thr = <1000000>;
-	otg-normal-bat-icl-thr = <1500000>;
-};
-
-&pm7250b_qg {
-	status = "ok";
-	io-channels = <&pm7250b_vadc ADC_BAT_THERM_PU1>,
-=======
 &pm7250b_qg {
 	status = "ok";
 	io-channels = <&pm7250b_vadc ADC_BAT_THERM_PU2>,
->>>>>>> Stashed changes
 		      <&pm7250b_vadc ADC_BAT_ID_PU2>;
 	io-channel-names = "batt-therm",
 			   "batt-id";
@@ -504,91 +384,11 @@
 				<&lpi_tlmm>, <&bolero>;
 };
 
-<<<<<<< Updated upstream
-&qupv3_se0_i2c {
-=======
 &qupv3_se8_i2c {
->>>>>>> Stashed changes
 	#address-cells = <1>;
 	#size-cells = <0>;
 
 	status = "ok";
-<<<<<<< Updated upstream
-	qcom,i2c-touch-active = "focaltech,focal";
-
-	focaltech@38 {
-		compatible = "focaltech,focal";
-		reg = <0x38>;
-		chip-name = "FT3518";
-		project-name = "20813";
-		interrupt-parent = <&tlmm>;
-		interrupts = <22 0x2008>;
-		reset-gpio = <&tlmm 21 0x00>;
-		irq-gpio = <&tlmm 22 0x2008>;
-
-		vcc_1v8-supply = <&L1E>;
-		enable2v8_gpio = <&tlmm 56 0x00>;
-
-		touchpanel,max-num-support = <10>;
-		touchpanel,tx-rx-num = <16 34>;
-		touchpanel,panel-coords = <1080 2400>;
-		touchpanel,display-coords = <1080 2400>;
-		touchpanel,touchmajor-limit = <0 54>;
-
-		pinctrl-names = "pin_set_high", "pin_set_low";
-		pinctrl-0 = <&ts_int_active &ts_reset_active>;
-		pinctrl-1 = <&ts_reset_suspend>;
-
-		panel = <&dsi_s6e3fc3_samsung_amoled_cmd>;
-
-		module_id_support = <1>;
-/*		irq_need_dev_resume_ok = <1>;
-		black_gesture_support = <1>;
-		fw_edge_limit_support = <1>;;
-		pressure_report_support = <1>;;
-		charger_pump_support = <1>;;
-		game_switch_support = <1>;;
-		smart_gesture_support = <1>;;
-		headset_pump_support = <1>;;
-		fw_update_app_support = <1>;;
-		fingerprint_underscreen_support = <1>;;
-*/
-	};
-};
-&tlmm {
-	ts_int_active: ts_int_active {
-		mux {
-			pins = "gpio22";
-			function = "gpio";
-		};
-		config {
-			pins = "gpio22";
-			drive-strength = <8>;
-			bias-disable;
-		};
-	};
-	ts_reset_active: ts_reset_active {
-		mux {
-			pins = "gpio21";
-			function = "gpio";
-		};
-		config {
-			pins = "gpio21";
-			drive-strength = <8>;
-			bias-pull-up;
-		};
-	};
-	ts_reset_suspend: ts_reset_suspend {
-		mux {
-			pins = "gpio21";
-			function = "gpio";
-		};
-		config {
-			pins = "gpio21";
-			drive-strength = <8>;
-			bias-pull-down;
-		};
-=======
 	qcom,i2c-touch-active = "focaltech,fts_ts";
 
 	focaltech@38 {
@@ -614,7 +414,6 @@
 			 &dsi_r66451_amoled_60hz_video
 			 &dsi_r66451_amoled_90hz_video
 			 &dsi_r66451_amoled_120hz_video>;
->>>>>>> Stashed changes
 	};
 };
 
@@ -775,8 +574,3 @@
 		pinctrl-2 = <&fpc_int_low>;
 	};
 };
-<<<<<<< Updated upstream
-
-#include "oplus-charge.dtsi"
-=======
->>>>>>> Stashed changes

@@ -1,9 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0-only
-<<<<<<< Updated upstream
-/* Copyright (c) 2015-2020, The Linux Foundation. All rights reserved. */
-=======
 /* Copyright (c) 2015-2021, The Linux Foundation. All rights reserved. */
->>>>>>> Stashed changes
 
 #include <linux/firmware.h>
 #include <linux/module.h>
@@ -1638,19 +1634,12 @@ static int cnss_get_bdf_file_name(struct cnss_plat_data *plat_priv,
 	cnss_pr_dbg("cnss get_rf_version(): %d", rf_id);
 	switch (bdf_type) {
 	case CNSS_BDF_ELF:
-<<<<<<< Updated upstream
-		/* WIFI MODIFICATION: */
-		//if (plat_priv->board_info.board_id == 0xFF)
-		//	snprintf(filename_tmp, filename_len, ELF_BDF_FILE_NAME);
-=======
 
->>>>>>> Stashed changes
 		if (plat_priv->board_info.board_id == 0xFF) {
 			cnss_get_filename(filename, filename_len, pj_id,
 					  hw_id, rf_id, tempstr);
 			return ret;
 		}
-		/* WIFI MODIFICATION: */
 		else if (plat_priv->board_info.board_id < 0xFF)
 			snprintf(filename_tmp, filename_len,
 				 ELF_BDF_FILE_NAME_PREFIX "%02x",
@@ -3387,14 +3376,11 @@ int cnss_wlfw_server_arrive(struct cnss_plat_data *plat_priv, void *data)
 		return -EINVAL;
 	}
 
-<<<<<<< Updated upstream
-=======
 	if (test_bit(CNSS_IN_REBOOT, &plat_priv->driver_state)) {
 		cnss_pr_err("WLFW server will exit on shutdown\n");
 		return -EINVAL;
 	}
 
->>>>>>> Stashed changes
 	cnss_ignore_qmi_failure(false);
 
 	ret = cnss_wlfw_connect_to_server(plat_priv, data);

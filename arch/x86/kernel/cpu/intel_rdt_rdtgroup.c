@@ -1040,10 +1040,7 @@ static int rdt_cdp_peer_get(struct rdt_resource *r, struct rdt_domain *d,
 	_d_cdp = rdt_find_domain(_r_cdp, d->id, NULL);
 	if (WARN_ON(IS_ERR_OR_NULL(_d_cdp))) {
 		_r_cdp = NULL;
-<<<<<<< Updated upstream
-=======
 		_d_cdp = NULL;
->>>>>>> Stashed changes
 		ret = -EINVAL;
 	}
 
@@ -2180,11 +2177,7 @@ static void free_all_child_rdtgrp(struct rdtgroup *rdtgrp)
 		if (atomic_read(&sentry->waitcount) != 0)
 			sentry->flags = RDT_DELETED;
 		else
-<<<<<<< Updated upstream
-			kfree(sentry);
-=======
 			rdtgroup_remove(sentry);
->>>>>>> Stashed changes
 	}
 }
 
@@ -2226,11 +2219,7 @@ static void rmdir_all_sub(void)
 		if (atomic_read(&rdtgrp->waitcount) != 0)
 			rdtgrp->flags = RDT_DELETED;
 		else
-<<<<<<< Updated upstream
-			kfree(rdtgrp);
-=======
 			rdtgroup_remove(rdtgrp);
->>>>>>> Stashed changes
 	}
 	/* Notify online CPUs to update per cpu storage and PQR_ASSOC MSR */
 	update_closid_rmid(cpu_online_mask, &rdtgroup_default);

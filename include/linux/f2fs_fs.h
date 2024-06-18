@@ -152,13 +152,9 @@ struct f2fs_super_block {
 	__u8 hot_ext_count;		/* # of hot file extension */
 	__le16  s_encoding;		/* Filename charset encoding */
 	__le16  s_encoding_flags;	/* Filename charset encoding flags */
-<<<<<<< Updated upstream
-	__u8 reserved[306];		/* valid reserved region */
-=======
 	__u8 s_stop_reason[MAX_STOP_REASON];	/* stop checkpoint reason */
 	__u8 s_errors[MAX_F2FS_ERRORS];		/* reason of image corrupts */
 	__u8 reserved[258];		/* valid reserved region */
->>>>>>> Stashed changes
 	__le32 crc;			/* checksum of superblock */
 } __packed;
 
@@ -317,14 +313,10 @@ struct f2fs_inode {
 			__le64 i_compr_blocks;	/* # of compressed blocks */
 			__u8 i_compress_algorithm;	/* compress algorithm */
 			__u8 i_log_cluster_size;	/* log of cluster size */
-<<<<<<< Updated upstream
-			__le16 i_padding;		/* padding */
-=======
 			__le16 i_compress_flag;		/* compress flag */
 						/* 0 bit: chksum flag
 						 * [10,15] bits: compress level
 						 */
->>>>>>> Stashed changes
 			__le32 i_extra_end[0];	/* for attribute size calculation */
 		} __packed;
 		__le32 i_addr[DEF_ADDRS_PER_INODE];	/* Pointers to data blocks */

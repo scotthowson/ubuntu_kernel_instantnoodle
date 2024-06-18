@@ -4,11 +4,7 @@
 
 AUDIO_CHIPSET := audio
 # Build/Package only in case of supported target
-<<<<<<< Updated upstream
-ifeq ($(call is-board-platform-in-list, sdm660),true)
-=======
 ifeq ($(call is-board-platform-in-list, sdm660 msm8953 msm8937),true)
->>>>>>> Stashed changes
 
 LOCAL_PATH := $(call my-dir)
 

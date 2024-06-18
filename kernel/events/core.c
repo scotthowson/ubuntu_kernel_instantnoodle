@@ -6610,15 +6610,7 @@ static u64 perf_virt_to_phys(u64 virt)
 		 * If failed, leave phys_addr as 0.
 		 */
 		if (current->mm != NULL) {
-<<<<<<< Updated upstream
-			pagefault_disable();
-			if (__get_user_pages_fast(virt, 1, 0, &p) == 1)
-				phys_addr = page_to_phys(p) + virt % PAGE_SIZE;
-			pagefault_enable();
-		}
-=======
 			struct page *p;
->>>>>>> Stashed changes
 
 			pagefault_disable();
 			if (__get_user_pages_fast(virt, 1, 0, &p) == 1) {
@@ -9092,11 +9084,7 @@ static void perf_event_addr_filters_apply(struct perf_event *event)
 		return;
 
 	if (ifh->nr_file_filters) {
-<<<<<<< Updated upstream
-		mm = get_task_mm(event->ctx->task);
-=======
 		mm = get_task_mm(task);
->>>>>>> Stashed changes
 		if (!mm)
 			goto restart;
 
@@ -10896,11 +10884,6 @@ SYSCALL_DEFINE5(perf_event_open,
 	/* for future expandability... */
 	if (flags & ~PERF_FLAG_ALL)
 		return -EINVAL;
-
-	/* Do we allow access to perf_event_open(2) ? */
-	err = security_perf_event_open(&attr, PERF_SECURITY_OPEN);
-	if (err)
-		return err;
 
 	/* Do we allow access to perf_event_open(2) ? */
 	err = security_perf_event_open(&attr, PERF_SECURITY_OPEN);

@@ -1,9 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0-only
-<<<<<<< Updated upstream
-/* Copyright (c) 2018-2020, The Linux Foundation. All rights reserved. */
-=======
 /* Copyright (c) 2018-2021, The Linux Foundation. All rights reserved. */
->>>>>>> Stashed changes
 
 #include <linux/debugfs.h>
 #include <linux/device.h>
@@ -220,10 +216,6 @@ void mhi_ring_cmd_db(struct mhi_controller *mhi_cntrl, struct mhi_cmd *mhi_cmd)
 	db = ring->iommu_base + (ring->wp - ring->base);
 	*ring->ctxt_wp = db;
 	mhi_write_db(mhi_cntrl, ring->db_addr, db);
-<<<<<<< Updated upstream
-	smp_wmb();
-=======
->>>>>>> Stashed changes
 }
 
 void mhi_ring_chan_db(struct mhi_controller *mhi_cntrl,
@@ -816,10 +808,6 @@ void mhi_create_devices(struct mhi_controller *mhi_cntrl)
 	struct mhi_device *mhi_dev;
 	int ret;
 
-<<<<<<< Updated upstream
-	MHI_ERR(":%s\n", __func__);
-=======
->>>>>>> Stashed changes
 	mhi_chan = mhi_cntrl->mhi_chan;
 	for (i = 0; i < mhi_cntrl->max_chan; i++, mhi_chan++) {
 		if (!mhi_chan->configured || mhi_chan->mhi_dev ||
@@ -1288,11 +1276,7 @@ int mhi_process_ctrl_ev_ring(struct mhi_controller *mhi_cntrl,
 				mhi_cntrl->status_cb(mhi_cntrl,
 						     mhi_cntrl->priv_data,
 						     MHI_CB_EE_RDDM);
-<<<<<<< Updated upstream
-				wake_up_all(&mhi_cntrl->state_event);
-=======
 				swake_up_all(&mhi_cntrl->state_event);
->>>>>>> Stashed changes
 				break;
 			default:
 				MHI_ERR("Unhandled EE event:%s\n",
@@ -1401,8 +1385,6 @@ int mhi_process_tsync_ev_ring(struct mhi_controller *mhi_cntrl,
 	int ret = 0;
 
 	spin_lock_bh(&mhi_event->lock);
-<<<<<<< Updated upstream
-=======
 	if (!is_valid_ring_ptr(ev_ring, er_ctxt->rp)) {
 		MHI_ERR(
 			"Event ring rp points outside of the event ring or unalign rp %llx\n",
@@ -1410,7 +1392,6 @@ int mhi_process_tsync_ev_ring(struct mhi_controller *mhi_cntrl,
 		spin_unlock_bh(&mhi_event->lock);
 		return 0;
 	}
->>>>>>> Stashed changes
 	dev_rp = mhi_to_virtual(ev_ring, er_ctxt->rp);
 	if (ev_ring->rp == dev_rp) {
 		spin_unlock_bh(&mhi_event->lock);
@@ -1503,8 +1484,6 @@ int mhi_process_bw_scale_ev_ring(struct mhi_controller *mhi_cntrl,
 	int result, ret = 0;
 
 	spin_lock_bh(&mhi_event->lock);
-<<<<<<< Updated upstream
-=======
 	if (!is_valid_ring_ptr(ev_ring, er_ctxt->rp)) {
 		MHI_ERR(
 			"Event ring rp points outside of the event ring or unalign rp %llx\n",
@@ -1513,7 +1492,6 @@ int mhi_process_bw_scale_ev_ring(struct mhi_controller *mhi_cntrl,
 		return 0;
 	}
 
->>>>>>> Stashed changes
 	dev_rp = mhi_to_virtual(ev_ring, er_ctxt->rp);
 	if (ev_ring->rp == dev_rp) {
 		spin_unlock_bh(&mhi_event->lock);
@@ -1722,11 +1700,7 @@ irqreturn_t mhi_intvec_threaded_handlr(int irq_number, void *dev)
 
 		mhi_cntrl->status_cb(mhi_cntrl, mhi_cntrl->priv_data,
 				     MHI_CB_EE_RDDM);
-<<<<<<< Updated upstream
-		wake_up_all(&mhi_cntrl->state_event);
-=======
 		swake_up_all(&mhi_cntrl->state_event);
->>>>>>> Stashed changes
 
 		goto exit_intvec;
 	}
@@ -1755,19 +1729,11 @@ irqreturn_t mhi_intvec_handlr(int irq_number, void *dev)
 {
 
 	struct mhi_controller *mhi_cntrl = dev;
-	u32 in_reset = -1;
 
 	/* wake up any events waiting for state change */
 	local_irq_enable();
 	MHI_VERB("Enter\n");
 	if (unlikely(mhi_cntrl->initiate_mhi_reset)) {
-<<<<<<< Updated upstream
-		mhi_read_reg_field(mhi_cntrl, mhi_cntrl->regs, MHICTRL,
-			MHICTRL_RESET_MASK, MHICTRL_RESET_SHIFT, &in_reset);
-		mhi_cntrl->initiate_mhi_reset = !!in_reset;
-	}
-	wake_up_all(&mhi_cntrl->state_event);
-=======
 		u32 in_reset;
 
 		if (!mhi_read_reg_field(mhi_cntrl, mhi_cntrl->regs, MHICTRL,
@@ -1775,7 +1741,6 @@ irqreturn_t mhi_intvec_handlr(int irq_number, void *dev)
 			mhi_cntrl->initiate_mhi_reset = !!in_reset;
 	}
 	swake_up_all(&mhi_cntrl->state_event);
->>>>>>> Stashed changes
 	MHI_VERB("Exit\n");
 	local_irq_disable();
 
@@ -2191,11 +2156,7 @@ error_invalid_state:
 
 		/* notify waiters to proceed with unbinding channel */
 		if (notify)
-<<<<<<< Updated upstream
-			wake_up_all(&mhi_cntrl->state_event);
-=======
 			swake_up_all(&mhi_cntrl->state_event);
->>>>>>> Stashed changes
 	}
 	MHI_LOG("chan:%d successfully resetted\n", mhi_chan->chan);
 	mutex_unlock(&mhi_chan->mutex);

@@ -1587,8 +1587,6 @@
 #define UNJO_ISODEBUG_V1_PID		0x150D
 
 /*
-<<<<<<< Updated upstream
-=======
  * IDS GmbH
  */
 #define IDS_VID				0x2CAF
@@ -1596,7 +1594,6 @@
 #define IDS_CM31A_PID			0x13A3
 
 /*
->>>>>>> Stashed changes
  * U-Blox products (http://www.u-blox.com).
  */
 #define UBLOX_VID			0x1546

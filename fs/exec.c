@@ -71,15 +71,6 @@
 #include "internal.h"
 
 #include <trace/events/sched.h>
-<<<<<<< Updated upstream
-#ifdef CONFIG_IM
-#include <linux/oem/im.h>
-#endif
-#ifdef CONFIG_TPP
-#include <linux/oem/tpp.h>
-#endif
-=======
->>>>>>> Stashed changes
 
 int suid_dumpable = 0;
 
@@ -1274,15 +1265,6 @@ void __set_task_comm(struct task_struct *tsk, const char *buf, bool exec)
 	task_lock(tsk);
 	trace_task_rename(tsk, buf);
 	strlcpy(tsk->comm, buf, sizeof(tsk->comm));
-<<<<<<< Updated upstream
-#ifdef CONFIG_IM
-	im_wmi(tsk);
-#endif
-#ifdef CONFIG_TPP
-	tpp_tagging(tsk);
-#endif
-=======
->>>>>>> Stashed changes
 	task_unlock(tsk);
 	perf_event_comm(tsk, exec);
 }
@@ -1858,9 +1840,6 @@ static int __do_execve_file(int fd, struct filename *filename,
 	if (retval < 0)
 		goto out;
 
-<<<<<<< Updated upstream
-	retval = exec_binprm(bprm);
-=======
 	/*
 	 * When argv is empty, add an empty string ("") as argv[0] to
 	 * ensure confused userspace programs that start processing
@@ -1876,7 +1855,6 @@ static int __do_execve_file(int fd, struct filename *filename,
 	}
 
 	retval = exec_binprm(&bprm);
->>>>>>> Stashed changes
 	if (retval < 0)
 		goto out;
 

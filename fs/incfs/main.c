@@ -30,10 +30,6 @@ static ssize_t corefs_show(struct kobject *kobj,
 
 static struct kobj_attribute corefs_attr = __ATTR_RO(corefs);
 
-<<<<<<< Updated upstream
-static struct attribute *attributes[] = {
-	&corefs_attr.attr,
-=======
 static ssize_t bugfix_inode_eviction_show(struct kobject *kobj,
 			 struct kobj_attribute *attr, char *buff)
 {
@@ -56,7 +52,6 @@ static struct attribute *attributes[] = {
 	&corefs_attr.attr,
 	&bugfix_inode_eviction_attr.attr,
 	&mounter_context_for_backing_rw_attr.attr,
->>>>>>> Stashed changes
 	NULL,
 };
 

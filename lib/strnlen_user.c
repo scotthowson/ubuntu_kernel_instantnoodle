@@ -3,10 +3,7 @@
 #include <linux/export.h>
 #include <linux/uaccess.h>
 #include <linux/mm.h>
-<<<<<<< Updated upstream
-=======
 #include <linux/bitops.h>
->>>>>>> Stashed changes
 
 #include <asm/word-at-a-time.h>
 
@@ -105,8 +102,6 @@ long strnlen_user(const char __user *str, long count)
 		unsigned long max = max_addr - src_addr;
 		long retval;
 
-<<<<<<< Updated upstream
-=======
 		/*
 		 * Truncate 'max' to the user-specified limit, so that
 		 * we only have one limit we need to check in the loop
@@ -114,7 +109,6 @@ long strnlen_user(const char __user *str, long count)
 		if (max > count)
 			max = count;
 
->>>>>>> Stashed changes
 		if (user_access_begin(VERIFY_READ, str, max)) {
 			retval = do_strnlen_user(str, count, max);
 			user_access_end();

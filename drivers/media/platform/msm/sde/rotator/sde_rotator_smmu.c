@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2015-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2015-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #define pr_fmt(fmt)	"%s: " fmt, __func__
@@ -384,11 +380,8 @@ static void sde_smmu_callback(struct mdss_smmu_intf *smmu)
 
 	/* Copy mmu device info into sde private structure */
 	mdata->iommu_ctrl = smmu->iommu_ctrl;
-<<<<<<< Updated upstream
-=======
 	mdata->vbif_reg_lock = smmu->reg_lock;
 	mdata->vbif_reg_unlock = smmu->reg_unlock;
->>>>>>> Stashed changes
 	mdata->wait_for_transition = smmu->wait_for_transition;
 	mdata->secure_session_ctrl = smmu->secure_session_ctrl;
 	if (smmu->is_secure) {
@@ -458,27 +451,21 @@ int sde_smmu_secure_ctrl(int enable)
 	int rc = 0;
 
 	mutex_lock(&sde_smmu_ref_cnt_lock);
-<<<<<<< Updated upstream
-=======
 	/*
 	 * Attach/detach secure context irrespective of ref count,
 	 * We come here only when secure camera is disabled
 	 */
->>>>>>> Stashed changes
 	if (enable) {
 		rc = sde_smmu_attach(mdata);
 		if (!rc)
 			mdata->iommu_attached = true;
 	} else {
 		rc = sde_smmu_detach(mdata);
-<<<<<<< Updated upstream
-=======
 		/*
 		 * keep iommu_attached equal to true,
 		 * so that driver does not attemp to attach
 		 * while in secure state
 		 */
->>>>>>> Stashed changes
 	}
 
 	mutex_unlock(&sde_smmu_ref_cnt_lock);
@@ -543,18 +530,11 @@ static int sde_smmu_fault_handler(struct iommu_domain *domain,
 
 	sde_smmu = (struct sde_smmu_client *)token;
 
-<<<<<<< Updated upstream
-=======
 	/* trigger rotator dump */
->>>>>>> Stashed changes
 	SDEROT_ERR("trigger rotator dump, iova=0x%08lx, flags=0x%x\n",
 			iova, flags);
 	SDEROT_ERR("SMMU device:%s", sde_smmu->dev->kobj.name);
 
-<<<<<<< Updated upstream
-	SDEROT_EVTLOG_TOUT_HANDLER("rot", "rot_dbg_bus", "vbif_dbg_bus");
-
-=======
 	/* generate dump, but no panic */
 	SDEROT_EVTLOG_TOUT_HANDLER("rot", "rot_dbg_bus", "vbif_dbg_bus");
 
@@ -562,7 +542,6 @@ static int sde_smmu_fault_handler(struct iommu_domain *domain,
 	 * return -ENOSYS to allow smmu driver to dump out useful
 	 * debug info.
 	 */
->>>>>>> Stashed changes
 	return rc;
 }
 

@@ -948,11 +948,7 @@ static int __ip_append_data(struct sock *sk,
 			unsigned int datalen;
 			unsigned int fraglen;
 			unsigned int fraggap;
-<<<<<<< Updated upstream
-			unsigned int alloclen;
-=======
 			unsigned int alloclen, alloc_extra;
->>>>>>> Stashed changes
 			unsigned int pagedlen;
 			struct sk_buff *skb_prev;
 alloc_new_skb:

@@ -782,8 +782,6 @@ config UCLAMP_BUCKETS_COUNT
 
 endmenu
 
-<<<<<<< Updated upstream
-=======
 config PELT_COMPATIBILITY_LAYER
 	bool "Compatibility layer for Qualcomm performance HALs"
 	depends on !SCHED_WALT
@@ -793,7 +791,6 @@ config PELT_COMPATIBILITY_LAYER
 
 	  If unsure, say N.
 
->>>>>>> Stashed changes
 #
 # For architectures that want to enable the support for NUMA-affine scheduler
 # balancing logic:

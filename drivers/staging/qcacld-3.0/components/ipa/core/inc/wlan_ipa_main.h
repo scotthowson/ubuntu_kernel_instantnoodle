@@ -256,8 +256,6 @@ void ipa_reg_sap_xmit_cb(struct wlan_objmgr_pdev *pdev,
 void ipa_reg_send_to_nw_cb(struct wlan_objmgr_pdev *pdev,
 			   wlan_ipa_send_to_nw cb);
 
-<<<<<<< Updated upstream
-=======
 #ifdef IPA_LAN_RX_NAPI_SUPPORT
 /**
  * ipa_reg_rps_enable_cb() - Register cb to enable RPS
@@ -270,7 +268,6 @@ void ipa_reg_rps_enable_cb(struct wlan_objmgr_pdev *pdev,
 			   wlan_ipa_rps_enable cb);
 #endif
 
->>>>>>> Stashed changes
 /**
  * ipa_set_mcc_mode() - Set MCC mode
  * @pdev: pdev obj
@@ -490,10 +487,7 @@ void ipa_flush_pending_vdev_events(struct wlan_objmgr_pdev *pdev,
 #else /* Not IPA_OFFLOAD */
 typedef QDF_STATUS (*wlan_ipa_softap_xmit)(qdf_nbuf_t nbuf, qdf_netdev_t dev);
 typedef void (*wlan_ipa_send_to_nw)(qdf_nbuf_t nbuf, qdf_netdev_t dev);
-<<<<<<< Updated upstream
-=======
 typedef void (*wlan_ipa_rps_enable)(uint8_t vdev_id, bool enable);
->>>>>>> Stashed changes
 
 #endif /* IPA_OFFLOAD */
 #endif /* end  of _WLAN_IPA_MAIN_H_ */

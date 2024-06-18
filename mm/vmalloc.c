@@ -31,10 +31,6 @@
 #include <linux/compiler.h>
 #include <linux/llist.h>
 #include <linux/bitops.h>
-<<<<<<< Updated upstream
-#include <linux/rbtree_augmented.h>
-=======
->>>>>>> Stashed changes
 #include <linux/overflow.h>
 
 #include <linux/uaccess.h>
@@ -352,62 +348,6 @@ unsigned long vmalloc_nr_pages(void)
 	return atomic_long_read(&nr_vmalloc_pages);
 }
 
-<<<<<<< Updated upstream
-#ifdef CONFIG_ENABLE_VMALLOC_SAVING
-#define POSSIBLE_VMALLOC_START	PAGE_OFFSET
-
-#define VMALLOC_BITMAP_SIZE	((VMALLOC_END - PAGE_OFFSET) >> \
-					PAGE_SHIFT)
-#define VMALLOC_TO_BIT(addr)	((addr - PAGE_OFFSET) >> PAGE_SHIFT)
-#define BIT_TO_VMALLOC(i)	(PAGE_OFFSET + i * PAGE_SIZE)
-
-unsigned long total_vmalloc_size;
-unsigned long vmalloc_reserved;
-
-DECLARE_BITMAP(possible_areas, VMALLOC_BITMAP_SIZE);
-
-void mark_vmalloc_reserved_area(void *x, unsigned long size)
-{
-	unsigned long addr = (unsigned long)x;
-
-	bitmap_set(possible_areas, VMALLOC_TO_BIT(addr), size >> PAGE_SHIFT);
-	vmalloc_reserved += size;
-}
-
-int is_vmalloc_addr(const void *x)
-{
-	unsigned long addr = (unsigned long)x;
-
-	if (addr < POSSIBLE_VMALLOC_START || addr >= VMALLOC_END)
-		return 0;
-
-	if (test_bit(VMALLOC_TO_BIT(addr), possible_areas))
-		return 0;
-
-	return 1;
-}
-
-static void calc_total_vmalloc_size(void)
-{
-	total_vmalloc_size = VMALLOC_END - POSSIBLE_VMALLOC_START -
-		vmalloc_reserved;
-}
-#else
-int is_vmalloc_addr(const void *x)
-{
-	unsigned long addr = (unsigned long)x;
-
-	return addr >= VMALLOC_START && addr < VMALLOC_END;
-}
-
-static void calc_total_vmalloc_size(void) { }
-#endif
-EXPORT_SYMBOL(is_vmalloc_addr);
-
-static atomic_long_t nr_vmalloc_pages;
-
-=======
->>>>>>> Stashed changes
 static struct vmap_area *__find_vmap_area(unsigned long addr)
 {
 	struct rb_node *n = vmap_area_root.rb_node;
@@ -697,8 +637,7 @@ static unsigned long lazy_max_pages(void)
 
 	log = fls(num_online_cpus());
 
-	return log * (1UL * CONFIG_VMAP_LAZY_PURGING_FACTOR *
-					1024 * 1024 / PAGE_SIZE);
+	return log * (32UL * 1024 * 1024 / PAGE_SIZE);
 }
 
 static atomic_t vmap_lazy_nr = ATOMIC_INIT(0);
@@ -730,11 +669,7 @@ static bool __purge_vmap_area_lazy(unsigned long start, unsigned long end)
 	struct llist_node *valist;
 	struct vmap_area *va;
 	struct vmap_area *n_va;
-<<<<<<< Updated upstream
-	unsigned long flush_all_threshold = VMALLOC_END - VMALLOC_START;
-=======
 	bool do_free = false;
->>>>>>> Stashed changes
 
 	lockdep_assert_held(&vmap_purge_lock);
 
@@ -747,18 +682,10 @@ static bool __purge_vmap_area_lazy(unsigned long start, unsigned long end)
 		do_free = true;
 	}
 
-<<<<<<< Updated upstream
-	if (end - start <= flush_all_threshold)
-		flush_tlb_kernel_range(start, end);
-	else
-		flush_tlb_all();
-	resched_threshold = lazy_max_pages() << 1;
-=======
 	if (!do_free)
 		return false;
 
 	flush_tlb_kernel_range(start, end);
->>>>>>> Stashed changes
 
 	spin_lock(&vmap_area_lock);
 	llist_for_each_entry_safe(va, n_va, valist, purge_list) {
@@ -1888,13 +1815,8 @@ static void *__vmalloc_node(unsigned long size, unsigned long align,
 			    gfp_t gfp_mask, pgprot_t prot,
 			    int node, const void *caller)
 {
-#ifdef CONFIG_ENABLE_VMALLOC_SAVING
-	return __vmalloc_node_range(size, align, PAGE_OFFSET, VMALLOC_END,
-				gfp_mask, prot, 0, node, caller);
-#else
 	return __vmalloc_node_range(size, align, VMALLOC_START, VMALLOC_END,
 				gfp_mask, prot, 0, node, caller);
-#endif
 }
 
 void *__vmalloc(unsigned long size, gfp_t gfp_mask, pgprot_t prot)
@@ -2814,9 +2736,6 @@ static int s_show(struct seq_file *m, void *p)
 	}
 
 	v = va->vm;
-
-	if (v->flags & VM_LOWMEM)
-		return 0;
 
 	seq_printf(m, "0x%pK-0x%pK %7ld",
 		v->addr, v->addr + v->size, v->size);

@@ -1,10 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2015-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2015-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #ifndef _SDE_HW_CATALOG_H
@@ -60,10 +56,7 @@
 #define SDE_HW_VER_630	SDE_HW_VER(6, 3, 0) /* bengal */
 #define SDE_HW_VER_640	SDE_HW_VER(6, 4, 0) /* lagoon */
 #define SDE_HW_VER_650	SDE_HW_VER(6, 5, 0) /* scuba */
-<<<<<<< Updated upstream
-=======
 #define SDE_HW_VER_6100	SDE_HW_VER(6, 10, 0) /* khaje */
->>>>>>> Stashed changes
 
 #define IS_MSM8996_TARGET(rev) IS_SDE_MAJOR_MINOR_SAME((rev), SDE_HW_VER_170)
 #define IS_MSM8998_TARGET(rev) IS_SDE_MAJOR_MINOR_SAME((rev), SDE_HW_VER_300)
@@ -79,10 +72,7 @@
 #define IS_BENGAL_TARGET(rev) IS_SDE_MAJOR_MINOR_SAME((rev), SDE_HW_VER_630)
 #define IS_LAGOON_TARGET(rev) IS_SDE_MAJOR_MINOR_SAME((rev), SDE_HW_VER_640)
 #define IS_SCUBA_TARGET(rev) IS_SDE_MAJOR_MINOR_SAME((rev), SDE_HW_VER_650)
-<<<<<<< Updated upstream
-=======
 #define IS_KHAJE_TARGET(rev) IS_SDE_MAJOR_MINOR_SAME((rev), SDE_HW_VER_6100)
->>>>>>> Stashed changes
 
 #define SDE_HW_BLK_NAME_LEN	16
 
@@ -1300,10 +1290,7 @@ struct sde_limit_cfg {
  * @has_base_layer     Supports staging layer as base layer
  * @allow_gdsc_toggle  Flag to check if gdsc toggle is needed after crtc is
  *                           disabled when external vote is present
-<<<<<<< Updated upstream
-=======
  * @rc_lm_flush_override        Support Rounded Corner using layer mixer flush
->>>>>>> Stashed changes
  * @sc_cfg: system cache configuration
  * @uidle_cfg		Settings for uidle feature
  * @sui_misr_supported  indicate if secure-ui-misr is supported
@@ -1363,10 +1350,7 @@ struct sde_mdss_cfg {
 	bool update_tcsr_disp_glitch;
 	bool has_base_layer;
 	bool allow_gdsc_toggle;
-<<<<<<< Updated upstream
-=======
 	bool rc_lm_flush_override;
->>>>>>> Stashed changes
 
 	struct sde_sc_cfg sc_cfg;
 

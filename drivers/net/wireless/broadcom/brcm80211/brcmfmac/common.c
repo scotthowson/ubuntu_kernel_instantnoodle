@@ -297,12 +297,9 @@ int brcmf_c_preinit_dcmds(struct brcmf_if *ifp)
 		 * character
 		 */
 		strreplace(clmver, '\n', ' ');
-<<<<<<< Updated upstream
-=======
 
 		/* store CLM version for adding it to revinfo debugfs file */
 		memcpy(ifp->drvr->clmver, clmver, sizeof(ifp->drvr->clmver));
->>>>>>> Stashed changes
 
 		brcmf_dbg(INFO, "CLM version = %s\n", clmver);
 	}

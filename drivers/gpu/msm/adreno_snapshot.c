@@ -1,11 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2012-2021, The Linux Foundation. All rights reserved.
  * Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include <linux/msm-bus.h>
@@ -936,12 +932,7 @@ void adreno_snapshot(struct kgsl_device *device, struct kgsl_snapshot *snapshot,
 	 * figure how often this really happens.
 	 */
 
-<<<<<<< Updated upstream
-	if (-ENOENT == find_object(snapshot->ib1base, snapshot->process) &&
-			snapshot->ib1size) {
-=======
 	if (-ENOENT == find_object(snapshot->ib1base, snapshot->process)) {
->>>>>>> Stashed changes
 		struct kgsl_mem_entry *entry;
 		u64 ibsize;
 

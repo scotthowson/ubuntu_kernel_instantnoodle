@@ -126,17 +126,10 @@ static void free_sink_buffer(struct etm_event_data *event_data)
 	cpumask_t *mask = &event_data->mask;
 	struct coresight_device *sink;
 
-<<<<<<< Updated upstream
-	if (WARN_ON(cpumask_empty(mask)))
-		return;
-
-	if (!event_data->snk_config)
-=======
 	if (!event_data->snk_config)
 		return;
 
 	if (WARN_ON(cpumask_empty(mask)))
->>>>>>> Stashed changes
 		return;
 
 	cpu = cpumask_first(mask);
@@ -320,8 +313,6 @@ static void etm_event_start(struct perf_event *event, int flags)
 	if (!event_data)
 		goto fail;
 
-<<<<<<< Updated upstream
-=======
 	/*
 	 * Check if this ETM is allowed to trace, as decided
 	 * at etm_setup_aux(). This could be due to an unreachable
@@ -332,7 +323,6 @@ static void etm_event_start(struct perf_event *event, int flags)
 	if (!cpumask_test_cpu(cpu, &event_data->mask))
 		goto fail_end_stop;
 
->>>>>>> Stashed changes
 	path = etm_event_cpu_path(event_data, cpu);
 	/* We need a sink, no need to continue without one */
 	sink = coresight_get_sink(path);

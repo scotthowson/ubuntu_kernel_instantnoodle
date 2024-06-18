@@ -481,10 +481,6 @@ static irqreturn_t wsa883x_uvlo_handle_irq(int irq, void *data)
 
 static irqreturn_t wsa883x_pa_on_err_handle_irq(int irq, void *data)
 {
-<<<<<<< Updated upstream
-	pr_err_ratelimited("%s: interrupt for irq =%d triggered\n",
-			   __func__, irq);
-=======
 	u8 pa_fsm_sta = 0, pa_fsm_err = 0;
 	struct wsa883x_priv *wsa883x = data;
 	struct snd_soc_component *component = NULL;
@@ -512,7 +508,6 @@ static irqreturn_t wsa883x_pa_on_err_handle_irq(int irq, void *data)
 	snd_soc_component_update_bits(component, WSA883X_PA_FSM_CTL,
 					0x10, 0x00);
 
->>>>>>> Stashed changes
 	return IRQ_HANDLED;
 }
 
@@ -800,8 +795,6 @@ int wsa883x_codec_info_create_codec_entry(struct snd_info_entry *codec_root,
 }
 EXPORT_SYMBOL(wsa883x_codec_info_create_codec_entry);
 
-<<<<<<< Updated upstream
-=======
 /*
  * wsa883x_codec_get_dev_num - returns swr device number
  * @component: Codec instance
@@ -826,7 +819,6 @@ int wsa883x_codec_get_dev_num(struct snd_soc_component *component)
 }
 EXPORT_SYMBOL(wsa883x_codec_get_dev_num);
 
->>>>>>> Stashed changes
 static int wsa883x_get_compander(struct snd_kcontrol *kcontrol,
 			       struct snd_ctl_elem_value *ucontrol)
 {
@@ -1044,15 +1036,6 @@ static int wsa883x_spkr_event(struct snd_soc_dapm_widget *w,
 		swr_slvdev_datapath_control(wsa883x->swr_slave,
 					    wsa883x->swr_slave->dev_num,
 					    true);
-<<<<<<< Updated upstream
-		usleep_range(250, 300);
-		snd_soc_component_update_bits(component, WSA883X_DRE_CTL_1,
-						0x01, 0x01);
-		usleep_range(250, 300);
-		/* Force remove group */
-		swr_remove_from_group(wsa883x->swr_slave,
-				      wsa883x->swr_slave->dev_num);
-=======
 		/* Added delay as per HW sequence */
 		usleep_range(250, 300);
 		snd_soc_component_update_bits(component, WSA883X_DRE_CTL_1,
@@ -1069,7 +1052,6 @@ static int wsa883x_spkr_event(struct snd_soc_dapm_widget *w,
 		snd_soc_component_update_bits(component,
 				WSA883X_VBAT_ADC_FLT_CTL,
 				0x01, 0x01);
->>>>>>> Stashed changes
 		if (test_bit(SPKR_ADIE_LB, &wsa883x->status_mask))
 			snd_soc_component_update_bits(component,
 				WSA883X_PA_FSM_CTL, 0x01, 0x01);
@@ -1078,13 +1060,6 @@ static int wsa883x_spkr_event(struct snd_soc_dapm_widget *w,
 		if (!test_bit(SPKR_ADIE_LB, &wsa883x->status_mask))
 			wcd_disable_irq(&wsa883x->irq_info,
 					WSA883X_IRQ_INT_PDM_WD);
-<<<<<<< Updated upstream
-		snd_soc_component_update_bits(component, WSA883X_PA_FSM_CTL,
-				0x01, 0x00);
-		snd_soc_component_update_bits(wsa883x->component,
-					WSA883X_PDM_WD_CTL,
-					0x01, 0x00);
-=======
 		snd_soc_component_update_bits(component,
 				WSA883X_VBAT_ADC_FLT_CTL,
 				0x01, 0x00);
@@ -1102,7 +1077,6 @@ static int wsa883x_spkr_event(struct snd_soc_dapm_widget *w,
 		snd_soc_component_update_bits(wsa883x->component, WSA883X_PDM_WD_CTL,
 				0x01, 0x00);
 		wcd_disable_irq(&wsa883x->irq_info, WSA883X_IRQ_INT_PA_ON_ERR);
->>>>>>> Stashed changes
 		clear_bit(SPKR_STATUS, &wsa883x->status_mask);
 		clear_bit(SPKR_ADIE_LB, &wsa883x->status_mask);
 		break;
@@ -1494,18 +1468,12 @@ static int wsa883x_event_notify(struct notifier_block *nb,
 						0x01, 0x01);
 			wcd_enable_irq(&wsa883x->irq_info,
 					WSA883X_IRQ_INT_PDM_WD);
-<<<<<<< Updated upstream
-=======
 			/* Added delay as per HW sequence */
->>>>>>> Stashed changes
 			usleep_range(3000, 3100);
 			snd_soc_component_update_bits(wsa883x->component,
 						WSA883X_DRE_CTL_1,
 						0x01, 0x00);
-<<<<<<< Updated upstream
-=======
 			/* Added delay as per HW sequence */
->>>>>>> Stashed changes
 			usleep_range(5000, 5050);
 		}
 		break;
@@ -1589,11 +1557,7 @@ static int wsa883x_swr_probe(struct swr_device *pdev)
 	ret = swr_get_logical_dev_num(pdev, pdev->addr, &devnum);
 	if (ret) {
 		dev_err(&pdev->dev,
-<<<<<<< Updated upstream
-			"%s get devnum %d for dev addr %lx failed\n",
-=======
 			"%s get devnum %d for dev addr %llx failed\n",
->>>>>>> Stashed changes
 			__func__, devnum, pdev->addr);
 		goto dev_err;
 	}
@@ -1662,11 +1626,7 @@ static int wsa883x_swr_probe(struct swr_device *pdev)
 			"WSA UVLO", wsa883x_uvlo_handle_irq, NULL);
 
 	wcd_request_irq(&wsa883x->irq_info, WSA883X_IRQ_INT_PA_ON_ERR,
-<<<<<<< Updated upstream
-			"WSA PA ERR", wsa883x_pa_on_err_handle_irq, NULL);
-=======
 			"WSA PA ERR", wsa883x_pa_on_err_handle_irq, wsa883x);
->>>>>>> Stashed changes
 
 	wcd_disable_irq(&wsa883x->irq_info, WSA883X_IRQ_INT_PA_ON_ERR);
 

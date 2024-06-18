@@ -843,12 +843,8 @@ __poll_t datagram_poll(struct file *file, struct socket *sock,
 	mask = 0;
 
 	/* exceptional events? */
-<<<<<<< Updated upstream
-	if (sk->sk_err || !skb_queue_empty_lockless(&sk->sk_error_queue))
-=======
 	if (READ_ONCE(sk->sk_err) ||
 	    !skb_queue_empty_lockless(&sk->sk_error_queue))
->>>>>>> Stashed changes
 		mask |= EPOLLERR |
 			(sock_flag(sk, SOCK_SELECT_ERR_QUEUE) ? EPOLLPRI : 0);
 

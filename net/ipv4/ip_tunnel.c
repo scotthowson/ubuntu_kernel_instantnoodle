@@ -511,8 +511,6 @@ static int tnl_update_pmtu(struct net_device *dev, struct sk_buff *skb,
 	pkt_size = skb->len - tunnel->hlen;
 	pkt_size -= dev->type == ARPHRD_ETHER ? dev->hard_header_len : 0;
 
-<<<<<<< Updated upstream
-=======
 	if (df) {
 		mtu = dst_mtu(&rt->dst) - (sizeof(struct iphdr) + tunnel->hlen);
 		mtu -= dev->type == ARPHRD_ETHER ? dev->hard_header_len : 0;
@@ -520,7 +518,6 @@ static int tnl_update_pmtu(struct net_device *dev, struct sk_buff *skb,
 		mtu = skb_dst(skb) ? dst_mtu(skb_dst(skb)) : dev->mtu;
 	}
 
->>>>>>> Stashed changes
 	skb_dst_update_pmtu_no_confirm(skb, mtu);
 
 	if (skb->protocol == htons(ETH_P_IP)) {

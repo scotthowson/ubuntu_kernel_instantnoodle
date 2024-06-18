@@ -81,8 +81,6 @@ ifeq ($(KERNEL_BUILD), 0)
 		export
 		INCS    +=  -include $(AUDIO_ROOT)/config/sdm660autoconf.h
 	endif
-<<<<<<< Updated upstream
-=======
 	ifeq ($(CONFIG_ARCH_SDM450), y)
 		include $(AUDIO_ROOT)/config/sdm450auto.conf
 		export
@@ -98,7 +96,6 @@ ifeq ($(KERNEL_BUILD), 0)
 		export
 		INCS    +=  -include $(AUDIO_ROOT)/config/sdm450autoconf.h
 	endif
->>>>>>> Stashed changes
 endif
 
 
@@ -226,10 +223,6 @@ CDEFINES +=	-DANI_LITTLE_BYTE_ENDIAN \
 		-DANI_OS_TYPE_ANDROID=6 \
 		-DPTT_SOCK_SVC_ENABLE \
 		-Wall\
-<<<<<<< Updated upstream
-		-Werror\
-=======
->>>>>>> Stashed changes
 		-D__linux__
 
 KBUILD_CPPFLAGS += $(CDEFINES)
@@ -283,9 +276,3 @@ q6_pdr_dlkm-y := $(QDSP6_PDR_OBJS)
 
 obj-$(CONFIG_MSM_QDSP6_NOTIFIER) += q6_notifier_dlkm.o
 q6_notifier_dlkm-y := $(QDSP6_NOTIFIER_OBJS)
-<<<<<<< Updated upstream
-
-# inject some build related information
-DEFINES += -DBUILD_TIMESTAMP=\"$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')\"
-=======
->>>>>>> Stashed changes

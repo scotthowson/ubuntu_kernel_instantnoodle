@@ -1,10 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2019-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2019-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #ifndef __MSM_CAMERA_H
@@ -66,10 +62,7 @@
 #define CAM_CPAS_TRAFFIC_MERGE_SUM 0
 #define CAM_CPAS_TRAFFIC_MERGE_SUM_INTERLEAVE 1
 
-<<<<<<< Updated upstream
-=======
 /* Feature bit type */
->>>>>>> Stashed changes
 #define CAM_CPAS_FEATURE_TYPE_DISABLE        0
 #define CAM_CPAS_FEATURE_TYPE_ENABLE         1
 #define CAM_CPAS_FEATURE_TYPE_VALUE          2
@@ -82,13 +75,10 @@
 #define CAM_CPAS_MF_HDR_ENABLE              4
 #define CAM_CPAS_MP_LIMIT_FUSE              5
 #define CAM_CPAS_FUSE_FEATURE_MAX           6
-<<<<<<< Updated upstream
-=======
 
 /* Flash type*/
 #define CAM_FLASH_TYPE_PMIC 0
 #define CAM_FLASH_TYPE_I2C  1
 #define CAM_FLASH_TYPE_GPIO 2
->>>>>>> Stashed changes
 
 #endif

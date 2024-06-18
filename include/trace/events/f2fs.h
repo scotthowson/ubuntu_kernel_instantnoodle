@@ -47,12 +47,9 @@ TRACE_DEFINE_ENUM(CP_RECOVERY);
 TRACE_DEFINE_ENUM(CP_DISCARD);
 TRACE_DEFINE_ENUM(CP_TRIMMED);
 TRACE_DEFINE_ENUM(CP_PAUSE);
-<<<<<<< Updated upstream
-=======
 TRACE_DEFINE_ENUM(CP_RESIZE);
 TRACE_DEFINE_ENUM(EX_READ);
 TRACE_DEFINE_ENUM(EX_BLOCK_AGE);
->>>>>>> Stashed changes
 
 #define show_block_type(type)						\
 	__print_symbolic(type,						\
@@ -137,12 +134,8 @@ TRACE_DEFINE_ENUM(EX_BLOCK_AGE);
 		{ CP_RECOVERY,	"Recovery" },				\
 		{ CP_DISCARD,	"Discard" },				\
 		{ CP_PAUSE,	"Pause" },				\
-<<<<<<< Updated upstream
-		{ CP_TRIMMED,	"Trimmed" })
-=======
 		{ CP_TRIMMED,	"Trimmed" },				\
 		{ CP_RESIZE,	"Resize" })
->>>>>>> Stashed changes
 
 #define show_fsync_cpreason(type)					\
 	__print_symbolic(type,						\
@@ -172,14 +165,11 @@ TRACE_DEFINE_ENUM(EX_BLOCK_AGE);
 		{ COMPRESS_LZ4,		"LZ4" },			\
 		{ COMPRESS_ZSTD,	"ZSTD" })
 
-<<<<<<< Updated upstream
-=======
 #define show_extent_type(type)						\
 	__print_symbolic(type,						\
 		{ EX_READ,	"Read" },				\
 		{ EX_BLOCK_AGE,	"Block Age" })
 
->>>>>>> Stashed changes
 struct f2fs_sb_info;
 struct f2fs_io_info;
 struct extent_info;
@@ -841,11 +831,7 @@ TRACE_EVENT(f2fs_lookup_start,
 	TP_STRUCT__entry(
 		__field(dev_t,	dev)
 		__field(ino_t,	ino)
-<<<<<<< Updated upstream
-		__string(name, dentry->d_name.name)
-=======
 		__string(name,	dentry->d_name.name)
->>>>>>> Stashed changes
 		__field(unsigned int, flags)
 	),
 
@@ -872,11 +858,7 @@ TRACE_EVENT(f2fs_lookup_end,
 	TP_STRUCT__entry(
 		__field(dev_t,	dev)
 		__field(ino_t,	ino)
-<<<<<<< Updated upstream
-		__string(name, dentry->d_name.name)
-=======
 		__string(name,	dentry->d_name.name)
->>>>>>> Stashed changes
 		__field(nid_t,	cino)
 		__field(int,	err)
 	),
@@ -1934,10 +1916,7 @@ DEFINE_EVENT(f2fs_zip_end, f2fs_decompress_pages_end,
 	TP_ARGS(inode, cluster_idx, compressed_size, ret)
 );
 
-<<<<<<< Updated upstream
-=======
 #ifdef CONFIG_F2FS_IOSTAT
->>>>>>> Stashed changes
 TRACE_EVENT(f2fs_iostat,
 
 	TP_PROTO(struct f2fs_sb_info *sbi, unsigned long long *iostat),
@@ -1963,11 +1942,8 @@ TRACE_EVENT(f2fs_iostat,
 		__field(unsigned long long,	app_rio)
 		__field(unsigned long long,	app_mrio)
 		__field(unsigned long long,	fs_drio)
-<<<<<<< Updated upstream
-=======
 		__field(unsigned long long,	fs_gdrio)
 		__field(unsigned long long,	fs_cdrio)
->>>>>>> Stashed changes
 		__field(unsigned long long,	fs_nrio)
 		__field(unsigned long long,	fs_mrio)
 		__field(unsigned long long,	fs_discard)
@@ -1992,11 +1968,8 @@ TRACE_EVENT(f2fs_iostat,
 		__entry->app_rio	= iostat[APP_READ_IO];
 		__entry->app_mrio	= iostat[APP_MAPPED_READ_IO];
 		__entry->fs_drio	= iostat[FS_DATA_READ_IO];
-<<<<<<< Updated upstream
-=======
 		__entry->fs_gdrio	= iostat[FS_GDATA_READ_IO];
 		__entry->fs_cdrio	= iostat[FS_CDATA_READ_IO];
->>>>>>> Stashed changes
 		__entry->fs_nrio	= iostat[FS_NODE_READ_IO];
 		__entry->fs_mrio	= iostat[FS_META_READ_IO];
 		__entry->fs_discard	= iostat[FS_DISCARD];
@@ -2008,22 +1981,14 @@ TRACE_EVENT(f2fs_iostat,
 		"gc [data=%llu, node=%llu], "
 		"cp [data=%llu, node=%llu, meta=%llu], "
 		"app [read=%llu (direct=%llu, buffered=%llu), mapped=%llu], "
-<<<<<<< Updated upstream
-		"fs [data=%llu, node=%llu, meta=%llu]",
-=======
 		"fs [data=%llu, (gc_data=%llu, compr_data=%llu), "
 		"node=%llu, meta=%llu]",
->>>>>>> Stashed changes
 		show_dev(__entry->dev), __entry->app_wio, __entry->app_dio,
 		__entry->app_bio, __entry->app_mio, __entry->fs_dio,
 		__entry->fs_nio, __entry->fs_mio, __entry->fs_discard,
 		__entry->fs_gc_dio, __entry->fs_gc_nio, __entry->fs_cp_dio,
 		__entry->fs_cp_nio, __entry->fs_cp_mio,
 		__entry->app_rio, __entry->app_drio, __entry->app_brio,
-<<<<<<< Updated upstream
-		__entry->app_mrio, __entry->fs_drio, __entry->fs_nrio,
-		__entry->fs_mrio)
-=======
 		__entry->app_mrio, __entry->fs_drio, __entry->fs_gdrio,
 		__entry->fs_cdrio, __entry->fs_nrio, __entry->fs_mrio)
 );
@@ -2279,7 +2244,6 @@ DEFINE_EVENT(f2fs__rw_end, f2fs_datawrite_end,
 	TP_PROTO(struct inode *inode, loff_t offset, int bytes),
 
 	TP_ARGS(inode, offset, bytes)
->>>>>>> Stashed changes
 );
 
 #endif /* _TRACE_F2FS_H */

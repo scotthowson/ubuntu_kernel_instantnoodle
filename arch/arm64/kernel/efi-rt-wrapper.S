@@ -46,24 +46,15 @@ ENTRY(__efi_rt_asm_wrapper)
 	b.ne	0f
 	ret
 0:
-<<<<<<< Updated upstream
-#ifdef CONFIG_SHADOW_CALL_STACK
-=======
->>>>>>> Stashed changes
 	/*
 	 * Restore x18 before returning to instrumented code. This is
 	 * safe because the wrapper is called with preemption disabled and
 	 * a separate shadow stack is used for interrupts.
 	 */
-<<<<<<< Updated upstream
-	mov	x18, x2
-#endif
-=======
 #ifdef CONFIG_SHADOW_CALL_STACK
 	ldr_l	x18, efi_rt_stack_top
 	ldr	x18, [x18, #-16]
 #endif
 
->>>>>>> Stashed changes
 	b	efi_handle_corrupted_x18	// tail call
 ENDPROC(__efi_rt_asm_wrapper)

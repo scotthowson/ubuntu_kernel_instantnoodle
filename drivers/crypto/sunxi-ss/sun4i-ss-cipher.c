@@ -72,18 +72,6 @@ static int sun4i_ss_opti_poll(struct skcipher_request *areq)
 	oi = 0;
 	oo = 0;
 	do {
-<<<<<<< Updated upstream
-		todo = min(rx_cnt, ileft);
-		todo = min_t(size_t, todo, (mi.length - oi) / 4);
-		if (todo) {
-			ileft -= todo;
-			writesl(ss->base + SS_RXFIFO, mi.addr + oi, todo);
-			oi += todo * 4;
-		}
-		if (oi == mi.length) {
-			sg_miter_next(&mi);
-			oi = 0;
-=======
 		if (ileft) {
 			sg_miter_start(&mi, areq->src, sg_nents(areq->src),
 					SG_MITER_FROM_SG | SG_MITER_ATOMIC);
@@ -107,15 +95,12 @@ static int sun4i_ss_opti_poll(struct skcipher_request *areq)
 				oi = 0;
 			}
 			sg_miter_stop(&mi);
->>>>>>> Stashed changes
 		}
 
 		spaces = readl(ss->base + SS_FCSR);
 		rx_cnt = SS_RXFIFO_SPACES(spaces);
 		tx_cnt = SS_TXFIFO_SPACES(spaces);
 
-<<<<<<< Updated upstream
-=======
 		sg_miter_start(&mo, areq->dst, sg_nents(areq->dst),
 			       SG_MITER_TO_SG | SG_MITER_ATOMIC);
 		if (po)
@@ -126,7 +111,6 @@ static int sun4i_ss_opti_poll(struct skcipher_request *areq)
 			err = -EINVAL;
 			goto release_ss;
 		}
->>>>>>> Stashed changes
 		todo = min(tx_cnt, oleft);
 		todo = min_t(size_t, todo, (mo.length - oo) / 4);
 		if (todo) {
@@ -289,14 +273,6 @@ static int sun4i_ss_cipher_poll(struct skcipher_request *areq)
 		spaces = readl(ss->base + SS_FCSR);
 		rx_cnt = SS_RXFIFO_SPACES(spaces);
 		tx_cnt = SS_TXFIFO_SPACES(spaces);
-<<<<<<< Updated upstream
-		dev_dbg(ss->dev,
-			"%x %u/%zu %u/%u cnt=%u %u/%zu %u/%u cnt=%u %u\n",
-			mode,
-			oi, mi.length, ileft, areq->cryptlen, rx_cnt,
-			oo, mo.length, oleft, areq->cryptlen, tx_cnt, ob);
-=======
->>>>>>> Stashed changes
 
 		if (!tx_cnt)
 			continue;
@@ -313,10 +289,7 @@ static int sun4i_ss_cipher_poll(struct skcipher_request *areq)
 		/* todo in 4bytes word */
 		todo = min(tx_cnt, oleft / 4);
 		todo = min_t(size_t, todo, (mo.length - oo) / 4);
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
 		if (todo) {
 			readsl(ss->base + SS_TXFIFO, mo.addr + oo, todo);
 			oleft -= todo * 4;

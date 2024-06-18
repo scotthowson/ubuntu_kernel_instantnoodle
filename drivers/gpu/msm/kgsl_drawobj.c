@@ -1,11 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2016-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2016-2021, The Linux Foundation. All rights reserved.
  * Copyright (c) 2022-2023, Qualcomm Innovation Center, Inc. All rights reserved.
->>>>>>> Stashed changes
  */
 
 /*
@@ -978,28 +974,9 @@ struct kgsl_drawobj_cmd *kgsl_drawobj_cmd_create(struct kgsl_device *device,
 
 	ret = drawobj_init(device, context, &cmdobj->base,
 		(type & (CMDOBJ_TYPE | MARKEROBJ_TYPE)));
-<<<<<<< Updated upstream
-
-	if (!IS_ERR(cmdobj)) {
-		/* sanitize our flags for drawobj's */
-		cmdobj->base.flags = flags & (KGSL_DRAWOBJ_CTX_SWITCH
-				| KGSL_DRAWOBJ_MARKER
-				| KGSL_DRAWOBJ_END_OF_FRAME
-				| KGSL_DRAWOBJ_PWR_CONSTRAINT
-				| KGSL_DRAWOBJ_MEMLIST
-				| KGSL_DRAWOBJ_PROFILING
-				| KGSL_DRAWOBJ_PROFILING_KTIME);
-
-		INIT_LIST_HEAD(&cmdobj->cmdlist);
-		INIT_LIST_HEAD(&cmdobj->memlist);
-
-		if (type & CMDOBJ_TYPE)
-			atomic_inc(&context->proc_priv->cmd_count);
-=======
 	if (ret) {
 		kmem_cache_free(cmd_cache, cmdobj);
 		return ERR_PTR(ret);
->>>>>>> Stashed changes
 	}
 
 	cmdobj->base.destroy = cmdobj_destroy;

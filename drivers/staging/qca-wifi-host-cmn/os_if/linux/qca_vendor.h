@@ -1,9 +1,5 @@
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2012-2020 The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -38,13 +34,10 @@
 
 #define QCA_NL80211_VENDOR_ID           0x001374
 
-<<<<<<< Updated upstream
-=======
 #ifndef BIT
 #define BIT(x) (1U << (x))
 #endif
 
->>>>>>> Stashed changes
 /**
  * enum qca_nl80211_vendor_subcmds: NL 80211 vendor sub command
  *
@@ -151,9 +144,6 @@
  * @QCA_NL80211_VENDOR_SUBCMD_GET_PREFERRED_FREQ_LIST: get preferred channel
 	list
  * @QCA_NL80211_VENDOR_SUBCMD_SET_PROBABLE_OPER_CHANNEL: channel hint
-<<<<<<< Updated upstream
- * @QCA_NL80211_VENDOR_SUBCMD_SETBAND: vendor setband command
-=======
  * @QCA_NL80211_VENDOR_SUBCMD_SETBAND: Command to configure the band
  *	to the host driver. This command sets the band through either
  *	the attribute QCA_WLAN_VENDOR_ATTR_SETBAND_VALUE or
@@ -168,7 +158,6 @@
  *	implementations configure using both the attributes, the configurations
  *	through QCA_WLAN_VENDOR_ATTR_SETBAND_MASK shall always take the
  *	precedence.
->>>>>>> Stashed changes
  * @QCA_NL80211_VENDOR_SUBCMD_TRIGGER_SCAN: venodr scan command
  * @QCA_NL80211_VENDOR_SUBCMD_SCAN_DONE: vendor scan complete
  * @QCA_NL80211_VENDOR_SUBCMD_ABORT_SCAN: vendor abort scan
@@ -402,8 +391,6 @@
  *	coex chain mode from application/service.
  *	The attributes defined in enum qca_vendor_attr_btc_chain_mode are used
  *	to deliver the parameters.
-<<<<<<< Updated upstream
-=======
  * @QCA_NL80211_VENDOR_SUBCMD_GET_STA_INFO: This vendor subcommand is used to
  *	get information of a station from driver to userspace. This command can
  *	be used in both STA and AP modes. For STA mode, it provides information
@@ -411,7 +398,6 @@
  *	association when in disconnected state. For AP mode, only information
  *	of the currently connected stations is available. This command uses
  *	attributes defined in enum qca_wlan_vendor_attr_get_sta_info.
->>>>>>> Stashed changes
  * @QCA_NL80211_VENDOR_SUBCMD_REQUEST_SAR_LIMITS_EVENT: This acts as an event.
  *	Host drivers can request the user space entity to set the SAR power
  *	limits with this event. Accordingly, the user space entity is expected
@@ -435,8 +421,6 @@
  *	code immediately prior to triggering cfg80211_disconnected(). The
  *	attributes used with this event are defined in enum
  *	qca_wlan_vendor_attr_driver_disconnect_reason.
-<<<<<<< Updated upstream
-=======
  *
  * @QCA_NL80211_VENDOR_SUBCMD_CONFIG_TWT: Vendor subcommand to configure TWT.
  *	Uses attributes defined in enum qca_wlan_vendor_attr_config_twt.
@@ -445,7 +429,6 @@
  *	the host driver. The band configurations obtained are referred through
  *	QCA_WLAN_VENDOR_ATTR_SETBAND_MASK.
  *
->>>>>>> Stashed changes
  */
 
 enum qca_nl80211_vendor_subcmds {
@@ -666,18 +649,12 @@ enum qca_nl80211_vendor_subcmds {
 	QCA_NL80211_VENDOR_SUBCMD_AVOID_FREQUENCY_EXT = 183,
 	QCA_NL80211_VENDOR_SUBCMD_ADD_STA_NODE = 184,
 	QCA_NL80211_VENDOR_SUBCMD_BTC_CHAIN_MODE = 185,
-<<<<<<< Updated upstream
-	QCA_NL80211_VENDOR_SUBCMD_GET_SAR_LIMITS_EVENT = 187,
-	QCA_NL80211_VENDOR_SUBCMD_UPDATE_STA_INFO = 188,
-	QCA_NL80211_VENDOR_SUBCMD_DRIVER_DISCONNECT_REASON = 189,
-=======
 	QCA_NL80211_VENDOR_SUBCMD_GET_STA_INFO = 186,
 	QCA_NL80211_VENDOR_SUBCMD_GET_SAR_LIMITS_EVENT = 187,
 	QCA_NL80211_VENDOR_SUBCMD_UPDATE_STA_INFO = 188,
 	QCA_NL80211_VENDOR_SUBCMD_DRIVER_DISCONNECT_REASON = 189,
 	QCA_NL80211_VENDOR_SUBCMD_CONFIG_TWT = 191,
 	QCA_NL80211_VENDOR_SUBCMD_GETBAND = 192,
->>>>>>> Stashed changes
 };
 
 enum qca_wlan_vendor_tos {
@@ -770,11 +747,8 @@ enum qca_wlan_vendor_hang_reason {
 	QCA_WLAN_HANG_REG_WRITE_FAILURE = 24,
 	/* No credit left to send the wow_wakeup_from_sleep to firmware */
 	QCA_WLAN_HANG_SUSPEND_NO_CREDIT = 25,
-<<<<<<< Updated upstream
-=======
 	/* Bus failure */
 	QCA_WLAN_HANG_BUS_FAILURE = 26,
->>>>>>> Stashed changes
 };
 
 /**
@@ -1396,9 +1370,6 @@ enum qca_wlan_vendor_attr {
 	QCA_WLAN_VENDOR_ATTR_MAX_CONCURRENT_CHANNELS_2_4_BAND = 10,
 	/* Unsigned 32-bit value */
 	QCA_WLAN_VENDOR_ATTR_MAX_CONCURRENT_CHANNELS_5_0_BAND = 11,
-<<<<<<< Updated upstream
-	/* Unsigned 32-bit value from enum qca_set_band. */
-=======
 	/* Unsigned 32-bit value from enum qca_set_band. Also, the acceptable
 	 * value for this attribute are only till QCA_SETBAND_2G. This attribute
 	 * is deprecated. Recommendation is to use
@@ -1406,7 +1377,6 @@ enum qca_wlan_vendor_attr {
 	 * using both the attributes, the ones configured through
 	 * QCA_WLAN_VENDOR_ATTR_SETBAND_MASK take the precedence.
 	 */
->>>>>>> Stashed changes
 	QCA_WLAN_VENDOR_ATTR_SETBAND_VALUE = 12,
 	/* Dummy (NOP) attribute for 64 bit padding */
 	QCA_WLAN_VENDOR_ATTR_PAD = 13,
@@ -1593,11 +1563,6 @@ enum qca_wlan_vendor_attr {
 	 */
 	QCA_WLAN_VENDOR_ATTR_FW_STATE = 42,
 
-<<<<<<< Updated upstream
-	/* keep last */
-	QCA_WLAN_VENDOR_ATTR_AFTER_LAST,
-		QCA_WLAN_VENDOR_ATTR_MAX = QCA_WLAN_VENDOR_ATTR_AFTER_LAST - 1
-=======
 	/* Unsigned 32-bitmask value from enum qca_set_band. Substitutes the
 	 * attribute QCA_WLAN_VENDOR_ATTR_SETBAND_VALUE for which only the
 	 * integer values of enum qca_set_band till QCA_SETBAND_2G are valid.
@@ -1610,7 +1575,6 @@ enum qca_wlan_vendor_attr {
 	/* keep last */
 	QCA_WLAN_VENDOR_ATTR_AFTER_LAST,
 	QCA_WLAN_VENDOR_ATTR_MAX = QCA_WLAN_VENDOR_ATTR_AFTER_LAST - 1
->>>>>>> Stashed changes
 };
 
 enum qca_wlan_vendor_attr_extscan_config_params {
@@ -2441,13 +2405,10 @@ enum qca_wlan_vendor_attr_ll_stats_results {
 	QCA_WLAN_VENDOR_ATTR_LL_STATS_IFACE_PPDU_SUCC_CNT = 81,
 	QCA_WLAN_VENDOR_ATTR_LL_STATS_IFACE_PPDU_FAIL_CNT = 82,
 
-<<<<<<< Updated upstream
-=======
 	/* u8 value representing the time slicing duty cycle percentage.
 	 * Possible values are 0-100.
 	 */
 	QCA_WLAN_VENDOR_ATTR_LL_STATS_IFACE_INFO_TS_DUTY_CYCLE = 87,
->>>>>>> Stashed changes
 	/* keep last */
 	QCA_WLAN_VENDOR_ATTR_LL_STATS_AFTER_LAST,
 	QCA_WLAN_VENDOR_ATTR_LL_STATS_MAX =
@@ -3789,13 +3750,10 @@ enum qca_wlan_vendor_attr_nd_offload {
  *	%QCA_WLAN_VENDOR_ATTR_THERMAL_LEVEL and
  *	%QCA_WLAN_VENDOR_ATTR_THERMAL_COMPLETION_WINDOW attributes from
  *	userspace.
-<<<<<<< Updated upstream
-=======
  * @QCA_WLAN_VENDOR_FEATURE_CONCURRENT_BAND_SESSIONS: Device supports
  *	concurrent network sessions on different Wi-Fi Bands. This feature
  *	capability is attributed to the hardware's capability to support
  *	the same (e.g., DBS).
->>>>>>> Stashed changes
  * @NUM_QCA_WLAN_VENDOR_FEATURES: Number of assigned feature bits
  */
 enum qca_wlan_vendor_features {
@@ -3811,10 +3769,7 @@ enum qca_wlan_vendor_features {
 	QCA_WLAN_VENDOR_FEATURE_11AX = 9,
 	QCA_WLAN_VENDOR_FEATURE_6GHZ_SUPPORT = 10,
 	QCA_WLAN_VENDOR_FEATURE_THERMAL_CONFIG = 11,
-<<<<<<< Updated upstream
-=======
 	QCA_WLAN_VENDOR_FEATURE_CONCURRENT_BAND_SESSIONS = 13,
->>>>>>> Stashed changes
 
 	NUM_QCA_WLAN_VENDOR_FEATURES /* keep last */
 };
@@ -4433,8 +4388,6 @@ enum qca_wlan_vendor_attr_config {
 	 */
 	QCA_WLAN_VENDOR_ATTR_CONFIG_NUM_RX_CHAINS = 74,
 
-<<<<<<< Updated upstream
-=======
 	/* 8-bit unsigned value. This attribute is used to dynamically configure
 	 * the number of spatial streams used for transmitting the data. When
 	 * configured in the disconnected state, the configured value will
@@ -4475,7 +4428,6 @@ enum qca_wlan_vendor_attr_config {
 	 */
 	QCA_WLAN_VENDOR_ATTR_CONFIG_RX_NSS = 78,
 
->>>>>>> Stashed changes
 	/* keep last */
 	QCA_WLAN_VENDOR_ATTR_CONFIG_AFTER_LAST,
 	QCA_WLAN_VENDOR_ATTR_CONFIG_MAX =
@@ -4939,16 +4891,10 @@ enum qca_wlan_vendor_attr_pcl_config {
 };
 
 enum qca_set_band {
-<<<<<<< Updated upstream
-	QCA_SETBAND_AUTO,
-	QCA_SETBAND_5G,
-	QCA_SETBAND_2G,
-=======
 	QCA_SETBAND_AUTO = 0,
 	QCA_SETBAND_5G = BIT(0),
 	QCA_SETBAND_2G = BIT(1),
 	QCA_SETBAND_6G = BIT(2),
->>>>>>> Stashed changes
 };
 
 /**
@@ -6701,8 +6647,6 @@ enum qca_wlan_vendor_acs_select_reason {
 
 /**
  * enum qca_wlan_gpio_attr - Parameters for GPIO configuration
-<<<<<<< Updated upstream
-=======
  *
  * @QCA_WLAN_VENDOR_ATTR_GPIO_PARAM_COMMAND: Required (u32)
  * value to specify the gpio command, please refer to enum qca_gpio_cmd_type
@@ -6763,22 +6707,10 @@ enum qca_wlan_vendor_acs_select_reason {
  * other parameters for the given GPIO will be obtained from internal
  * configuration. Only %QCA_WLAN_VENDOR_ATTR_GPIO_PARAM_PINNUM must be
  * specified to indicate the GPIO pin being configured.
->>>>>>> Stashed changes
  */
 enum qca_wlan_gpio_attr {
 	QCA_WLAN_VENDOR_ATTR_GPIO_PARAM_INVALID = 0,
 	/* Unsigned 32-bit attribute for GPIO command */
-<<<<<<< Updated upstream
-	QCA_WLAN_VENDOR_ATTR_GPIO_PARAM_COMMAND,
-	/* Unsigned 32-bit attribute for GPIO PIN number to configure */
-	QCA_WLAN_VENDOR_ATTR_GPIO_PARAM_PINNUM,
-	/* Unsigned 32-bit attribute for GPIO value to configure */
-	QCA_WLAN_VENDOR_ATTR_GPIO_PARAM_VALUE,
-	/* Unsigned 32-bit attribute for GPIO pull type */
-	QCA_WLAN_VENDOR_ATTR_GPIO_PARAM_PULL_TYPE,
-	/* Unsigned 32-bit attribute for GPIO interrupt mode */
-	QCA_WLAN_VENDOR_ATTR_GPIO_PARAM_INTR_MODE,
-=======
 	QCA_WLAN_VENDOR_ATTR_GPIO_PARAM_COMMAND = 1,
 	/* Unsigned 32-bit attribute for GPIO PIN number to configure */
 	QCA_WLAN_VENDOR_ATTR_GPIO_PARAM_PINNUM = 2,
@@ -6796,7 +6728,6 @@ enum qca_wlan_gpio_attr {
 	QCA_WLAN_VENDOR_ATTR_GPIO_PARAM_DRIVE = 8,
 	/* Flag attribute for using internal gpio configuration */
 	QCA_WLAN_VENDOR_ATTR_GPIO_PARAM_INTERNAL_CONFIG = 9,
->>>>>>> Stashed changes
 
 	/* keep last */
 	QCA_WLAN_VENDOR_ATTR_GPIO_PARAM_LAST,
@@ -6805,8 +6736,6 @@ enum qca_wlan_gpio_attr {
 };
 
 /**
-<<<<<<< Updated upstream
-=======
  * enum gpio_cmd_type - GPIO configuration command type
  * @QCA_WLAN_VENDOR_GPIO_CONFIG: set gpio configuration info
  * @QCA_WLAN_VENDOR_GPIO_OUTPUT: set gpio output level
@@ -6898,7 +6827,6 @@ enum qca_gpio_drive {
 };
 
 /**
->>>>>>> Stashed changes
  * qca_wlan_set_qdepth_thresh_attr - Parameters for setting
  * MSDUQ depth threshold per peer per tid in the target
  *
@@ -8019,12 +7947,6 @@ enum qca_wlan_vendor_attr_wifi_test_config {
 };
 
 /**
-<<<<<<< Updated upstream
- * enum qca_wlan_vendor_attr_twt_setup: Represents attributes for
- * TWT (Target Wake Time) setup request. These attributes are sent as part of
- * %QCA_WLAN_VENDOR_ATTR_WIFI_TEST_CONFIG_TWT_SETUP and
- * %QCA_NL80211_VENDOR_SUBCMD_WIFI_TEST_CONFIGURATION.
-=======
  * enum qca_wlan_twt_operation - Operation of the config TWT request
  * Values for %QCA_WLAN_VENDOR_ATTR_CONFIG_TWT_OPERATION.
  *
@@ -8085,7 +8007,6 @@ enum qca_wlan_vendor_attr_config_twt {
  * %QCA_WLAN_VENDOR_ATTR_WIFI_TEST_CONFIG_TWT_SETUP and
  * %QCA_NL80211_VENDOR_SUBCMD_WIFI_TEST_CONFIGURATION. Also used by
  * attributes through %QCA_NL80211_VENDOR_SUBCMD_CONFIG_TWT.
->>>>>>> Stashed changes
  *
  * @QCA_WLAN_VENDOR_ATTR_TWT_SETUP_BCAST: Flag attribute.
  * Disable (flag attribute not present) - Individual TWT
@@ -8164,12 +8085,8 @@ enum qca_wlan_vendor_attr_twt_setup {
  * enum qca_wlan_vendor_attr_twt_resume: Represents attributes for
  * TWT (Target Wake Time) resume request. These attributes are sent as part of
  * %QCA_WLAN_VENDOR_ATTR_WIFI_TEST_CONFIG_TWT_RESUME and
-<<<<<<< Updated upstream
- * %QCA_NL80211_VENDOR_SUBCMD_WIFI_TEST_CONFIGURATION.
-=======
  * %QCA_NL80211_VENDOR_SUBCMD_WIFI_TEST_CONFIGURATION. Also used by
  * attributes through %QCA_NL80211_VENDOR_SUBCMD_CONFIG_TWT.
->>>>>>> Stashed changes
  *
  * @QCA_WLAN_VENDOR_ATTR_TWT_RESUME_NEXT_TWT: Optional (u8)
  * This attribute is used as the SP offset which is the offset from
@@ -9139,8 +9056,6 @@ enum qca_vendor_attr_btc_chain_mode {
 };
 
 /**
-<<<<<<< Updated upstream
-=======
  * enum qca_vendor_wlan_sta_flags - Station feature flags
  * Bits will be set to 1 if the corresponding features are enabled.
  * @QCA_VENDOR_WLAN_STA_FLAG_AMPDU: AMPDU is enabled for the station
@@ -9446,7 +9361,6 @@ enum qca_wlan_vendor_attr_get_sta_info {
 };
 
 /**
->>>>>>> Stashed changes
  * enum qca_disconnect_reason_codes - Specifies driver disconnect reason codes.
  * Used when the driver triggers the STA to disconnect from the AP.
  *
@@ -9527,8 +9441,6 @@ enum qca_disconnect_reason_codes {
 };
 
 /**
-<<<<<<< Updated upstream
-=======
  * enum qca_sta_connect_fail_reason_codes - Defines values carried
  * by QCA_WLAN_VENDOR_ATTR_GET_STA_INFO_CONNECT_FAIL_REASON_CODE vendor
  * attribute.
@@ -9557,7 +9469,6 @@ enum qca_sta_connect_fail_reason_codes {
 };
 
 /**
->>>>>>> Stashed changes
  * enum qca_wlan_vendor_attr_driver_disconnect_reason - Defines attributes
  * used by %QCA_NL80211_VENDOR_SUBCMD_DRIVER_DISCONNECT_REASON vendor command.
  *

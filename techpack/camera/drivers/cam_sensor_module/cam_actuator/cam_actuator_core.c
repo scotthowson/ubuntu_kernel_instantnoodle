@@ -575,32 +575,6 @@ int32_t cam_actuator_i2c_pkt_parse(struct cam_actuator_ctrl_t *a_ctrl,
 				goto end;
 			}
 			a_ctrl->cam_act_state = CAM_ACTUATOR_CONFIG;
-<<<<<<< Updated upstream
-		}
-
-		{
-			if (!a_ctrl->is_actuator_ready) {
-				if (a_ctrl->poll_register.reg_addr || a_ctrl->poll_register.reg_data) {
-					ret = camera_io_dev_poll(
-						&(a_ctrl->io_master_info),
-						a_ctrl->poll_register.reg_addr,
-						a_ctrl->poll_register.reg_data,
-						a_ctrl->poll_register.data_mask,
-						a_ctrl->addr_type,
-						a_ctrl->data_type,
-						a_ctrl->poll_register.delay);
-					if (ret < 0) {
-						CAM_ERR(CAM_ACTUATOR,
-							"i2c poll apply setting Fail: %d, is_actuator_ready %d", ret, a_ctrl->is_actuator_ready);
-					} else {
-						CAM_DBG(CAM_ACTUATOR,
-							"is_actuator_ready %d, ret %d", a_ctrl->is_actuator_ready, ret);
-					}
-					a_ctrl->is_actuator_ready = true; //Just poll one time
-				}
-			}
-=======
->>>>>>> Stashed changes
 		}
 
 		rc = cam_actuator_apply_settings(a_ctrl,

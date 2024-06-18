@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2012-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #include <linux/delay.h>
@@ -3391,10 +3387,7 @@ static struct sk_buff *handle_skb_completion(struct gsi_chan_xfer_notify
 	if (notify->bytes_xfered)
 		rx_pkt->len = notify->bytes_xfered;
 
-<<<<<<< Updated upstream
-=======
 	/*Drop packets when WAN consumer channel receive EOB event*/
->>>>>>> Stashed changes
 	if ((notify->evt_id == GSI_CHAN_EVT_EOB ||
 		sys->skip_eot) &&
 		sys->ep->client == IPA_CLIENT_APPS_WAN_CONS) {
@@ -3514,19 +3507,6 @@ static struct sk_buff *handle_page_completion(struct gsi_chan_xfer_notify
 		sys->ep->client == IPA_CLIENT_APPS_LAN_CONS) {
 		rx_skb = alloc_skb(0, GFP_ATOMIC);
 		if (unlikely(!rx_skb)) {
-<<<<<<< Updated upstream
-			IPAERR("skb alloc failure\n");
-			list_del(&rx_pkt->link);
-			if (!rx_page.is_tmp_alloc) {
-				init_page_count(rx_page.page);
-			} else {
-				dma_unmap_page(ipa3_ctx->pdev, rx_page.dma_addr,
-					rx_pkt->len, DMA_FROM_DEVICE);
-				__free_pages(rx_pkt->page_data.page,
-							IPA_WAN_PAGE_ORDER);
-			}
-			rx_pkt->sys->free_rx_wrapper(rx_pkt);
-=======
 			IPAERR("skb alloc failure, free all pending pages\n");
 			list_for_each_entry_safe(rx_pkt, tmp, head, link) {
 				rx_page = rx_pkt->page_data;
@@ -3542,7 +3522,6 @@ static struct sk_buff *handle_page_completion(struct gsi_chan_xfer_notify
 				}
 				rx_pkt->sys->free_rx_wrapper(rx_pkt);
 			}
->>>>>>> Stashed changes
 			IPA_STATS_INC_CNT(ipa3_ctx->stats.rx_page_drop_cnt);
 			return NULL;
 		}

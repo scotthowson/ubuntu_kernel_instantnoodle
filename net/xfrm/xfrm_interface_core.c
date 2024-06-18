@@ -293,11 +293,7 @@ xfrmi_xmit2(struct sk_buff *skb, struct net_device *dev, struct flowi *fl)
 	}
 
 	mtu = dst_mtu(dst);
-<<<<<<< Updated upstream:net/xfrm/xfrm_interface.c
-	if (!skb->ignore_df && skb->len > mtu) {
-=======
 	if (skb->len > mtu) {
->>>>>>> Stashed changes:net/xfrm/xfrm_interface_core.c
 		skb_dst_update_pmtu_no_confirm(skb, mtu);
 
 		if (skb->protocol == htons(ETH_P_IPV6)) {
@@ -359,10 +355,7 @@ static netdev_tx_t xfrmi_xmit(struct sk_buff *skb, struct net_device *dev)
 	switch (skb->protocol) {
 	case htons(ETH_P_IPV6):
 		memset(IP6CB(skb), 0, sizeof(*IP6CB(skb)));
-<<<<<<< Updated upstream:net/xfrm/xfrm_interface.c
-=======
 		xfrm_decode_session(skb, &fl, AF_INET6);
->>>>>>> Stashed changes:net/xfrm/xfrm_interface_core.c
 		if (!dst) {
 			fl.u.ip6.flowi6_oif = dev->ifindex;
 			fl.u.ip6.flowi6_flags |= FLOWI_FLAG_ANYSRC;
@@ -377,10 +370,7 @@ static netdev_tx_t xfrmi_xmit(struct sk_buff *skb, struct net_device *dev)
 		break;
 	case htons(ETH_P_IP):
 		memset(IPCB(skb), 0, sizeof(*IPCB(skb)));
-<<<<<<< Updated upstream:net/xfrm/xfrm_interface.c
-=======
 		xfrm_decode_session(skb, &fl, AF_INET);
->>>>>>> Stashed changes:net/xfrm/xfrm_interface_core.c
 		if (!dst) {
 			struct rtable *rt;
 
@@ -675,23 +665,16 @@ static int xfrmi_newlink(struct net *src_net, struct net_device *dev,
 			struct netlink_ext_ack *extack)
 {
 	struct net *net = dev_net(dev);
-<<<<<<< Updated upstream:net/xfrm/xfrm_interface.c
-	struct xfrm_if_parms p;
-=======
 	struct xfrm_if_parms p = {};
->>>>>>> Stashed changes:net/xfrm/xfrm_interface_core.c
 	struct xfrm_if *xi;
 	int err;
 
 	xfrmi_netlink_parms(data, &p);
-<<<<<<< Updated upstream:net/xfrm/xfrm_interface.c
-=======
 	if (!p.if_id) {
 		NL_SET_ERR_MSG(extack, "if_id must be non zero");
 		return -EINVAL;
 	}
 
->>>>>>> Stashed changes:net/xfrm/xfrm_interface_core.c
 	xi = xfrmi_locate(net, &p);
 	if (xi)
 		return -EEXIST;
@@ -716,11 +699,6 @@ static int xfrmi_changelink(struct net_device *dev, struct nlattr *tb[],
 {
 	struct xfrm_if *xi = netdev_priv(dev);
 	struct net *net = xi->net;
-<<<<<<< Updated upstream:net/xfrm/xfrm_interface.c
-	struct xfrm_if_parms p;
-
-	xfrmi_netlink_parms(data, &p);
-=======
 	struct xfrm_if_parms p = {};
 
 	xfrmi_netlink_parms(data, &p);
@@ -729,7 +707,6 @@ static int xfrmi_changelink(struct net_device *dev, struct nlattr *tb[],
 		return -EINVAL;
 	}
 
->>>>>>> Stashed changes:net/xfrm/xfrm_interface_core.c
 	xi = xfrmi_locate(net, &p);
 	if (!xi) {
 		xi = netdev_priv(dev);

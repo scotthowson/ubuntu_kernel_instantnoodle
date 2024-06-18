@@ -165,14 +165,10 @@ static void pcie_set_clkpm_nocheck(struct pcie_link_state *link, int enable)
 
 static void pcie_set_clkpm(struct pcie_link_state *link, int enable)
 {
-<<<<<<< Updated upstream
-	/* Don't enable Clock PM if the link is not Clock PM capable */
-=======
 	/*
 	 * Don't enable Clock PM if the link is not Clock PM capable
 	 * or Clock PM is disabled
 	 */
->>>>>>> Stashed changes
 	if (!link->clkpm_capable || link->clkpm_disable)
 		enable = 0;
 	/* Need nothing if the specified equals to current state */

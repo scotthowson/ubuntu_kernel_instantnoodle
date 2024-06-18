@@ -841,13 +841,8 @@ struct dsi_ctrl_hw_ops {
 
 	/**
 	 * hw.ops.map_mdp_regs() - maps MDP interface line count registers.
-<<<<<<< Updated upstream
-	 * @pdev:       Pointer to platform device.
-	 * @ctrl:       Pointer to the controller host hardware.
-=======
 	 * @pdev:»       Pointer to platform device.
 	 * @ctrl:»       Pointer to the controller host hardware.
->>>>>>> Stashed changes
 	 */
 	int (*map_mdp_regs)(struct platform_device *pdev,
 			struct dsi_ctrl_hw *ctrl);
@@ -855,13 +850,8 @@ struct dsi_ctrl_hw_ops {
 	/**
 	 * hw.ops.log_line_count() - reads the MDP interface line count
 	 *							registers.
-<<<<<<< Updated upstream
-	 * @ctrl:       Pointer to the controller host hardware.
-	 * @cmd_mode:       Boolean to indicate command mode operation.
-=======
 	 * @ctrl:»       Pointer to the controller host hardware.
 	 * @cmd_mode:»       Boolean to indicate command mode operation.
->>>>>>> Stashed changes
 	 */
 	u32 (*log_line_count)(struct dsi_ctrl_hw *ctrl, bool cmd_mode);
 };

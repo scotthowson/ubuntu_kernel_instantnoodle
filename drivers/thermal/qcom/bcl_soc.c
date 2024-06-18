@@ -137,10 +137,6 @@ static int bcl_soc_probe(struct platform_device *pdev)
 	bcl_perph->ops.get_temp = bcl_read_soc;
 	bcl_perph->ops.set_trips = bcl_set_soc;
 	INIT_WORK(&bcl_perph->soc_eval_work, bcl_evaluate_soc);
-<<<<<<< Updated upstream
-	INIT_WORK(&bcl_perph->bcl_usb_work, bcl_usb_process);
-=======
->>>>>>> Stashed changes
 	bcl_perph->psy_nb.notifier_call = battery_supply_callback;
 	ret = power_supply_reg_notifier(&bcl_perph->psy_nb);
 	if (ret < 0) {

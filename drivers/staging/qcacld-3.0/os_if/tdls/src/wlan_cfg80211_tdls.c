@@ -711,8 +711,6 @@ int wlan_cfg80211_tdls_get_all_peers(struct wlan_objmgr_vdev *vdev,
 
 	tdls_priv = osif_priv->osif_tdls;
 
-<<<<<<< Updated upstream
-=======
 	/*
 	 * We shouldn't use completion_done here for checking for completion
 	 * as this will always return false, as tdls_user_cmd_comp.done will
@@ -736,7 +734,6 @@ int wlan_cfg80211_tdls_get_all_peers(struct wlan_objmgr_vdev *vdev,
 	}
 
 	tdls_priv->tdls_user_cmd_in_progress = true;
->>>>>>> Stashed changes
 	wlan_cfg80211_update_tdls_peers_rssi(vdev);
 
 	reinit_completion(&tdls_priv->tdls_user_cmd_comp);
@@ -766,10 +763,7 @@ int wlan_cfg80211_tdls_get_all_peers(struct wlan_objmgr_vdev *vdev,
 	len = tdls_priv->tdls_user_cmd_len;
 
 error_get_tdls_peers:
-<<<<<<< Updated upstream
-=======
 	tdls_priv->tdls_user_cmd_in_progress = false;
->>>>>>> Stashed changes
 	return len;
 }
 

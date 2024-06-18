@@ -1059,25 +1059,6 @@ static void dp_rx_fill_gro_info(struct dp_soc *soc, uint8_t *rx_tlv,
  *
  * @nbuf: pointer to msdu.
  * @mpdu_len: mpdu length
-<<<<<<< Updated upstream
- *
- * Return: returns true if nbuf is last msdu of mpdu else retuns false.
- */
-static inline bool dp_rx_adjust_nbuf_len(qdf_nbuf_t nbuf, uint16_t *mpdu_len)
-{
-	bool last_nbuf;
-
-	if (*mpdu_len > (RX_DATA_BUFFER_SIZE - RX_PKT_TLVS_LEN)) {
-		qdf_nbuf_set_pktlen(nbuf, RX_DATA_BUFFER_SIZE);
-		last_nbuf = false;
-	} else {
-		qdf_nbuf_set_pktlen(nbuf, (*mpdu_len + RX_PKT_TLVS_LEN));
-		last_nbuf = true;
-	}
-
-	*mpdu_len -= (RX_DATA_BUFFER_SIZE - RX_PKT_TLVS_LEN);
-
-=======
  * @l3_pad_len: L3 padding length by HW
  *
  * Return: returns true if nbuf is last msdu of mpdu else retuns false.
@@ -1101,15 +1082,10 @@ static inline bool dp_rx_adjust_nbuf_len(qdf_nbuf_t nbuf,
 		*mpdu_len = 0;
 	}
 
->>>>>>> Stashed changes
 	return last_nbuf;
 }
 
 /**
-<<<<<<< Updated upstream
- * dp_rx_sg_create() - create a frag_list for MSDUs which are spread across
- *		     multiple nbufs.
-=======
  * dp_get_l3_hdr_pad_len() - get L3 header padding length.
  *
  * @soc: DP soc handle
@@ -1144,7 +1120,6 @@ static inline uint32_t dp_get_l3_hdr_pad_len(struct dp_soc *soc,
  * dp_rx_sg_create() - create a frag_list for MSDUs which are spread across
  *		     multiple nbufs.
  * @soc: DP SOC handle
->>>>>>> Stashed changes
  * @nbuf: pointer to the first msdu of an amsdu.
  *
  * This function implements the creation of RX frag_list for cases
@@ -1152,20 +1127,13 @@ static inline uint32_t dp_get_l3_hdr_pad_len(struct dp_soc *soc,
  *
  * Return: returns the head nbuf which contains complete frag_list.
  */
-<<<<<<< Updated upstream
-qdf_nbuf_t dp_rx_sg_create(qdf_nbuf_t nbuf)
-=======
 qdf_nbuf_t dp_rx_sg_create(struct dp_soc *soc, qdf_nbuf_t nbuf)
->>>>>>> Stashed changes
 {
 	qdf_nbuf_t parent, frag_list, next = NULL;
 	uint16_t frag_list_len = 0;
 	uint16_t mpdu_len;
 	bool last_nbuf;
-<<<<<<< Updated upstream
-=======
 	uint32_t l3_hdr_pad_offset = 0;
->>>>>>> Stashed changes
 
 	/*
 	 * Use msdu len got from REO entry descriptor instead since
@@ -1173,10 +1141,7 @@ qdf_nbuf_t dp_rx_sg_create(struct dp_soc *soc, qdf_nbuf_t nbuf)
 	 * from REO descriptor is right for non-raw RX scatter msdu.
 	 */
 	mpdu_len = QDF_NBUF_CB_RX_PKT_LEN(nbuf);
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
 	/*
 	 * this is a case where the complete msdu fits in one single nbuf.
 	 * in this case HW sets both start and end bit and we only need to
@@ -1189,11 +1154,8 @@ qdf_nbuf_t dp_rx_sg_create(struct dp_soc *soc, qdf_nbuf_t nbuf)
 		return nbuf;
 	}
 
-<<<<<<< Updated upstream
-=======
 	l3_hdr_pad_offset = dp_get_l3_hdr_pad_len(soc, nbuf);
 
->>>>>>> Stashed changes
 	/*
 	 * This is a case where we have multiple msdus (A-MSDU) spread across
 	 * multiple nbufs. here we create a fraglist out of these nbufs.
@@ -1213,9 +1175,6 @@ qdf_nbuf_t dp_rx_sg_create(struct dp_soc *soc, qdf_nbuf_t nbuf)
 	 * nbufs will form the frag_list of the parent nbuf.
 	 */
 	qdf_nbuf_set_rx_chfrag_start(parent, 1);
-<<<<<<< Updated upstream
-	last_nbuf = dp_rx_adjust_nbuf_len(parent, &mpdu_len);
-=======
 	/*
 	 * L3 header padding is only needed for the 1st buffer
 	 * in a scattered msdu
@@ -1234,7 +1193,6 @@ qdf_nbuf_t dp_rx_sg_create(struct dp_soc *soc, qdf_nbuf_t nbuf)
 				   RX_PKT_TLVS_LEN + l3_hdr_pad_offset);
 		return parent;
 	}
->>>>>>> Stashed changes
 
 	/*
 	 * this is where we set the length of the fragments which are
@@ -1242,11 +1200,7 @@ qdf_nbuf_t dp_rx_sg_create(struct dp_soc *soc, qdf_nbuf_t nbuf)
 	 * till we hit the last_nbuf of the list.
 	 */
 	do {
-<<<<<<< Updated upstream
-		last_nbuf = dp_rx_adjust_nbuf_len(nbuf, &mpdu_len);
-=======
 		last_nbuf = dp_rx_adjust_nbuf_len(nbuf, &mpdu_len, 0);
->>>>>>> Stashed changes
 		qdf_nbuf_pull_head(nbuf, RX_PKT_TLVS_LEN);
 		frag_list_len += qdf_nbuf_len(nbuf);
 
@@ -1263,12 +1217,8 @@ qdf_nbuf_t dp_rx_sg_create(struct dp_soc *soc, qdf_nbuf_t nbuf)
 	qdf_nbuf_append_ext_list(parent, frag_list, frag_list_len);
 	parent->next = next;
 
-<<<<<<< Updated upstream
-	qdf_nbuf_pull_head(parent, RX_PKT_TLVS_LEN);
-=======
 	qdf_nbuf_pull_head(parent,
 			   RX_PKT_TLVS_LEN + l3_hdr_pad_offset);
->>>>>>> Stashed changes
 	return parent;
 }
 
@@ -2029,11 +1979,7 @@ dp_rx_ring_record_entry(struct dp_soc *soc, uint8_t ring_num,
 	struct hal_buf_info hbi;
 	uint32_t idx;
 
-<<<<<<< Updated upstream
-	if (qdf_unlikely(!&soc->rx_ring_history[ring_num]))
-=======
 	if (qdf_unlikely(!soc->rx_ring_history[ring_num]))
->>>>>>> Stashed changes
 		return;
 
 	hal_rx_reo_buf_paddr_get(ring_desc, &hbi);
@@ -2058,8 +2004,6 @@ dp_rx_ring_record_entry(struct dp_soc *soc, uint8_t ring_num,
 }
 #endif
 
-<<<<<<< Updated upstream
-=======
 #ifdef DISABLE_EAPOL_INTRABSS_FWD
 /*
  * dp_rx_intrabss_fwd_wrapper() - Wrapper API for intrabss fwd. For EAPOL
@@ -2099,7 +2043,6 @@ bool dp_rx_intrabss_fwd_wrapper(struct dp_soc *soc, struct dp_peer *ta_peer,
 		dp_rx_intrabss_fwd(soc, peer, rx_tlv_hdr, nbuf, msdu_metadata)
 #endif
 
->>>>>>> Stashed changes
 /**
  * dp_rx_process() - Brain of the Rx processing functionality
  *		     Called from the bottom half (tasklet/NET_RX_SOFTIRQ)
@@ -2381,12 +2324,9 @@ more_data:
 
 		qdf_nbuf_set_tid_val(rx_desc->nbuf,
 				     HAL_RX_REO_QUEUE_NUMBER_GET(ring_desc));
-<<<<<<< Updated upstream
-=======
 		qdf_nbuf_set_rx_reo_dest_ind(
 				rx_desc->nbuf,
 				HAL_RX_REO_MSDU_REO_DST_IND_GET(ring_desc));
->>>>>>> Stashed changes
 
 		QDF_NBUF_CB_RX_PKT_LEN(rx_desc->nbuf) = msdu_desc_info.msdu_len;
 
@@ -2468,10 +2408,6 @@ done:
 		}
 
 		/* Get TID from struct cb->tid_val, save to tid */
-<<<<<<< Updated upstream
-		if (qdf_nbuf_is_rx_chfrag_start(nbuf))
-			tid = qdf_nbuf_get_tid_val(nbuf);
-=======
 		if (qdf_nbuf_is_rx_chfrag_start(nbuf)) {
 			tid = qdf_nbuf_get_tid_val(nbuf);
 			if (tid >= CDP_MAX_DATA_TIDS) {
@@ -2481,7 +2417,6 @@ done:
 				continue;
 			}
 		}
->>>>>>> Stashed changes
 
 		peer_id =  QDF_NBUF_CB_RX_PEER_ID(nbuf);
 
@@ -2531,19 +2466,6 @@ done:
 		 * Check if DMA completed -- msdu_done is the last bit
 		 * to be written
 		 */
-<<<<<<< Updated upstream
-		if (qdf_unlikely(!qdf_nbuf_is_rx_chfrag_cont(nbuf) &&
-				 !hal_rx_attn_msdu_done_get(rx_tlv_hdr))) {
-			dp_err("MSDU DONE failure");
-			DP_STATS_INC(soc, rx.err.msdu_done_fail, 1);
-			hal_rx_dump_pkt_tlvs(hal_soc, rx_tlv_hdr,
-					     QDF_TRACE_LEVEL_INFO);
-			tid_stats->fail_cnt[MSDU_DONE_FAILURE]++;
-			qdf_nbuf_free(nbuf);
-			qdf_assert(0);
-			nbuf = next;
-			continue;
-=======
 		if (qdf_likely(!qdf_nbuf_is_rx_chfrag_cont(nbuf))) {
 			if (qdf_unlikely(!hal_rx_attn_msdu_done_get(
 								 rx_tlv_hdr))) {
@@ -2563,7 +2485,6 @@ done:
 				nbuf = next;
 				continue;
 			}
->>>>>>> Stashed changes
 		}
 
 		DP_HIST_PACKET_COUNT_INC(vdev->pdev->pdev_id);
@@ -2612,11 +2533,7 @@ done:
 			qdf_nbuf_pull_head(nbuf, RX_PKT_TLVS_LEN);
 		} else if (qdf_nbuf_is_rx_chfrag_cont(nbuf)) {
 			msdu_len = QDF_NBUF_CB_RX_PKT_LEN(nbuf);
-<<<<<<< Updated upstream
-			nbuf = dp_rx_sg_create(nbuf);
-=======
 			nbuf = dp_rx_sg_create(soc, nbuf);
->>>>>>> Stashed changes
 			next = nbuf->next;
 
 			if (qdf_nbuf_is_raw_frame(nbuf)) {
@@ -2677,8 +2594,6 @@ done:
 			continue;
 		}
 
-<<<<<<< Updated upstream
-=======
 		/*
 		 * Drop non-EAPOL frames from unauthorized peer.
 		 */
@@ -2696,7 +2611,6 @@ done:
 			}
 		}
 
->>>>>>> Stashed changes
 		if (soc->process_rx_status)
 			dp_rx_cksum_offload(vdev->pdev, nbuf, rx_tlv_hdr);
 
@@ -2760,11 +2674,7 @@ done:
 
 			/* Intrabss-fwd */
 			if (dp_rx_check_ap_bridge(vdev))
-<<<<<<< Updated upstream
-				if (dp_rx_intrabss_fwd(soc,
-=======
 				if (DP_RX_INTRABSS_FWD(soc,
->>>>>>> Stashed changes
 							peer,
 							rx_tlv_hdr,
 							nbuf,

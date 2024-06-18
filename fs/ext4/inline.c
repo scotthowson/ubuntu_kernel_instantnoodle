@@ -1433,16 +1433,12 @@ int htree_inlinedir_to_tree(struct file *dir_file,
 			}
 		}
 
-<<<<<<< Updated upstream
-		ext4fs_dirhash(dir, de->name, de->name_len, hinfo);
-=======
 		if (ext4_hash_in_dirent(dir)) {
 			hinfo->hash = EXT4_DIRENT_HASH(de);
 			hinfo->minor_hash = EXT4_DIRENT_MINOR_HASH(de);
 		} else {
 			ext4fs_dirhash(dir, de->name, de->name_len, hinfo);
 		}
->>>>>>> Stashed changes
 		if ((hinfo->hash < start_hash) ||
 		    ((hinfo->hash == start_hash) &&
 		     (hinfo->minor_hash < start_minor_hash)))

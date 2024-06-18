@@ -49,13 +49,8 @@ enum MHI_DEBUG_LEVEL  mhi_ipc_log_lvl = MHI_MSG_LVL_VERBOSE;
 
 #else
 
-<<<<<<< Updated upstream
-#define MHI_IPC_LOG_PAGES (100)
-#define MHI_CNTRL_LOG_PAGES (25)
-=======
 #define MHI_IPC_LOG_PAGES (10)
 #define MHI_CNTRL_LOG_PAGES (5)
->>>>>>> Stashed changes
 enum MHI_DEBUG_LEVEL  mhi_ipc_log_lvl = MHI_MSG_LVL_ERROR;
 
 #endif
@@ -459,12 +454,6 @@ int mhi_arch_pcie_init(struct mhi_controller *mhi_cntrl)
 		mhi_cntrl->log_buf = ipc_log_context_create(MHI_IPC_LOG_PAGES,
 							    node, 0);
 		mhi_cntrl->log_lvl = mhi_ipc_log_lvl;
-
-		snprintf(node, sizeof(node), "mhi_cntrl_%04x_%02u.%02u.%02u",
-			 mhi_cntrl->dev_id, mhi_cntrl->domain, mhi_cntrl->bus,
-			 mhi_cntrl->slot);
-		mhi_cntrl->cntrl_log_buf = ipc_log_context_create(
-						MHI_CNTRL_LOG_PAGES, node, 0);
 
 		snprintf(node, sizeof(node), "mhi_cntrl_%04x_%02u.%02u.%02u",
 			 mhi_cntrl->dev_id, mhi_cntrl->domain, mhi_cntrl->bus,

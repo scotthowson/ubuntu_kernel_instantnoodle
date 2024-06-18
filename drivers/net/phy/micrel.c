@@ -739,16 +739,12 @@ static int kszphy_resume(struct phy_device *phydev)
 
 	genphy_resume(phydev);
 
-<<<<<<< Updated upstream
-	usleep_range(1000, 2000);
-=======
 	/* After switching from power-down to normal mode, an internal global
 	 * reset is automatically generated. Wait a minimum of 1 ms before
 	 * read/write access to the PHY registers.
 	 */
 	usleep_range(1000, 2000);
 
->>>>>>> Stashed changes
 	ret = kszphy_config_reset(phydev);
 	if (ret)
 		return ret;

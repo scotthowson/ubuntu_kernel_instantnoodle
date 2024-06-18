@@ -1,10 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
-<<<<<<< Updated upstream
- * Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
-=======
  * Copyright (c) 2012-2021, The Linux Foundation. All rights reserved.
->>>>>>> Stashed changes
  */
 
 #ifndef _IPA3_I_H_
@@ -88,13 +84,10 @@
 #define IPA_MAX_NUM_REQ_CACHE 10
 
 #define NAPI_WEIGHT 64
-<<<<<<< Updated upstream
-=======
 
 /* Bit alignment for IPA4.5 GSI rings */
 #define IPA_LOW_16_BIT_MASK (0xFFFF)
 #define IPA4_5_GSI_RING_SIZE_ALIGN (16 * PAGE_SIZE)
->>>>>>> Stashed changes
 
 #define IPADBG(fmt, args...) \
 	do { \
@@ -1388,10 +1381,7 @@ struct ipa3_stats {
 	u32 flow_disable;
 	u32 tx_non_linear;
 	u32 rx_page_drop_cnt;
-<<<<<<< Updated upstream
-=======
 	u32 zero_len_frag_pkt_cnt;
->>>>>>> Stashed changes
 	struct ipa3_page_recycle_stats page_recycle_stats[2];
 };
 

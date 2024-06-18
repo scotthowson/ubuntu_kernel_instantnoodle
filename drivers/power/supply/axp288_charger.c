@@ -553,12 +553,6 @@ out:
 	return IRQ_HANDLED;
 }
 
-<<<<<<< Updated upstream
-static const struct dmi_system_id axp288_hp_x2_dmi_ids[] = {
-	{
-		.matches = {
-			DMI_MATCH(DMI_PRODUCT_NAME, "HP Pavilion x2 Detachable"),
-=======
 /*
  * The HP Pavilion x2 10 series comes in a number of variants:
  * Bay Trail SoC    + AXP288 PMIC, Micro-USB, DMI_BOARD_NAME: "8021"
@@ -603,7 +597,6 @@ static const struct dmi_system_id axp288_hp_x2_dmi_ids[] = {
 			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "HP"),
 			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "HP Pavilion x2 Detachable"),
 			DMI_EXACT_MATCH(DMI_BOARD_NAME, "813E"),
->>>>>>> Stashed changes
 		},
 	},
 	{} /* Terminating entry */
@@ -633,10 +626,7 @@ static void axp288_charger_extcon_evt_worker(struct work_struct *work)
 
 	/* Determine cable/charger type */
 	if (dmi_check_system(axp288_hp_x2_dmi_ids)) {
-<<<<<<< Updated upstream
-=======
 		/* See comment above axp288_hp_x2_dmi_ids declaration */
->>>>>>> Stashed changes
 		dev_dbg(&info->pdev->dev, "HP X2 with Type-C, setting inlmt to 3A\n");
 		current_limit = 3000000;
 	} else if (extcon_get_state(edev, EXTCON_CHG_USB_SDP) > 0) {
@@ -757,10 +747,7 @@ static int charger_init_hw_regs(struct axp288_chrg_info *info)
 	}
 
 	if (dmi_check_system(axp288_hp_x2_dmi_ids)) {
-<<<<<<< Updated upstream
-=======
 		/* See comment above axp288_hp_x2_dmi_ids declaration */
->>>>>>> Stashed changes
 		ret = axp288_charger_vbus_path_select(info, true);
 		if (ret < 0)
 			return ret;

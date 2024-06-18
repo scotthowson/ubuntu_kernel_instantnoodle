@@ -423,11 +423,6 @@ static void __intel_gpio_set_direction(void __iomem *padcfg0, bool input)
 	writel(value, padcfg0);
 }
 
-<<<<<<< Updated upstream
-static int intel_gpio_get_gpio_mode(void __iomem *padcfg0)
-{
-	return (readl(padcfg0) & PADCFG0_PMODE_MASK) >> PADCFG0_PMODE_SHIFT;
-=======
 static int __intel_gpio_get_gpio_mode(u32 value)
 {
 	return (value & PADCFG0_PMODE_MASK) >> PADCFG0_PMODE_SHIFT;
@@ -436,7 +431,6 @@ static int __intel_gpio_get_gpio_mode(u32 value)
 static int intel_gpio_get_gpio_mode(void __iomem *padcfg0)
 {
 	return __intel_gpio_get_gpio_mode(readl(padcfg0));
->>>>>>> Stashed changes
 }
 
 static void intel_gpio_set_gpio_mode(void __iomem *padcfg0)

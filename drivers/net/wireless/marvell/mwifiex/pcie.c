@@ -696,16 +696,9 @@ static int mwifiex_pcie_init_evt_ring(struct mwifiex_adapter *adapter)
 		skb_put(skb, MAX_EVENT_SIZE);
 
 		if (mwifiex_map_pci_memory(adapter, skb, MAX_EVENT_SIZE,
-<<<<<<< Updated upstream
-					   PCI_DMA_FROMDEVICE)) {
-			kfree_skb(skb);
-			kfree(card->evtbd_ring_vbase);
-			return -1;
-=======
 					   DMA_FROM_DEVICE)) {
 			kfree_skb(skb);
 			return -ENOMEM;
->>>>>>> Stashed changes
 		}
 
 		buf_pa = MWIFIEX_SKB_DMA_ADDR(skb);
@@ -1058,11 +1051,7 @@ static int mwifiex_pcie_alloc_cmdrsp_buf(struct mwifiex_adapter *adapter)
 	}
 	skb_put(skb, MWIFIEX_UPLD_SIZE);
 	if (mwifiex_map_pci_memory(adapter, skb, MWIFIEX_UPLD_SIZE,
-<<<<<<< Updated upstream
-				   PCI_DMA_FROMDEVICE)) {
-=======
 				   DMA_FROM_DEVICE)) {
->>>>>>> Stashed changes
 		kfree_skb(skb);
 		return -1;
 	}

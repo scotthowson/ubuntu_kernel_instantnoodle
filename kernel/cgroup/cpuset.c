@@ -22,6 +22,7 @@
  *  distribution for more details.
  */
 
+#include <linux/kthread.h>
 #include <linux/cpu.h>
 #include <linux/cpumask.h>
 #include <linux/cpuset.h>

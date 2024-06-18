@@ -1,7 +1,7 @@
 #ifndef _LINUX_PSI_TYPES_H
 #define _LINUX_PSI_TYPES_H
 
-#include <linux/kthread.h>
+#include <linux/kthread_work.h>  // Update this line to include the correct header
 #include <linux/seqlock.h>
 #include <linux/types.h>
 #include <linux/kref.h>

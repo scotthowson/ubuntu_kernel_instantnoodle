@@ -33,6 +33,8 @@ struct cnss_qmi_event_qdss_trace_save_data {
 #include "coexistence_service_v01.h"
 #include "ip_multimedia_subsystem_private_service_v01.h"
 
+int cnss_pow_ten(int n);
+int cnss_atoi(const char *numbers);
 int cnss_qmi_init(struct cnss_plat_data *plat_priv);
 void cnss_qmi_deinit(struct cnss_plat_data *plat_priv);
 unsigned int cnss_get_qmi_timeout(struct cnss_plat_data *plat_priv);
@@ -70,8 +72,6 @@ int coex_antenna_switch_to_mdm_send_sync_msg(struct cnss_plat_data *plat_priv);
 int cnss_wlfw_qdss_trace_mem_info_send_sync(struct cnss_plat_data *plat_priv);
 int cnss_register_ims_service(struct cnss_plat_data *plat_priv);
 void cnss_unregister_ims_service(struct cnss_plat_data *plat_priv);
-void cnss_ignore_qmi_failure(bool ignore);
-int cnss_wlfw_send_pcie_gen_speed_sync(struct cnss_plat_data *plat_priv);
 #else
 #define QMI_WLFW_TIMEOUT_MS		10000
 
@@ -225,10 +225,6 @@ int cnss_register_ims_service(struct cnss_plat_data *plat_priv)
 
 static inline
 void cnss_unregister_ims_service(struct cnss_plat_data *plat_priv) {}
-
-void cnss_ignore_qmi_failure(bool ignore) {};
-static inline
-int cnss_wlfw_send_pcie_gen_speed_sync(struct cnss_plat_data *plat_priv) {}
 
 #endif /* CONFIG_CNSS2_QMI */
 

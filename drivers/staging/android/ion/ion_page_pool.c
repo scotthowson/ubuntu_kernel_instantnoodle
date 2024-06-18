@@ -3,7 +3,6 @@
  * drivers/staging/android/ion/ion_mem_pool.c
  *
  * Copyright (C) 2011 Google, Inc.
- * Copyright (C) 2021 XiaoMi, Inc.
  */
 
 #include <linux/list.h>
@@ -71,6 +70,10 @@ static void ion_page_pool_free_pages(struct ion_page_pool *pool,
 static void ion_page_pool_add(struct ion_page_pool *pool, struct page *page)
 {
 	mutex_lock(&pool->mutex);
+#ifdef CONFIG_ONEPLUS_HEALTHINFO
+	zone_page_state_add(1L << pool->order, page_zone(page),
+			    NR_IONCACHE_PAGES);
+#endif
 	if (PageHighMem(page)) {
 		list_add_tail(&page->lru, &pool->high_items);
 		pool->high_count++;
@@ -121,6 +124,11 @@ static struct page *ion_page_pool_remove(struct ion_page_pool *pool, bool high)
 		page = list_first_entry(&pool->low_items, struct page, lru);
 		pool->low_count--;
 	}
+
+#ifdef CONFIG_ONEPLUS_HEALTHINFO
+	zone_page_state_add(-(1L << pool->order), page_zone(page),
+			    NR_IONCACHE_PAGES);
+#endif
 
 	atomic_dec(&pool->count);
 	list_del(&page->lru);
@@ -177,19 +185,6 @@ struct page *ion_page_pool_alloc_pool_only(struct ion_page_pool *pool)
 	if (!page)
 		return ERR_PTR(-ENOMEM);
 	return page;
-}
-
-void ion_page_pool_prealloc(struct ion_page_pool *pool, unsigned int reserve)
-{
-	unsigned int i;
-
-	for (i = 0; i < reserve; i++) {
-		struct page *page = ion_page_pool_alloc_pages(pool);
-
-		if (!page)
-			return;
-		ion_page_pool_add(pool, page);
-	}
 }
 
 void ion_page_pool_free(struct ion_page_pool *pool, struct page *page)

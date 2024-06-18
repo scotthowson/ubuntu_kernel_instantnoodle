@@ -55,13 +55,12 @@ enum print_reason {
 
 #define VBAT_TO_VRAW_ADC(v)		div_u64((u64)v * 1000000UL, 194637UL)
 
-#define ITERM_LIMITS_MA			5000
+#define ITERM_LIMITS_MA			10000
 #define ADC_CHG_ITERM_MASK		32767
 
 #define USBIN_25UA	25000
 #define USBIN_100UA     100000
 #define USBIN_150UA     150000
-#define USBIN_200UA     200000
 #define USBIN_300UA     300000
 #define USBIN_400UA     400000
 #define USBIN_500UA     500000
@@ -269,7 +268,6 @@ struct smb_charger {
 	struct votable		*chg_disable_votable;
 	struct votable		*pl_enable_votable_indirect;
 	struct votable		*icl_irq_disable_votable;
-	struct votable		*temp_change_irq_disable_votable;
 
 	/* work */
 	struct work_struct	bms_update_work;
@@ -472,7 +470,7 @@ int smblite_lib_get_irq_status(struct smb_charger *chg,
 				union power_supply_propval *val);
 int smblite_lib_set_prop_usb_type(struct smb_charger *chg,
 				const union power_supply_propval *val);
-void smblite_update_usb_desc(struct smb_charger *chg);
+
 int smblite_lib_init(struct smb_charger *chg);
 int smblite_lib_deinit(struct smb_charger *chg);
 #endif /* __SMBLITE_LIB_H */

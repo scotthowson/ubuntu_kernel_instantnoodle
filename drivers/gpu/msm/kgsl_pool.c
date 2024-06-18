@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
- * Copyright (c) 2016-2021, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2016-2020, The Linux Foundation. All rights reserved.
  */
 
 #include <asm/cacheflush.h>
@@ -107,7 +107,7 @@ kgsl_pool_size(struct kgsl_page_pool *kgsl_pool)
 }
 
 /* Returns the number of pages in all kgsl page pools */
-static int kgsl_pool_size_total(void)
+int kgsl_pool_size_total(void)
 {
 	int i;
 	int total = 0;
@@ -176,7 +176,9 @@ kgsl_pool_reduce(unsigned int target_pages, bool exit)
 		if (!pool->allocation_allowed && !exit)
 			continue;
 
-		nr_removed = total_pages - target_pages - pcount;
+		total_pages -= pcount;
+
+		nr_removed = total_pages - target_pages;
 		if (nr_removed <= 0)
 			return pcount;
 
@@ -255,8 +257,7 @@ static int kgsl_pool_get_retry_order(unsigned int order)
  * Return total page count on success and negative value on failure
  */
 int kgsl_pool_alloc_page(int *page_size, struct page **pages,
-			unsigned int pages_len, unsigned int *align,
-			struct kgsl_memdesc *memdesc)
+			unsigned int pages_len, unsigned int *align)
 {
 	int j;
 	int pcount = 0;
@@ -351,7 +352,7 @@ done:
 
 eagain:
 	*page_size = kgsl_get_page_size(size,
-			ilog2(size), memdesc);
+			ilog2(size));
 	*align = ilog2(*page_size);
 	return -EAGAIN;
 }
@@ -538,13 +539,11 @@ static void kgsl_of_get_mempools(struct device_node *parent)
 	}
 }
 
-void kgsl_init_page_pools(struct kgsl_device *device)
+void kgsl_init_page_pools(struct platform_device *pdev)
 {
-	if (device->flags & KGSL_FLAG_USE_SHMEM)
-		return;
 
 	/* Get GPU mempools data and configure pools */
-	kgsl_of_get_mempools(device->pdev->dev.of_node);
+	kgsl_of_get_mempools(pdev->dev.of_node);
 
 	/* Reserve the appropriate number of pages for each pool */
 	kgsl_pool_reserve_pages();

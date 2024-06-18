@@ -315,15 +315,6 @@ config QCOM_MEMORY_DUMP_V2
 	  of deadlocks or cpu hangs these dump regions are captured to
 	  give a snapshot of the system at the time of the crash.
 
-config MSM_DEBUG_LAR_UNLOCK
-	bool "MSM Debug LAR Unlock Support"
-	depends on QCOM_MEMORY_DUMP_V2
-	help
-	  This allows unlocking Core Debug lock to allow capture
-	  of upper 32 bits of program counter at the time of
-	  system crash. This is useful in getting correct crash
-	  location.
-
 config QCOM_SMEM_STATE
 	bool
 
@@ -416,7 +407,7 @@ config MSM_REMOTEQDSS
 	  /sys/class/remoteqdss.
 
 config MSM_TZ_SMMU
-	depends on ARCH_MSM8953 || ARCH_QCS405 || ARCH_MSM8917 || ARCH_MSM8937
+	depends on ARCH_MSM8953 || ARCH_QCS405
 	bool "Helper functions for SMMU configuration through TZ"
 	help
 	  Say 'Y' here for targets that need to call into TZ to configure
@@ -723,13 +714,6 @@ config QCOM_SMP2P_SLEEPSTATE
 	  notifications from the remote to prevent suspend on the local
 	  processor.
 
-config SMP2P_SLEEPSTATE_TIME
-	int "SMP2P Sleepstate Timeout"
-	default 200
-	depends on QCOM_SMP2P
-	help
-	  This option allows modifying smp2p sleepstate wakeup time.
-
 config QCOM_QDSS_BRIDGE
 	bool "Configure bridge driver for QTI/Qualcomm Technologies, Inc. MDM"
 	depends on MHI_BUS
@@ -822,13 +806,6 @@ config QTI_L2_REUSE
 	  to let the power collapsed cluster's L2 cache usage by the active
 	  cluster cpu. Use sysfs interface to control enabling this feature.
 
-config QCOM_DCC
-	bool "QCOM Data Capture and Compare engine support"
-	help
-	  This option enables driver for Data Capture and Compare engine. DCC
-	  driver provides interface to configure DCC block and read back
-	  captured data from DCC's internal SRAM.
-
 config QTI_RPM_STATS_LOG
 	bool "Qualcomm Technologies RPM Stats Driver"
 	depends on QCOM_RPMH || MSM_RPM_SMD
@@ -837,6 +814,14 @@ config QTI_RPM_STATS_LOG
 	  memory location. These messages provide statistical information about
 	  the low power modes that RPM enters. The drivers outputs the message
 	  via a sysfs node.
+
+config RPMH_MODEM_SLEEPINFO_BUFFER
+	bool 'modem sleepinfo backup support'
+	default y
+	help
+	  This option enables support for the function that make a buffer of
+	  modem subsystem sleep info.
+	  If unsure, say `N'.
 
 config QTI_DDR_STATS_LOG
 	tristate "Qualcomm Technologies Inc (QTI) DDR Stats Driver"
@@ -927,16 +912,6 @@ config QTI_CRYPTO_TZ
 	 performing hardware based file encryption. This means keys are
 	 programmed and managed through SCM calls to TZ where ICE driver
 	 will configure keys.
-
-config MSM_BAM_DMUX
-	bool "BAM Data Mux Driver"
-	depends on SPS
-	help
-	 Support Muxed Data Channels over BAM interface.
-	 BAM has a limited number of pipes.  This driver
-	 provides a means to support more logical channels
-	 via muxing than BAM could without muxing.
-
 endmenu
 
 config QCOM_HYP_CORE_CTL
@@ -986,5 +961,3 @@ config ICNSS_QMI
 	  handshake messages to WLAN FW, which includes hardware capabilities
 	  and configurations. It also send WLAN on/off control message to FW
 	  over QMI channel.
-
-source "drivers/soc/qcom/wcnss/Kconfig"

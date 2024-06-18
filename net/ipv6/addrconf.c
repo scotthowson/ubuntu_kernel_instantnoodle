@@ -1177,12 +1177,11 @@ check_cleanup_prefix_route(struct inet6_ifaddr *ifp, unsigned long *expires)
 }
 
 static void
-cleanup_prefix_route(struct inet6_ifaddr *ifp, unsigned long expires,
-		     bool del_rt, bool del_peer)
+cleanup_prefix_route(struct inet6_ifaddr *ifp, unsigned long expires, bool del_rt)
 {
 	struct fib6_info *f6i;
 
-	f6i = addrconf_get_prefix_route(del_peer ? &ifp->peer_addr : &ifp->addr,
+	f6i = addrconf_get_prefix_route(&ifp->addr,
 				       ifp->prefix_len,
 				       ifp->idev->dev,
 				       0, RTF_GATEWAY | RTF_DEFAULT);
@@ -1247,7 +1246,7 @@ static void ipv6_del_addr(struct inet6_ifaddr *ifp)
 
 	if (action != CLEANUP_PREFIX_RT_NOP) {
 		cleanup_prefix_route(ifp, expires,
-			action == CLEANUP_PREFIX_RT_DEL, false);
+			action == CLEANUP_PREFIX_RT_DEL);
 	}
 
 	/* clean up prefsrc entries */
@@ -2426,9 +2425,8 @@ static void addrconf_add_mroute(struct net_device *dev)
 		.fc_ifindex = dev->ifindex,
 		.fc_dst_len = 8,
 		.fc_flags = RTF_UP,
-		.fc_type = RTN_MULTICAST,
+		.fc_type = RTN_UNICAST,
 		.fc_nlinfo.nl_net = dev_net(dev),
-		.fc_protocol = RTPROT_KERNEL,
 	};
 
 	ipv6_addr_set(&cfg.fc_dst, htonl(0xFF000000), 0, 0, 0);
@@ -3085,9 +3083,6 @@ static void sit_add_v4_addrs(struct inet6_dev *idev)
 	memcpy(&addr.s6_addr32[3], idev->dev->dev_addr, 4);
 
 	if (idev->dev->flags&IFF_POINTOPOINT) {
-		if (idev->cnf.addr_gen_mode == IN6_ADDR_GEN_MODE_NONE)
-			return;
-
 		addr.s6_addr32[0] = htonl(0xfe800000);
 		scope = IFA_LINK;
 		plen = 64;
@@ -3276,10 +3271,6 @@ static void addrconf_addr_gen(struct inet6_dev *idev, bool prefix_route)
 	if (netif_is_l3_master(idev->dev))
 		return;
 
-	/* no link local addresses on devices flagged as slaves */
-	if (idev->dev->flags & IFF_SLAVE)
-		return;
-
 	ipv6_addr_set(&addr, htonl(0xFE800000), 0, 0, 0);
 
 	switch (idev->cnf.addr_gen_mode) {
@@ -3331,10 +3322,6 @@ static void addrconf_dev_config(struct net_device *dev)
 	    (dev->type != ARPHRD_NONE) &&
 	    (dev->type != ARPHRD_RAWIP)) {
 		/* Alas, we support only Ethernet autoconfiguration. */
-		idev = __in6_dev_get(dev);
-		if (!IS_ERR_OR_NULL(idev) && dev->flags & IFF_UP &&
-		    dev->flags & IFF_MULTICAST)
-			ipv6_mc_up(idev);
 		return;
 	}
 
@@ -4575,13 +4562,12 @@ inet6_rtm_deladdr(struct sk_buff *skb, struct nlmsghdr *nlh,
 }
 
 static int modify_prefix_route(struct inet6_ifaddr *ifp,
-			       unsigned long expires, u32 flags,
-			       bool modify_peer)
+			       unsigned long expires, u32 flags)
 {
 	struct fib6_info *f6i;
 	u32 prio;
 
-	f6i = addrconf_get_prefix_route(modify_peer ? &ifp->peer_addr : &ifp->addr,
+	f6i = addrconf_get_prefix_route(&ifp->addr,
 					ifp->prefix_len,
 					ifp->idev->dev,
 					0, RTF_GATEWAY | RTF_DEFAULT);
@@ -4594,8 +4580,7 @@ static int modify_prefix_route(struct inet6_ifaddr *ifp,
 		ip6_del_rt(dev_net(ifp->idev->dev), f6i);
 
 		/* add new one */
-		addrconf_prefix_route(modify_peer ? &ifp->peer_addr : &ifp->addr,
-				      ifp->prefix_len,
+		addrconf_prefix_route(&ifp->addr, ifp->prefix_len,
 				      ifp->rt_priority, ifp->idev->dev,
 				      expires, flags, GFP_KERNEL);
 	} else {
@@ -4617,7 +4602,6 @@ static int inet6_addr_modify(struct inet6_ifaddr *ifp, struct ifa6_config *cfg)
 	unsigned long timeout;
 	bool was_managetempaddr;
 	bool had_prefixroute;
-	bool new_peer = false;
 
 	ASSERT_RTNL();
 
@@ -4649,13 +4633,6 @@ static int inet6_addr_modify(struct inet6_ifaddr *ifp, struct ifa6_config *cfg)
 		cfg->preferred_lft = timeout;
 	}
 
-	if (cfg->peer_pfx &&
-	    memcmp(&ifp->peer_addr, cfg->peer_pfx, sizeof(struct in6_addr))) {
-		if (!ipv6_addr_any(&ifp->peer_addr))
-			cleanup_prefix_route(ifp, expires, true, true);
-		new_peer = true;
-	}
-
 	spin_lock_bh(&ifp->lock);
 	was_managetempaddr = ifp->flags & IFA_F_MANAGETEMPADDR;
 	had_prefixroute = ifp->flags & IFA_F_PERMANENT &&
@@ -4671,9 +4648,6 @@ static int inet6_addr_modify(struct inet6_ifaddr *ifp, struct ifa6_config *cfg)
 	if (cfg->rt_priority && cfg->rt_priority != ifp->rt_priority)
 		ifp->rt_priority = cfg->rt_priority;
 
-	if (new_peer)
-		ifp->peer_addr = *cfg->peer_pfx;
-
 	spin_unlock_bh(&ifp->lock);
 	if (!(ifp->flags&IFA_F_TENTATIVE))
 		ipv6_ifa_notify(0, ifp);
@@ -4682,20 +4656,11 @@ static int inet6_addr_modify(struct inet6_ifaddr *ifp, struct ifa6_config *cfg)
 		int rc = -ENOENT;
 
 		if (had_prefixroute)
-			rc = modify_prefix_route(ifp, expires, flags, false);
+			rc = modify_prefix_route(ifp, expires, flags);
 
 		/* prefix route could have been deleted; if so restore it */
 		if (rc == -ENOENT) {
 			addrconf_prefix_route(&ifp->addr, ifp->prefix_len,
-					      ifp->rt_priority, ifp->idev->dev,
-					      expires, flags, GFP_KERNEL);
-		}
-
-		if (had_prefixroute && !ipv6_addr_any(&ifp->peer_addr))
-			rc = modify_prefix_route(ifp, expires, flags, true);
-
-		if (rc == -ENOENT && !ipv6_addr_any(&ifp->peer_addr)) {
-			addrconf_prefix_route(&ifp->peer_addr, ifp->prefix_len,
 					      ifp->rt_priority, ifp->idev->dev,
 					      expires, flags, GFP_KERNEL);
 		}
@@ -4709,7 +4674,7 @@ static int inet6_addr_modify(struct inet6_ifaddr *ifp, struct ifa6_config *cfg)
 
 		if (action != CLEANUP_PREFIX_RT_NOP) {
 			cleanup_prefix_route(ifp, rt_expires,
-				action == CLEANUP_PREFIX_RT_DEL, false);
+				action == CLEANUP_PREFIX_RT_DEL);
 		}
 	}
 
@@ -5769,9 +5734,9 @@ static void __ipv6_ifa_notify(int event, struct inet6_ifaddr *ifp)
 		if (ifp->idev->cnf.forwarding)
 			addrconf_join_anycast(ifp);
 		if (!ipv6_addr_any(&ifp->peer_addr))
-			addrconf_prefix_route(&ifp->peer_addr, 128,
-					      ifp->rt_priority, ifp->idev->dev,
-					      0, 0, GFP_ATOMIC);
+			addrconf_prefix_route(&ifp->peer_addr, 128, 0,
+					      ifp->idev->dev, 0, 0,
+					      GFP_ATOMIC);
 		break;
 	case RTM_DELADDR:
 		if (ifp->idev->cnf.forwarding)

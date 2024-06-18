@@ -137,7 +137,6 @@ void i40e_vc_notify_vf_reset(struct i40e_vf *vf)
  **/
 static inline void i40e_vc_disable_vf(struct i40e_vf *vf)
 {
-	struct i40e_pf *pf = vf->pf;
 	int i;
 
 	i40e_vc_notify_vf_reset(vf);
@@ -148,11 +147,6 @@ static inline void i40e_vc_disable_vf(struct i40e_vf *vf)
 	 * ensure a reset.
 	 */
 	for (i = 0; i < 20; i++) {
-		/* If PF is in VFs releasing state reset VF is impossible,
-		 * so leave it.
-		 */
-		if (test_bit(__I40E_VFS_RELEASING, pf->state))
-			return;
 		if (i40e_reset_vf(vf, false))
 			return;
 		usleep_range(10000, 20000);
@@ -187,7 +181,7 @@ static inline bool i40e_vc_isvalid_vsi_id(struct i40e_vf *vf, u16 vsi_id)
  * check for the valid queue id
  **/
 static inline bool i40e_vc_isvalid_queue_id(struct i40e_vf *vf, u16 vsi_id,
-					    u16 qid)
+					    u8 qid)
 {
 	struct i40e_pf *pf = vf->pf;
 	struct i40e_vsi *vsi = i40e_find_vsi_from_id(pf, vsi_id);
@@ -202,7 +196,7 @@ static inline bool i40e_vc_isvalid_queue_id(struct i40e_vf *vf, u16 vsi_id,
  *
  * check for the valid vector id
  **/
-static inline bool i40e_vc_isvalid_vector_id(struct i40e_vf *vf, u32 vector_id)
+static inline bool i40e_vc_isvalid_vector_id(struct i40e_vf *vf, u8 vector_id)
 {
 	struct i40e_pf *pf = vf->pf;
 
@@ -447,28 +441,14 @@ static int i40e_config_iwarp_qvlist(struct i40e_vf *vf,
 	u32 v_idx, i, reg_idx, reg;
 	u32 next_q_idx, next_q_type;
 	u32 msix_vf, size;
-	int ret = 0;
-
-	msix_vf = pf->hw.func_caps.num_msix_vectors_vf;
-
-	if (qvlist_info->num_vectors > msix_vf) {
-		dev_warn(&pf->pdev->dev,
-			 "Incorrect number of iwarp vectors %u. Maximum %u allowed.\n",
-			 qvlist_info->num_vectors,
-			 msix_vf);
-		ret = -EINVAL;
-		goto err_out;
-	}
 
 	size = sizeof(struct virtchnl_iwarp_qvlist_info) +
 	       (sizeof(struct virtchnl_iwarp_qv_info) *
 						(qvlist_info->num_vectors - 1));
-	kfree(vf->qvlist_info);
 	vf->qvlist_info = kzalloc(size, GFP_KERNEL);
-	if (!vf->qvlist_info) {
-		ret = -ENOMEM;
-		goto err_out;
-	}
+	if (!vf->qvlist_info)
+		return -ENOMEM;
+
 	vf->qvlist_info->num_vectors = qvlist_info->num_vectors;
 
 	msix_vf = pf->hw.func_caps.num_msix_vectors_vf;
@@ -479,10 +459,8 @@ static int i40e_config_iwarp_qvlist(struct i40e_vf *vf,
 		v_idx = qv_info->v_idx;
 
 		/* Validate vector id belongs to this vf */
-		if (!i40e_vc_isvalid_vector_id(vf, v_idx)) {
-			ret = -EINVAL;
-			goto err_free;
-		}
+		if (!i40e_vc_isvalid_vector_id(vf, v_idx))
+			goto err;
 
 		vf->qvlist_info->qv_info[i] = *qv_info;
 
@@ -524,11 +502,10 @@ static int i40e_config_iwarp_qvlist(struct i40e_vf *vf,
 	}
 
 	return 0;
-err_free:
+err:
 	kfree(vf->qvlist_info);
 	vf->qvlist_info = NULL;
-err_out:
-	return ret;
+	return -EINVAL;
 }
 
 /**
@@ -621,12 +598,13 @@ static int i40e_config_vsi_rx_queue(struct i40e_vf *vf, u16 vsi_id,
 				    u16 vsi_queue_id,
 				    struct virtchnl_rxq_info *info)
 {
-	u16 pf_queue_id = i40e_vc_get_pf_queue_id(vf, vsi_id, vsi_queue_id);
 	struct i40e_pf *pf = vf->pf;
-	struct i40e_vsi *vsi = pf->vsi[vf->lan_vsi_idx];
 	struct i40e_hw *hw = &pf->hw;
 	struct i40e_hmc_obj_rxq rx_ctx;
+	u16 pf_queue_id;
 	int ret = 0;
+
+	pf_queue_id = i40e_vc_get_pf_queue_id(vf, vsi_id, vsi_queue_id);
 
 	/* clear the context structure first */
 	memset(&rx_ctx, 0, sizeof(struct i40e_hmc_obj_rxq));
@@ -664,10 +642,6 @@ static int i40e_config_vsi_rx_queue(struct i40e_vf *vf, u16 vsi_id,
 		goto error_param;
 	}
 	rx_ctx.rxmax = info->max_pkt_size;
-
-	/* if port VLAN is configured increase the max packet size */
-	if (vsi->info.pvid)
-		rx_ctx.rxmax += VLAN_HLEN;
 
 	/* enable 32bytes desc always */
 	rx_ctx.dsize = 1;
@@ -1213,8 +1187,7 @@ static void i40e_cleanup_reset_vf(struct i40e_vf *vf)
  * @vf: pointer to the VF structure
  * @flr: VFLR was issued or not
  *
- * Returns true if the VF is in reset, resets successfully, or resets
- * are disabled and false otherwise.
+ * Returns true if the VF is reset, false otherwise.
  **/
 bool i40e_reset_vf(struct i40e_vf *vf, bool flr)
 {
@@ -1224,14 +1197,11 @@ bool i40e_reset_vf(struct i40e_vf *vf, bool flr)
 	u32 reg;
 	int i;
 
-	if (test_bit(__I40E_VF_RESETS_DISABLED, pf->state))
-		return true;
-
 	/* If the VFs have been disabled, this means something else is
 	 * resetting the VF, so we shouldn't continue.
 	 */
 	if (test_and_set_bit(__I40E_VF_DISABLE, pf->state))
-		return true;
+		return false;
 
 	i40e_trigger_vf_reset(vf, flr);
 
@@ -1390,21 +1360,10 @@ void i40e_free_vfs(struct i40e_pf *pf)
 
 	if (!pf->vf)
 		return;
-
-	set_bit(__I40E_VFS_RELEASING, pf->state);
 	while (test_and_set_bit(__I40E_VF_DISABLE, pf->state))
 		usleep_range(1000, 2000);
 
 	i40e_notify_client_of_vf_enable(pf, 0);
-
-	/* Disable IOV before freeing resources. This lets any VF drivers
-	 * running in the host get themselves cleaned up before we yank
-	 * the carpet out from underneath their feet.
-	 */
-	if (!pci_vfs_assigned(pf->pdev))
-		pci_disable_sriov(pf->pdev);
-	else
-		dev_warn(&pf->pdev->dev, "VFs are assigned - not disabling SR-IOV\n");
 
 	/* Amortize wait time by stopping all VFs at the same time */
 	for (i = 0; i < pf->num_alloc_vfs; i++) {
@@ -1420,6 +1379,15 @@ void i40e_free_vfs(struct i40e_pf *pf)
 
 		i40e_vsi_wait_queues_disabled(pf->vsi[pf->vf[i].lan_vsi_idx]);
 	}
+
+	/* Disable IOV before freeing resources. This lets any VF drivers
+	 * running in the host get themselves cleaned up before we yank
+	 * the carpet out from underneath their feet.
+	 */
+	if (!pci_vfs_assigned(pf->pdev))
+		pci_disable_sriov(pf->pdev);
+	else
+		dev_warn(&pf->pdev->dev, "VFs are assigned - not disabling SR-IOV\n");
 
 	/* free up VF resources */
 	tmp = pf->num_alloc_vfs;
@@ -1449,7 +1417,6 @@ void i40e_free_vfs(struct i40e_pf *pf)
 		}
 	}
 	clear_bit(__I40E_VF_DISABLE, pf->state);
-	clear_bit(__I40E_VFS_RELEASING, pf->state);
 }
 
 #ifdef CONFIG_PCI_IOV
@@ -1579,7 +1546,7 @@ int i40e_pci_sriov_configure(struct pci_dev *pdev, int num_vfs)
 	if (num_vfs) {
 		if (!(pf->flags & I40E_FLAG_VEB_MODE_ENABLED)) {
 			pf->flags |= I40E_FLAG_VEB_MODE_ENABLED;
-			i40e_do_reset_safe(pf, I40E_PF_RESET_AND_REBUILD_FLAG);
+			i40e_do_reset_safe(pf, I40E_PF_RESET_FLAG);
 		}
 		return i40e_pci_sriov_enable(pdev, num_vfs);
 	}
@@ -1587,7 +1554,7 @@ int i40e_pci_sriov_configure(struct pci_dev *pdev, int num_vfs)
 	if (!pci_vfs_assigned(pf->pdev)) {
 		i40e_free_vfs(pf);
 		pf->flags &= ~I40E_FLAG_VEB_MODE_ENABLED;
-		i40e_do_reset_safe(pf, I40E_PF_RESET_AND_REBUILD_FLAG);
+		i40e_do_reset_safe(pf, I40E_PF_RESET_FLAG);
 	} else {
 		dev_warn(&pdev->dev, "Unable to free VFs because some are assigned to VMs.\n");
 		return -EINVAL;
@@ -3368,7 +3335,7 @@ static int i40e_vc_add_cloud_filter(struct i40e_vf *vf, u8 *msg)
 
 	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states)) {
 		aq_ret = I40E_ERR_PARAM;
-		goto err_out;
+		goto err;
 	}
 
 	if (!vf->adq_enabled) {
@@ -3376,15 +3343,15 @@ static int i40e_vc_add_cloud_filter(struct i40e_vf *vf, u8 *msg)
 			 "VF %d: ADq is not enabled, can't apply cloud filter\n",
 			 vf->vf_id);
 		aq_ret = I40E_ERR_PARAM;
-		goto err_out;
+		goto err;
 	}
 
 	if (i40e_validate_cloud_filter(vf, vcf)) {
 		dev_info(&pf->pdev->dev,
 			 "VF %d: Invalid input/s, can't apply cloud filter\n",
 			 vf->vf_id);
-		aq_ret = I40E_ERR_PARAM;
-		goto err_out;
+			aq_ret = I40E_ERR_PARAM;
+			goto err;
 	}
 
 	cfilter = kzalloc(sizeof(*cfilter), GFP_KERNEL);
@@ -3445,17 +3412,13 @@ static int i40e_vc_add_cloud_filter(struct i40e_vf *vf, u8 *msg)
 			"VF %d: Failed to add cloud filter, err %s aq_err %s\n",
 			vf->vf_id, i40e_stat_str(&pf->hw, ret),
 			i40e_aq_str(&pf->hw, pf->hw.aq.asq_last_status));
-		goto err_free;
+		goto err;
 	}
 
 	INIT_HLIST_NODE(&cfilter->cloud_node);
 	hlist_add_head(&cfilter->cloud_node, &vf->cloud_filter_list);
-	/* release the pointer passing it to the collection */
-	cfilter = NULL;
 	vf->num_cloud_filters++;
-err_free:
-	kfree(cfilter);
-err_out:
+err:
 	return i40e_vc_send_resp_to_vf(vf, VIRTCHNL_OP_ADD_CLOUD_FILTER,
 				       aq_ret);
 }
@@ -3931,6 +3894,34 @@ error_param:
 }
 
 /**
+ * i40e_vsi_has_vlans - True if VSI has configured VLANs
+ * @vsi: pointer to the vsi
+ *
+ * Check if a VSI has configured any VLANs. False if we have a port VLAN or if
+ * we have no configured VLANs. Do not call while holding the
+ * mac_filter_hash_lock.
+ */
+static bool i40e_vsi_has_vlans(struct i40e_vsi *vsi)
+{
+	bool have_vlans;
+
+	/* If we have a port VLAN, then the VSI cannot have any VLANs
+	 * configured, as all MAC/VLAN filters will be assigned to the PVID.
+	 */
+	if (vsi->info.pvid)
+		return false;
+
+	/* Since we don't have a PVID, we know that if the device is in VLAN
+	 * mode it must be because of a VLAN filter configured on this VSI.
+	 */
+	spin_lock_bh(&vsi->mac_filter_hash_lock);
+	have_vlans = i40e_is_vsi_in_vlan(vsi);
+	spin_unlock_bh(&vsi->mac_filter_hash_lock);
+
+	return have_vlans;
+}
+
+/**
  * i40e_ndo_set_vf_port_vlan
  * @netdev: network interface device structure
  * @vf_id: VF identifier
@@ -3982,9 +3973,19 @@ int i40e_ndo_set_vf_port_vlan(struct net_device *netdev, int vf_id,
 		/* duplicate request, so just return success */
 		goto error_pvid;
 
-	i40e_vc_disable_vf(vf);
-	/* During reset the VF got a new VSI, so refresh a pointer. */
-	vsi = pf->vsi[vf->lan_vsi_idx];
+	if (i40e_vsi_has_vlans(vsi)) {
+		dev_err(&pf->pdev->dev,
+			"VF %d has already configured VLAN filters and the administrator is requesting a port VLAN override.\nPlease unload and reload the VF driver for this change to take effect.\n",
+			vf_id);
+		/* Administrator Error - knock the VF offline until he does
+		 * the right thing by reconfiguring his network correctly
+		 * and then reloading the VF driver.
+		 */
+		i40e_vc_disable_vf(vf);
+		/* During reset the VF got a new VSI, so refresh the pointer. */
+		vsi = pf->vsi[vf->lan_vsi_idx];
+	}
+
 	/* Locked once because multiple functions below iterate list */
 	spin_lock_bh(&vsi->mac_filter_hash_lock);
 

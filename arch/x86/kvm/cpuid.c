@@ -509,8 +509,7 @@ static inline int __do_cpuid_ent(struct kvm_cpuid_entry2 *entry, u32 function,
 				entry->edx |= F(SPEC_CTRL);
 			if (boot_cpu_has(X86_FEATURE_STIBP))
 				entry->edx |= F(INTEL_STIBP);
-			if (boot_cpu_has(X86_FEATURE_SPEC_CTRL_SSBD) ||
-			    boot_cpu_has(X86_FEATURE_AMD_SSBD))
+			if (boot_cpu_has(X86_FEATURE_SSBD))
 				entry->edx |= F(SPEC_CTRL_SSBD);
 			/*
 			 * We emulate ARCH_CAPABILITIES in software even
@@ -666,14 +665,8 @@ static inline int __do_cpuid_ent(struct kvm_cpuid_entry2 *entry, u32 function,
 		unsigned virt_as = max((entry->eax >> 8) & 0xff, 48U);
 		unsigned phys_as = entry->eax & 0xff;
 
-		/*
-		 * Use bare metal's MAXPHADDR if the CPU doesn't report guest
-		 * MAXPHYADDR separately, or if TDP (NPT) is disabled, as the
-		 * guest version "applies only to guests using nested paging".
-		 */
-		if (!g_phys_as || !tdp_enabled)
+		if (!g_phys_as)
 			g_phys_as = phys_as;
-
 		entry->eax = g_phys_as | (virt_as << 8);
 		entry->edx = 0;
 		/*

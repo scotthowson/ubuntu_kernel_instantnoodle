@@ -23,6 +23,7 @@
 #define ARM64_WORKAROUND_845719			2
 #define ARM64_HAS_SYSREG_GIC_CPUIF		3
 #define ARM64_HAS_PAN				4
+#define ARM64_HAS_LSE_ATOMICS			5
 #define ARM64_WORKAROUND_CAVIUM_23154		6
 #define ARM64_WORKAROUND_834220			7
 #define ARM64_HAS_NO_HW_PREFETCH		8
@@ -54,9 +55,6 @@
 #define ARM64_SSBS				34
 #define ARM64_WORKAROUND_1188873		35
 #define ARM64_WORKAROUND_1542418		36
-#define ARM64_WORKAROUND_1542419		37
-
-/* kabi: reserve 38 - 62 for future cpu capabilities */
-#define ARM64_NCAPS				62
+#define ARM64_NCAPS				37
 
 #endif /* __ASM_CPUCAPS_H */

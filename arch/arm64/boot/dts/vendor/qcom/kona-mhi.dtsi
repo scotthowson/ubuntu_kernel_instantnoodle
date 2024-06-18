@@ -27,7 +27,8 @@
 
 		/* mhi bus specific settings */
 		mhi,max-channels = <111>;
-		mhi,timeout = <2000>;
+		/* Case 0449153 - Reduce tiemout from 2000 to 500 ms for shutdown performance */
+		mhi,timeout = <500>;
 		mhi,buffer-len = <0x8000>;
 		mhi,sfr-support;
 		mhi,name = "esoc0";

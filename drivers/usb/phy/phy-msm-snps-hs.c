@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
- * Copyright (c) 2017-2021, The Linux Foundation. All rights reserved.
- * Copyright (C) 2021 XiaoMi, Inc.
+ * Copyright (c) 2017-2020, The Linux Foundation. All rights reserved.
  */
 
 #include <linux/module.h>
@@ -21,8 +20,6 @@
 #include <linux/usb/phy.h>
 #include <linux/reset.h>
 #include <linux/debugfs.h>
-/* add for get hw country */
-#include <soc/qcom/socinfo.h>
 
 #define USB2_PHY_USB_PHY_UTMI_CTRL0		(0x3c)
 #define OPMODE_MASK				(0x3 << 3)
@@ -86,6 +83,11 @@
 #define USB_HSPHY_1P8_VOL_MAX			1800000 /* uV */
 #define USB_HSPHY_1P8_HPM_LOAD			19000	/* uA */
 
+/* Add to tune USB2.0 eye diagram */
+#define USB2PHY_USB_PHY_PARAMETER_OVERRIDE_X1	0x70
+unsigned int USB2_phy_tune1;
+module_param(USB2_phy_tune1, uint, 0644);
+MODULE_PARM_DESC(USB2_phy_tune1, "QUSB PHY v2 TUNE1");
 struct msm_hsphy {
 	struct usb_phy		phy;
 	void __iomem		*base;
@@ -109,9 +111,6 @@ struct msm_hsphy {
 	int			*param_override_seq;
 	int			param_override_seq_cnt;
 
-	int			*global_param_override_seq;
-	int			global_param_override_seq_cnt;
-
 	void __iomem		*phy_rcal_reg;
 	u32			rcal_mask;
 
@@ -127,8 +126,6 @@ struct msm_hsphy {
 	u8			param_ovrd1;
 	u8			param_ovrd2;
 	u8			param_ovrd3;
-
-	uint32_t hw_country;
 };
 
 static void msm_hsphy_enable_clocks(struct msm_hsphy *phy, bool on)
@@ -396,12 +393,17 @@ static int msm_hsphy_init(struct usb_phy *uphy)
 	if (phy->param_override_seq)
 		hsusb_phy_write_seq(phy->base, phy->param_override_seq,
 				phy->param_override_seq_cnt, 0);
+	/* add to tune USB 2.0 eye diagram */
+	if (USB2_phy_tune1) {
+		pr_err("%s(): (modparam) USB2_phy_tune1 val:0x%02x\n",
+						__func__, USB2_phy_tune1);
+		writel_relaxed(USB2_phy_tune1,
+			phy->base + USB2PHY_USB_PHY_PARAMETER_OVERRIDE_X1);
+	}
 
-	/* set parameter ovrride  if needed */
-	if (phy->hw_country == (uint32_t)CountryGlobal
-			&& phy->global_param_override_seq)
-		hsusb_phy_write_seq(phy->base, phy->global_param_override_seq,
-				phy->global_param_override_seq_cnt, 0);
+	pr_err("USB2_tune1_register_val:0x%02x\n",
+		readl_relaxed(phy->base +
+			USB2PHY_USB_PHY_PARAMETER_OVERRIDE_X1));
 
 	if (phy->pre_emphasis) {
 		u8 val = TXPREEMPAMPTUNE0(phy->pre_emphasis) &
@@ -490,13 +492,14 @@ static int msm_hsphy_set_suspend(struct usb_phy *uphy, int suspend)
 	}
 
 	if (suspend) { /* Bus suspend */
-		if (phy->cable_connected) {
-			/* Enable auto-resume functionality only during host
-			 * mode bus suspend with some peripheral connected.
+		if (phy->cable_connected ||
+			(phy->phy.flags & PHY_HOST_MODE)) {
+			/* Enable auto-resume functionality only when
+			 * there is some peripheral connected and real
+			 * bus suspend happened
 			 */
-			if ((phy->phy.flags & PHY_HOST_MODE) &&
-				((phy->phy.flags & PHY_HSFS_MODE) ||
-				(phy->phy.flags & PHY_LS_MODE))) {
+			if ((phy->phy.flags & PHY_HSFS_MODE) ||
+				(phy->phy.flags & PHY_LS_MODE)) {
 				/* Enable auto-resume functionality by pulsing
 				 * signal
 				 */
@@ -661,13 +664,6 @@ static int msm_hsphy_dpdm_regulator_disable(struct regulator_dev *rdev)
 	mutex_lock(&phy->phy_lock);
 	if (phy->dpdm_enable) {
 		if (!phy->cable_connected) {
-			/*
-			 * Phy reset is needed in case multiple instances
-			 * of HSPHY exists with shared power supplies. This
-			 * reset is to bring out the PHY from high-Z state
-			 * and avoid extra current consumption.
-			 */
-			msm_hsphy_reset(phy);
 			ret = msm_hsphy_enable_power(phy, false);
 			if (ret < 0) {
 				mutex_unlock(&phy->phy_lock);
@@ -845,34 +841,6 @@ static int msm_hsphy_probe(struct platform_device *pdev)
 		}
 	}
 
-	phy->global_param_override_seq_cnt = of_property_count_elems_of_size(
-					dev->of_node,
-					"qcom,global-param-override-seq",
-					sizeof(*phy->global_param_override_seq));
-	if (phy->global_param_override_seq_cnt > 0) {
-		phy->global_param_override_seq = devm_kcalloc(dev,
-					phy->global_param_override_seq_cnt,
-					sizeof(*phy->global_param_override_seq),
-					GFP_KERNEL);
-		if (!phy->global_param_override_seq)
-			return -ENOMEM;
-
-		if (phy->global_param_override_seq_cnt % 2) {
-			dev_err(dev, "invalid param_override_seq_len\n");
-			return -EINVAL;
-		}
-
-		ret = of_property_read_u32_array(dev->of_node,
-				"qcom,global-param-override-seq",
-				phy->global_param_override_seq,
-				phy->global_param_override_seq_cnt);
-		if (ret) {
-			dev_err(dev, "qcom,global-param-override-seq read failed %d\n",
-				ret);
-			return ret;
-		}
-	}
-
 	ret = of_property_read_u32_array(dev->of_node, "qcom,vdd-voltage-level",
 					 (u32 *) phy->vdd_levels,
 					 ARRAY_SIZE(phy->vdd_levels));
@@ -902,9 +870,6 @@ static int msm_hsphy_probe(struct platform_device *pdev)
 		ret = PTR_ERR(phy->vdda18);
 		goto err_ret;
 	}
-
-	phy->hw_country = get_hw_country_version();
-	dev_err(dev, "phy hw_country: %d\n", phy->hw_country);
 
 	mutex_init(&phy->phy_lock);
 	platform_set_drvdata(pdev, phy);
@@ -948,9 +913,6 @@ static int msm_hsphy_remove(struct platform_device *pdev)
 
 	msm_hsphy_enable_clocks(phy, false);
 	msm_hsphy_enable_power(phy, false);
-
-	kfree(phy);
-
 	return 0;
 }
 

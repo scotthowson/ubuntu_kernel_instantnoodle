@@ -1211,22 +1211,22 @@
  *
  * @binder_set_context_mgr:
  *	Check whether @mgr is allowed to be the binder context manager.
- *	@mgr contains the struct cred for the current binder process.
+ *	@mgr contains the task_struct for the task being registered.
  *	Return 0 if permission is granted.
  * @binder_transaction:
  *	Check whether @from is allowed to invoke a binder transaction call
  *	to @to.
- *	@from contains the struct cred for the sending process.
- *	@to contains the struct cred for the receiving process.
+ *	@from contains the task_struct for the sending task.
+ *	@to contains the task_struct for the receiving task.
  * @binder_transfer_binder:
  *	Check whether @from is allowed to transfer a binder reference to @to.
- *	@from contains the struct cred for the sending process.
- *	@to contains the struct cred for the receiving process.
+ *	@from contains the task_struct for the sending task.
+ *	@to contains the task_struct for the receiving task.
  * @binder_transfer_file:
  *	Check whether @from is allowed to transfer @file to @to.
- *	@from contains the struct cred for the sending process.
+ *	@from contains the task_struct for the sending task.
  *	@file contains the struct file being transferred.
- *	@to contains the struct cred for the receiving process.
+ *	@to contains the task_struct for the receiving task.
  *
  * @ptrace_access_check:
  *	Check permission before allowing the current process to trace the
@@ -1428,13 +1428,13 @@
  *
  */
 union security_list_options {
-	int (*binder_set_context_mgr)(const struct cred *mgr);
-	int (*binder_transaction)(const struct cred *from,
-					const struct cred *to);
-	int (*binder_transfer_binder)(const struct cred *from,
-					const struct cred *to);
-	int (*binder_transfer_file)(const struct cred *from,
-					const struct cred *to,
+	int (*binder_set_context_mgr)(struct task_struct *mgr);
+	int (*binder_transaction)(struct task_struct *from,
+					struct task_struct *to);
+	int (*binder_transfer_binder)(struct task_struct *from,
+					struct task_struct *to);
+	int (*binder_transfer_file)(struct task_struct *from,
+					struct task_struct *to,
 					struct file *file);
 
 	int (*ptrace_access_check)(struct task_struct *child,
@@ -1464,10 +1464,8 @@ union security_list_options {
 	int (*sb_alloc_security)(struct super_block *sb);
 	void (*sb_free_security)(struct super_block *sb);
 	int (*sb_copy_data)(char *orig, char *copy);
-	int (*sb_remount)(struct super_block *sb,
-			  struct security_mnt_opts *opts);
-	int (*sb_kern_mount)(struct super_block *sb, int flags,
-			     struct security_mnt_opts *opts);
+	int (*sb_remount)(struct super_block *sb, void *data);
+	int (*sb_kern_mount)(struct super_block *sb, int flags, void *data);
 	int (*sb_show_options)(struct seq_file *m, struct super_block *sb);
 	int (*sb_statfs)(struct dentry *dentry);
 	int (*sb_mount)(const char *dev_name, const struct path *path,

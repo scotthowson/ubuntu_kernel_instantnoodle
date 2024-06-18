@@ -36,6 +36,9 @@
 #include "sde_vbif.h"
 #include "sde_plane.h"
 #include "sde_color_processing.h"
+#if defined(CONFIG_PXLW_IRIS)
+#include "iris/dsi_iris5_api.h"
+#endif
 
 #define SDE_DEBUG_PLANE(pl, fmt, ...) SDE_DEBUG("plane%d " fmt,\
 		(pl) ? (pl)->base.base.id : -1, ##__VA_ARGS__)
@@ -126,7 +129,6 @@ struct sde_plane {
 	struct sde_csc_cfg *csc_usr_ptr;
 	struct sde_csc_cfg *csc_ptr;
 
-	uint32_t cached_lut_flag;
 	const struct sde_sspp_sub_blks *pipe_sblk;
 
 	char pipe_name[SDE_NAME_SIZE];
@@ -249,7 +251,6 @@ static void _sde_plane_set_qos_lut(struct drm_plane *plane,
 	u32 frame_rate, qos_count, fps_index = 0, lut_index, index;
 	struct sde_perf_cfg *perf;
 	struct sde_plane_state *pstate;
-	struct sde_kms *kms;
 
 	if (!plane || !fb) {
 		SDE_ERROR("invalid arguments\n");
@@ -258,11 +259,6 @@ static void _sde_plane_set_qos_lut(struct drm_plane *plane,
 
 	psde = to_sde_plane(plane);
 	pstate = to_sde_plane_state(plane->state);
-	kms = _sde_plane_get_kms(plane);
-	if (!kms) {
-		SDE_ERROR("invalid kms\n");
-		return;
-	}
 
 	if (!psde->pipe_hw || !psde->pipe_sblk || !psde->catalog) {
 		SDE_ERROR("invalid arguments\n");
@@ -289,12 +285,7 @@ static void _sde_plane_set_qos_lut(struct drm_plane *plane,
 				fb->format->format,
 				fb->modifier);
 
-		if (fmt && SDE_FORMAT_IS_LINEAR(fmt) &&
-			pstate->scaler3_cfg.enable &&
-			IS_SDE_MAJOR_MINOR_SAME(kms->catalog->hwversion,
-							 SDE_HW_VER_640))
-			lut_index = SDE_QOS_LUT_USAGE_MACROTILE_QSEED;
-		else if (fmt && SDE_FORMAT_IS_LINEAR(fmt))
+		if (fmt && SDE_FORMAT_IS_LINEAR(fmt))
 			lut_index = SDE_QOS_LUT_USAGE_LINEAR;
 		else if (pstate->scaler3_cfg.enable)
 			lut_index = SDE_QOS_LUT_USAGE_MACROTILE_QSEED;
@@ -625,7 +616,7 @@ int sde_plane_wait_input_fence(struct drm_plane *plane, uint32_t wait_ms)
 
 			switch (rc) {
 			case 0:
-				SDE_ERROR_PLANE(psde, "%ums timeout on %08X fd %llu\n",
+				SDE_ERROR_PLANE(psde, "%ums timeout on %08X fd %d\n",
 						wait_ms, prefix, sde_plane_get_property(pstate,
 						PLANE_PROP_INPUT_FENCE));
 				psde->is_error = true;
@@ -1129,6 +1120,9 @@ static inline void _sde_plane_setup_csc(struct sde_plane *psde)
 	else
 		psde->csc_ptr = (struct sde_csc_cfg *)&sde_csc_YUV2RGB_601L;
 
+#if defined(CONFIG_PXLW_IRIS)
+	iris_sde_plane_setup_csc(psde->csc_ptr);
+#endif
 	SDE_DEBUG_PLANE(psde, "using 0x%X 0x%X 0x%X...\n",
 			psde->csc_ptr->csc_mv[0],
 			psde->csc_ptr->csc_mv[1],
@@ -1662,6 +1656,19 @@ void sde_plane_clear_multirect(const struct drm_plane_state *drm_state)
 
 	pstate->multirect_index = SDE_SSPP_RECT_SOLO;
 	pstate->multirect_mode = SDE_SSPP_MULTIRECT_NONE;
+}
+
+//xiaoxiaohuan@OnePlus.MultiMediaService,2018/08/04, add for fingerprint
+int sde_plane_check_fingerprint_layer(const struct drm_plane_state *drm_state)
+{
+	struct sde_plane_state *pstate;
+
+	if (!drm_state)
+		return 0;
+
+	pstate = to_sde_plane_state(drm_state);
+
+	return sde_plane_get_property(pstate, PLANE_PROP_CUSTOM);
 }
 
 /**
@@ -2563,39 +2570,6 @@ static int _sde_plane_validate_shared_crtc(struct sde_plane *psde,
 
 }
 
-static int _sde_plane_validate_fb(struct sde_plane *psde,
-				struct drm_plane_state *state)
-{
-	struct sde_plane_state *pstate;
-	struct drm_framebuffer *fb;
-	uint32_t fb_ns = 0, fb_sec = 0, fb_sec_dir = 0;
-	unsigned long flags = 0;
-	int mode, ret = 0, n, i;
-
-	pstate = to_sde_plane_state(state);
-	mode = sde_plane_get_property(pstate,
-				PLANE_PROP_FB_TRANSLATION_MODE);
-
-	fb = state->fb;
-	n = fb->format->num_planes;
-	for (i = 0; i < n; i++) {
-		ret = msm_fb_obj_get_attrs(fb->obj[i], &fb_ns, &fb_sec,
-			&fb_sec_dir, &flags);
-
-		if (!ret && ((fb_ns && (mode != SDE_DRM_FB_NON_SEC)) ||
-			(fb_sec && (mode != SDE_DRM_FB_SEC)) ||
-			(fb_sec_dir && (mode != SDE_DRM_FB_SEC_DIR_TRANS)))) {
-			SDE_ERROR_PLANE(psde, "mode:%d fb:%d flag:0x%lx rc:%d\n",
-			mode, fb->base.id, flags, ret);
-			SDE_EVT32(psde->base.base.id, fb->base.id, flags,
-			fb_ns, fb_sec, fb_sec_dir, ret, SDE_EVTLOG_ERROR);
-			return -EINVAL;
-		}
-	}
-
-	return 0;
-}
-
 static int sde_plane_sspp_atomic_check(struct drm_plane *plane,
 		struct drm_plane_state *state)
 {
@@ -2705,11 +2679,6 @@ static int sde_plane_sspp_atomic_check(struct drm_plane *plane,
 		return ret;
 
 	ret = _sde_plane_validate_shared_crtc(psde, state);
-
-	if (ret)
-		return ret;
-
-	ret = _sde_plane_validate_fb(psde, state);
 
 	if (ret)
 		return ret;
@@ -2856,7 +2825,8 @@ static void _sde_plane_map_prop_to_dirty_bits(void)
 	plane_prop_array[PLANE_PROP_INFO] =
 	plane_prop_array[PLANE_PROP_ALPHA] =
 	plane_prop_array[PLANE_PROP_INPUT_FENCE] =
-	plane_prop_array[PLANE_PROP_BLEND_OP] = 0;
+	plane_prop_array[PLANE_PROP_BLEND_OP] =
+    plane_prop_array[PLANE_PROP_CUSTOM]= 0;
 
 	plane_prop_array[PLANE_PROP_FB_TRANSLATION_MODE] =
 		SDE_PLANE_DIRTY_FB_TRANSLATION_MODE;
@@ -3122,6 +3092,11 @@ static void _sde_plane_update_format_and_rects(struct sde_plane *psde,
 	if (psde->pipe_hw->ops.setup_dgm_csc)
 		psde->pipe_hw->ops.setup_dgm_csc(psde->pipe_hw,
 			pstate->multirect_index, psde->csc_usr_ptr);
+#if defined(PXLW_IRIS_DUAL)
+	if (psde->pipe_hw->ops.setup_csc_v2)
+		psde->pipe_hw->ops.setup_csc_v2(psde->pipe_hw,
+			fmt, psde->csc_usr_ptr);
+#endif
 }
 
 static void _sde_plane_update_sharpening(struct sde_plane *psde)
@@ -3202,21 +3177,6 @@ static void _sde_plane_update_properties(struct drm_plane *plane,
 	pstate->dirty = 0x0;
 }
 
-static void _sde_plane_check_lut_dirty(struct sde_plane *psde,
-			struct sde_plane_state *pstate)
-{
-	/**
-	 * Valid configuration if scaler is not enabled or
-	 * lut flag is set
-	 */
-	if (pstate->scaler3_cfg.lut_flag || !pstate->scaler3_cfg.enable)
-		return;
-
-	pstate->scaler3_cfg.lut_flag = psde->cached_lut_flag;
-	SDE_EVT32(DRMID(&psde->base), pstate->scaler3_cfg.lut_flag,
-		SDE_EVTLOG_ERROR);
-}
-
 static int sde_plane_sspp_atomic_update(struct drm_plane *plane,
 				struct drm_plane_state *old_state)
 {
@@ -3267,16 +3227,10 @@ static int sde_plane_sspp_atomic_update(struct drm_plane *plane,
 			state->crtc_w, state->crtc_h,
 			state->crtc_x, state->crtc_y);
 
-	/* Caching the valid lut flag in sde plane */
-	if (pstate->scaler3_cfg.enable &&
-			pstate->scaler3_cfg.lut_flag)
-		psde->cached_lut_flag = pstate->scaler3_cfg.lut_flag;
-
 	/* force reprogramming of all the parameters, if the flag is set */
 	if (psde->revalidate) {
 		SDE_DEBUG("plane:%d - reconfigure all the parameters\n",
 				plane->base.id);
-		_sde_plane_check_lut_dirty(psde, pstate);
 		pstate->dirty = SDE_PLANE_DIRTY_ALL | SDE_PLANE_DIRTY_CP;
 		psde->revalidate = false;
 	}
@@ -3356,20 +3310,6 @@ static void _sde_plane_atomic_disable(struct drm_plane *plane,
 				SDE_SSPP_RECT_SOLO, SDE_SSPP_MULTIRECT_NONE);
 }
 
-#ifdef CONFIG_OSSFOD
-int sde_plane_is_fod_layer(const struct drm_plane_state *drm_state)
-{
-	struct sde_plane_state *pstate;
-
-	if (!drm_state)
-		return 0;
-
-	pstate = to_sde_plane_state(drm_state);
-
-	return sde_plane_get_property(pstate, PLANE_PROP_FOD);
-}
-#endif
-
 static void sde_plane_atomic_update(struct drm_plane *plane,
 				struct drm_plane_state *old_state)
 {
@@ -3429,18 +3369,6 @@ void sde_plane_restore(struct drm_plane *plane)
 
 	/* last plane state is same as current state */
 	sde_plane_atomic_update(plane, plane->state);
-}
-
-uint32_t sde_plane_get_mi_layer_info(const struct drm_plane_state *drm_state)
-{
-	struct sde_plane_state *pstate;
-
-	if (!drm_state)
-		return 0;
-
-	pstate = to_sde_plane_state(drm_state);
-
-	return sde_plane_get_property(pstate, PLANE_PROP_MI_LAYER_INFO);
 }
 
 bool sde_plane_is_cache_required(struct drm_plane *plane)
@@ -3566,10 +3494,8 @@ static void _sde_plane_install_properties(struct drm_plane *plane,
 	const struct sde_format_extended *format_list;
 	struct sde_kms_info *info;
 	struct sde_plane *psde = to_sde_plane(plane);
-#ifndef CONFIG_OSSFOD
 	int zpos_max = 255;
 	int zpos_def = 0;
-#endif
 	char feature_name[256];
 
 	if (!plane || !psde) {
@@ -3586,7 +3512,6 @@ static void _sde_plane_install_properties(struct drm_plane *plane,
 
 	psde->catalog = catalog;
 
-#ifndef CONFIG_OSSFOD
 	if (sde_is_custom_client()) {
 		if (catalog->mixer_count &&
 				catalog->mixer[0].sblk->maxblendstages) {
@@ -3601,22 +3526,13 @@ static void _sde_plane_install_properties(struct drm_plane *plane,
 		/* reserve zpos == 0 for primary planes */
 		zpos_def = drm_plane_index(plane) + 1;
 	}
-#endif
-
-	msm_property_install_range(&psde->property_info, "mi_layer_info",
-		0x0, 0, U32_MAX, 0, PLANE_PROP_MI_LAYER_INFO);
 
 	msm_property_install_range(&psde->property_info, "zpos",
-#ifdef CONFIG_OSSFOD
-		0x0, 0, INT_MAX, 0, PLANE_PROP_ZPOS);
-#else
 		0x0, 0, zpos_max, zpos_def, PLANE_PROP_ZPOS);
-#endif
 
-#ifdef CONFIG_OSSFOD
-	msm_property_install_range(&psde->property_info, "fod",
-		0x0, 0, INT_MAX, 0, PLANE_PROP_FOD);
-#endif
+    //xiaoxiaohuan@OnePlus.MultiMediaService,2018/08/04, add for fingerprint
+	msm_property_install_range(&psde->property_info, "PLANE_CUST",
+			0x0, 0, INT_MAX, 0, PLANE_PROP_CUSTOM);
 
 	msm_property_install_range(&psde->property_info, "alpha",
 		0x0, 0, 255, 255, PLANE_PROP_ALPHA);
@@ -4039,10 +3955,6 @@ static int sde_plane_atomic_set_property(struct drm_plane *plane,
 {
 	struct sde_plane *psde = plane ? to_sde_plane(plane) : NULL;
 	struct sde_plane_state *pstate;
-#ifdef CONFIG_OSSFOD
-	struct drm_property *fod_property;
-	uint64_t fod_val = 0;
-#endif
 	int idx, ret = -EINVAL;
 
 	SDE_DEBUG_PLANE(psde, "\n");
@@ -4053,31 +3965,11 @@ static int sde_plane_atomic_set_property(struct drm_plane *plane,
 		SDE_ERROR_PLANE(psde, "invalid state\n");
 	} else {
 		pstate = to_sde_plane_state(state);
-#ifdef CONFIG_OSSFOD
-		idx = msm_property_index(&psde->property_info,
-				property);
-		if (idx == PLANE_PROP_ZPOS) {
-			if (val & FOD_PRESSED_LAYER_ZORDER) {
-				val &= ~FOD_PRESSED_LAYER_ZORDER;
-				fod_val = 1;
-			}
-
-			fod_property = psde->property_info.
-					property_array[PLANE_PROP_FOD];
-			ret = msm_property_atomic_set(&psde->property_info,
-					&pstate->property_state,
-					fod_property, fod_val);
-			if (ret)
-				SDE_ERROR("failed to set fod prop");
-		}
-#endif
 		ret = msm_property_atomic_set(&psde->property_info,
 				&pstate->property_state, property, val);
 		if (!ret) {
-#ifndef CONFIG_OSSFOD
 			idx = msm_property_index(&psde->property_info,
 					property);
-#endif
 			switch (idx) {
 			case PLANE_PROP_INPUT_FENCE:
 				_sde_plane_set_input_fence(psde, pstate, val);
@@ -4255,7 +4147,6 @@ static void sde_plane_destroy_state(struct drm_plane *plane,
 	/* remove ref count for fence */
 	if (pstate->input_fence)
 		sde_sync_put(pstate->input_fence);
-	pstate->input_fence = 0;
 
 	/* destroy value helper */
 	msm_property_destroy_state(&psde->property_info, pstate,
@@ -4689,8 +4580,7 @@ struct drm_plane *sde_plane_init(struct drm_device *dev,
 		SDE_ERROR("[%u]SSPP init failed\n", pipe);
 		ret = PTR_ERR(psde->pipe_hw);
 		goto clean_plane;
-	} else if (!psde->pipe_hw || !psde->pipe_hw->cap ||
-					 !psde->pipe_hw->cap->sblk) {
+	} else if (!psde->pipe_hw->cap || !psde->pipe_hw->cap->sblk) {
 		SDE_ERROR("[%u]SSPP init returned invalid cfg\n", pipe);
 		goto clean_sspp;
 	}

@@ -1628,22 +1628,13 @@ static inline bool may_mount(void)
 	return ns_capable(current->nsproxy->mnt_ns->user_ns, CAP_SYS_ADMIN);
 }
 
-#ifdef	CONFIG_MANDATORY_FILE_LOCKING
-static bool may_mandlock(void)
-{
-	pr_warn_once("======================================================\n"
-		     "WARNING: the mand mount option is being deprecated and\n"
-		     "         will be removed in v5.15!\n"
-		     "======================================================\n");
-	return capable(CAP_SYS_ADMIN);
-}
-#else
 static inline bool may_mandlock(void)
 {
-	pr_warn("VFS: \"mand\" mount option not supported");
+#ifndef	CONFIG_MANDATORY_FILE_LOCKING
 	return false;
-}
 #endif
+	return capable(CAP_SYS_ADMIN);
+}
 
 /*
  * Now umount can handle mount points as well as block devices.
@@ -1827,20 +1818,6 @@ void drop_collected_mounts(struct vfsmount *mnt)
 	namespace_unlock();
 }
 
-static bool has_locked_children(struct mount *mnt, struct dentry *dentry)
-{
-	struct mount *child;
-
-	list_for_each_entry(child, &mnt->mnt_mounts, mnt_child) {
-		if (!is_subdir(child->mnt_mountpoint, dentry))
-			continue;
-
-		if (child->mnt.mnt_flags & MNT_LOCKED)
-			return true;
-	}
-	return false;
-}
-
 /**
  * clone_private_mount - create a private clone of a path
  *
@@ -1855,27 +1832,14 @@ struct vfsmount *clone_private_mount(const struct path *path)
 	struct mount *old_mnt = real_mount(path->mnt);
 	struct mount *new_mnt;
 
-	down_read(&namespace_sem);
 	if (IS_MNT_UNBINDABLE(old_mnt))
-		goto invalid;
-
-	if (!check_mnt(old_mnt))
-		goto invalid;
-
-	if (has_locked_children(old_mnt, path->dentry))
-		goto invalid;
+		return ERR_PTR(-EINVAL);
 
 	new_mnt = clone_mnt(old_mnt, path->dentry, CL_PRIVATE);
-	up_read(&namespace_sem);
-
 	if (IS_ERR(new_mnt))
 		return ERR_CAST(new_mnt);
 
 	return &new_mnt->mnt;
-
-invalid:
-	up_read(&namespace_sem);
-	return ERR_PTR(-EINVAL);
 }
 EXPORT_SYMBOL_GPL(clone_private_mount);
 
@@ -2191,6 +2155,19 @@ static int do_change_type(struct path *path, int ms_flags)
 	return err;
 }
 
+static bool has_locked_children(struct mount *mnt, struct dentry *dentry)
+{
+	struct mount *child;
+	list_for_each_entry(child, &mnt->mnt_mounts, mnt_child) {
+		if (!is_subdir(child->mnt_mountpoint, dentry))
+			continue;
+
+		if (child->mnt.mnt_flags & MNT_LOCKED)
+			return true;
+	}
+	return false;
+}
+
 /*
  * do loopback mount.
  */
@@ -2285,7 +2262,6 @@ static int do_remount(struct path *path, int ms_flags, int sb_flags,
 	int err;
 	struct super_block *sb = path->mnt->mnt_sb;
 	struct mount *mnt = real_mount(path->mnt);
-	struct security_mnt_opts opts;
 
 	if (!check_mnt(mnt))
 		return -EINVAL;
@@ -2320,14 +2296,7 @@ static int do_remount(struct path *path, int ms_flags, int sb_flags,
 		return -EPERM;
 	}
 
-	security_init_mnt_opts(&opts);
-	if (data && !(sb->s_type->fs_flags & FS_BINARY_MOUNTDATA)) {
-		err = security_sb_eat_lsm_opts(data, &opts);
-		if (err)
-			return err;
-	}
-	err = security_sb_remount(sb, &opts);
-	security_free_mnt_opts(&opts);
+	err = security_sb_remount(sb, data);
 	if (err)
 		return err;
 
@@ -3198,8 +3167,8 @@ SYSCALL_DEFINE2(pivot_root, const char __user *, new_root,
 	/* make certain new is below the root */
 	if (!is_path_reachable(new_mnt, new.dentry, &root))
 		goto out4;
-	lock_mount_hash();
 	root_mp->m_count++; /* pin it so it won't go away */
+	lock_mount_hash();
 	detach_mnt(new_mnt, &parent_path);
 	detach_mnt(root_mnt, &root_parent);
 	if (root_mnt->mnt.mnt_flags & MNT_LOCKED) {

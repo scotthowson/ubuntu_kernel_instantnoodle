@@ -2,7 +2,6 @@
  * MIPI DSI Bus
  *
  * Copyright (C) 2012-2013, Samsung Electronics, Co., Ltd.
- * Copyright (C) 2021 XiaoMi, Inc.
  * Andrzej Hajda <a.hajda@samsung.com>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -116,6 +115,8 @@ struct mipi_dsi_host {
 int mipi_dsi_host_register(struct mipi_dsi_host *host);
 void mipi_dsi_host_unregister(struct mipi_dsi_host *host);
 struct mipi_dsi_host *of_find_mipi_dsi_host_by_node(struct device_node *node);
+int mipi_dsi_dcs_set_display_brightness_samsung(struct mipi_dsi_device *dsi,
+								u16 brightness);
 
 /* DSI mode flags */
 
@@ -284,8 +285,6 @@ int mipi_dsi_dcs_set_tear_on(struct mipi_dsi_device *dsi,
 int mipi_dsi_dcs_set_pixel_format(struct mipi_dsi_device *dsi, u8 format);
 int mipi_dsi_dcs_set_tear_scanline(struct mipi_dsi_device *dsi, u16 scanline);
 int mipi_dsi_dcs_set_display_brightness(struct mipi_dsi_device *dsi,
-					u16 brightness);
-int mipi_dsi_dcs_set_display_brightness_big_endian(struct mipi_dsi_device *dsi,
 					u16 brightness);
 int mipi_dsi_dcs_get_display_brightness(struct mipi_dsi_device *dsi,
 					u16 *brightness);

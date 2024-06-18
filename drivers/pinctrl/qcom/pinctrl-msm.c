@@ -571,14 +571,13 @@ static void msm_gpio_dbg_show(struct seq_file *s, struct gpio_chip *chip)
 	unsigned gpio = chip->base;
 	unsigned i;
 
+	seq_puts(s, " name    dir  val fun   drv pull \n");
+
 	for (i = 0; i < chip->ngpio; i++, gpio++) {
-		/**
-		 * bypass NFC SPI GPIO: 28-31 is NFC SE SPI
-		 * bypass FP SPI GPIO: 40-43 is FP SPI
-		 */
-		if ((i >= 28 && i <= 31) || (i >= 40 && i <= 43)) {
+
+		if (i == 28 || i == 29 || i == 30 || i == 31 ||
+			i == 40 || i == 41 || i == 42 || i == 43  )
 			continue;
-		}
 		msm_gpio_dbg_show_one(s, NULL, chip, i, gpio);
 	}
 }

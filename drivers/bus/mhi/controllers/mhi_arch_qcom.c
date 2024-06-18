@@ -17,10 +17,6 @@
 #include <linux/slab.h>
 #include <linux/suspend.h>
 #include <linux/mhi.h>
-#include <linux/fs.h>
-#include <linux/init.h>
-#include <linux/proc_fs.h>
-#include <linux/seq_file.h>
 #include "mhi_qcom.h"
 
 struct arch_info {
@@ -53,8 +49,8 @@ enum MHI_DEBUG_LEVEL  mhi_ipc_log_lvl = MHI_MSG_LVL_VERBOSE;
 
 #else
 
-#define MHI_IPC_LOG_PAGES (10)
-#define MHI_CNTRL_LOG_PAGES (5)
+#define MHI_IPC_LOG_PAGES (100)
+#define MHI_CNTRL_LOG_PAGES (25)
 enum MHI_DEBUG_LEVEL  mhi_ipc_log_lvl = MHI_MSG_LVL_ERROR;
 
 #endif
@@ -118,7 +114,7 @@ void mhi_arch_timesync_log(struct mhi_controller *mhi_cntrl, u64 remote_time)
 	struct arch_info *arch_info = mhi_dev->arch_info;
 
 	if (remote_time != U64_MAX)
-		ipc_log_string(arch_info->tsync_ipc_log, "%6llu.%06llu 0x%llx",
+		ipc_log_string(arch_info->tsync_ipc_log, "%6u.%06lu 0x%llx",
 			       REMOTE_TICKS_TO_SEC(remote_time),
 			       REMOTE_TIME_REMAINDER_US(remote_time),
 			       remote_time);
@@ -305,60 +301,6 @@ static void mhi_arch_esoc_ops_mdm_error(void *priv)
 	mhi_control_error(mhi_cntrl);
 }
 
-#define SERIAL_NUM_LEN 64
-static char sdx55m_cpuid[SERIAL_NUM_LEN]={"\0"};
-static char sdx55m_fuse[64]={"\0"};
-
-static int secureboot_proc_show(struct seq_file *m, void *v)
-{
-	seq_printf(m, "%s\n", sdx55m_cpuid);
-	return 0;
-}
-
-static int sdx55m_cpuid_open(struct inode *inode, struct file *file)
-{
-	return single_open(file, secureboot_proc_show, NULL);
-}
-
-static const struct file_operations proc_sdx55m_cpuid_operations = {
-	.open		= sdx55m_cpuid_open,
-	.read		= seq_read,
-	.llseek		= seq_lseek,
-	.release	= seq_release,
-};
-
-static int __init proc_sdx55m_cpuid_init(void)
-{
-	proc_create("sdx55m_cpuid", 0, NULL, &proc_sdx55m_cpuid_operations);
-	return 0;
-}
-fs_initcall(proc_sdx55m_cpuid_init);
-
-static int fuse_proc_show(struct seq_file *m, void *v)
-{
-	seq_printf(m, "%s\n", sdx55m_fuse);
-	return 0;
-}
-
-static int sdx55m_fuse_open(struct inode *inode, struct file *file)
-{
-	return single_open(file, fuse_proc_show, NULL);
-}
-
-static const struct file_operations proc_sdx55m_fuse_operations = {
-	.open		= sdx55m_fuse_open,
-	.read		= seq_read,
-	.llseek		= seq_lseek,
-	.release	= seq_release,
-};
-
-static int __init proc_sdx55m_fuse_init(void)
-{
-	proc_create("sdx55m_secureboot", 0, NULL, &proc_sdx55m_fuse_operations);
-	return 0;
-}
-fs_initcall(proc_sdx55m_fuse_init);
-
 static void mhi_bl_dl_cb(struct mhi_device *mhi_device,
 			 struct mhi_result *mhi_result)
 {
@@ -366,26 +308,10 @@ static void mhi_bl_dl_cb(struct mhi_device *mhi_device,
 	struct mhi_dev *mhi_dev = mhi_controller_get_devdata(mhi_cntrl);
 	struct arch_info *arch_info = mhi_dev->arch_info;
 	char *buf = mhi_result->buf_addr;
-	char *const_serial_number = "0x00786134 = ";
-	char *const_sdx55m_fuse = "Secure Boot: ";
-	char *pSerial_number = NULL;
-
 	char *token, *delim = "\n";
 
 	/* force a null at last character */
 	buf[mhi_result->bytes_xferd - 1] = 0;
-
-	pSerial_number = strstr(buf,const_serial_number);
-	if (pSerial_number != NULL) {
-		strncpy(sdx55m_cpuid, pSerial_number + strlen(const_serial_number),
-			strlen("0x3de665bd"));
-	}
-
-	pSerial_number = strstr(buf,const_sdx55m_fuse);
-	if (pSerial_number != NULL) {
-		strncpy(sdx55m_fuse, pSerial_number + strlen(const_sdx55m_fuse),
-			strlen("Off"));
-	}
 
 	if (mhi_result->bytes_xferd >= MAX_MSG_SIZE) {
 		do {
@@ -473,7 +399,7 @@ static int mhi_bl_probe(struct mhi_device *mhi_device,
 	snprintf(node_name, sizeof(node_name), "mhi_bl_%04x_%02u.%02u.%02u",
 		 mhi_device->dev_id, mhi_device->domain, mhi_device->bus,
 		 mhi_device->slot);
-
+	MHI_ERR("mhi_ipc %s", node_name);
 	arch_info->boot_dev = mhi_device;
 	arch_info->boot_ipc_log = ipc_log_context_create(MHI_CNTRL_LOG_PAGES,
 							 node_name, 0);
@@ -527,7 +453,7 @@ int mhi_arch_pcie_init(struct mhi_controller *mhi_cntrl)
 			 mhi_cntrl->slot);
 		mhi_cntrl->log_buf = ipc_log_context_create(MHI_IPC_LOG_PAGES,
 							    node, 0);
-		mhi_cntrl->log_lvl = mhi_ipc_log_lvl;
+		mhi_cntrl->log_lvl = MHI_MSG_LVL_VERBOSE;
 
 		snprintf(node, sizeof(node), "mhi_cntrl_%04x_%02u.%02u.%02u",
 			 mhi_cntrl->dev_id, mhi_cntrl->domain, mhi_cntrl->bus,

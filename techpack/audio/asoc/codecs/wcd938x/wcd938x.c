@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
- * Copyright (c) 2018-2021, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2018-2020, The Linux Foundation. All rights reserved.
  */
 
 #include <linux/module.h>
@@ -58,10 +58,6 @@ enum {
 	HPH_PA_DELAY,
 	AMIC2_BCS_ENABLE,
 	WCD_SUPPLIES_LPM_MODE,
-	WCD_ADC1_MODE,
-	WCD_ADC2_MODE,
-	WCD_ADC3_MODE,
-	WCD_ADC4_MODE,
 };
 
 enum {
@@ -1517,17 +1513,13 @@ static int wcd938x_tx_swr_ctrl(struct snd_soc_dapm_widget *w,
 	switch (event) {
 	case SND_SOC_DAPM_PRE_PMU:
 		if (strnstr(w->name, "ADC", sizeof("ADC"))) {
-			if (test_bit(WCD_ADC1, &wcd938x->status_mask) ||
-				test_bit(WCD_ADC1_MODE, &wcd938x->status_mask))
+			if (test_bit(WCD_ADC1, &wcd938x->status_mask))
 				mode |= tx_mode_bit[wcd938x->tx_mode[WCD_ADC1]];
-			if (test_bit(WCD_ADC2, &wcd938x->status_mask) ||
-				test_bit(WCD_ADC2_MODE, &wcd938x->status_mask))
+			if (test_bit(WCD_ADC2, &wcd938x->status_mask))
 				mode |= tx_mode_bit[wcd938x->tx_mode[WCD_ADC2]];
-			if (test_bit(WCD_ADC3, &wcd938x->status_mask) ||
-				test_bit(WCD_ADC3_MODE, &wcd938x->status_mask))
+			if (test_bit(WCD_ADC3, &wcd938x->status_mask))
 				mode |= tx_mode_bit[wcd938x->tx_mode[WCD_ADC3]];
-			if (test_bit(WCD_ADC4, &wcd938x->status_mask) ||
-				test_bit(WCD_ADC4_MODE, &wcd938x->status_mask))
+			if (test_bit(WCD_ADC4, &wcd938x->status_mask))
 				mode |= tx_mode_bit[wcd938x->tx_mode[WCD_ADC4]];
 
 			if (mode != 0) {
@@ -1559,14 +1551,6 @@ static int wcd938x_tx_swr_ctrl(struct snd_soc_dapm_widget *w,
 		    false);
 		if (strnstr(w->name, "ADC", sizeof("ADC")))
 			wcd938x_set_swr_clk_rate(component, rate, bank);
-		if (strnstr(w->name, "ADC1", sizeof("ADC1")))
-			clear_bit(WCD_ADC1_MODE, &wcd938x->status_mask);
-		else if (strnstr(w->name, "ADC2", sizeof("ADC2")))
-			clear_bit(WCD_ADC2_MODE, &wcd938x->status_mask);
-		else if (strnstr(w->name, "ADC3", sizeof("ADC3")))
-			clear_bit(WCD_ADC3_MODE, &wcd938x->status_mask);
-		else if (strnstr(w->name, "ADC4", sizeof("ADC4")))
-			clear_bit(WCD_ADC4_MODE, &wcd938x->status_mask);
 		break;
 	};
 
@@ -1976,14 +1960,15 @@ static int wcd938x_get_logical_addr(struct swr_device *swr_dev)
 	int num_retry = NUM_ATTEMPTS;
 
 	do {
-		/* retry after 1ms */
-		usleep_range(1000, 1010);
 		ret = swr_get_logical_dev_num(swr_dev, swr_dev->addr, &devnum);
+		if (ret) {
+			dev_err(&swr_dev->dev,
+				"%s get devnum %d for dev addr %llx failed\n",
+				__func__, devnum, swr_dev->addr);
+			/* retry after 1ms */
+			usleep_range(1000, 1010);
+		}
 	} while (ret && --num_retry);
-	if (ret)
-		dev_err(&swr_dev->dev,
-			"%s get devnum %d for dev addr %llx failed\n",
-			__func__, devnum, swr_dev->addr);
 	swr_dev->dev_num = devnum;
 	return 0;
 }
@@ -2014,25 +1999,21 @@ static int wcd938x_event_notify(struct notifier_block *block,
 		if (test_bit(WCD_ADC1, &wcd938x->status_mask)) {
 			snd_soc_component_update_bits(component,
 					WCD938X_ANA_TX_CH2, 0x40, 0x00);
-			set_bit(WCD_ADC1_MODE, &wcd938x->status_mask);
 			clear_bit(WCD_ADC1, &wcd938x->status_mask);
 		}
 		if (test_bit(WCD_ADC2, &wcd938x->status_mask)) {
 			snd_soc_component_update_bits(component,
 					WCD938X_ANA_TX_CH2, 0x20, 0x00);
-			set_bit(WCD_ADC2_MODE, &wcd938x->status_mask);
 			clear_bit(WCD_ADC2, &wcd938x->status_mask);
 		}
 		if (test_bit(WCD_ADC3, &wcd938x->status_mask)) {
 			snd_soc_component_update_bits(component,
 					WCD938X_ANA_TX_CH4, 0x40, 0x00);
-			set_bit(WCD_ADC3_MODE, &wcd938x->status_mask);
 			clear_bit(WCD_ADC3, &wcd938x->status_mask);
 		}
 		if (test_bit(WCD_ADC4, &wcd938x->status_mask)) {
 			snd_soc_component_update_bits(component,
 					WCD938X_ANA_TX_CH4, 0x20, 0x00);
-			set_bit(WCD_ADC4_MODE, &wcd938x->status_mask);
 			clear_bit(WCD_ADC4, &wcd938x->status_mask);
 		}
 		break;
@@ -2482,6 +2463,33 @@ static int wcd938x_ldoh_put(struct snd_kcontrol *kcontrol,
 	return 0;
 }
 
+static int wcd938x_st_state_get(struct snd_kcontrol *kcontrol,
+				 struct snd_ctl_elem_value *ucontrol)
+{
+	struct snd_soc_component *component =
+				snd_soc_kcontrol_component(kcontrol);
+	struct wcd938x_priv *wcd938x = snd_soc_component_get_drvdata(component);
+
+	ucontrol->value.integer.value[0] = wcd938x->mbhc->wcd_mbhc.st_state;
+
+	return 0;
+}
+
+static int wcd938x_st_state_put(struct snd_kcontrol *kcontrol,
+				 struct snd_ctl_elem_value *ucontrol)
+{
+	struct snd_soc_component *component =
+				snd_soc_kcontrol_component(kcontrol);
+	struct wcd938x_priv *wcd938x = snd_soc_component_get_drvdata(component);
+	bool enable = !!ucontrol->value.integer.value[0];
+
+	pr_info("%s: st state is %d\n", __func__, enable);
+
+	wcd938x_mbhc_set_st_state(wcd938x->mbhc, enable);
+
+	return 0;
+}
+
 static int wcd938x_bcs_get(struct snd_kcontrol *kcontrol,
 				 struct snd_ctl_elem_value *ucontrol)
 {
@@ -2554,7 +2562,7 @@ static const struct soc_enum rx_hph_mode_mux_enum =
 			    rx_hph_mode_mux_text);
 
 static const struct snd_kcontrol_new wcd9380_snd_controls[] = {
-	SOC_ENUM_EXT("EAR PA Gain", wcd938x_ear_pa_gain_enum,
+	SOC_ENUM_EXT("EAR PA GAIN", wcd938x_ear_pa_gain_enum,
 		wcd938x_ear_pa_gain_get, wcd938x_ear_pa_gain_put),
 
 	SOC_ENUM_EXT("RX HPH Mode", rx_hph_mode_mux_enum_wcd9380,
@@ -2571,9 +2579,6 @@ static const struct snd_kcontrol_new wcd9380_snd_controls[] = {
 };
 
 static const struct snd_kcontrol_new wcd9385_snd_controls[] = {
-	SOC_ENUM_EXT("EAR PA Gain", wcd938x_ear_pa_gain_enum,
-		wcd938x_ear_pa_gain_get, wcd938x_ear_pa_gain_put),
-
 	SOC_ENUM_EXT("RX HPH Mode", rx_hph_mode_mux_enum,
 		wcd938x_rx_hph_mode_get, wcd938x_rx_hph_mode_put),
 
@@ -2595,11 +2600,14 @@ static const struct snd_kcontrol_new wcd938x_snd_controls[] = {
 	SOC_SINGLE_EXT("LDOH Enable", SND_SOC_NOPM, 0, 1, 0,
 		wcd938x_ldoh_get, wcd938x_ldoh_put),
 
+	SOC_SINGLE_EXT("ST Enable", SND_SOC_NOPM, 0, 1, 0,
+		wcd938x_st_state_get, wcd938x_st_state_put),
+
 	SOC_SINGLE_EXT("ADC2_BCS Disable", SND_SOC_NOPM, 0, 1, 0,
 		wcd938x_bcs_get, wcd938x_bcs_put),
 
-	SOC_SINGLE_TLV("HPHL Volume", WCD938X_HPH_L_EN, 0, 24, 1, line_gain),
-	SOC_SINGLE_TLV("HPHR Volume", WCD938X_HPH_R_EN, 0, 24, 1, line_gain),
+	SOC_SINGLE_TLV("HPHL Volume", WCD938X_HPH_L_EN, 0, 20, 1, line_gain),
+	SOC_SINGLE_TLV("HPHR Volume", WCD938X_HPH_R_EN, 0, 20, 1, line_gain),
 	SOC_SINGLE_TLV("ADC1 Volume", WCD938X_ANA_TX_CH1, 0, 20, 0,
 			analog_gain),
 	SOC_SINGLE_TLV("ADC2 Volume", WCD938X_ANA_TX_CH2, 0, 20, 0,

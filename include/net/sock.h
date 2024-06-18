@@ -73,7 +73,6 @@
 #include <linux/net_tstamp.h>
 #include <net/smc.h>
 #include <net/l3mdev.h>
-#include <linux/android_kabi.h>
 
 /*
  * This structure really needs to be cleaned up.
@@ -187,6 +186,10 @@ struct sock_common {
 	};
 	struct proto		*skc_prot;
 	possible_net_t		skc_net;
+
+	/* WIFI MODIFICATION */
+	u32 skc_op_mark;
+	/* WIFI MODIFICATION */
 
 #if IS_ENABLED(CONFIG_IPV6)
 	struct in6_addr		skc_v6_daddr;
@@ -364,6 +367,9 @@ struct sock {
 #define sk_incoming_cpu		__sk_common.skc_incoming_cpu
 #define sk_flags		__sk_common.skc_flags
 #define sk_rxhash		__sk_common.skc_rxhash
+/* WIFI MODIFICATION */
+#define op_sla_mark		__sk_common.skc_op_mark
+/* WIFI MODIFICATION */
 
 	socket_lock_t		sk_lock;
 	atomic_t		sk_drops;
@@ -472,15 +478,8 @@ struct sock {
 	u32			sk_ack_backlog;
 	u32			sk_max_ack_backlog;
 	kuid_t			sk_uid;
-	pid_t			pid_num;
-#if IS_ENABLED(CONFIG_DEBUG_SPINLOCK) || IS_ENABLED(CONFIG_DEBUG_LOCK_ALLOC)
-	spinlock_t		sk_peer_lock;
-#else
-	/* sk_peer_lock is in the ANDROID_KABI_RESERVE(1) field below */
-#endif
 	struct pid		*sk_peer_pid;
 	const struct cred	*sk_peer_cred;
-
 	long			sk_rcvtimeo;
 	ktime_t			sk_stamp;
 #if BITS_PER_LONG==32
@@ -517,19 +516,6 @@ struct sock {
 	void                    (*sk_destruct)(struct sock *sk);
 	struct sock_reuseport __rcu	*sk_reuseport_cb;
 	struct rcu_head		sk_rcu;
-
-#if IS_ENABLED(CONFIG_DEBUG_SPINLOCK) || IS_ENABLED(CONFIG_DEBUG_LOCK_ALLOC)
-	ANDROID_KABI_RESERVE(1);
-#else
-	ANDROID_KABI_USE(1, spinlock_t sk_peer_lock);
-#endif
-	ANDROID_KABI_RESERVE(2);
-	ANDROID_KABI_RESERVE(3);
-	ANDROID_KABI_RESERVE(4);
-	ANDROID_KABI_RESERVE(5);
-	ANDROID_KABI_RESERVE(6);
-	ANDROID_KABI_RESERVE(7);
-	ANDROID_KABI_RESERVE(8);
 };
 
 enum sk_pacing {
@@ -866,8 +852,6 @@ static inline int sk_memalloc_socks(void)
 {
 	return static_branch_unlikely(&memalloc_socks_key);
 }
-
-void __receive_sock(struct file *file);
 #else
 
 static inline int sk_memalloc_socks(void)
@@ -875,8 +859,6 @@ static inline int sk_memalloc_socks(void)
 	return 0;
 }
 
-static inline void __receive_sock(struct file *file)
-{ }
 #endif
 
 static inline gfp_t sk_gfp_mask(const struct sock *sk, gfp_t gfp_mask)
@@ -921,11 +903,11 @@ static inline void __sk_add_backlog(struct sock *sk, struct sk_buff *skb)
 	skb_dst_force(skb);
 
 	if (!sk->sk_backlog.tail)
-		WRITE_ONCE(sk->sk_backlog.head, skb);
+		sk->sk_backlog.head = skb;
 	else
 		sk->sk_backlog.tail->next = skb;
 
-	WRITE_ONCE(sk->sk_backlog.tail, skb);
+	sk->sk_backlog.tail = skb;
 	skb->next = NULL;
 }
 
@@ -1800,6 +1782,7 @@ static inline int sk_rx_queue_get(const struct sock *sk)
 
 static inline void sk_set_socket(struct sock *sk, struct socket *sock)
 {
+	sk_tx_queue_clear(sk);
 	sk->sk_socket = sock;
 }
 
@@ -1853,8 +1836,7 @@ static inline u32 net_tx_rndhash(void)
 
 static inline void sk_set_txhash(struct sock *sk)
 {
-	/* This pairs with READ_ONCE() in skb_set_hash_from_sk() */
-	WRITE_ONCE(sk->sk_txhash, net_tx_rndhash());
+	sk->sk_txhash = net_tx_rndhash();
 }
 
 static inline void sk_rethink_txhash(struct sock *sk)
@@ -2125,12 +2107,9 @@ static inline void sock_poll_wait(struct file *filp, struct socket *sock,
 
 static inline void skb_set_hash_from_sk(struct sk_buff *skb, struct sock *sk)
 {
-	/* This pairs with WRITE_ONCE() in sk_set_txhash() */
-	u32 txhash = READ_ONCE(sk->sk_txhash);
-
-	if (txhash) {
+	if (sk->sk_txhash) {
 		skb->l4_hash = 1;
-		skb->hash = txhash;
+		skb->hash = sk->sk_txhash;
 	}
 }
 

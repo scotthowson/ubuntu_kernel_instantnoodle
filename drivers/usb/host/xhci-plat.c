@@ -314,11 +314,6 @@ static int xhci_plat_probe(struct platform_device *pdev)
 	}
 
 	hcd_to_bus(xhci->shared_hcd)->skip_resume = true;
-	if (device_property_read_bool(&pdev->dev,
-				"ignore-wakeup-src-in-hostmode")) {
-		hcd_to_bus(hcd)->skip_resume = false;
-		hcd_to_bus(xhci->shared_hcd)->skip_resume = false;
-	}
 
 	/* imod_interval is the interrupt moderation value in nanoseconds. */
 	xhci->imod_interval = 40000;
@@ -342,7 +337,8 @@ static int xhci_plat_probe(struct platform_device *pdev)
 	if (device_property_read_u32(&pdev->dev, "usb-core-id", &xhci->core_id))
 		xhci->core_id = -EINVAL;
 
-	hcd->usb_phy = devm_usb_get_phy_by_phandle(sysdev, "usb-phy", 0);
+	hcd->usb_phy = devm_usb_get_phy_by_phandle(pdev->dev.parent, "usb-phy",
+					0);
 	if (IS_ERR(hcd->usb_phy)) {
 		ret = PTR_ERR(hcd->usb_phy);
 		if (ret == -EPROBE_DEFER)
@@ -353,6 +349,16 @@ static int xhci_plat_probe(struct platform_device *pdev)
 		if (ret)
 			goto put_usb3_hcd;
 		hcd->skip_phy_initialization = 1;
+	}
+
+
+	hcd->usb3_phy = devm_usb_get_phy_by_phandle(pdev->dev.parent, "usb-phy",
+					1);
+	if (IS_ERR(hcd->usb3_phy)) {
+		ret = PTR_ERR(hcd->usb3_phy);
+		if (ret == -EPROBE_DEFER)
+			goto put_usb3_hcd;
+		hcd->usb3_phy = NULL;
 	}
 
 	ret = usb_add_hcd(hcd, irq, IRQF_SHARED);
@@ -408,7 +414,6 @@ static int xhci_plat_remove(struct platform_device *dev)
 	struct clk *reg_clk = xhci->reg_clk;
 	struct usb_hcd *shared_hcd = xhci->shared_hcd;
 
-	pm_runtime_get_sync(&dev->dev);
 	xhci->xhc_state |= XHCI_STATE_REMOVING;
 
 	device_remove_file(&dev->dev, &dev_attr_config_imod);
@@ -423,63 +428,10 @@ static int xhci_plat_remove(struct platform_device *dev)
 	clk_disable_unprepare(reg_clk);
 	usb_put_hcd(hcd);
 
-	pm_runtime_disable(&dev->dev);
-	pm_runtime_put_noidle(&dev->dev);
 	pm_runtime_set_suspended(&dev->dev);
+	pm_runtime_disable(&dev->dev);
 
 	return 0;
-}
-
-static int __maybe_unused xhci_plat_suspend(struct device *dev)
-{
-	struct usb_hcd  *hcd = dev_get_drvdata(dev);
-	struct xhci_hcd *xhci = hcd_to_xhci(hcd);
-
-	if (!xhci)
-		return 0;
-
-	/*
-	 * 'skip_resume' will be true for targets not supporting PM suspend if
-	 * runtimePM state is active. No need of xhci_plat PM ops in such case.
-	 */
-	if (hcd_to_bus(hcd)->skip_resume) {
-		dev_dbg(dev, "xhci-plat skip PM suspend\n");
-		return 0;
-	}
-
-	dev_dbg(dev, "xhci-plat PM suspend\n");
-
-	/* Disable wakeup capability */
-	return xhci_suspend(xhci, false);
-}
-
-static int __maybe_unused xhci_plat_resume(struct device *dev)
-{
-	struct usb_hcd  *hcd = dev_get_drvdata(dev);
-	struct xhci_hcd *xhci = hcd_to_xhci(hcd);
-	int ret;
-
-	if (!xhci)
-		return 0;
-
-	/* xhci PM ops not required if 'skip_resume' is true */
-	if (hcd_to_bus(hcd)->skip_resume) {
-		dev_dbg(dev, "xhci-plat skip PM resume\n");
-		return 0;
-	}
-
-	dev_dbg(dev, "xhci-plat PM resume\n");
-
-	ret = xhci_priv_resume_quirk(hcd);
-	if (ret)
-		return ret;
-
-	ret = xhci_resume(xhci, false);
-	pm_runtime_disable(dev);
-	pm_runtime_set_active(dev);
-	pm_runtime_enable(dev);
-
-	return ret;
 }
 
 static int __maybe_unused xhci_plat_runtime_idle(struct device *dev)
@@ -534,7 +486,7 @@ static int __maybe_unused xhci_plat_runtime_resume(struct device *dev)
 }
 
 static const struct dev_pm_ops xhci_plat_pm_ops = {
-	SET_SYSTEM_SLEEP_PM_OPS(xhci_plat_suspend, xhci_plat_resume)
+	SET_SYSTEM_SLEEP_PM_OPS(NULL, NULL)
 
 	SET_RUNTIME_PM_OPS(xhci_plat_runtime_suspend,
 			   xhci_plat_runtime_resume,
@@ -551,7 +503,6 @@ MODULE_DEVICE_TABLE(acpi, usb_xhci_acpi_match);
 static struct platform_driver usb_xhci_driver = {
 	.probe	= xhci_plat_probe,
 	.remove	= xhci_plat_remove,
-	.shutdown = usb_hcd_platform_shutdown,
 	.driver	= {
 		.name = "xhci-hcd",
 		.pm = &xhci_plat_pm_ops,

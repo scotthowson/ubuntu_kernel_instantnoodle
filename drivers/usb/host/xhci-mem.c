@@ -17,6 +17,11 @@
 #include "xhci.h"
 #include "xhci-trace.h"
 #include "xhci-debugfs.h"
+#include <linux/moduleparam.h>
+
+static bool usb2_lpm_disable = 1;
+module_param(usb2_lpm_disable, bool, 0644);
+MODULE_PARM_DESC(usb2_lpm_disable, "DISABLE USB2 LPM");
 
 /*
  * Allocates a generic ring segment from the ring pool, sets the dma address,
@@ -2055,7 +2060,6 @@ no_bw:
 	xhci->hw_ports = NULL;
 	xhci->rh_bw = NULL;
 	xhci->ext_caps = NULL;
-	xhci->port_caps = NULL;
 
 	xhci->page_size = 0;
 	xhci->page_shift = 0;
@@ -2237,15 +2241,6 @@ static void xhci_add_in_port(struct xhci_hcd *xhci, unsigned int num_ports,
 
 	if (major_revision == 0x03) {
 		rhub = &xhci->usb3_rhub;
-		/*
-		 * Some hosts incorrectly use sub-minor version for minor
-		 * version (i.e. 0x02 instead of 0x20 for bcdUSB 0x320 and 0x01
-		 * for bcdUSB 0x310). Since there is no USB release with sub
-		 * minor version 0x301 to 0x309, we can assume that they are
-		 * incorrect and fix it here.
-		 */
-		if (minor_revision > 0x00 && minor_revision < 0x10)
-			minor_revision <<= 4;
 	} else if (major_revision <= 0x02) {
 		rhub = &xhci->usb2_rhub;
 	} else {
@@ -2324,7 +2319,7 @@ static void xhci_add_in_port(struct xhci_hcd *xhci, unsigned int num_ports,
 		xhci_dbg_trace(xhci, trace_xhci_dbg_init,
 				"xHCI 1.0: support USB2 software lpm");
 		xhci->sw_lpm_support = 1;
-		if (temp & XHCI_HLC) {
+		if (!usb2_lpm_disable && (temp & XHCI_HLC)) {
 			xhci_dbg_trace(xhci, trace_xhci_dbg_init,
 					"xHCI 1.0: support USB2 hardware lpm");
 			xhci->hw_lpm_support = 1;

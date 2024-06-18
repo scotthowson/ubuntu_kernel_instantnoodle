@@ -133,11 +133,12 @@ endmenu
 endif # BLOCK
 
 if BLOCK
-menu "DOS/FAT/EXFAT/NT Filesystems"
+menu "DOS/FAT/NT Filesystems"
 
 source "fs/fat/Kconfig"
-source "fs/exfat/Kconfig"
 source "fs/ntfs/Kconfig"
+
+source "fs/exfat/Kconfig"
 
 endmenu
 endif # BLOCK
@@ -319,9 +320,5 @@ endif # NETWORK_FILESYSTEMS
 source "fs/nls/Kconfig"
 source "fs/dlm/Kconfig"
 source "fs/unicode/Kconfig"
-
-config FS_HPB
-	bool "Support HPB on Filesystem"
-	default n
 
 endmenu

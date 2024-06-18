@@ -9,7 +9,6 @@ menu "Serial drivers"
 
 config SERIAL_EARLYCON
 	bool
-	depends on SERIAL_CORE
 	help
 	  Support for early consoles with the earlycon parameter. This enables
 	  the console before standard serial driver is probed. The console is
@@ -999,39 +998,15 @@ config SERIAL_MSM_GENI
 	    hardware.
 	    The driver supports console and High speed UART functions.
 
-config SERIAL_MSM_GENI_HALF_SAMPLING
-	bool "Changes clock divider which impacts sampling rate for QUP HW ver greater than 2.5.0"
-	help
-	  Clock divider value should be doubled for QUP hardware version
-	  greater than 2.5.0.
-	  As earlycon can't have HW version awareness, decision is taken
-	  based on the configuration.
-
-config SERIAL_MSM_GENI_EARLY_CONSOLE
-	bool "MSM on-chip GENI HW based early console support"
-	select SERIAL_MSM_GENI_HALF_SAMPLING
-	help
-	  Serial early console driver for Qualcomm Technologies Inc's GENI
-	  based QUP hardware.
-
-config SERIAL_MSM_GENI_ELISH
-	tristate "MSM on-chip elish GENI HW based serial port support"
-	depends on ARCH_QCOM
-	select SERIAL_CORE
-	help
-	    Serial driver for Qualcomm Technologies Inc's GENI based QUPv3
-	    hardware.
-	    The driver supports console and High speed UART functions.
-
 config SERIAL_MSM_GENI_CONSOLE
 	tristate "MSM on-chip GENI HW based console support"
-	depends on SERIAL_MSM_GENI=y || SERIAL_MSM_GENI_ELISH=y
+	depends on SERIAL_MSM_GENI=y
 	select SERIAL_CORE_CONSOLE
 	select SERIAL_EARLYCON
 
 config SERIAL_MSM_GENI_HALF_SAMPLING
 	bool "Changes clock divider which impacts sampling rate for QUP HW ver greater than 2.5.0"
-	depends on SERIAL_MSM_GENI || SERIAL_MSM_GENI_ELISH=y
+	depends on SERIAL_MSM_GENI
 	help
 	  Clock divider value should be doubled for QUP hardware version
 	  greater than 2.5.0.
@@ -1573,14 +1548,6 @@ config SERIAL_OWL_CONSOLE
 	help
 	  Say 'Y' here if you wish to use Actions Semiconductor S500/S900 UART
 	  as the system console.
-
-config FASTBOOT_CMD_CTRL_UART
-	bool "support fastboot oem uart-enable cmd"
-	depends on SERIAL_EARLYCON && SERIAL_MSM_GENI_CONSOLE && !CONSOLE_POLL
-	default n
-	help
-	  Say 'Y' here if you wish to use 'fastboot oem uart-enable' cmd to
-	  enable console in user build
 
 endmenu
 

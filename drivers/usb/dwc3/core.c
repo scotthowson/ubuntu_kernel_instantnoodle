@@ -1002,16 +1002,6 @@ int dwc3_core_init(struct dwc3 *dwc)
 		if (dwc->dis_tx_ipgap_linecheck_quirk)
 			reg |= DWC3_GUCTL1_TX_IPGAP_LINECHECK_DIS;
 
-		/*
-		 * STAR: 9001415732: Host failure when Park mode is enabled:
-		 * Disable parkmode for Gen1 controllers to fix the stall
-		 * seen during host mode transfers on multiple endpoints.
-		 */
-		if (!dwc3_is_usb31(dwc)) {
-			reg |= DWC3_GUCTL1_PARKMODE_DISABLE_SS;
-			reg |= DWC3_GUCTL1_PARKMODE_DISABLE_FSLS;
-		}
-
 		dwc3_writel(dwc->regs, DWC3_GUCTL1, reg);
 	}
 
@@ -1589,7 +1579,7 @@ skip_clk_reset:
 
 	snprintf(dma_ipc_log_ctx_name, sizeof(dma_ipc_log_ctx_name),
 					"%s.ep_events", dev_name(dwc->dev));
-	dwc->dwc_dma_ipc_log_ctxt = ipc_log_context_create(2 * NUM_LOG_PAGES,
+	dwc->dwc_dma_ipc_log_ctxt = ipc_log_context_create(NUM_LOG_PAGES,
 						dma_ipc_log_ctx_name, 0);
 	if (!dwc->dwc_dma_ipc_log_ctxt)
 		dev_err(dwc->dev, "Error getting ipc_log_ctxt for ep_events\n");
@@ -1637,8 +1627,6 @@ static int dwc3_remove(struct platform_device *pdev)
 
 	ipc_log_context_destroy(dwc->dwc_ipc_log_ctxt);
 	dwc->dwc_ipc_log_ctxt = NULL;
-	ipc_log_context_destroy(dwc->dwc_dma_ipc_log_ctxt);
-	dwc->dwc_dma_ipc_log_ctxt = NULL;
 	count--;
 	dwc3_instance[dwc->index] = NULL;
 
@@ -1778,7 +1766,7 @@ static int dwc3_resume_common(struct dwc3 *dwc, pm_message_t msg)
 		if (PMSG_IS_AUTO(msg))
 			break;
 
-		ret = dwc3_core_init_for_resume(dwc);
+		ret = dwc3_core_init(dwc);
 		if (ret)
 			return ret;
 
@@ -1923,7 +1911,7 @@ static int dwc3_resume(struct device *dev)
 		 * which is now out of LPM. This allows runtime_suspend later.
 		 */
 		if (dwc->current_dr_role == DWC3_GCTL_PRTCAP_HOST &&
-		    dwc->ignore_wakeup_src_in_hostmode)
+		    dwc->host_poweroff_in_pm_suspend)
 			goto runtime_set_active;
 
 		return 0;
@@ -1982,7 +1970,6 @@ static struct platform_driver dwc3_driver = {
 		.of_match_table	= of_match_ptr(of_dwc3_match),
 		.acpi_match_table = ACPI_PTR(dwc3_acpi_match),
 		.pm	= &dwc3_dev_pm_ops,
-		.probe_type = PROBE_FORCE_SYNCHRONOUS,
 	},
 };
 

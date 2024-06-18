@@ -32,6 +32,11 @@ KCOV_INSTRUMENT_kcov.o := n
 KASAN_SANITIZE_kcov.o := n
 CFLAGS_kcov.o := $(call cc-option, -fno-conserve-stack -fno-stack-protector)
 
+ifndef CONFIG_CFI_CLANG
+# cond_syscall is currently not gcc LTO compatible
+CFLAGS_sys_ni.o = $(DISABLE_LTO)
+endif
+
 # Don't instrument error handlers
 CFLAGS_cfi.o = $(DISABLE_CFI_CLANG)
 
@@ -96,6 +101,7 @@ obj-$(CONFIG_TASK_DELAY_ACCT) += delayacct.o
 obj-$(CONFIG_TASKSTATS) += taskstats.o tsacct.o
 obj-$(CONFIG_TRACEPOINTS) += tracepoint.o
 obj-$(CONFIG_LATENCYTOP) += latencytop.o
+obj-$(CONFIG_ELFCORE) += elfcore.o
 obj-$(CONFIG_FUNCTION_TRACER) += trace/
 obj-$(CONFIG_TRACING) += trace/
 obj-$(CONFIG_TRACE_CLOCK) += trace/

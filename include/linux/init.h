@@ -213,7 +213,7 @@ extern bool initcall_debug;
 	__lto_initcall(__COUNTER__, __LINE__, fn, id, __sec)
 #else
   #define ___define_initcall(fn, id, __sec) \
-	static initcall_t __initcall_##fn##id __used __noreorder \
+	static initcall_t __initcall_##fn##id __used \
 		__attribute__((__section__(#__sec ".init"))) = fn;
 #endif
 #endif
@@ -321,6 +321,8 @@ void __init parse_early_options(char *cmdline);
 
 /* Data marked not to be saved by software suspend */
 #define __nosavedata __section(.data..nosave)
+
+#define __rticdata  __attribute__((section(".bss.rtic")))
 
 #ifdef MODULE
 #define __exit_p(x) x

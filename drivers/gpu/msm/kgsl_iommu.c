@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
- * Copyright (c) 2011-2021, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2011-2020, The Linux Foundation. All rights reserved.
  */
 
 #include <linux/compat.h>
@@ -210,9 +210,8 @@ static void kgsl_iommu_remove_global(struct kgsl_mmu *mmu,
 static void kgsl_iommu_add_global(struct kgsl_mmu *mmu,
 		struct kgsl_memdesc *memdesc, const char *name)
 {
-	u32 bit;
+	u32 bit, start = 0;
 	u64 size = kgsl_memdesc_footprint(memdesc);
-	int start = 0;
 
 	if (memdesc->gpuaddr != 0)
 		return;
@@ -649,7 +648,7 @@ static void _get_entries(struct kgsl_process_private *private,
 		prev->flags = p->memdesc.flags;
 		prev->priv = p->memdesc.priv;
 		prev->pending_free = p->pending_free;
-		prev->pid = pid_nr(private->pid);
+		prev->pid = private->pid;
 		__kgsl_get_memory_usage(prev);
 	}
 
@@ -659,7 +658,7 @@ static void _get_entries(struct kgsl_process_private *private,
 		next->flags = n->memdesc.flags;
 		next->priv = n->memdesc.priv;
 		next->pending_free = n->pending_free;
-		next->pid = pid_nr(private->pid);
+		next->pid = private->pid;
 		__kgsl_get_memory_usage(next);
 	}
 }
@@ -738,6 +737,25 @@ static struct kgsl_process_private *kgsl_iommu_get_process(u64 ptbase)
 	return NULL;
 }
 
+static void kgsl_send_uevent_iommu_notify(struct kgsl_device *desc, char *fault_type,
+	const char *context_name)
+{
+	char *envp[4];
+	char *title = "GPU_IOMMU_PAGE_FAULT";
+
+	if (!desc)
+		return;
+
+	envp[0] = kasprintf(GFP_KERNEL, "title=%s", title);
+	envp[1] = kasprintf(GFP_KERNEL, "fault_type=%s", fault_type);
+	envp[2] = kasprintf(GFP_KERNEL, "context=%s", context_name);
+	envp[3] = NULL;
+	kobject_uevent_env(&desc->dev->kobj, KOBJ_CHANGE, envp);
+	kfree(envp[0]);
+	kfree(envp[1]);
+	kfree(envp[2]);
+}
+
 static int kgsl_iommu_fault_handler(struct iommu_domain *domain,
 	struct device *dev, unsigned long addr, int flags, void *token)
 {
@@ -758,7 +776,6 @@ static int kgsl_iommu_fault_handler(struct iommu_domain *domain,
 	unsigned int no_page_fault_log = 0;
 	char *fault_type = "unknown";
 	char *comm = "unknown";
-	bool fault_ret_flag = false;
 	struct kgsl_process_private *private;
 
 	static DEFINE_RATELIMIT_STATE(_rs,
@@ -787,8 +804,10 @@ static int kgsl_iommu_fault_handler(struct iommu_domain *domain,
 	ptbase = KGSL_IOMMU_GET_CTX_REG_Q(ctx, TTBR0);
 	private = kgsl_iommu_get_process(ptbase);
 
+	kgsl_send_uevent_iommu_notify(device, fault_type, ctx->name);
+
 	if (private) {
-		pid = pid_nr(private->pid);
+		pid = private->pid;
 		comm = private->comm;
 	}
 
@@ -802,11 +821,9 @@ static int kgsl_iommu_fault_handler(struct iommu_domain *domain,
 		 * Turn off GPU IRQ so we don't get faults from it too.
 		 * The device mutex must be held to change power state
 		 */
-		if (mutex_trylock(&device->mutex)) {
-			kgsl_pwrctrl_change_state(device, KGSL_STATE_AWARE);
-			mutex_unlock(&device->mutex);
-		} else
-			fault_ret_flag = true;
+		mutex_lock(&device->mutex);
+		kgsl_pwrctrl_change_state(device, KGSL_STATE_AWARE);
+		mutex_unlock(&device->mutex);
 	}
 
 	contextidr = KGSL_IOMMU_GET_CTX_REG(ctx, CONTEXTIDR);
@@ -866,12 +883,13 @@ static int kgsl_iommu_fault_handler(struct iommu_domain *domain,
 		}
 	}
 
+
 	/*
 	 * We do not want the h/w to resume fetching data from an iommu
 	 * that has faulted, this is better for debugging as it will stall
 	 * the GPU and trigger a snapshot. Return EBUSY error.
 	 */
-	if (!fault_ret_flag && test_bit(KGSL_FT_PAGEFAULT_GPUHALT_ENABLE,
+	if (test_bit(KGSL_FT_PAGEFAULT_GPUHALT_ENABLE,
 		&adreno_dev->ft_pf_policy) &&
 		(flags & IOMMU_FAULT_TRANSACTION_STALLED)) {
 		uint32_t sctlr_val;
@@ -1148,7 +1166,7 @@ void _enable_gpuhtw_llc(struct kgsl_mmu *mmu, struct kgsl_iommu_pt *iommu_pt)
 	int ret;
 
 	/* GPU pagetable walk LLC slice not enabled */
-	if (IS_ERR_OR_NULL(adreno_dev->gpuhtw_llc_slice))
+	if (IS_ERR(adreno_dev->gpuhtw_llc_slice))
 		return;
 
 	/* Domain attribute to enable system cache for GPU pagetable walks */
@@ -2447,7 +2465,6 @@ static int kgsl_iommu_set_svm_region(struct kgsl_pagetable *pagetable,
 	struct kgsl_iommu_pt *pt = pagetable->priv;
 	struct rb_node *node;
 
-	/* Make sure the requested address doesn't fall out of SVM range */
 	if (!iommu_addr_in_svm_ranges(pt, gpuaddr, size))
 		return -ENOMEM;
 
@@ -2490,11 +2507,6 @@ static int get_gpuaddr(struct kgsl_pagetable *pagetable,
 		return -ENOMEM;
 	}
 
-	/*
-	 * This path is only called in a non-SVM path with locks so we can be
-	 * sure we aren't racing with anybody so we don't need to worry about
-	 * taking the lock
-	 */
 	ret = _insert_gpuaddr(pagetable, addr, size);
 	spin_unlock(&pagetable->lock);
 

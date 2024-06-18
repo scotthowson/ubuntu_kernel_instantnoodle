@@ -3118,14 +3118,12 @@ static int sd_revalidate_disk(struct gendisk *disk)
 	dev_max = min_not_zero(dev_max, sdkp->max_xfer_blocks);
 	q->limits.max_dev_sectors = logical_to_sectors(sdp, dev_max);
 
-	if (sd_validate_opt_xfer_size(sdkp, dev_max)) {
+	if (sd_validate_opt_xfer_size(sdkp, dev_max))
 		rw_max = q->limits.io_opt =
 			sdkp->opt_xfer_blocks * sdp->sector_size;
-	} else {
-		q->limits.io_opt = 0;
+	else
 		rw_max = min_not_zero(logical_to_sectors(sdp, dev_max),
 				      (sector_t)BLK_DEF_MAX_SECTORS);
-	}
 
 	/* Do not exceed controller limit */
 	rw_max = min(rw_max, queue_max_hw_sectors(q));
@@ -3356,16 +3354,15 @@ static int sd_probe(struct device *dev)
 	}
 
 	device_initialize(&sdkp->dev);
-	sdkp->dev.parent = get_device(dev);
+	sdkp->dev.parent = dev;
 	sdkp->dev.class = &sd_disk_class;
 	dev_set_name(&sdkp->dev, "%s", dev_name(dev));
 
 	error = device_add(&sdkp->dev);
-	if (error) {
-		put_device(&sdkp->dev);
-		goto out;
-	}
+	if (error)
+		goto out_free_index;
 
+	get_device(dev);
 	dev_set_drvdata(dev, sdkp);
 
 	get_device(&sdkp->dev);	/* prevent release before async_schedule */

@@ -29,7 +29,6 @@
 #include <linux/percpu.h>
 #include <linux/slab.h>
 #include <linux/msm_rtb.h>
-#include <linux/wakeup_reason.h>
 
 #include <linux/irqchip.h>
 #include <linux/irqchip/arm-gic-common.h>
@@ -42,8 +41,11 @@
 #include <asm/virt.h>
 
 #include <linux/syscore_ops.h>
-
+/* Add for battery historian */
+#include <linux/wakeup_reason.h>
 #include "irq-gic-common.h"
+
+unsigned int qrtr_first_msg = 1;
 
 struct redist_region {
 	void __iomem		*redist_base;
@@ -69,8 +71,6 @@ static DEFINE_STATIC_KEY_TRUE(supports_deactivate_key);
 
 static struct gic_kvm_info gic_v3_kvm_info;
 static DEFINE_PER_CPU(bool, has_rss);
-
-int gic_resume_irq = 0;
 
 #define MPIDR_RS(mpidr)			(((mpidr) & 0xF0UL) >> 4)
 #define gic_data_rdist()		(this_cpu_ptr(gic_data.rdists.rdist))
@@ -346,35 +346,15 @@ static int gic_suspend(void)
 	return 0;
 }
 
-/*
- * gic_show_pending_irq - Shows the pending interrupts
- * Note: Interrupts should be disabled on the cpu from which
- * this is called to get accurate list of pending interrupts.
- */
-void gic_show_pending_irqs(void)
-{
-	void __iomem *base;
-	u32 pending, enabled;
-	unsigned int j;
-
-	base = gic_data.dist_base;
-	for (j = 0; j * 32 < gic_data.irq_nr; j++) {
-		enabled = readl_relaxed(base +
-					GICD_ISENABLER + j * 4);
-		pending = readl_relaxed(base +
-					GICD_ISPENDR + j * 4);
-		pr_err("Pending and enabled irqs[%d] %x %x\n", j,
-				pending, enabled);
-
-	}
-}
-
 static void gic_show_resume_irq(struct gic_chip_data *gic)
 {
 	unsigned int i;
 	u32 enabled;
 	u32 pending[32];
 	void __iomem *base = gic_data.dist_base;
+
+	if (!msm_show_resume_irq_mask)
+		return;
 
 	for (i = 0; i * 32 < gic->irq_nr; i++) {
 		enabled = readl_relaxed(base + GICD_ICENABLER + i * 4);
@@ -394,10 +374,12 @@ static void gic_show_resume_irq(struct gic_chip_data *gic)
 		else if (desc->action && desc->action->name)
 			name = desc->action->name;
 
-		gic_resume_irq = irq;
+		/* Add for battery historian */
+		if (name != NULL)
+			log_wakeup_reason(irq);
 
-		if (msm_show_resume_irq_mask)
-			pr_warn("%s: %d triggered %s\n", __func__, irq, name);
+		pr_warn("%s: %d triggered %s\n", __func__, irq, name);
+		qrtr_first_msg = 0;
 	}
 }
 
@@ -456,8 +438,6 @@ static asmlinkage void __exception_irq_entry gic_handle_irq(struct pt_regs *regs
 			err = handle_domain_irq(gic_data.domain, irqnr, regs);
 			if (err) {
 				WARN_ONCE(true, "Unexpected interrupt received!\n");
-				log_abnormal_wakeup_reason(
-						"unexpected HW IRQ %u", irqnr);
 				if (static_branch_likely(&supports_deactivate_key)) {
 					if (irqnr < 8192)
 						gic_write_dir(irqnr);

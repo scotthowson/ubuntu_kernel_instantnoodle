@@ -133,7 +133,6 @@ void (*__initdata late_time_init)(void);
 char __initdata boot_command_line[COMMAND_LINE_SIZE];
 /* Untouched saved command line (eg. for /proc) */
 char *saved_command_line;
-EXPORT_SYMBOL_GPL(saved_command_line);
 /* Command line for parameter parsing */
 static char *static_command_line;
 /* Command line for per-initcall parameter parsing */
@@ -214,6 +213,7 @@ EXPORT_SYMBOL(loops_per_jiffy);
 static int __init debug_kernel(char *str)
 {
 	console_loglevel = CONSOLE_LOGLEVEL_DEBUG;
+	default_message_loglevel = CONSOLE_LOGLEVEL_DEBUG;
 	return 0;
 }
 
@@ -512,16 +512,14 @@ static void __init report_meminit(void)
 {
 	const char *stack;
 
-	if (IS_ENABLED(CONFIG_INIT_STACK_ALL_PATTERN))
-		stack = "all(pattern)";
-	else if (IS_ENABLED(CONFIG_INIT_STACK_ALL_ZERO))
-		stack = "all(zero)";
+	if (IS_ENABLED(CONFIG_INIT_STACK_ALL))
+		stack = "all";
 	else if (IS_ENABLED(CONFIG_GCC_PLUGIN_STRUCTLEAK_BYREF_ALL))
-		stack = "byref_all(zero)";
+		stack = "byref_all";
 	else if (IS_ENABLED(CONFIG_GCC_PLUGIN_STRUCTLEAK_BYREF))
-		stack = "byref(zero)";
+		stack = "byref";
 	else if (IS_ENABLED(CONFIG_GCC_PLUGIN_STRUCTLEAK_USER))
-		stack = "__user(zero)";
+		stack = "__user";
 	else
 		stack = "off";
 
@@ -544,8 +542,6 @@ static void __init mm_init(void)
 	page_ext_init_flatmem();
 	report_meminit();
 	mem_init();
-	/* page_owner must be initialized after buddy is ready */
-	page_ext_init_flatmem_late();
 	kmem_cache_init();
 	pgtable_init();
 	vmalloc_init();
@@ -677,6 +673,7 @@ asmlinkage __visible void __init start_kernel(void)
 	boot_init_stack_canary();
 
 	time_init();
+	printk_safe_init();
 	perf_event_init();
 	profile_init();
 	call_function_init();
@@ -770,8 +767,6 @@ asmlinkage __visible void __init start_kernel(void)
 
 	/* Do the rest non-__init'ed, we're now alive */
 	rest_init();
-
-	prevent_tail_call_optimization();
 }
 
 /* Call all constructor functions linked into the kernel. */
@@ -1160,7 +1155,7 @@ static noinline void __init kernel_init_freeable(void)
 	 */
 	set_mems_allowed(node_states[N_MEMORY]);
 
-	cad_pid = get_pid(task_pid(current));
+	cad_pid = task_pid(current);
 
 	smp_prepare_cpus(setup_max_cpus);
 

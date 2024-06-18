@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2010 Marco Stornelli <marco.stornelli@gmail.com>
- * Copyright (C) 2021 XiaoMi, Inc.
  * Copyright (C) 2011 Kees Cook <keescook@chromium.org>
  * Copyright (C) 2011 Google, Inc.
  *
@@ -64,11 +63,6 @@ struct persistent_ram_zone {
 	size_t old_log_size;
 };
 
-struct pmsg_start_t {
-       size_t         start;
-       spinlock_t     lock;
-};
-
 struct persistent_ram_zone *persistent_ram_new(phys_addr_t start, size_t size,
 			u32 sig, struct persistent_ram_ecc_info *ecc_info,
 			unsigned int memtype, u32 flags);
@@ -103,6 +97,7 @@ struct ramoops_platform_data {
 	unsigned long	console_size;
 	unsigned long	ftrace_size;
 	unsigned long	pmsg_size;
+	unsigned long	device_info_size;
 	int		dump_oops;
 	u32		flags;
 	struct persistent_ram_ecc_info ecc_info;

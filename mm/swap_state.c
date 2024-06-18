@@ -23,7 +23,6 @@
 #include <linux/huge_mm.h>
 
 #include <asm/pgtable.h>
-#include "internal.h"
 
 /*
  * swapper_space is a fiction, retained to simplify the path through
@@ -417,7 +416,7 @@ struct page *__read_swap_cache_async(swp_entry_t entry, gfp_t gfp_mask,
 		/*
 		 * call radix_tree_preload() while we can wait.
 		 */
-		err = radix_tree_maybe_preload(gfp_mask & GFP_RECLAIM_MASK);
+		err = radix_tree_maybe_preload(gfp_mask & GFP_KERNEL);
 		if (err)
 			break;
 
@@ -450,7 +449,10 @@ struct page *__read_swap_cache_async(swp_entry_t entry, gfp_t gfp_mask,
 			 * Initiate read into locked page and return.
 			 */
 			SetPageWorkingset(new_page);
-			lru_cache_add_anon(new_page);
+			if (memplus_enabled())
+				__lru_cache_add_active_or_unevictable(new_page, 0);
+			else /* add end */
+				lru_cache_add_anon(new_page);
 			*new_page_allocated = true;
 			return new_page;
 		}
@@ -538,11 +540,10 @@ static unsigned long swapin_nr_pages(unsigned long offset)
 		return 1;
 
 	hits = atomic_xchg(&swapin_readahead_hits, 0);
-	pages = __swapin_nr_pages(READ_ONCE(prev_offset), offset, hits,
-				  max_pages,
+	pages = __swapin_nr_pages(prev_offset, offset, hits, max_pages,
 				  atomic_read(&last_readahead_pages));
 	if (!hits)
-		WRITE_ONCE(prev_offset, offset);
+		prev_offset = offset;
 	atomic_set(&last_readahead_pages, pages);
 
 	return pages;
@@ -748,12 +749,6 @@ static struct page *swap_vma_readahead(swp_entry_t fentry, gfp_t gfp_mask,
 	bool page_allocated;
 	struct vma_swap_readahead ra_info = {0,};
 
-	/* Moto huangzq2: don't readahead sync io pages */
-	if (swap_slot_has_sync_io(fentry)) {
-		ra_info.win = 1;
-		goto skip;
-	}
-
 	swap_ra_info(vmf, &ra_info);
 	if (ra_info.win == 1)
 		goto skip;
@@ -768,9 +763,6 @@ static struct page *swap_vma_readahead(swp_entry_t fentry, gfp_t gfp_mask,
 			continue;
 		entry = pte_to_swp_entry(pentry);
 		if (unlikely(non_swap_entry(entry)))
-			continue;
-		/* Moto huangzq2: don't readahead sync io pages */
-		if (swap_slot_has_sync_io(entry))
 			continue;
 		page = __read_swap_cache_async(entry, gfp_mask, vma,
 					       vmf->address, &page_allocated);

@@ -208,17 +208,14 @@ struct hd_struct *disk_part_iter_next(struct disk_part_iter *piter)
 		part = rcu_dereference(ptbl->part[piter->idx]);
 		if (!part)
 			continue;
-		get_device(part_to_dev(part));
-		piter->part = part;
 		if (!part_nr_sects_read(part) &&
 		    !(piter->flags & DISK_PITER_INCL_EMPTY) &&
 		    !(piter->flags & DISK_PITER_INCL_EMPTY_PART0 &&
-		      piter->idx == 0)) {
-			put_device(part_to_dev(part));
-			piter->part = NULL;
+		      piter->idx == 0))
 			continue;
-		}
 
+		get_device(part_to_dev(part));
+		piter->part = part;
 		piter->idx += inc;
 		break;
 	}
@@ -618,8 +615,10 @@ static void register_disk(struct device *parent, struct gendisk *disk)
 	disk->part0.holder_dir = kobject_create_and_add("holders", &ddev->kobj);
 	disk->slave_dir = kobject_create_and_add("slaves", &ddev->kobj);
 
-	if (disk->flags & GENHD_FL_HIDDEN)
+	if (disk->flags & GENHD_FL_HIDDEN) {
+		dev_set_uevent_suppress(ddev, 0);
 		return;
+	}
 
 	/* No minors to use for partitions */
 	if (!disk_part_scan_enabled(disk))
@@ -650,12 +649,10 @@ exit:
 		kobject_uevent(&part_to_dev(part)->kobj, KOBJ_ADD);
 	disk_part_iter_exit(&piter);
 
-	if (disk->queue->backing_dev_info->dev) {
-		err = sysfs_create_link(&ddev->kobj,
-			  &disk->queue->backing_dev_info->dev->kobj,
-			  "bdi");
-		WARN_ON(err);
-	}
+	err = sysfs_create_link(&ddev->kobj,
+				&disk->queue->backing_dev_info->dev->kobj,
+				"bdi");
+	WARN_ON(err);
 }
 
 /**
@@ -959,6 +956,55 @@ void __init printk_all_partitions(void)
 	}
 	class_dev_iter_exit(&iter);
 }
+
+#ifdef CONFIG_WB_KERNEL_LOG
+struct block_device *find_reserve_partition(void)
+{
+	struct class_dev_iter iter;
+	struct device *dev;
+	struct block_device *bdev = NULL;
+
+	pr_info("Op_kernel_log: finding reserve partition\n");
+	class_dev_iter_init(&iter, &block_class, NULL, &disk_type);
+	while ((dev = class_dev_iter_next(&iter))) {
+		struct gendisk *disk = dev_to_disk(dev);
+		struct disk_part_iter piter;
+		struct hd_struct *part;
+		int target_partno;
+		char name_buf[BDEVNAME_SIZE];
+		char devt_buf[BDEVT_SIZE];
+		/*
+		 * Don't show empty devices or things that have been
+		 * suppressed
+		 */
+		if (get_capacity(disk) == 0 ||
+		    (disk->flags & GENHD_FL_SUPPRESS_PARTITION_INFO))
+			continue;
+		disk_part_iter_init(&piter, disk, DISK_PITER_INCL_PART0);
+		while ((part = disk_part_iter_next(&piter))) {
+			bool is_part0 = part == &disk->part0;
+
+			if (part->info && strcmp(((char *)part->info->volname), "kernel_log") == 0) {
+				pr_info("Op_kernel_log: find reserve partition: %s%s %10llu %s %s %s\n",
+					is_part0 ? "" : "  ", bdevt_str(part_devt(part), devt_buf),
+					(unsigned long long)part_nr_sects_read(part) >> 1
+					, disk_name(disk, part->partno, name_buf),
+					part->info->uuid, ((char *)part->info->volname));
+
+				bdev = bdget_disk(disk, part->partno);
+
+				if (bdev != NULL)
+					get_gendisk(bdev->bd_dev, &target_partno);
+				else
+					pr_err("Op_kernel_log: get dev NULL\n");
+			}
+		}
+		disk_part_iter_exit(&piter);
+	}
+	class_dev_iter_exit(&iter);
+	return bdev;
+}
+#endif
 
 #ifdef CONFIG_PROC_FS
 /* iterator */

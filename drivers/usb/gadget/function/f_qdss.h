@@ -50,6 +50,7 @@ struct f_qdss {
 	bool debug_inface_enabled;
 	struct usb_request *endless_req;
 	struct usb_qdss_ch ch;
+	struct list_head ctrl_write_pool;
 
 	/* for mdm channel SW path */
 	struct list_head data_write_pool;
@@ -65,7 +66,7 @@ struct f_qdss {
 	bool qdss_close;
 };
 
-static __maybe_unused void *_qdss_ipc_log;
+static void *_qdss_ipc_log;
 
 #define NUM_PAGES	10 /* # of pages for ipc logging */
 

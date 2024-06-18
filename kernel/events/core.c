@@ -51,6 +51,10 @@
 #include <linux/proc_ns.h>
 #include <linux/mount.h>
 
+#ifdef CONFIG_HOUSTON
+#include <oneplus/houston/houston_helper.h>
+#endif
+
 #include "internal.h"
 
 #include <asm/irq_regs.h>
@@ -94,11 +98,11 @@ static void remote_function(void *data)
  * @info:	the function call argument
  *
  * Calls the function @func when the task is currently running. This might
- * be on the current CPU, which just calls the function directly.  This will
- * retry due to any failures in smp_call_function_single(), such as if the
- * task_cpu() goes offline concurrently.
+ * be on the current CPU, which just calls the function directly
  *
- * returns @func return value or -ESRCH or -ENXIO when the process isn't running
+ * returns: @func return value, or
+ *	    -ESRCH  - when the process isn't running
+ *	    -EAGAIN - when the process moved away
  */
 static int
 task_function_call(struct task_struct *p, remote_function_f func, void *info)
@@ -111,17 +115,11 @@ task_function_call(struct task_struct *p, remote_function_f func, void *info)
 	};
 	int ret;
 
-	for (;;) {
-		ret = smp_call_function_single(task_cpu(p), remote_function,
-					       &data, 1);
+	do {
+		ret = smp_call_function_single(task_cpu(p), remote_function, &data, 1);
 		if (!ret)
 			ret = data.ret;
-
-		if (ret != -EAGAIN)
-			break;
-
-		cond_resched();
-	}
+	} while (ret == -EAGAIN);
 
 	return ret;
 }
@@ -4237,9 +4235,7 @@ find_get_context(struct pmu *pmu, struct task_struct *task,
 		cpuctx = per_cpu_ptr(pmu->pmu_cpu_context, cpu);
 		ctx = &cpuctx->ctx;
 		get_ctx(ctx);
-		raw_spin_lock_irqsave(&ctx->lock, flags);
 		++ctx->pin_count;
-		raw_spin_unlock_irqrestore(&ctx->lock, flags);
 
 		return ctx;
 	}
@@ -5073,6 +5069,34 @@ perf_read(struct file *file, char __user *buf, size_t count, loff_t *ppos)
 	return ret;
 }
 
+#ifdef CONFIG_HOUSTON
+u64 ht_perf_read(struct task_struct *task, int id)
+{
+	struct perf_event *event = task->perf_events[id], *child;
+	struct perf_event_context *ctx;
+	u64 total = 0;
+
+	if (unlikely(!event))
+		return total;
+
+	ctx = perf_event_ctx_lock(event);
+	if (event->state == PERF_EVENT_STATE_ERROR)
+		goto out;
+
+	WARN_ON_ONCE(event->ctx->parent_ctx);
+	mutex_lock(&event->child_mutex);
+	(void)perf_event_read(event, false);
+	total += perf_event_count(event);
+	list_for_each_entry(child, &event->child_list, child_list) {
+		(void)perf_event_read(child, false);
+		total += perf_event_count(child);
+	}
+	mutex_unlock(&event->child_mutex);
+out:
+	perf_event_ctx_unlock(event, ctx);
+	return total;
+}
+#endif
 static __poll_t perf_poll(struct file *file, poll_table *wait)
 {
 	struct perf_event *event = file->private_data;
@@ -5661,11 +5685,11 @@ static void perf_pmu_output_stop(struct perf_event *event);
 static void perf_mmap_close(struct vm_area_struct *vma)
 {
 	struct perf_event *event = vma->vm_file->private_data;
+
 	struct ring_buffer *rb = ring_buffer_get(event);
 	struct user_struct *mmap_user = rb->mmap_user;
 	int mmap_locked = rb->mmap_locked;
 	unsigned long size = perf_data_size(rb);
-	bool detach_rest = false;
 
 	if (event->pmu->event_unmapped)
 		event->pmu->event_unmapped(event, vma->vm_mm);
@@ -5696,8 +5720,7 @@ static void perf_mmap_close(struct vm_area_struct *vma)
 		mutex_unlock(&event->mmap_mutex);
 	}
 
-	if (atomic_dec_and_test(&rb->mmap_count))
-		detach_rest = true;
+	atomic_dec(&rb->mmap_count);
 
 	if (!atomic_dec_and_mutex_lock(&event->mmap_count, &event->mmap_mutex))
 		goto out_put;
@@ -5706,7 +5729,7 @@ static void perf_mmap_close(struct vm_area_struct *vma)
 	mutex_unlock(&event->mmap_mutex);
 
 	/* If there's still other mmap()s of this buffer, we're done. */
-	if (!detach_rest)
+	if (atomic_read(&rb->mmap_count))
 		goto out_put;
 
 	/*
@@ -6590,6 +6613,7 @@ void perf_output_sample(struct perf_output_handle *handle,
 static u64 perf_virt_to_phys(u64 virt)
 {
 	u64 phys_addr = 0;
+	struct page *p = NULL;
 
 	if (!virt)
 		return 0;
@@ -6607,16 +6631,12 @@ static u64 perf_virt_to_phys(u64 virt)
 		 * Try IRQ-safe __get_user_pages_fast first.
 		 * If failed, leave phys_addr as 0.
 		 */
-		if (current->mm != NULL) {
-			struct page *p;
+		if ((current->mm != NULL) &&
+		    (__get_user_pages_fast(virt, 1, 0, &p) == 1))
+			phys_addr = page_to_phys(p) + virt % PAGE_SIZE;
 
-			pagefault_disable();
-			if (__get_user_pages_fast(virt, 1, 0, &p) == 1) {
-				phys_addr = page_to_phys(p) + virt % PAGE_SIZE;
-				put_page(p);
-			}
-			pagefault_enable();
-		}
+		if (p)
+			put_page(p);
 	}
 
 	return phys_addr;
@@ -7120,17 +7140,10 @@ static void perf_event_task_output(struct perf_event *event,
 		goto out;
 
 	task_event->event_id.pid = perf_event_pid(event, task);
-	task_event->event_id.tid = perf_event_tid(event, task);
+	task_event->event_id.ppid = perf_event_pid(event, current);
 
-	if (task_event->event_id.header.type == PERF_RECORD_EXIT) {
-		task_event->event_id.ppid = perf_event_pid(event,
-							task->real_parent);
-		task_event->event_id.ptid = perf_event_pid(event,
-							task->real_parent);
-	} else {  /* PERF_RECORD_FORK */
-		task_event->event_id.ppid = perf_event_pid(event, current);
-		task_event->event_id.ptid = perf_event_tid(event, current);
-	}
+	task_event->event_id.tid = perf_event_tid(event, task);
+	task_event->event_id.ptid = perf_event_tid(event, current);
 
 	task_event->event_id.time = perf_event_clock(event);
 
@@ -9082,7 +9095,7 @@ static void perf_event_addr_filters_apply(struct perf_event *event)
 		return;
 
 	if (ifh->nr_file_filters) {
-		mm = get_task_mm(task);
+		mm = get_task_mm(event->ctx->task);
 		if (!mm)
 			goto restart;
 
@@ -9240,7 +9253,6 @@ perf_event_parse_addr_filter(struct perf_event *event, char *fstr,
 			if (token == IF_SRC_FILE || token == IF_SRC_FILEADDR) {
 				int fpos = token == IF_SRC_FILE ? 2 : 1;
 
-				kfree(filename);
 				filename = match_strdup(&args[fpos]);
 				if (!filename) {
 					ret = -ENOMEM;
@@ -9287,13 +9299,16 @@ perf_event_parse_addr_filter(struct perf_event *event, char *fstr,
 				 */
 				ret = -EOPNOTSUPP;
 				if (!event->ctx->task)
-					goto fail;
+					goto fail_free_name;
 
 				/* look up the path and grab its inode */
 				ret = kern_path(filename, LOOKUP_FOLLOW,
 						&filter->path);
 				if (ret)
-					goto fail;
+					goto fail_free_name;
+
+				kfree(filename);
+				filename = NULL;
 
 				ret = -EINVAL;
 				if (!filter->path.dentry ||
@@ -9313,13 +9328,13 @@ perf_event_parse_addr_filter(struct perf_event *event, char *fstr,
 	if (state != IF_STATE_ACTION)
 		goto fail;
 
-	kfree(filename);
 	kfree(orig);
 
 	return 0;
 
-fail:
+fail_free_name:
 	kfree(filename);
+fail:
 	free_filters_list(filters);
 	kfree(orig);
 
@@ -10862,6 +10877,82 @@ static void perf_group_shared_event(struct perf_event *event,
 }
 #endif
 
+#ifdef CONFIG_HOUSTON
+static DEFINE_MUTEX(ht_perf_event_mutex_lock);
+bool ht_perf_event_open(pid_t pid, int id)
+{
+	struct perf_event_attr attr;
+	struct perf_event *event = NULL;
+	struct task_struct *task = NULL;
+
+	mutex_lock(&ht_perf_event_mutex_lock);
+	memset(&attr, 0, sizeof(struct perf_event_attr));
+	if (id < HT_PERF_COUNT_CACHE_MISSES_L1)
+		attr.type = PERF_TYPE_HARDWARE;
+	else
+		attr.type = PERF_TYPE_RAW;
+	switch (id) {
+	case HT_PERF_COUNT_CPU_CYCLES:
+		attr.config = PERF_COUNT_HW_CPU_CYCLES; break;
+	case HT_PERF_COUNT_INSTRUCTIONS:
+		attr.config = PERF_COUNT_HW_INSTRUCTIONS; break;
+	case HT_PERF_COUNT_CACHE_MISSES_L1:
+		attr.config = 0x3; break;
+	case HT_PERF_COUNT_CACHE_MISSES_L2:
+		attr.config = 0x17; break;
+	case HT_PERF_COUNT_CACHE_MISSES_L3:
+		attr.config = 0x2a; break;
+	default:
+		break;
+	}
+	attr.size = sizeof(struct perf_event_attr);
+	attr.disabled = 1;
+
+	task = find_lively_task_by_vpid(pid);
+	if (IS_ERR(task))
+		goto exit_directly;
+	if (task->perf_regular_activate)
+		goto err_task;
+	if (task->perf_events[id] && task->perf_regular_activate)
+		goto err_task;
+	if (mutex_lock_interruptible(&task->signal->cred_guard_mutex))
+		goto err_task;
+
+	mutex_lock(&task->perf_event_mutex);
+	if (task->perf_events[id]) {
+		pr_warn("ht_core: task %s %d event %d has been occupied\n", task->comm, task->pid, id);
+		perf_event_disable(task->perf_events[id]);
+		perf_event_release_kernel(task->perf_events[id]);
+		task->perf_events[id] = NULL;
+		task->perf_activate &= ~(1 << id);
+	}
+	mutex_unlock(&task->perf_event_mutex);
+
+	event = perf_event_create_kernel_counter(&attr,	-1, task, NULL, NULL);
+	if (IS_ERR(event))
+		goto err_cred;
+
+	mutex_lock(&task->perf_event_mutex);
+	task->perf_events[id] = event;
+	mutex_unlock(&task->perf_event_mutex);
+
+	perf_event_enable(event);
+
+	mutex_unlock(&task->signal->cred_guard_mutex);
+	put_task_struct(task);
+	task->perf_activate |= (1 << id);
+	mutex_unlock(&ht_perf_event_mutex_lock);
+	return true;
+
+err_cred:
+	mutex_unlock(&task->signal->cred_guard_mutex);
+err_task:
+	put_task_struct(task);
+exit_directly:
+	mutex_unlock(&ht_perf_event_mutex_lock);
+	return false;
+}
+#endif
 /**
  * sys_perf_event_open - open a performance event, associate it to a task/cpu
  *
@@ -10946,6 +11037,10 @@ SYSCALL_DEFINE5(perf_event_open,
 	if (event_fd < 0)
 		return event_fd;
 
+#ifdef CONFIG_HOUSTON
+	mutex_lock(&ht_perf_event_mutex_lock);
+#endif
+
 	if (group_fd != -1) {
 		err = perf_fget_light(group_fd, &group);
 		if (err)
@@ -10973,6 +11068,13 @@ SYSCALL_DEFINE5(perf_event_open,
 			err = PTR_ERR(task);
 			goto err_group_fd;
 		}
+
+#ifdef CONFIG_HOUSTON
+		if (task->perf_activate) {
+			err = -EBUSY;
+			goto err_group_fd;
+		}
+#endif
 	}
 
 	if (task && group_leader &&
@@ -11298,6 +11400,11 @@ SYSCALL_DEFINE5(perf_event_open,
 				 task, NULL, ctx, event);
 #endif
 
+#ifdef CONFIG_HOUSTON
+	if (task)
+		task->perf_regular_activate = 1;
+	mutex_unlock(&ht_perf_event_mutex_lock);
+#endif
 	return event_fd;
 
 err_locked:
@@ -11328,6 +11435,10 @@ err_group_fd:
 	fdput(group);
 err_fd:
 	put_unused_fd(event_fd);
+
+#ifdef CONFIG_HOUSTON
+	mutex_unlock(&ht_perf_event_mutex_lock);
+#endif
 	return err;
 }
 

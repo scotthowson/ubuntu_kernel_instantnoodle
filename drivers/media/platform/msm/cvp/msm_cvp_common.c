@@ -197,7 +197,7 @@ struct msm_cvp_inst *cvp_get_inst_validate(struct msm_cvp_core *core,
 
 	s = cvp_get_inst(core, session_id);
 	if (!s) {
-		dprintk(CVP_ERR, "%pK session doesn't exit\n",
+		dprintk(CVP_ERR, "%s session doesn't exit\n",
 			__builtin_return_address(0));
 		return NULL;
 	}
@@ -403,54 +403,6 @@ int wait_for_sess_signal_receipt(struct msm_cvp_inst *inst,
 	} else {
 		rc = 0;
 	}
-	return rc;
-}
-
-int wait_for_sess_signal_receipt_fence(struct msm_cvp_inst *inst,
-	enum hal_command_response cmd)
-{
-	int rc = 0;
-	struct cvp_hfi_device *hdev;
-	int retry = FENCE_WAIT_SIGNAL_RETRY_TIMES;
-
-	if (!IS_HAL_SESSION_CMD(cmd)) {
-		dprintk(CVP_ERR, "Invalid inst cmd response: %d\n", cmd);
-		return -EINVAL;
-	}
-	hdev = (struct cvp_hfi_device *)(inst->core->device);
-
-	while (retry) {
-		rc = wait_for_completion_timeout(
-			&inst->completions[SESSION_MSG_INDEX(cmd)],
-			msecs_to_jiffies(FENCE_WAIT_SIGNAL_TIMEOUT));
-		if (!rc) {
-			enum cvp_event_t event;
-			unsigned long flags = 0;
-
-		spin_lock_irqsave(&inst->event_handler.lock, flags);
-		event = inst->event_handler.event;
-		spin_unlock_irqrestore(
-			&inst->event_handler.lock, flags);
-		if (event == CVP_SSR_EVENT) {
-			dprintk(CVP_WARN, "%s: SSR triggered\n",
-				__func__);
-				return -ECONNRESET;
-		}
-			--retry;
-	} else {
-		rc = 0;
-			break;
-		}
-	}
-
-	if (!retry) {
-		dprintk(CVP_WARN, "Wait interrupted or timed out: %d\n",
-				SESSION_MSG_INDEX(cmd));
-		call_hfi_op(hdev, flush_debug_queue, hdev->hfi_device_data);
-		dump_hfi_queue(hdev->hfi_device_data);
-		rc = -EIO;
-	}
-
 	return rc;
 }
 
@@ -686,7 +638,7 @@ static void handle_sys_error(enum hal_command_response cmd, void *data)
 	call_hfi_op(hdev, flush_debug_queue, hdev->hfi_device_data);
 	list_for_each_entry(inst, &core->instances, list) {
 		dprintk(CVP_WARN,
-			"%s: sys error inst %pK kref %x, cmd %x state %x\n",
+			"%s: sys error inst %#x kref %x, cmd %x state %x\n",
 				__func__, inst, kref_read(&inst->kref),
 				inst->cur_cmd_type, inst->state);
 		if (inst->state != MSM_CVP_CORE_INVALID) {
@@ -774,13 +726,6 @@ static void handle_session_close(enum hal_command_response cmd, void *data)
 	cvp_put_inst(inst);
 }
 
-static void handle_operation_config(enum hal_command_response cmd, void *data)
-{
-	dprintk(CVP_ERR,
-			"%s: is called\n",
-			__func__);
-}
-
 void cvp_handle_cmd_response(enum hal_command_response cmd, void *data)
 {
 	dprintk(CVP_DBG, "Command response = %d\n", cmd);
@@ -793,9 +738,6 @@ void cvp_handle_cmd_response(enum hal_command_response cmd, void *data)
 		break;
 	case HAL_SESSION_INIT_DONE:
 		handle_session_init_done(cmd, data);
-		break;
-	case HAL_SESSION_CVP_OPERATION_CONFIG:
-		handle_operation_config(cmd, data);
 		break;
 	case HAL_SESSION_RELEASE_RESOURCE_DONE:
 		handle_release_res_done(cmd, data);
@@ -1414,7 +1356,7 @@ void msm_cvp_ssr_handler(struct work_struct *work)
 		dprintk(CVP_ERR, "Session abort triggered\n");
 		list_for_each_entry(inst, &core->instances, list) {
 			dprintk(CVP_WARN,
-				"Session to abort: inst %pK cmd %x ref %x\n",
+				"Session to abort: inst %#x cmd %x ref %x\n",
 				inst, inst->cur_cmd_type,
 				kref_read(&inst->kref));
 			break;
@@ -1749,8 +1691,7 @@ int cvp_comm_set_arp_buffers(struct msm_cvp_inst *inst)
 	return rc;
 
 error:
-	if (rc != -ENOMEM)
-		cvp_comm_release_persist_buffers(inst);
+	cvp_comm_release_persist_buffers(inst);
 	return rc;
 }
 

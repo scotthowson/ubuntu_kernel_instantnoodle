@@ -114,6 +114,134 @@ static struct pm_qos_object network_throughput_pm_qos = {
 	.name = "network_throughput",
 };
 
+static BLOCKING_NOTIFIER_HEAD(c0_cpufreq_max_notifier);
+static struct pm_qos_constraints c0_cpufreq_max_constraints = {
+	.list = PLIST_HEAD_INIT(c0_cpufreq_max_constraints.list),
+	.target_value = PM_QOS_CPUFREQ_MAX_DEFAULT_VALUE,
+	.target_per_cpu = { [0 ... (NR_CPUS - 1)] =
+				PM_QOS_CPUFREQ_MAX_DEFAULT_VALUE },
+	.default_value = PM_QOS_CPUFREQ_MAX_DEFAULT_VALUE,
+	.no_constraint_value = PM_QOS_CPUFREQ_MAX_DEFAULT_VALUE,
+	.type = PM_QOS_MIN,
+	.notifiers = &c0_cpufreq_max_notifier,
+};
+static struct pm_qos_object c0_cpufreq_max_pm_qos = {
+	.constraints = &c0_cpufreq_max_constraints,
+	.name = "c0_cpufreq_max",
+};
+
+
+static BLOCKING_NOTIFIER_HEAD(c0_cpufreq_min_notifier);
+static struct pm_qos_constraints c0_cpufreq_min_constraints = {
+	.list = PLIST_HEAD_INIT(c0_cpufreq_min_constraints.list),
+	.target_value = PM_QOS_CPUFREQ_MIN_DEFAULT_VALUE,
+	.target_per_cpu = { [0 ... (NR_CPUS - 1)] =
+				PM_QOS_CPUFREQ_MIN_DEFAULT_VALUE },
+	.default_value = PM_QOS_CPUFREQ_MIN_DEFAULT_VALUE,
+	.no_constraint_value = PM_QOS_CPUFREQ_MIN_DEFAULT_VALUE,
+	.type = PM_QOS_MAX,
+	.notifiers = &c0_cpufreq_min_notifier,
+};
+static struct pm_qos_object c0_cpufreq_min_pm_qos = {
+	.constraints = &c0_cpufreq_min_constraints,
+	.name = "c0_cpufreq_min",
+};
+
+static BLOCKING_NOTIFIER_HEAD(c1_cpufreq_max_notifier);
+static struct pm_qos_constraints c1_cpufreq_max_constraints = {
+	.list = PLIST_HEAD_INIT(c1_cpufreq_max_constraints.list),
+	.target_value = PM_QOS_CPUFREQ_MAX_DEFAULT_VALUE,
+	.target_per_cpu = { [0 ... (NR_CPUS - 1)] =
+				PM_QOS_CPUFREQ_MAX_DEFAULT_VALUE },
+	.default_value = PM_QOS_CPUFREQ_MAX_DEFAULT_VALUE,
+	.no_constraint_value = PM_QOS_CPUFREQ_MAX_DEFAULT_VALUE,
+	.type = PM_QOS_MIN,
+	.notifiers = &c1_cpufreq_max_notifier,
+};
+static struct pm_qos_object c1_cpufreq_max_pm_qos = {
+	.constraints = &c1_cpufreq_max_constraints,
+	.name = "c1_cpufreq_max",
+};
+
+static BLOCKING_NOTIFIER_HEAD(c1_cpufreq_min_notifier);
+static struct pm_qos_constraints c1_cpufreq_min_constraints = {
+	.list = PLIST_HEAD_INIT(c1_cpufreq_min_constraints.list),
+	.target_value = PM_QOS_CPUFREQ_MIN_DEFAULT_VALUE,
+	.target_per_cpu = { [0 ... (NR_CPUS - 1)] =
+				PM_QOS_CPUFREQ_MIN_DEFAULT_VALUE },
+	.default_value = PM_QOS_CPUFREQ_MIN_DEFAULT_VALUE,
+	.no_constraint_value = PM_QOS_CPUFREQ_MIN_DEFAULT_VALUE,
+	.type = PM_QOS_MAX,
+	.notifiers = &c1_cpufreq_min_notifier,
+};
+static struct pm_qos_object c1_cpufreq_min_pm_qos = {
+	.constraints = &c1_cpufreq_min_constraints,
+	.name = "c1_cpufreq_min",
+};
+
+static BLOCKING_NOTIFIER_HEAD(c2_cpufreq_max_notifier);
+static struct pm_qos_constraints c2_cpufreq_max_constraints = {
+	.list = PLIST_HEAD_INIT(c2_cpufreq_max_constraints.list),
+	.target_value = PM_QOS_CPUFREQ_MAX_DEFAULT_VALUE,
+	.target_per_cpu = { [0 ... (NR_CPUS - 1)] =
+				PM_QOS_CPUFREQ_MAX_DEFAULT_VALUE },
+	.default_value = PM_QOS_CPUFREQ_MAX_DEFAULT_VALUE,
+	.no_constraint_value = PM_QOS_CPUFREQ_MAX_DEFAULT_VALUE,
+	.type = PM_QOS_MIN,
+	.notifiers = &c2_cpufreq_max_notifier,
+};
+static struct pm_qos_object c2_cpufreq_max_pm_qos = {
+	.constraints = &c2_cpufreq_max_constraints,
+	.name = "c2_cpufreq_max",
+};
+
+static BLOCKING_NOTIFIER_HEAD(c2_cpufreq_min_notifier);
+static struct pm_qos_constraints c2_cpufreq_min_constraints = {
+	.list = PLIST_HEAD_INIT(c2_cpufreq_min_constraints.list),
+	.target_value = PM_QOS_CPUFREQ_MIN_DEFAULT_VALUE,
+	.target_per_cpu = { [0 ... (NR_CPUS - 1)] =
+				PM_QOS_CPUFREQ_MIN_DEFAULT_VALUE },
+	.default_value = PM_QOS_CPUFREQ_MIN_DEFAULT_VALUE,
+	.no_constraint_value = PM_QOS_CPUFREQ_MIN_DEFAULT_VALUE,
+	.type = PM_QOS_MAX,
+	.notifiers = &c2_cpufreq_min_notifier,
+};
+static struct pm_qos_object c2_cpufreq_min_pm_qos = {
+	.constraints = &c2_cpufreq_min_constraints,
+	.name = "c2_cpufreq_min",
+};
+
+static BLOCKING_NOTIFIER_HEAD(devfreq_max_notifier);
+static struct pm_qos_constraints devfreq_max_constraints = {
+	.list = PLIST_HEAD_INIT(devfreq_max_constraints.list),
+	.target_value = PM_QOS_DEVFREQ_MAX_DEFAULT_VALUE,
+	.target_per_cpu = { [0 ... (NR_CPUS - 1)] =
+				PM_QOS_DEVFREQ_MAX_DEFAULT_VALUE },
+	.default_value = PM_QOS_DEVFREQ_MAX_DEFAULT_VALUE,
+	.no_constraint_value = PM_QOS_DEVFREQ_MAX_DEFAULT_VALUE,
+	.type = PM_QOS_MIN,
+	.notifiers = &devfreq_max_notifier,
+};
+static struct pm_qos_object devfreq_max_pm_qos = {
+	.constraints = &devfreq_max_constraints,
+	.name = "devfreq_max",
+};
+
+static BLOCKING_NOTIFIER_HEAD(devfreq_min_notifier);
+static struct pm_qos_constraints devfreq_min_constraints = {
+	.list = PLIST_HEAD_INIT(devfreq_min_constraints.list),
+	.target_value = PM_QOS_DEVFREQ_MIN_DEFAULT_VALUE,
+	.target_per_cpu = { [0 ... (NR_CPUS - 1)] =
+				PM_QOS_DEVFREQ_MIN_DEFAULT_VALUE },
+	.default_value = PM_QOS_DEVFREQ_MIN_DEFAULT_VALUE,
+	.no_constraint_value = PM_QOS_DEVFREQ_MIN_DEFAULT_VALUE,
+	.type = PM_QOS_MAX,
+	.notifiers = &devfreq_min_notifier,
+};
+static struct pm_qos_object devfreq_min_pm_qos = {
+	.constraints = &devfreq_min_constraints,
+	.name = "devfreq_min",
+};
 
 static BLOCKING_NOTIFIER_HEAD(memory_bandwidth_notifier);
 static struct pm_qos_constraints memory_bw_constraints = {
@@ -129,6 +257,89 @@ static struct pm_qos_object memory_bandwidth_pm_qos = {
 	.name = "memory_bandwidth",
 };
 
+static BLOCKING_NOTIFIER_HEAD(msm_thermal_notifier);
+static struct pm_qos_constraints msm_thermal_constraints = {
+	.list = PLIST_HEAD_INIT(msm_thermal_constraints.list),
+	.target_value = PM_QOS_DYNAMIC_THERMAL_DEFAULT_VALUE,
+	.default_value = PM_QOS_DYNAMIC_THERMAL_DEFAULT_VALUE,
+	.no_constraint_value = PM_QOS_DYNAMIC_THERMAL_DEFAULT_VALUE,
+	.type = PM_QOS_MAX,
+	.notifiers = &msm_thermal_notifier,
+};
+static struct pm_qos_object msm_thermal_pm_qos = {
+	.constraints = &msm_thermal_constraints,
+	.name = "msm_thermal",
+};
+
+static BLOCKING_NOTIFIER_HEAD(skin_thermal_notifier);
+static struct pm_qos_constraints skin_thermal_constraints = {
+	.list = PLIST_HEAD_INIT(skin_thermal_constraints.list),
+	.target_value = PM_QOS_DYNAMIC_THERMAL_DEFAULT_VALUE,
+	.default_value = PM_QOS_DYNAMIC_THERMAL_DEFAULT_VALUE,
+	.no_constraint_value = PM_QOS_DYNAMIC_THERMAL_DEFAULT_VALUE,
+	.type = PM_QOS_MAX,
+	.notifiers = &skin_thermal_notifier,
+};
+static struct pm_qos_object skin_thermal_pm_qos = {
+	.constraints = &skin_thermal_constraints,
+	.name = "skin_thermal",
+};
+
+static BLOCKING_NOTIFIER_HEAD(modem_skin_thermal_notifier);
+static struct pm_qos_constraints modem_skin_thermal_constraints = {
+	.list = PLIST_HEAD_INIT(modem_skin_thermal_constraints.list),
+	.target_value = PM_QOS_DYNAMIC_THERMAL_DEFAULT_VALUE,
+	.default_value = PM_QOS_DYNAMIC_THERMAL_DEFAULT_VALUE,
+	.no_constraint_value = PM_QOS_DYNAMIC_THERMAL_DEFAULT_VALUE,
+	.type = PM_QOS_MAX,
+	.notifiers = &modem_skin_thermal_notifier,
+};
+static struct pm_qos_object modem_skin_thermal_pm_qos = {
+	.constraints = &modem_skin_thermal_constraints,
+	.name = "modem_skin_thermal",
+};
+
+static BLOCKING_NOTIFIER_HEAD(pa1_mmw0_thermal_notifier);
+static struct pm_qos_constraints pa1_mmw0_thermal_constraints = {
+	.list = PLIST_HEAD_INIT(pa1_mmw0_thermal_constraints.list),
+	.target_value = PM_QOS_DYNAMIC_THERMAL_DEFAULT_VALUE,
+	.default_value = PM_QOS_DYNAMIC_THERMAL_DEFAULT_VALUE,
+	.no_constraint_value = PM_QOS_DYNAMIC_THERMAL_DEFAULT_VALUE,
+	.type = PM_QOS_MAX,
+	.notifiers = &pa1_mmw0_thermal_notifier,
+};
+static struct pm_qos_object pa1_mmw0_thermal_pm_qos = {
+	.constraints = &pa1_mmw0_thermal_constraints,
+	.name = "mmw0_thermal",
+};
+
+static BLOCKING_NOTIFIER_HEAD(xo_mmw1_thermal_notifier);
+static struct pm_qos_constraints xo_mmw1_thermal_constraints = {
+	.list = PLIST_HEAD_INIT(xo_mmw1_thermal_constraints.list),
+	.target_value = PM_QOS_DYNAMIC_THERMAL_DEFAULT_VALUE,
+	.default_value = PM_QOS_DYNAMIC_THERMAL_DEFAULT_VALUE,
+	.no_constraint_value = PM_QOS_DYNAMIC_THERMAL_DEFAULT_VALUE,
+	.type = PM_QOS_MAX,
+	.notifiers = &xo_mmw1_thermal_notifier,
+};
+static struct pm_qos_object xo_mmw1_thermal_pm_qos = {
+	.constraints = &xo_mmw1_thermal_constraints,
+	.name = "mmw1_thermal",
+};
+
+static BLOCKING_NOTIFIER_HEAD(modem_mmw2_thermal_notifier);
+static struct pm_qos_constraints modem_mmw2_thermal_constraints = {
+	.list = PLIST_HEAD_INIT(modem_mmw2_thermal_constraints.list),
+	.target_value = PM_QOS_DYNAMIC_THERMAL_DEFAULT_VALUE,
+	.default_value = PM_QOS_DYNAMIC_THERMAL_DEFAULT_VALUE,
+	.no_constraint_value = PM_QOS_DYNAMIC_THERMAL_DEFAULT_VALUE,
+	.type = PM_QOS_MAX,
+	.notifiers = &modem_mmw2_thermal_notifier,
+};
+static struct pm_qos_object modem_mmw2_thermal_pm_qos = {
+	.constraints = &modem_mmw2_thermal_constraints,
+	.name = "mmw2_thermal",
+};
 
 static struct pm_qos_object *pm_qos_array[] = {
 	&null_pm_qos,
@@ -136,6 +347,20 @@ static struct pm_qos_object *pm_qos_array[] = {
 	&network_lat_pm_qos,
 	&network_throughput_pm_qos,
 	&memory_bandwidth_pm_qos,
+	&msm_thermal_pm_qos,
+	&skin_thermal_pm_qos,
+	&pa1_mmw0_thermal_pm_qos,
+	&xo_mmw1_thermal_pm_qos,
+	&modem_mmw2_thermal_pm_qos,
+	&modem_skin_thermal_pm_qos,
+	&c0_cpufreq_max_pm_qos,
+	&c0_cpufreq_min_pm_qos,
+	&c1_cpufreq_max_pm_qos,
+	&c1_cpufreq_min_pm_qos,
+	&c2_cpufreq_max_pm_qos,
+	&c2_cpufreq_min_pm_qos,
+	&devfreq_max_pm_qos,
+	&devfreq_min_pm_qos,
 };
 
 static ssize_t pm_qos_power_write(struct file *filp, const char __user *buf,
@@ -267,7 +492,7 @@ static const struct file_operations pm_qos_debug_fops = {
 };
 
 static inline int pm_qos_set_value_for_cpus(struct pm_qos_constraints *c,
-		struct cpumask *cpus, bool dev_req)
+		struct cpumask *cpus)
 {
 	struct pm_qos_request *req = NULL;
 	int cpu;
@@ -280,19 +505,6 @@ static inline int pm_qos_set_value_for_cpus(struct pm_qos_constraints *c,
 
 	if (c != pm_qos_array[PM_QOS_CPU_DMA_LATENCY]->constraints)
 		return -EINVAL;
-
-	/*
-	 * pm_qos_set_value_for_cpus expects all c->list elements to be of type
-	 * pm_qos_request, however requests from device will contain elements
-	 * of type dev_pm_qos_request.
-	 * pm_qos_constraints.target_per_cpu can be accessed only for
-	 * constraints associated with one of the pm_qos_class and present in
-	 * pm_qos_array. Device requests are not associated with any of
-	 * pm_qos_class, therefore their target_per_cpu cannot be accessed. We
-	 * can safely skip updating target_per_cpu for device requests.
-	 */
-	if (dev_req)
-		return 0;
 
 	plist_for_each_entry(req, &c->list, node) {
 		for_each_cpu(cpu, &req->cpus_affine) {
@@ -332,7 +544,7 @@ static inline int pm_qos_set_value_for_cpus(struct pm_qos_constraints *c,
  *  otherwise.
  */
 int pm_qos_update_target(struct pm_qos_constraints *c, struct plist_node *node,
-			 enum pm_qos_req_action action, int value, bool dev_req)
+			 enum pm_qos_req_action action, int value)
 {
 	unsigned long flags;
 	int prev_value, curr_value, new_value;
@@ -370,7 +582,7 @@ int pm_qos_update_target(struct pm_qos_constraints *c, struct plist_node *node,
 	curr_value = pm_qos_get_value(c);
 	cpumask_clear(&cpus);
 	pm_qos_set_value(c, curr_value);
-	ret = pm_qos_set_value_for_cpus(c, &cpus, dev_req);
+	ret = pm_qos_set_value_for_cpus(c, &cpus);
 
 	spin_unlock_irqrestore(&pm_qos_lock, flags);
 
@@ -525,7 +737,7 @@ static void __pm_qos_update_request(struct pm_qos_request *req,
 	if (new_value != req->node.prio)
 		pm_qos_update_target(
 			pm_qos_array[req->pm_qos_class]->constraints,
-			&req->node, PM_QOS_UPDATE_REQ, new_value, false);
+			&req->node, PM_QOS_UPDATE_REQ, new_value);
 }
 
 /**
@@ -559,7 +771,7 @@ static void pm_qos_irq_release(struct kref *ref)
 	spin_unlock_irqrestore(&pm_qos_lock, flags);
 
 	pm_qos_update_target(c, &req->node, PM_QOS_UPDATE_REQ,
-			c->default_value, false);
+			c->default_value);
 }
 
 static void pm_qos_irq_notify(struct irq_affinity_notify *notify,
@@ -585,7 +797,7 @@ static void pm_qos_irq_notify(struct irq_affinity_notify *notify,
 
 	if (affinity_changed)
 		pm_qos_update_target(c, &req->node, PM_QOS_UPDATE_REQ,
-				     req->node.prio, false);
+				     req->node.prio);
 }
 #endif
 
@@ -661,11 +873,12 @@ void pm_qos_add_request(struct pm_qos_request *req,
 		break;
 	}
 
-	req->pm_qos_class = pm_qos_class;
 	INIT_DELAYED_WORK(&req->work, pm_qos_work_fn);
 	trace_pm_qos_add_request(pm_qos_class, value);
 	pm_qos_update_target(pm_qos_array[pm_qos_class]->constraints,
-			     &req->node, PM_QOS_ADD_REQ, value, false);
+			     &req->node, PM_QOS_ADD_REQ, value);
+	/* Fixes rare panic */
+	req->pm_qos_class = pm_qos_class;
 
 #ifdef CONFIG_SMP
 	if (req->type == PM_QOS_REQ_AFFINE_IRQ &&
@@ -680,7 +893,7 @@ void pm_qos_add_request(struct pm_qos_request *req,
 			cpumask_setall(&req->cpus_affine);
 			pm_qos_update_target(
 				pm_qos_array[pm_qos_class]->constraints,
-				&req->node, PM_QOS_UPDATE_REQ, value, false);
+				&req->node, PM_QOS_UPDATE_REQ, value);
 		}
 	}
 #endif
@@ -737,11 +950,10 @@ void pm_qos_update_request_timeout(struct pm_qos_request *req, s32 new_value,
 	if (new_value != req->node.prio)
 		pm_qos_update_target(
 			pm_qos_array[req->pm_qos_class]->constraints,
-			&req->node, PM_QOS_UPDATE_REQ, new_value, false);
+			&req->node, PM_QOS_UPDATE_REQ, new_value);
 
 	schedule_delayed_work(&req->work, usecs_to_jiffies(timeout_us));
 }
-EXPORT_SYMBOL_GPL(pm_qos_update_request_timeout);
 
 /**
  * pm_qos_remove_request - modifies an existing qos request
@@ -777,7 +989,7 @@ void pm_qos_remove_request(struct pm_qos_request *req)
 	trace_pm_qos_remove_request(req->pm_qos_class, PM_QOS_DEFAULT_VALUE);
 	pm_qos_update_target(pm_qos_array[req->pm_qos_class]->constraints,
 			     &req->node, PM_QOS_REMOVE_REQ,
-			     PM_QOS_DEFAULT_VALUE, false);
+			     PM_QOS_DEFAULT_VALUE);
 	memset(req, 0, sizeof(*req));
 }
 EXPORT_SYMBOL_GPL(pm_qos_remove_request);

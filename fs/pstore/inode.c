@@ -2,7 +2,6 @@
  * Persistent Storage - ramfs parts.
  *
  * Copyright (C) 2010 Intel Corporation <tony.luck@intel.com>
- * Copyright (C) 2021 XiaoMi, Inc.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
@@ -37,9 +36,6 @@
 #include <linux/slab.h>
 #include <linux/spinlock.h>
 #include <linux/uaccess.h>
-#ifdef CONFIG_PSTORE_LAST_KMSG
-#include <linux/proc_fs.h>
-#endif
 
 #include "internal.h"
 
@@ -103,11 +99,11 @@ static void *pstore_ftrace_seq_next(struct seq_file *s, void *v, loff_t *pos)
 	struct pstore_private *ps = s->private;
 	struct pstore_ftrace_seq_data *data = v;
 
-	(*pos)++;
 	data->off += REC_SIZE;
 	if (data->off + REC_SIZE > ps->total_size)
 		return NULL;
 
+	(*pos)++;
 	return data;
 }
 
@@ -116,9 +112,6 @@ static int pstore_ftrace_seq_show(struct seq_file *s, void *v)
 	struct pstore_private *ps = s->private;
 	struct pstore_ftrace_seq_data *data = v;
 	struct pstore_ftrace_record *rec;
-
-	if (!data)
-		return 0;
 
 	rec = (struct pstore_ftrace_record *)(ps->record->buf + data->off);
 
@@ -301,25 +294,6 @@ bool pstore_is_mounted(void)
 	return pstore_sb != NULL;
 }
 
-#ifdef CONFIG_PSTORE_LAST_KMSG
-
-static char *console_buffer;
-static ssize_t console_bufsize;
-
-static ssize_t last_kmsg_read(struct file *file, char __user *buf,
-		size_t len, loff_t *offset)
-{
-	return simple_read_from_buffer(buf, len, offset,
-			console_buffer, console_bufsize);
-}
-
-static const struct file_operations last_kmsg_fops = {
-	.owner          = THIS_MODULE,
-	.read           = last_kmsg_read,
-	.llseek         = default_llseek,
-};
-#endif
-
 /*
  * Make a regular file in the root directory of our file system.
  * Load it up with "size" bytes of data from "buf".
@@ -395,6 +369,11 @@ int pstore_mkfile(struct dentry *root, struct pstore_record *record)
 		scnprintf(name, sizeof(name), "powerpc-opal-%s-%llu",
 			  record->psi->name, record->id);
 		break;
+
+	case PSTORE_TYPE_DEVICE_INFO:
+		scnprintf(name, sizeof(name), "device-info-%s-%lld", record->psi->name, record->id);
+		break;
+
 	case PSTORE_TYPE_UNKNOWN:
 		scnprintf(name, sizeof(name), "unknown-%s-%llu",
 			  record->psi->name, record->id);
@@ -425,13 +404,6 @@ int pstore_mkfile(struct dentry *root, struct pstore_record *record)
 	spin_lock_irqsave(&allpstore_lock, flags);
 	list_add(&private->list, &allpstore);
 	spin_unlock_irqrestore(&allpstore_lock, flags);
-
-#ifdef CONFIG_PSTORE_LAST_KMSG
-	if (record->type == PSTORE_TYPE_CONSOLE) {
-		console_buffer = private->record->buf;
-		console_bufsize = size;
-	}
-#endif
 
 	return 0;
 
@@ -518,9 +490,6 @@ static struct file_system_type pstore_fs_type = {
 int __init pstore_init_fs(void)
 {
 	int err;
-#ifdef CONFIG_PSTORE_LAST_KMSG
-	struct proc_dir_entry *last_kmsg_entry = NULL;
-#endif
 
 	/* Create a convenient mount point for people to access pstore */
 	err = sysfs_create_mount_point(fs_kobj, "pstore");
@@ -531,14 +500,6 @@ int __init pstore_init_fs(void)
 	if (err < 0)
 		sysfs_remove_mount_point(fs_kobj, "pstore");
 
-#ifdef CONFIG_PSTORE_LAST_KMSG
-	last_kmsg_entry = proc_create_data("last_kmsg", S_IFREG | S_IRUGO,
-			NULL, &last_kmsg_fops, NULL);
-	if (!last_kmsg_entry) {
-		pr_err("Failed to create last_kmsg\n");
-		goto out;
-	}
-#endif
 out:
 	return err;
 }

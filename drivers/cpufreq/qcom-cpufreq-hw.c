@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (c) 2018-2020, The Linux Foundation. All rights reserved.
- * Copyright (C) 2021 XiaoMi, Inc.
  */
 
 #include <linux/cpufreq.h>
@@ -17,6 +16,12 @@
 #include <linux/sched.h>
 #include <linux/cpu_cooling.h>
 
+#ifdef CONFIG_PCCORE
+#include <oneplus/pccore/pccore_helper.h>
+#include <oneplus/control_center/control_center_helper.h>
+#include <oneplus/houston/houston_helper.h>
+#include <trace/events/power.h>
+#endif
 #define CREATE_TRACE_POINTS
 #include <trace/events/dcvsh.h>
 
@@ -151,8 +156,6 @@ static unsigned long limits_mitigation_notify(struct cpufreq_qcom *c,
 		else
 			freq = policy->cpuinfo.max_freq;
 	}
-
-	freq = U32_MAX;   //Fix me! This is WA here！
 
 	sched_update_cpu_freq_min_max(&c->related_cpus, 0, freq);
 	trace_dcvsh_freq(cpumask_first(&c->related_cpus), freq);
@@ -328,11 +331,51 @@ qcom_cpufreq_hw_fast_switch(struct cpufreq_policy *policy,
 			    unsigned int target_freq)
 {
 	int index;
-
+#ifdef CONFIG_PCCORE
+	int dp_level = get_op_level();
+	bool op_enable = get_op_select_freq_enable();
+	int dp_level_mode = get_op_fd_mode();
+	int idx_cache;
+#endif
 	index = policy->cached_resolved_idx;
 	if (index < 0)
 		return 0;
+#ifdef CONFIG_PCCORE
+	idx_cache = index;
+	if (op_enable) {
+		if (!ht_pcc_alwayson() && ccdm_any_hint())
+			goto done;
+		if (dp_level_mode == 2) {
+			if (policy->freq_table_sorted == CPUFREQ_TABLE_SORTED_ASCENDING)
+				index = find_prefer_pd(policy->cpu, index, true, dp_level);
+			else
+				index = find_prefer_pd(policy->cpu, index, false, dp_level);
 
+		} else if (dp_level_mode == 1) {
+
+			if (policy->freq_table_sorted == CPUFREQ_TABLE_SORTED_ASCENDING) {
+
+				if (index - dp_level >= 0)
+					index -= dp_level;
+				else
+					index = 0;
+			} else {
+				int max = cpufreq_table_count_valid_entries(policy);
+
+				if (index + dp_level > max)
+					index = max;
+				else
+					index += dp_level;
+			}
+		}
+
+		if (policy->freq_table[index].frequency < policy->min)
+			index = policy->min_idx;
+	}
+done:
+	trace_find_freq(idx_cache, target_freq, index, policy->freq_table[index].frequency,
+		policy->cpu, op_enable, dp_level_mode, dp_level);
+#endif
 	if (qcom_cpufreq_hw_target_index(policy, index))
 		return 0;
 
@@ -385,8 +428,6 @@ static int qcom_cpufreq_hw_cpu_init(struct cpufreq_policy *policy)
 
 		c->is_irq_requested = true;
 		c->is_irq_enabled = true;
-
-		sysfs_attr_init(&c->freq_limit_attr.attr);
 		c->freq_limit_attr.attr.name = "dcvsh_freq_limit";
 		c->freq_limit_attr.show = dcvsh_freq_limit_show;
 		c->freq_limit_attr.attr.mode = 0444;
@@ -463,8 +504,6 @@ static int qcom_cpufreq_hw_read_lut(struct platform_device *pdev,
 	spin_lock_init(&c->skip_data.lock);
 	base_freq = c->reg_bases[REG_FREQ_LUT_TABLE];
 	base_volt = c->reg_bases[REG_VOLT_LUT_TABLE];
-
-	prev_cc = 0;
 
 	for (i = 0; i < lut_max_entries; i++) {
 		data = readl_relaxed(base_freq + i * lut_row_size);
@@ -810,7 +849,7 @@ static int cpufreq_hw_register_cooling_device(struct platform_device *pdev)
 						cpu_cdev,
 						&cpufreq_hw_cooling_ops);
 				if (IS_ERR(cpu_cdev->cdev)) {
-					pr_err("Cooling register failed for %s, ret: %ld\n",
+					pr_err("Cooling register failed for %s, ret: %d\n",
 						cdev_name,
 						PTR_ERR(cpu_cdev->cdev));
 					c->skip_data.final_index =

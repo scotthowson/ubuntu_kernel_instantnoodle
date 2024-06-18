@@ -29,7 +29,6 @@
 
 DEFINE_PER_CPU(struct cpuidle_device *, cpuidle_devices);
 DEFINE_PER_CPU(struct cpuidle_device, cpuidle_dev);
-EXPORT_SYMBOL_GPL(cpuidle_dev);
 
 DEFINE_MUTEX(cpuidle_lock);
 LIST_HEAD(cpuidle_detected_devices);
@@ -150,8 +149,7 @@ static void enter_s2idle_proper(struct cpuidle_driver *drv,
 	 */
 	stop_critical_timings();
 	drv->states[index].enter_s2idle(dev, drv, index);
-	if (WARN_ON_ONCE(!irqs_disabled()))
-		local_irq_disable();
+	WARN_ON(!irqs_disabled());
 	/*
 	 * timekeeping_resume() that will be called by tick_unfreeze() for the
 	 * first CPU executing it calls functions containing RCU read-side

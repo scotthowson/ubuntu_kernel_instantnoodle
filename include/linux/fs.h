@@ -37,7 +37,6 @@
 #include <linux/uuid.h>
 #include <linux/errseq.h>
 #include <linux/ioprio.h>
-#include <linux/android_kabi.h>
 
 #include <asm/byteorder.h>
 #include <uapi/linux/fs.h>
@@ -79,6 +78,7 @@ extern int sysctl_protected_symlinks;
 extern int sysctl_protected_hardlinks;
 extern int sysctl_protected_fifos;
 extern int sysctl_protected_regular;
+extern char *inode_name(struct inode *ino);
 
 typedef __kernel_rwf_t rwf_t;
 
@@ -158,6 +158,9 @@ typedef int (dio_iodone_t)(struct kiocb *iocb, loff_t offset,
 
 /* File is stream-like */
 #define FMODE_STREAM		((__force fmode_t)0x200000)
+
+/* File hasn't page cache and can't be mmaped, for stackable filesystem */
+#define FMODE_NONMAPPABLE       ((__force fmode_t)0x400000)
 
 /* File was opened by fanotify and shouldn't generate fanotify events */
 #define FMODE_NONOTIFY		((__force fmode_t)0x4000000)
@@ -399,11 +402,6 @@ struct address_space_operations {
 	int (*swap_activate)(struct swap_info_struct *sis, struct file *file,
 				sector_t *span);
 	void (*swap_deactivate)(struct file *file);
-
-	ANDROID_KABI_RESERVE(1);
-	ANDROID_KABI_RESERVE(2);
-	ANDROID_KABI_RESERVE(3);
-	ANDROID_KABI_RESERVE(4);
 };
 
 extern const struct address_space_operations empty_aops;
@@ -438,11 +436,6 @@ struct address_space {
 	struct list_head	private_list;	/* for use by the address_space */
 	void			*private_data;	/* ditto */
 	errseq_t		wb_err;
-
-	ANDROID_KABI_RESERVE(1);
-	ANDROID_KABI_RESERVE(2);
-	ANDROID_KABI_RESERVE(3);
-	ANDROID_KABI_RESERVE(4);
 } __attribute__((aligned(sizeof(long)))) __randomize_layout;
 	/*
 	 * On most architectures that alignment is already the case; but
@@ -487,11 +480,6 @@ struct block_device {
 	int			bd_fsfreeze_count;
 	/* Mutex for freeze */
 	struct mutex		bd_fsfreeze_mutex;
-
-	ANDROID_KABI_RESERVE(1);
-	ANDROID_KABI_RESERVE(2);
-	ANDROID_KABI_RESERVE(3);
-	ANDROID_KABI_RESERVE(4);
 } __randomize_layout;
 
 /*
@@ -681,7 +669,6 @@ struct inode {
 		struct rcu_head		i_rcu;
 	};
 	atomic64_t		i_version;
-	atomic64_t		i_sequence; /* see futex */
 	atomic_t		i_count;
 	atomic_t		i_dio_count;
 	atomic_t		i_writecount;
@@ -716,9 +703,6 @@ struct inode {
 #endif
 
 	void			*i_private; /* fs or device private pointer */
-
-	ANDROID_KABI_RESERVE(1);
-	ANDROID_KABI_RESERVE(2);
 } __randomize_layout;
 
 static inline unsigned int i_blocksize(const struct inode *node)
@@ -952,7 +936,6 @@ struct file {
 #endif /* #ifdef CONFIG_EPOLL */
 	struct address_space	*f_mapping;
 	errseq_t		f_wb_err;
-	errseq_t		f_sb_err; /* for syncfs */
 } __randomize_layout
   __attribute__((aligned(4)));	/* lest something weird decides that 2 is OK */
 
@@ -960,7 +943,7 @@ struct file_handle {
 	__u32 handle_bytes;
 	int handle_type;
 	/* file identifier */
-	unsigned char f_handle[];
+	unsigned char f_handle[0];
 };
 
 static inline struct file *get_file(struct file *f)
@@ -1011,9 +994,6 @@ struct file_lock;
 struct file_lock_operations {
 	void (*fl_copy_lock)(struct file_lock *, struct file_lock *);
 	void (*fl_release_private)(struct file_lock *);
-
-	ANDROID_KABI_RESERVE(1);
-	ANDROID_KABI_RESERVE(2);
 };
 
 struct lock_manager_operations {
@@ -1026,9 +1006,6 @@ struct lock_manager_operations {
 	bool (*lm_break)(struct file_lock *);
 	int (*lm_change)(struct file_lock *, int, struct list_head *);
 	void (*lm_setup)(struct file_lock *, void **);
-
-	ANDROID_KABI_RESERVE(1);
-	ANDROID_KABI_RESERVE(2);
 };
 
 struct lock_manager {
@@ -1096,10 +1073,6 @@ struct file_lock {
 			int state;		/* state of grant or error if -ve */
 		} afs;
 	} fl_u;
-
-	struct list_head android_reserved1;	/* not a macro as we might just need it as-is */
-	ANDROID_KABI_RESERVE(1);
-	ANDROID_KABI_RESERVE(2);
 } __randomize_layout;
 
 struct file_lock_context {
@@ -1494,9 +1467,6 @@ struct super_block {
 	/* Being remounted read-only */
 	int s_readonly_remount;
 
-	/* per-sb errseq_t for reporting writeback errors via syncfs */
-	errseq_t s_wb_err;
-
 	/* AIO completions deferred from interrupt context */
 	struct workqueue_struct *s_dio_done_wq;
 	struct hlist_head s_pins;
@@ -1530,16 +1500,6 @@ struct super_block {
 
 	spinlock_t		s_inode_wblist_lock;
 	struct list_head	s_inodes_wb;	/* writeback inodes */
-
-#ifdef CONFIG_FSNOTIFY
-	__u32			s_fsnotify_mask;
-	struct fsnotify_mark_connector __rcu	*s_fsnotify_marks;
-#endif
-
-	ANDROID_KABI_RESERVE(1);
-	ANDROID_KABI_RESERVE(2);
-	ANDROID_KABI_RESERVE(3);
-	ANDROID_KABI_RESERVE(4);
 } __randomize_layout;
 
 /* Helper functions so that in most cases filesystems will
@@ -1841,6 +1801,7 @@ struct file_operations {
 	long (*fallocate)(struct file *file, int mode, loff_t offset,
 			  loff_t len);
 	void (*show_fdinfo)(struct seq_file *m, struct file *f);
+	struct file* (*get_lower_file)(struct file *f);
 #ifndef CONFIG_MMU
 	unsigned (*mmap_capabilities)(struct file *);
 #endif
@@ -1851,11 +1812,6 @@ struct file_operations {
 	int (*dedupe_file_range)(struct file *, loff_t, struct file *, loff_t,
 			u64);
 	int (*fadvise)(struct file *, loff_t, loff_t, int);
-
-	ANDROID_KABI_RESERVE(1);
-	ANDROID_KABI_RESERVE(2);
-	ANDROID_KABI_RESERVE(3);
-	ANDROID_KABI_RESERVE(4);
 } __randomize_layout;
 
 struct inode_operations {
@@ -1888,11 +1844,6 @@ struct inode_operations {
 			   umode_t create_mode);
 	int (*tmpfile) (struct inode *, struct dentry *, umode_t);
 	int (*set_acl)(struct inode *, struct posix_acl *, int);
-
-	ANDROID_KABI_RESERVE(1);
-	ANDROID_KABI_RESERVE(2);
-	ANDROID_KABI_RESERVE(3);
-	ANDROID_KABI_RESERVE(4);
 } ____cacheline_aligned;
 
 static inline ssize_t call_read_iter(struct file *file, struct kiocb *kio,
@@ -1961,7 +1912,6 @@ struct super_operations {
 	void *(*clone_mnt_data) (void *);
 	void (*copy_mnt_data) (void *, void *);
 	void (*umount_begin) (struct super_block *);
-	void (*umount_end)(struct super_block *sb, int flags);
 
 	int (*show_options)(struct seq_file *, struct dentry *);
 	int (*show_options2)(struct vfsmount *,struct seq_file *, struct dentry *);
@@ -1978,11 +1928,6 @@ struct super_operations {
 				  struct shrink_control *);
 	long (*free_cached_objects)(struct super_block *,
 				    struct shrink_control *);
-
-	ANDROID_KABI_RESERVE(1);
-	ANDROID_KABI_RESERVE(2);
-	ANDROID_KABI_RESERVE(3);
-	ANDROID_KABI_RESERVE(4);
 };
 
 /*
@@ -2150,10 +2095,6 @@ static inline void init_sync_kiocb(struct kiocb *kiocb, struct file *filp)
  *
  * I_CREATING		New object's inode in the middle of setting up.
  *
- * I_SYNC_QUEUED	Inode is queued in b_io or b_more_io writeback lists.
- *			Used to detect that mark_inode_dirty() should not move
- *			inode between dirty lists.
- *
  * Q: What is the difference between I_WILL_FREE and I_FREEING?
  */
 #define I_DIRTY_SYNC		(1 << 0)
@@ -2171,10 +2112,11 @@ static inline void init_sync_kiocb(struct kiocb *kiocb, struct file *filp)
 #define I_DIO_WAKEUP		(1 << __I_DIO_WAKEUP)
 #define I_LINKABLE		(1 << 10)
 #define I_DIRTY_TIME		(1 << 11)
+#define __I_DIRTY_TIME_EXPIRED	12
+#define I_DIRTY_TIME_EXPIRED	(1 << __I_DIRTY_TIME_EXPIRED)
 #define I_WB_SWITCH		(1 << 13)
 #define I_OVL_INUSE		(1 << 14)
 #define I_CREATING		(1 << 15)
-#define I_SYNC_QUEUED		(1 << 17)
 
 #define I_DIRTY_INODE (I_DIRTY_SYNC | I_DIRTY_DATASYNC)
 #define I_DIRTY (I_DIRTY_INODE | I_DIRTY_PAGES)
@@ -2252,11 +2194,6 @@ struct file_system_type {
 	struct lock_class_key i_lock_key;
 	struct lock_class_key i_mutex_key;
 	struct lock_class_key i_mutex_dir_key;
-
-	ANDROID_KABI_RESERVE(1);
-	ANDROID_KABI_RESERVE(2);
-	ANDROID_KABI_RESERVE(3);
-	ANDROID_KABI_RESERVE(4);
 };
 
 #define MODULE_ALIAS_FS(NAME) MODULE_ALIAS("fs-" NAME)
@@ -2845,18 +2782,6 @@ static inline errseq_t filemap_sample_wb_err(struct address_space *mapping)
 	return errseq_sample(&mapping->wb_err);
 }
 
-/**
- * file_sample_sb_err - sample the current errseq_t to test for later errors
- * @mapping: mapping to be sampled
- *
- * Grab the most current superblock-level errseq_t value for the given
- * struct file.
- */
-static inline errseq_t file_sample_sb_err(struct file *file)
-{
-	return errseq_sample(&file->f_path.dentry->d_sb->s_wb_err);
-}
-
 extern int vfs_fsync_range(struct file *file, loff_t start, loff_t end,
 			   int datasync);
 extern int vfs_fsync(struct file *file, int datasync);
@@ -2881,16 +2806,9 @@ static inline ssize_t generic_write_sync(struct kiocb *iocb, ssize_t count)
 
 extern void emergency_sync(void);
 extern void emergency_remount(void);
-
 #ifdef CONFIG_BLOCK
-extern int bmap(struct inode *inode, sector_t *block);
-#else
-static inline int bmap(struct inode *inode,  sector_t *block)
-{
-	return -EINVAL;
-}
+extern sector_t bmap(struct inode *, sector_t);
 #endif
-
 extern int notify_change(struct dentry *, struct iattr *, struct inode **);
 extern int notify_change2(struct vfsmount *, struct dentry *, struct iattr *, struct inode **);
 extern int inode_permission(struct inode *, int);
@@ -3171,10 +3089,6 @@ enum {
 
 	/* filesystem does not support filling holes */
 	DIO_SKIP_HOLES	= 0x02,
-#ifdef CONFIG_FS_HPB
-	/* HPB FLAG */
-	DIO_HPB_IO	= 0x10,
-#endif
 };
 
 void dio_end_io(struct bio *bio);

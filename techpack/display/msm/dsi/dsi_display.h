@@ -272,11 +272,13 @@ struct dsi_display {
 
 	u32 te_source;
 	u32 clk_gating_config;
+#if defined(CONFIG_PXLW_IRIS)
+	u32 off;
+	u32 cnt;
+	u8 cmd_data_type;
+#endif
 	bool queue_cmd_waits;
 	struct workqueue_struct *dma_cmd_workq;
-#ifdef CONFIG_OSSFOD
-	atomic_t fod_ui;
-#endif
 };
 
 int dsi_display_dev_probe(struct platform_device *pdev);
@@ -396,16 +398,6 @@ void dsi_display_put_mode(struct dsi_display *display,
  * Return: error code.
  */
 int dsi_display_get_default_lms(void *dsi_display, u32 *num_lm);
-
-/**
- * dsi_display_get_qsync_min_fps() - get qsync min fps for given fps
- * @display:            Handle to display.
- * @mode_fps:           Fps value of current mode
- *
- * Return: error code.
- */
-int dsi_display_get_qsync_min_fps(void *dsi_display, u32 mode_fps);
-
 
 /**
  * dsi_display_find_mode() - retrieve cached DSI mode given relevant params
@@ -737,23 +729,23 @@ int dsi_display_cont_splash_config(void *display);
  */
 int dsi_display_get_panel_vfp(void *display,
 	int h_active, int v_active);
-
+extern struct drm_panel *lcd_active_panel;
+extern int drm_panel_notifier_call_chain(struct drm_panel *panel,
+	unsigned long val, void *v);
+#ifdef CONFIG_F2FS_OF2FS
+extern int f2fs_panel_notifier_call_chain(unsigned long val, void *v);
+#endif
 int dsi_display_cmd_engine_enable(struct dsi_display *display);
 int dsi_display_cmd_engine_disable(struct dsi_display *display);
-int dsi_host_alloc_cmd_tx_buffer(struct dsi_display *display);
 
-char *dsi_display_get_cmdline_panel_info(void);
-
-int dsi_display_hbm_set_disp_param(struct drm_connector *connector,
-				u32 param_type);
-
-int dsi_display_esd_irq_ctrl(struct dsi_display *display,
-		bool enable);
-
-#ifdef CONFIG_OSSFOD
 struct dsi_display *get_main_display(void);
+extern struct delayed_work *sde_esk_check_delayed_work;
 
-void dsi_display_set_fod_ui(struct dsi_display *display, bool status);
-#endif
+int dsi_display_register_read(struct dsi_display *dsi_display, unsigned char registers, char *buf, size_t count);
+int dsi_display_back_ToolsType_ANA6706(u8 *buff);
+int dsi_display_get_serial_number(struct drm_connector *connector);
 
+extern char gamma_para[2][413];
+int dsi_display_gamma_read(struct dsi_display *dsi_display);
+void dsi_display_gamma_read_work(struct work_struct *work);
 #endif /* _DSI_DISPLAY_H_ */

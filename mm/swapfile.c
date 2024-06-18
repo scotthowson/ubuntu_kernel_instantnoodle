@@ -957,6 +957,11 @@ int get_swap_pages(int n_goal, swp_entry_t swp_entries[], int entry_size)
 	int n_ret = 0;
 	int node;
 	int swap_ratio_off = 0;
+#ifdef CONFIG_MEMPLUS
+	unsigned long memplus_flag = __get_memplus_swp_flag(swp_entries[0]);
+
+	__memplus_clear_entry(swp_entries[0]);
+#endif
 
 	/* Only single cluster request supported */
 	WARN_ON_ONCE(n_goal > 1 && size == SWAPFILE_CLUSTER);
@@ -1002,6 +1007,14 @@ start_over:
 		spin_unlock(&swap_avail_lock);
 start:
 		spin_lock(&si->lock);
+#ifdef CONFIG_MEMPLUS
+		if (memplus_enabled() &&
+			(memplus_flag != __memplus_entry(si->flags))) {
+			spin_lock(&swap_avail_lock);
+			spin_unlock(&si->lock);
+			goto nextsi;
+		}
+#endif
 		if (!si->highest_bit || !(si->flags & SWP_WRITEOK)) {
 			spin_lock(&swap_avail_lock);
 			if (plist_node_empty(&si->avail_lists[node])) {
@@ -1019,7 +1032,7 @@ start:
 			goto nextsi;
 		}
 		if (size == SWAPFILE_CLUSTER) {
-			if (si->flags & SWP_BLKDEV)
+			if (!(si->flags & SWP_FILE))
 				n_ret = swap_alloc_cluster(si, swp_entries);
 		} else
 			n_ret = scan_swap_map_slots(si, SWAP_HAS_CACHE,
@@ -2326,7 +2339,7 @@ sector_t map_swap_page(struct page *page, struct block_device **bdev)
 {
 	swp_entry_t entry;
 	entry.val = page_private(page);
-	return map_swap_entry(entry, bdev) << (PAGE_SHIFT - 9);
+	return map_swap_entry(entry, bdev);
 }
 
 /*
@@ -2760,10 +2773,10 @@ static void *swap_next(struct seq_file *swap, void *v, loff_t *pos)
 	else
 		type = si->type + 1;
 
-	++(*pos);
 	for (; (si = swap_type_to_swap_info(type)); type++) {
 		if (!(si->flags & SWP_USED) || !si->swap_map)
 			continue;
+		++*pos;
 		return si;
 	}
 
@@ -2847,7 +2860,6 @@ late_initcall(max_swapfiles_check);
 static struct swap_info_struct *alloc_swap_info(void)
 {
 	struct swap_info_struct *p;
-	struct swap_info_struct *defer = NULL;
 	unsigned int type;
 	int i;
 	int size = sizeof(*p) + nr_node_ids * sizeof(struct plist_node);
@@ -2877,7 +2889,7 @@ static struct swap_info_struct *alloc_swap_info(void)
 		smp_wmb();
 		WRITE_ONCE(nr_swapfiles, nr_swapfiles + 1);
 	} else {
-		defer = p;
+		kvfree(p);
 		p = swap_info[type];
 		/*
 		 * Do not memset this entry: a racing procfs swap_next()
@@ -2890,7 +2902,6 @@ static struct swap_info_struct *alloc_swap_info(void)
 		plist_node_init(&p->avail_lists[i], 0);
 	p->flags = SWP_USED;
 	spin_unlock(&swap_lock);
-	kvfree(defer);
 	spin_lock_init(&p->lock);
 	spin_lock_init(&p->cont_lock);
 
@@ -3181,6 +3192,7 @@ SYSCALL_DEFINE2(swapon, const char __user *, specialfile, int, swap_flags)
 		error = -EBUSY;
 		goto bad_swap_unlock_inode;
 	}
+
 	/*
 	 * Read the swap header.
 	 */

@@ -1,16 +1,12 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (c) 2017-2019 The Linux Foundation. All rights reserved.
- * Copyright (C) 2021 XiaoMi, Inc.
  */
 
 #ifndef __STEP_CHG_H__
 #define __STEP_CHG_H__
 
-#define MAX_STEP_CHG_ENTRIES	6
-#define MAX_COLD_STEP_CHG_ENTRIES	2
-#define BATT_COOL_THRESHOLD		150
-#define BATT_WARM_THRESHOLD		450
+#define MAX_STEP_CHG_ENTRIES	8
 
 struct step_chg_jeita_param {
 	u32			psy_prop;
@@ -31,4 +27,7 @@ void qcom_step_chg_deinit(void);
 int read_range_data_from_node(struct device_node *node,
 		const char *prop_str, struct range_data *ranges,
 		int max_threshold, u32 max_value);
+int get_val(struct range_data *range, int hysteresis, int current_index,
+		int threshold,
+		int *new_index, int *val);
 #endif /* __STEP_CHG_H__ */

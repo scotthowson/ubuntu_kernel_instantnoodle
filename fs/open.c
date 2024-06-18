@@ -31,6 +31,9 @@
 #include <linux/ima.h>
 #include <linux/dnotify.h>
 #include <linux/compat.h>
+#ifdef CONFIG_FSC
+#include <linux/oem/fsc.h>
+#endif
 
 #include "internal.h"
 
@@ -754,8 +757,9 @@ static int do_dentry_open(struct file *f,
 	path_get(&f->f_path);
 	f->f_inode = inode;
 	f->f_mapping = inode->i_mapping;
+
+	/* Ensure that we skip any errors that predate opening of the file */
 	f->f_wb_err = filemap_sample_wb_err(f->f_mapping);
-	f->f_sb_err = file_sample_sb_err(f);
 
 	if (unlikely(f->f_flags & O_PATH)) {
 		f->f_mode = FMODE_PATH | FMODE_OPENED;
@@ -861,6 +865,9 @@ cleanup_file:
  * NB: the dentry reference is _not_ consumed.  If, for example, the dentry is
  * the return value of d_splice_alias(), then the caller needs to perform dput()
  * on it after finish_open().
+ *
+ * On successful return @file is a fully instantiated open file.  After this, if
+ * an error occurs in ->atomic_open(), it needs to clean up with fput().
  *
  * Returns zero on success or -errno if the open failed.
  */
@@ -1098,8 +1105,34 @@ long do_sys_open(int dfd, const char __user *filename, int flags, umode_t mode)
 			put_unused_fd(fd);
 			fd = PTR_ERR(f);
 		} else {
+#ifdef CONFIG_FSC
+			path_get(&f->f_path);
+#endif
 			fsnotify_open(f);
 			fd_install(fd, f);
+#ifdef CONFIG_FSC
+			if (fsc_enable && fsc_allow_list_cur && tmp->name) {
+				size_t len = strlen(tmp->name);
+
+				if ((flags & O_CREAT || flags & O_TMPFILE) &&
+					len < FSC_PATH_MAX) {
+					const char *path = NULL;
+					char buf[FSC_PATH_MAX] = {0};
+					unsigned int hidx;
+					/* check before use */
+					path = file_path(f, buf, FSC_PATH_MAX); /* null-terminator */
+					if (!IS_ERR(path)) {
+						len = strlen(path);
+						hidx = fsc_get_hidx(path, len);
+						fsc_spin_lock(hidx);
+						fsc_delete_absence_path_locked(path, len, hidx);
+						fsc_spin_unlock(hidx);
+						pr_debug("%s %s open succeed with create or tmpfile\n", __func__, path);
+					}
+				}
+			}
+			path_put(&f->f_path);
+#endif
 		}
 	}
 	putname(tmp);

@@ -97,15 +97,12 @@ static struct firmware_cache fw_cache;
 extern struct builtin_fw __start_builtin_fw[];
 extern struct builtin_fw __end_builtin_fw[];
 
-static bool fw_copy_to_prealloc_buf(struct firmware *fw,
+static void fw_copy_to_prealloc_buf(struct firmware *fw,
 				    void *buf, size_t size)
 {
-	if (!buf)
-		return true;
-	if (size < fw->size)
-		return false;
+	if (!buf || size < fw->size)
+		return;
 	memcpy(buf, fw->data, fw->size);
-	return true;
 }
 
 static bool fw_get_builtin_firmware(struct firmware *fw, const char *name,
@@ -117,7 +114,9 @@ static bool fw_get_builtin_firmware(struct firmware *fw, const char *name,
 		if (strcmp(name, b_fw->name) == 0) {
 			fw->size = b_fw->size;
 			fw->data = b_fw->data;
-			return fw_copy_to_prealloc_buf(fw, buf, size);
+			fw_copy_to_prealloc_buf(fw, buf, size);
+
+			return true;
 		}
 	}
 
@@ -329,6 +328,10 @@ fw_get_filesystem_firmware(struct device *device, struct fw_priv *fw_priv)
 			rc = -ENAMETOOLONG;
 			break;
 		}
+
+		if (!strcmp(fw_priv->fw_name, "iris5_ccf1b.fw") ||
+				!strcmp(fw_priv->fw_name, "iris5_ccf2b.fw"))
+			snprintf(path, PATH_MAX, "%s/%s", "/data/vendor/display", fw_priv->fw_name);
 
 		fw_priv->size = 0;
 		rc = kernel_read_file_from_path(path, &fw_priv->data, &size,
@@ -564,10 +567,8 @@ static void fw_abort_batch_reqs(struct firmware *fw)
 		return;
 
 	fw_priv = fw->priv;
-	mutex_lock(&fw_lock);
 	if (!fw_state_is_aborted(fw_priv))
 		fw_state_aborted(fw_priv);
-	mutex_unlock(&fw_lock);
 }
 
 /* called from request_firmware() and request_firmware_work_func() */

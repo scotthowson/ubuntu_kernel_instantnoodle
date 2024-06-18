@@ -45,11 +45,6 @@
 #include <linux/livepatch.h>
 #include <linux/oom.h>
 #include <linux/capability.h>
-#include <linux/cgroup.h>
-
-#ifdef CONFIG_MILLET
-#include <linux/millet.h>
-#endif
 
 #define CREATE_TRACE_POINTS
 #include <trace/events/signal.h>
@@ -158,10 +153,9 @@ static inline bool has_pending_signals(sigset_t *signal, sigset_t *blocked)
 
 static bool recalc_sigpending_tsk(struct task_struct *t)
 {
-	if ((t->jobctl & (JOBCTL_PENDING_MASK | JOBCTL_TRAP_FREEZE)) ||
+	if ((t->jobctl & JOBCTL_PENDING_MASK) ||
 	    PENDING(&t->pending, &t->blocked) ||
-	    PENDING(&t->signal->shared_pending, &t->blocked) ||
-	    cgroup_task_frozen(t)) {
+	    PENDING(&t->signal->shared_pending, &t->blocked)) {
 		set_tsk_thread_flag(t, TIF_SIGPENDING);
 		return true;
 	}
@@ -395,17 +389,16 @@ static bool task_participate_group_stop(struct task_struct *task)
 
 void task_join_group_stop(struct task_struct *task)
 {
-	unsigned long mask = current->jobctl & JOBCTL_STOP_SIGMASK;
-	struct signal_struct *sig = current->signal;
-
-	if (sig->group_stop_count) {
-		sig->group_stop_count++;
-		mask |= JOBCTL_STOP_CONSUME;
-	} else if (!(sig->flags & SIGNAL_STOP_STOPPED))
-		return;
-
 	/* Have the new thread join an on-going signal group stop */
-	task_set_jobctl_pending(task, mask | JOBCTL_STOP_PENDING);
+	unsigned long jobctl = current->jobctl;
+	if (jobctl & JOBCTL_STOP_PENDING) {
+		struct signal_struct *sig = current->signal;
+		unsigned long signr = jobctl & JOBCTL_STOP_SIGMASK;
+		unsigned long gstop = JOBCTL_STOP_PENDING | JOBCTL_STOP_CONSUME;
+		if (task_set_jobctl_pending(task, signr | gstop)) {
+			sig->group_stop_count++;
+		}
+	}
 }
 
 /*
@@ -418,32 +411,27 @@ __sigqueue_alloc(int sig, struct task_struct *t, gfp_t flags, int override_rlimi
 {
 	struct sigqueue *q = NULL;
 	struct user_struct *user;
-	int sigpending;
 
 	/*
 	 * Protect access to @t credentials. This can go away when all
 	 * callers hold rcu read lock.
-	 *
-	 * NOTE! A pending signal will hold on to the user refcount,
-	 * and we get/put the refcount only when the sigpending count
-	 * changes from/to zero.
 	 */
 	rcu_read_lock();
-	user = __task_cred(t)->user;
-	sigpending = atomic_inc_return(&user->sigpending);
-	if (sigpending == 1)
-		get_uid(user);
+	user = get_uid(__task_cred(t)->user);
+	atomic_inc(&user->sigpending);
 	rcu_read_unlock();
 
-	if (override_rlimit || likely(sigpending <= task_rlimit(t, RLIMIT_SIGPENDING))) {
+	if (override_rlimit ||
+	    atomic_read(&user->sigpending) <=
+			task_rlimit(t, RLIMIT_SIGPENDING)) {
 		q = kmem_cache_alloc(sigqueue_cachep, flags);
 	} else {
 		print_dropped_signal(sig);
 	}
 
 	if (unlikely(q == NULL)) {
-		if (atomic_dec_and_test(&user->sigpending))
-			free_uid(user);
+		atomic_dec(&user->sigpending);
+		free_uid(user);
 	} else {
 		INIT_LIST_HEAD(&q->list);
 		q->flags = 0;
@@ -457,8 +445,8 @@ static void __sigqueue_free(struct sigqueue *q)
 {
 	if (q->flags & SIGQUEUE_PREALLOC)
 		return;
-	if (atomic_dec_and_test(&q->user->sigpending))
-		free_uid(q->user);
+	atomic_dec(&q->user->sigpending);
+	free_uid(q->user);
 	kmem_cache_free(sigqueue_cachep, q);
 }
 
@@ -1090,6 +1078,18 @@ static inline void userns_fixup_signal_uid(struct siginfo *info, struct task_str
 }
 #endif
 
+static int print_key_process_murder __read_mostly = 1;
+static bool is_zygote_process(struct task_struct *t)
+{
+	const struct cred *tcred = __task_cred(t);
+
+	if (!strcmp(t->comm, "main") && (tcred->uid.val == 0) && (t->parent != 0 && !strcmp(t->parent->comm, "init")))
+		return true;
+	else
+		return false;
+	return false;
+}
+
 static int __send_signal(int sig, struct siginfo *info, struct task_struct *t,
 			enum pid_type type, int from_ancestor_ns)
 {
@@ -1101,6 +1101,20 @@ static int __send_signal(int sig, struct siginfo *info, struct task_struct *t,
 	assert_spin_locked(&t->sighand->siglock);
 
 	result = TRACE_SIGNAL_IGNORED;
+
+	if (print_key_process_murder) {
+		if (!strcmp(t->comm, "system_server") ||
+			is_zygote_process(t) ||
+			!strcmp(t->comm, "surfaceflinger") ||
+			!strcmp(t->comm, "servicemanager") ||
+			(!strcmp(t->comm, "netd") && sig == 9)) {
+			struct task_struct *tg = current->group_leader;
+
+			pr_info("process %d:%s, %d:%s send sig:%d to process %d:%s\n",
+			       tg->pid, tg->comm, current->pid, current->comm, sig, t->pid, t->comm);
+		}
+	}
+
 	if (!prepare_signal(sig, t,
 			from_ancestor_ns || (info == SEND_SIG_PRIV) || (info == SEND_SIG_FORCED)))
 		goto ret;
@@ -1274,20 +1288,19 @@ int do_send_sig_info(int sig, struct siginfo *info, struct task_struct *p,
 	unsigned long flags;
 	int ret = -ESRCH;
 
-#ifdef CONFIG_MILLET
-	struct millet_data data;
+	if (sig == SIGKILL) {
+		if (p && p->flags & PF_FROZEN) {
+			struct task_struct *child = p;
 
-	if (sig == SIGKILL
-		|| sig == SIGTERM
-		|| sig == SIGABRT
-		|| sig == SIGQUIT) {
-
-		data.mod.k_priv.sig.caller_task = current;
-		data.mod.k_priv.sig.killed_task = p;
-		data.mod.k_priv.sig.reason = KILLED_BY_PRO;
-		millet_sendmsg(SIG_TYPE, p, &data);
+			rcu_read_lock();
+			do {
+				child = next_thread(child);
+				child->kill_flag = 1;
+				__thaw_task(child);
+			} while (child != p);
+			rcu_read_unlock();
+		}
 	}
-#endif
 	if (lock_task_sighand(p, &flags)) {
 		ret = send_signal(sig, info, p, type);
 		unlock_task_sighand(p, &flags);
@@ -1880,7 +1893,7 @@ bool do_notify_parent(struct task_struct *tsk, int sig)
 		 * This is only possible if parent == real_parent.
 		 * Check if it has changed security domain.
 		 */
-		if (tsk->parent_exec_id != READ_ONCE(tsk->parent->self_exec_id))
+		if (tsk->parent_exec_id != tsk->parent->self_exec_id)
 			sig = SIGCHLD;
 	}
 
@@ -1942,12 +1955,8 @@ bool do_notify_parent(struct task_struct *tsk, int sig)
 		if (psig->action[SIGCHLD-1].sa.sa_handler == SIG_IGN)
 			sig = 0;
 	}
-	/*
-	 * Send with __send_signal as si_pid and si_uid are in the
-	 * parent's namespaces.
-	 */
 	if (valid_signal(sig) && sig)
-		__send_signal(sig, &info, tsk->parent, PIDTYPE_TGID, false);
+		__group_send_sig_info(sig, &info, tsk->parent);
 	__wake_up_parent(tsk, tsk->parent);
 	spin_unlock_irqrestore(&psig->siglock, flags);
 
@@ -2049,6 +2058,15 @@ static inline bool may_ptrace_stop(void)
 	return true;
 }
 
+/*
+ * Return non-zero if there is a SIGKILL that should be waking us up.
+ * Called with the siglock held.
+ */
+static bool sigkill_pending(struct task_struct *tsk)
+{
+	return sigismember(&tsk->pending.signal, SIGKILL) ||
+	       sigismember(&tsk->signal->shared_pending.signal, SIGKILL);
+}
 
 /*
  * This must be called with current->sighand->siglock held.
@@ -2075,16 +2093,17 @@ static void ptrace_stop(int exit_code, int why, int clear_code, siginfo_t *info)
 		 * calling arch_ptrace_stop, so we must release it now.
 		 * To preserve proper semantics, we must do this before
 		 * any signal bookkeeping like checking group_stop_count.
+		 * Meanwhile, a SIGKILL could come in before we retake the
+		 * siglock.  That must prevent us from sleeping in TASK_TRACED.
+		 * So after regaining the lock, we must check for SIGKILL.
 		 */
 		spin_unlock_irq(&current->sighand->siglock);
 		arch_ptrace_stop(exit_code, info);
 		spin_lock_irq(&current->sighand->siglock);
+		if (sigkill_pending(current))
+			return;
 	}
 
-	/*
-	 * schedule() will not sleep if there is a pending signal that
-	 * can awaken the task.
-	 */
 	set_special_state(TASK_TRACED);
 
 	/*
@@ -2153,10 +2172,8 @@ static void ptrace_stop(int exit_code, int why, int clear_code, siginfo_t *info)
 		 */
 		preempt_disable();
 		read_unlock(&tasklist_lock);
-		cgroup_enter_frozen();
 		preempt_enable_no_resched();
 		freezable_schedule();
-		cgroup_leave_frozen(true);
 	} else {
 		/*
 		 * By the time we got the lock, our tracer went away.
@@ -2334,7 +2351,6 @@ static bool do_signal_stop(int signr)
 		}
 
 		/* Now we don't run again until woken by SIGCONT or SIGKILL */
-		cgroup_enter_frozen();
 		freezable_schedule();
 		return true;
 	} else {
@@ -2379,43 +2395,6 @@ static void do_jobctl_trap(void)
 		ptrace_stop(signr, CLD_STOPPED, 0, NULL);
 		current->exit_code = 0;
 	}
-}
-
-/**
- * do_freezer_trap - handle the freezer jobctl trap
- *
- * Puts the task into frozen state, if only the task is not about to quit.
- * In this case it drops JOBCTL_TRAP_FREEZE.
- *
- * CONTEXT:
- * Must be called with @current->sighand->siglock held,
- * which is always released before returning.
- */
-static void do_freezer_trap(void)
-	__releases(&current->sighand->siglock)
-{
-	/*
-	 * If there are other trap bits pending except JOBCTL_TRAP_FREEZE,
-	 * let's make another loop to give it a chance to be handled.
-	 * In any case, we'll return back.
-	 */
-	if ((current->jobctl & (JOBCTL_PENDING_MASK | JOBCTL_TRAP_FREEZE)) !=
-	     JOBCTL_TRAP_FREEZE) {
-		spin_unlock_irq(&current->sighand->siglock);
-		return;
-	}
-
-	/*
-	 * Now we're sure that there is no pending fatal signal and no
-	 * pending traps. Clear TIF_SIGPENDING to not get out of schedule()
-	 * immediately (if there is a non-fatal signal pending), and
-	 * put the task into sleep.
-	 */
-	__set_current_state(TASK_INTERRUPTIBLE);
-	clear_thread_flag(TIF_SIGPENDING);
-	spin_unlock_irq(&current->sighand->siglock);
-	cgroup_enter_frozen();
-	freezable_schedule();
 }
 
 static int ptrace_signal(int signr, siginfo_t *info)
@@ -2530,10 +2509,6 @@ relock:
 		trace_signal_deliver(SIGKILL, SEND_SIG_NOINFO,
 				&sighand->action[SIGKILL - 1]);
 		recalc_sigpending();
-		current->jobctl &= ~JOBCTL_TRAP_FREEZE;
-		spin_unlock_irq(&sighand->siglock);
-		if (unlikely(cgroup_task_frozen(current)))
-			cgroup_leave_frozen(true);
 		goto fatal;
 	}
 
@@ -2544,24 +2519,9 @@ relock:
 		    do_signal_stop(0))
 			goto relock;
 
-		if (unlikely(current->jobctl &
-			     (JOBCTL_TRAP_MASK | JOBCTL_TRAP_FREEZE))) {
-			if (current->jobctl & JOBCTL_TRAP_MASK) {
-				do_jobctl_trap();
-				spin_unlock_irq(&sighand->siglock);
-			} else if (current->jobctl & JOBCTL_TRAP_FREEZE)
-				do_freezer_trap();
-
-			goto relock;
-		}
-
-		/*
-		 * If the task is leaving the frozen state, let's update
-		 * cgroup counters and reset the frozen bit.
-		 */
-		if (unlikely(cgroup_task_frozen(current))) {
+		if (unlikely(current->jobctl & JOBCTL_TRAP_MASK)) {
+			do_jobctl_trap();
 			spin_unlock_irq(&sighand->siglock);
-			cgroup_leave_frozen(true);
 			goto relock;
 		}
 
@@ -2655,8 +2615,8 @@ relock:
 			continue;
 		}
 
-		spin_unlock_irq(&sighand->siglock);
 	fatal:
+		spin_unlock_irq(&sighand->siglock);
 
 		/*
 		 * Anything else is fatal, maybe with a core dump.
@@ -3391,8 +3351,16 @@ static inline void prepare_kill_siginfo(int sig, struct siginfo *info)
 SYSCALL_DEFINE2(kill, pid_t, pid, int, sig)
 {
 	struct siginfo info;
+	/* huruihuan add for kill task in D status */
+	struct task_struct *p;
 
 	prepare_kill_siginfo(sig, &info);
+
+	if (sig == SIGQUIT || sig == SIGSEGV ||  sig == SIGABRT) {
+		p = pid_task(find_vpid(pid), PIDTYPE_PID);
+		if (p)
+			unfreezer_fork(p);
+	}
 
 	return kill_something_info(sig, &info, pid);
 }
@@ -4256,42 +4224,6 @@ __weak const char *arch_vma_name(struct vm_area_struct *vma)
 	return NULL;
 }
 
-#ifdef CONFIG_MILLET
-int last_report_task;
-
-static int signals_sendmsg(struct task_struct *tsk,
-		struct millet_data *data, struct millet_sock *sk)
-{
-	int ret = 0;
-
-	if (!sk || !data || !tsk) {
-		pr_err("%s input invalid\n", __FUNCTION__);
-		return RET_ERR;
-	}
-
-	data->mod.k_priv.sig.killed_pid = task_tgid_nr(tsk);
-	data->uid = task_uid(tsk).val;
-	data->msg_type = MSG_TO_USER;
-	data->owner = SIG_TYPE;
-
-	if (frozen_task_group(tsk)
-		&& (data->mod.k_priv.sig.killed_pid != *(int *)sk->mod[SIG_TYPE].priv)) {
-		*(int *)sk->mod[SIG_TYPE].priv = data->mod.k_priv.sig.killed_pid;
-		ret = millet_sendto_user(tsk, data, sk);
-	}
-
-	return ret;
-}
-
-static void signas_init_millet(struct millet_sock *sk)
-{
-	if (sk) {
-		sk->mod[SIG_TYPE].monitor = SIG_TYPE;
-		sk->mod[SIG_TYPE].priv = (void *)&last_report_task;
-	}
-}
-#endif
-
 void __init signals_init(void)
 {
 	/* If this check fails, the __ARCH_SI_PREAMBLE_SIZE value is wrong! */
@@ -4300,10 +4232,6 @@ void __init signals_init(void)
 	BUILD_BUG_ON(sizeof(struct siginfo) != SI_MAX_SIZE);
 
 	sigqueue_cachep = KMEM_CACHE(sigqueue, SLAB_PANIC);
-#ifdef CONFIG_MILLET
-	register_millet_hook(SIG_TYPE, NULL,
-		signals_sendmsg, signas_init_millet);
-#endif
 }
 
 #ifdef CONFIG_KGDB_KDB

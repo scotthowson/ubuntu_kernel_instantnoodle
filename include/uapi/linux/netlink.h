@@ -2,7 +2,7 @@
 #ifndef _UAPI__LINUX_NETLINK_H
 #define _UAPI__LINUX_NETLINK_H
 
-#include <linux/const.h>
+#include <linux/kernel.h>
 #include <linux/socket.h> /* for __kernel_sa_family_t */
 #include <linux/types.h>
 
@@ -30,10 +30,13 @@
 #define NETLINK_CRYPTO		21	/* Crypto layer */
 #define NETLINK_SMC		22	/* SMC monitoring */
 #define NETLINK_SOCKEV		23	/* Socket Administrative Events */
-#define NETLINK_INET_DIAG	NETLINK_SOCK_DIAG
-#ifdef CONFIG_MILLET
-#define NETLINK_MILLET          29
+#ifdef CONFIG_OP_FREEZER
+#define NETLINK_OP_FREEZER       28      /* Socket for freezing solution*/
 #endif
+#define NETLINK_INET_DIAG	NETLINK_SOCK_DIAG
+/* WIFI MODIFICATION */
+#define NETLINK_OP_SLA		29	/* SLA NETLINK SOCK */
+/* WIFI MODIFICATION */
 
 #define MAX_LINKS 32		
 

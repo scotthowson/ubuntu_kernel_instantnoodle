@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (c) 2016-2017, Linaro Ltd
- * Copyright (c) 2018-2021, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2018-2020, The Linux Foundation. All rights reserved.
  */
 
 #include <linux/idr.h>
@@ -41,20 +41,12 @@ do {									     \
 			       ch->lcid, ch->rcid, __func__, ##__VA_ARGS__); \
 } while (0)
 
+
 #define GLINK_ERR(ctxt, x, ...)						  \
 do {									  \
 	pr_err_ratelimited("[%s]: "x, __func__, ##__VA_ARGS__);		  \
 	if (ctxt)							  \
 		ipc_log_string(ctxt, "[%s]: "x, __func__, ##__VA_ARGS__); \
-
-#define CH_ERR(ch, x, ...)						     \
-do {									     \
-	if (ch->glink) {						     \
-		ipc_log_string(ch->glink->ilc, "%s[%d:%d] %s: "x, ch->name,  \
-			       ch->lcid, ch->rcid, __func__, ##__VA_ARGS__); \
-		dev_err_ratelimited(ch->glink->dev, "[%s]: "x, __func__,     \
-							##__VA_ARGS__);      \
-	}								     \
 } while (0)
 
 #define GLINK_NAME_SIZE		32
@@ -104,7 +96,6 @@ struct glink_core_rx_intent {
 	size_t size;
 	bool reuse;
 	bool in_use;
-	bool advertised;
 	u32 offset;
 
 	struct list_head node;
@@ -236,7 +227,6 @@ struct glink_channel {
 
 	struct mutex intent_req_lock;
 	bool intent_req_result;
-	bool channel_ready;
 	atomic_t intent_req_comp;
 	wait_queue_head_t intent_req_event;
 };
@@ -778,15 +768,6 @@ static int qcom_glink_advertise_intent(struct qcom_glink *glink,
 		__le32 liid;
 	} __packed;
 	struct command cmd;
-	unsigned long flags;
-
-	spin_lock_irqsave(&channel->intent_lock, flags);
-	if (intent->advertised) {
-		spin_unlock_irqrestore(&channel->intent_lock, flags);
-		return 0;
-	}
-	intent->advertised = true;
-	spin_unlock_irqrestore(&channel->intent_lock, flags);
 
 	cmd.id = cpu_to_le16(RPM_CMD_INTENT);
 	cmd.lcid = cpu_to_le16(channel->lcid);
@@ -892,7 +873,6 @@ static void qcom_glink_handle_intent_req(struct qcom_glink *glink,
 	struct glink_core_rx_intent *intent = NULL;
 	struct glink_core_rx_intent *tmp;
 	struct glink_channel *channel;
-	struct rpmsg_endpoint *ept;
 	unsigned long flags;
 	int iid;
 
@@ -918,9 +898,8 @@ static void qcom_glink_handle_intent_req(struct qcom_glink *glink,
 		return;
 	}
 
-	ept = &channel->ept;
 	intent = qcom_glink_alloc_intent(glink, channel, size, false);
-	if (intent && channel->channel_ready)
+	if (intent)
 		qcom_glink_advertise_intent(glink, channel, intent);
 
 	qcom_glink_send_intent_req_ack(glink, channel, !!intent);
@@ -1038,7 +1017,6 @@ static int qcom_glink_rx_data(struct qcom_glink *glink, size_t avail)
 			dev_err(glink->dev,
 				"no intent found for channel %s intent %d",
 				channel->name, liid);
-			ret = -ENOENT;
 			goto advance_rx;
 		}
 	}
@@ -1058,19 +1036,11 @@ static int qcom_glink_rx_data(struct qcom_glink *glink, size_t avail)
 	if (!left_size) {
 		spin_lock(&channel->recv_lock);
 		if (channel->ept.cb) {
-			ret = channel->ept.cb(channel->ept.rpdev,
+			channel->ept.cb(channel->ept.rpdev,
 					intent->data,
 					intent->offset,
 					channel->ept.priv,
 					RPMSG_ADDR_ANY);
-
-			if (ret < 0 && ret != -ENODEV) {
-				CH_ERR(channel,
-					"callback error ret = %d\n", ret);
-				ret = 0;
-			}
-		} else {
-			CH_ERR(channel, "callback not present\n");
 		}
 		spin_unlock(&channel->recv_lock);
 
@@ -1413,14 +1383,13 @@ static struct rpmsg_endpoint *qcom_glink_create_ept(struct rpmsg_device *rpdev,
 		if (ret)
 			return NULL;
 	}
-	CH_INFO(channel, "Initializing ept\n");
 
 	ept = &channel->ept;
 	ept->rpdev = rpdev;
 	ept->cb = cb;
 	ept->priv = priv;
 	ept->ops = &glink_endpoint_ops;
-	CH_INFO(channel, "Initialized ept\n");
+
 	return ept;
 }
 
@@ -1430,33 +1399,15 @@ static int qcom_glink_announce_create(struct rpmsg_device *rpdev)
 	struct device_node *np = rpdev->dev.of_node;
 	struct qcom_glink *glink = channel->glink;
 	struct glink_core_rx_intent *intent;
-	struct glink_core_rx_intent *tmp;
 	const struct property *prop = NULL;
 	__be32 defaults[] = { cpu_to_be32(SZ_1K), cpu_to_be32(5) };
 	int num_intents;
 	int num_groups = 1;
 	__be32 *val = defaults;
-	unsigned long flags;
-	int iid;
 	int size;
 
-	CH_INFO(channel, "Entered\n");
 	if (glink->intentless || !completion_done(&channel->open_ack))
 		return 0;
-
-	channel->channel_ready = true;
-
-	/*Serve any pending intent request*/
-	spin_lock_irqsave(&channel->intent_lock, flags);
-	idr_for_each_entry(&channel->liids, tmp, iid) {
-		if (!tmp->reuse && !tmp->advertised) {
-			intent = tmp;
-			spin_unlock_irqrestore(&channel->intent_lock, flags);
-			qcom_glink_advertise_intent(glink, channel, intent);
-			spin_lock_irqsave(&channel->intent_lock, flags);
-		}
-	}
-	spin_unlock_irqrestore(&channel->intent_lock, flags);
 
 	prop = of_find_property(np, "qcom,intents", NULL);
 	if (prop) {
@@ -1477,7 +1428,6 @@ static int qcom_glink_announce_create(struct rpmsg_device *rpdev)
 			qcom_glink_advertise_intent(glink, channel, intent);
 		}
 	}
-	CH_INFO(channel, "Exit\n");
 	return 0;
 }
 
@@ -2019,6 +1969,18 @@ static void qcom_glink_cancel_rx_work(struct qcom_glink *glink)
 		kfree(dcmd);
 }
 
+/* Modify for glink name */
+struct g_sub_name {
+	const char *g_name;
+	const char *s_name;
+} sub_name[] = {
+	{"adsp", "glink-adsp"},
+	{"cdsp", "glink-cdsp"},
+	{"slpi", "glink-slpi"},
+	{"modem", "glink-modem"},
+	{"npu", "glink-npu"},
+};
+
 struct qcom_glink *qcom_glink_native_probe(struct device *dev,
 					   unsigned long features,
 					   struct qcom_glink_pipe *rx,
@@ -2030,6 +1992,8 @@ struct qcom_glink *qcom_glink_native_probe(struct device *dev,
 	int size;
 	int irq;
 	int ret;
+	/* Modify for glink name */
+	int i;
 
 	glink = devm_kzalloc(dev, sizeof(*glink), GFP_KERNEL);
 	if (!glink)
@@ -2094,6 +2058,20 @@ struct qcom_glink *qcom_glink_native_probe(struct device *dev,
 		goto unregister;
 	}
 
+	/* Modify for glink name */
+	for (i = 0; i < ARRAY_SIZE(sub_name); i++) {
+		if (strcmp(sub_name[i].g_name, glink->name) == 0) {
+			ret = devm_request_irq(dev, irq,
+					qcom_glink_native_intr,
+					IRQF_NO_SUSPEND | IRQF_SHARED,
+					sub_name[i].s_name, glink);
+			if (ret) {
+				dev_err(dev, "failed to request IRQ\n");
+				goto unregister;
+			}
+			break;
+		}
+	}
 	glink->irq = irq;
 
 	size = of_property_count_u32_elems(dev->of_node, "cpu-affinity");

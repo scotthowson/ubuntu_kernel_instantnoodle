@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-only
-/* Copyright (c) 2015-2021, The Linux Foundation. All rights reserved. */
+/* Copyright (c) 2015-2020, The Linux Foundation. All rights reserved. */
 
 #include <linux/firmware.h>
 #include <linux/module.h>
 #include <linux/soc/qcom/qmi.h>
-#include <soc/qcom/socinfo.h>
+#include <linux/oem/boot_mode.h>
 
 #include "bus.h"
 #include "debug.h"
@@ -15,43 +15,65 @@
 #define WLFW_CLIENT_ID			0x4b4e454c
 #define BDF_FILE_NAME_PREFIX		"bdwlan"
 #define ELF_BDF_FILE_NAME		"bdwlan.elf"
-
-#define ELF_BDF_FILE_NAME_J11		"bd_j11.elf"
-#define ELF_BDF_FILE_NAME_J11_B_BOM		"bd_j11_b.elf"
-#define ELF_BDF_FILE_NAME_J11_INDIA		"bd_j11in.elf"
-#define ELF_BDF_FILE_NAME_J11_GLOBAL		"bd_j11gl.elf"
-
-#define ELF_BDF_FILE_NAME_GLOBAL	 "bd_j1gl.elf"
-#define ELF_BDF_FILE_NAME_INDIA		 "bd_j1in.elf"
-#define ELF_BDF_FILE_NAME_B_BOM		 "bd_j1_b.elf"
-
-#define ELF_BDF_FILE_NAME_J1S		 "bd_j1s.elf"
-
-#define ELF_BDF_FILE_NAME_J2S		 "bd_j2s.elf"
-
-#define ELF_BDF_FILE_NAME_J3S		 "bd_j3s.elf"
-#define ELF_BDF_FILE_NAME_J3S_GLOBAL	 "bd_j3sgl.elf"
-#define ELF_BDF_FILE_NAME_J3S_INDIA	 "bd_j3sin.elf"
-
-#define ELF_BDF_FILE_NAME_K11A		 "bd_k11a.elf"
-#define ELF_BDF_FILE_NAME_K11A_GLOBAL	 "bd_k11agl.elf"
-#define ELF_BDF_FILE_NAME_K11A_INDIA	 "bd_k11ain.elf"
-
-#define ELF_BDF_FILE_NAME_K81            "bd_k81.elf"
-#define ELF_BDF_FILE_NAME_K81A           "bd_k81a.elf"
-
-#define ELF_BDF_FILE_NAME_GF		"bdwlang.elf"
 #define ELF_BDF_FILE_NAME_PREFIX	"bdwlan.e"
-#define ELF_BDF_FILE_NAME_GF_PREFIX	"bdwlang.e"
 #define BIN_BDF_FILE_NAME		"bdwlan.bin"
-#define BIN_BDF_FILE_NAME_GF		"bdwlang.bin"
 #define BIN_BDF_FILE_NAME_PREFIX	"bdwlan.b"
-#define BIN_BDF_FILE_NAME_GF_PREFIX	"bdwlang.b"
 #define REGDB_FILE_NAME			"regdb.bin"
-#define REGDB_FILE_NAME_J11		"regdb_j11.bin"
 #define DUMMY_BDF_FILE_NAME		"bdwlan.dmy"
-#define CHIP_ID_GF_MASK			0x10
 
+#define P821_PUBLIC_CHINA_DEFAULT_BDF		"12wlan.b0c"
+#define P821_PUBLIC_CHINA_CHAIN0_ONLY_BDF	"12wlan0.b0c"
+#define P821_PUBLIC_CHINA_CHAIN1_ONLY_BDF	"12wlan1.b0c"
+#define P821_PUBLIC_AMERICA_DEFAULT_BDF		"12wlan.b0a"
+#define P821_PUBLIC_AMERICA_CHAIN0_ONLY_BDF	"12wlan0.b0a"
+#define P821_PUBLIC_AMERICA_CHAIN1_ONLY_BDF	"12wlan1.b0a"
+#define P821_TMO_DEFAULT_BDF			"12wlan.t0a"
+#define P821_TMO_CHAIN0_ONLY_BDF		"12wlan0.t0a"
+#define P821_TMO_CHAIN1_ONLY_BDF		"12wlan1.t0a"
+#define P821_PUBLIC_EUROPE_DEFAULT_BDF		"12wlan.b0e"
+#define P821_PUBLIC_EUROPE_CHAIN0_ONLY_BDF	"12wlan0.b0e"
+#define P821_PUBLIC_EUROPE_CHAIN1_ONLY_BDF	"12wlan1.b0e"
+#define P821_PUBLIC_INDIA_DEFAULT_BDF		"12wlan.b0i"
+#define P821_PUBLIC_INDIA_CHAIN0_ONLY_BDF	"12wlan0.b0i"
+#define P821_PUBLIC_INDIA_CHAIN1_ONLY_BDF	"12wlan1.b0i"
+#define P821_PUBLIC_INDIA_SECOND_DEFAULT_BDF    "12wlan.b1i"
+#define P821_PUBLIC_INDIA_SECOND_CHAIN0_ONLY_BDF        "12wlan0.b1i"
+#define P821_PUBLIC_INDIA_SECOND_CHAIN1_ONLY_BDF        "12wlan1.b1i"
+
+#define P805_PUBLIC_CHINA_DEFAULT_BDF		"14wlan.b0c"
+#define P805_PUBLIC_CHINA_CHAIN0_ONLY_BDF	"14wlan0.b0c"
+#define P805_PUBLIC_CHINA_CHAIN1_ONLY_BDF	"14wlan1.b0c"
+#define P805_PUBLIC_AMERICA_DEFAULT_BDF		"14wlan.b0a"
+#define P805_PUBLIC_AMERICA_CHAIN0_ONLY_BDF	"14wlan0.b0a"
+#define P805_PUBLIC_AMERICA_CHAIN1_ONLY_BDF	"14wlan1.b0a"
+#define P805_TMO_DEFAULT_BDF			"14wlan.t0a"
+#define P805_TMO_CHAIN0_ONLY_BDF		"14wlan0.t0a"
+#define P805_TMO_CHAIN1_ONLY_BDF		"14wlan1.t0a"
+#define P805_PUBLIC_EUROPE_DEFAULT_BDF		"14wlan.b0e"
+#define P805_PUBLIC_EUROPE_CHAIN0_ONLY_BDF	"14wlan0.b0e"
+#define P805_PUBLIC_EUROPE_CHAIN1_ONLY_BDF	"14wlan1.b0e"
+#define P805_PUBLIC_INDIA_DEFAULT_BDF		"14wlan.b0i"
+#define P805_PUBLIC_INDIA_CHAIN0_ONLY_BDF	"14wlan0.b0i"
+#define P805_PUBLIC_INDIA_CHAIN1_ONLY_BDF	"14wlan1.b0i"
+#define P805_PUBLIC_CHINA_SECOND_DEFAULT_BDF    "14wlan.b1c"
+#define P805_PUBLIC_CHINA_SECOND_CHAIN0_ONLY_BDF        "14wlan0.b1c"
+#define P805_PUBLIC_CHINA_SECOND_CHAIN1_ONLY_BDF        "14wlan1.b1c"
+
+#define P811_PUBLIC_CHINA_DEFAULT_BDF           "11wlan.b0c"
+#define P811_PUBLIC_CHINA_CHAIN0_ONLY_BDF       "11wlan0.b0c"
+#define P811_PUBLIC_CHINA_CHAIN1_ONLY_BDF       "11wlan1.b0c"
+#define P811_PUBLIC_AMERICA_DEFAULT_BDF         "11wlan.b0a"
+#define P811_PUBLIC_AMERICA_CHAIN0_ONLY_BDF     "11wlan0.b0a"
+#define P811_PUBLIC_AMERICA_CHAIN1_ONLY_BDF     "11wlan1.b0a"
+#define P811_PUBLIC_INDIA_DEFAULT_BDF           "11wlan.b0i"
+#define P811_PUBLIC_INDIA_CHAIN0_ONLY_BDF       "11wlan0.b0i"
+#define P811_PUBLIC_INDIA_CHAIN1_ONLY_BDF       "11wlan1.b0i"
+#define P811_PUBLIC_EUROPE_DEFAULT_BDF          "11wlan.b0e"
+#define P811_PUBLIC_EUROPE_CHAIN0_ONLY_BDF      "11wlan0.b0e"
+#define P811_PUBLIC_EUROPE_CHAIN1_ONLY_BDF      "11wlan1.b0e"
+#define P867_VZW_DEFAULT_BDF                "13wlan.v0a"
+#define P867_VZW_CHAIN0_ONLY_BDF            "13wlan0.v0a"
+#define P867_VZW_CHAIN1_ONLY_BDF            "13wlan1.v0a"
 #define QMI_WLFW_TIMEOUT_MS		(plat_priv->ctrl_params.qmi_timeout)
 #define QMI_WLFW_TIMEOUT_JF		msecs_to_jiffies(QMI_WLFW_TIMEOUT_MS)
 #define COEX_TIMEOUT			QMI_WLFW_TIMEOUT_JF
@@ -61,18 +83,7 @@
 
 #define QMI_WLFW_MAC_READY_TIMEOUT_MS	50
 #define QMI_WLFW_MAC_READY_MAX_RETRY	200
-
-#ifdef CONFIG_CNSS2_DEBUG
-static bool ignore_qmi_failure;
-#define CNSS_QMI_ASSERT() CNSS_ASSERT(ignore_qmi_failure)
-void cnss_ignore_qmi_failure(bool ignore)
-{
-	ignore_qmi_failure = ignore;
-}
-#else
-#define CNSS_QMI_ASSERT() do { } while (0)
-void cnss_ignore_qmi_failure(bool ignore) { }
-#endif
+static int tempstr;
 
 static char *cnss_qmi_mode_to_str(enum cnss_driver_mode mode)
 {
@@ -186,7 +197,7 @@ static int cnss_wlfw_ind_register_send_sync(struct cnss_plat_data *plat_priv)
 	return 0;
 
 out:
-	CNSS_QMI_ASSERT();
+	CNSS_ASSERT(0);
 
 qmi_registered:
 	kfree(req);
@@ -306,7 +317,7 @@ static int cnss_wlfw_host_cap_send_sync(struct cnss_plat_data *plat_priv)
 	return 0;
 
 out:
-	CNSS_QMI_ASSERT();
+	CNSS_ASSERT(0);
 	kfree(req);
 	kfree(resp);
 	return ret;
@@ -395,7 +406,7 @@ int cnss_wlfw_respond_mem_send_sync(struct cnss_plat_data *plat_priv)
 	return 0;
 
 out:
-	CNSS_QMI_ASSERT();
+	CNSS_ASSERT(0);
 	kfree(req);
 	kfree(resp);
 	return ret;
@@ -407,7 +418,7 @@ int cnss_wlfw_tgt_cap_send_sync(struct cnss_plat_data *plat_priv)
 	struct wlfw_cap_resp_msg_v01 *resp;
 	struct qmi_txn txn;
 	char *fw_build_timestamp;
-	int ret = 0, i;
+	int ret = 0;
 
 	cnss_pr_dbg("Sending target capability message, state: 0x%lx\n",
 		    plat_priv->driver_state);
@@ -492,20 +503,6 @@ int cnss_wlfw_tgt_cap_send_sync(struct cnss_plat_data *plat_priv)
 	}
 	if (resp->otp_version_valid)
 		plat_priv->otp_version = resp->otp_version;
-	if (resp->dev_mem_info_valid) {
-		for (i = 0; i < QMI_WLFW_MAX_DEV_MEM_NUM_V01; i++) {
-			plat_priv->dev_mem_info[i].start =
-				resp->dev_mem_info[i].start;
-			plat_priv->dev_mem_info[i].size =
-				resp->dev_mem_info[i].size;
-			cnss_pr_dbg("Device memory info[%d]: start = 0x%llx, size = 0x%llx\n",
-				    i, plat_priv->dev_mem_info[i].start,
-				    plat_priv->dev_mem_info[i].size);
-		}
-	}
-	if (resp->fw_caps_valid)
-		plat_priv->fw_pcie_gen_switch =
-			!!(resp->fw_caps & QMI_WLFW_HOST_PCIE_GEN_SWITCH_V01);
 
 	cnss_pr_dbg("Target capability: chip_id: 0x%x, chip_family: 0x%x, board_id: 0x%x, soc_id: 0x%x, fw_version: 0x%x, fw_build_timestamp: %s, fw_build_id: %s, otp_version: 0x%x\n",
 		    plat_priv->chip_info.chip_id,
@@ -521,10 +518,981 @@ int cnss_wlfw_tgt_cap_send_sync(struct cnss_plat_data *plat_priv)
 	return 0;
 
 out:
-	CNSS_QMI_ASSERT();
+	CNSS_ASSERT(0);
 	kfree(req);
 	kfree(resp);
 	return ret;
+}
+
+void cnss_get_india_sec_res_filename(char *filename,
+				     u32 filename_len,
+				     int hw_id,
+				     int tempstr)
+{
+	if (hw_id == 54)
+		cnss_pr_dbg("it is INDIA EVT2 version, begin to load the Second INDIA BDF file");
+	else if (hw_id == 55)
+		cnss_pr_dbg("it is INDIA DVT version, begin to load the Second INDIA BDF file");
+	if (tempstr == 1)
+		snprintf(filename, filename_len,
+			 P821_PUBLIC_INDIA_SECOND_CHAIN0_ONLY_BDF);
+	else if (tempstr == 2)
+		snprintf(filename, filename_len,
+			 P821_PUBLIC_INDIA_SECOND_CHAIN1_ONLY_BDF);
+	else
+		snprintf(filename, filename_len,
+			 P821_PUBLIC_INDIA_SECOND_DEFAULT_BDF);
+}
+
+void cnss_get_china_sec_res_filename(char *filename,
+				     u32 filename_len,
+				     int hw_id,
+				     int tempstr)
+{
+	if (hw_id == 51)
+		cnss_pr_dbg("it is CHINA EVT1 version, begin to load the Second CHINA BDF file");
+	else if (hw_id == 52)
+		cnss_pr_dbg("it is CHINA DVT version, begin to load the Second CHINA BDF file");
+	else if (hw_id == 53)
+		cnss_pr_dbg("it is CHINA PVT version, begin to load the Second CHINA BDF file");
+	if (tempstr == 1)
+		snprintf(filename, filename_len,
+			 P805_PUBLIC_CHINA_SECOND_CHAIN0_ONLY_BDF);
+	else if (tempstr == 2)
+		snprintf(filename, filename_len,
+			 P805_PUBLIC_CHINA_SECOND_CHAIN1_ONLY_BDF);
+	else
+		snprintf(filename, filename_len,
+			 P805_PUBLIC_CHINA_SECOND_DEFAULT_BDF);
+}
+
+void cnss_get_filename(char *filename,
+		       u32 filename_len,
+		       int pj_id,
+		       int hw_id,
+		       int rf_id,
+		       int tempstr)
+{
+	if (pj_id == 12) {
+		if (hw_id == 11) {
+			switch (rf_id) {
+			case 11:
+			cnss_pr_dbg("it is China T0 version, begin to load the China BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_CHINA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_CHINA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_CHINA_DEFAULT_BDF);
+			break;
+			case 12:
+			cnss_pr_dbg("it is TMO T0 version, begin to load the TMO BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P821_TMO_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P821_TMO_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P821_TMO_DEFAULT_BDF);
+			break;
+			case 13:
+			cnss_pr_dbg("it is INDIA T0 version, begin to load the INDIA BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_INDIA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_INDIA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_INDIA_DEFAULT_BDF);
+			break;
+			case 14:
+			cnss_pr_dbg("it is Europe T0 version, begin to load the Europe BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_EUROPE_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_EUROPE_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_EUROPE_DEFAULT_BDF);
+			break;
+			case 15:
+			cnss_pr_dbg("it is AMERICA T0 version, begin to load the AMERICA BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_AMERICA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_AMERICA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_AMERICA_DEFAULT_BDF);
+			break;
+			}
+		} else if (hw_id == 12) {
+			switch (rf_id) {
+			case 11:
+			cnss_pr_dbg("it is China EVT1 version, begin to load the China BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_CHINA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_CHINA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_CHINA_DEFAULT_BDF);
+			break;
+			case 12:
+			cnss_pr_dbg("it is TMO EVT1 version, begin to load the TMO BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P821_TMO_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P821_TMO_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P821_TMO_DEFAULT_BDF);
+			break;
+			case 13:
+			cnss_pr_dbg("it is INDIA EVT1 version, begin to load the INDIA BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_INDIA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_INDIA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_INDIA_DEFAULT_BDF);
+			break;
+			case 14:
+			cnss_pr_dbg("it is Europe EVT1 version, begin to load the Europe BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_EUROPE_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_EUROPE_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_EUROPE_DEFAULT_BDF);
+			break;
+			case 15:
+			cnss_pr_dbg("it is AMERICA EVT1 version, begin to load the AMERICA BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_AMERICA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_AMERICA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_AMERICA_DEFAULT_BDF);
+			break;
+			}
+		} else if (hw_id == 13) {
+			switch (rf_id) {
+			case 11:
+			cnss_pr_dbg("it is China EVT2 version, begin to load the China BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_CHINA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_CHINA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_CHINA_DEFAULT_BDF);
+			break;
+			case 12:
+			cnss_pr_dbg("it is TMO EVT2 version, begin to load the TMO BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P821_TMO_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P821_TMO_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P821_TMO_DEFAULT_BDF);
+			break;
+			case 13:
+			cnss_pr_dbg("it is INDIA EVT2 version, begin to load the INDIA BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_INDIA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_INDIA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_INDIA_DEFAULT_BDF);
+			break;
+			case 14:
+			cnss_pr_dbg("it is Europe EVT2 version, begin to load the Europe BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_EUROPE_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_EUROPE_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_EUROPE_DEFAULT_BDF);
+			break;
+			case 15:
+			cnss_pr_dbg("it is AMERICA EVT2 version, begin to load the AMERICA BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_AMERICA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_AMERICA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_AMERICA_DEFAULT_BDF);
+			break;
+			}
+		} else if (hw_id == 14) {
+			switch (rf_id) {
+			case 11:
+			cnss_pr_dbg("it is China DVT version, begin to load the China BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_CHINA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_CHINA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_CHINA_DEFAULT_BDF);
+			break;
+			case 12:
+			cnss_pr_dbg("it is TMO DVT version, begin to load the TMO BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P821_TMO_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P821_TMO_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P821_TMO_DEFAULT_BDF);
+			break;
+			case 13:
+			cnss_pr_dbg("it is INDIA DVT version, begin to load the TMO INDIA file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_INDIA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_INDIA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_INDIA_DEFAULT_BDF);
+			break;
+			case 14:
+			cnss_pr_dbg("it is Europe DVT version, begin to load the Europe BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_EUROPE_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_EUROPE_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_EUROPE_DEFAULT_BDF);
+			break;
+			case 15:
+			cnss_pr_dbg("it is AMERICA DVT version, begin to load the AMERICA BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_AMERICA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_AMERICA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_AMERICA_DEFAULT_BDF);
+			break;
+			}
+		} else if (hw_id == 15) {
+			switch (rf_id) {
+			case 11:
+			cnss_pr_dbg("it is China PVT version, begin to load the China BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_CHINA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_CHINA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_CHINA_DEFAULT_BDF);
+			break;
+			case 12:
+			cnss_pr_dbg("it is TMO PVT version, begin to load the TMO BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P821_TMO_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P821_TMO_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P821_TMO_DEFAULT_BDF);
+			break;
+			case 13:
+			cnss_pr_dbg("it is INDIA PVT version, begin to load the INDIA BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_INDIA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_INDIA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_INDIA_DEFAULT_BDF);
+			break;
+			case 14:
+			cnss_pr_dbg("it is Europe PVT version, begin to load the Europe BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_EUROPE_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_EUROPE_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_EUROPE_DEFAULT_BDF);
+			break;
+			case 15:
+			cnss_pr_dbg("it is AMERICA PVT version, begin to load the AMERICA BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_AMERICA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_AMERICA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P821_PUBLIC_AMERICA_DEFAULT_BDF);
+			break;
+			}
+		} else if (hw_id == 54 || hw_id == 55) {
+			cnss_get_india_sec_res_filename(filename, filename_len,
+							hw_id, tempstr);
+		}
+	} else if (pj_id == 14) {
+		if (hw_id == 11) {
+			switch (rf_id) {
+			case 11:
+			cnss_pr_dbg("it is China T0 version, begin to load the China BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_CHINA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_CHINA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_CHINA_DEFAULT_BDF);
+			break;
+			case 12:
+			cnss_pr_dbg("it is TMO T0 version, begin to load the TMO BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P805_TMO_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P805_TMO_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P805_TMO_DEFAULT_BDF);
+			break;
+			case 13:
+			cnss_pr_dbg("it is INDIA T0 version, begin to load the INDIA BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_INDIA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_INDIA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_INDIA_DEFAULT_BDF);
+			break;
+			case 14:
+			cnss_pr_dbg("it is Europe T0 version, begin to load the Europe BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_EUROPE_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_EUROPE_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_EUROPE_DEFAULT_BDF);
+			break;
+			case 15:
+			cnss_pr_dbg("it is AMERICA T0 version, begin to load the AMERICA BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_AMERICA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_AMERICA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_AMERICA_DEFAULT_BDF);
+			break;
+			}
+		} else if (hw_id == 12) {
+			switch (rf_id) {
+			case 11:
+			cnss_pr_dbg("it is China T1 version, begin to load the China BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_CHINA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_CHINA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_CHINA_DEFAULT_BDF);
+			break;
+			case 12:
+			cnss_pr_dbg("it is TMO T1 version, begin to load the TMO BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P805_TMO_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P805_TMO_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P805_TMO_DEFAULT_BDF);
+			break;
+			case 13:
+			cnss_pr_dbg("it is INDIA T1 version, begin to load the INDIA BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_INDIA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_INDIA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_INDIA_DEFAULT_BDF);
+			break;
+			case 14:
+			cnss_pr_dbg("it is Europe T1 version, begin to load the Europe BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_EUROPE_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_EUROPE_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_EUROPE_DEFAULT_BDF);
+			break;
+			case 15:
+			cnss_pr_dbg("it is AMERICA T1 version, begin to load the AMERICA BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_AMERICA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_AMERICA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_AMERICA_DEFAULT_BDF);
+			break;
+			}
+		} else if (hw_id == 13) {
+			switch (rf_id) {
+			case 11:
+			cnss_pr_dbg("it is China EVT1 version, begin to load the China BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_CHINA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_CHINA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_CHINA_DEFAULT_BDF);
+			break;
+			case 12:
+			cnss_pr_dbg("it is TMO EVT1 version, begin to load the TMO BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P805_TMO_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P805_TMO_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P805_TMO_DEFAULT_BDF);
+			break;
+			case 13:
+			cnss_pr_dbg("it is INDIA EVT1 version, begin to load the INDIA BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_INDIA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_INDIA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_INDIA_DEFAULT_BDF);
+			break;
+			case 14:
+			cnss_pr_dbg("it is Europe EVT1 version, begin to load the Europe BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_EUROPE_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_EUROPE_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_EUROPE_DEFAULT_BDF);
+			break;
+			case 15:
+			cnss_pr_dbg("it is AMERICA EVT1 version, begin to load the AMERICA BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_AMERICA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_AMERICA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_AMERICA_DEFAULT_BDF);
+			break;
+			}
+		} else if (hw_id == 14) {
+			switch (rf_id) {
+			case 11:
+			cnss_pr_dbg("it is China DVT version, begin to load the China BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_CHINA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_CHINA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_CHINA_DEFAULT_BDF);
+			break;
+			case 12:
+			cnss_pr_dbg("it is TMO DVT version, begin to load the TMO BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P805_TMO_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P805_TMO_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P805_TMO_DEFAULT_BDF);
+			break;
+			case 13:
+			cnss_pr_dbg("it is INDIA DVT version, begin to load the INDIA BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_INDIA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_INDIA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_INDIA_DEFAULT_BDF);
+			break;
+			case 14:
+			cnss_pr_dbg("it is Europe DVT version, begin to load the Europe BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_EUROPE_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_EUROPE_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_EUROPE_DEFAULT_BDF);
+			break;
+			case 15:
+			cnss_pr_dbg("it is AMERICA DVT version, begin to load the AMERICA BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_AMERICA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_AMERICA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_AMERICA_DEFAULT_BDF);
+			break;
+			}
+		} else if (hw_id == 15 || hw_id == 53 || hw_id == 54 ||
+				hw_id == 55 || hw_id == 21 || hw_id == 22 ||
+				hw_id == 23) {
+			switch (rf_id) {
+			case 11:
+			cnss_pr_dbg("it is China PVT version, begin to load the China BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_CHINA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_CHINA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_CHINA_DEFAULT_BDF);
+			break;
+			case 12:
+			cnss_pr_dbg("it is TMO PVT version, begin to load the TMO BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P805_TMO_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P805_TMO_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P805_TMO_DEFAULT_BDF);
+			break;
+			case 13:
+			cnss_pr_dbg("it is INDIA PVT version, begin to load the INDIA BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_INDIA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_INDIA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_INDIA_DEFAULT_BDF);
+			break;
+			case 14:
+			cnss_pr_dbg("it is Europe PVT version, begin to load the Europe BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_EUROPE_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_EUROPE_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_EUROPE_DEFAULT_BDF);
+			break;
+			case 15:
+			cnss_pr_dbg("it is AMERICA PVT version, begin to load the AMERICA BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_AMERICA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_AMERICA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P805_PUBLIC_AMERICA_DEFAULT_BDF);
+			break;
+			}
+		} else if (hw_id == 52) {
+			cnss_get_china_sec_res_filename(filename, filename_len,
+							hw_id, tempstr);
+		} else {
+			snprintf(filename, filename_len,
+				 ELF_BDF_FILE_NAME);
+		}
+	} else if (pj_id == 11) {
+		if (hw_id == 11) {
+			switch (rf_id) {
+			case 11:
+			cnss_pr_dbg("it is China T0 version, begin to load the China BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_CHINA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_CHINA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_CHINA_DEFAULT_BDF);
+			break;
+			case 13:
+			cnss_pr_dbg("it is INDIA T0 version, begin to load the INDIA BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_INDIA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_INDIA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_INDIA_DEFAULT_BDF);
+			break;
+			case 14:
+			cnss_pr_dbg("it is Europe T0 version, begin to load the Europe BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_EUROPE_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_EUROPE_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_EUROPE_DEFAULT_BDF);
+			break;
+			case 15:
+			cnss_pr_dbg("it is AMERICA T0 version, begin to load the AMERICA BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_AMERICA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_AMERICA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_AMERICA_DEFAULT_BDF);
+			break;
+			}
+		} else if (hw_id == 12) {
+			switch (rf_id) {
+			case 11:
+			cnss_pr_dbg("it is China EVT1 version, begin to load the China BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_CHINA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_CHINA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_CHINA_DEFAULT_BDF);
+			break;
+			case 13:
+			cnss_pr_dbg("it is INDIA EVT1 version, begin to load the INDIA BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_INDIA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_INDIA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_INDIA_DEFAULT_BDF);
+			break;
+			case 14:
+			cnss_pr_dbg("it is Europe EVT1 version, begin to load the Europe BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_EUROPE_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_EUROPE_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_EUROPE_DEFAULT_BDF);
+			break;
+			case 15:
+			cnss_pr_dbg("it is AMERICA EVT1 version, begin to load the AMERICA BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_AMERICA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_AMERICA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_AMERICA_DEFAULT_BDF);
+			break;
+			}
+		} else if (hw_id == 13 || hw_id == 51) {
+			switch (rf_id) {
+			case 11:
+			cnss_pr_dbg("it is China EVT2 version, begin to load the China BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_CHINA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_CHINA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_CHINA_DEFAULT_BDF);
+			break;
+			case 13:
+			cnss_pr_dbg("it is INDIA China EVT2 version, begin to load the INDIA BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_INDIA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_INDIA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_INDIA_DEFAULT_BDF);
+			break;
+			case 14:
+			cnss_pr_dbg("it is Europe China EVT2 version, begin to load the Europe BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_EUROPE_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_EUROPE_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_EUROPE_DEFAULT_BDF);
+			break;
+			case 15:
+			cnss_pr_dbg("it is AMERICA China EVT2 version, begin to load the AMERICA BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_AMERICA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_AMERICA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_AMERICA_DEFAULT_BDF);
+			break;
+			}
+		} else if (hw_id == 14 || hw_id == 52) {
+			switch (rf_id) {
+			case 11:
+			cnss_pr_dbg("it is China China DVT version, begin to load the China BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_CHINA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_CHINA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_CHINA_DEFAULT_BDF);
+			break;
+			case 13:
+			cnss_pr_dbg("it is INDIA DVT version, begin to load the INDIA BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_INDIA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_INDIA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_INDIA_DEFAULT_BDF);
+			break;
+			case 14:
+			cnss_pr_dbg("it is Europe DVT version, begin to load the Europe BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_EUROPE_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_EUROPE_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_EUROPE_DEFAULT_BDF);
+			break;
+			case 15:
+			cnss_pr_dbg("it is AMERICA DVT version, begin to load the AMERICA BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_AMERICA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_AMERICA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_AMERICA_DEFAULT_BDF);
+			break;
+			}
+		} else if (hw_id == 15 || hw_id == 53) {
+			switch (rf_id) {
+			case 11:
+			cnss_pr_dbg("it is China PVT version, begin to load the China BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_CHINA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_CHINA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_CHINA_DEFAULT_BDF);
+			break;
+			case 13:
+			cnss_pr_dbg("it is INDIA PVT version, begin to load the INDIA BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_INDIA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_INDIA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_INDIA_DEFAULT_BDF);
+			break;
+			case 14:
+			cnss_pr_dbg("it is Europe PVT version, begin to load the Europe BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_EUROPE_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_EUROPE_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_EUROPE_DEFAULT_BDF);
+			break;
+			case 15:
+			cnss_pr_dbg("it is AMERICA PVT version, begin to load the AMERICA BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_AMERICA_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_AMERICA_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P811_PUBLIC_AMERICA_DEFAULT_BDF);
+			break;
+			}
+		}
+	} else if (pj_id == 13) {
+		if (hw_id == 11 || hw_id == 12 ||
+		    hw_id == 13 || hw_id == 14 ||  hw_id == 15) {
+			cnss_pr_dbg("it is vwz version, begin to load the VZW BDF file");
+			if (tempstr == 1)
+				snprintf(filename, filename_len,
+					 P867_VZW_CHAIN0_ONLY_BDF);
+			else if (tempstr == 2)
+				snprintf(filename, filename_len,
+					 P867_VZW_CHAIN1_ONLY_BDF);
+			else
+				snprintf(filename, filename_len,
+					 P867_VZW_DEFAULT_BDF);
+		}
+	} else {
+		snprintf(filename, filename_len,
+			 ELF_BDF_FILE_NAME);
+	}
 }
 
 static int cnss_get_bdf_file_name(struct cnss_plat_data *plat_priv,
@@ -533,115 +1501,58 @@ static int cnss_get_bdf_file_name(struct cnss_plat_data *plat_priv,
 {
 	char filename_tmp[MAX_FIRMWARE_NAME_LEN];
 	int ret = 0;
-	int hw_platform_ver = -1;
-	uint32_t hw_country_ver = 0;
+	int pj_id = 0;
+	int hw_id = 0;
+	int rf_id = 0;
+	int bdf_WifiChain_mode;
 
-	hw_platform_ver = get_hw_version_platform();
-	hw_country_ver = get_hw_country_version();
-
-        cnss_pr_dbg("hw_platform_ver is %d\n", hw_platform_ver);
+	tempstr = 0;
+	bdf_WifiChain_mode = get_wifi_chain_mode();
+	cnss_pr_dbg("Get the value of  bdf_WifiChain_mode: %d", bdf_WifiChain_mode);
+	if (bdf_WifiChain_mode > 48)
+		tempstr = bdf_WifiChain_mode - 48;
+	pj_id = get_prj_version();
+	hw_id = get_hw_board_version();
+	rf_id = get_rf_version();
+	cnss_pr_dbg("cnss get_prj_version(): %d", pj_id);
+	cnss_pr_dbg("cnss get_hw_board_version(): %d", hw_id);
+	cnss_pr_dbg("cnss get_rf_version(): %d", rf_id);
 	switch (bdf_type) {
 	case CNSS_BDF_ELF:
-		/* Board ID will be equal or less than 0xFF in GF mask case */
+		/* WIFI MODIFICATION: */
+		//if (plat_priv->board_info.board_id == 0xFF)
+		//	snprintf(filename_tmp, filename_len, ELF_BDF_FILE_NAME);
 		if (plat_priv->board_info.board_id == 0xFF) {
-			if (hw_platform_ver == HARDWARE_PLATFORM_LMI) {
-				if (get_hw_country_version() == (uint32_t)CountryGlobal)
-				    snprintf(filename_tmp, filename_len, ELF_BDF_FILE_NAME_J11_GLOBAL);
-				else if (get_hw_country_version() == (uint32_t)CountryIndia)
-				    snprintf(filename_tmp, filename_len, ELF_BDF_FILE_NAME_J11_INDIA);
-				else {
-					if ((get_hw_version_minor() == (uint32_t)HW_MINOR_VERSION_B) &&
-					    (get_hw_version_major() == (uint32_t)HW_MAJOR_VERSION_B))
-						snprintf(filename_tmp, filename_len, ELF_BDF_FILE_NAME_J11_B_BOM);
-					else
-						snprintf(filename_tmp, filename_len, ELF_BDF_FILE_NAME_J11);
-				}
-			} else if (hw_platform_ver == HARDWARE_PLATFORM_CAS) {
-				snprintf(filename_tmp, filename_len, ELF_BDF_FILE_NAME_J1S);
-			} else if (hw_platform_ver == HARDWARE_PLATFORM_THYME) {
-				snprintf(filename_tmp, filename_len, ELF_BDF_FILE_NAME_J2S);
-			} else if (hw_platform_ver == HARDWARE_PLATFORM_APOLLO) {
-				if (get_hw_country_version() == (uint32_t)CountryGlobal)
-				    snprintf(filename_tmp, filename_len, ELF_BDF_FILE_NAME_J3S_GLOBAL);
-				else if (get_hw_country_version() == (uint32_t)CountryIndia)
-				    snprintf(filename_tmp, filename_len, ELF_BDF_FILE_NAME_J3S_INDIA);
-				else
-				    snprintf(filename_tmp, filename_len, ELF_BDF_FILE_NAME_J3S);
-			} else if (hw_platform_ver == HARDWARE_PLATFORM_ALIOTH) {
-				if (get_hw_country_version() == (uint32_t)CountryGlobal)
-				    snprintf(filename_tmp, filename_len, ELF_BDF_FILE_NAME_K11A_GLOBAL);
-				else if (get_hw_country_version() == (uint32_t)CountryIndia)
-				    snprintf(filename_tmp, filename_len, ELF_BDF_FILE_NAME_K11A_INDIA);
-				else
-				    snprintf(filename_tmp, filename_len, ELF_BDF_FILE_NAME_K11A);
-			} else if (hw_platform_ver == HARDWARE_PLATFORM_ENUMA) {
-				snprintf(filename_tmp, filename_len, ELF_BDF_FILE_NAME_K81);
-			} else if (hw_platform_ver == HARDWARE_PLATFORM_ELISH) {
-				snprintf(filename_tmp, filename_len, ELF_BDF_FILE_NAME_K81A);
-			} else {
-				if (hw_country_ver == (uint32_t)CountryGlobal)
-					snprintf(filename_tmp, filename_len, ELF_BDF_FILE_NAME_GLOBAL);
-				else if (hw_country_ver == (uint32_t)CountryIndia)
-					snprintf(filename_tmp, filename_len, ELF_BDF_FILE_NAME_INDIA);
-				else {
-					if ((get_hw_version_minor() == (uint32_t)HW_MINOR_VERSION_B) &&
-					    (get_hw_version_major() == (uint32_t)HW_MAJOR_VERSION_B))
-						snprintf(filename_tmp, filename_len, ELF_BDF_FILE_NAME_B_BOM);
-					else {
-						if (plat_priv->chip_info.chip_id & CHIP_ID_GF_MASK)
-							snprintf(filename_tmp, filename_len,
-								 ELF_BDF_FILE_NAME_GF);
-						else
-							snprintf(filename_tmp, filename_len,
-								 ELF_BDF_FILE_NAME);
-					}
-				}
-			}
-		} else if (plat_priv->board_info.board_id < 0xFF) {
-			if (plat_priv->chip_info.chip_id & CHIP_ID_GF_MASK)
-				snprintf(filename_tmp, filename_len,
-					 ELF_BDF_FILE_NAME_GF_PREFIX "%02x",
-					 plat_priv->board_info.board_id);
-			else
-				snprintf(filename_tmp, filename_len,
-					 ELF_BDF_FILE_NAME_PREFIX "%02x",
-					 plat_priv->board_info.board_id);
-		} else {
+			cnss_get_filename(filename, filename_len, pj_id,
+					  hw_id, rf_id, tempstr);
+			return ret;
+		}
+		/* WIFI MODIFICATION: */
+		else if (plat_priv->board_info.board_id < 0xFF)
+			snprintf(filename_tmp, filename_len,
+				 ELF_BDF_FILE_NAME_PREFIX "%02x",
+				 plat_priv->board_info.board_id);
+		else
 			snprintf(filename_tmp, filename_len,
 				 BDF_FILE_NAME_PREFIX "%02x.e%02x",
 				 plat_priv->board_info.board_id >> 8 & 0xFF,
 				 plat_priv->board_info.board_id & 0xFF);
-		}
 		break;
 	case CNSS_BDF_BIN:
-		if (plat_priv->board_info.board_id == 0xFF) {
-			if (plat_priv->chip_info.chip_id & CHIP_ID_GF_MASK)
-				snprintf(filename_tmp, filename_len,
-					 BIN_BDF_FILE_NAME_GF);
-			else
-				snprintf(filename_tmp, filename_len,
-					 BIN_BDF_FILE_NAME);
-		} else if (plat_priv->board_info.board_id < 0xFF) {
-			if (plat_priv->chip_info.chip_id & CHIP_ID_GF_MASK)
-				snprintf(filename_tmp, filename_len,
-					 BIN_BDF_FILE_NAME_GF_PREFIX "%02x",
-					 plat_priv->board_info.board_id);
-			else
-				snprintf(filename_tmp, filename_len,
-					 BIN_BDF_FILE_NAME_PREFIX "%02x",
-					 plat_priv->board_info.board_id);
-		} else {
+		if (plat_priv->board_info.board_id == 0xFF)
+			snprintf(filename_tmp, filename_len, BIN_BDF_FILE_NAME);
+		else if (plat_priv->board_info.board_id < 0xFF)
+			snprintf(filename_tmp, filename_len,
+				 BIN_BDF_FILE_NAME_PREFIX "%02x",
+				 plat_priv->board_info.board_id);
+		else
 			snprintf(filename_tmp, filename_len,
 				 BDF_FILE_NAME_PREFIX "%02x.b%02x",
 				 plat_priv->board_info.board_id >> 8 & 0xFF,
 				 plat_priv->board_info.board_id & 0xFF);
-		}
 		break;
 	case CNSS_BDF_REGDB:
-		if (hw_platform_ver == HARDWARE_PLATFORM_LMI)
-			snprintf(filename_tmp, filename_len, REGDB_FILE_NAME_J11);
-		else
-			snprintf(filename_tmp, filename_len, REGDB_FILE_NAME);
+		snprintf(filename_tmp, filename_len, REGDB_FILE_NAME);
 		break;
 	case CNSS_BDF_DUMMY:
 		cnss_pr_dbg("CNSS_BDF_DUMMY is set, sending dummy BDF\n");
@@ -672,6 +1583,10 @@ int cnss_wlfw_bdf_dnld_send_sync(struct cnss_plat_data *plat_priv,
 	const u8 *temp;
 	unsigned int remaining;
 	int ret = 0;
+	char get_bdf_name[3] = {0};
+	char get_bdf_name_ext[4] = {0};
+	u32 bdf_name;
+	u32 bdf_name_ext;
 
 	cnss_pr_dbg("Sending BDF download message, state: 0x%lx, type: %d\n",
 		    plat_priv->driver_state, bdf_type);
@@ -690,7 +1605,7 @@ int cnss_wlfw_bdf_dnld_send_sync(struct cnss_plat_data *plat_priv,
 				     filename, sizeof(filename));
 	if (ret > 0) {
 		temp = DUMMY_BDF_FILE_NAME;
-		remaining = strlen(DUMMY_BDF_FILE_NAME) + 1;
+		remaining = MAX_FIRMWARE_NAME_LEN;
 		goto bypass_bdf;
 	} else if (ret < 0) {
 		goto err_req_fw;
@@ -768,6 +1683,15 @@ bypass_bdf:
 		req->seg_id++;
 	}
 
+	strlcpy(get_bdf_name, filename, sizeof(get_bdf_name));
+	bdf_name = cnss_atoi(get_bdf_name);
+	if (tempstr == 0)
+		strlcpy(get_bdf_name_ext, filename + 7, 4);
+	else
+		strlcpy(get_bdf_name_ext, filename + 8, 4);
+	bdf_name_ext = cnss_atoi(get_bdf_name_ext);
+	cnss_set_bdf_name(bdf_name, bdf_name_ext);
+
 	if (bdf_type != CNSS_BDF_DUMMY)
 		release_firmware(fw_entry);
 
@@ -780,11 +1704,40 @@ err_send:
 		release_firmware(fw_entry);
 err_req_fw:
 	if (bdf_type != CNSS_BDF_REGDB)
-		CNSS_QMI_ASSERT();
-
+		CNSS_ASSERT(0);
 	kfree(req);
 	kfree(resp);
 	return ret;
+}
+
+int cnss_pow_ten(int n)
+{
+	int result = 1;
+	int i;
+
+	for (i = 1; i <= n; i++)
+		result = result * 10;
+	return result;
+}
+
+int cnss_atoi(const char *numbers)
+{
+	int length = strlen(numbers);
+	int sum = 0;
+	int i = 0;
+
+	if (length == 3) {
+		sum = (numbers[0] - 'a' + 10) * cnss_pow_ten(3) + (numbers[1] - '0') * cnss_pow_ten(2) +
+		      numbers[2] - 'a' + 10;
+	} else {
+		for (i = 0; i < length; i++) {
+			if (numbers[i] >= '0' && numbers[i] <= '9')
+				sum = sum + (numbers[i] - '0') * cnss_pow_ten(length - i - 1);
+		}
+		if (tempstr != 0)
+			sum = sum * 10 + tempstr - 1;
+	}
+	return sum;
 }
 
 int cnss_wlfw_m3_dnld_send_sync(struct cnss_plat_data *plat_priv)
@@ -858,7 +1811,7 @@ int cnss_wlfw_m3_dnld_send_sync(struct cnss_plat_data *plat_priv)
 	return 0;
 
 out:
-	CNSS_QMI_ASSERT();
+	CNSS_ASSERT(0);
 	kfree(req);
 	kfree(resp);
 	return ret;
@@ -934,7 +1887,7 @@ static int cnss_wlfw_wlan_mac_req_send_sync(struct cnss_plat_data *plat_priv,
 
 	if (resp->resp.result != QMI_RESULT_SUCCESS_V01) {
 		cnss_pr_err("WLAN mac req failed, result: %d, err: %d\n",
-			    resp->resp.result, ret);
+			    resp->resp.result);
 
 		ret = -EIO;
 		goto out;
@@ -1069,7 +2022,7 @@ out:
 		cnss_pr_dbg("WLFW service is disconnected while sending mode off request\n");
 		ret = 0;
 	} else {
-		CNSS_QMI_ASSERT();
+		CNSS_ASSERT(0);
 	}
 	kfree(req);
 	kfree(resp);
@@ -1179,7 +2132,7 @@ int cnss_wlfw_wlan_cfg_send_sync(struct cnss_plat_data *plat_priv,
 	return 0;
 
 out:
-	CNSS_QMI_ASSERT();
+	CNSS_ASSERT(0);
 	kfree(req);
 	kfree(resp);
 	return ret;
@@ -1418,64 +2371,6 @@ int cnss_wlfw_ini_send_sync(struct cnss_plat_data *plat_priv,
 out:
 	kfree(req);
 	kfree(resp);
-	return ret;
-}
-
-int cnss_wlfw_send_pcie_gen_speed_sync(struct cnss_plat_data *plat_priv)
-{
-	struct wlfw_pcie_gen_switch_req_msg_v01 req;
-	struct wlfw_pcie_gen_switch_resp_msg_v01 resp;
-	struct qmi_txn txn;
-	int ret = 0;
-
-	if (!plat_priv)
-		return -ENODEV;
-
-	if (plat_priv->pcie_gen_speed == QMI_PCIE_GEN_SPEED_INVALID_V01 ||
-	    !plat_priv->fw_pcie_gen_switch) {
-		cnss_pr_dbg("PCIE Gen speed not setup\n");
-		return 0;
-	}
-
-	cnss_pr_dbg("Sending PCIE Gen speed: %d state: 0x%lx\n",
-		    plat_priv->pcie_gen_speed, plat_priv->driver_state);
-	req.pcie_speed = (enum wlfw_pcie_gen_speed_v01)
-			plat_priv->pcie_gen_speed;
-
-	ret = qmi_txn_init(&plat_priv->qmi_wlfw, &txn,
-			   wlfw_pcie_gen_switch_resp_msg_v01_ei, &resp);
-	if (ret < 0) {
-		cnss_pr_err("Failed to initialize txn for PCIE speed switch err: %d\n",
-			    ret);
-		goto out;
-	}
-
-	ret = qmi_send_request(&plat_priv->qmi_wlfw, NULL, &txn,
-			       QMI_WLFW_PCIE_GEN_SWITCH_REQ_V01,
-			       WLFW_PCIE_GEN_SWITCH_REQ_MSG_V01_MAX_MSG_LEN,
-			       wlfw_pcie_gen_switch_req_msg_v01_ei, &req);
-	if (ret < 0) {
-		qmi_txn_cancel(&txn);
-		cnss_pr_err("Failed to send PCIE speed switch, err: %d\n", ret);
-		goto out;
-	}
-
-	ret = qmi_txn_wait(&txn, QMI_WLFW_TIMEOUT_JF);
-	if (ret < 0) {
-		cnss_pr_err("Failed to wait for PCIE Gen switch resp, err: %d\n",
-			    ret);
-		goto out;
-	}
-
-	if (resp.resp.result != QMI_RESULT_SUCCESS_V01) {
-		cnss_pr_err("PCIE Gen Switch req failed, Speed: %d, result: %d, err: %d\n",
-			    plat_priv->pcie_gen_speed, resp.resp.result,
-			    resp.resp.error);
-		ret = -resp.resp.result;
-	}
-out:
-	/* Reset PCIE Gen speed after one time use */
-	plat_priv->pcie_gen_speed = QMI_PCIE_GEN_SPEED_INVALID_V01;
 	return ret;
 }
 
@@ -1900,6 +2795,8 @@ out:
 
 unsigned int cnss_get_qmi_timeout(struct cnss_plat_data *plat_priv)
 {
+	cnss_pr_dbg("QMI timeout is %u ms\n", QMI_WLFW_TIMEOUT_MS);
+
 	return QMI_WLFW_TIMEOUT_MS;
 }
 
@@ -2293,7 +3190,7 @@ static int cnss_wlfw_connect_to_server(struct cnss_plat_data *plat_priv,
 	return 0;
 
 out:
-	CNSS_QMI_ASSERT();
+	CNSS_ASSERT(0);
 	kfree(data);
 	return ret;
 }
@@ -2307,10 +3204,9 @@ int cnss_wlfw_server_arrive(struct cnss_plat_data *plat_priv, void *data)
 
 	if (test_bit(CNSS_QMI_WLFW_CONNECTED, &plat_priv->driver_state)) {
 		cnss_pr_err("Unexpected WLFW server arrive\n");
+		CNSS_ASSERT(0);
 		return -EINVAL;
 	}
-
-	cnss_ignore_qmi_failure(false);
 
 	ret = cnss_wlfw_connect_to_server(plat_priv, data);
 	if (ret < 0)
@@ -2335,8 +3231,6 @@ out:
 
 int cnss_wlfw_server_exit(struct cnss_plat_data *plat_priv)
 {
-	int ret;
-
 	if (!plat_priv)
 		return -ENODEV;
 
@@ -2345,15 +3239,6 @@ int cnss_wlfw_server_exit(struct cnss_plat_data *plat_priv)
 	cnss_pr_info("QMI WLFW service disconnected, state: 0x%lx\n",
 		     plat_priv->driver_state);
 
-	cnss_qmi_deinit(plat_priv);
-
-	clear_bit(CNSS_QMI_DEL_SERVER, &plat_priv->driver_state);
-
-	ret = cnss_qmi_init(plat_priv);
-	if (ret < 0) {
-		cnss_pr_err("QMI WLFW service registraton failed, ret: %d\n", ret);
-		CNSS_ASSERT(0);
-	}
 	return 0;
 }
 
@@ -2363,13 +3248,6 @@ static int wlfw_new_server(struct qmi_handle *qmi_wlfw,
 	struct cnss_plat_data *plat_priv =
 		container_of(qmi_wlfw, struct cnss_plat_data, qmi_wlfw);
 	struct cnss_qmi_event_server_arrive_data *event_data;
-
-	if (plat_priv && test_bit(CNSS_QMI_DEL_SERVER,
-				  &plat_priv->driver_state)) {
-		cnss_pr_info("WLFW server delete in progress, Ignore server arrive, state: 0x%lx\n",
-			     plat_priv->driver_state);
-		return 0;
-	}
 
 	cnss_pr_dbg("WLFW server arriving: node %u port %u\n",
 		    service->node, service->port);
@@ -2393,19 +3271,7 @@ static void wlfw_del_server(struct qmi_handle *qmi_wlfw,
 	struct cnss_plat_data *plat_priv =
 		container_of(qmi_wlfw, struct cnss_plat_data, qmi_wlfw);
 
-	if (plat_priv && test_bit(CNSS_QMI_DEL_SERVER,
-				  &plat_priv->driver_state)) {
-		cnss_pr_info("WLFW server delete in progress, Ignore server delete, state: 0x%lx\n",
-			     plat_priv->driver_state);
-		return;
-	}
-
 	cnss_pr_dbg("WLFW server exiting\n");
-
-	if (plat_priv) {
-		cnss_ignore_qmi_failure(true);
-		set_bit(CNSS_QMI_DEL_SERVER, &plat_priv->driver_state);
-	}
 
 	cnss_driver_event_post(plat_priv, CNSS_DRIVER_EVENT_SERVER_EXIT,
 			       0, NULL);

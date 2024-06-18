@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2017 Google, Inc.
- * Copyright (C) 2021 XiaoMi, Inc.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -42,7 +41,6 @@ struct binder_transaction;
  * @offsets_size:       size of array of offsets
  * @extra_buffers_size: size of space for other objects (like sg lists)
  * @user_data:          user pointer to base of buffer space
- * @pid:                pid to attribute the buffer to (caller)
  *
  * Bookkeeping structure for binder transaction buffers
  */
@@ -62,7 +60,6 @@ struct binder_buffer {
 	size_t offsets_size;
 	size_t extra_buffers_size;
 	void __user *user_data;
-	int    pid;
 };
 
 /**
@@ -129,8 +126,7 @@ extern struct binder_buffer *binder_alloc_new_buf(struct binder_alloc *alloc,
 						  size_t data_size,
 						  size_t offsets_size,
 						  size_t extra_buffers_size,
-						  int is_async,
-						  int pid);
+						  int is_async);
 extern void binder_alloc_init(struct binder_alloc *alloc);
 extern int binder_alloc_shrinker_init(void);
 extern void binder_alloc_vma_close(struct binder_alloc *alloc);
@@ -164,15 +160,11 @@ binder_alloc_get_free_async_space(struct binder_alloc *alloc)
 	mutex_unlock(&alloc->mutex);
 	return free_async_space;
 }
-
-/**
- * binder_alloc_get_free_space() - get free space available
- * @alloc:      binder_alloc for this proc
- *
- * Return:      the bytes remaining in the address-space
-*/
-size_t binder_alloc_get_free_space(struct binder_alloc *alloc);
-
+#ifdef CONFIG_OPCHAIN
+void binder_alloc_pass_binder_buffer(struct binder_alloc *alloc,
+				struct binder_buffer *buffer,
+				binder_size_t buffer_size);
+#endif
 unsigned long
 binder_alloc_copy_user_to_buffer(struct binder_alloc *alloc,
 				 struct binder_buffer *buffer,

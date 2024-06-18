@@ -26,10 +26,6 @@ config CLANG_VERSION
 	int
 	default $(shell,$(srctree)/scripts/clang-version.sh $(CC))
 
-config LLD_VERSION
-	int
-	default $(shell,$(srctree)/scripts/lld-version.sh $(LD))
-
 config CC_HAS_ASM_GOTO
 	def_bool $(success,$(srctree)/scripts/gcc-goto.sh $(CC))
 
@@ -76,7 +72,8 @@ config INIT_ENV_ARG_LIMIT
 
 config COMPILE_TEST
 	bool "Compile also drivers which will not load"
-	depends on HAS_IOMEM
+	depends on !UML
+	default n
 	help
 	  Some drivers can be compiled on a different platform than they are
 	  intended to be run on. Despite they cannot be loaded there (or even
@@ -616,8 +613,7 @@ config IKHEADERS
 
 config LOG_BUF_SHIFT
 	int "Kernel log buffer size (16 => 64KB, 17 => 128KB)"
-	range 12 25 if !H8300
-	range 12 19 if H8300
+	range 12 25
 	default 17
 	depends on PRINTK
 	help
@@ -1093,28 +1089,6 @@ config SCHED_CORE_CTL
 
 	  If unsure, say N here.
 
-config MIHW
-	bool "enable miui optimization"
-	default n
-	help
-	  This adds support for enabling miui specific optimization.
-
-	  If unsure, say N here.
-
-config PERF_HUMANTASK
-	bool "enable feature humantask"
-	depends on MIHW && MILLET
-	default n
-	help
-	  support switch on/off of sched humantask.
-
-config KPERFEVENTS
-	bool "enable kperfevents"
-	depends on MIHW
-	default n
-	help
-	  support switch on/off of kperfevents.
-
 menuconfig NAMESPACES
 	bool "Namespaces support" if EXPERT
 	depends on MULTIUSER
@@ -1313,9 +1287,6 @@ config CC_OPTIMIZE_FOR_SIZE
 	  If unsure, say N.
 
 endchoice
-
-config LTO_GCC
-	bool "Enable Link Time Optimization for GCC"
 
 config HAVE_LD_DEAD_CODE_DATA_ELIMINATION
 	bool

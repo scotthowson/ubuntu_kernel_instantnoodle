@@ -4,7 +4,6 @@
 #
 
 obj-y				+= mem.o random.o
-obj-$(CONFIG_SRANDOM)		+= srandom.o
 obj-$(CONFIG_TTY_PRINTK)	+= ttyprintk.o
 obj-y				+= misc.o
 obj-$(CONFIG_ATARI_DSP56K)	+= dsp56k.o
@@ -15,8 +14,6 @@ obj-$(CONFIG_MSPEC)		+= mspec.o
 obj-$(CONFIG_UV_MMTIMER)	+= uv_mmtimer.o
 obj-$(CONFIG_IBM_BSR)		+= bsr.o
 obj-$(CONFIG_SGI_MBCS)		+= mbcs.o
-obj-$(CONFIG_BFIN_OTP)		+= bfin-otp.o
-obj-$(CONFIG_MSM_SMD_PKT)       += msm_smd_pkt.o
 
 obj-$(CONFIG_PRINTER)		+= lp.o
 
@@ -76,6 +73,3 @@ obj-$(CONFIG_VSERVICES_SERIAL_CLIENT)	+= vs_serial_client.o
 CFLAGS_vs_serial_client.o	 += -Werror
 obj-$(CONFIG_VSERVICES_SERIAL_SERVER)	+= vs_serial_server.o
 CFLAGS_vs_serial_server.o	+= -Werror
-obj-$(CONFIG_RB5_FAN_CONTROLLER)	+= rb5_fan.o
-obj-$(CONFIG_RB5_GPIOS_ENABLE)	+= rb5-gpios-enable.o
-obj-$(CONFIG_XLOGCHAR)		+= xlogchar.o

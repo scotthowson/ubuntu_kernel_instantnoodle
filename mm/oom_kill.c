@@ -70,8 +70,6 @@ module_param(panic_on_adj_zero, int, 0644);
  * and mark_oom_victim
  */
 DEFINE_MUTEX(oom_lock);
-/* Serializes oom_score_adj and oom_score_adj_min updates */
-DEFINE_MUTEX(oom_adj_mutex);
 
 /*
  * If ULMK has killed a process recently,
@@ -1157,6 +1155,12 @@ static void oom_kill_process(struct oom_control *oc, const char *message,
 	pr_err("%s: Kill process %d (%s) score %u or sacrifice child\n",
 		message, task_pid_nr(p), p->comm, points);
 
+	if (!strcmp("system_server", p->comm)) {
+		pr_err("%s: Kernel try to kill (%s) process, I prevent it.\n",
+				message, p->comm);
+		panic("Out of memory: panic on oom!!!\n");
+	}
+
 	/*
 	 * If any of p's children has a different mm and is eligible for kill,
 	 * the one with the highest oom_badness() score is sacrificed for its
@@ -1350,15 +1354,19 @@ bool out_of_memory(struct oom_control *oc)
 }
 
 /*
- * The pagefault handler calls here because some allocation has failed. We have
- * to take care of the memcg OOM here because this is the only safe context without
- * any locks held but let the oom killer triggered from the allocation context care
- * about the global OOM.
+ * The pagefault handler calls here because it is out of memory, so kill a
+ * memory-hogging task. If oom_lock is held by somebody else, a parallel oom
+ * killing is already in progress so do nothing.
  */
 void pagefault_out_of_memory(void)
 {
-	static DEFINE_RATELIMIT_STATE(pfoom_rs, DEFAULT_RATELIMIT_INTERVAL,
-				      DEFAULT_RATELIMIT_BURST);
+	struct oom_control oc = {
+		.zonelist = NULL,
+		.nodemask = NULL,
+		.memcg = NULL,
+		.gfp_mask = 0,
+		.order = 0,
+	};
 
 	if (IS_ENABLED(CONFIG_HAVE_LOW_MEMORY_KILLER) ||
 	    IS_ENABLED(CONFIG_HAVE_USERSPACE_LOW_MEMORY_KILLER))
@@ -1367,11 +1375,10 @@ void pagefault_out_of_memory(void)
 	if (mem_cgroup_oom_synchronize(true))
 		return;
 
-	if (fatal_signal_pending(current))
+	if (!mutex_trylock(&oom_lock))
 		return;
-
-	if (__ratelimit(&pfoom_rs))
-		pr_warn("Huh VM_FAULT_OOM leaked out to the #PF handler. Retrying PF\n");
+	out_of_memory(&oc);
+	mutex_unlock(&oom_lock);
 }
 
 void add_to_oom_reaper(struct task_struct *p)

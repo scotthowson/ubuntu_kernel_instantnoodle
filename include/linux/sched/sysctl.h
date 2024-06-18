@@ -31,7 +31,6 @@ extern unsigned int sysctl_sched_sync_hint_enable;
 extern unsigned int sysctl_sched_cstate_aware;
 extern unsigned int sysctl_sched_wakeup_granularity;
 extern unsigned int sysctl_sched_child_runs_first;
-extern unsigned int sysctl_sched_force_lb_enable;
 #ifdef CONFIG_SCHED_WALT
 extern unsigned int sysctl_sched_capacity_margin_up[MAX_MARGIN_LEVELS];
 extern unsigned int sysctl_sched_capacity_margin_down[MAX_MARGIN_LEVELS];
@@ -39,12 +38,10 @@ extern unsigned int sysctl_sched_user_hint;
 extern const int sched_user_hint_max;
 extern unsigned int sysctl_sched_cpu_high_irqload;
 extern unsigned int sysctl_sched_boost;
-#ifdef CONFIG_MIHW
-extern unsigned int sysctl_sched_boost_top_app;
-#endif
 extern unsigned int sysctl_sched_group_upmigrate_pct;
 extern unsigned int sysctl_sched_group_downmigrate_pct;
 extern unsigned int sysctl_sched_conservative_pl;
+extern unsigned int sysctl_sched_skip_affinity;
 extern unsigned int sysctl_sched_many_wakeup_threshold;
 extern unsigned int sysctl_sched_walt_rotate_big_tasks;
 extern unsigned int sysctl_sched_min_task_util_for_boost;
@@ -61,8 +58,6 @@ extern unsigned int sysctl_sched_window_stats_policy;
 extern unsigned int sysctl_sched_ravg_window_nr_ticks;
 extern unsigned int sysctl_sched_dynamic_ravg_window_enable;
 extern unsigned int sysctl_sched_prefer_spread;
-extern unsigned int sysctl_walt_rtg_cfs_boost_prio;
-extern unsigned int sysctl_walt_low_latency_task_threshold;
 
 extern int
 walt_proc_group_thresholds_handler(struct ctl_table *table, int write,
@@ -114,12 +109,6 @@ int sched_proc_update_handler(struct ctl_table *table, int write,
 
 extern int sched_boost_handler(struct ctl_table *table, int write,
 			void __user *buffer, size_t *lenp, loff_t *ppos);
-
-#ifdef CONFIG_MIHW
-extern int sched_boost_top_app_handler(struct ctl_table *table, int write,
-			void __user *buffer, size_t *lenp, loff_t *ppos);
-#endif
-
 /*
  *  control realtime throttling:
  *

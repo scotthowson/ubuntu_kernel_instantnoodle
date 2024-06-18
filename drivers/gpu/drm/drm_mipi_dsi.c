@@ -2,7 +2,6 @@
  * MIPI DSI Bus
  *
  * Copyright (C) 2012-2013, Samsung Electronics, Co., Ltd.
- * Copyright (C) 2021 XiaoMi, Inc.
  * Andrzej Hajda <a.hajda@samsung.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
@@ -1036,11 +1035,11 @@ EXPORT_SYMBOL(mipi_dsi_dcs_set_pixel_format);
  */
 int mipi_dsi_dcs_set_tear_scanline(struct mipi_dsi_device *dsi, u16 scanline)
 {
-	u8 payload[2] = { scanline >> 8, scanline & 0xff };
+	u8 payload[3] = { MIPI_DCS_SET_TEAR_SCANLINE, scanline >> 8,
+			  scanline & 0xff };
 	ssize_t err;
 
-	err = mipi_dsi_dcs_write(dsi, MIPI_DCS_SET_TEAR_SCANLINE, payload,
-				 sizeof(payload));
+	err = mipi_dsi_generic_write(dsi, payload, sizeof(payload));
 	if (err < 0)
 		return err;
 
@@ -1072,29 +1071,6 @@ int mipi_dsi_dcs_set_display_brightness(struct mipi_dsi_device *dsi,
 EXPORT_SYMBOL(mipi_dsi_dcs_set_display_brightness);
 
 /**
- * mipi_dsi_dcs_set_display_brightness_bigendian() - sets the brightness value of the
- * display with big endian, high byte to 1st parameter, low byte to 2nd parameter
- * @dsi: DSI peripheral device
- * @brightness: brightness value
- *
- * Return: 0 on success or a negative error code on failure.
- */
-int mipi_dsi_dcs_set_display_brightness_big_endian(struct mipi_dsi_device *dsi,
-					u16 brightness)
-{
-	u8 payload[2] = { brightness >> 8, brightness & 0xff};
-	ssize_t err;
-
-	err = mipi_dsi_dcs_write(dsi, MIPI_DCS_SET_DISPLAY_BRIGHTNESS,
-				 payload, sizeof(payload));
-	if (err < 0)
-		return err;
-
-	return 0;
-}
-EXPORT_SYMBOL(mipi_dsi_dcs_set_display_brightness_big_endian);
-
-/**
  * mipi_dsi_dcs_get_display_brightness() - gets the current brightness value
  *    of the display
  * @dsi: DSI peripheral device
@@ -1119,6 +1095,43 @@ int mipi_dsi_dcs_get_display_brightness(struct mipi_dsi_device *dsi,
 	return 0;
 }
 EXPORT_SYMBOL(mipi_dsi_dcs_get_display_brightness);
+
+/**
+ * mipi_dsi_dcs_set_display_brightness_samsung() - sets the brightness value of the
+ *    display
+ * @dsi: DSI peripheral device
+ * @brightness: brightness value
+ *
+ * Return: 0 on success or a negative error code on failure.
+ */
+int mipi_dsi_dcs_set_display_brightness_samsung(struct mipi_dsi_device *dsi,
+					u16 brightness)
+{
+	u8 payload[2] = {brightness >> 8, brightness & 0xff};
+	ssize_t err;
+
+	err = mipi_dsi_dcs_write(dsi, MIPI_DCS_SET_DISPLAY_BRIGHTNESS,
+				 payload, sizeof(payload));
+	if (err < 0)
+		return err;
+
+	return 0;
+}
+EXPORT_SYMBOL(mipi_dsi_dcs_set_display_brightness_samsung);
+
+int mipi_dsi_dcs_write_c1(struct mipi_dsi_device *dsi,
+						u16 read_number)
+{
+		u8 payload[3] = {0x0A, read_number >> 8, read_number & 0xff};
+		ssize_t err;
+
+		err = mipi_dsi_dcs_write(dsi, 0xC1, payload, sizeof(payload));
+		if (err < 0)
+			return err;
+
+		return 0;
+}
+EXPORT_SYMBOL(mipi_dsi_dcs_write_c1);
 
 static int mipi_dsi_drv_probe(struct device *dev)
 {

@@ -738,13 +738,6 @@ static int pmic_gpio_get(struct gpio_chip *chip, unsigned pin)
 	return !!pad->out_value;
 }
 
-int pmic_gpio_get_external(const char* chip_name, unsigned pin)
-{
-	struct gpio_chip *chip;
-	chip = find_chip_by_name(chip_name);
-	return pmic_gpio_get(chip, pin);
-}
-
 static void pmic_gpio_set(struct gpio_chip *chip, unsigned pin, int value)
 {
 	struct pmic_gpio_state *state = gpiochip_get_data(chip);
@@ -798,6 +791,8 @@ static void pmic_gpio_dbg_show(struct seq_file *s, struct gpio_chip *chip)
 {
 	struct pmic_gpio_state *state = gpiochip_get_data(chip);
 	unsigned i;
+
+	seq_puts(s, "\n name  : dir  func    p_s       biases                buffer_types val strength atest dtest\n");
 
 	for (i = 0; i < chip->ngpio; i++) {
 		pmic_gpio_config_dbg_show(state->ctrl, s, i);

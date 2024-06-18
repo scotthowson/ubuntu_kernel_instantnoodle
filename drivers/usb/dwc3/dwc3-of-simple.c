@@ -243,7 +243,6 @@ static const struct of_device_id of_dwc3_simple_match[] = {
 	{ .compatible = "amlogic,meson-axg-dwc3" },
 	{ .compatible = "amlogic,meson-gxl-dwc3" },
 	{ .compatible = "allwinner,sun50i-h6-dwc3" },
-	{ .compatible = "hisilicon,hi3670-dwc3" },
 	{ /* Sentinel */ }
 };
 MODULE_DEVICE_TABLE(of, of_dwc3_simple_match);
@@ -255,7 +254,6 @@ static struct platform_driver dwc3_of_simple_driver = {
 		.name	= "dwc3-of-simple",
 		.of_match_table = of_dwc3_simple_match,
 		.pm	= &dwc3_of_simple_dev_pm_ops,
-		.probe_type = PROBE_FORCE_SYNCHRONOUS,
 	},
 };
 

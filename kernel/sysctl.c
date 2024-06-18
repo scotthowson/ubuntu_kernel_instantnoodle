@@ -69,8 +69,6 @@
 #include <linux/mount.h>
 #include <linux/pipe_fs_i.h>
 
-#include "../lib/kstrtox.h"
-
 #include <linux/uaccess.h>
 #include <asm/processor.h>
 
@@ -101,12 +99,22 @@
 
 #if defined(CONFIG_SYSCTL)
 
+#ifdef CONFIG_HUNG_TASK_ENHANCE
+#include <linux/oem/hung_task_enhance.h>
+#endif
+
 /* External variables not in a header file. */
+#ifdef CONFIG_USB
+extern int deny_new_usb;
+#endif
 extern int suid_dumpable;
 #ifdef CONFIG_COREDUMP
 extern int core_uses_pid;
 extern char core_pattern[];
 extern unsigned int core_pipe_limit;
+#endif
+#ifdef CONFIG_DIRECT_SWAPPINESS
+extern int vm_direct_swapiness;
 #endif
 extern int pid_max;
 extern int extra_free_kbytes;
@@ -136,6 +144,12 @@ static unsigned long one_ul = 1;
 static unsigned long long_max = LONG_MAX;
 static int one_hundred = 100;
 static int one_thousand = 1000;
+#ifdef CONFIG_DIRECT_SWAPPINESS
+static int two_hundred = 200;
+#endif
+#ifdef CONFIG_PANIC_FLUSH
+unsigned long sysctl_blkdev_issue_flush_count;
+#endif
 #ifdef CONFIG_PRINTK
 static int ten_thousand = 10000;
 #endif
@@ -150,15 +164,6 @@ static int __maybe_unused two_hundred_million = 200000000;
 const int sched_user_hint_max = 1000;
 static unsigned int ns_per_sec = NSEC_PER_SEC;
 static unsigned int one_hundred_thousand = 100000;
-/*
- * CFS task prio range is [100 ... 139]
- * 120 is the default prio.
- * RTG boost range is [100 ... 119] because giving
- * boost for [120 .. 139] does not make sense.
- * 99 means disabled and it is the default value.
- */
-static unsigned int min_cfs_boost_prio = 99;
-static unsigned int max_cfs_boost_prio = 119;
 #endif
 /* this is needed for the proc_doulongvec_minmax of vm_dirty_bytes */
 static unsigned long dirty_bytes_min = 2 * PAGE_SIZE;
@@ -335,6 +340,10 @@ static int max_sched_tunable_scaling = SCHED_TUNABLESCALING_END-1;
 #endif /* CONFIG_SMP */
 #endif /* CONFIG_SCHED_DEBUG */
 
+#ifdef CONFIG_UXCHAIN
+int sysctl_uxchain_enabled = 1;
+int sysctl_launcher_boost_enabled;
+#endif
 #ifdef CONFIG_COMPACTION
 static int min_extfrag_threshold;
 static int max_extfrag_threshold = 1000;
@@ -348,6 +357,15 @@ static struct ctl_table kern_table[] = {
 		.mode		= 0644,
 		.proc_handler	= proc_dointvec,
 	},
+#ifdef CONFIG_PANIC_FLUSH
+	{
+		.procname       = "blkdev_issue_flush_count",
+		.data           = &sysctl_blkdev_issue_flush_count,
+		.maxlen         = sizeof(unsigned long),
+		.mode           = 0644,
+		.proc_handler   = proc_dointvec,
+	},
+#endif
 #if defined(CONFIG_PREEMPT_TRACER) && defined(CONFIG_PREEMPTIRQ_EVENTS)
 	{
 		.procname       = "preemptoff_tracing_threshold_ns",
@@ -416,22 +434,20 @@ static struct ctl_table kern_table[] = {
 		.mode		= 0644,
 		.proc_handler	= sched_boost_handler,
 		.extra1		= &neg_three,
-		.extra2		= &four,
+		.extra2		= &three,
 	},
-#ifdef CONFIG_MIHW
-	{
-		.procname	= "sched_boost_top_app",
-		.data		= &sysctl_sched_boost_top_app,
-		.maxlen		= sizeof(unsigned int),
-		.mode		= 0644,
-		.proc_handler	= sched_boost_top_app_handler,
-		.extra1		= &zero,
-		.extra2		= &one,
-	},
-#endif
 	{
 		.procname	= "sched_conservative_pl",
 		.data		= &sysctl_sched_conservative_pl,
+		.maxlen		= sizeof(unsigned int),
+		.mode		= 0644,
+		.proc_handler	= proc_dointvec_minmax,
+		.extra1		= &zero,
+		.extra2		= &one,
+	},
+	{
+		.procname	= "sched_skip_affinity",
+		.data		= &sysctl_sched_skip_affinity,
 		.maxlen		= sizeof(unsigned int),
 		.mode		= 0644,
 		.proc_handler	= proc_dointvec_minmax,
@@ -581,36 +597,9 @@ static struct ctl_table kern_table[] = {
 		.mode		= 0644,
 		.proc_handler   = proc_dointvec_minmax,
 		.extra1		= &zero,
-		.extra2		= &four,
-	},
-	{
-		.procname	= "walt_rtg_cfs_boost_prio",
-		.data		= &sysctl_walt_rtg_cfs_boost_prio,
-		.maxlen		= sizeof(unsigned int),
-		.mode		= 0644,
-		.proc_handler   = proc_dointvec_minmax,
-		.extra1		= &min_cfs_boost_prio,
-		.extra2		= &max_cfs_boost_prio,
-	},
-	{
-		.procname	= "walt_low_latency_task_threshold",
-		.data		= &sysctl_walt_low_latency_task_threshold,
-		.maxlen		= sizeof(unsigned int),
-		.mode		= 0644,
-		.proc_handler   = proc_dointvec_minmax,
-		.extra1		= &zero,
-		.extra2		= &one_thousand,
+		.extra2		= &two,
 	},
 #endif
-	{
-		.procname	= "sched_force_lb_enable",
-		.data		= &sysctl_sched_force_lb_enable,
-		.maxlen		= sizeof(unsigned int),
-		.mode		= 0644,
-		.proc_handler	= proc_dointvec_minmax,
-		.extra1		= &zero,
-		.extra2		= &one,
-	},
 #ifdef CONFIG_SCHED_DEBUG
 	{
 		.procname       = "sched_cstate_aware",
@@ -1161,7 +1150,7 @@ static struct ctl_table kern_table[] = {
 		.data		= &console_loglevel,
 		.maxlen		= 4*sizeof(int),
 		.mode		= 0644,
-		.proc_handler	= proc_dointvec,
+		.proc_handler	= proc_dointvec_oem,
 	},
 	{
 		.procname	= "printk_ratelimit",
@@ -1210,6 +1199,17 @@ static struct ctl_table kern_table[] = {
 		.proc_handler	= proc_dointvec_minmax_sysadmin,
 		.extra1		= &zero,
 		.extra2		= &two,
+	},
+#endif
+#ifdef CONFIG_USB
+	{
+		.procname	= "deny_new_usb",
+		.data		= &deny_new_usb,
+		.maxlen		= sizeof(int),
+		.mode		= 0644,
+		.proc_handler	= proc_dointvec_minmax_sysadmin,
+		.extra1		= &zero,
+		.extra2		= &one,
 	},
 #endif
 	{
@@ -1467,7 +1467,25 @@ static struct ctl_table kern_table[] = {
 		.extra1		= &zero,
 		.extra2		= &one,
 	},
-
+#ifdef CONFIG_HUNG_TASK_ENHANCE
+/* record the hung task killing */
+	{
+		.procname	= "hung_task_kill",
+		.data		= &sysctl_hung_task_kill,
+		.maxlen		= 128,
+		.mode		= 0666,
+		.proc_handler	= proc_dostring,
+	},
+/* Foreground background optimization,change max io count */
+	{
+		.procname	= "hung_task_maxiowait_count",
+		.data		= &sysctl_hung_task_maxiowait_count,
+		.maxlen		= sizeof(int),
+		.mode		= 0644,
+		.proc_handler	= proc_dointvec_minmax,
+		.extra1		= &five,
+	},
+#endif
 #endif
 #ifdef CONFIG_RT_MUTEXES
 	{
@@ -1609,6 +1627,23 @@ static struct ctl_table kern_table[] = {
 		.proc_handler	= proc_dointvec,
 	},
 #endif
+#ifdef CONFIG_UXCHAIN
+	{
+		.procname	= "uxchain_enabled",
+		.data		= &sysctl_uxchain_enabled,
+		.maxlen = sizeof(int),
+		.mode		= 0666,
+		.proc_handler = proc_dointvec,
+	},
+	{
+		.procname	= "launcher_boost_enabled",
+		.data		= &sysctl_launcher_boost_enabled,
+		.maxlen = sizeof(int),
+		.mode		= 0666,
+		.proc_handler = proc_dointvec,
+	},
+#endif
+
 	{ }
 };
 
@@ -1738,8 +1773,24 @@ static struct ctl_table vm_table[] = {
 		.mode		= 0644,
 		.proc_handler	= proc_dointvec_minmax,
 		.extra1		= &zero,
+#ifdef CONFIG_DIRECT_SWAPPINESS
+		.extra2		= &two_hundred,
+#else
 		.extra2		= &one_hundred,
+#endif
+
 	},
+#ifdef CONFIG_DIRECT_SWAPPINESS
+	{
+		.procname	= "direct_swappiness",
+		.data		= &vm_direct_swapiness,
+		.maxlen		= sizeof(vm_direct_swapiness),
+		.mode		= 0644,
+		.proc_handler	= proc_dointvec_minmax,
+		.extra1		= &zero,
+		.extra2		= &two_hundred,
+	},
+#endif
 	{
 		.procname       = "want_old_faultaround_pte",
 		.data           = &want_old_faultaround_pte,
@@ -2500,41 +2551,6 @@ static void proc_skip_char(char **buf, size_t *size, const char v)
 	}
 }
 
-/**
- * strtoul_lenient - parse an ASCII formatted integer from a buffer and only
- *                   fail on overflow
- *
- * @cp: kernel buffer containing the string to parse
- * @endp: pointer to store the trailing characters
- * @base: the base to use
- * @res: where the parsed integer will be stored
- *
- * In case of success 0 is returned and @res will contain the parsed integer,
- * @endp will hold any trailing characters.
- * This function will fail the parse on overflow. If there wasn't an overflow
- * the function will defer the decision what characters count as invalid to the
- * caller.
- */
-static int strtoul_lenient(const char *cp, char **endp, unsigned int base,
-			   unsigned long *res)
-{
-	unsigned long long result;
-	unsigned int rv;
-
-	cp = _parse_integer_fixup_radix(cp, &base);
-	rv = _parse_integer(cp, base, &result);
-	if ((rv & KSTRTOX_OVERFLOW) || (result != (unsigned long)result))
-		return -ERANGE;
-
-	cp += rv;
-
-	if (endp)
-		*endp = (char *)cp;
-
-	*res = (unsigned long)result;
-	return 0;
-}
-
 #define TMPBUFLEN 22
 /**
  * proc_get_long - reads an ASCII formatted integer from a user buffer
@@ -2578,8 +2594,7 @@ static int proc_get_long(char **buf, size_t *size,
 	if (!isdigit(*p))
 		return -EINVAL;
 
-	if (strtoul_lenient(p, &p, 0, val))
-		return -EINVAL;
+	*val = simple_strtoul(p, &p, 0);
 
 	len = p - tmp;
 
@@ -2936,6 +2951,25 @@ int proc_dointvec(struct ctl_table *table, int write,
 {
 	return do_proc_dointvec(table, write, buffer, lenp, ppos, NULL, NULL);
 }
+
+static unsigned int oem_en_chg_prk_lv = 1;
+module_param(oem_en_chg_prk_lv, uint, 0644);
+
+int proc_dointvec_oem(struct ctl_table *table, int write,
+		     void __user *buffer, size_t *lenp, loff_t *ppos)
+{
+	if (oem_en_chg_prk_lv || !write)
+		return do_proc_dointvec(table, write, buffer,
+			lenp, ppos, NULL, NULL);
+	else
+		return -EPERM;
+}
+static int __init oem_disable_chg_prk_lv(char *str)
+{
+	oem_en_chg_prk_lv = 0;
+	return 0;
+}
+early_param("debug", oem_disable_chg_prk_lv);
 
 /**
  * proc_douintvec - read a vector of unsigned integers

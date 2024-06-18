@@ -76,7 +76,7 @@ static LIST_HEAD(phy_fixup_list);
 static DEFINE_MUTEX(phy_fixup_lock);
 
 #ifdef CONFIG_PM
-static bool mdio_bus_phy_may_suspend(struct phy_device *phydev)
+static bool mdio_bus_phy_may_suspend(struct phy_device *phydev, bool suspend)
 {
 	struct device_driver *drv = phydev->mdio.dev.driver;
 	struct phy_driver *phydrv = to_phy_driver(drv);
@@ -85,13 +85,8 @@ static bool mdio_bus_phy_may_suspend(struct phy_device *phydev)
 	if (!drv || !phydrv->suspend)
 		return false;
 
-	/* PHY not attached? May suspend if the PHY has not already been
-	 * suspended as part of a prior call to phy_disconnect() ->
-	 * phy_detach() -> phy_suspend() because the parent netdev might be the
-	 * MDIO bus driver and clock gated at this point.
-	 */
 	if (!netdev)
-		goto out;
+		return suspend ? !phydev->suspended : phydev->suspended;
 
 	if (netdev->wol_enabled)
 		return false;
@@ -111,8 +106,7 @@ static bool mdio_bus_phy_may_suspend(struct phy_device *phydev)
 	if (device_may_wakeup(&netdev->dev))
 		return false;
 
-out:
-	return !phydev->suspended;
+	return true;
 }
 
 static int mdio_bus_phy_suspend(struct device *dev)
@@ -127,10 +121,8 @@ static int mdio_bus_phy_suspend(struct device *dev)
 	if (phydev->attached_dev && phydev->adjust_link)
 		phy_stop_machine(phydev);
 
-	if (!mdio_bus_phy_may_suspend(phydev))
+	if (!mdio_bus_phy_may_suspend(phydev, true))
 		return 0;
-
-	phydev->suspended_by_mdio_bus = 1;
 
 	return phy_suspend(phydev);
 }
@@ -140,10 +132,8 @@ static int mdio_bus_phy_resume(struct device *dev)
 	struct phy_device *phydev = to_phy_device(dev);
 	int ret;
 
-	if (!phydev->suspended_by_mdio_bus)
+	if (!mdio_bus_phy_may_suspend(phydev, false))
 		goto no_resume;
-
-	phydev->suspended_by_mdio_bus = 0;
 
 	ret = phy_resume(phydev);
 	if (ret < 0)
@@ -606,10 +596,8 @@ static int get_phy_id(struct mii_bus *bus, int addr, u32 *phy_id,
 
 	/* Grab the bits from PHYIR2, and put them in the lower half */
 	phy_reg = mdiobus_read(bus, addr, MII_PHYSID2);
-	if (phy_reg < 0) {
-		/* returning -ENODEV doesn't stop bus scanning */
-		return (phy_reg == -EIO || phy_reg == -ENODEV) ? -ENODEV : -EIO;
-	}
+	if (phy_reg < 0)
+		return -EIO;
 
 	*phy_id |= (phy_reg & 0xffff);
 
@@ -1154,8 +1142,7 @@ void phy_detach(struct phy_device *phydev)
 
 	phy_led_triggers_unregister(phydev);
 
-	if (phydev->mdio.dev.driver)
-		module_put(phydev->mdio.dev.driver->owner);
+	module_put(phydev->mdio.dev.driver->owner);
 
 	/* If the device had no specific driver before (i.e. - it
 	 * was using the generic driver), we unbind the device

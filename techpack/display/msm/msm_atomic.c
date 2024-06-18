@@ -21,7 +21,6 @@
 #include "msm_gem.h"
 #include "msm_kms.h"
 #include "sde_trace.h"
-#include "xiaomi_frame_stat.h"
 
 #define MULTIPLE_CONN_DETECTED(x) (x > 1)
 
@@ -34,17 +33,13 @@ struct msm_commit {
 	struct kthread_work commit_work;
 };
 
-static inline bool _msm_seamless_for_crtc(struct drm_device *dev,
-					struct drm_atomic_state *state,
+static inline bool _msm_seamless_for_crtc(struct drm_atomic_state *state,
 			struct drm_crtc_state *crtc_state, bool enable)
 {
 	struct drm_connector *connector = NULL;
 	struct drm_connector_state  *conn_state = NULL;
-	struct msm_drm_private *priv = dev->dev_private;
-	struct msm_kms *kms = priv->kms;
 	int i = 0;
 	int conn_cnt = 0;
-	bool splash_en = false;
 
 	if (msm_is_mode_seamless(&crtc_state->mode) ||
 		msm_is_mode_seamless_vrr(&crtc_state->adjusted_mode) ||
@@ -63,11 +58,7 @@ static inline bool _msm_seamless_for_crtc(struct drm_device *dev,
 					 crtc_state->crtc))
 				conn_cnt++;
 
-			if (kms && kms->funcs && kms->funcs->check_for_splash)
-				splash_en = kms->funcs->check_for_splash(kms,
-							 crtc_state->crtc);
-
-			if (MULTIPLE_CONN_DETECTED(conn_cnt) && !splash_en)
+			if (MULTIPLE_CONN_DETECTED(conn_cnt))
 				return true;
 		}
 	}
@@ -223,7 +214,7 @@ msm_disable_outputs(struct drm_device *dev, struct drm_atomic_state *old_state)
 		if (!old_crtc_state->active)
 			continue;
 
-		if (_msm_seamless_for_crtc(dev, old_state, crtc->state, false))
+		if (_msm_seamless_for_crtc(old_state, crtc->state, false))
 			continue;
 
 		funcs = crtc->helper_private;
@@ -371,7 +362,7 @@ static void msm_atomic_helper_commit_modeset_enables(struct drm_device *dev,
 		if (!new_crtc_state->active)
 			continue;
 
-		if (_msm_seamless_for_crtc(dev, old_state, crtc->state, true))
+		if (_msm_seamless_for_crtc(old_state, crtc->state, true))
 			continue;
 
 		funcs = crtc->helper_private;
@@ -490,12 +481,6 @@ int msm_atomic_prepare_fb(struct drm_plane *plane,
 	return msm_framebuffer_prepare(new_state->fb, kms->aspace);
 }
 
-extern struct device *connector_kdev;
-void complete_time_generate_event(struct drm_device *dev)
-{
-	sysfs_notify(&connector_kdev->kobj, NULL, "complete_commit_time");
-}
-
 /* The (potentially) asynchronous part of the commit.  At this point
  * nothing can fail short of armageddon.
  */
@@ -538,9 +523,7 @@ static void complete_commit(struct msm_commit *c)
 
 	drm_atomic_state_put(state);
 
-	priv->complete_commit_time = ktime_get()/1000;
-
-	complete_time_generate_event(dev);
+    priv->commit_end_time =  ktime_get(); //commit end time
 
 	commit_destroy(c);
 }
@@ -548,8 +531,6 @@ static void complete_commit(struct msm_commit *c)
 static void _msm_drm_commit_work_cb(struct kthread_work *work)
 {
 	struct msm_commit *commit = NULL;
-	ktime_t start, end;
-	s64 duration;
 
 	if (!work) {
 		DRM_ERROR("%s: Invalid commit work data!\n", __func__);
@@ -558,16 +539,9 @@ static void _msm_drm_commit_work_cb(struct kthread_work *work)
 
 	commit = container_of(work, struct msm_commit, commit_work);
 
-	start = ktime_get();
-	frame_stat_collector(0, COMMIT_START_TS);
-
 	SDE_ATRACE_BEGIN("complete_commit");
 	complete_commit(commit);
 	SDE_ATRACE_END("complete_commit");
-
-	end = ktime_get();
-	duration = ktime_to_ns(ktime_sub(end, start));
-	frame_stat_collector(duration, COMMIT_END_TS);
 }
 
 static struct msm_commit *commit_init(struct drm_atomic_state *state,
@@ -715,16 +689,6 @@ int msm_atomic_commit(struct drm_device *dev,
 			drm_atomic_set_fence_for_plane(new_plane_state, fence);
 		}
 		c->plane_mask |= (1 << drm_plane_index(plane));
-	}
-
-	/* Protection for prepare_fence callback */
-retry:
-	ret = drm_modeset_lock(&state->dev->mode_config.connection_mutex,
-		state->acquire_ctx);
-
-	if (ret == -EDEADLK) {
-		drm_modeset_backoff(state->acquire_ctx);
-		goto retry;
 	}
 
 	/*

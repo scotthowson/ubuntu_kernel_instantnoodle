@@ -403,7 +403,6 @@ extern void end_swap_bio_write(struct bio *bio);
 extern int __swap_writepage(struct page *page, struct writeback_control *wbc,
 	bio_end_io_t end_write_func);
 extern int swap_set_page_dirty(struct page *page);
-extern bool swap_slot_has_sync_io(swp_entry_t entry);
 
 int add_swap_extent(struct swap_info_struct *sis, unsigned long start_page,
 		unsigned long nr_pages, sector_t start_block);
@@ -450,11 +449,20 @@ extern bool has_usable_swap(void);
 /* Swap 50% full? Release swapcache more aggressively.. */
 static inline bool vm_swap_full(void)
 {
+	/*
+	 * don't bother replace any swapcache only entries
+	 */
+	if (__memplus_enabled())
+		return false;
+
 	return atomic_long_read(&nr_swap_pages) * 2 < total_swap_pages;
 }
 
 static inline long get_nr_swap_pages(void)
 {
+	if (__memplus_enabled())
+		return 0;
+
 	return atomic_long_read(&nr_swap_pages);
 }
 

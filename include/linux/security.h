@@ -219,13 +219,13 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
 extern int security_init(void);
 
 /* Security operations */
-int security_binder_set_context_mgr(const struct cred *mgr);
-int security_binder_transaction(const struct cred *from,
-				const struct cred *to);
-int security_binder_transfer_binder(const struct cred *from,
-				    const struct cred *to);
-int security_binder_transfer_file(const struct cred *from,
-				  const struct cred *to, struct file *file);
+int security_binder_set_context_mgr(struct task_struct *mgr);
+int security_binder_transaction(struct task_struct *from,
+				struct task_struct *to);
+int security_binder_transfer_binder(struct task_struct *from,
+				    struct task_struct *to);
+int security_binder_transfer_file(struct task_struct *from,
+				  struct task_struct *to, struct file *file);
 int security_ptrace_access_check(struct task_struct *child, unsigned int mode);
 int security_ptrace_traceme(struct task_struct *parent);
 int security_capget(struct task_struct *target,
@@ -251,10 +251,9 @@ void security_bprm_committing_creds(struct linux_binprm *bprm);
 void security_bprm_committed_creds(struct linux_binprm *bprm);
 int security_sb_alloc(struct super_block *sb);
 void security_sb_free(struct super_block *sb);
-int security_sb_eat_lsm_opts(char *options, struct security_mnt_opts *opts);
-int security_sb_remount(struct super_block *sb, struct security_mnt_opts *opts);
-int security_sb_kern_mount(struct super_block *sb, int flags,
-			   struct security_mnt_opts *opts);
+int security_sb_copy_data(char *orig, char *copy);
+int security_sb_remount(struct super_block *sb, void *data);
+int security_sb_kern_mount(struct super_block *sb, int flags, void *data);
 int security_sb_show_options(struct seq_file *m, struct super_block *sb);
 int security_sb_statfs(struct dentry *dentry);
 int security_sb_mount(const char *dev_name, const struct path *path,
@@ -443,25 +442,25 @@ static inline int security_init(void)
 	return 0;
 }
 
-static inline int security_binder_set_context_mgr(const struct cred *mgr)
+static inline int security_binder_set_context_mgr(struct task_struct *mgr)
 {
 	return 0;
 }
 
-static inline int security_binder_transaction(const struct cred *from,
-					      const struct cred *to)
+static inline int security_binder_transaction(struct task_struct *from,
+					      struct task_struct *to)
 {
 	return 0;
 }
 
-static inline int security_binder_transfer_binder(const struct cred *from,
-						  const struct cred *to)
+static inline int security_binder_transfer_binder(struct task_struct *from,
+						  struct task_struct *to)
 {
 	return 0;
 }
 
-static inline int security_binder_transfer_file(const struct cred *from,
-						const struct cred *to,
+static inline int security_binder_transfer_file(struct task_struct *from,
+						struct task_struct *to,
 						struct file *file)
 {
 	return 0;
@@ -556,20 +555,17 @@ static inline int security_sb_alloc(struct super_block *sb)
 static inline void security_sb_free(struct super_block *sb)
 { }
 
-static inline int security_sb_eat_lsm_opts(char *options,
-					   struct security_mnt_opts *opts)
+static inline int security_sb_copy_data(char *orig, char *copy)
 {
 	return 0;
 }
 
-static inline int security_sb_remount(struct super_block *sb,
-				      struct security_mnt_opts *opts)
+static inline int security_sb_remount(struct super_block *sb, void *data)
 {
 	return 0;
 }
 
-static inline int security_sb_kern_mount(struct super_block *sb, int flags,
-					 struct security_mnt_opts *opts)
+static inline int security_sb_kern_mount(struct super_block *sb, int flags, void *data)
 {
 	return 0;
 }
@@ -791,7 +787,7 @@ static inline int security_inode_killpriv(struct dentry *dentry)
 
 static inline int security_inode_getsecurity(struct inode *inode, const char *name, void **buffer, bool alloc)
 {
-	return cap_inode_getsecurity(inode, name, buffer, alloc);
+	return -EOPNOTSUPP;
 }
 
 static inline int security_inode_setsecurity(struct inode *inode, const char *name, const void *value, size_t size, int flags)
@@ -916,11 +912,6 @@ static inline int security_prepare_creds(struct cred *new,
 static inline void security_transfer_creds(struct cred *new,
 					   const struct cred *old)
 {
-}
-
-static inline void security_cred_getsecid(const struct cred *c, u32 *secid)
-{
-	*secid = 0;
 }
 
 static inline int security_kernel_act_as(struct cred *cred, u32 secid)
@@ -1828,6 +1819,29 @@ static inline void security_bpf_prog_free(struct bpf_prog_aux *aux)
 { }
 #endif /* CONFIG_SECURITY */
 #endif /* CONFIG_BPF_SYSCALL */
+
+#ifdef CONFIG_SECURITY
+
+static inline char *alloc_secdata(void)
+{
+	return (char *)get_zeroed_page(GFP_KERNEL);
+}
+
+static inline void free_secdata(void *secdata)
+{
+	free_page((unsigned long)secdata);
+}
+
+#else
+
+static inline char *alloc_secdata(void)
+{
+        return (char *)1;
+}
+
+static inline void free_secdata(void *secdata)
+{ }
+#endif /* CONFIG_SECURITY */
 
 #ifdef CONFIG_PERF_EVENTS
 struct perf_event_attr;

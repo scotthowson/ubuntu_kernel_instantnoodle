@@ -24,18 +24,28 @@
 
 #include "pelt.h"
 #include "walt.h"
-
+#ifdef CONFIG_ONEPLUS_HEALTHINFO
+#include <linux/oem/oneplus_healthinfo.h>
+#endif/*CONFIG_ONEPLUS_HEALTHINFO*/
 #define CREATE_TRACE_POINTS
 #include <trace/events/sched.h>
-
-#undef CREATE_TRACE_POINTS
-#include <trace/events/kperfevents_sched.h>
-#define CREATE_TRACE_POINTS
-DEFINE_TRACE(kperfevents_sched_wait);
-
+#ifdef CONFIG_HOUSTON
+#include <oneplus/houston/houston_helper.h>
+#endif
+#ifdef CONFIG_IM
+#include <linux/oem/im.h>
+#endif
 DEFINE_PER_CPU_SHARED_ALIGNED(struct rq, runqueues);
 
-#ifdef CONFIG_SCHED_DEBUG
+#define TRACE_DEBUG 0
+static inline void tracing_mark_write(int serial, char *name, unsigned int value)
+{
+#if TRACE_DEBUG
+	trace_printk("C|%d|%s|%u\n", 99990+serial, name, value);
+#endif
+}
+
+#if defined(CONFIG_SCHED_DEBUG) && defined(CONFIG_JUMP_LABEL)
 /*
  * Debugging: various feature bits
  *
@@ -1202,8 +1212,17 @@ static void uclamp_fork(struct task_struct *p)
 		return;
 
 	for_each_clamp_id(clamp_id) {
-		uclamp_se_set(&p->uclamp_req[clamp_id],
-			      uclamp_none(clamp_id), false);
+		unsigned int clamp_value = uclamp_none(clamp_id);
+
+		/* By default, RT tasks always get 100% boost */
+		if (sched_feat(SUGOV_RT_MAX_FREQ) &&
+			       unlikely(rt_task(p) &&
+			       clamp_id == UCLAMP_MIN)) {
+
+			clamp_value = uclamp_none(UCLAMP_MAX);
+		}
+
+		uclamp_se_set(&p->uclamp_req[clamp_id], clamp_value, false);
 	}
 }
 
@@ -1372,6 +1391,10 @@ void deactivate_task(struct rq *rq, struct task_struct *p, int flags)
 		clear_ed_task(p, rq);
 
 	dequeue_task(rq, p, flags);
+#if defined(CONFIG_CONTROL_CENTER) && defined(CONFIG_IM)
+	if (unlikely(im_main(p) || im_enqueue(p) || im_render(p)))
+		restore_user_nice_safe(p);
+#endif
 }
 
 /*
@@ -1457,6 +1480,16 @@ void check_preempt_curr(struct rq *rq, struct task_struct *p, int flags)
 {
 	const struct sched_class *class;
 
+#ifdef CONFIG_UXCHAIN
+	u64 wallclock = sched_ktime_clock();
+
+	if (sysctl_uxchain_enabled &&
+		(sysctl_launcher_boost_enabled ||
+		wallclock - rq->curr->oncpu_time < PREEMPT_DISABLE_NS) &&
+		(rq->curr->static_ux || rq->curr->dynamic_ux) &&
+		!(p->flags & PF_WQ_WORKER) && !task_has_rt_policy(p))
+		return;
+#endif
 	if (p->sched_class == rq->curr->sched_class) {
 		rq->curr->sched_class->check_preempt_curr(rq, p, flags);
 	} else {
@@ -2088,9 +2121,12 @@ static int select_fallback_rq(int cpu, struct task_struct *p, bool allow_iso)
 	enum { cpuset, possible, fail, bug } state = cpuset;
 	int dest_cpu;
 	int isolated_candidate = -1;
-	int backup_cpu = -1;
-	unsigned int max_nr = UINT_MAX;
+	bool is_rtg;
 
+	is_rtg = task_in_related_thread_group(p);
+	if (sysctl_sched_skip_affinity && is_rtg &&
+			cpu_active(cpu) && !cpu_isolated(cpu))
+		return cpu;
 	/*
 	 * If the node that the CPU is on has been offlined, cpu_to_node()
 	 * will return -1. There is no CPU on the node, and we should
@@ -2105,18 +2141,9 @@ static int select_fallback_rq(int cpu, struct task_struct *p, bool allow_iso)
 				continue;
 			if (cpu_isolated(dest_cpu))
 				continue;
-			if (cpumask_test_cpu(dest_cpu, &p->cpus_allowed)) {
-				if (cpu_rq(dest_cpu)->nr_running < 32)
-					return dest_cpu;
-				if (cpu_rq(dest_cpu)->nr_running > max_nr)
-					continue;
-				backup_cpu = dest_cpu;
-				max_nr = cpu_rq(dest_cpu)->nr_running;
-			}
+			if (cpumask_test_cpu(dest_cpu, &p->cpus_allowed))
+				return dest_cpu;
 		}
-
-		if (backup_cpu != -1)
-			return backup_cpu;
 	}
 
 	for (;;) {
@@ -2185,11 +2212,14 @@ static inline
 int select_task_rq(struct task_struct *p, int cpu, int sd_flags, int wake_flags,
 		   int sibling_count_hint)
 {
+	bool is_rtg;
 	bool allow_isolated = (p->flags & PF_KTHREAD);
 
 	lockdep_assert_held(&p->pi_lock);
 
-	if (p->nr_cpus_allowed > 1)
+//	if (p->nr_cpus_allowed > 1)
+	is_rtg = task_in_related_thread_group(p);
+	if (p->nr_cpus_allowed > 1 || (sysctl_sched_skip_affinity && is_rtg))
 		cpu = p->sched_class->select_task_rq(p, cpu, sd_flags, wake_flags,
 						     sibling_count_hint);
 	else
@@ -2206,8 +2236,13 @@ int select_task_rq(struct task_struct *p, int cpu, int sd_flags, int wake_flags,
 	 *   not worry about this generic constraint ]
 	 */
 	if (unlikely(!is_cpu_allowed(p, cpu)) ||
-			(cpu_isolated(cpu) && !allow_isolated))
-		cpu = select_fallback_rq(task_cpu(p), p, allow_isolated);
+//			(cpu_isolated(cpu) && !allow_isolated))
+//		cpu = select_fallback_rq(task_cpu(p), p, allow_isolated);
+		(cpu_isolated(cpu) && !allow_isolated)) {
+		if (!sysctl_sched_skip_affinity || !is_rtg)
+			cpu = task_cpu(p);
+		cpu = select_fallback_rq(cpu, p, allow_isolated);
+	}
 
 	return cpu;
 }
@@ -2485,9 +2520,6 @@ out:
 
 bool cpus_share_cache(int this_cpu, int that_cpu)
 {
-	if (this_cpu == that_cpu)
-		return true;
-
 	return per_cpu(sd_llc_id, this_cpu) == per_cpu(sd_llc_id, that_cpu);
 }
 #endif /* CONFIG_SMP */
@@ -3036,7 +3068,7 @@ int sched_fork(unsigned long clone_flags, struct task_struct *p)
 	 * Make sure we do not leak PI boosting priority to the child.
 	 */
 	p->prio = current->normal_prio;
-
+	p->compensate_need = 0;
 	uclamp_fork(p);
 
 	/*
@@ -3046,9 +3078,16 @@ int sched_fork(unsigned long clone_flags, struct task_struct *p)
 		if (task_has_dl_policy(p) || task_has_rt_policy(p)) {
 			p->policy = SCHED_NORMAL;
 			p->static_prio = NICE_TO_PRIO(0);
+#ifdef CONFIG_CONTROL_CENTER
+			p->cached_prio = p->static_prio;
+#endif
 			p->rt_priority = 0;
 		} else if (PRIO_TO_NICE(p->static_prio) < 0)
+#ifdef CONFIG_CONTROL_CENTER
+			p->cached_prio = p->static_prio = NICE_TO_PRIO(0);
+#else
 			p->static_prio = NICE_TO_PRIO(0);
+#endif
 
 		p->prio = p->normal_prio = __normal_prio(p);
 		set_load_weight(p, false);
@@ -3077,7 +3116,6 @@ int sched_fork(unsigned long clone_flags, struct task_struct *p)
 	 * Silence PROVE_RCU.
 	 */
 	raw_spin_lock_irqsave(&p->pi_lock, flags);
-	rseq_migrate(p);
 	/*
 	 * We're setting the CPU for the first time, we don't migrate,
 	 * so use __set_task_cpu().
@@ -3144,7 +3182,6 @@ void wake_up_new_task(struct task_struct *p)
 	 * as we're not fully set-up yet.
 	 */
 	p->recent_used_cpu = task_cpu(p);
-	rseq_migrate(p);
 	__set_task_cpu(p, select_task_rq(p, task_cpu(p), SD_BALANCE_FORK, 0, 1));
 #endif
 	rq = __task_rq_lock(p, &rf);
@@ -4283,8 +4320,20 @@ static void __sched notrace __schedule(bool preempt)
 		 *   is a RELEASE barrier),
 		 */
 		++*switch_count;
+#ifdef CONFIG_ONEPLUS_HEALTHINFO
+		if (prev->sched_class == &rt_sched_class && ohm_rtinfo_ctrl == true)
+			rt_thresh_times_record(prev, cpu);
+#endif /*CONFIG_ONEPLUS_HEALTHINFO*/
 
+#ifdef CONFIG_UXCHAIN
+		prev->oncpu_time = 0;
+		next->oncpu_time = wallclock;
+#endif
 		trace_sched_switch(preempt, prev, next);
+
+#ifdef CONFIG_HOUSTON
+		ht_sched_switch_update(prev, next);
+#endif
 
 		/* Also unlocks the rq: */
 		rq = context_switch(rq, prev, next, &rf);
@@ -4639,8 +4688,7 @@ void rt_mutex_setprio(struct task_struct *p, struct task_struct *pi_task)
 	 */
 	if (dl_prio(prio)) {
 		if (!dl_prio(p->normal_prio) ||
-		    (pi_task && dl_prio(pi_task->prio) &&
-		     dl_entity_preempt(&pi_task->dl, &p->dl))) {
+		    (pi_task && dl_entity_preempt(&pi_task->dl, &p->dl))) {
 			p->dl.dl_boosted = 1;
 			queue_flag |= ENQUEUE_REPLENISH;
 		} else
@@ -4683,7 +4731,34 @@ static inline int rt_effective_prio(struct task_struct *p, int prio)
 }
 #endif
 
-void set_user_nice(struct task_struct *p, long nice)
+#ifdef CONFIG_CONTROL_CENTER
+void restore_user_nice_safe(struct task_struct *p)
+{
+	long nice = PRIO_TO_NICE(p->cached_prio);
+
+	if (rt_prio(p->prio))
+		return;
+
+	if (task_nice(p) == nice || nice < MIN_NICE || nice > MAX_NICE)
+		return;
+
+	if (task_on_rq_queued(p))
+		return;
+
+	if (task_current(task_rq(p), p))
+		return;
+
+	if (!time_after64(get_jiffies_64(), p->nice_effect_ts))
+		return;
+
+	p->static_prio = NICE_TO_PRIO(nice);
+	set_load_weight(p, true);
+	p->prio = effective_prio(p);
+
+	/* update nice_effect_ts to ULLONG_MAX */
+	p->nice_effect_ts = ULLONG_MAX;
+}
+void set_user_nice_no_cache(struct task_struct *p, long nice)
 {
 	bool queued, running;
 	int old_prio, delta;
@@ -4717,6 +4792,76 @@ void set_user_nice(struct task_struct *p, long nice)
 		put_prev_task(rq, p);
 
 	p->static_prio = NICE_TO_PRIO(nice);
+	set_load_weight(p, true);
+	old_prio = p->prio;
+	p->prio = effective_prio(p);
+	delta = p->prio - old_prio;
+
+	if (queued) {
+		enqueue_task(rq, p, ENQUEUE_RESTORE | ENQUEUE_NOCLOCK);
+		/*
+		 * If the task increased its priority or is running and
+		 * lowered its priority, then reschedule its CPU:
+		 */
+		if (delta < 0 || (delta > 0 && task_running(rq, p)))
+			resched_curr(rq);
+	}
+	if (running)
+		set_curr_task(rq, p);
+out_unlock:
+	task_rq_unlock(rq, p, &rf);
+}
+EXPORT_SYMBOL(set_user_nice_no_cache);
+#endif
+
+void set_user_nice(struct task_struct *p, long nice)
+{
+	bool queued, running;
+	int old_prio, delta;
+	struct rq_flags rf;
+	struct rq *rq;
+
+#ifdef CONFIG_CONTROL_CENTER
+	if (task_nice(p) == nice || nice < MIN_NICE || nice > MAX_NICE) {
+		p->cached_prio = p->static_prio;
+		return;
+	}
+#else
+	if (task_nice(p) == nice || nice < MIN_NICE || nice > MAX_NICE)
+		return;
+#endif
+
+	/*
+	 * We have to be careful, if called from sys_setpriority(),
+	 * the task might be in the middle of scheduling on another CPU.
+	 */
+	rq = task_rq_lock(p, &rf);
+	update_rq_clock(rq);
+
+	/*
+	 * The RT priorities are set via sched_setscheduler(), but we still
+	 * allow the 'normal' nice value to be set - but as expected
+	 * it wont have any effect on scheduling until the task is
+	 * SCHED_DEADLINE, SCHED_FIFO or SCHED_RR:
+	 */
+	if (task_has_dl_policy(p) || task_has_rt_policy(p)) {
+		p->static_prio = NICE_TO_PRIO(nice);
+#ifdef CONFIG_CONTROL_CENTER
+		p->cached_prio = p->static_prio;
+#endif
+		goto out_unlock;
+	}
+	queued = task_on_rq_queued(p);
+	running = task_current(rq, p);
+	if (queued)
+		dequeue_task(rq, p, DEQUEUE_SAVE | DEQUEUE_NOCLOCK);
+	if (running)
+		put_prev_task(rq, p);
+
+	p->static_prio = NICE_TO_PRIO(nice);
+#ifdef CONFIG_CONTROL_CENTER
+	p->cached_prio = p->static_prio;
+#endif
 	set_load_weight(p, true);
 	old_prio = p->prio;
 	p->prio = effective_prio(p);
@@ -4882,7 +5027,12 @@ static void __setscheduler_params(struct task_struct *p,
 	if (dl_policy(policy))
 		__setparam_dl(p, attr);
 	else if (fair_policy(policy))
+#ifdef CONFIG_CONTROL_CENTER
+		p->cached_prio =
+			p->static_prio = NICE_TO_PRIO(attr->sched_nice);
+#else
 		p->static_prio = NICE_TO_PRIO(attr->sched_nice);
+#endif
 
 	/*
 	 * __sched_setscheduler() ensures attr->sched_priority == 0 when
@@ -5684,7 +5834,6 @@ out_put_task:
 	put_task_struct(p);
 	return retval;
 }
-EXPORT_SYMBOL_GPL(sched_setaffinity);
 
 char sched_lib_name[LIB_PATH_LENGTH];
 unsigned int sched_lib_mask_force;
@@ -5878,8 +6027,12 @@ static void do_sched_yield(void)
 	schedstat_inc(rq->yld_count);
 	current->sched_class->yield_task(rq);
 
+	/*
+	 * Since we are going to call schedule() anyway, there's
+	 * no need to preempt or enable interrupts:
+	 */
 	preempt_disable();
-	rq_unlock_irq(rq, &rf);
+	rq_unlock(rq, &rf);
 	sched_preempt_enable_no_resched();
 
 	schedule();
@@ -6293,34 +6446,6 @@ void show_state_filter(unsigned long state_filter)
 		debug_show_all_locks();
 }
 
-void show_state_filter_single(unsigned long state_filter)
-{
-	struct task_struct *g, *p;
-
-#if BITS_PER_LONG == 32
-	printk(KERN_INFO
-		"  task                PC stack   pid father\n");
-#else
-	printk(KERN_INFO
-		"  task                        PC stack   pid father\n");
-#endif
-	rcu_read_lock();
-	for_each_process_thread(g, p) {
-		/*
-		 * reset the NMI-timeout, listing all files on a slow
-		 * console might take a lot of time:
-		 * Also, reset softlockup watchdogs on all CPUs, because
-		 * another CPU might be blocked waiting for us to process
-		 * an IPI.
-		 */
-		touch_nmi_watchdog();
-		touch_all_softlockup_watchdogs();
-		if (p->state == state_filter)
-			sched_show_task(p);
-	}
-	rcu_read_unlock();
-}
-
 /**
  * init_idle - set up an idle thread for a given CPU
  * @idle: task in question
@@ -6493,14 +6618,13 @@ void idle_task_exit(void)
 	struct mm_struct *mm = current->active_mm;
 
 	BUG_ON(cpu_online(smp_processor_id()));
-	BUG_ON(current != this_rq()->idle);
 
 	if (mm != &init_mm) {
 		switch_mm(mm, &init_mm, current);
+		current->active_mm = &init_mm;
 		finish_arch_post_lock_switch();
 	}
-
-	/* finish_cpu(), as ran on the BP, will clean up the active_mm state */
+	mmdrop(mm);
 }
 
 /*
@@ -6826,7 +6950,7 @@ int sched_isolate_cpu(int cpu)
 			goto out;
 		}
 	}
-
+	tracing_mark_write(cpu, "isolated", 1);
 	set_cpu_isolated(cpu, true);
 	cpumask_clear_cpu(cpu, &avail_cpus);
 
@@ -6875,7 +6999,7 @@ int sched_unisolate_cpu_unlocked(int cpu)
 
 	if (--cpu_isolation_vote[cpu])
 		goto out;
-
+	tracing_mark_write(cpu, "isolated", 0);
 	set_cpu_isolated(cpu, false);
 	update_max_interval();
 	sched_update_group_capacities(cpu);
@@ -8662,43 +8786,3 @@ void sched_exit(struct task_struct *p)
 #endif /* CONFIG_SCHED_WALT */
 
 __read_mostly bool sched_predl = 1;
-
-#ifdef CONFIG_MIHW
-inline bool is_critical_task(struct task_struct *p)
-{
-	return is_top_app(p) || is_inherit_top_app(p);
-}
-
-inline bool is_top_app(struct task_struct *p)
-{
-	return p && p->top_app > 0;
-}
-
-inline bool is_inherit_top_app(struct task_struct *p)
-{
-	return p && p->inherit_top_app > 0;
-}
-
-inline void set_inherit_top_app(struct task_struct *p,
-				struct task_struct *from)
-{
-	if (!p || !from)
-		return;
-	if (is_critical_task(p) || from->inherit_top_app >= INHERIT_DEPTH)
-		return;
-	p->inherit_top_app = from->inherit_top_app + 1;
-#ifdef CONFIG_PERF_HUMANTASK
-	p->human_task = 1;
-#endif
-}
-
-inline void restore_inherit_top_app(struct task_struct *p)
-{
-	if (p && is_inherit_top_app(p)) {
-		p->inherit_top_app = 0;
-#ifdef CONFIG_PERF_HUMANTASK
-		p->human_task  = 0 ;
-#endif
-	}
-}
-#endif /* CONFIG_MIHW */

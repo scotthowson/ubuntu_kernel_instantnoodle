@@ -693,45 +693,6 @@ DEFINE_EVENT(sched_stat_runtime, sched_stat_runtime,
 	     TP_PROTO(struct task_struct *tsk, u64 runtime, u64 vruntime),
 	     TP_ARGS(tsk, runtime, vruntime));
 
-/* debug sched event of EAS for tracer: nop  */
-TRACE_EVENT(sched_debug_einfo,
-		TP_PROTO(struct task_struct *tsk,const char *  flag1,const char *  flag2,unsigned int param1, unsigned int param2,u64 se_vr, u64 en_vr,u64 cfq_min_vr),
-		TP_ARGS(tsk,flag1,flag2,param1,param2, se_vr,en_vr,cfq_min_vr),
-		TP_STRUCT__entry(
-			__array( char,	comm,	TASK_COMM_LEN	)
-			__field( pid_t,	pid			)
-			__array( char,	flag1,	TASK_COMM_LEN)
-			__array( char,	flag2,	TASK_COMM_LEN)
-			__field(unsigned int, param1    )
-			__field( unsigned int,	param2)
-			__field( u64,	se_vr )
-			__field( u64,	en_vr )
-			__field( u64,	cfq_min_vr )
-			),
-
-		TP_fast_assign(
-			memcpy(__entry->comm, tsk->comm, TASK_COMM_LEN);
-			__entry->pid		= tsk->pid;
-			memcpy(__entry->flag1, flag1, TASK_COMM_LEN);
-			memcpy(__entry->flag2, flag2, TASK_COMM_LEN);
-			__entry->param1 = param1;
-			__entry->param2 = param2;
-			__entry->se_vr  = se_vr;
-			__entry->en_vr = en_vr;
-			__entry->cfq_min_vr = cfq_min_vr;
-			),
-
-		TP_printk("comm=%s pid=%d,  %s=%d  %s=%d ,  sv=%Lu [ns] ev=%Lu [ns] cv=%Lu [ns]", __entry->comm, __entry->pid,
-				__entry->flag1,
-				__entry->param1,
-				__entry->flag2,
-				__entry->param2,
-				(unsigned long long)__entry->se_vr,
-				(unsigned long long)__entry->en_vr,
-				(unsigned long long)__entry->cfq_min_vr)
-		);
-
-
 /*
  * Tracepoint for showing priority inheritance modifying a tasks
  * priority.
@@ -1184,7 +1145,6 @@ TRACE_EVENT(sched_cpu_util,
 		__field(int,		isolated)
 		__field(int,		reserved)
 		__field(int,		high_irq_load)
-		__field(unsigned int,	nr_rtg_high_prio_tasks)
 	),
 
 	TP_fast_assign(
@@ -1201,16 +1161,14 @@ TRACE_EVENT(sched_cpu_util,
 		__entry->isolated           = cpu_isolated(cpu);
 		__entry->reserved           = is_reserved(cpu);
 		__entry->high_irq_load      = sched_cpu_high_irqload(cpu);
-		__entry->nr_rtg_high_prio_tasks = walt_nr_rtg_high_prio(cpu);
 	),
 
-	TP_printk("cpu=%d nr_running=%d cpu_util=%ld cpu_util_cum=%ld capacity_curr=%u capacity=%u capacity_orig=%u idle_state=%d irqload=%llu online=%u, isolated=%u, reserved=%u, high_irq_load=%u nr_rtg_hp=%u",
+	TP_printk("cpu=%d nr_running=%d cpu_util=%ld cpu_util_cum=%ld capacity_curr=%u capacity=%u capacity_orig=%u idle_state=%d irqload=%llu online=%u, isolated=%u, reserved=%u, high_irq_load=%u",
 		__entry->cpu, __entry->nr_running, __entry->cpu_util,
 		__entry->cpu_util_cum, __entry->capacity_curr,
 		__entry->capacity, __entry->capacity_orig,
 		__entry->idle_state, __entry->irqload, __entry->online,
-		__entry->isolated, __entry->reserved, __entry->high_irq_load,
-		__entry->nr_rtg_high_prio_tasks)
+		__entry->isolated, __entry->reserved, __entry->high_irq_load)
 );
 
 TRACE_EVENT(sched_compute_energy,
@@ -1248,7 +1206,7 @@ TRACE_EVENT(sched_compute_energy,
 		__entry->best_energy	        = best_energy;
 	),
 
-	TP_printk("pid=%d comm=%s util=%lu prev_cpu=%d prev_energy=%lu eval_cpu=%d eval_energy=%lu best_energy_cpu=%d best_energy=%lu",
+	TP_printk("pid=%d comm=%s util=%lu prev_cpu=%d prev_energy=%llu eval_cpu=%d eval_energy=%llu best_energy_cpu=%d best_energy=%llu",
 		__entry->pid, __entry->comm, __entry->util, __entry->prev_cpu,
 		__entry->prev_energy, __entry->eval_cpu, __entry->eval_energy,
 		__entry->best_energy_cpu, __entry->best_energy)
@@ -1260,11 +1218,11 @@ TRACE_EVENT(sched_task_util,
 		int best_energy_cpu, bool sync, int need_idle, int fastpath,
 		bool placement_boost, u64 start_t,
 		bool stune_boosted, bool is_rtg, bool rtg_skip_min,
-		int start_cpu),
+		bool is_uxtop),
 
 	TP_ARGS(p, candidates, best_energy_cpu, sync, need_idle, fastpath,
 		placement_boost, start_t, stune_boosted, is_rtg, rtg_skip_min,
-		start_cpu),
+		is_uxtop),
 
 	TP_STRUCT__entry(
 		__field(int,		pid)
@@ -1286,6 +1244,7 @@ TRACE_EVENT(sched_task_util,
 		__field(u32,		unfilter)
 		__field(unsigned long,  cpus_allowed)
 		__field(bool,		low_latency)
+		__field(bool,		is_uxtop)
 	),
 
 	TP_fast_assign(
@@ -1303,24 +1262,24 @@ TRACE_EVENT(sched_task_util,
 		__entry->stune_boosted          = stune_boosted;
 		__entry->is_rtg                 = is_rtg;
 		__entry->rtg_skip_min		= rtg_skip_min;
-		__entry->start_cpu		= start_cpu;
 #ifdef CONFIG_SCHED_WALT
 		__entry->unfilter		= p->unfilter;
-		__entry->low_latency		= walt_low_latency_task(p);
+		__entry->low_latency		= p->low_latency;
 #else
 		__entry->unfilter		= 0;
 		__entry->low_latency		= 0;
 #endif
-		__entry->cpus_allowed           = cpumask_bits(&p->cpus_allowed)[0];
+		__entry->cpus_allowed   = cpumask_bits(&p->cpus_allowed)[0];
+		__entry->is_uxtop		= is_uxtop;
 	),
 
-	TP_printk("pid=%d comm=%s util=%lu prev_cpu=%d candidates=%#lx best_energy_cpu=%d sync=%d need_idle=%d fastpath=%d placement_boost=%d latency=%llu stune_boosted=%d is_rtg=%d rtg_skip_min=%d start_cpu=%d unfilter=%u affine=%#lx low_latency=%d",
+	TP_printk("pid=%d comm=%s util=%lu prev_cpu=%d candidates=%#lx best_energy_cpu=%d sync=%d need_idle=%d fastpath=%d placement_boost=%d latency=%llu stune_boosted=%d is_rtg=%d rtg_skip_min=%d start_cpu=%d unfilter=%u affine=%#lx low_latency=%d is_uxtop=%d",
 		__entry->pid, __entry->comm, __entry->util, __entry->prev_cpu,
 		__entry->candidates, __entry->best_energy_cpu, __entry->sync,
 		__entry->need_idle, __entry->fastpath, __entry->placement_boost,
 		__entry->latency, __entry->stune_boosted,
 		__entry->is_rtg, __entry->rtg_skip_min, __entry->start_cpu,
-		__entry->unfilter, __entry->cpus_allowed, __entry->low_latency)
+		__entry->unfilter, __entry->cpus_allowed, __entry->low_latency, __entry->is_uxtop)
 );
 
 /*

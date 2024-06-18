@@ -31,9 +31,6 @@ struct task_struct *kthread_create_on_cpu(int (*threadfn)(void *data),
 					  unsigned int cpu,
 					  const char *namefmt);
 
-void kthread_set_per_cpu(struct task_struct *k, int cpu);
-bool kthread_is_per_cpu(struct task_struct *k);
-
 /**
  * kthread_run - create and wake a thread.
  * @threadfn: the function to run until signal_pending(current).
@@ -170,19 +167,6 @@ extern void __kthread_init_worker(struct kthread_worker *worker,
 			     kthread_delayed_work_timer_fn,		\
 			     TIMER_IRQSAFE);				\
 	} while (0)
-
-/*
- * Returns true when the work could not be queued at the moment.
- * It happens when it is already pending in a worker list
- * or when it is being cancelled.
- */
-static inline bool queuing_blocked(struct kthread_worker *worker,
-                                   struct kthread_work *work)
-{
-        lockdep_assert_held(&worker->lock);
-
-        return !list_empty(&work->node) || work->canceling;
-}
 
 int kthread_worker_fn(void *worker_ptr);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2015-2019, The Linux Foundation. All rights reserved.
  * Copyright (C) 2013 Red Hat
  * Author: Rob Clark <robdclark@gmail.com>
  *
@@ -313,15 +313,6 @@ void sde_encoder_recovery_events_handler(struct drm_encoder *encoder,
  */
 bool sde_encoder_in_clone_mode(struct drm_encoder *enc);
 
-/*
- * sde_encoder_is_cwb_disabling - check if cwb encoder disable is pending
- * @drm_enc:    Pointer to drm encoder structure
- * @drm_crtc:    Pointer to drm crtc structure
- * @Return: true if cwb encoder disable is pending
- */
-bool sde_encoder_is_cwb_disabling(struct drm_encoder *drm_enc,
-	struct drm_crtc *drm_crtc);
-
 /**
  * sde_encoder_is_primary_display - checks if underlying display is primary
  *     display or not.
@@ -365,38 +356,33 @@ void sde_encoder_needs_hw_reset(struct drm_encoder *enc);
  */
 void sde_encoder_uidle_enable(struct drm_encoder *drm_enc, bool enable);
 
+#if defined(CONFIG_PXLW_IRIS)
 /**
- * sde_encoder_vid_wait_for_active - wait Vactive region for some mark region
+ * sde_encoder_rc_lock - lock the sde encoder resource control.
  * @drm_enc:    Pointer to drm encoder structure
- * @Return:     non zero value if wait timeout occurred
+ * @Return:     void.
  */
-int sde_encoder_vid_wait_for_active(struct drm_encoder *enc);
+void sde_encoder_rc_lock(struct drm_encoder *drm_enc);
 
 /**
- * sde_encoder_virt_reset - delay encoder virt reset
- * @drm_enc:	Pointer to drm encoder structure
- */
-void sde_encoder_virt_reset(struct drm_encoder *drm_enc);
-
-/**
- * sde_encoder_get_kms - retrieve the kms from encoder
+ * sde_encoder_rc_unlock - unlock the sde encoder resource control.
  * @drm_enc:    Pointer to drm encoder structure
+ * @Return:     void.
  */
-static inline struct sde_kms *sde_encoder_get_kms(struct drm_encoder *drm_enc)
-{
-	struct msm_drm_private *priv;
+void sde_encoder_rc_unlock(struct drm_encoder *drm_enc);
 
-	if (!drm_enc || !drm_enc->dev) {
-		SDE_ERROR("invalid encoder\n");
-		return NULL;
-	}
-	priv = drm_enc->dev->dev_private;
-	if (!priv || !priv->kms) {
-		SDE_ERROR("invalid kms\n");
-		return NULL;
-	}
+/**
+ * sde_encoder_disable_autorefresh - disable autorefresh
+ * @drm_enc:    Pointer to drm encoder structure
+ * @Return:     void.
+ */
+void sde_encoder_disable_autorefresh_handler(struct drm_encoder *drm_enc);
 
-	return to_sde_kms(priv->kms);
-}
-
+/**
+ * sde_encoder_is_disabled - encoder is disabled
+ * @drm_enc:    Pointer to drm encoder structure
+ * @Return:     bool.
+ */
+bool sde_encoder_is_disabled(struct drm_encoder *drm_enc);
+#endif
 #endif /* __SDE_ENCODER_H__ */

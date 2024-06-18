@@ -83,6 +83,9 @@
 #endif
 
 #include "tune.h"
+#ifdef CONFIG_ONEPLUS_HEALTHINFO
+#include <linux/oem/oneplus_healthinfo.h>
+#endif /*CONFIG_ONEPLUS_HEALTHINFO*/
 
 struct rq;
 struct cpuidle_state;
@@ -90,6 +93,13 @@ struct cpuidle_state;
 extern __read_mostly bool sched_predl;
 extern unsigned int sched_capacity_margin_up[NR_CPUS];
 extern unsigned int sched_capacity_margin_down[NR_CPUS];
+#ifdef CONFIG_IM
+extern int group_show(struct seq_file *m, void *v);
+extern void group_remove(void);
+#else
+static inline int group_show(struct seq_file *m, void *v) {return 0; }
+static inline void group_remove(void) {}
+#endif
 
 struct sched_walt_cpu_load {
 	unsigned long nl;
@@ -98,6 +108,7 @@ struct sched_walt_cpu_load {
 	u64 ws;
 };
 
+extern unsigned int sysctl_sched_skip_affinity;
 #ifdef CONFIG_SCHED_WALT
 extern unsigned int sched_ravg_window;
 
@@ -105,7 +116,6 @@ struct walt_sched_stats {
 	int nr_big_tasks;
 	u64 cumulative_runnable_avg_scaled;
 	u64 pred_demands_sum_scaled;
-	unsigned int nr_rtg_high_prio_tasks;
 };
 
 struct group_cpu_time {
@@ -143,6 +153,9 @@ struct sched_cluster {
 	unsigned int max_possible_freq;
 	bool freq_init_done;
 	u64 aggr_grp_load;
+#ifdef CONFIG_ONEPLUS_HEALTHINFO
+	struct sched_stat_para *overload;
+#endif
 };
 
 extern cpumask_t asym_cap_sibling_cpus;
@@ -189,13 +202,7 @@ static inline void cpu_load_update_active(struct rq *this_rq) { }
 #ifdef CONFIG_64BIT
 # define NICE_0_LOAD_SHIFT	(SCHED_FIXEDPOINT_SHIFT + SCHED_FIXEDPOINT_SHIFT)
 # define scale_load(w)		((w) << SCHED_FIXEDPOINT_SHIFT)
-# define scale_load_down(w) \
-({ \
-	unsigned long __w = (w); \
-	if (__w) \
-		__w = max(2UL, __w >> SCHED_FIXEDPOINT_SHIFT); \
-	__w; \
-})
+# define scale_load_down(w)	((w) >> SCHED_FIXEDPOINT_SHIFT)
 #else
 # define NICE_0_LOAD_SHIFT	(SCHED_FIXEDPOINT_SHIFT)
 # define scale_load(w)		(w)
@@ -275,8 +282,6 @@ static inline int task_has_dl_policy(struct task_struct *p)
  */
 #define SCHED_FLAG_SUGOV	0x10000000
 
-#define SCHED_DL_FLAGS (SCHED_FLAG_RECLAIM | SCHED_FLAG_DL_OVERRUN | SCHED_FLAG_SUGOV)
-
 static inline bool dl_entity_is_special(struct sched_dl_entity *dl_se)
 {
 #ifdef CONFIG_CPU_FREQ_GOV_SCHEDUTIL
@@ -315,6 +320,30 @@ struct rt_bandwidth {
 
 void __dl_clear_params(struct task_struct *p);
 
+/*
+ * To keep the bandwidth of -deadline tasks and groups under control
+ * we need some place where:
+ *  - store the maximum -deadline bandwidth of the system (the group);
+ *  - cache the fraction of that bandwidth that is currently allocated.
+ *
+ * This is all done in the data structure below. It is similar to the
+ * one used for RT-throttling (rt_bandwidth), with the main difference
+ * that, since here we are only interested in admission control, we
+ * do not decrease any runtime while the group "executes", neither we
+ * need a timer to replenish it.
+ *
+ * With respect to SMP, the bandwidth is given on a per-CPU basis,
+ * meaning that:
+ *  - dl_bw (< 100%) is the bandwidth of the system (group) on each CPU;
+ *  - dl_total_bw array contains, in the i-eth element, the currently
+ *    allocated bandwidth on the i-eth CPU.
+ * Moreover, groups consume bandwidth on each CPU, while tasks only
+ * consume bandwidth on the CPU they're running on.
+ * Finally, dl_total_bw_cpu is used to cache the index of dl_total_bw
+ * that will be shown the next time the proc or cgroup controls will
+ * be red. It on its turn can be changed by writing on its own
+ * control.
+ */
 struct dl_bandwidth {
 	raw_spinlock_t		dl_runtime_lock;
 	u64			dl_runtime;
@@ -326,24 +355,6 @@ static inline int dl_bandwidth_enabled(void)
 	return sysctl_sched_rt_runtime >= 0;
 }
 
-/*
- * To keep the bandwidth of -deadline tasks under control
- * we need some place where:
- *  - store the maximum -deadline bandwidth of each cpu;
- *  - cache the fraction of bandwidth that is currently allocated in
- *    each root domain;
- *
- * This is all done in the data structure below. It is similar to the
- * one used for RT-throttling (rt_bandwidth), with the main difference
- * that, since here we are only interested in admission control, we
- * do not decrease any runtime while the group "executes", neither we
- * need a timer to replenish it.
- *
- * With respect to SMP, bandwidth is given on a per root domain basis,
- * meaning that:
- *  - bw (< 100%) is the deadline bandwidth of each CPU;
- *  - total_bw is the currently allocated bandwidth in each root domain;
- */
 struct dl_bw {
 	raw_spinlock_t		lock;
 	u64			bw;
@@ -565,9 +576,6 @@ struct cfs_rq {
 
 	u64			exec_clock;
 	u64			min_vruntime;
-#ifdef CONFIG_PERF_HUMANTASK
-	u64			min_vruntimex;
-#endif
 #ifndef CONFIG_64BIT
 	u64			min_vruntime_copy;
 #endif
@@ -1118,7 +1126,12 @@ struct rq {
 #ifdef CONFIG_SMP
 	struct llist_head	wake_list;
 #endif
-
+#ifdef CONFIG_ONEPLUS_HEALTHINFO
+	unsigned int ux_nr_running;
+	u64 cfs_ol_start;
+	u64 ux_ol_start;
+	u64 irqsoff_start_time;
+#endif
 #ifdef CONFIG_CPU_IDLE
 	/* Must be inspected within a rcu lock section */
 	struct cpuidle_state	*idle_state;
@@ -1680,7 +1693,7 @@ enum {
 
 #undef SCHED_FEAT
 
-#ifdef CONFIG_SCHED_DEBUG
+#if defined(CONFIG_SCHED_DEBUG) && defined(CONFIG_JUMP_LABEL)
 
 /*
  * To support run-time toggling of sched features, all the translation units
@@ -1688,7 +1701,6 @@ enum {
  */
 extern const_debug unsigned int sysctl_sched_features;
 
-#ifdef CONFIG_JUMP_LABEL
 #define SCHED_FEAT(name, enabled)					\
 static __always_inline bool static_branch_##name(struct static_key *key) \
 {									\
@@ -1701,13 +1713,7 @@ static __always_inline bool static_branch_##name(struct static_key *key) \
 extern struct static_key sched_feat_keys[__SCHED_FEAT_NR];
 #define sched_feat(x) (static_branch_##x(&sched_feat_keys[__SCHED_FEAT_##x]))
 
-#else /* !CONFIG_JUMP_LABEL */
-
-#define sched_feat(x) (sysctl_sched_features & (1UL << __SCHED_FEAT_##x))
-
-#endif /* CONFIG_JUMP_LABEL */
-
-#else /* !SCHED_DEBUG */
+#else /* !(SCHED_DEBUG && CONFIG_JUMP_LABEL) */
 
 /*
  * Each translation unit has its own copy of sysctl_sched_features to allow
@@ -1723,7 +1729,7 @@ static const_debug __maybe_unused unsigned int sysctl_sched_features =
 
 #define sched_feat(x) !!(sysctl_sched_features & (1UL << __SCHED_FEAT_##x))
 
-#endif /* SCHED_DEBUG */
+#endif /* SCHED_DEBUG && CONFIG_JUMP_LABEL */
 
 extern struct static_key_false sched_numa_balancing;
 extern struct static_key_false sched_schedstats;
@@ -2058,7 +2064,10 @@ static inline void add_nr_running(struct rq *rq, unsigned count)
 
 	sched_update_nr_prod(cpu_of(rq), count, true);
 	rq->nr_running = prev_nr + count;
-
+#ifdef CONFIG_ONEPLUS_HEALTHINFO
+	if (prev_nr <= 5 && rq->nr_running > 5)
+		rq->cfs_ol_start = rq_clock(rq);
+#endif
 	if (prev_nr < 2 && rq->nr_running >= 2) {
 #ifdef CONFIG_SMP
 		if (!READ_ONCE(rq->rd->overload))
@@ -2071,8 +2080,19 @@ static inline void add_nr_running(struct rq *rq, unsigned count)
 
 static inline void sub_nr_running(struct rq *rq, unsigned count)
 {
+#ifdef CONFIG_ONEPLUS_HEALTHINFO
+	u64 delta;
+	unsigned int prev_nr = rq->nr_running;
+#endif
 	sched_update_nr_prod(cpu_of(rq), count, false);
 	rq->nr_running -= count;
+#ifdef CONFIG_ONEPLUS_HEALTHINFO
+	if (prev_nr > 5 && rq->nr_running <= 5) {
+		delta = rq_clock(rq) - rq->cfs_ol_start;
+		rq->cfs_ol_start = 0;
+		ohm_overload_record(rq, (delta >> 20));
+	}
+#endif
 	/* Check if we still need preemption */
 	sched_update_tick_dependency(rq);
 }
@@ -2803,9 +2823,6 @@ extern void add_new_task_to_grp(struct task_struct *new);
 #define FULL_THROTTLE_BOOST 1
 #define CONSERVATIVE_BOOST 2
 #define RESTRAINED_BOOST 3
-#ifdef CONFIG_MIHW
-#define MI_BOOST         4
-#endif
 #define FULL_THROTTLE_BOOST_DISABLE -1
 #define CONSERVATIVE_BOOST_DISABLE -2
 #define RESTRAINED_BOOST_DISABLE -3
@@ -2912,18 +2929,6 @@ struct related_thread_group *task_related_thread_group(struct task_struct *p)
 	return rcu_dereference(p->grp);
 }
 
-static inline bool task_rtg_high_prio(struct task_struct *p)
-{
-	return task_in_related_thread_group(p) &&
-		(p->prio <= sysctl_walt_rtg_cfs_boost_prio);
-}
-
-static inline bool walt_low_latency_task(struct task_struct *p)
-{
-	return p->low_latency &&
-		(task_util(p) < sysctl_walt_low_latency_task_threshold);
-}
-
 /* Is frequency of two cpus synchronized with each other? */
 static inline int same_freq_domain(int src_cpu, int dst_cpu)
 {
@@ -2952,14 +2957,6 @@ static inline int sched_boost(void)
 	return sched_boost_type;
 }
 
-#ifdef CONFIG_MIHW
-extern unsigned int mi_sched_boost;
-static inline int sched_mi_boost(void)
-{
-	return mi_sched_boost;
-}
-#endif
-
 static inline bool rt_boost_on_big(void)
 {
 	return sched_boost() == FULL_THROTTLE_BOOST ?
@@ -2971,9 +2968,6 @@ static inline bool is_full_throttle_boost(void)
 	return sched_boost() == FULL_THROTTLE_BOOST;
 }
 
-#ifdef CONFIG_MIHW
-extern bool sched_boost_top_app(void);
-#endif
 extern int preferred_cluster(struct sched_cluster *cluster,
 						struct task_struct *p);
 extern struct sched_cluster *rq_cluster(struct rq *rq);
@@ -3121,13 +3115,6 @@ static inline bool is_full_throttle_boost(void)
 	return false;
 }
 
-#ifdef CONFIG_MIHW
-static inline bool sched_boost_top_app(void)
-{
-	return false;
-}
-#endif
-
 static inline enum sched_boost_policy task_boost_policy(struct task_struct *p)
 {
 	return SCHED_BOOST_NONE;
@@ -3174,11 +3161,6 @@ static inline
 struct related_thread_group *task_related_thread_group(struct task_struct *p)
 {
 	return NULL;
-}
-
-static inline bool task_rtg_high_prio(struct task_struct *p)
-{
-	return false;
 }
 
 static inline u32 task_load(struct task_struct *p) { return 0; }

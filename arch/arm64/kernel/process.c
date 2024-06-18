@@ -64,7 +64,7 @@
 
 #ifdef CONFIG_STACKPROTECTOR
 #include <linux/stackprotector.h>
-__visible unsigned long __stack_chk_guard __ro_after_init;
+unsigned long __stack_chk_guard __read_mostly;
 EXPORT_SYMBOL(__stack_chk_guard);
 #endif
 
@@ -75,7 +75,6 @@ void (*pm_power_off)(void);
 EXPORT_SYMBOL_GPL(pm_power_off);
 
 void (*arm_pm_restart)(enum reboot_mode reboot_mode, const char *cmd);
-EXPORT_SYMBOL_GPL(arm_pm_restart);
 
 /*
  * This is our default idle handler.

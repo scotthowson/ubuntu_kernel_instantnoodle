@@ -4,13 +4,6 @@
 
 menu "Misc devices"
 
-config SPI_XIAOMI_TP
-        bool
-        depends on SPI
-        default y if TOUCHSCREEN_NT36xxx_HOSTDL_SPI
-        help
-        Say Y if want use xiaomi touch panel.
-
 config SENSORS_LIS3LV02D
 	tristate
 	depends on INPUT
@@ -584,26 +577,6 @@ config OKL4_RINGBUF
 	  Say Y here if you want to test communication between OKL4 guests
 	  using virtual interrupts and shared memory.
 
-config HALL_AKM09970
-	tristate "HALL_AK09970 digital hall sensor support"
-	depends on I2C
-        default n
-        help
-	  Say Y here if you have AKM Sensortec's AK09970 magnet
-	  sensor hooked to an I2C bus.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called akm09970.
-
-config MOTOR_DRV8846
-	tristate "TI step motor driver IC"
-	depends on PWM
-        default n
-        help
-	  Say Y here to include support for the H-Bridge Stepper
-	  Motor Driver. The MISC peripheral holds the pwm and the
-	  driver provides an API to drive stepper motor.
-
 config TEST_IRQ_REQUESTER
 	tristate "Receive interrupt notifications in user-space"
 	depends on DEBUG_FS
@@ -649,12 +622,6 @@ config QTI_MAXIM_FAN_CONTROLLER
 	  Also, this driver initializes the power for the fan controller
 	  and exposes sysfs node to control different speeds of fan.
 
-config PERF_HELPER
-	tristate "Record perflock messages"
-	default y
-	help
-	  this module support record perf lock history and other perf messages.
-
 source "drivers/misc/c2port/Kconfig"
 source "drivers/misc/eeprom/Kconfig"
 source "drivers/misc/cb710/Kconfig"
@@ -670,7 +637,6 @@ source "drivers/misc/cxl/Kconfig"
 source "drivers/misc/ocxl/Kconfig"
 source "drivers/misc/cardreader/Kconfig"
 source "drivers/misc/fpr_FingerprintCard/Kconfig"
-source "drivers/misc/qrc/Kconfig"
 endmenu
 
 config OKL4_USER_VIPC
@@ -691,9 +657,3 @@ config OKL4_LINK_SHBUF
 	      transport. This driver presents the link to Linux as a character device
 	      which can be written to or read from to access the shared memory. An ioctl
 	      on the device is used to send a virtual interrupt to the partner cell.
-
-config GPIO_TESTING_MODE
-	tristate "A simple GPIO testing mode driver"
-	default n
-	help
-	  Enable driver for a simple testing mode detection

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0-only
-/* Copyright (c) 2012-2021, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
  */
 
 
@@ -1001,22 +1001,12 @@ static int msm_pcm_capture_copy(struct snd_pcm_substream *substream,
 	pr_debug("Size = %d\n", size);
 	pr_debug("fbytes = %lu\n", fbytes);
 	pr_debug("idx = %d\n", idx);
-	pr_debug("period_size = %d\n", prtd->pcm_count);
-
 	if (bufptr) {
 		xfer = fbytes;
 		if (xfer > size)
 			xfer = size;
 		offset = prtd->in_frame_info[idx].offset;
 		pr_debug("Offset value = %d\n", offset);
-		if (size == 0 || size < prtd->pcm_count) {
-			memset(bufptr + offset + size, 0, prtd->pcm_count - size);
-			if (fbytes > prtd->pcm_count)
-				size = xfer = prtd->pcm_count;
-			else
-				size = xfer = fbytes;
-		}
-
 		if (copy_to_user(buf, bufptr+offset, xfer)) {
 			pr_err("Failed to copy buf to user\n");
 			ret = -EFAULT;
@@ -1539,12 +1529,6 @@ static int msm_pcm_volume_ctl_get(struct snd_kcontrol *kcontrol,
 		pr_err("%s: vol is NULL\n", __func__);
 		return -ENODEV;
 	}
-
-	if (!vol->pcm) {
-		pr_err("%s: vol->pcm is NULL\n", __func__);
-		return -ENODEV;
-	}
-
 	substream = vol->pcm->streams[vol->stream].substream;
 	if (!substream) {
 		pr_err("%s substream not found\n", __func__);

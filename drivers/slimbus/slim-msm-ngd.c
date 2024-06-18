@@ -273,7 +273,7 @@ static int dsp_domr_notify_cb(struct notifier_block *n, unsigned long code,
 		break;
 	case SUBSYS_AFTER_POWERUP:
 	case SERVREG_NOTIF_SERVICE_STATE_UP_V01:
-		SLIM_INFO(dev, "SLIM DSP SSR notify cb:0x%lx\n", code);
+		SLIM_INFO(dev, "SLIM DSP SSR notify cb:0x%x\n", code);
 		/* Hold wake lock until notify slaves thread is done */
 		pm_stay_awake(dev->dev);
 		atomic_set(&dev->init_in_progress, 1);
@@ -1871,13 +1871,10 @@ static int ngd_slim_probe(struct platform_device *pdev)
 		goto err_nobulk;
 	}
 
-	ret = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
+	ret = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32));
 	if (ret) {
-		dev_err(&pdev->dev, "could not set 64 bit DMA mask,trying 32\n");
-		if (dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32))) {
-			dev_err(&pdev->dev, "could not set 32 bit DMA mask\n");
-			goto err_nobulk;
-		}
+		dev_err(&pdev->dev, "could not set 32 bit DMA mask\n");
+		goto err_nobulk;
 	}
 
 	/* typical txn numbers and size used in bulk operation */

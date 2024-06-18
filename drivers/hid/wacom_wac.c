@@ -2496,7 +2496,7 @@ static void wacom_wac_finger_slot(struct wacom_wac *wacom_wac,
 	    !wacom_wac->shared->is_touch_on) {
 		if (!wacom_wac->shared->touch_down)
 			return;
-		prox = false;
+		prox = 0;
 	}
 
 	wacom_wac->hid_data.num_received++;
@@ -2538,9 +2538,6 @@ static void wacom_wac_finger_event(struct hid_device *hdev,
 	struct wacom_features *features = &wacom->wacom_wac.features;
 
 	switch (equivalent_usage) {
-	case HID_DG_CONFIDENCE:
-		wacom_wac->hid_data.confidence = value;
-		break;
 	case HID_GD_X:
 		wacom_wac->hid_data.x = value;
 		break;
@@ -2560,19 +2557,13 @@ static void wacom_wac_finger_event(struct hid_device *hdev,
 		wacom_wac->hid_data.tipswitch = value;
 		break;
 	case HID_DG_CONTACTMAX:
-		if (!features->touch_max) {
-			features->touch_max = value;
-		} else {
-			hid_warn(hdev, "%s: ignoring attempt to overwrite non-zero touch_max "
-				 "%d -> %d\n", __func__, features->touch_max, value);
-		}
+		features->touch_max = value;
 		return;
 	}
 
 
 	if (usage->usage_index + 1 == field->report_count) {
-		if (equivalent_usage == wacom_wac->hid_data.last_slot_field &&
-		    wacom_wac->hid_data.confidence)
+		if (equivalent_usage == wacom_wac->hid_data.last_slot_field)
 			wacom_wac_finger_slot(wacom_wac, wacom_wac->touch_input);
 	}
 }
@@ -2584,8 +2575,6 @@ static void wacom_wac_finger_pre_report(struct hid_device *hdev,
 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
 	struct hid_data* hid_data = &wacom_wac->hid_data;
 	int i;
-
-	hid_data->confidence = true;
 
 	for (i = 0; i < report->maxfield; i++) {
 		struct hid_field *field = report->field[i];
@@ -2740,9 +2729,7 @@ static int wacom_wac_collection(struct hid_device *hdev, struct hid_report *repo
 	if (report->type != HID_INPUT_REPORT)
 		return -1;
 
-	if (WACOM_PAD_FIELD(field))
-		return 0;
-	else if (WACOM_PEN_FIELD(field) && wacom->wacom_wac.pen_input)
+	if (WACOM_PEN_FIELD(field) && wacom->wacom_wac.pen_input)
 		wacom_wac_pen_report(hdev, report);
 	else if (WACOM_FINGER_FIELD(field) && wacom->wacom_wac.touch_input)
 		wacom_wac_finger_report(hdev, report);
@@ -3534,6 +3521,8 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
 {
 	struct wacom_features *features = &wacom_wac->features;
 
+	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+
 	if (!(features->device_type & WACOM_DEVICETYPE_PEN))
 		return -ENODEV;
 
@@ -3548,7 +3537,6 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
 		return 0;
 	}
 
-	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
 	__set_bit(BTN_TOUCH, input_dev->keybit);
 	__set_bit(ABS_MISC, input_dev->absbit);
 
@@ -3699,6 +3687,8 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
 {
 	struct wacom_features *features = &wacom_wac->features;
 
+	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+
 	if (!(features->device_type & WACOM_DEVICETYPE_TOUCH))
 		return -ENODEV;
 
@@ -3711,7 +3701,6 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
 		/* setup has already been done */
 		return 0;
 
-	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
 	__set_bit(BTN_TOUCH, input_dev->keybit);
 
 	if (features->touch_max == 1) {

@@ -33,12 +33,12 @@
 #include <net/netfilter/ipv4/nf_conntrack_ipv4.h>
 #include "op_sla_help_lib.h"
 
-#define MAX_QUERY_LEN	(sizeof(union nf_conntrack_proto) - 1)
+#define MAX_QUERY_LEN (sizeof(union nf_conntrack_proto) - 1)
 
 static int op_sla_debug;
 static int op_sla_rtt_detect;
 static int fw_set_game_mark;
-static int op_sla_def_net;    //WLAN->0 CELL->1
+static int op_sla_def_net; //WLAN->0 CELL->1
 static unsigned long last_notify_fw_network_switch;
 static u32 op_sla_pid;
 static struct sock *op_sla_sock;

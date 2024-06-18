@@ -9,12 +9,6 @@
 
 #ifdef CONFIG_PSI
 
-/* Define a minimal version of kthread_delayed_work */
-struct kthread_delayed_work {
-    struct delayed_work work;
-    /* You might need to add other fields as per your requirements */
-};
-
 /* Tracked task states */
 enum psi_task_count {
     NR_IOWAIT,
@@ -103,7 +97,7 @@ struct psi_trigger {
     /* PSI state being monitored by the trigger */
     enum psi_states state;
 
-    /* User-spacified threshold in ns */
+    /* User-specified threshold in ns */
     u64 threshold;
 
     /* List node inside triggers list */

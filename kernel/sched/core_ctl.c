@@ -786,6 +786,13 @@ static bool need_all_cpus(const struct cluster_data *cluster)
 		sched_ravg_window < DEFAULT_SCHED_RAVG_WINDOW);
 }
 
+static bool need_all_cpus(const struct cluster_data *cluster)
+{
+
+	return (is_min_capacity_cpu(cluster->first_cpu) &&
+		sched_ravg_window < DEFAULT_SCHED_RAVG_WINDOW);
+}
+
 static bool eval_need(struct cluster_data *cluster)
 {
 	unsigned long flags;
@@ -801,7 +808,11 @@ static bool eval_need(struct cluster_data *cluster)
 
 	spin_lock_irqsave(&state_lock, flags);
 
+<<<<<<< Updated upstream
 	if (cluster->boost || cluster->op_boost || !cluster->enable || need_all_cpus(cluster)) {
+=======
+	if (cluster->boost || !cluster->enable || need_all_cpus(cluster)) {
+>>>>>>> Stashed changes
 		need_cpus = cluster->max_cpus;
 	} else {
 		cluster->active_cpus = get_active_cpu_count(cluster);
@@ -897,10 +908,9 @@ int core_ctl_set_boost(bool boost)
 			if (!cluster->boost) {
 				ret = -EINVAL;
 				break;
-			} else {
-				--cluster->boost;
-				boost_state_changed = !cluster->boost;
 			}
+			--cluster->boost;
+			boost_state_changed = !cluster->boost;
 		}
 	}
 	spin_unlock_irqrestore(&state_lock, flags);

@@ -143,11 +143,13 @@ static int apply_constraint(struct dev_pm_qos_request *req,
 			value = 0;
 
 		ret = pm_qos_update_target(&qos->resume_latency,
-					   &req->data.pnode, action, value);
+					   &req->data.pnode, action, value,
+					   true);
 		break;
 	case DEV_PM_QOS_LATENCY_TOLERANCE:
 		ret = pm_qos_update_target(&qos->latency_tolerance,
-					   &req->data.pnode, action, value);
+					   &req->data.pnode, action, value,
+					   true);
 		if (ret) {
 			value = pm_qos_read_value(&qos->latency_tolerance);
 			req->dev->power.set_latency_tolerance(req->dev, value);
@@ -175,7 +177,7 @@ static int dev_pm_qos_constraints_allocate(struct device *dev)
 {
 	struct dev_pm_qos *qos;
 	struct pm_qos_constraints *c;
-	struct blocking_notifier_head *n;
+	struct srcu_notifier_head *n;
 
 	qos = kzalloc(sizeof(*qos), GFP_KERNEL);
 	if (!qos)
@@ -186,7 +188,7 @@ static int dev_pm_qos_constraints_allocate(struct device *dev)
 		kfree(qos);
 		return -ENOMEM;
 	}
-	BLOCKING_INIT_NOTIFIER_HEAD(n);
+	srcu_init_notifier_head(n);
 
 	c = &qos->resume_latency;
 	plist_head_init(&c->list);
@@ -490,7 +492,7 @@ int dev_pm_qos_add_notifier(struct device *dev, struct notifier_block *notifier)
 		ret = dev_pm_qos_constraints_allocate(dev);
 
 	if (!ret)
-		ret = blocking_notifier_chain_register(dev->power.qos->resume_latency.notifiers,
+		ret = srcu_notifier_chain_register(dev->power.qos->resume_latency.notifiers,
 						       notifier);
 
 	mutex_unlock(&dev_pm_qos_mtx);
@@ -517,7 +519,7 @@ int dev_pm_qos_remove_notifier(struct device *dev,
 
 	/* Silently return if the constraints object is not present. */
 	if (!IS_ERR_OR_NULL(dev->power.qos))
-		retval = blocking_notifier_chain_unregister(dev->power.qos->resume_latency.notifiers,
+		retval = srcu_notifier_chain_unregister(dev->power.qos->resume_latency.notifiers,
 							    notifier);
 
 	mutex_unlock(&dev_pm_qos_mtx);

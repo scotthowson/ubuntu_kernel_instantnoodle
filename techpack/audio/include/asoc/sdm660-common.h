@@ -1,6 +1,10 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
+<<<<<<< Updated upstream
  * Copyright (c) 2015-2019, 2020, The Linux Foundation. All rights reserved.
+=======
+ * Copyright (c) 2015-2019, 2020-2021, The Linux Foundation. All rights reserved.
+>>>>>>> Stashed changes
  */
 
 #ifndef __MSM_COMMON
@@ -86,6 +90,11 @@ struct sdm660_codec {
 
 enum {
 	INT_SND_CARD,
+<<<<<<< Updated upstream
+=======
+	INT_DIG_SND_CARD,
+	INT_MAX_SND_CARD = INT_DIG_SND_CARD,
+>>>>>>> Stashed changes
 	EXT_SND_CARD_TASHA,
 	EXT_SND_CARD_TAVIL,
 };

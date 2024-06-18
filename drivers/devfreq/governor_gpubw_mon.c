@@ -1,12 +1,15 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (c) 2014-2020, The Linux Foundation. All rights reserved.
+<<<<<<< Updated upstream
+=======
+ * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+>>>>>>> Stashed changes
  */
 
 #include <linux/devfreq.h>
 #include <linux/module.h>
 #include <linux/msm_adreno_devfreq.h>
-#include <linux/of_platform.h>
 #include <linux/slab.h>
 
 #include "devfreq_trace.h"
@@ -149,8 +152,15 @@ static int devfreq_gpubw_get_target(struct devfreq *df,
 			(unsigned int) priv->bus.total_time;
 	norm_cycles = (unsigned int)(priv->bus.ram_time + priv->bus.ram_wait) /
 			(unsigned int) priv->bus.total_time;
-	wait_active_percent = (100 * (unsigned int)priv->bus.ram_wait) /
-			(unsigned int) priv->bus.ram_time;
+
+	if (priv->bus.ram_wait == 0)
+		wait_active_percent = 0;
+	else if (priv->bus.ram_time == 0)
+		wait_active_percent = 100;
+	else
+		wait_active_percent = (100 * (unsigned int)priv->bus.ram_wait) /
+				(unsigned int) priv->bus.ram_time;
+
 	gpu_percent = (100 * (unsigned int)priv->bus.gpu_time) /
 			(unsigned int) priv->bus.total_time;
 
@@ -273,14 +283,6 @@ static int devfreq_gpubw_event_handler(struct devfreq *devfreq,
 {
 	int result = 0;
 	unsigned long freq;
-	struct device_node *node = devfreq->dev.parent->of_node;
-
-	/*
-	 * We want to restrict this governor be set only for
-	 * gpu devfreq devices.
-	 */
-	if (!of_device_is_compatible(node, "qcom,kgsl-busmon"))
-		return -EINVAL;
 
 	mutex_lock(&devfreq->lock);
 	freq = devfreq->previous_freq;

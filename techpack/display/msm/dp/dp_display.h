@@ -1,6 +1,11 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
+<<<<<<< Updated upstream
  * Copyright (c) 2017-2020, The Linux Foundation. All rights reserved.
+=======
+ * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2017-2021, The Linux Foundation. All rights reserved.
+>>>>>>> Stashed changes
  */
 
 #ifndef _DP_DISPLAY_H_
@@ -70,8 +75,14 @@ struct dp_display {
 	bool is_sst_connected;
 	bool is_mst_supported;
 	u32 max_pclk_khz;
+<<<<<<< Updated upstream
+=======
+	u32 max_hdisplay;
+	u32 max_vdisplay;
+>>>>>>> Stashed changes
 	u32 no_mst_encoder;
 	void *dp_mst_prv_info;
+	bool is_primary;
 
 	int (*enable)(struct dp_display *dp_display, void *panel);
 	int (*post_enable)(struct dp_display *dp_display, void *panel);
@@ -126,6 +137,8 @@ struct dp_display {
 			struct drm_connector *connector, char *pps_cmd);
 	void (*wakeup_phy_layer)(struct dp_display *dp_display,
 			bool wakeup);
+	int (*get_display_type)(struct dp_display *dp_display,
+			const char **display_type);
 };
 
 #ifdef CONFIG_DRM_MSM_DP

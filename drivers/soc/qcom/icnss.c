@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
+<<<<<<< Updated upstream
  * Copyright (c) 2015-2020, The Linux Foundation. All rights reserved.
+=======
+ * Copyright (c) 2015-2021, The Linux Foundation. All rights reserved.
+>>>>>>> Stashed changes
  */
 
 #define pr_fmt(fmt) "icnss: " fmt
@@ -46,6 +50,7 @@
 #include <soc/qcom/ramdump.h>
 #include "icnss_private.h"
 #include "icnss_qmi.h"
+<<<<<<< Updated upstream
 
 #include <linux/hardware_info.h>
 /* WIFI MODIFICATION: */
@@ -53,6 +58,8 @@
 static u32 fw_version;
 static u32 fw_version_ext;
 /* WIFI MODIFICATION: */
+=======
+>>>>>>> Stashed changes
 
 #define MAX_PROP_SIZE			32
 #define NUM_LOG_PAGES			10
@@ -661,6 +668,15 @@ bool icnss_is_fw_ready(void)
 }
 EXPORT_SYMBOL(icnss_is_fw_ready);
 
+unsigned long icnss_get_device_config(void)
+{
+	if (!penv)
+		return 0;
+
+	return penv->device_config;
+}
+EXPORT_SYMBOL(icnss_get_device_config);
+
 void icnss_block_shutdown(bool status)
 {
 	if (!penv)
@@ -1088,26 +1104,42 @@ static int icnss_driver_event_server_arrive(void *data)
 			goto qmi_registered;
 		}
 		ignore_assert = true;
+<<<<<<< Updated upstream
 		goto clear_server;
+=======
+		goto fail;
+>>>>>>> Stashed changes
 	}
 
 	if (!penv->msa_va) {
 		icnss_pr_err("Invalid MSA address\n");
 		ret = -EINVAL;
+<<<<<<< Updated upstream
 		goto clear_server;
+=======
+		goto fail;
+>>>>>>> Stashed changes
 	}
 
 	ret = wlfw_msa_mem_info_send_sync_msg(penv);
 	if (ret < 0) {
 		ignore_assert = true;
+<<<<<<< Updated upstream
 		goto clear_server;
+=======
+		goto fail;
+>>>>>>> Stashed changes
 	}
 
 	if (!test_bit(ICNSS_MSA0_ASSIGNED, &penv->state)) {
 		ret = icnss_assign_msa_perm_all(penv,
 						ICNSS_MSA_PERM_WLAN_HW_RW);
 		if (ret < 0)
+<<<<<<< Updated upstream
 			goto clear_server;
+=======
+			goto fail;
+>>>>>>> Stashed changes
 		set_bit(ICNSS_MSA0_ASSIGNED, &penv->state);
 	}
 
@@ -1147,8 +1179,11 @@ static int icnss_driver_event_server_arrive(void *data)
 err_setup_msa:
 	icnss_assign_msa_perm_all(penv, ICNSS_MSA_PERM_HLOS_ALL);
 	clear_bit(ICNSS_MSA0_ASSIGNED, &penv->state);
+<<<<<<< Updated upstream
 clear_server:
 	icnss_clear_server(penv);
+=======
+>>>>>>> Stashed changes
 fail:
 	ICNSS_ASSERT(ignore_assert);
 qmi_registered:
@@ -1222,10 +1257,13 @@ static int icnss_call_driver_probe(struct icnss_priv *priv)
 		goto out;
 	}
 
+<<<<<<< Updated upstream
 	device_create_file(&penv->pdev->dev,
 		 &dev_attr_cnss_version_information);
 	push_component_info(WCN, "WCN3988", "QualComm");
 
+=======
+>>>>>>> Stashed changes
 	icnss_block_shutdown(false);
 	set_bit(ICNSS_DRIVER_PROBED, &priv->state);
 
@@ -2304,6 +2342,9 @@ int icnss_set_fw_log_mode(struct device *dev, uint8_t fw_log_mode)
 	if (!dev)
 		return -ENODEV;
 
+	if (test_bit(SKIP_QMI, &quirks))
+		return 0;
+
 	if (test_bit(ICNSS_FW_DOWN, &penv->state) ||
 	    !test_bit(ICNSS_FW_READY, &penv->state)) {
 		icnss_pr_err("FW down, ignoring fw_log_mode state: 0x%lx\n",
@@ -2397,6 +2438,9 @@ int icnss_wlan_enable(struct device *dev, struct icnss_wlan_enable_cfg *config,
 		      enum icnss_driver_mode mode,
 		      const char *host_version)
 {
+	if (test_bit(SKIP_QMI, &quirks))
+		return 0;
+
 	if (test_bit(ICNSS_FW_DOWN, &penv->state) ||
 	    !test_bit(ICNSS_FW_READY, &penv->state)) {
 		icnss_pr_err("FW down, ignoring wlan_enable state: 0x%lx\n",
@@ -2416,6 +2460,9 @@ EXPORT_SYMBOL(icnss_wlan_enable);
 
 int icnss_wlan_disable(struct device *dev, enum icnss_driver_mode mode)
 {
+	if (test_bit(SKIP_QMI, &quirks))
+		return 0;
+
 	if (test_bit(ICNSS_FW_DOWN, &penv->state)) {
 		icnss_pr_dbg("FW down, ignoring wlan_disable state: 0x%lx\n",
 			     penv->state);
@@ -3831,6 +3878,14 @@ static int icnss_smmu_dt_parse(struct icnss_priv *priv)
 	return 0;
 }
 
+static void icnss_read_device_configs(struct icnss_priv *priv)
+{
+	if (of_property_read_bool(priv->pdev->dev.of_node,
+				  "wlan-ipa-disabled")) {
+		set_bit(ICNSS_IPA_DISABLED, &priv->device_config);
+	}
+}
+
 static int icnss_probe(struct platform_device *pdev)
 {
 	int ret = 0;
@@ -3857,6 +3912,8 @@ static int icnss_probe(struct platform_device *pdev)
 	priv->is_chain1_supported = true;
 
 	icnss_allow_recursive_recovery(dev);
+
+	icnss_read_device_configs(priv);
 
 	ret = icnss_resource_parse(priv);
 	if (ret)
@@ -3926,11 +3983,13 @@ static int icnss_remove(struct platform_device *pdev)
 	device_init_wakeup(&penv->pdev->dev, false);
 
 	icnss_unregister_power_supply_notifier(penv);
+<<<<<<< Updated upstream
 
 	icnss_debugfs_destroy(penv);
+=======
+>>>>>>> Stashed changes
 
-	device_remove_file(&penv->pdev->dev,
-		 &dev_attr_cnss_version_information);
+	icnss_debugfs_destroy(penv);
 
 	icnss_sysfs_destroy(penv);
 

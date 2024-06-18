@@ -443,8 +443,16 @@ struct scoring_param {
 #define IDLE_ROAM_TRIGGER 0
 #define BTM_ROAM_TRIGGER  1
 
+<<<<<<< Updated upstream
 #define DEAUTH_MIN_RSSI 0
 #define BMISS_MIN_RSSI  1
+=======
+#define NUM_OF_ROAM_MIN_RSSI 3
+
+#define DEAUTH_MIN_RSSI 0
+#define BMISS_MIN_RSSI  1
+#define MIN_RSSI_2G_TO_5G_ROAM 2
+>>>>>>> Stashed changes
 
 /**
  * enum roam_trigger_reason - Reason for triggering roam
@@ -531,7 +539,11 @@ struct ap_profile_params {
 	uint8_t vdev_id;
 	struct ap_profile profile;
 	struct scoring_param param;
+<<<<<<< Updated upstream
 	struct roam_trigger_min_rssi min_rssi_params[NUM_OF_ROAM_TRIGGERS];
+=======
+	struct roam_trigger_min_rssi min_rssi_params[NUM_OF_ROAM_MIN_RSSI];
+>>>>>>> Stashed changes
 	struct roam_trigger_score_delta score_delta_param[NUM_OF_ROAM_TRIGGERS];
 };
 

@@ -233,7 +233,10 @@ static void lim_update_config(struct mac_context *mac, struct pe_session *pe_ses
 	if (pe_session->limWsmEnabled && LIM_IS_AP_ROLE(pe_session))
 		pe_session->limHcfEnabled = 1;
 
+<<<<<<< Updated upstream
 	pe_session->lim11dEnabled = mac->mlme_cfg->gen.enabled_11d ? 1 : 0;
 
+=======
+>>>>>>> Stashed changes
 	pe_debug("Updated Lim shadow state based on CFG");
 }

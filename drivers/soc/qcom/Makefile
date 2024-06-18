@@ -86,7 +86,11 @@ ifdef CONFIG_QCOM_RPMH
 else
        obj-$(CONFIG_QTI_RPM_STATS_LOG) += rpm_master_stat.o
 endif
+<<<<<<< Updated upstream
 obj-$(CONFIG_RPMH_MODEM_SLEEPINFO_BUFFER) += rpmh_modem_sleepinfo.o
+=======
+obj-$(CONFIG_QCOM_DCC) += dcc.o
+>>>>>>> Stashed changes
 obj-$(CONFIG_QTI_RPM_STATS_LOG) += rpm_stats.o
 obj-$(CONFIG_QCOM_MEM_OFFLINE) += mem-offline.o
 obj-$(CONFIG_QTI_DDR_STATS_LOG) += ddr_stats.o
@@ -104,7 +108,15 @@ obj-$(CONFIG_RMNET_CTL) += rmnet_ctl/
 obj-$(CONFIG_QCOM_CX_IPEAK) += cx_ipeak.o
 obj-$(CONFIG_QTI_L2_REUSE) += l2_reuse.o
 obj-$(CONFIG_ICNSS2) += icnss2/
+<<<<<<< Updated upstream
+=======
+obj-$(CONFIG_WCNSS_CORE) += wcnss/
+>>>>>>> Stashed changes
 obj-$(CONFIG_QTI_CRYPTO_COMMON) += crypto-qti-common.o
 obj-$(CONFIG_QTI_CRYPTO_TZ) += crypto-qti-tz.o
 obj-$(CONFIG_QTI_HW_KEY_MANAGER) += hwkm_qti.o
 hwkm_qti-y += hwkm.o
+<<<<<<< Updated upstream
+=======
+obj-$(CONFIG_MSM_BAM_DMUX) += bam_dmux.o
+>>>>>>> Stashed changes

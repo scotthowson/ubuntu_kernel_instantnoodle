@@ -19,7 +19,6 @@ struct page_ext_operations {
 enum page_ext_flags {
 	PAGE_EXT_DEBUG_GUARD,
 	PAGE_EXT_OWNER,
-	PAGE_EXT_PG_FREE,
 #if defined(CONFIG_IDLE_PAGE_TRACKING) && !defined(CONFIG_64BIT)
 	PAGE_EXT_YOUNG,
 	PAGE_EXT_IDLE,
@@ -35,9 +34,6 @@ enum page_ext_flags {
  */
 struct page_ext {
 	unsigned long flags;
-#if defined(CONFIG_MEMPLUS) && defined(CONFIG_PAGE_EXTENSION) && defined(CONFIG_PAGE_OWNER_ENABLE_DEFAULT)
-	int8_t next_event;
-#endif
 };
 
 extern void pgdat_page_ext_init(struct pglist_data *pgdat);

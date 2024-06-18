@@ -89,6 +89,11 @@ void mdss_pll_util_resource_release(struct platform_device *pdev,
 {
 	struct dss_module_power *mp = &pll_res->mp;
 
+<<<<<<< Updated upstream
+=======
+	devm_kfree(&pdev->dev, mp->clk_config);
+	devm_kfree(&pdev->dev, mp->vreg_config);
+>>>>>>> Stashed changes
 	mp->num_vreg = 0;
 	mp->num_clk = 0;
 }
@@ -263,8 +268,16 @@ static int mdss_pll_util_parse_dt_supply(struct platform_device *pdev,
 	return rc;
 
 error:
+<<<<<<< Updated upstream
 	if (mp->vreg_config)
 		mp->num_vreg = 0;
+=======
+	if (mp->vreg_config) {
+		devm_kfree(&pdev->dev, mp->vreg_config);
+		mp->vreg_config = NULL;
+		mp->num_vreg = 0;
+	}
+>>>>>>> Stashed changes
 
 	return rc;
 }
@@ -412,6 +425,10 @@ int mdss_pll_util_resource_parse(struct platform_device *pdev,
 	return rc;
 
 clk_err:
+<<<<<<< Updated upstream
+=======
+	devm_kfree(&pdev->dev, mp->vreg_config);
+>>>>>>> Stashed changes
 	mp->num_vreg = 0;
 end:
 	return rc;

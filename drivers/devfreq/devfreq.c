@@ -29,10 +29,6 @@
 #include <linux/of.h>
 #include "governor.h"
 
-#ifdef CONFIG_CONTROL_CENTER
-#include <oneplus/control_center/control_center_helper.h>
-#endif
-
 #define MAX(a,b)	((a > b) ? a : b)
 #define MIN(a,b)	((a < b) ? a : b)
 
@@ -317,10 +313,15 @@ int update_devfreq(struct devfreq *devfreq)
 	if (!devfreq->governor)
 		return -EINVAL;
 
-	/* Reevaluate the proper frequency */
-	err = devfreq->governor->get_target_freq(devfreq, &freq);
-	if (err)
-		return err;
+	if (devfreq->max_boost) {
+		/* Use the max freq for max boosts */
+		freq = ULONG_MAX;
+	} else {
+		/* Reevaluate the proper frequency */
+		err = devfreq->governor->get_target_freq(devfreq, &freq);
+		if (err)
+			return err;
+	}
 
 	/*
 	 * Adjust the frequency with user freq, QoS and available freq.
@@ -341,6 +342,7 @@ int update_devfreq(struct devfreq *devfreq)
 		flags |= DEVFREQ_FLAG_LEAST_UPPER_BOUND; /* Use LUB */
 	}
 
+<<<<<<< Updated upstream
 #ifdef CONFIG_CONTROL_CENTER
 	if (cc_ddr_boost_enabled()) {
 		if (devfreq->dev.cc_marked) {
@@ -355,6 +357,8 @@ int update_devfreq(struct devfreq *devfreq)
 	}
 #endif
 
+=======
+>>>>>>> Stashed changes
 	if (devfreq->profile->get_cur_freq)
 		devfreq->profile->get_cur_freq(devfreq->dev.parent, &cur_freq);
 	else
@@ -534,8 +538,7 @@ void devfreq_interval_update(struct devfreq *devfreq, unsigned int *delay)
 		mutex_unlock(&devfreq->lock);
 		cancel_delayed_work_sync(&devfreq->work);
 		mutex_lock(&devfreq->lock);
-		if (!devfreq->stop_polling
-			&& !delayed_work_pending(&devfreq->work))
+		if (!devfreq->stop_polling)
 			queue_delayed_work(devfreq_wq, &devfreq->work,
 			      msecs_to_jiffies(devfreq->profile->polling_ms));
 	}
@@ -600,6 +603,7 @@ static void devfreq_dev_release(struct device *dev)
 
 	mutex_destroy(&devfreq->lock);
 	mutex_destroy(&devfreq->event_lock);
+	srcu_cleanup_notifier_head(&devfreq->transition_notifier_list);
 	kfree(devfreq);
 }
 
@@ -682,12 +686,6 @@ struct devfreq *devfreq_add_device(struct device *dev,
 	devfreq->max_freq = devfreq->scaling_max_freq = freq;
 
 	dev_set_name(&devfreq->dev, "%s", dev_name(dev));
-
-#ifdef CONFIG_CONTROL_CENTER
-	if (dev_name(dev))
-		devfreq->dev.cc_marked = cc_is_ddrfreq_related(dev_name(dev));
-#endif
-
 	err = device_register(&devfreq->dev);
 	if (err) {
 		mutex_unlock(&devfreq->lock);
@@ -1240,6 +1238,13 @@ static ssize_t min_freq_store(struct device *dev, struct device_attribute *attr,
 	struct devfreq *df = to_devfreq(dev);
 	unsigned long value;
 	int ret;
+<<<<<<< Updated upstream
+=======
+
+	/* Minfreq is managed by devfreq_boost */
+	if (df->is_boost_device)
+		return count;
+>>>>>>> Stashed changes
 
 	ret = sscanf(buf, "%lu", &value);
 	if (ret != 1)
@@ -1425,7 +1430,8 @@ static int __init devfreq_init(void)
 		return PTR_ERR(devfreq_class);
 	}
 
-	devfreq_wq = create_freezable_workqueue("devfreq_wq");
+	devfreq_wq = alloc_workqueue("devfreq_wq", WQ_HIGHPRI | WQ_FREEZABLE |
+				     WQ_UNBOUND | WQ_MEM_RECLAIM, 1);
 	if (!devfreq_wq) {
 		class_destroy(devfreq_class);
 		pr_err("%s: couldn't create workqueue\n", __FILE__);

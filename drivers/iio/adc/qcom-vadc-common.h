@@ -198,6 +198,10 @@ enum vadc_scale_fn_type {
 	SCALE_HW_CALIB_PM2250_S3_DIE_TEMP,
 	SCALE_HW_CALIB_THERM_100K_PU_PM7,
 	SCALE_HW_CALIB_PMIC_THERM_PM7,
+<<<<<<< Updated upstream
+=======
+	SCALE_BATT_THERM_QRD_215,
+>>>>>>> Stashed changes
 	SCALE_HW_CALIB_MAX,
 };
 

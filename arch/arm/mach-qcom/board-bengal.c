@@ -11,6 +11,10 @@
 static const char *trinket_dt_match[] __initconst = {
 	"qcom,bengal",
 	"qcom,bengal-iot",
+<<<<<<< Updated upstream
+=======
+	"qcom,bengalp-iot",
+>>>>>>> Stashed changes
 	NULL
 };
 

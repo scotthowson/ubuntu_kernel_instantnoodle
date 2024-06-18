@@ -2440,6 +2440,10 @@ static bool retrieve_link_cap(struct dc_link *link)
 		sink_id.ieee_device_id,
 		sizeof(sink_id.ieee_device_id));
 
+<<<<<<< Updated upstream
+=======
+	/* Quirk Apple MBP 2017 15" Retina panel: Wrong DP_MAX_LINK_RATE */
+>>>>>>> Stashed changes
 	{
 		uint8_t str_mbp_2017[] = { 101, 68, 21, 101, 98, 97 };
 

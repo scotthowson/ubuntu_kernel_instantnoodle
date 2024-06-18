@@ -137,11 +137,19 @@ enum desc_header_offset {
 };
 
 enum ufs_desc_def_size {
+<<<<<<< Updated upstream
 	QUERY_DESC_DEVICE_DEF_SIZE		= 0x5F,
 	QUERY_DESC_CONFIGURATION_DEF_SIZE	= 0xE6,
 	QUERY_DESC_UNIT_DEF_SIZE		= 0x2D,
 	QUERY_DESC_INTERCONNECT_DEF_SIZE	= 0x06,
 	QUERY_DESC_GEOMETRY_DEF_SIZE		= 0x59,
+=======
+	QUERY_DESC_DEVICE_DEF_SIZE	        = 0x5F,
+	QUERY_DESC_CONFIGURATION_DEF_SIZE   = 0xE6,
+	QUERY_DESC_UNIT_DEF_SIZE            = 0x2D,
+	QUERY_DESC_INTERCONNECT_DEF_SIZE    = 0x06,
+	QUERY_DESC_GEOMETRY_DEF_SIZE	    = 0x59,
+>>>>>>> Stashed changes
 	QUERY_DESC_POWER_DEF_SIZE		= 0x62,
 	QUERY_DESC_HEALTH_DEF_SIZE		= 0x25,
 };
@@ -171,6 +179,7 @@ enum unit_desc_param {
 	UNIT_DESC_HPB_LU_PIN_REGION_START_OFFSET	= 0x25,
 	UNIT_DESC_HPB_LU_NUM_PIN_REGIONS		= 0x27,
 #endif
+<<<<<<< Updated upstream
 #if defined(CONFIG_UFSTW)
 #if defined(UFS3V1)
 	UNIT_DESC_TW_LU_WRITE_BUFFER_ALLOC_UNIT		= 0x29,
@@ -178,6 +187,9 @@ enum unit_desc_param {
 	UNIT_DESC_TW_LU_MAX_BUF_SIZE			= 0x29,
 #endif
 #endif
+=======
+	UNIT_DESC_PARAM_WB_BUF_ALLOC_UNITS	= 0x29,
+>>>>>>> Stashed changes
 };
 
 /* Device descriptor parameters offsets in bytes*/
@@ -217,6 +229,7 @@ enum device_desc_param {
 	DEVICE_DESC_PARAM_PSA_MAX_DATA		= 0x25,
 	DEVICE_DESC_PARAM_PSA_TMT		= 0x29,
 	DEVICE_DESC_PARAM_PRDCT_REV		= 0x2A,
+<<<<<<< Updated upstream
 	DEVICE_DESC_PARAM_EXT_UFS_FEATURE_SUP	= 0x4F,
 	DEVICE_DESC_PARAM_WB_US_RED_EN		= 0x53,
 	DEVICE_DESC_PARAM_WB_TYPE		= 0x54,
@@ -242,6 +255,22 @@ enum device_desc_param {
 #endif
 #if defined(UFS3V0)
 	DEVICE_DESC_PARAM_TW_VER		= 0x55,
+=======
+#if defined(CONFIG_UFSHPB)
+	DEVICE_DESC_PARAM_HPB_VER		= 0x40,
+	DEVICE_DESC_PARAM_HPB_CONTROL		= 0x42,
+#endif
+#if defined(CONFIG_UFSTW)
+	DEVICE_DESC_PARAM_TW_VER		= 0x4D,
+	DEVICE_DESC_PARAM_TW_VER_3_0		= 0x55,
+#endif
+	DEVICE_DESC_PARAM_EXT_UFS_FEATURE_SUP	= 0x4F,
+	DEVICE_DESC_PARAM_WB_US_RED_EN		= 0x53,
+	DEVICE_DESC_PARAM_WB_TYPE		= 0x54,
+	DEVICE_DESC_PARAM_WB_SHARED_ALLOC_UNITS = 0x55,
+#if defined(CONFIG_UFSHID)
+	DEVICE_DESC_PARAM_HID_VER               = 0x59,
+>>>>>>> Stashed changes
 #endif
 #endif
 };
@@ -295,11 +324,12 @@ enum geometry_desc_param {
 	GEOMETRY_DESC_PARAM_WB_SUP_WB_TYPE	= 0x56,
 #if defined(CONFIG_UFSHPB)
 	GEOMETRY_DESC_HPB_REGION_SIZE			= 0x48,
-	GEOMETRY_DESC_HPB_NUMBER_LU			= 0x49,
-	GEOMETRY_DESC_HPB_SUBREGION_SIZE		= 0x4A,
+	GEOMETRY_DESC_HPB_NUMBER_LU 			= 0x49,
+	GEOMETRY_DESC_HPB_SUBREGION_SIZE 		= 0x4A,
 	GEOMETRY_DESC_HPB_DEVICE_MAX_ACTIVE_REGIONS	= 0x4B,
 #endif
 #if defined(CONFIG_UFSTW)
+<<<<<<< Updated upstream
 #if defined(UFS3V1)
 	GEOMETRY_DESC_TW_GROUP_NUM_CAP			= 0x4E,
 #endif
@@ -312,6 +342,15 @@ enum geometry_desc_param {
 	GEOMETRY_DESC_TW_GROUP_NUM_CAP			= 0x57,
 #endif
 #endif
+=======
+	GEOMETRY_DESC_TW_GROUP_NUM_CAP			= 0x4E,
+#endif
+	GEOMETRY_DESC_PARAM_WB_MAX_ALLOC_UNITS	= 0x4F,
+	GEOMETRY_DESC_PARAM_WB_MAX_WB_LUNS	= 0x53,
+	GEOMETRY_DESC_PARAM_WB_BUFF_CAP_ADJ	= 0x54,
+	GEOMETRY_DESC_PARAM_WB_SUP_RED_TYPE	= 0x55,
+	GEOMETRY_DESC_PARAM_WB_SUP_WB_TYPE	= 0x56,
+>>>>>>> Stashed changes
 };
 
 /* Health descriptor parameters offsets in bytes*/

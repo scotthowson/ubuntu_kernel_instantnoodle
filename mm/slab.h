@@ -148,7 +148,7 @@ static inline slab_flags_t kmem_cache_flags(unsigned int object_size,
 #define SLAB_CACHE_FLAGS (SLAB_NOLEAKTRACE | SLAB_RECLAIM_ACCOUNT | \
 			  SLAB_TEMPORARY | SLAB_ACCOUNT)
 #else
-#define SLAB_CACHE_FLAGS (0)
+#define SLAB_CACHE_FLAGS (SLAB_NOLEAKTRACE)
 #endif
 
 /* Common flags available with current configuration */
@@ -452,7 +452,7 @@ static inline void slab_post_alloc_hook(struct kmem_cache *s, gfp_t flags,
  * The slab lists for all objects.
  */
 struct kmem_cache_node {
-	spinlock_t list_lock;
+	raw_spinlock_t list_lock;
 
 #ifdef CONFIG_SLAB
 	struct list_head slabs_partial;	/* partial list first, better asm code */

@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-only
+<<<<<<< Updated upstream
 /* Copyright (c) 2018-2020, The Linux Foundation. All rights reserved.
+=======
+/* Copyright (c) 2018-2021, The Linux Foundation. All rights reserved.
+>>>>>>> Stashed changes
  */
 
 #include <linux/module.h>
@@ -174,6 +178,10 @@ struct va_macro_priv {
 	bool lpi_enable;
 	bool register_event_listener;
 	int dec_mode[VA_MACRO_NUM_DECIMATORS];
+<<<<<<< Updated upstream
+=======
+	int pcm_rate[VA_MACRO_NUM_DECIMATORS];
+>>>>>>> Stashed changes
 };
 
 static bool va_macro_get_data(struct snd_soc_component *component,
@@ -389,9 +397,12 @@ static int va_macro_swr_pwr_event_v2(struct snd_soc_dapm_widget *w,
 	dev_dbg(va_dev, "%s: event = %d, lpi_enable = %d\n",
 		__func__, event, va_priv->lpi_enable);
 
+<<<<<<< Updated upstream
 	if (!va_priv->lpi_enable)
 		return ret;
 
+=======
+>>>>>>> Stashed changes
 	switch (event) {
 	case SND_SOC_DAPM_PRE_PMU:
 		if (va_priv->swr_ctrl_data) {
@@ -403,12 +414,17 @@ static int va_macro_swr_pwr_event_v2(struct snd_soc_dapm_widget *w,
 				dev_dbg(va_dev, "%s: clock switch failed\n",
 					__func__);
 		}
+<<<<<<< Updated upstream
 		msm_cdc_pinctrl_set_wakeup_capable(
 				va_priv->va_swr_gpio_p, false);
 		break;
 	case SND_SOC_DAPM_POST_PMD:
 		msm_cdc_pinctrl_set_wakeup_capable(
 				va_priv->va_swr_gpio_p, true);
+=======
+		break;
+	case SND_SOC_DAPM_POST_PMD:
+>>>>>>> Stashed changes
 		if (va_priv->swr_ctrl_data) {
 			clk_src = CLK_SRC_TX_RCG;
 			ret = swrm_wcd_notify(
@@ -442,9 +458,12 @@ static int va_macro_swr_pwr_event(struct snd_soc_dapm_widget *w,
 	dev_dbg(va_dev, "%s: event = %d, lpi_enable = %d\n",
 		__func__, event, va_priv->lpi_enable);
 
+<<<<<<< Updated upstream
 	if (!va_priv->lpi_enable)
 		return ret;
 
+=======
+>>>>>>> Stashed changes
 	switch (event) {
 	case SND_SOC_DAPM_PRE_PMU:
 		if (va_priv->lpass_audio_hw_vote) {
@@ -564,9 +583,18 @@ static int va_macro_tx_va_mclk_enable(struct va_macro_priv *va_priv,
 		(enable ? "enable" : "disable"), va_priv->va_mclk_users);
 
 	if (enable) {
+<<<<<<< Updated upstream
 		if (va_priv->swr_clk_users == 0)
 			msm_cdc_pinctrl_select_active_state(
 						va_priv->va_swr_gpio_p);
+=======
+		if (va_priv->swr_clk_users == 0) {
+			msm_cdc_pinctrl_select_active_state(
+						va_priv->va_swr_gpio_p);
+			msm_cdc_pinctrl_set_wakeup_capable(
+					va_priv->va_swr_gpio_p, false);
+		}
+>>>>>>> Stashed changes
 		clk_tx_ret = bolero_clk_rsc_request_clock(va_priv->dev,
 						   TX_CORE_CLK,
 						   TX_CORE_CLK,
@@ -659,9 +687,18 @@ static int va_macro_tx_va_mclk_enable(struct va_macro_priv *va_priv,
 						   TX_CORE_CLK,
 						   TX_CORE_CLK,
 						   false);
+<<<<<<< Updated upstream
 		if (va_priv->swr_clk_users == 0)
 			msm_cdc_pinctrl_select_sleep_state(
 						va_priv->va_swr_gpio_p);
+=======
+		if (va_priv->swr_clk_users == 0) {
+			msm_cdc_pinctrl_set_wakeup_capable(
+					va_priv->va_swr_gpio_p, true);
+			msm_cdc_pinctrl_select_sleep_state(
+						va_priv->va_swr_gpio_p);
+		}
+>>>>>>> Stashed changes
 	}
 	return 0;
 
@@ -676,12 +713,17 @@ done:
 
 static int va_macro_core_vote(void *handle, bool enable)
 {
+<<<<<<< Updated upstream
+=======
+	int rc = 0;
+>>>>>>> Stashed changes
 	struct va_macro_priv *va_priv = (struct va_macro_priv *) handle;
 
 	if (va_priv == NULL) {
 		pr_err("%s: va priv data is NULL\n", __func__);
 		return -EINVAL;
 	}
+<<<<<<< Updated upstream
 	if (enable) {
 		pm_runtime_get_sync(va_priv->dev);
 		pm_runtime_put_autosuspend(va_priv->dev);
@@ -692,6 +734,20 @@ static int va_macro_core_vote(void *handle, bool enable)
 		return 0;
 	else
 		return -EINVAL;
+=======
+
+	if (enable) {
+		pm_runtime_get_sync(va_priv->dev);
+		if (bolero_check_core_votes(va_priv->dev))
+			rc = 0;
+		else
+			rc = -ENOTSYNC;
+	} else {
+		pm_runtime_put_autosuspend(va_priv->dev);
+		pm_runtime_mark_last_busy(va_priv->dev);
+	}
+	return rc;
+>>>>>>> Stashed changes
 }
 
 static int va_macro_swrm_clock(void *handle, bool enable)
@@ -839,8 +895,34 @@ static void va_macro_tx_hpf_corner_freq_callback(struct work_struct *work)
 				hpf_cut_off_freq << 5);
 		snd_soc_component_update_bits(component, hpf_gate_reg,
 					      0x03, 0x02);
+<<<<<<< Updated upstream
 		/* Minimum 1 clk cycle delay is required as per HW spec */
 		usleep_range(1000, 1010);
+=======
+		/* Add delay between toggle hpf gate based on sample rate */
+		switch (va_priv->pcm_rate[hpf_work->decimator]) {
+		case 0:
+			usleep_range(125, 130);
+			break;
+		case 1:
+			usleep_range(62, 65);
+			break;
+		case 3:
+			usleep_range(31, 32);
+			break;
+		case 4:
+			usleep_range(20, 21);
+			break;
+		case 5:
+			usleep_range(10, 11);
+			break;
+		case 6:
+			usleep_range(5, 6);
+			break;
+		default:
+			usleep_range(125, 130);
+		}
+>>>>>>> Stashed changes
 		snd_soc_component_update_bits(component, hpf_gate_reg,
 					      0x03, 0x01);
 	} else {
@@ -1096,6 +1178,10 @@ static int va_macro_enable_dec(struct snd_soc_dapm_widget *w,
 	u16 tx_vol_ctl_reg, dec_cfg_reg, hpf_gate_reg;
 	u16 tx_gain_ctl_reg;
 	u8 hpf_cut_off_freq;
+<<<<<<< Updated upstream
+=======
+	u16 tx_fs_reg = 0;
+>>>>>>> Stashed changes
 	struct device *va_dev = NULL;
 	struct va_macro_priv *va_priv = NULL;
 	int hpf_delay = BOLERO_CDC_VA_TX_DMIC_HPF_DELAY_MS;
@@ -1117,6 +1203,13 @@ static int va_macro_enable_dec(struct snd_soc_dapm_widget *w,
 				VA_MACRO_TX_PATH_OFFSET * decimator;
 	tx_gain_ctl_reg = BOLERO_CDC_VA_TX0_TX_VOL_CTL +
 				VA_MACRO_TX_PATH_OFFSET * decimator;
+<<<<<<< Updated upstream
+=======
+	tx_fs_reg = BOLERO_CDC_VA_TX0_TX_PATH_CTL +
+				VA_MACRO_TX_PATH_OFFSET * decimator;
+	va_priv->pcm_rate[decimator] = (snd_soc_component_read32(component,
+				tx_fs_reg) & 0x0F);
+>>>>>>> Stashed changes
 
 	switch (event) {
 	case SND_SOC_DAPM_PRE_PMU:
@@ -1172,12 +1265,20 @@ static int va_macro_enable_dec(struct snd_soc_dapm_widget *w,
 		 */
 		usleep_range(6000, 6010);
 		/* schedule work queue to Remove Mute */
+<<<<<<< Updated upstream
 		queue_delayed_work(system_freezable_wq,
+=======
+		queue_delayed_work(system_power_efficient_wq,
+>>>>>>> Stashed changes
 				   &va_priv->va_mute_dwork[decimator].dwork,
 				   msecs_to_jiffies(va_tx_unmute_delay));
 		if (va_priv->va_hpf_work[decimator].hpf_cut_off_freq !=
 							CF_MIN_3DB_150HZ)
+<<<<<<< Updated upstream
 			queue_delayed_work(system_freezable_wq,
+=======
+			queue_delayed_work(system_power_efficient_wq,
+>>>>>>> Stashed changes
 					&va_priv->va_hpf_work[decimator].dwork,
 					msecs_to_jiffies(hpf_delay));
 		/* apply gain after decimator is enabled */
@@ -3203,13 +3304,21 @@ static int va_macro_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "%s: register macro failed\n", __func__);
 		goto reg_macro_fail;
 	}
+<<<<<<< Updated upstream
 	if (is_used_va_swr_gpio)
 		schedule_work(&va_priv->va_macro_add_child_devices_work);
+=======
+>>>>>>> Stashed changes
 	pm_runtime_set_autosuspend_delay(&pdev->dev, VA_AUTO_SUSPEND_DELAY);
 	pm_runtime_use_autosuspend(&pdev->dev);
 	pm_runtime_set_suspended(&pdev->dev);
 	pm_suspend_ignore_children(&pdev->dev, true);
 	pm_runtime_enable(&pdev->dev);
+<<<<<<< Updated upstream
+=======
+	if (is_used_va_swr_gpio)
+		schedule_work(&va_priv->va_macro_add_child_devices_work);
+>>>>>>> Stashed changes
 	return ret;
 
 reg_macro_fail:

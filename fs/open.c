@@ -31,9 +31,12 @@
 #include <linux/ima.h>
 #include <linux/dnotify.h>
 #include <linux/compat.h>
+<<<<<<< Updated upstream
 #ifdef CONFIG_FSC
 #include <linux/oem/fsc.h>
 #endif
+=======
+>>>>>>> Stashed changes
 
 #include "internal.h"
 
@@ -757,9 +760,8 @@ static int do_dentry_open(struct file *f,
 	path_get(&f->f_path);
 	f->f_inode = inode;
 	f->f_mapping = inode->i_mapping;
-
-	/* Ensure that we skip any errors that predate opening of the file */
 	f->f_wb_err = filemap_sample_wb_err(f->f_mapping);
+	f->f_sb_err = file_sample_sb_err(f);
 
 	if (unlikely(f->f_flags & O_PATH)) {
 		f->f_mode = FMODE_PATH | FMODE_OPENED;
@@ -1102,11 +1104,9 @@ long do_sys_open(int dfd, const char __user *filename, int flags, umode_t mode)
 			put_unused_fd(fd);
 			fd = PTR_ERR(f);
 		} else {
-#ifdef CONFIG_FSC
-			path_get(&f->f_path);
-#endif
 			fsnotify_open(f);
 			fd_install(fd, f);
+<<<<<<< Updated upstream
 #ifdef CONFIG_FSC
 			if (fsc_enable && fsc_allow_list_cur && tmp->name) {
 				size_t len = strlen(tmp->name);
@@ -1130,6 +1130,8 @@ long do_sys_open(int dfd, const char __user *filename, int flags, umode_t mode)
 			}
 			path_put(&f->f_path);
 #endif
+=======
+>>>>>>> Stashed changes
 		}
 	}
 	putname(tmp);

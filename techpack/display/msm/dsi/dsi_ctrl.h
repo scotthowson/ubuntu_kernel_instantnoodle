@@ -177,7 +177,7 @@ struct dsi_ctrl_state_info {
  * @cmd_frame_done:        Completion signal for DSI_CMD_FRAME_DONE interrupt.
  */
 struct dsi_ctrl_interrupts {
-	spinlock_t irq_lock;
+	raw_spinlock_t irq_lock;
 	int irq_num;
 	uint32_t irq_stat_mask;
 	int irq_stat_refcount[DSI_STATUS_INTERRUPT_COUNT];
@@ -239,6 +239,8 @@ struct dsi_ctrl_interrupts {
  *                           insert null packet.
  * @modeupdated:	  Boolean to send new roi if mode is updated.
  * @split_link_supported: Boolean to check if hw supports split link.
+ * @cmd_mode:		Boolean to indicate if panel is running in
+			command mode.
  */
 struct dsi_ctrl {
 	struct platform_device *pdev;
@@ -869,5 +871,14 @@ int dsi_ctrl_wait4dynamic_refresh_done(struct dsi_ctrl *ctrl);
  * @enable:			variable to control masking/unmasking.
  */
 void dsi_ctrl_mask_overflow(struct dsi_ctrl *dsi_ctrl, bool enable);
+<<<<<<< Updated upstream
+=======
+
+/**
+ * dsi_ctrl_clear_slave_dma_status -   API to clear slave DMA status
+ * @dsi_ctrl:                   DSI controller handle.
+ * @flags:                      Modifiers
+ */
+>>>>>>> Stashed changes
 int dsi_ctrl_clear_slave_dma_status(struct dsi_ctrl *dsi_ctrl, u32 flags);
 #endif /* _DSI_CTRL_H_ */

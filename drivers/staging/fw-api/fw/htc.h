@@ -165,13 +165,25 @@ typedef PREPACK struct _HTC_FRAME_HDR{
 
 /* base message ID header */
 typedef PREPACK struct {
+<<<<<<< Updated upstream
     A_UINT32 MessageID : 16,
              reserved : 16;
+=======
+    A_UINT32 MessageID: 16,
+             MetaData:   8,
+             reserved:   8;
+>>>>>>> Stashed changes
 } POSTPACK HTC_UNKNOWN_MSG;
 
 #define HTC_UNKNOWN_MSG_MESSAGEID_LSB                 0
 #define HTC_UNKNOWN_MSG_MESSAGEID_MASK                0x0000ffff
 #define HTC_UNKNOWN_MSG_MESSAGEID_OFFSET              0x00000000
+<<<<<<< Updated upstream
+=======
+#define HTC_UNKNOWN_MSG_METADATA_LSB                  16
+#define HTC_UNKNOWN_MSG_METADATA_MASK                 0X00ff0000
+#define HTC_UNKNOWN_MSG_METADATA_OFFSET               0x00000000
+>>>>>>> Stashed changes
 
 /* HTC ready message
  * direction : target-to-host  */

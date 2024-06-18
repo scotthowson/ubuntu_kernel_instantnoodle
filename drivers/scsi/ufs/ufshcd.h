@@ -60,6 +60,8 @@
 #include <linux/reset.h>
 #include <linux/extcon-provider.h>
 #include <linux/devfreq.h>
+#include <linux/pm_qos.h>
+#include <linux/irq_work.h>
 #include "unipro.h"
 
 #include <asm/irq.h>
@@ -76,7 +78,6 @@
 
 #include "ufs.h"
 #include "ufshci.h"
-
 #if defined(CONFIG_UFSFEATURE)
 #if defined(UFS3V1)
 #include "ufs31/ufsfeature.h"
@@ -240,7 +241,6 @@ struct ufshcd_lrb {
 #endif /* CONFIG_SCSI_UFS_CRYPTO */
 
 	bool req_abort_skip;
-
 #if defined(CONFIG_UFSFEATURE) && defined(CONFIG_UFSHPB)
 	int hpb_ctx_id;
 #endif
@@ -399,6 +399,7 @@ struct ufs_hba_variant_ops {
 	ANDROID_KABI_RESERVE(2);
 	ANDROID_KABI_RESERVE(3);
 	ANDROID_KABI_RESERVE(4);
+<<<<<<< Updated upstream
 };
 
 /**
@@ -408,6 +409,8 @@ struct ufs_hba_pm_qos_variant_ops {
 	void		(*req_start)(struct ufs_hba *hba, struct request *req);
 	void		(*req_end)(struct ufs_hba *hba, struct request *req,
 				   bool should_lock);
+=======
+>>>>>>> Stashed changes
 };
 
 /**
@@ -418,7 +421,38 @@ struct ufs_hba_variant {
 	struct device				*dev;
 	const char				*name;
 	struct ufs_hba_variant_ops		*vops;
+<<<<<<< Updated upstream
 	struct ufs_hba_pm_qos_variant_ops	*pm_qos_vops;
+=======
+};
+
+struct keyslot_mgmt_ll_ops;
+struct ufs_hba_crypto_variant_ops {
+	void (*setup_rq_keyslot_manager)(struct ufs_hba *hba,
+					 struct request_queue *q);
+	void (*destroy_rq_keyslot_manager)(struct ufs_hba *hba,
+					   struct request_queue *q);
+	int (*hba_init_crypto)(struct ufs_hba *hba,
+			       const struct keyslot_mgmt_ll_ops *ksm_ops);
+	void (*enable)(struct ufs_hba *hba);
+	void (*disable)(struct ufs_hba *hba);
+	int (*suspend)(struct ufs_hba *hba, enum ufs_pm_op pm_op);
+	int (*resume)(struct ufs_hba *hba, enum ufs_pm_op pm_op);
+	int (*debug)(struct ufs_hba *hba);
+	int (*prepare_lrbp_crypto)(struct ufs_hba *hba,
+				   struct scsi_cmnd *cmd,
+				   struct ufshcd_lrb *lrbp);
+	int (*map_sg_crypto)(struct ufs_hba *hba, struct ufshcd_lrb *lrbp);
+	int (*complete_lrbp_crypto)(struct ufs_hba *hba,
+				    struct scsi_cmnd *cmd,
+				    struct ufshcd_lrb *lrbp);
+	void *priv;
+
+	ANDROID_KABI_RESERVE(1);
+	ANDROID_KABI_RESERVE(2);
+	ANDROID_KABI_RESERVE(3);
+	ANDROID_KABI_RESERVE(4);
+>>>>>>> Stashed changes
 };
 
 struct keyslot_mgmt_ll_ops;
@@ -492,6 +526,7 @@ struct ufs_clk_gating {
 	struct device_attribute delay_perf_attr;
 	struct device_attribute enable_attr;
 	bool is_enabled;
+	bool gate_wk_in_process;
 	int active_reqs;
 	struct workqueue_struct *clk_gating_workq;
 };
@@ -1125,11 +1160,13 @@ struct ufs_hba {
 
 	bool phy_init_g4;
 	bool force_g4;
-	bool wb_enabled;
-
 #if defined(CONFIG_UFSFEATURE)
 	struct ufsf_feature ufsf;
 #endif
+<<<<<<< Updated upstream
+=======
+	bool wb_enabled;
+>>>>>>> Stashed changes
 
 #ifdef CONFIG_SCSI_UFS_CRYPTO
 	/* crypto */
@@ -1143,6 +1180,20 @@ struct ufs_hba {
 	ANDROID_KABI_RESERVE(2);
 	ANDROID_KABI_RESERVE(3);
 	ANDROID_KABI_RESERVE(4);
+<<<<<<< Updated upstream
+=======
+
+	struct {
+		struct pm_qos_request req;
+		struct work_struct get_work;
+		struct work_struct put_work;
+		struct irq_work get_irq_work;
+		struct irq_work put_irq_work;
+		struct mutex lock;
+		atomic_t count;
+		bool active;
+	} pm_qos;
+>>>>>>> Stashed changes
 };
 
 static inline void ufshcd_mark_shutdown_ongoing(struct ufs_hba *hba)
@@ -1616,6 +1667,7 @@ static inline void ufshcd_vops_remove_debugfs(struct ufs_hba *hba)
 }
 #endif
 
+<<<<<<< Updated upstream
 static inline void ufshcd_vops_pm_qos_req_start(struct ufs_hba *hba,
 		struct request *req)
 {
@@ -1631,6 +1683,8 @@ static inline void ufshcd_vops_pm_qos_req_end(struct ufs_hba *hba,
 		hba->var->pm_qos_vops->req_end(hba, req, lock);
 }
 
+=======
+>>>>>>> Stashed changes
 extern struct ufs_pm_lvl_states ufs_pm_lvl_states[];
 
 /*

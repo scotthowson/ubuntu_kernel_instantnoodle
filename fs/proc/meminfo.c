@@ -20,10 +20,13 @@
 #include <asm/page.h>
 #include <asm/pgtable.h>
 #include "internal.h"
+<<<<<<< Updated upstream
 #include <oneplus/defrag/defrag_helper.h>
 #ifdef CONFIG_ONEPLUS_HEALTHINFO
 #include <linux/oem/oneplus_ion.h>
 #endif
+=======
+>>>>>>> Stashed changes
 
 void __attribute__((weak)) arch_report_meminfo(struct seq_file *m)
 {
@@ -67,25 +70,12 @@ static int meminfo_proc_show(struct seq_file *m, void *v)
 	show_val_kb(m, "Buffers:        ", i.bufferram);
 	show_val_kb(m, "Cached:         ", cached);
 	show_val_kb(m, "SwapCached:     ", total_swapcache_pages());
-#ifndef CONFIG_MEMPLUS
 	show_val_kb(m, "Active:         ", pages[LRU_ACTIVE_ANON] +
 					   pages[LRU_ACTIVE_FILE]);
 	show_val_kb(m, "Inactive:       ", pages[LRU_INACTIVE_ANON] +
 					   pages[LRU_INACTIVE_FILE]);
 	show_val_kb(m, "Active(anon):   ", pages[LRU_ACTIVE_ANON]);
 	show_val_kb(m, "Inactive(anon): ", pages[LRU_INACTIVE_ANON]);
-#else
-	show_val_kb(m, "Active:         ", pages[LRU_ACTIVE_ANON] +
-			pages[LRU_ACTIVE_FILE] +
-			pages[LRU_ACTIVE_ANON_SWPCACHE]);
-	show_val_kb(m, "Inactive:       ", pages[LRU_INACTIVE_ANON] +
-			pages[LRU_INACTIVE_FILE] +
-			pages[LRU_INACTIVE_ANON_SWPCACHE]);
-	show_val_kb(m, "Active(anon):   ", pages[LRU_ACTIVE_ANON] +
-			pages[LRU_ACTIVE_ANON_SWPCACHE]);
-	show_val_kb(m, "Inactive(anon): ", pages[LRU_INACTIVE_ANON] +
-			pages[LRU_INACTIVE_ANON_SWPCACHE]);
-#endif
 	show_val_kb(m, "Active(file):   ", pages[LRU_ACTIVE_FILE]);
 	show_val_kb(m, "Inactive(file): ", pages[LRU_INACTIVE_FILE]);
 	show_val_kb(m, "Unevictable:    ", pages[LRU_UNEVICTABLE]);
@@ -158,22 +148,28 @@ static int meminfo_proc_show(struct seq_file *m, void *v)
 	show_val_kb(m, "ShmemPmdMapped: ",
 		    global_node_page_state(NR_SHMEM_PMDMAPPED) * HPAGE_PMD_NR);
 #endif
+<<<<<<< Updated upstream
 #ifdef CONFIG_ONEPLUS_HEALTHINFO
 #ifdef CONFIG_ION
 	show_val_kb(m, "IonTotalCache:  ", global_zone_page_state(NR_IONCACHE_PAGES));
 	show_val_kb(m, "IonTotalUsed:   ", ion_total() >> PAGE_SHIFT);
 #endif
 #endif
+=======
+>>>>>>> Stashed changes
 
 #ifdef CONFIG_CMA
 	show_val_kb(m, "CmaTotal:       ", totalcma_pages);
 	show_val_kb(m, "CmaFree:        ",
 		    global_zone_page_state(NR_FREE_CMA_PAGES));
 #endif
+<<<<<<< Updated upstream
 	show_val_kb(m, "FastRPCUsed:    ", read_fastrpc_usage());
 	show_val_kb(m, "KgslCache:      ", kgsl_pool_size_total());
 	show_defrag_free(m);
 	show_real_freemem(m, i.freeram);
+=======
+>>>>>>> Stashed changes
 
 	hugetlb_report_meminfo(m);
 

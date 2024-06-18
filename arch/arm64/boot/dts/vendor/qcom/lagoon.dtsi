@@ -325,7 +325,11 @@
 	};
 
 	chosen {
+<<<<<<< Updated upstream
 		bootargs = "rcupdate.rcu_expedited=1 rcu_nocbs=0-7 kpti=off";
+=======
+		bootargs = "rcupdate.rcu_expedited=1 rcu_nocbs=0-7 earlycon=msm_geni_serial,0x98c000 kpti=off";
+>>>>>>> Stashed changes
 	};
 
 	soc: soc { };
@@ -460,11 +464,14 @@
 			label = "cont_splash_region";
 		};
 
+<<<<<<< Updated upstream
 		disp_rdump_memory: disp_rdump_region@0xa0000000 {
 			reg = <0x0 0xA0000000 0x0 0x02300000>;
 			label = "disp_rdump_region";
 		};
 
+=======
+>>>>>>> Stashed changes
 		dfps_data_memory: dfps_data_region {
 			reg = <0x0 0xA2300000 0x0 0x0100000>;
 			label = "dfps_data_region";
@@ -3690,6 +3697,7 @@
 		iommus = <&apps_smmu 0x0442 0x0>;
 		qcom,iommu-dma-addr-pool = <0x40000000 0x20000000>;
 	};
+<<<<<<< Updated upstream
 
 	oem_serial_pinctrl {
 		compatible = "oem,oem_serial_pinctrl";
@@ -3697,6 +3705,8 @@
 		pinctrl-0 = <&qupv3_se9_2uart_active>;
 		pinctrl-1 = <&qupv3_se9_2uart_sleep>;
 	};
+=======
+>>>>>>> Stashed changes
 };
 
 #include "lagoon-gdsc.dtsi"

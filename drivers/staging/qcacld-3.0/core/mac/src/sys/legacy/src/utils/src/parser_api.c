@@ -45,6 +45,10 @@
 #include "wlan_mlme_public_struct.h"
 #include "wlan_mlme_ucfg_api.h"
 #include "wlan_mlme_api.h"
+<<<<<<< Updated upstream
+=======
+#include "wlan_crypto_global_api.h"
+>>>>>>> Stashed changes
 
 #define RSN_OUI_SIZE 4
 /* ////////////////////////////////////////////////////////////////////// */
@@ -384,6 +388,7 @@ populate_dot11f_avoid_channel_ie(struct mac_context *mac_ctx,
 
 QDF_STATUS
 populate_dot11f_country(struct mac_context *mac,
+<<<<<<< Updated upstream
 			tDot11fIECountry *pDot11f, struct pe_session *pe_session)
 {
 	uint32_t len, j = 0;
@@ -460,6 +465,114 @@ populate_dot11f_country(struct mac_context *mac,
 
 	pDot11f->present = 1;
 
+=======
+			tDot11fIECountry *ctry_ie, struct pe_session *pe_session)
+{
+	uint8_t code[REG_ALPHA2_LEN + 1];
+	qdf_freq_t cur_triplet_freq;
+	uint8_t cur_triplet_num_chans;
+	uint8_t cur_triplet_tx_power;
+	bool cur_triplet_valid;
+	enum reg_wifi_band cur_triplet_band;
+	int chan_enum;
+	struct regulatory_channel *cur_chan_list;
+	QDF_STATUS status;
+
+	cur_chan_list = qdf_mem_malloc(NUM_CHANNELS * sizeof(*cur_chan_list));
+	if (!cur_chan_list)
+		return QDF_STATUS_E_NOMEM;
+
+	status = wlan_reg_get_current_chan_list(mac->pdev, cur_chan_list);
+	if (status != QDF_STATUS_SUCCESS) {
+		pe_err("failed to get cur_chan list");
+		qdf_mem_free(cur_chan_list);
+		return status;
+	}
+
+	wlan_reg_read_current_country(mac->psoc, code);
+	qdf_mem_copy(ctry_ie->country, code, REG_ALPHA2_LEN);
+
+	/* advertise global operating class */
+	ctry_ie->country[REG_ALPHA2_LEN] = 0x04;
+
+	cur_triplet_valid = false;
+	ctry_ie->num_triplets = 0;
+	for (chan_enum = 0; chan_enum < NUM_CHANNELS; chan_enum++) {
+		if (wlan_reg_is_6ghz_chan_freq(
+			    cur_chan_list[chan_enum].center_freq)) {
+			if (cur_triplet_valid) {
+				ctry_ie->triplets[ctry_ie->num_triplets][0] =
+					wlan_reg_freq_to_chan(mac->pdev,
+							      cur_triplet_freq);
+				ctry_ie->triplets[ctry_ie->num_triplets][1] =
+					cur_triplet_num_chans;
+				ctry_ie->triplets[ctry_ie->num_triplets][2] =
+					cur_triplet_tx_power;
+				ctry_ie->num_triplets++;
+				cur_triplet_valid =  false;
+			}
+			break;
+		}
+
+		if (cur_chan_list[chan_enum].chan_flags &
+		    REGULATORY_CHAN_DISABLED) {
+			if (cur_triplet_valid) {
+				ctry_ie->triplets[ctry_ie->num_triplets][0] =
+					wlan_reg_freq_to_chan(mac->pdev,
+							      cur_triplet_freq);
+				ctry_ie->triplets[ctry_ie->num_triplets][1] =
+					cur_triplet_num_chans;
+				ctry_ie->triplets[ctry_ie->num_triplets][2] =
+					cur_triplet_tx_power;
+				ctry_ie->num_triplets++;
+				cur_triplet_valid =  false;
+			}
+			continue;
+		}
+
+		if (cur_triplet_valid) {
+			if ((cur_chan_list[chan_enum].tx_power ==
+			     cur_triplet_tx_power) &&
+			    (cur_triplet_band ==
+			     wlan_reg_freq_to_band(cur_chan_list[chan_enum].center_freq)))
+				cur_triplet_num_chans++;
+			else {
+				ctry_ie->triplets[ctry_ie->num_triplets][0] =
+					wlan_reg_freq_to_chan(mac->pdev,
+							      cur_triplet_freq);
+				ctry_ie->triplets[ctry_ie->num_triplets][1] =
+					cur_triplet_num_chans;
+				ctry_ie->triplets[ctry_ie->num_triplets][2] =
+					cur_triplet_tx_power;
+				ctry_ie->num_triplets++;
+
+				cur_triplet_freq =
+					cur_chan_list[chan_enum].center_freq;
+				cur_triplet_num_chans = 1;
+				cur_triplet_tx_power =
+					cur_chan_list[chan_enum].tx_power;
+				cur_triplet_band = wlan_reg_freq_to_band(cur_triplet_freq);
+			}
+		} else {
+			cur_triplet_freq = cur_chan_list[chan_enum].center_freq;
+			cur_triplet_num_chans = 1;
+			cur_triplet_tx_power =
+				cur_chan_list[chan_enum].tx_power;
+			cur_triplet_band = wlan_reg_freq_to_band(cur_triplet_freq);
+			cur_triplet_valid = true;
+		}
+	}
+
+	if (ctry_ie->num_triplets == 0) {
+		/* at-least one triplet should be present */
+		qdf_mem_free(cur_chan_list);
+		return QDF_STATUS_SUCCESS;
+	}
+
+	ctry_ie->present = 1;
+
+	qdf_mem_free(cur_chan_list);
+>>>>>>> Stashed changes
 	return QDF_STATUS_SUCCESS;
 } /* End populate_dot11f_country. */
 
@@ -604,7 +717,11 @@ populate_dot11f_ext_supp_rates(struct mac_context *mac, uint8_t nChannelNum,
 			       struct pe_session *pe_session)
 {
 	QDF_STATUS nsir_status;
+<<<<<<< Updated upstream
 	qdf_size_t nRates = 0;
+=======
+	qdf_size_t n_rates = 0;
+>>>>>>> Stashed changes
 	uint8_t rates[WLAN_SUPPORTED_RATES_IE_MAX_LEN];
 
 	/* Use the ext rates present in session entry whenever nChannelNum is set to OPERATIONAL
@@ -613,28 +730,50 @@ populate_dot11f_ext_supp_rates(struct mac_context *mac, uint8_t nChannelNum,
 	 */
 	if (POPULATE_DOT11F_RATES_OPERATIONAL == nChannelNum) {
 		if (pe_session) {
+<<<<<<< Updated upstream
 			nRates = pe_session->extRateSet.numRates;
 			qdf_mem_copy(rates, pe_session->extRateSet.rate,
 				     nRates);
+=======
+			n_rates = pe_session->extRateSet.numRates;
+			qdf_mem_copy(rates, pe_session->extRateSet.rate,
+				     n_rates);
+>>>>>>> Stashed changes
 		} else {
 			pe_err("no session context exists while populating Operational Rate Set");
 		}
 	} else if (HIGHEST_24GHZ_CHANNEL_NUM >= nChannelNum) {
+<<<<<<< Updated upstream
 		nRates = mac->mlme_cfg->rates.ext_opr_rate_set.len;
 		nsir_status = wlan_mlme_get_cfg_str(
 			rates,
 			&mac->mlme_cfg->rates.ext_opr_rate_set, &nRates);
 		if (QDF_IS_STATUS_ERROR(nsir_status)) {
 			nRates = 0;
+=======
+		n_rates = mac->mlme_cfg->rates.ext_opr_rate_set.len;
+		nsir_status = wlan_mlme_get_cfg_str(
+			rates,
+			&mac->mlme_cfg->rates.ext_opr_rate_set, &n_rates);
+		if (QDF_IS_STATUS_ERROR(nsir_status)) {
+			n_rates = 0;
+>>>>>>> Stashed changes
 			pe_err("Failed to retrieve nItem from CFG status: %d",
 			       (nsir_status));
 			return nsir_status;
 		}
 	}
 
+<<<<<<< Updated upstream
 	if (0 != nRates) {
 		pDot11f->num_rates = (uint8_t) nRates;
 		qdf_mem_copy(pDot11f->rates, rates, nRates);
+=======
+	if (0 != n_rates) {
+		pe_debug("ext supp rates present, num %d", (uint8_t)n_rates);
+		pDot11f->num_rates = (uint8_t)n_rates;
+		qdf_mem_copy(pDot11f->rates, rates, n_rates);
+>>>>>>> Stashed changes
 		pDot11f->present = 1;
 	}
 
@@ -2911,7 +3050,11 @@ QDF_STATUS wlan_parse_ftie_sha384(uint8_t *frame, uint32_t frame_len,
 				  struct sSirAssocRsp *assoc_rsp)
 {
 	const uint8_t *ie, *ie_end, *pos;
+<<<<<<< Updated upstream
 	uint8_t ie_len;
+=======
+	uint8_t ie_len, remaining_ie_len;
+>>>>>>> Stashed changes
 	struct wlan_sha384_ftinfo_subelem *ft_subelem;
 
 	ie = wlan_get_ie_ptr_from_eid(DOT11F_EID_FTINFO, frame, frame_len);
@@ -2930,11 +3073,19 @@ QDF_STATUS wlan_parse_ftie_sha384(uint8_t *frame, uint32_t frame_len,
 		pe_err("Invalid FTIE len:%d", ie_len);
 		return QDF_STATUS_E_FAILURE;
 	}
+<<<<<<< Updated upstream
+=======
+	remaining_ie_len = ie_len;
+>>>>>>> Stashed changes
 	pos = ie + 2;
 	qdf_mem_copy(&assoc_rsp->sha384_ft_info, pos,
 		     sizeof(struct wlan_sha384_ftinfo));
 	ie_end = ie + ie_len;
 	pos += sizeof(struct wlan_sha384_ftinfo);
+<<<<<<< Updated upstream
+=======
+	remaining_ie_len -= sizeof(struct wlan_sha384_ftinfo);
+>>>>>>> Stashed changes
 	ft_subelem = &assoc_rsp->sha384_ft_subelem;
 	qdf_mem_zero(ft_subelem, sizeof(*ft_subelem));
 	while (ie_end - pos >= 2) {
@@ -2942,11 +3093,27 @@ QDF_STATUS wlan_parse_ftie_sha384(uint8_t *frame, uint32_t frame_len,
 
 		id = *pos++;
 		len = *pos++;
+<<<<<<< Updated upstream
 		if (len < 1) {
+=======
+		/* Subtract data length(len) + 1 bytes for
+		 * Subelement ID + 1 bytes for length from
+		 * remaining FTIE buffer len (ie_len).
+		 * Subelement Parameter(s) field :
+		 *         Subelement ID  Length     Data
+		 * Octets:      1            1     variable
+		 */
+		if (len < 1 || remaining_ie_len < (len + 2)) {
+>>>>>>> Stashed changes
 			pe_err("Invalid FT subelem length");
 			return QDF_STATUS_E_FAILURE;
 		}
 
+<<<<<<< Updated upstream
+=======
+		remaining_ie_len -= (len + 2);
+
+>>>>>>> Stashed changes
 		switch (id) {
 		case FTIE_SUBELEM_R1KH_ID:
 			if (len != FTIE_R1KH_LEN) {
@@ -5868,7 +6035,11 @@ QDF_STATUS populate_dot11f_rrm_ie(struct mac_context *mac,
 
 void populate_mdie(struct mac_context *mac,
 		   tDot11fIEMobilityDomain *pDot11f,
+<<<<<<< Updated upstream
 		   uint8_t mdie[SIR_MDIE_SIZE])
+=======
+		   uint8_t mdie[])
+>>>>>>> Stashed changes
 {
 	pDot11f->present = 1;
 	pDot11f->MDID = (uint16_t) ((mdie[1] << 8) | (mdie[0]));
@@ -6235,4 +6406,31 @@ QDF_STATUS populate_dot11f_twt_extended_caps(struct mac_context *mac_ctx,
 }
 #endif
 
+<<<<<<< Updated upstream
+=======
+QDF_STATUS populate_dot11f_btm_caps(struct mac_context *mac_ctx,
+				    struct pe_session *pe_session,
+				    struct sDot11fIEExtCap *dot11f)
+{
+	struct s_ext_cap *p_ext_cap;
+	uint32_t fw_akm_bitmap;
+	bool sae_can_roam;
+
+	dot11f->num_bytes = DOT11F_IE_EXTCAP_MAX_LEN;
+	p_ext_cap = (struct s_ext_cap *)dot11f->bytes;
+	fw_akm_bitmap = mac_ctx->mlme_cfg->lfr.fw_akm_bitmap;
+	sae_can_roam = (((fw_akm_bitmap) & (1 << AKM_SAE)) ? true : false);
+
+	 if (pe_session->connected_akm == ANI_AKM_TYPE_SAE &&
+	    !sae_can_roam) {
+		p_ext_cap->bss_transition = 0;
+		pe_debug("Disable btm cap for SAE roam not supported");
+	}
+
+	dot11f->num_bytes = lim_compute_ext_cap_ie_length(dot11f);
+
+	return QDF_STATUS_SUCCESS;
+}
+
+>>>>>>> Stashed changes
 /* parser_api.c ends here. */

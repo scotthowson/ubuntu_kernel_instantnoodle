@@ -12,6 +12,10 @@ mdss-mdp-objs += mdss_mdp_pp.o mdss_mdp_pp_debug.o mdss_mdp_pp_cache_config.o md
 mdss-mdp-objs += mdss_mdp_intf_video.o
 mdss-mdp-objs += mdss_mdp_intf_cmd.o
 mdss-mdp-objs += mdss_mdp_intf_writeback.o
+<<<<<<< Updated upstream
+=======
+mdss-mdp-objs += mdss_rotator.o
+>>>>>>> Stashed changes
 mdss-mdp-objs += mdss_mdp_overlay.o
 mdss-mdp-objs += mdss_mdp_layer.o
 mdss-mdp-objs += mdss_mdp_splash_logo.o
@@ -39,6 +43,10 @@ mdss-dsi-objs += mdss_dsi_panel.o
 mdss-dsi-objs += msm_mdss_io_8974.o
 mdss-dsi-objs += mdss_dsi_phy.o
 mdss-dsi-objs += mdss_dsi_phy_v3.o
+<<<<<<< Updated upstream
+=======
+mdss-dsi-objs += mdss_dsi_phy_12nm.o
+>>>>>>> Stashed changes
 mdss-dsi-objs += mdss_dsi_clk.o
 obj-$(CONFIG_FB_MSM_MDSS) += mdss-dsi.o
 obj-$(CONFIG_FB_MSM_MDSS) += mdss_panel.o

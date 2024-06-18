@@ -344,10 +344,17 @@ lpfc_nvme_remoteport_delete(struct nvme_fc_remote_port *remoteport)
 		ndlp->upcall_flags &= ~NLP_WAIT_FOR_UNREG;
 		spin_unlock_irq(&vport->phba->hbalock);
 
+<<<<<<< Updated upstream
 	/* Remove original register reference. The host transport
 	 * won't reference this rport/remoteport any further.
 	 */
 	lpfc_nlp_put(ndlp);
+=======
+		/* Remove original register reference. The host transport
+		 * won't reference this rport/remoteport any further.
+		 */
+		lpfc_nlp_put(ndlp);
+>>>>>>> Stashed changes
 	} else {
 		spin_unlock_irq(&vport->phba->hbalock);
 	}

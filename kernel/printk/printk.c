@@ -41,8 +41,6 @@
 #include <linux/rculist.h>
 #include <linux/poll.h>
 #include <linux/irq_work.h>
-#include <linux/rtc.h>
-#include <linux/time.h>
 #include <linux/ctype.h>
 #include <linux/uio.h>
 #include <linux/sched/clock.h>
@@ -129,8 +127,10 @@ static int __control_devkmsg(char *str)
 
 static int __init control_devkmsg(char *str)
 {
-	if (__control_devkmsg(str) < 0)
+	if (__control_devkmsg(str) < 0) {
+		pr_warn("printk.devkmsg: bad option string '%s'\n", str);
 		return 1;
+	}
 
 	/*
 	 * Set sysctl string accordingly:
@@ -149,7 +149,7 @@ static int __init control_devkmsg(char *str)
 	 */
 	devkmsg_log |= DEVKMSG_LOG_MASK_LOCK;
 
-	return 0;
+	return 1;
 }
 __setup("printk.devkmsg=", control_devkmsg);
 
@@ -407,6 +407,65 @@ DEFINE_RAW_SPINLOCK(logbuf_lock);
 		printk_safe_exit_irqrestore(flags);	\
 	} while (0)
 
+#ifdef CONFIG_EARLY_PRINTK
+struct console *early_console;
+
+static void early_vprintk(const char *fmt, va_list ap)
+{
+	if (early_console) {
+		char buf[512];
+		int n = vscnprintf(buf, sizeof(buf), fmt, ap);
+
+		early_console->write(early_console, buf, n);
+	}
+}
+
+asmlinkage void early_printk(const char *fmt, ...)
+{
+	va_list ap;
+
+	va_start(ap, fmt);
+	early_vprintk(fmt, ap);
+	va_end(ap);
+}
+
+/*
+ * This is independent of any log levels - a global
+ * kill switch that turns off all of printk.
+ *
+ * Used by the NMI watchdog if early-printk is enabled.
+ */
+static bool __read_mostly printk_killswitch;
+
+static int __init force_early_printk_setup(char *str)
+{
+	printk_killswitch = true;
+	return 0;
+}
+early_param("force_early_printk", force_early_printk_setup);
+
+void printk_kill(void)
+{
+	printk_killswitch = true;
+}
+
+#ifdef CONFIG_PRINTK
+static int forced_early_printk(const char *fmt, va_list ap)
+{
+	if (!printk_killswitch)
+		return 0;
+	early_vprintk(fmt, ap);
+	return 1;
+}
+#endif
+
+#else
+static inline int forced_early_printk(const char *fmt, va_list ap)
+{
+	return 0;
+}
+#endif
+
 #ifdef CONFIG_PRINTK
 DECLARE_WAIT_QUEUE_HEAD(log_wait);
 /* the next printk record to read by syslog(READ) or /proc/kmsg */
@@ -444,6 +503,18 @@ static u32 clear_idx;
 static char __log_buf[__LOG_BUF_LEN] __aligned(LOG_ALIGN);
 static char *log_buf = __log_buf;
 static u32 log_buf_len = __LOG_BUF_LEN;
+
+/*
+ * We cannot access per-CPU data (e.g. per-CPU flush irq_work) before
+ * per_cpu_areas are initialised. This variable is set to true when
+ * it's safe to access per-CPU data.
+ */
+static bool __printk_percpu_data_ready __read_mostly;
+
+bool printk_percpu_data_ready(void)
+{
+	return __printk_percpu_data_ready;
+}
 
 /* Return log buffer address */
 char *log_buf_addr_get(void)
@@ -766,7 +837,7 @@ struct devkmsg_user {
 
 static ssize_t devkmsg_write(struct kiocb *iocb, struct iov_iter *from)
 {
-	char *buf, *line;
+	char buf[LOG_LINE_MAX + 1], *line;
 	int level = default_message_loglevel;
 	int facility = 1;	/* LOG_USER */
 	struct file *file = iocb->ki_filp;
@@ -795,10 +866,6 @@ static ssize_t devkmsg_write(struct kiocb *iocb, struct iov_iter *from)
 			return ret;
 	}
 #endif
-
-	buf = kmalloc(len+1, GFP_KERNEL);
-	if (buf == NULL)
-		return -ENOMEM;
 
 	buf[len] = '\0';
 	if (!copy_from_iter_full(buf, len, from)) {
@@ -832,7 +899,6 @@ static ssize_t devkmsg_write(struct kiocb *iocb, struct iov_iter *from)
 	}
 
 	printk_emit(facility, level, NULL, 0, "%s", line);
-	kfree(buf);
 	return ret;
 }
 
@@ -1114,19 +1180,36 @@ static void __init log_buf_add_cpu(void)
 static inline void log_buf_add_cpu(void) {}
 #endif /* CONFIG_SMP */
 
-static int __init ftm_console_silent_setup(char *str)
+static void __init set_percpu_data_ready(void)
 {
+<<<<<<< Updated upstream
 	pr_info("ftm_silent_log\n");
 	console_silent();
 	return 0;
+=======
+	printk_safe_init();
+	/* Make sure we set this flag only after printk_safe() init is done */
+	barrier();
+	__printk_percpu_data_ready = true;
+>>>>>>> Stashed changes
 }
-early_param("ftm_console_silent", ftm_console_silent_setup);
 
 void __init setup_log_buf(int early)
 {
 	unsigned long flags;
 	char *new_log_buf;
 	unsigned int free;
+<<<<<<< Updated upstream
+=======
+
+	/*
+	 * Some archs call setup_log_buf() multiple times - first is very
+	 * early, e.g. from setup_arch(), and second - when percpu_areas
+	 * are initialised.
+	 */
+	if (!early)
+		set_percpu_data_ready();
+>>>>>>> Stashed changes
 
 	if (log_buf != __log_buf)
 		return;
@@ -1242,8 +1325,21 @@ static inline void boot_delay_msec(int level)
 static bool printk_time = IS_ENABLED(CONFIG_PRINTK_TIME);
 module_param_named(time, printk_time, bool, S_IRUGO | S_IWUSR);
 
-static bool print_wall_time = 1;
-module_param_named(print_wall_time, print_wall_time, bool, 0644);
+static size_t print_time(u64 ts, char *buf)
+{
+	unsigned long rem_nsec;
+
+	if (!printk_time)
+		return 0;
+
+	rem_nsec = do_div(ts, 1000000000);
+
+	if (!buf)
+		return snprintf(NULL, 0, "[%5lu.000000] ", (unsigned long)ts);
+
+	return sprintf(buf, "[%5lu.%06lu] ",
+		       (unsigned long)ts, rem_nsec / 1000);
+}
 
 static size_t print_prefix(const struct printk_log *msg, bool syslog, char *buf)
 {
@@ -1263,6 +1359,8 @@ static size_t print_prefix(const struct printk_log *msg, bool syslog, char *buf)
 				len++;
 		}
 	}
+
+	len += print_time(msg->ts_nsec, buf ? buf + len : NULL);
 	return len;
 }
 
@@ -1308,13 +1406,9 @@ static size_t msg_print_text(const struct printk_log *msg, bool syslog, char *bu
 
 static int syslog_print(char __user *buf, int size)
 {
-	char *text;
+	char text[LOG_LINE_MAX + PREFIX_MAX];
 	struct printk_log *msg;
 	int len = 0;
-
-	text = kmalloc(LOG_LINE_MAX + PREFIX_MAX, GFP_KERNEL);
-	if (!text)
-		return -ENOMEM;
 
 	while (size > 0) {
 		size_t n;
@@ -1363,7 +1457,6 @@ static int syslog_print(char __user *buf, int size)
 		buf += n;
 	}
 
-	kfree(text);
 	return len;
 }
 
@@ -1374,12 +1467,23 @@ static int syslog_print_all(char __user *buf, int size, bool clear)
 	u64 next_seq;
 	u64 seq;
 	u32 idx;
+	int attempts = 0;
+	int num_msg;
 
 	text = kmalloc(LOG_LINE_MAX + PREFIX_MAX, GFP_KERNEL);
 	if (!text)
 		return -ENOMEM;
 
 	logbuf_lock_irq();
+
+try_again:
+	attempts++;
+	if (attempts > 10) {
+		len = -EBUSY;
+		goto out;
+	}
+	num_msg = 0;
+
 	/*
 	 * Find first record that fits, including all following records,
 	 * into the user-provided buffer for this dump.
@@ -1392,6 +1496,14 @@ static int syslog_print_all(char __user *buf, int size, bool clear)
 		len += msg_print_text(msg, true, NULL, 0);
 		idx = log_next(idx);
 		seq++;
+		num_msg++;
+		if (num_msg > 5) {
+			num_msg = 0;
+			logbuf_unlock_irq();
+			logbuf_lock_irq();
+			if (clear_seq < log_first_seq)
+				goto try_again;
+		}
 	}
 
 	/* move first record forward until length fits into the buffer */
@@ -1403,6 +1515,14 @@ static int syslog_print_all(char __user *buf, int size, bool clear)
 		len -= msg_print_text(msg, true, NULL, 0);
 		idx = log_next(idx);
 		seq++;
+		num_msg++;
+		if (num_msg > 5) {
+			num_msg = 0;
+			logbuf_unlock_irq();
+			logbuf_lock_irq();
+			if (clear_seq < log_first_seq)
+				goto try_again;
+		}
 	}
 
 	/* last message fitting into this dump */
@@ -1440,6 +1560,7 @@ static int syslog_print_all(char __user *buf, int size, bool clear)
 		clear_seq = log_next_seq;
 		clear_idx = log_next_idx;
 	}
+out:
 	logbuf_unlock_irq();
 
 	kfree(text);
@@ -1571,6 +1692,7 @@ SYSCALL_DEFINE3(syslog, int, type, char __user *, buf, int, len)
 	return do_syslog(type, buf, len, SYSLOG_FROM_READER);
 }
 
+#ifndef CONFIG_PREEMPT_RT_FULL
 /*
  * Special console_lock variants that help to reduce the risk of soft-lockups.
  * They allow to pass console_lock to another printk() call using a busy wait.
@@ -1711,6 +1833,15 @@ static int console_trylock_spinning(void)
 	return 1;
 }
 
+#else
+
+static int console_trylock_spinning(void)
+{
+	return console_trylock();
+}
+
+#endif
+
 /*
  * Call the console drivers, asking them to write out
  * log_buf[start] to log_buf[end - 1].
@@ -1726,6 +1857,12 @@ static void call_console_drivers(const char *ext_text, size_t ext_len,
 	if (!console_drivers)
 		return;
 
+	if (IS_ENABLED(CONFIG_PREEMPT_RT_BASE) && !oops_in_progress) {
+		if (in_irq() || in_nmi())
+			return;
+	}
+
+	migrate_disable();
 	for_each_console(con) {
 		if (exclusive_console && con != exclusive_console)
 			continue;
@@ -1741,6 +1878,7 @@ static void call_console_drivers(const char *ext_text, size_t ext_len,
 		else
 			con->write(con, text, len);
 	}
+	migrate_enable();
 }
 
 int printk_delay_msec __read_mostly;
@@ -1857,12 +1995,6 @@ int vprintk_store(int facility, int level,
 	char *text = textbuf;
 	size_t text_len;
 	enum log_flags lflags = 0;
-	static char texttmp[LOG_LINE_MAX];
-	static bool last_new_line = true;
-	u64 ts_sec = local_clock();
-	unsigned long rem_nsec;
-
-	rem_nsec = do_div(ts_sec, 1000000000);
 
 	/*
 	 * The printf needs to come first; we need the syslog
@@ -1897,42 +2029,6 @@ int vprintk_store(int facility, int level,
 			text += 2;
 		}
 	}
-	if (last_new_line) {
-		if (print_wall_time && ts_sec >= 20) {
-			struct timespec64 tspec;
-			struct rtc_time tm;
-
-			__getnstimeofday64(&tspec);
-
-			if (sys_tz.tz_minuteswest < 0
-				|| (tspec.tv_sec-sys_tz.tz_minuteswest*60) >= 0)
-				tspec.tv_sec -= sys_tz.tz_minuteswest * 60;
-			rtc_time_to_tm(tspec.tv_sec, &tm);
-
-			text_len = scnprintf(texttmp, sizeof(texttmp),
-				"[%02d%02d%02d_%02d:%02d:%02d.%06ld]@%d %s",
-				tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
-				tm.tm_hour, tm.tm_min, tm.tm_sec,
-				tspec.tv_nsec / 1000, raw_smp_processor_id(), text);
-		} else {
-			text_len = scnprintf(texttmp, sizeof(texttmp),
-				"[%5lu.%06lu]@%d %s", (unsigned long)ts_sec,
-				rem_nsec / 1000, raw_smp_processor_id(), text);
-		}
-
-		text = texttmp;
-
-		/* mark and strip a trailing newline */
-		if (text_len && text[text_len-1] == '\n') {
-			text_len--;
-			lflags |= LOG_NEWLINE;
-		}
-	}
-
-	if (lflags & LOG_NEWLINE)
-		last_new_line = true;
-	else
-		last_new_line = false;
 
 	if (level == LOGLEVEL_DEFAULT)
 		level = default_message_loglevel;
@@ -1952,6 +2048,16 @@ asmlinkage int vprintk_emit(int facility, int level,
 	bool in_sched = false, pending_output;
 	unsigned long flags;
 	u64 curr_log_seq;
+<<<<<<< Updated upstream
+=======
+
+	/*
+	 * Fall back to early_printk if a debugging subsystem has
+	 * killed printk output
+	 */
+	if (unlikely(forced_early_printk(fmt, args)))
+		return 1;
+>>>>>>> Stashed changes
 
 	if (level == LOGLEVEL_SCHED) {
 		level = LOGLEVEL_DEFAULT;
@@ -1970,20 +2076,33 @@ asmlinkage int vprintk_emit(int facility, int level,
 
 	/* If called from the scheduler, we can not call up(). */
 	if (!in_sched && pending_output) {
+<<<<<<< Updated upstream
+=======
+		int may_trylock = 1;
+
+#ifdef CONFIG_PREEMPT_RT_FULL
+		/*
+		 * we can't take a sleeping lock with IRQs or preeption disabled
+		 * so we can't print in these contexts
+		 */
+		if (!(preempt_count() == 0 && !irqs_disabled()))
+			may_trylock = 0;
+#endif
+>>>>>>> Stashed changes
 		/*
 		 * Disable preemption to avoid being preempted while holding
 		 * console_sem which would prevent anyone from printing to
 		 * console
 		 */
-		preempt_disable();
+		migrate_disable();
 		/*
 		 * Try to acquire and then immediately release the console
 		 * semaphore.  The release will print out buffers and wake up
 		 * /dev/kmsg and syslog() users.
 		 */
-		if (console_trylock_spinning())
+		if (may_trylock && console_trylock_spinning())
 			console_unlock();
-		preempt_enable();
+		migrate_enable();
 	}
 
 	if (pending_output)
@@ -2097,26 +2216,6 @@ static bool suppress_message_printing(int level) { return false; }
 
 #endif /* CONFIG_PRINTK */
 
-#ifdef CONFIG_EARLY_PRINTK
-struct console *early_console;
-
-asmlinkage __visible void early_printk(const char *fmt, ...)
-{
-	va_list ap;
-	char buf[512];
-	int n;
-
-	if (!early_console)
-		return;
-
-	va_start(ap, fmt);
-	n = vscnprintf(buf, sizeof(buf), fmt, ap);
-	va_end(ap);
-
-	early_console->write(early_console, buf, n);
-}
-#endif
-
 static int __add_preferred_console(char *name, int idx, char *options,
 				   char *brl_options)
 {
@@ -2162,11 +2261,21 @@ __setup("console_msg_format=", console_msg_format_setup);
  * Set up a console.  Called via do_early_param() in init/main.c
  * for each "console=" parameter in the boot command line.
  */
-static int console_setup(char *str)
+static int __init console_setup(char *str)
 {
 	char buf[sizeof(console_cmdline[0].name) + 4]; /* 4 for "ttyS" */
 	char *s, *options, *brl_options = NULL;
 	int idx;
+
+	/*
+	 * console="" or console=null have been suggested as a way to
+	 * disable console output. Use ttynull that has been created
+	 * for exacly this purpose.
+	 */
+	if (str[0] == 0 || strcmp(str, "null") == 0) {
+		__add_preferred_console("ttynull", 0, NULL, NULL);
+		return 1;
+	}
 
 	if (_braille_console_setup(&str, &brl_options))
 		return 1;
@@ -2202,14 +2311,6 @@ static int console_setup(char *str)
 }
 __setup("console=", console_setup);
 
-int  force_oem_console_setup(char *str)
-{
-	console_setup(str);
-	return 1;
-}
-EXPORT_SYMBOL(force_oem_console_setup);
-
-
 /**
  * add_preferred_console - add a device to the list of preferred consoles.
  * @name: device name
@@ -2228,7 +2329,7 @@ int add_preferred_console(char *name, int idx, char *options)
 	return __add_preferred_console(name, idx, options, NULL);
 }
 
-bool console_suspend_enabled = true;
+bool console_suspend_enabled = false;
 EXPORT_SYMBOL(console_suspend_enabled);
 
 static int __init console_suspend_disable(char *str)
@@ -2477,6 +2578,10 @@ skip:
 		console_seq++;
 		raw_spin_unlock(&logbuf_lock);
 
+#ifdef CONFIG_PREEMPT_RT_FULL
+		printk_safe_exit_irqrestore(flags);
+		call_console_drivers(ext_text, ext_len, text, len);
+#else
 		/*
 		 * While actively printing out messages, if another printk()
 		 * were to occur on another CPU, it may wait for this one to
@@ -2495,6 +2600,7 @@ skip:
 		}
 
 		printk_safe_exit_irqrestore(flags);
+#endif
 
 		if (do_cond_resched)
 			cond_resched();
@@ -2549,8 +2655,13 @@ void console_unblank(void)
 	if (oops_in_progress) {
 		if (down_trylock_console_sem() != 0)
 			return;
-	} else
+	} else {
+		if (IS_ENABLED(CONFIG_PREEMPT_RT_BASE)) {
+			if (in_irq() || in_nmi())
+				return;
+		}
 		console_lock();
+	}
 
 	console_locked = 1;
 	console_may_schedule = 0;
@@ -2975,6 +3086,9 @@ static DEFINE_PER_CPU(struct irq_work, wake_up_klogd_work) = {
 
 void wake_up_klogd(void)
 {
+	if (!printk_percpu_data_ready())
+		return;
+
 	preempt_disable();
 	if (waitqueue_active(&log_wait)) {
 		this_cpu_or(printk_pending, PRINTK_PENDING_WAKEUP);
@@ -2985,6 +3099,9 @@ void wake_up_klogd(void)
 
 void defer_console_output(void)
 {
+	if (!printk_percpu_data_ready())
+		return;
+
 	preempt_disable();
 	__this_cpu_or(printk_pending, PRINTK_PENDING_OUTPUT);
 	irq_work_queue(this_cpu_ptr(&wake_up_klogd_work));

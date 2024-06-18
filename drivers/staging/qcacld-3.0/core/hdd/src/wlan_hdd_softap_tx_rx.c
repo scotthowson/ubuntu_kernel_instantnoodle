@@ -204,6 +204,7 @@ static inline struct sk_buff *hdd_skb_orphan(struct hdd_adapter *adapter,
 
 	return skb;
 }
+<<<<<<< Updated upstream
 
 #else
 /**
@@ -237,6 +238,8 @@ static inline struct sk_buff *hdd_skb_orphan(struct hdd_adapter *adapter,
 #endif
 	return nskb;
 }
+=======
+>>>>>>> Stashed changes
 #endif /* QCA_LL_LEGACY_TX_FLOW_CONTROL */
 
 #define IEEE8021X_AUTH_TYPE_EAP 0
@@ -552,6 +555,14 @@ static void __hdd_softap_hard_start_xmit(struct sk_buff *skb,
 		goto drop_pkt;
 	}
 
+<<<<<<< Updated upstream
+=======
+	if (hdd_ctx->hdd_wlan_suspended) {
+		hdd_err_rl("Device is system suspended, drop pkt");
+		goto drop_pkt;
+	}
+
+>>>>>>> Stashed changes
 	/*
 	 * If the device is operating on a DFS Channel
 	 * then check if SAP is in CAC WAIT state and
@@ -1131,6 +1142,18 @@ QDF_STATUS hdd_softap_rx_packet_cbk(void *adapter_context, qdf_nbuf_t rx_buf)
 					     STA_INFO_SOFTAP_RX_PACKET_CBK);
 		}
 
+<<<<<<< Updated upstream
+=======
+		if (qdf_unlikely(qdf_nbuf_is_ipv4_eapol_pkt(skb) &&
+				 qdf_mem_cmp(qdf_nbuf_data(skb) +
+					     QDF_NBUF_DEST_MAC_OFFSET,
+					     adapter->mac_addr.bytes,
+					     QDF_MAC_ADDR_SIZE))) {
+			qdf_nbuf_free(skb);
+			continue;
+		}
+
+>>>>>>> Stashed changes
 		hdd_event_eapol_log(skb, QDF_RX);
 		qdf_dp_trace_log_pkt(adapter->vdev_id,
 				     skb, QDF_RX, QDF_TRACE_DEFAULT_PDEV_ID);
@@ -1153,6 +1176,7 @@ QDF_STATUS hdd_softap_rx_packet_cbk(void *adapter_context, qdf_nbuf_t rx_buf)
 
 		qdf_status = hdd_rx_deliver_to_stack(adapter, skb);
 
+<<<<<<< Updated upstream
 		if (QDF_IS_STATUS_SUCCESS(qdf_status)) {
 			++adapter->hdd_stats.tx_rx_stats.rx_delivered[cpu_index];
 		} else {
@@ -1162,6 +1186,12 @@ QDF_STATUS hdd_softap_rx_packet_cbk(void *adapter_context, qdf_nbuf_t rx_buf)
 						      QDF_TRACE_DEFAULT_MSDU_ID,
 						      QDF_TX_RX_STATUS_DROP));
 		}
+=======
+		if (QDF_IS_STATUS_SUCCESS(qdf_status))
+			++adapter->hdd_stats.tx_rx_stats.rx_delivered[cpu_index];
+		else
+			++adapter->hdd_stats.tx_rx_stats.rx_refused[cpu_index];
+>>>>>>> Stashed changes
 	}
 
 	return QDF_STATUS_SUCCESS;
@@ -1398,7 +1428,11 @@ QDF_STATUS hdd_softap_stop_bss(struct hdd_adapter *adapter)
 
 	if (adapter->device_mode == QDF_SAP_MODE &&
 	    !hdd_ctx->config->disable_channel)
+<<<<<<< Updated upstream
 		wlan_hdd_restore_channels(hdd_ctx, true);
+=======
+		wlan_hdd_restore_channels(hdd_ctx);
+>>>>>>> Stashed changes
 
 	/*  Mark the indoor channel (passive) to enable  */
 	if (indoor_chnl_marking && adapter->device_mode == QDF_SAP_MODE) {

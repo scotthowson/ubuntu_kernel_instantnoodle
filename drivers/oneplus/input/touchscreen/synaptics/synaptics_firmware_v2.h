@@ -1,6 +1,9 @@
 /***************************************************
  * File:synaptics_common.h
+<<<<<<< Updated upstream
  * VENDOR_EDIT
+=======
+>>>>>>> Stashed changes
  * Description:
  *             synaptics common driver
  * Version:1.0:

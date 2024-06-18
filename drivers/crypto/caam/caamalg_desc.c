@@ -1457,6 +1457,15 @@ EXPORT_SYMBOL(cnstr_shdsc_ablkcipher_givencap);
  */
 void cnstr_shdsc_xts_ablkcipher_encap(u32 * const desc, struct alginfo *cdata)
 {
+<<<<<<< Updated upstream
+=======
+	/*
+	 * Set sector size to a big value, practically disabling
+	 * sector size segmentation in xts implementation. We cannot
+	 * take full advantage of this HW feature with existing
+	 * crypto API / dm-crypt SW architecture.
+	 */
+>>>>>>> Stashed changes
 	__be64 sector_size = cpu_to_be64(BIT(15));
 	u32 *key_jump_cmd;
 
@@ -1509,6 +1518,15 @@ EXPORT_SYMBOL(cnstr_shdsc_xts_ablkcipher_encap);
  */
 void cnstr_shdsc_xts_ablkcipher_decap(u32 * const desc, struct alginfo *cdata)
 {
+<<<<<<< Updated upstream
+=======
+	/*
+	 * Set sector size to a big value, practically disabling
+	 * sector size segmentation in xts implementation. We cannot
+	 * take full advantage of this HW feature with existing
+	 * crypto API / dm-crypt SW architecture.
+	 */
+>>>>>>> Stashed changes
 	__be64 sector_size = cpu_to_be64(BIT(15));
 	u32 *key_jump_cmd;
 

@@ -154,10 +154,6 @@ static void set_cpu_itimer(struct task_struct *tsk, unsigned int clock_id,
 	u64 oval, nval, ointerval, ninterval;
 	struct cpu_itimer *it = &tsk->signal->it[clock_id];
 
-	/*
-	 * Use the to_ktime conversion because that clamps the maximum
-	 * value to KTIME_MAX and avoid multiplication overflows.
-	 */
 	nval = ktime_to_ns(timeval_to_ktime(value->it_value));
 	ninterval = ktime_to_ns(timeval_to_ktime(value->it_interval));
 
@@ -215,6 +211,7 @@ again:
 		/* We are sharing ->siglock with it_real_fn() */
 		if (hrtimer_try_to_cancel(timer) < 0) {
 			spin_unlock_irq(&tsk->sighand->siglock);
+			hrtimer_grab_expiry_lock(timer);
 			goto again;
 		}
 		expires = timeval_to_ktime(value->it_value);

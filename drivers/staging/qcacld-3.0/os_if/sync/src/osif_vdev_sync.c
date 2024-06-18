@@ -1,5 +1,9 @@
 /*
  * Copyright (c) 2018-2019 The Linux Foundation. All rights reserved.
+<<<<<<< Updated upstream
+=======
+ * Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
+>>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -262,6 +266,12 @@ int __osif_vdev_sync_trans_start(struct net_device *net_dev,
 						dsc_vdev_trans_start);
 	osif_vdev_sync_unlock();
 
+<<<<<<< Updated upstream
+=======
+	if (!errno)
+		osif_vdev_sync_wait_for_ops(*out_vdev_sync);
+
+>>>>>>> Stashed changes
 	return errno;
 }
 
@@ -276,6 +286,12 @@ int __osif_vdev_sync_trans_start_wait(struct net_device *net_dev,
 						     out_vdev_sync, desc,
 						     dsc_vdev_trans_start_wait);
 
+<<<<<<< Updated upstream
+=======
+	if (!errno)
+		osif_vdev_sync_wait_for_ops(*out_vdev_sync);
+
+>>>>>>> Stashed changes
 	return errno;
 }
 

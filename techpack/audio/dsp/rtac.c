@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
+<<<<<<< Updated upstream
  * Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
+=======
+ * Copyright (c) 2012-2021, The Linux Foundation. All rights reserved.
+>>>>>>> Stashed changes
  */
 
 #include <linux/fs.h>
@@ -728,7 +732,10 @@ bool rtac_make_adm_callback(uint32_t *payload, u32 payload_size)
 		atomic_set(&rtac_common.apr_err_code, payload[1]);
 
 	atomic_set(&rtac_adm_apr_data.cmd_state, 0);
+<<<<<<< Updated upstream
 	wake_up(&rtac_adm_apr_data.cmd_wait);
+=======
+>>>>>>> Stashed changes
 	return true;
 }
 
@@ -880,6 +887,7 @@ int send_adm_apr(void *buf, u32 opcode)
 	pr_debug("%s: Sending RTAC command ioctl 0x%x, paddr 0x%pK\n",
 		__func__, opcode,
 		&rtac_cal[ADM_RTAC_CAL].cal_data.paddr);
+<<<<<<< Updated upstream
 
 	result = apr_send_pkt(rtac_adm_apr_data.apr_handle,
 					(uint32_t *)rtac_adm_buffer);
@@ -907,6 +915,14 @@ int send_adm_apr(void *buf, u32 opcode)
 		goto err;
 	}
 
+=======
+	mutex_unlock(&rtac_adm_apr_mutex);
+
+	result = adm_apr_send_pkt((uint32_t *)rtac_adm_buffer,
+			NULL, port_idx, copp_idx, adm_params.opcode);
+
+	mutex_lock(&rtac_adm_apr_mutex);
+>>>>>>> Stashed changes
 	if (opcode == ADM_CMD_GET_PP_PARAMS_V5) {
 		bytes_returned = ((u32 *)rtac_cal[ADM_RTAC_CAL].cal_data.
 			kvaddr)[2] + 3 * sizeof(u32);

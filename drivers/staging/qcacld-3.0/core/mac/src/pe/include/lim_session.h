@@ -310,7 +310,10 @@ struct pe_session {
 	uint8_t limWmeEnabled:1;        /* WME */
 	uint8_t limWsmEnabled:1;        /* WSM */
 	uint8_t limHcfEnabled:1;
+<<<<<<< Updated upstream
 	uint8_t lim11dEnabled:1;
+=======
+>>>>>>> Stashed changes
 #ifdef WLAN_FEATURE_11W
 	uint8_t limRmfEnabled:1;        /* 11W */
 #endif

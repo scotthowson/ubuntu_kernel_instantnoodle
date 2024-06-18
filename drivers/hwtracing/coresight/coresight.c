@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
+<<<<<<< Updated upstream
  * Copyright (c) 2012, 2017-2020, The Linux Foundation. All rights reserved.
+=======
+ * Copyright (c) 2012, 2017-2021, The Linux Foundation. All rights reserved.
+>>>>>>> Stashed changes
  */
 
 #include <linux/kernel.h>
@@ -1016,6 +1020,10 @@ static void coresight_enable_source_link(struct list_head *path)
 
 	return;
 err:
+<<<<<<< Updated upstream
+=======
+	coresight_disable_path_from(path, nd);
+>>>>>>> Stashed changes
 	coresight_release_path(csdev, path);
 }
 

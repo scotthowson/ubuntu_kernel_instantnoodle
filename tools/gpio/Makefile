@@ -35,7 +35,11 @@ $(OUTPUT)include/linux/gpio.h: ../../include/uapi/linux/gpio.h
 
 prepare: $(OUTPUT)include/linux/gpio.h
 
+<<<<<<< Updated upstream
 GPIO_UTILS_IN := $(output)gpio-utils-in.o
+=======
+GPIO_UTILS_IN := $(OUTPUT)gpio-utils-in.o
+>>>>>>> Stashed changes
 $(GPIO_UTILS_IN): prepare FORCE
 	$(Q)$(MAKE) $(build)=gpio-utils
 

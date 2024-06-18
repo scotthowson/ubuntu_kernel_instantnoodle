@@ -2,6 +2,7 @@
  * Universal Flash Storage Feature Support
  *
  * Copyright (C) 2017-2018 Samsung Electronics Co., Ltd.
+ * Copyright (C) 2020 Oplus. All rights reserved.
  *
  * Authors:
  *	Yongmyung Lee <ymhungry.lee@samsung.com>
@@ -38,23 +39,35 @@
 #ifndef _UFSFEATURE_H_
 #define _UFSFEATURE_H_
 
+<<<<<<< Updated upstream:drivers/scsi/ufs/ufs30/ufsfeature.h
 #include "ufs.h"
 #include "../../../../include/uapi/scsi/ufs/ioctl.h"
 
 #if defined(CONFIG_UFSHPB)
 #include "ufshpb.h"
 #endif
+=======
+>>>>>>> Stashed changes:drivers/scsi/ufs/ufsfeature.h
 #include <scsi/scsi_cmnd.h>
+#include <uapi/scsi/ufs/ufs.h>
+#include <uapi/scsi/ufs/ioctl.h>
 
-#if defined(CONFIG_UFSTW)
+#include "ufs.h"
+
+#include "ufshpb.h"
 #include "ufstw.h"
-#endif
+#include <linux/proc_fs.h>
+#include "ufshid.h"
 
 /* Constant value*/
 #define SECTOR					512
 #define BLOCK					4096
 #define SECTORS_PER_BLOCK			(BLOCK / SECTOR)
 #define BITS_PER_DWORD				32
+#define sects_per_blk_shift			3
+#define bits_per_dword_shift		5
+#define bits_per_dword_mask			0x1F
+#define bits_per_byte_shift			3
 
 #define IOCTL_DEV_CTX_MAX_SIZE			OS_PAGE_SIZE
 #define OS_PAGE_SIZE				4096
@@ -63,18 +76,22 @@
 #define UFSF_QUERY_REQ_RETRIES			1
 
 /* Description */
-#define UFSF_QUERY_DESC_DEVICE_MAX_SIZE		0x57
-#define UFSF_QUERY_DESC_CONFIGURAION_MAX_SIZE	0xE2
+#define UFSF_QUERY_DESC_DEVICE_MAX_SIZE		0x5F
+#define UFSF_QUERY_DESC_CONFIGURAION_MAX_SIZE	0xE6
 #define UFSF_QUERY_DESC_UNIT_MAX_SIZE		0x2D
-#define UFSF_QUERY_DESC_GEOMETRY_MAX_SIZE	0x58
+#define UFSF_QUERY_DESC_GEOMETRY_MAX_SIZE	0x59
 
-#define UFSFEATURE_SELECTOR			0x01
-
-/* Extended UFS Feature Support */
-#define UFSF_EFS_TURBO_WRITE			0x100
+#define UFSFEATURE_SELECTOR_SAMSUNG         0x01
+#define UFSFEATURE_SELECTOR_SKHYNIX         0x0
+#define UFSFEATURE_SELECTOR_MICRON          0x0
+#define UFSFEATURE_SELECTOR_TOSHIBA         0x0
 
 /* query_flag  */
 #define MASK_QUERY_UPIU_FLAG_LOC		0xFF
+
+/* For read10 debug */
+#define READ10_DEBUG_LUN			0x7F
+#define READ10_DEBUG_LBA			0x48504230
 
 /* BIG -> LI */
 #define LI_EN_16(x)				be16_to_cpu(*(__be16 *)(x))
@@ -91,23 +108,19 @@
 #define GET_BYTE_6(num)			(((num) >> 48) & 0xff)
 #define GET_BYTE_7(num)			(((num) >> 56) & 0xff)
 
-#define INFO_MSG(msg, args...)		printk(KERN_INFO "%s:%d " msg "\n", \
+#define INFO_MSG(msg, args...)		pr_info("%s:%d info: " msg "\n", \
 					       __func__, __LINE__, ##args)
-#define INIT_INFO(msg, args...)		INFO_MSG(msg, ##args)
-#define RELEASE_INFO(msg, args...)	INFO_MSG(msg, ##args)
-#define SYSFS_INFO(msg, args...)	INFO_MSG(msg, ##args)
-#define ERR_MSG(msg, args...)		printk(KERN_ERR "%s:%d " msg "\n", \
+#define ERR_MSG(msg, args...)		pr_err("%s:%d err: " msg "\n", \
 					       __func__, __LINE__, ##args)
-#define WARNING_MSG(msg, args...)	printk(KERN_WARNING "%s:%d " msg "\n", \
+#define WARN_MSG(msg, args...)		pr_warn("%s:%d warn: " msg "\n", \
 					       __func__, __LINE__, ##args)
 
-#define seq_scan_lu(lun) for (lun = 0; lun < UFS_UPIU_MAX_GENERAL_LUN; lun++)
+#define seq_scan_lu(lun) for (lun = 0; lun < UFS_UPIU_MAX_GENERAL_LUN; lun = lun + 1)
 
 #define TMSG(ufsf, lun, msg, args...)					\
 	do { if (ufsf->sdev_ufs_lu[lun] &&				\
 		 ufsf->sdev_ufs_lu[lun]->request_queue)			\
-		blk_add_trace_msg(					\
-			ufsf->sdev_ufs_lu[lun]->request_queue,		\
+		blk_add_trace_msg(ufsf->sdev_ufs_lu[lun]->request_queue,		\
 			msg, ##args);					\
 	} while (0)							\
 
@@ -134,32 +147,69 @@ struct ufsf_feature {
 	int num_lu;
 	int slave_conf_cnt;
 	struct scsi_device *sdev_ufs_lu[UFS_UPIU_MAX_GENERAL_LUN];
+	bool issue_read10_debug;
+
 #if defined(CONFIG_UFSHPB)
 	struct ufshpb_dev_info hpb_dev_info;
-	struct ufshpb_lu *ufshpb_lup[UFS_UPIU_MAX_GENERAL_LUN];
-	struct work_struct ufshpb_init_work;
-	struct work_struct ufshpb_reset_work;
-	struct work_struct ufshpb_eh_work;
-	wait_queue_head_t wait_hpb;
-	int ufshpb_state;
-	struct kref ufshpb_kref;
-	bool issue_ioctl;
+	struct ufshpb_lu *hpb_lup[UFS_UPIU_MAX_GENERAL_LUN];
+	struct work_struct hpb_init_work;
+	struct work_struct hpb_eh_work;
+	wait_queue_head_t hpb_wait;
+	atomic_t hpb_state;
+	struct kref hpb_kref;
 #endif
 #if defined(CONFIG_UFSTW)
 	struct ufstw_dev_info tw_dev_info;
 	struct ufstw_lu *tw_lup[UFS_UPIU_MAX_GENERAL_LUN];
-	struct work_struct tw_init_work;
-	struct work_struct tw_reset_work;
-	wait_queue_head_t tw_wait;
 	atomic_t tw_state;
-	struct kref tw_kref;
-
-	/* turbo write exception event control */
-	bool tw_ee_mode;
-
-	/* for debug */
-	bool tw_debug;
 #endif
+#if defined(CONFIG_UFSHID)
+	atomic_t hid_state;
+	struct ufshid_dev *hid_dev;
+#endif
+};
+
+struct ufsf_feature_para {
+#if defined(CONFIG_UFSHPB)
+	u64 hit;
+	u64 miss;
+	u64 hit_4k;
+	u64 hit_8_32k;
+	u64 span;
+	u64 span_hit;
+	u64 noti;
+	u64 noti_act;
+	u64 noti_inact;
+	u64 rgn_act;
+	u64 map_req;
+	u64 pre_req;
+	u16 hpb_rgns;
+#endif
+
+#if defined(CONFIG_UFSTW)
+	u64 tw_state_ts;
+	u64 tw_enable_ms;
+	u64 tw_disable_ms;
+	u64 tw_write_secs;
+	u64 total_write_secs;
+	u64 tw_enable_count;
+	u64 tw_disable_count;
+	u64 tw_setflag_error_count;
+	bool tw_info_disable;
+	u32 tw_lifetime;
+	bool tw_enable;
+	unsigned int buffer_size;
+#endif
+	u64 hibern8_amount_ms;
+	u64 hibern8_enter_count;
+	u64 hibern8_amount_ms_100ms;
+	u64 hibern8_enter_count_100ms;
+	u64 hibern8_max_ms;
+	ktime_t hibern8_enter_ts;
+	struct timespec timestamp;
+
+	struct proc_dir_entry *ctrl_dir;
+	struct ufsf_feature *ufsf;
 };
 
 struct ufs_hba;
@@ -174,35 +224,38 @@ int ufsf_query_flag_retry(struct ufs_hba *hba, enum query_opcode opcode,
 		    enum flag_idn idn, u8 idx, bool *flag_res);
 int ufsf_query_attr_retry(struct ufs_hba *hba, enum query_opcode opcode,
 		    enum attr_idn idn, u8 idx, u32 *attr_val);
+int ufsf_get_scsi_device(struct ufs_hba *hba, struct scsi_device *sdev);
 bool ufsf_is_valid_lun(int lun);
+void ufsf_slave_configure(struct ufsf_feature *ufsf, struct scsi_device *sdev);
 int ufsf_get_ee_status(struct ufs_hba *hba, u32 *status);
+
+void ufsf_change_read10_debug_lun(struct ufsf_feature *ufsf,
+				  struct ufshcd_lrb *lrbp);
+void ufsf_prep_fn(struct ufsf_feature *ufsf, struct ufshcd_lrb *lrbp);
+void ufsf_reset_lu(struct ufsf_feature *ufsf);
+void ufsf_reset_host(struct ufsf_feature *ufsf);
+void ufsf_init(struct ufsf_feature *ufsf);
+void ufsf_reset(struct ufsf_feature *ufsf);
+void ufsf_remove(struct ufsf_feature *ufsf);
+void ufsf_set_init_state(struct ufsf_feature *ufsf);
+void ufsf_resume(struct ufsf_feature *ufsf);
+void ufsf_on_idle(struct ufsf_feature *ufsf, bool scsi_req);
 
 /* for hpb */
 int ufsf_hpb_prepare_pre_req(struct ufsf_feature *ufsf, struct scsi_cmnd *cmd,
 			     int lun);
 int ufsf_hpb_prepare_add_lrbp(struct ufsf_feature *ufsf, int add_tag);
 void ufsf_hpb_end_pre_req(struct ufsf_feature *ufsf, struct request *req);
-void ufsf_hpb_change_lun(struct ufsf_feature *ufsf, struct ufshcd_lrb *lrbp);
-void ufsf_hpb_prep_fn(struct ufsf_feature *ufsf, struct ufshcd_lrb *lrbp);
 void ufsf_hpb_noti_rb(struct ufsf_feature *ufsf, struct ufshcd_lrb *lrbp);
-void ufsf_hpb_reset_lu(struct ufsf_feature *ufsf);
-void ufsf_hpb_reset_host(struct ufsf_feature *ufsf);
-void ufsf_hpb_init(struct ufsf_feature *ufsf);
-void ufsf_hpb_reset(struct ufsf_feature *ufsf);
 void ufsf_hpb_suspend(struct ufsf_feature *ufsf);
-void ufsf_hpb_resume(struct ufsf_feature *ufsf);
 void ufsf_hpb_release(struct ufsf_feature *ufsf);
-void ufsf_hpb_set_init_state(struct ufsf_feature *ufsf);
 
-/* for tw*/
-void ufsf_tw_prep_fn(struct ufsf_feature *ufsf, struct ufshcd_lrb *lrbp);
-void ufsf_tw_init(struct ufsf_feature *ufsf);
-void ufsf_tw_reset(struct ufsf_feature *ufsf);
-void ufsf_tw_suspend(struct ufsf_feature *ufsf);
-void ufsf_tw_resume(struct ufsf_feature *ufsf);
-void ufsf_tw_release(struct ufsf_feature *ufsf);
-void ufsf_tw_set_init_state(struct ufsf_feature *ufsf);
-void ufsf_tw_reset_lu(struct ufsf_feature *ufsf);
-void ufsf_tw_reset_host(struct ufsf_feature *ufsf);
-void ufsf_tw_ee_handler(struct ufsf_feature *ufsf);
+/*for tw*/
+void ufsf_tw_enable(struct ufsf_feature *ufsf, bool enable);
+
+extern struct ufsf_feature_para ufsf_para;
+
+int create_ufsplus_ctrl_proc(struct ufsf_feature *ufsf);
+void remove_ufsplus_ctrl_proc(void);
+
 #endif /* End of Header */

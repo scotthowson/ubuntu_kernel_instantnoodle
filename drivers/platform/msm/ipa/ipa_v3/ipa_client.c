@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
+<<<<<<< Updated upstream
  * Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
+=======
+ * Copyright (c) 2012-2021, The Linux Foundation. All rights reserved.
+>>>>>>> Stashed changes
  */
 
 #include <asm/barrier.h>
@@ -73,6 +77,14 @@ int ipa3_enable_data_path(u32 clnt_hdl)
 				holb_cfg.tmr_val = IPA_HOLB_TMR_VAL;
 			else
 				holb_cfg.tmr_val = IPA_HOLB_TMR_VAL_4_5;
+<<<<<<< Updated upstream
+=======
+		} else if (ipa3_ctx->ipa_hw_type == IPA_HW_v4_5 &&
+				ipa3_ctx->platform_type == IPA_PLAT_TYPE_APQ &&
+				ep->client == IPA_CLIENT_USB_CONS) {
+			holb_cfg.en = IPA_HOLB_TMR_EN;
+			holb_cfg.tmr_val = IPA_HOLB_TMR_VAL_4_5;
+>>>>>>> Stashed changes
 		} else {
 			holb_cfg.en = IPA_HOLB_TMR_DIS;
 			holb_cfg.tmr_val = 0;
@@ -651,7 +663,7 @@ int ipa3_request_gsi_channel(struct ipa_request_gsi_channel_params *params,
 	}
 
 	memcpy(&ep->chan_scratch, &params->chan_scratch,
-		sizeof(union __packed gsi_channel_scratch));
+		sizeof(union gsi_channel_scratch));
 
 	/*
 	 * Update scratch for MCS smart prefetch:
@@ -1341,8 +1353,10 @@ int ipa3_set_reset_client_cons_pipe_sus_holb(bool set_reset,
 			IPA_ENDP_INIT_HOL_BLOCK_EN_n,
 			pipe_idx, &ep_holb);
 
-		/* IPA4.5 issue requires HOLB_EN to be written twice */
-		if (ipa3_ctx->ipa_hw_type >= IPA_HW_v4_5)
+		/* For targets > IPA_4.0 issue requires HOLB_EN to be
+		 * written twice.
+		 */
+		if (ipa3_ctx->ipa_hw_type >= IPA_HW_v4_0)
 			ipahal_write_reg_n_fields(
 				IPA_ENDP_INIT_HOL_BLOCK_EN_n,
 				pipe_idx, &ep_holb);
@@ -1435,8 +1449,11 @@ int ipa3_xdci_disconnect(u32 clnt_hdl, bool should_force_clear, u32 qmi_req_id)
 		}
 	}
 
+<<<<<<< Updated upstream
 	ipa3_disable_data_path(clnt_hdl);
 
+=======
+>>>>>>> Stashed changes
 	IPA_ACTIVE_CLIENTS_DEC_EP(ipa3_get_client_mapping(clnt_hdl));
 
 	IPADBG("exit\n");

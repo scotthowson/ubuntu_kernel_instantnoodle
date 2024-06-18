@@ -18,9 +18,12 @@
 #include <linux/input.h>
 #include <linux/kthread.h>
 #include <linux/sched/core_ctl.h>
+<<<<<<< Updated upstream
 #ifdef CONFIG_CONTROL_CENTER
 #include <linux/oem/control_center.h>
 #endif
+=======
+>>>>>>> Stashed changes
 
 /*
  * Sched will provide the data for every 20ms window,
@@ -66,9 +69,6 @@ static int set_cpu_min_freq(const char *buf, const struct kernel_param *kp)
 	struct cpu_status *i_cpu_stats;
 	struct cpufreq_policy policy;
 	cpumask_var_t limit_mask;
-#ifdef CONFIG_CONTROL_CENTER
-	bool boost_on_big_hint = false;
-#endif
 
 	while ((cp = strpbrk(cp + 1, " :")))
 		ntokens++;
@@ -82,13 +82,15 @@ static int set_cpu_min_freq(const char *buf, const struct kernel_param *kp)
 	for (i = 0; i < ntokens; i += 2) {
 		if (sscanf(cp, "%u:%u", &cpu, &val) != 2)
 			return -EINVAL;
-		if (cpu > (num_present_cpus() - 1))
-			return -EINVAL;
+		if (cpu >= nr_cpu_ids)
+			break;
 
-		i_cpu_stats = &per_cpu(msm_perf_cpu_stats, cpu);
+		if (cpu_possible(cpu)) {
+			i_cpu_stats = &per_cpu(msm_perf_cpu_stats, cpu);
 
-		i_cpu_stats->min = val;
-		cpumask_set_cpu(cpu, limit_mask);
+			i_cpu_stats->min = val;
+			cpumask_set_cpu(cpu, limit_mask);
+		}
 
 		cp = strnchr(cp, strlen(cp), ' ');
 		cp++;
@@ -108,11 +110,6 @@ static int set_cpu_min_freq(const char *buf, const struct kernel_param *kp)
 		if (cpufreq_get_policy(&policy, i))
 			continue;
 
-#ifdef CONFIG_CONTROL_CENTER
-		if (i == 7 && policy.max == i_cpu_stats->min)
-			boost_on_big_hint = true;
-#endif
-
 		if (cpu_online(i) && (policy.min != i_cpu_stats->min))
 			cpufreq_update_policy(i);
 
@@ -121,23 +118,6 @@ static int set_cpu_min_freq(const char *buf, const struct kernel_param *kp)
 	}
 	put_online_cpus();
 
-#ifdef CONFIG_CONTROL_CENTER
-	if (boost_on_big_hint) {
-		struct cc_command cc;
-
-		/* init default turbo boost command */
-		memset(&cc, 0, sizeof(struct cc_command));
-		cc.pid = current->pid;
-		cc.prio = CC_PRIO_HIGH;
-		cc.period_us = 2 * 1000 * 1000; /* us */
-		cc.group = CC_CTL_GROUP_SYSTEM;
-		cc.response = 0;
-		cc.status = 0;
-		cc.type = CC_CTL_TYPE_PERIOD_NONBLOCK;
-		cc.category = CC_CTL_CATEGORY_TB_PLACE_BOOST;
-		cc_tsk_process(&cc);
-	}
-#endif
 	return 0;
 }
 
@@ -181,14 +161,15 @@ static int set_cpu_max_freq(const char *buf, const struct kernel_param *kp)
 	for (i = 0; i < ntokens; i += 2) {
 		if (sscanf(cp, "%u:%u", &cpu, &val) != 2)
 			return -EINVAL;
-		if (cpu > (num_present_cpus() - 1))
-			return -EINVAL;
+		if (cpu >= nr_cpu_ids)
+			break;
 
-		i_cpu_stats = &per_cpu(msm_perf_cpu_stats, cpu);
+		if (cpu_possible(cpu)) {
+			i_cpu_stats = &per_cpu(msm_perf_cpu_stats, cpu);
 
-		i_cpu_stats->max = val;
-		cpumask_set_cpu(cpu, limit_mask);
-
+			i_cpu_stats->max = val;
+			cpumask_set_cpu(cpu, limit_mask);
+		}
 		cp = strnchr(cp, strlen(cp), ' ');
 		cp++;
 	}

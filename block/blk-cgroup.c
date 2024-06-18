@@ -45,6 +45,8 @@ static DEFINE_MUTEX(blkcg_pol_mutex);
 struct blkcg blkcg_root;
 EXPORT_SYMBOL_GPL(blkcg_root);
 
+struct blkcg *blkcg_bg;
+
 struct cgroup_subsys_state * const blkcg_root_css = &blkcg_root.css;
 
 static struct blkcg_policy *blkcg_policy[BLKCG_MAX_POLS];
@@ -242,8 +244,13 @@ static struct blkcg_gq *blkg_create(struct blkcg *blkcg,
 	blkg->online = true;
 	spin_unlock(&blkcg->lock);
 
-	if (!ret)
+	if (!ret) {
+		char name_buf[NAME_MAX + 1];
+		cgroup_name(blkg->blkcg->css.cgroup, name_buf, sizeof(name_buf));
+		if (!strncmp(name_buf, "background", strlen("background")+1) && !blkcg_bg)
+			blkcg_bg = blkg->blkcg;
 		return blkg;
+	}
 
 	/* @blkg failed fully initialized, use the usual release path */
 	blkg_put(blkg);
@@ -474,7 +481,7 @@ const char *blkg_dev_name(struct blkcg_gq *blkg)
 {
 	/* some drivers (floppy) instantiate a queue w/o disk registered */
 	if (blkg->q->backing_dev_info->dev)
-		return dev_name(blkg->q->backing_dev_info->dev);
+		return bdi_dev_name(blkg->q->backing_dev_info);
 	return NULL;
 }
 EXPORT_SYMBOL_GPL(blkg_dev_name);
@@ -876,13 +883,20 @@ int blkg_conf_prep(struct blkcg *blkcg, const struct blkcg_policy *pol,
 			goto fail;
 		}
 
+		if (radix_tree_preload(GFP_KERNEL)) {
+			blkg_free(new_blkg);
+			ret = -ENOMEM;
+			goto fail;
+		}
+
 		rcu_read_lock();
 		spin_lock_irq(q->queue_lock);
 
 		blkg = blkg_lookup_check(pos, pol, q);
 		if (IS_ERR(blkg)) {
 			ret = PTR_ERR(blkg);
-			goto fail_unlock;
+			blkg_free(new_blkg);
+			goto fail_preloaded;
 		}
 
 		if (blkg) {
@@ -891,9 +905,11 @@ int blkg_conf_prep(struct blkcg *blkcg, const struct blkcg_policy *pol,
 			blkg = blkg_create(pos, q, new_blkg);
 			if (unlikely(IS_ERR(blkg))) {
 				ret = PTR_ERR(blkg);
-				goto fail_unlock;
+				goto fail_preloaded;
 			}
 		}
+
+		radix_tree_preload_end();
 
 		if (pos == blkcg)
 			goto success;
@@ -904,6 +920,8 @@ success:
 	ctx->body = body;
 	return 0;
 
+fail_preloaded:
+	radix_tree_preload_end();
 fail_unlock:
 	spin_unlock_irq(q->queue_lock);
 	rcu_read_unlock();

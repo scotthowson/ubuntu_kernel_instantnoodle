@@ -1,6 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
+<<<<<<< Updated upstream
  * Copyright (c) 2016-2020, The Linux Foundation. All rights reserved.
+=======
+ * Copyright (c) 2016-2021, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+>>>>>>> Stashed changes
  */
 
 #include <linux/delay.h>
@@ -14,6 +19,8 @@
 #include "dsi_panel.h"
 #include "dsi_ctrl_hw.h"
 #include "dsi_parser.h"
+#include "sde_dbg.h"
+
 #include <linux/pm_wakeup.h>
 #include <linux/oem/project_info.h>
 #include <linux/msm_drm_notify.h>
@@ -78,7 +85,7 @@ static u32 dsi_dsc_rc_buf_thresh[] = {0x0e, 0x1c, 0x2a, 0x38, 0x46, 0x54,
  * Rate control - Min QP values for each ratio type in dsi_dsc_ratio_type
  */
 static char dsi_dsc_rc_range_min_qp_1_1[][15] = {
-	{0, 0, 1, 1, 3, 3, 3, 3, 3, 3, 5, 5, 5, 7, 12},
+	{0, 0, 1, 1, 3, 3, 3, 3, 3, 3, 5, 5, 5, 7, 13},
 	{0, 4, 5, 5, 7, 7, 7, 7, 7, 7, 9, 9, 9, 11, 17},
 	{0, 4, 9, 9, 11, 11, 11, 11, 11, 11, 13, 13, 13, 15, 21},
 	{0, 4, 5, 6, 7, 7, 7, 7, 7, 7, 9, 9, 9, 11, 15},
@@ -1810,8 +1817,15 @@ static int dsi_panel_parse_qsync_caps(struct dsi_panel *panel,
 				     struct device_node *of_node)
 {
 	int rc = 0;
-	u32 val = 0;
+	u32 val = 0, i;
+	struct dsi_qsync_capabilities *qsync_caps = &panel->qsync_caps;
+	struct dsi_parser_utils *utils = &panel->utils;
+	const char *name = panel->name;
 
+	/**
+	 * "mdss-dsi-qsync-min-refresh-rate" is defined in cmd mode and
+	 *  video mode when there is only one qsync min fps present.
+	 */
 	rc = of_property_read_u32(of_node,
 				  "qcom,mdss-dsi-qsync-min-refresh-rate",
 				  &val);
@@ -1819,8 +1833,75 @@ static int dsi_panel_parse_qsync_caps(struct dsi_panel *panel,
 		DSI_DEBUG("[%s] qsync min fps not defined rc:%d\n",
 			panel->name, rc);
 
-	panel->qsync_min_fps = val;
+	qsync_caps->qsync_min_fps = val;
 
+	/**
+	 * "dsi-supported-qsync-min-fps-list" may be defined in video
+	 *  mode, only in dfps case when "qcom,dsi-supported-dfps-list"
+	 *  is defined.
+	 */
+	qsync_caps->qsync_min_fps_list_len = utils->count_u32_elems(utils->data,
+				  "qcom,dsi-supported-qsync-min-fps-list");
+	if (qsync_caps->qsync_min_fps_list_len < 1)
+		goto qsync_support;
+
+	/**
+	 * qcom,dsi-supported-qsync-min-fps-list cannot be defined
+	 *  along with qcom,mdss-dsi-qsync-min-refresh-rate.
+	 */
+	if (qsync_caps->qsync_min_fps_list_len >= 1 &&
+		qsync_caps->qsync_min_fps) {
+		DSI_ERR("[%s] Both qsync nodes are defined\n",
+				name);
+		rc = -EINVAL;
+		goto error;
+	}
+
+	if (panel->dfps_caps.dfps_list_len !=
+			qsync_caps->qsync_min_fps_list_len) {
+		DSI_ERR("[%s] Qsync min fps list mismatch with dfps\n", name);
+		rc = -EINVAL;
+		goto error;
+	}
+
+	qsync_caps->qsync_min_fps_list =
+		kcalloc(qsync_caps->qsync_min_fps_list_len, sizeof(u32),
+			GFP_KERNEL);
+	if (!qsync_caps->qsync_min_fps_list) {
+		rc = -ENOMEM;
+		goto error;
+	}
+
+	rc = utils->read_u32_array(utils->data,
+			"qcom,dsi-supported-qsync-min-fps-list",
+			qsync_caps->qsync_min_fps_list,
+			qsync_caps->qsync_min_fps_list_len);
+	if (rc) {
+		DSI_ERR("[%s] Qsync min fps list parse failed\n", name);
+		rc = -EINVAL;
+		goto error;
+	}
+
+	qsync_caps->qsync_min_fps = qsync_caps->qsync_min_fps_list[0];
+
+	for (i = 1; i < qsync_caps->qsync_min_fps_list_len; i++) {
+		if (qsync_caps->qsync_min_fps_list[i] <
+				qsync_caps->qsync_min_fps)
+			qsync_caps->qsync_min_fps =
+				qsync_caps->qsync_min_fps_list[i];
+	}
+
+qsync_support:
+	/* allow qsync support only if DFPS is with VFP approach */
+	if ((panel->dfps_caps.dfps_support) &&
+	    !(panel->dfps_caps.type == DSI_DFPS_IMMEDIATE_VFP))
+		panel->qsync_caps.qsync_min_fps = 0;
+
+error:
+	if (rc < 0) {
+		qsync_caps->qsync_min_fps = 0;
+		qsync_caps->qsync_min_fps_list_len = 0;
+	}
 	return rc;
 }
 
@@ -1830,7 +1911,6 @@ static int dsi_panel_parse_dyn_clk_caps(struct dsi_panel *panel)
 	bool supported = false;
 	struct dsi_dyn_clk_caps *dyn_clk_caps = &panel->dyn_clk_caps;
 	struct dsi_parser_utils *utils = &panel->utils;
-	const char *name = panel->name;
 	const char *type;
 
 	supported = utils->read_bool(utils->data, "qcom,dsi-dyn-clk-enable");
@@ -1891,7 +1971,6 @@ static int dsi_panel_parse_dfps_caps(struct dsi_panel *panel)
 	bool supported = false;
 	struct dsi_dfps_capabilities *dfps_caps = &panel->dfps_caps;
 	struct dsi_parser_utils *utils = &panel->utils;
-	const char *name = panel->name;
 	const char *type;
 	u32 i;
 
@@ -2164,7 +2243,6 @@ static int dsi_panel_parse_phy_props(struct dsi_panel *panel)
 	const char *str;
 	struct dsi_panel_phy_props *props = &panel->phy_props;
 	struct dsi_parser_utils *utils = &panel->utils;
-	const char *name = panel->name;
 
 	rc = utils->read_u32(utils->data,
 		  "qcom,mdss-pan-physical-width-dimension", &val);
@@ -4125,11 +4203,6 @@ struct dsi_panel *dsi_panel_get(struct device *parent,
 	if (rc)
 		DSI_DEBUG("failed to parse qsync features, rc=%d\n", rc);
 
-	/* allow qsync support only if DFPS is with VFP approach */
-	if ((panel->dfps_caps.dfps_support) &&
-	    !(panel->dfps_caps.type == DSI_DFPS_IMMEDIATE_VFP))
-		panel->qsync_min_fps = 0;
-
 	rc = dsi_panel_parse_dyn_clk_caps(panel);
 	if (rc)
 		DSI_ERR("failed to parse dynamic clk config, rc=%d\n", rc);
@@ -4663,9 +4736,6 @@ int dsi_panel_get_mode(struct dsi_panel *panel,
 		} else {
 			mode->panel_mode = panel->panel_mode;
 		}
-
-		mode->splash_dms = of_property_read_bool(child_np,
-				"qcom,mdss-dsi-splash-dms-switch-to-this-timing");
 	}
 	goto done;
 

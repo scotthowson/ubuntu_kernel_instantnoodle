@@ -2300,6 +2300,27 @@ QDF_STATUS sme_set_lost_link_info_cb(mac_handle_t mac_handle,
 QDF_STATUS sme_update_new_channel_event(mac_handle_t mac_handle,
 					uint8_t session_id);
 #ifdef WLAN_POWER_DEBUG
+<<<<<<< Updated upstream
+=======
+/**
+ * sme_reset_power_debug_stats_cb() - SME API to reset Power debug stats cb
+ * @mac_handle: Opaque handle to the global MAC context
+ *
+ * Resets the power stats callback and context to NULL
+ *
+ * Return: None
+ */
+void sme_reset_power_debug_stats_cb(mac_handle_t mac_handle);
+
+/**
+ * sme_power_debug_stats_req() - SME API to collect Power debug stats
+ * @mac_handle: Opaque handle to the global MAC context
+ * @callback_fn: Pointer to the callback function for Power stats event
+ * @power_stats_context: Pointer to context
+ *
+ * Return: QDF_STATUS
+ */
+>>>>>>> Stashed changes
 QDF_STATUS sme_power_debug_stats_req(
 		mac_handle_t mac_handle,
 		void (*callback_fn)(struct power_stats_response *response,
@@ -2372,6 +2393,23 @@ QDF_STATUS sme_set_nud_debug_stats_cb(mac_handle_t mac_handle,
 			void *context);
 
 /**
+<<<<<<< Updated upstream
+=======
+ * sme_set_del_peers_ind_callback() - Register del peers ind callback
+ * @mac_handle - MAC global handle
+ * @callback_routine - callback routine from HDD
+ *
+ * This API is invoked by HDD to register its callback to mac
+ *
+ * Return: QDF_STATUS
+ */
+void
+sme_set_del_peers_ind_callback(mac_handle_t mac_handle,
+			       void (*callback)(struct wlan_objmgr_psoc *psoc,
+						uint8_t vdev_id));
+
+/**
+>>>>>>> Stashed changes
  * sme_set_chan_info_callback() - Register chan info callback
  * @mac_handle - MAC global handle
  * @callback_routine - callback routine from HDD

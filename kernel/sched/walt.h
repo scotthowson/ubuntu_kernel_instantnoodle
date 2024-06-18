@@ -469,7 +469,11 @@ static inline bool prefer_spread_on_idle(int cpu, bool new_ilb)
 
 #else /* CONFIG_SCHED_WALT */
 
+<<<<<<< Updated upstream
 static inline bool prefer_spread_on_idle(int cpu)
+=======
+static inline bool prefer_spread_on_idle(int cpu, bool new_ilb)
+>>>>>>> Stashed changes
 {
 	return false;
 }

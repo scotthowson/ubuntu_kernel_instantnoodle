@@ -26,6 +26,11 @@
 #include <linux/hashtable.h>
 #include <linux/scatterlist.h>
 #include <linux/bio-crypt-ctx.h>
+<<<<<<< Updated upstream
+=======
+#include <linux/siphash.h>
+#include <crypto/sha.h>
+>>>>>>> Stashed changes
 
 #include "fscrypt_private.h"
 
@@ -33,6 +38,11 @@
 static DEFINE_HASHTABLE(fscrypt_direct_keys, 6); /* 6 bits = 64 buckets */
 static DEFINE_SPINLOCK(fscrypt_direct_keys_lock);
 
+<<<<<<< Updated upstream
+=======
+static struct crypto_shash *essiv_hash_tfm;
+
+>>>>>>> Stashed changes
 /*
  * v1 key derivation function.  This generates the derived key by encrypting the
  * master key with AES-128-ECB using the nonce as the AES key.  This provides a
@@ -84,6 +94,40 @@ out:
 	return res;
 }
 
+<<<<<<< Updated upstream
+=======
+static int fscrypt_do_sha256(const u8 *src, int srclen, u8 *dst)
+{
+	struct crypto_shash *tfm = READ_ONCE(essiv_hash_tfm);
+
+	/* init hash transform on demand */
+	if (unlikely(!tfm)) {
+		struct crypto_shash *prev_tfm;
+
+		tfm = crypto_alloc_shash("sha256", 0, 0);
+		if (IS_ERR(tfm)) {
+			fscrypt_warn(NULL,
+				     "error allocating SHA-256 transform: %ld",
+				     PTR_ERR(tfm));
+			return PTR_ERR(tfm);
+		}
+		prev_tfm = cmpxchg(&essiv_hash_tfm, NULL, tfm);
+		if (prev_tfm) {
+			crypto_free_shash(tfm);
+			tfm = prev_tfm;
+		}
+	}
+
+	{
+		SHASH_DESC_ON_STACK(desc, tfm);
+
+		desc->tfm = tfm;
+		desc->flags = 0;
+		return crypto_shash_digest(desc, src, srclen, dst);
+	}
+}
+
+>>>>>>> Stashed changes
 /*
  * Search the current task's subscribed keyrings for a "logon" key with
  * description prefix:descriptor, and if found acquire a read lock on it and
@@ -267,7 +311,11 @@ static int setup_v1_file_key_direct(struct fscrypt_info *ci,
 static int setup_v1_file_key_derived(struct fscrypt_info *ci,
 				     const u8 *raw_master_key)
 {
+<<<<<<< Updated upstream
 	u8 *derived_key;
+=======
+	u8 *derived_key = NULL;
+>>>>>>> Stashed changes
 	int err;
 	int i;
 	union {
@@ -279,17 +327,62 @@ static int setup_v1_file_key_derived(struct fscrypt_info *ci,
 	if ((fscrypt_policy_contents_mode(&ci->ci_policy) ==
 					  FSCRYPT_MODE_PRIVATE) &&
 					  fscrypt_using_inline_encryption(ci)) {
+<<<<<<< Updated upstream
 		ci->ci_owns_key = true;
 		memcpy(key_new.bytes, raw_master_key, ci->ci_mode->keysize);
+=======
+		if (ci->ci_policy.v1.flags &
+		    FSCRYPT_POLICY_FLAG_IV_INO_LBLK_32) {
+			union {
+				siphash_key_t k;
+				u8 bytes[SHA256_DIGEST_SIZE];
+			} ino_hash_key;
+			int err;
+
+			/* hashed_ino = SipHash(key=SHA256(master_key),
+			 * data=i_ino)
+			 */
+			err = fscrypt_do_sha256(raw_master_key,
+						ci->ci_mode->keysize / 2,
+						ino_hash_key.bytes);
+			if (err)
+				return err;
+			ci->ci_hashed_ino = siphash_1u64(ci->ci_inode->i_ino,
+							 &ino_hash_key.k);
+		}
+
+#if IS_ENABLED(CONFIG_ENABLE_LEGACY_PFK)
+		derived_key = kmalloc(ci->ci_mode->keysize, GFP_NOFS);
+		if (!derived_key)
+			return -ENOMEM;
+
+		err = derive_key_aes(raw_master_key, ci->ci_nonce,
+				     derived_key, ci->ci_mode->keysize);
+		if (err)
+			goto out;
+
+		memcpy(key_new.bytes, derived_key, ci->ci_mode->keysize);
+#else
+		memcpy(key_new.bytes, raw_master_key, ci->ci_mode->keysize);
+#endif
+>>>>>>> Stashed changes
 
 		for (i = 0; i < ARRAY_SIZE(key_new.words); i++)
 			__cpu_to_be32s(&key_new.words[i]);
 
+<<<<<<< Updated upstream
 		err = fscrypt_prepare_inline_crypt_key(&ci->ci_key,
 						       key_new.bytes,
 						       ci->ci_mode->keysize,
 						       false,
 						       ci);
+=======
+		err = setup_v1_file_key_direct(ci, key_new.bytes);
+
+		if (derived_key)
+			kzfree(derived_key);
+
+>>>>>>> Stashed changes
 		return err;
 	}
 	/*
@@ -307,7 +400,13 @@ static int setup_v1_file_key_derived(struct fscrypt_info *ci,
 
 	err = fscrypt_set_per_file_enc_key(ci, derived_key);
 out:
+<<<<<<< Updated upstream
 	kzfree(derived_key);
+=======
+	if (derived_key)
+		kzfree(derived_key);
+
+>>>>>>> Stashed changes
 	return err;
 }
 

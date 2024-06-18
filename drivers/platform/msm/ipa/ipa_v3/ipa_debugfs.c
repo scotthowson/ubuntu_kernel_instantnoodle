@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
+<<<<<<< Updated upstream
  * Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
+=======
+ * Copyright (c) 2012-2021, The Linux Foundation. All rights reserved.
+>>>>>>> Stashed changes
  */
 
 #ifdef CONFIG_DEBUG_FS
@@ -1249,8 +1253,14 @@ static ssize_t ipa3_read_stats(struct file *file, char __user *ubuf,
 		"lan_rx_empty=%u\n"
 		"lan_repl_rx_empty=%u\n"
 		"flow_enable=%u\n"
+<<<<<<< Updated upstream
 		"flow_disable=%u\n",
 		"rx_page_drop_cnt=%u\n",
+=======
+		"flow_disable=%u\n"
+		"rx_page_drop_cnt=%u\n"
+		"zero_len_frag_pkt_cnt=%u\n",
+>>>>>>> Stashed changes
 		ipa3_ctx->stats.tx_sw_pkts,
 		ipa3_ctx->stats.tx_hw_pkts,
 		ipa3_ctx->stats.tx_non_linear,
@@ -1267,7 +1277,12 @@ static ssize_t ipa3_read_stats(struct file *file, char __user *ubuf,
 		ipa3_ctx->stats.lan_repl_rx_empty,
 		ipa3_ctx->stats.flow_enable,
 		ipa3_ctx->stats.flow_disable,
+<<<<<<< Updated upstream
 		ipa3_ctx->stats.rx_page_drop_cnt);
+=======
+		ipa3_ctx->stats.rx_page_drop_cnt,
+		ipa3_ctx->stats.zero_len_frag_pkt_cnt);
+>>>>>>> Stashed changes
 	cnt += nbytes;
 
 	for (i = 0; i < IPAHAL_PKT_STATUS_EXCEPTION_MAX; i++) {

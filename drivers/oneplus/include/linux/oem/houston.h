@@ -145,7 +145,10 @@ enum {
 	HT_MONITOR_SIZE
 };
 
+<<<<<<< Updated upstream
 /* fps stabilizer related */
+=======
+>>>>>>> Stashed changes
 struct ht_fps_stabilizer_buf {
 	char buf[PAGE_SIZE];
 };

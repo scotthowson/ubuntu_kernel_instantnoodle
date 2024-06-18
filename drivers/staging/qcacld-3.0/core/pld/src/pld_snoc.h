@@ -168,6 +168,19 @@ pld_snoc_get_audio_wlan_timestamp(struct device *dev,
 }
 #endif /* FEATURE_WLAN_TIME_SYNC_FTM */
 
+<<<<<<< Updated upstream
+=======
+static inline int pld_snoc_idle_restart(struct device *dev)
+{
+	return 0;
+}
+
+static inline int pld_snoc_idle_shutdown(struct device *dev)
+{
+	return 0;
+}
+
+>>>>>>> Stashed changes
 #else
 int pld_snoc_register_driver(void);
 void pld_snoc_unregister_driver(void);
@@ -350,5 +363,18 @@ static inline void pld_snoc_block_shutdown(bool status)
 {
 	icnss_block_shutdown(status);
 }
+<<<<<<< Updated upstream
+=======
+
+static inline int pld_snoc_idle_restart(struct device *dev)
+{
+	return icnss_idle_restart(dev);
+}
+
+static inline int pld_snoc_idle_shutdown(struct device *dev)
+{
+	return icnss_idle_shutdown(dev);
+}
+>>>>>>> Stashed changes
 #endif
 #endif

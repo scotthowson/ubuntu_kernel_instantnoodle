@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
+<<<<<<< Updated upstream
  * Copyright (c) 2010-2020, The Linux Foundation. All rights reserved.
+=======
+ * Copyright (c) 2010-2021, The Linux Foundation. All rights reserved.
+>>>>>>> Stashed changes
  */
 
 #include <linux/delay.h>
@@ -596,6 +600,21 @@ static const struct of_device_id mpm_gic_chip_data_table[] = {
 		.compatible = "qcom,mpm-gic-sdm660",
 		.data = mpm_sdm660_gic_chip_data,
 	},
+<<<<<<< Updated upstream
+=======
+	{
+		.compatible = "qcom,mpm-gic-msm8937",
+		.data = mpm_msm8937_gic_chip_data,
+	},
+	{
+		.compatible = "qcom,mpm-gic-msm8953",
+		.data = mpm_msm8953_gic_chip_data,
+	},
+	{
+		.compatible = "qcom,mpm-gic-khaje",
+		.data = mpm_khaje_gic_chip_data,
+	},
+>>>>>>> Stashed changes
 	{}
 };
 MODULE_DEVICE_TABLE(of, mpm_gic_chip_data_table);

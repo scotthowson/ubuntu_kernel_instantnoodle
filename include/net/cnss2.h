@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
-/* Copyright (c) 2016-2020, The Linux Foundation. All rights reserved. */
+/* Copyright (c) 2016-2021, The Linux Foundation. All rights reserved. */
 
 #ifndef _NET_CNSS2_H
 #define _NET_CNSS2_H
@@ -8,6 +8,7 @@
 
 #define CNSS_MAX_FILE_NAME		20
 #define CNSS_MAX_TIMESTAMP_LEN		32
+#define CNSS_MAX_DEV_MEM_NUM		4
 
 /*
  * Temporary change for compilation, will be removed
@@ -52,6 +53,11 @@ struct cnss_device_version {
 	u32 minor_version;
 };
 
+struct cnss_dev_mem_info {
+	u64 start;
+	u64 size;
+};
+
 struct cnss_soc_info {
 	void __iomem *va;
 	phys_addr_t pa;
@@ -62,6 +68,7 @@ struct cnss_soc_info {
 	uint32_t fw_version;
 	char fw_build_timestamp[CNSS_MAX_TIMESTAMP_LEN + 1];
 	struct cnss_device_version device_version;
+	struct cnss_dev_mem_info dev_mem_info[CNSS_MAX_DEV_MEM_NUM];
 };
 
 struct cnss_wlan_runtime_ops {
@@ -76,6 +83,16 @@ enum cnss_driver_status {
 	CNSS_RECOVERY,
 	CNSS_FW_DOWN,
 	CNSS_HANG_EVENT,
+<<<<<<< Updated upstream
+=======
+	CNSS_BUS_EVENT,
+};
+
+enum cnss_bus_event_type {
+	BUS_EVENT_PCI_LINK_DOWN = 0,
+
+	BUS_EVENT_INVALID = 0xFFFF,
+>>>>>>> Stashed changes
 };
 
 struct cnss_hang_event {
@@ -83,6 +100,14 @@ struct cnss_hang_event {
 	u16 hang_event_data_len;
 };
 
+<<<<<<< Updated upstream
+=======
+struct cnss_bus_event {
+	enum cnss_bus_event_type etype;
+	void *event_data;
+};
+
+>>>>>>> Stashed changes
 struct cnss_uevent_data {
 	enum cnss_driver_status status;
 	void *data;
@@ -242,5 +267,12 @@ extern int cnss_athdiag_write(struct device *dev, uint32_t offset,
 extern int cnss_set_fw_log_mode(struct device *dev, uint8_t fw_log_mode);
 /* WIFI MODIFICATION: */
 extern void cnss_set_fw_version(u32 version, u32 ext);
+<<<<<<< Updated upstream
 /* WIFI MODIFICATION: */
+=======
+extern int cnss_set_pcie_gen_speed(struct device *dev, u8 pcie_gen_speed);
+extern int cnss_pci_get_reg_dump(struct device *dev, uint8_t *buffer,
+				 uint32_t len);
+
+>>>>>>> Stashed changes
 #endif /* _NET_CNSS2_H */

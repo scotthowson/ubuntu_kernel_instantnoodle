@@ -143,13 +143,15 @@ irqreturn_t __handle_irq_event_percpu(struct irq_desc *desc, unsigned int *flags
 	record_irq_time(desc);
 
 	for_each_action_of_desc(desc, action) {
+		bool irqs_were_off = irqs_disabled();
 		irqreturn_t res;
 
 		trace_irq_handler_entry(irq, action);
 		res = action->handler(irq, action->dev_id);
 		trace_irq_handler_exit(irq, action, res);
 
-		if (WARN_ONCE(!irqs_disabled(),"irq %u handler %pF enabled interrupts\n",
+		if (WARN_ONCE(irqs_were_off && !irqs_disabled(),
+			      "irq %u handler %pF enabled interrupts\n",
 			      irq, action->handler))
 			local_irq_disable();
 
@@ -188,7 +190,7 @@ irqreturn_t handle_irq_event_percpu(struct irq_desc *desc)
 
 	retval = __handle_irq_event_percpu(desc, &flags);
 
-	add_interrupt_randomness(desc->irq_data.irq, flags);
+	add_interrupt_randomness(desc->irq_data.irq);
 
 	if (!noirqdebug)
 		note_interrupt(desc, retval);

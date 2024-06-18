@@ -52,7 +52,6 @@ Currently, these files are in /proc/sys/vm:
 - nr_trim_pages         (only if CONFIG_MMU=n)
 - numa_zonelist_order
 - oom_dump_tasks
-- reap_mem_on_sigkill
 - oom_kill_allocating_task
 - overcommit_kbytes
 - overcommit_memory
@@ -66,7 +65,6 @@ Currently, these files are in /proc/sys/vm:
 - swappiness
 - user_reserve_kbytes
 - vfs_cache_pressure
-- watermark_boost_factor
 - watermark_scale_factor
 - zone_reclaim_mode
 - want_old_faultaround_pte
@@ -680,24 +678,6 @@ The default value is 1 (enabled).
 
 ==============================================================
 
-reap_mem_on_sigkill
-
-This enables or disables the memory reaping for a SIGKILL received
-process and that the sending process must have the CAP_KILL capabilities.
-
-If this is set to 1, when a process receives SIGKILL from a process
-that has the capability, CAP_KILL, the process is added into the oom_reaper
-queue which can be picked up by the oom_reaper thread to reap the memory of
-that process. This reaps for the process which received SIGKILL through
-either sys_kill from user or kill_pid from kernel.
-
-If this is set to 0, we are not reaping memory of a SIGKILL, sent through
-either sys_kill from user or kill_pid from kernel, received process.
-
-The default value is 0 (disabled).
-
-==============================================================
-
 oom_kill_allocating_task
 
 This enables or disables killing the OOM-triggering task in
@@ -916,6 +896,7 @@ ten times more freeable objects than there are.
 
 =============================================================
 
+<<<<<<< Updated upstream
 watermark_boost_factor:
 
 This factor controls the level of reclaim when memory is being fragmented.
@@ -936,6 +917,8 @@ of 0 will disable the feature.
 
 =============================================================
 
+=======
+>>>>>>> Stashed changes
 watermark_scale_factor:
 
 This factor controls the aggressiveness of kswapd. It defines the

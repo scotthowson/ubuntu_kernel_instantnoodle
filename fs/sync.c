@@ -17,9 +17,6 @@
 #include <linux/quotaops.h>
 #include <linux/backing-dev.h>
 #include "internal.h"
-#ifdef CONFIG_ONEPLUS_HEALTHINFO
-#include <linux/oem/oneplus_healthinfo.h>
-#endif
 
 #define VALID_FLAGS (SYNC_FILE_RANGE_WAIT_BEFORE|SYNC_FILE_RANGE_WRITE| \
 			SYNC_FILE_RANGE_WAIT_AFTER)
@@ -164,7 +161,7 @@ SYSCALL_DEFINE1(syncfs, int, fd)
 {
 	struct fd f = fdget(fd);
 	struct super_block *sb;
-	int ret;
+	int ret, ret2;
 
 	if (!f.file)
 		return -EBADF;
@@ -174,8 +171,10 @@ SYSCALL_DEFINE1(syncfs, int, fd)
 	ret = sync_filesystem(sb);
 	up_read(&sb->s_umount);
 
+	ret2 = errseq_check_and_advance(&sb->s_wb_err, &f.file->f_sb_err);
+
 	fdput(f);
-	return ret;
+	return ret ? ret : ret2;
 }
 
 /**
@@ -215,28 +214,30 @@ int vfs_fsync(struct file *file, int datasync)
 }
 EXPORT_SYMBOL(vfs_fsync);
 
+<<<<<<< Updated upstream
 #ifdef CONFIG_ONEPLUS_HEALTHINFO
 extern void ohm_schedstats_record(int sched_type, struct task_struct *task, u64 delta_ms);
 #endif /*CONFIG_ONEPLUS_HEALTHINFO*/
 
+=======
+>>>>>>> Stashed changes
 static int do_fsync(unsigned int fd, int datasync)
 {
 	struct fd f = fdget(fd);
 	int ret = -EBADF;
-
-#ifdef CONFIG_ONEPLUS_HEALTHINFO
-	unsigned long oneplus_fsync_time = jiffies;
-#endif
 
 	if (f.file) {
 		ret = vfs_fsync(f.file, datasync);
 		fdput(f);
 		inc_syscfs(current);
 	}
+<<<<<<< Updated upstream
 #ifdef CONFIG_ONEPLUS_HEALTHINFO
 	ohm_schedstats_record(OHM_SCHED_FSYNC, current,
 			jiffies_to_msecs(jiffies - oneplus_fsync_time));
 #endif /*CONFIG_ONEPLUS_HEALTHINFO*/
+=======
+>>>>>>> Stashed changes
 	return ret;
 }
 

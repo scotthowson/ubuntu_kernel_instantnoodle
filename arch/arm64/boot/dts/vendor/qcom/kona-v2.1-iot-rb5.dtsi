@@ -27,6 +27,13 @@
 	};
 };
 
+<<<<<<< Updated upstream
+=======
+&power_key {
+	status = "disabled";
+};
+
+>>>>>>> Stashed changes
 &mdss_mdp {
 	connectors = <&sde_dp &sde_dsi &sde_dsi1 &sde_rscc>;
 };

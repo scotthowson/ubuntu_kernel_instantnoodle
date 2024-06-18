@@ -366,9 +366,15 @@ static inline void kgsl_free_sgt(struct sg_table *sgt)
  *
  * Return supported pagesize
  */
+<<<<<<< Updated upstream
 #ifndef CONFIG_ALLOC_BUFFERS_IN_4K_CHUNKS
 static inline int kgsl_get_page_size(size_t size, unsigned int align,
 			struct kgsl_memdesc *memdesc)
+=======
+#if !defined(CONFIG_QCOM_KGSL_USE_SHMEM) && \
+	!defined(CONFIG_ALLOC_BUFFERS_IN_4K_CHUNKS)
+static inline int kgsl_get_page_size(size_t size, unsigned int align)
+>>>>>>> Stashed changes
 {
 	if (memdesc->priv & KGSL_MEMDESC_USE_SHMEM)
 		return PAGE_SIZE;

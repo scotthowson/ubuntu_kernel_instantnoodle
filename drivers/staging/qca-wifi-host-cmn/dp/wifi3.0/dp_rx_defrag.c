@@ -1,5 +1,9 @@
 /*
+<<<<<<< Updated upstream
  * Copyright (c) 2017-2020 The Linux Foundation. All rights reserved.
+=======
+ * Copyright (c) 2017-2021 The Linux Foundation. All rights reserved.
+>>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -853,9 +857,15 @@ static int dp_rx_defrag_pn_check(qdf_nbuf_t msdu,
 		((uint64_t)rx_mpdu_info_details->pn_127_96 << 32);
 
 	if (cur_pn128[1] == prev_pn128[1])
+<<<<<<< Updated upstream
 		out_of_order = (cur_pn128[0] <= prev_pn128[0]);
 	else
 		out_of_order = (cur_pn128[1] < prev_pn128[1]);
+=======
+		out_of_order = (cur_pn128[0] - prev_pn128[0] != 1);
+	else
+		out_of_order = (cur_pn128[1] - prev_pn128[1] != 1);
+>>>>>>> Stashed changes
 
 	return out_of_order;
 }
@@ -906,6 +916,20 @@ dp_rx_construct_fraglist(struct dp_peer *peer, int tid, qdf_nbuf_t head,
 		prev_pn128[0] = cur_pn128[0];
 		prev_pn128[1] = cur_pn128[1];
 
+<<<<<<< Updated upstream
+=======
+		/*
+		 * Broadcast and multicast frames should never be fragmented.
+		 * Iterating through all msdus and dropping fragments if even
+		 * one of them has mcast/bcast destination address.
+		 */
+		if (hal_rx_msdu_is_wlan_mcast(msdu)) {
+			QDF_TRACE(QDF_MODULE_ID_TXRX, QDF_TRACE_LEVEL_ERROR,
+				  "Dropping multicast/broadcast fragments");
+			return QDF_STATUS_E_FAILURE;
+		}
+
+>>>>>>> Stashed changes
 		dp_rx_frag_pull_hdr(msdu, hdrsize);
 		len += qdf_nbuf_len(msdu);
 		msdu = qdf_nbuf_next(msdu);

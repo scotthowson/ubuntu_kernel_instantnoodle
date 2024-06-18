@@ -1145,6 +1145,10 @@ static int dp_audio_info_setup(struct platform_device *pdev,
 	mdss_dp_config_audio_acr_ctrl(&dp_ctrl->ctrl_io, dp_ctrl->link_rate);
 	mdss_dp_set_safe_to_exit_level(&dp_ctrl->ctrl_io, dp_ctrl->lane_cnt);
 	mdss_dp_audio_enable(&dp_ctrl->ctrl_io, true);
+<<<<<<< Updated upstream
+=======
+	dp_ctrl->audio_en = true;
+>>>>>>> Stashed changes
 
 end:
 	return rc;
@@ -1186,7 +1190,12 @@ static void dp_audio_teardown_done(struct platform_device *pdev)
 	mdss_dp_audio_enable(&dp->ctrl_io, false);
 	/* Make sure the DP audio engine is disabled */
 	wmb();
+<<<<<<< Updated upstream
 
+=======
+	dp->audio_en = false;
+	complete_all(&dp->audio_comp);
+>>>>>>> Stashed changes
 	pr_debug("audio engine disabled\n");
 } /* dp_audio_teardown_done */
 
@@ -1879,7 +1888,11 @@ static int mdss_dp_off_irq(struct mdss_dp_drv_pdata *dp_drv)
 	mdss_dp_audio_enable(&dp_drv->ctrl_io, false);
 	/* Make sure DP mainlink and audio engines are disabled */
 	wmb();
+<<<<<<< Updated upstream
 
+=======
+	dp_drv->audio_en = false;
+>>>>>>> Stashed changes
 	/*
 	 * If downstream device is a brige which no longer has any
 	 * downstream devices connected to it, then we should reset
@@ -1912,6 +1925,10 @@ static int mdss_dp_off_hpd(struct mdss_dp_drv_pdata *dp_drv)
 	mdss_dp_aux_ctrl(&dp_drv->ctrl_io, false);
 
 	mdss_dp_audio_enable(&dp_drv->ctrl_io, false);
+<<<<<<< Updated upstream
+=======
+	dp_drv->audio_en = false;
+>>>>>>> Stashed changes
 
 	mdss_dp_host_deinit(dp_drv);
 
@@ -2316,6 +2333,17 @@ notify:
 		ret = mdss_dp_send_video_notification(dp, true);
 	} else {
 		mdss_dp_send_audio_notification(dp, false);
+<<<<<<< Updated upstream
+=======
+		if (dp->audio_en) {
+			reinit_completion(&dp->audio_comp);
+			ret = wait_for_completion_timeout(&dp->audio_comp,
+						msecs_to_jiffies(2000));
+			if (ret <= 0)
+				pr_err("%s Wait for Audio Comp timed out\n",
+							 __func__);
+		}
+>>>>>>> Stashed changes
 		ret = mdss_dp_send_video_notification(dp, false);
 	}
 
@@ -4525,6 +4553,10 @@ static int mdss_dp_probe(struct platform_device *pdev)
 	init_completion(&dp_drv->aux_comp);
 	init_completion(&dp_drv->idle_comp);
 	init_completion(&dp_drv->video_comp);
+<<<<<<< Updated upstream
+=======
+	init_completion(&dp_drv->audio_comp);
+>>>>>>> Stashed changes
 
 	if (mdss_dp_usbpd_setup(dp_drv)) {
 		pr_err("Error usbpd setup!\n");

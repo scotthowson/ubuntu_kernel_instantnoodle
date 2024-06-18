@@ -67,9 +67,12 @@ static inline bool try_to_freeze(void)
 	return try_to_freeze_unsafe();
 }
 
+<<<<<<< Updated upstream
 extern void unfreezer_fork(struct task_struct *task);
 extern bool freeze_cgroup_task(struct task_struct *p);
 
+=======
+>>>>>>> Stashed changes
 extern bool freeze_task(struct task_struct *p);
 extern bool set_freezable(void);
 

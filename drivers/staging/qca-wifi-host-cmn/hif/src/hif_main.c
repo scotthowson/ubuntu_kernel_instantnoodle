@@ -546,6 +546,10 @@ int hif_recovery_notifier_cb(struct notifier_block *block, unsigned long state,
 	struct qdf_notifer_data *notif_data = data;
 	qdf_notif_block *notif_block;
 	struct hif_softc *hif_handle;
+<<<<<<< Updated upstream
+=======
+	bool bus_id_invalid;
+>>>>>>> Stashed changes
 
 	if (!data || !block)
 		return -EINVAL;
@@ -556,8 +560,16 @@ int hif_recovery_notifier_cb(struct notifier_block *block, unsigned long state,
 	if (!hif_handle)
 		return -EINVAL;
 
+<<<<<<< Updated upstream
 	hif_log_bus_info(hif_handle, notif_data->hang_data,
 			 &notif_data->offset);
+=======
+	bus_id_invalid = hif_log_bus_info(hif_handle, notif_data->hang_data,
+					  &notif_data->offset);
+	if (bus_id_invalid)
+		return NOTIFY_STOP_MASK;
+
+>>>>>>> Stashed changes
 	hif_log_ce_info(hif_handle, notif_data->hang_data,
 			&notif_data->offset);
 
@@ -640,10 +652,18 @@ struct hif_opaque_softc *hif_open(qdf_device_t qdf_ctx,
 	qdf_atomic_init(&scn->active_grp_tasklet_cnt);
 	qdf_atomic_init(&scn->link_suspended);
 	qdf_atomic_init(&scn->tasklet_from_intr);
+<<<<<<< Updated upstream
+=======
+	hif_system_pm_set_state_on(GET_HIF_OPAQUE_HDL(scn));
+>>>>>>> Stashed changes
 	qdf_mem_copy(&scn->callbacks, cbk,
 		     sizeof(struct hif_driver_state_callbacks));
 	scn->bus_type  = bus_type;
 
+<<<<<<< Updated upstream
+=======
+	hif_pm_set_link_state(GET_HIF_OPAQUE_HDL(scn), HIF_PM_LINK_STATE_DOWN);
+>>>>>>> Stashed changes
 	hif_get_cfg_from_psoc(scn, psoc);
 
 	hif_set_event_hist_mask(GET_HIF_OPAQUE_HDL(scn));
@@ -704,6 +724,10 @@ void hif_close(struct hif_opaque_softc *hif_ctx)
 	}
 
 	hif_uninit_rri_on_ddr(scn);
+<<<<<<< Updated upstream
+=======
+	hif_cleanup_static_buf_to_target(scn);
+>>>>>>> Stashed changes
 	hif_cpuhp_unregister(scn);
 
 	hif_bus_close(scn);
@@ -849,6 +873,10 @@ QDF_STATUS hif_enable(struct hif_opaque_softc *hif_ctx, struct device *dev,
 		return status;
 	}
 
+<<<<<<< Updated upstream
+=======
+	hif_pm_set_link_state(GET_HIF_OPAQUE_HDL(scn), HIF_PM_LINK_STATE_UP);
+>>>>>>> Stashed changes
 	status = hif_hal_attach(scn);
 	if (status != QDF_STATUS_SUCCESS) {
 		HIF_ERROR("%s: hal attach failed", __func__);
@@ -902,6 +930,10 @@ void hif_disable(struct hif_opaque_softc *hif_ctx, enum hif_disable_type type)
 
 	hif_hal_detach(scn);
 
+<<<<<<< Updated upstream
+=======
+	hif_pm_set_link_state(hif_ctx, HIF_PM_LINK_STATE_DOWN);
+>>>>>>> Stashed changes
 	hif_disable_bus(scn);
 
 	hif_wlan_disable(scn);
@@ -1659,7 +1691,11 @@ irqreturn_t hif_wake_interrupt_handler(int irq, void *context)
 	struct hif_softc *scn = context;
 	struct hif_opaque_softc *hif_ctx = GET_HIF_OPAQUE_HDL(scn);
 
+<<<<<<< Updated upstream
 	HIF_INFO("wake interrupt received on irq %d", irq);
+=======
+	HIF_DBG("wake interrupt received on irq %d", irq);
+>>>>>>> Stashed changes
 
 	if (hif_pm_runtime_get_monitor_wake_intr(hif_ctx)) {
 		hif_pm_runtime_set_monitor_wake_intr(hif_ctx, 0);
@@ -1716,3 +1752,44 @@ void hif_set_ce_service_max_rx_ind_flush(struct hif_opaque_softc *hif,
 		hif_ctx->ce_service_max_rx_ind_flush =
 						ce_service_max_rx_ind_flush;
 }
+<<<<<<< Updated upstream
+=======
+
+#ifdef SYSTEM_PM_CHECK
+void __hif_system_pm_set_state(struct hif_opaque_softc *hif,
+			       enum hif_system_pm_state state)
+{
+	struct hif_softc *hif_ctx = HIF_GET_SOFTC(hif);
+
+	qdf_atomic_set(&hif_ctx->sys_pm_state, state);
+}
+
+int32_t hif_system_pm_get_state(struct hif_opaque_softc *hif)
+{
+	struct hif_softc *hif_ctx = HIF_GET_SOFTC(hif);
+
+	return qdf_atomic_read(&hif_ctx->sys_pm_state);
+}
+
+int hif_system_pm_state_check(struct hif_opaque_softc *hif)
+{
+	struct hif_softc *hif_ctx = HIF_GET_SOFTC(hif);
+	int32_t sys_pm_state;
+
+	if (!hif_ctx) {
+		hif_err("hif context is null");
+		return -EFAULT;
+	}
+
+	sys_pm_state = qdf_atomic_read(&hif_ctx->sys_pm_state);
+	if (sys_pm_state == HIF_SYSTEM_PM_STATE_BUS_SUSPENDING ||
+	    sys_pm_state == HIF_SYSTEM_PM_STATE_BUS_SUSPENDED) {
+		hif_info("Triggering system wakeup");
+		qdf_pm_system_wakeup();
+		return -EAGAIN;
+	}
+
+	return 0;
+}
+#endif
+>>>>>>> Stashed changes

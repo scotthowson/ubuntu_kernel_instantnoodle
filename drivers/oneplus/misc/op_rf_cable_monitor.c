@@ -118,7 +118,11 @@ int get_all_gpio_val(void)
 	/*only 19811 china and 19821 china use ANT6(gpio109)*/
 	if((get_prj_version() == 12 && get_rf_version() == 11) 
 		||(get_prj_version() == 11 && get_rf_version() == 11)
+<<<<<<< Updated upstream
 		||(get_prj_version() == 14) || (get_prj_version() == 15))
+=======
+		||(get_prj_version() == 14))
+>>>>>>> Stashed changes
 		return gpiostate;
 	else
 		return gpiostate - gpiostate % 10;

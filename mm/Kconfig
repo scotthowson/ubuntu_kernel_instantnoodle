@@ -263,6 +263,18 @@ config COMPACTION
           it and then we would be really interested to hear about that at
           linux-mm@kvack.org.
 
+config PROCESS_RECLAIM
+	bool "Enable process reclaim"
+	depends on PROC_FS
+	default n
+	help
+	 It allows to reclaim pages of the process by /proc/pid/reclaim.
+
+	 (echo file > /proc/PID/reclaim) reclaims file-backed pages only.
+	 (echo anon > /proc/PID/reclaim) reclaims anonymous pages only.
+	 (echo all > /proc/PID/reclaim) reclaims all pages.
+
+	 Any other value is ignored.
 #
 # support for page migration
 #
@@ -397,7 +409,7 @@ config NOMMU_INITIAL_TRIM_EXCESS
 
 config TRANSPARENT_HUGEPAGE
 	bool "Transparent Hugepage Support"
-	depends on HAVE_ARCH_TRANSPARENT_HUGEPAGE
+	depends on HAVE_ARCH_TRANSPARENT_HUGEPAGE && !PREEMPT_RT_FULL
 	select COMPACTION
 	select RADIX_TREE_MULTIORDER
 	help
@@ -529,15 +541,6 @@ config CMA_DEBUGFS
 	help
 	  Turns on the DebugFS interface for CMA.
 
-config  CMA_ALLOW_WRITE_DEBUGFS
-	depends on CMA_DEBUGFS
-	bool "Allow CMA debugfs write"
-	help
-	  Say 'y' here to allow the CMA debugfs write.
-	  CMA debugfs write could be risky as it allows
-	  cma allocation, so it is not recommended to
-	  enable this option on any production device.
-
 config CMA_AREAS
 	int "Maximum count of the CMA areas"
 	depends on CMA
@@ -643,6 +646,7 @@ config ZSMALLOC_STAT
 	  information to userspace via debugfs.
 	  If unsure, say N.
 
+<<<<<<< Updated upstream
 config VMAP_LAZY_PURGING_FACTOR
 	int "multiplier to the size of purged vmap areas"
 	default "8" if ARM
@@ -652,6 +656,8 @@ config VMAP_LAZY_PURGING_FACTOR
 	  single attempt. For 32-bit in order to reduce fragmentation
 	  of vmalloc space, we decrease the default value to "8".
 
+=======
+>>>>>>> Stashed changes
 config MM_EVENT_STAT
 	bool "Track per-process MM event"
 	depends on MMU
@@ -837,15 +843,6 @@ config SPECULATIVE_PAGE_FAULT
 	 allocating, it is failing its processing and a classic page fault
 	 is then tried.
 
-config HAVE_USERSPACE_LOW_MEMORY_KILLER
-	bool "Have userspace low memory killer"
-	default n
-	help
-	  The page allocator cannot directly call into a
-	  userspace low memory killer as it can call into the OOM killer.
-	  Therefore, add a timeout mechanism to give the userspace
-	  low memory killer a chance to run.
-
 config GUP_BENCHMARK
 	bool "Enable infrastructure for get_user_pages_fast() benchmarking"
 	default n
@@ -859,6 +856,7 @@ config ARCH_HAS_PTE_SPECIAL
 	bool
 
 endmenu
+<<<<<<< Updated upstream
 
 config PROCESS_RECLAIM
 	bool "Enable process reclaim"
@@ -895,3 +893,5 @@ config FORCE_ALLOC_FROM_DMA_ZONE
 
 	  If unsure, say "n".
 
+=======
+>>>>>>> Stashed changes

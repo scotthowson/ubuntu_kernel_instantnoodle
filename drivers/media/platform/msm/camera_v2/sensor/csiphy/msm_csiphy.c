@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-only
+<<<<<<< Updated upstream
 /* Copyright (c) 2011-2020, The Linux Foundation. All rights reserved.
+=======
+/* Copyright (c) 2011-2021, The Linux Foundation. All rights reserved.
+>>>>>>> Stashed changes
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -210,7 +214,11 @@ static int msm_csiphy_snps_2_lane_config(
 	diff = abs(snps_v100_freq_values[0].default_bit_rate -
 		local_data_rate);
 	/* ToDo: Can be optimized to a O(1) search */
+<<<<<<< Updated upstream
 	for (i = 1; i < ARRAY_SIZE(snps_v100_freq_values)/
+=======
+	for (i = 1; i < sizeof(snps_v100_freq_values)/
+>>>>>>> Stashed changes
 		sizeof(snps_v100_freq_values[0]);) {
 		diff_i = abs(snps_v100_freq_values[i].default_bit_rate -
 			local_data_rate);
@@ -220,7 +228,11 @@ static int msm_csiphy_snps_2_lane_config(
 		}
 		diff = diff_i;
 		i++;
+<<<<<<< Updated upstream
 		if (ARRAY_SIZE(snps_v100_freq_values)/
+=======
+		if (sizeof(snps_v100_freq_values)/
+>>>>>>> Stashed changes
 		sizeof(snps_v100_freq_values[0]) == i) {
 			i--;
 			break;
@@ -259,10 +271,20 @@ static int msm_csiphy_snps_2_lane_config(
 		csiphybase + csiphy_dev->ctrl_reg->csiphy_snps_reg
 		.mipi_csiphy_rx_sys_7_00.addr + offset);
 
+<<<<<<< Updated upstream
 	msm_camera_io_w(csiphy_dev->ctrl_reg->csiphy_snps_reg
 		.mipi_csiphy_rx_sys_9_00.data,
 		csiphybase + csiphy_dev->ctrl_reg->csiphy_snps_reg
 		.mipi_csiphy_rx_sys_9_00.addr + offset);
+=======
+	value = msm_camera_io_r(csiphybase +
+		csiphy_dev->ctrl_reg->csiphy_snps_reg
+		.mipi_csiphy_rx_clk_lane_6_00.addr + offset);
+	value |= SET_THE_BIT(7);
+	msm_camera_io_w(value,
+		csiphybase + csiphy_dev->ctrl_reg->csiphy_snps_reg
+		.mipi_csiphy_rx_clk_lane_6_00.addr + offset);
+>>>>>>> Stashed changes
 
 	msm_camera_io_w(csiphy_dev->ctrl_reg->csiphy_snps_reg
 		.mipi_csiphy_rx_startup_ovr_4_00.data,
@@ -292,6 +314,35 @@ static int msm_csiphy_snps_2_lane_config(
 		csiphybase + csiphy_dev->ctrl_reg->csiphy_snps_reg
 		.mipi_csiphy_rx_cb_2_00.addr + offset);
 
+<<<<<<< Updated upstream
+=======
+	if (local_data_rate <= 1500) {
+		msm_camera_io_w(
+			csiphy_dev->ctrl_reg->csiphy_snps_reg
+			.mipi_csiphy_rx_lane0_ddl_2_00.data,
+			csiphybase +
+			csiphy_dev->ctrl_reg->csiphy_snps_reg
+			.mipi_csiphy_rx_lane0_ddl_2_00.addr + offset);
+
+		msm_camera_io_w(csiphy_dev->ctrl_reg->csiphy_snps_reg
+			.mipi_csiphy_rx_lane0_ddl_3_00.data,
+			csiphybase +
+			csiphy_dev->ctrl_reg->csiphy_snps_reg
+			.mipi_csiphy_rx_lane0_ddl_3_00.addr + offset);
+
+		msm_camera_io_w(csiphy_dev->ctrl_reg->csiphy_snps_reg
+			.mipi_csiphy_rx_lane_1_10_00.data,
+			csiphybase +
+			csiphy_dev->ctrl_reg->csiphy_snps_reg
+			.mipi_csiphy_rx_lane_1_10_00.addr + offset);
+
+		msm_camera_io_w(csiphy_dev->ctrl_reg->csiphy_snps_reg
+			.mipi_csiphy_rx_lane_1_11_00.data,
+			csiphybase +
+			csiphy_dev->ctrl_reg->csiphy_snps_reg
+			.mipi_csiphy_rx_lane_1_11_00.addr + offset);
+	}
+>>>>>>> Stashed changes
 	return 0;
 }
 
@@ -303,7 +354,11 @@ static int msm_csiphy_snps_lane_config(
 	uint16_t lane_mask = 0;
 	void __iomem *csiphybase;
 	enum snps_csiphy_mode mode = INVALID_MODE;
+<<<<<<< Updated upstream
 	uint32_t value, num_tries, num_lanes, offset;
+=======
+	uint32_t value, num_tries, num_lanes, offset = SNPS_INTERPHY_OFFSET;
+>>>>>>> Stashed changes
 	uint32_t clk_mux_reg = 0;
 
 	csiphybase = csiphy_dev->base;
@@ -483,6 +538,7 @@ static int msm_csiphy_snps_lane_config(
 
 		value = msm_camera_io_r(csiphybase +
 			csiphy_dev->ctrl_reg->csiphy_snps_reg
+<<<<<<< Updated upstream
 			.mipi_csiphy_rx_startup_ovr_0_00.addr +
 			SNPS_INTERPHY_OFFSET);
 		value |= SET_THE_BIT(0);
@@ -494,6 +550,8 @@ static int msm_csiphy_snps_lane_config(
 
 		value = msm_camera_io_r(csiphybase +
 			csiphy_dev->ctrl_reg->csiphy_snps_reg
+=======
+>>>>>>> Stashed changes
 			.mipi_csiphy_rx_startup_ovr_1_00.addr +
 			SNPS_INTERPHY_OFFSET);
 		value &= ~(SET_THE_BIT(0));
@@ -507,6 +565,10 @@ static int msm_csiphy_snps_lane_config(
 			csiphy_dev->ctrl_reg->csiphy_snps_reg
 			.mipi_csiphy_rx_clk_lane_6_00.addr);
 		value |= SET_THE_BIT(2);
+<<<<<<< Updated upstream
+=======
+		value &= ~(SET_THE_BIT(7));
+>>>>>>> Stashed changes
 		msm_camera_io_w(value,
 			csiphybase + csiphy_dev->ctrl_reg->csiphy_snps_reg
 			.mipi_csiphy_rx_clk_lane_6_00.addr);
@@ -516,7 +578,11 @@ static int msm_csiphy_snps_lane_config(
 			.mipi_csiphy_rx_clk_lane_6_00.addr +
 			SNPS_INTERPHY_OFFSET);
 		value |= SET_THE_BIT(3);
+<<<<<<< Updated upstream
 		value |= SET_THE_BIT(7);
+=======
+		value &= ~(SET_THE_BIT(7));
+>>>>>>> Stashed changes
 		value &= ~(SET_THE_BIT(2));
 		msm_camera_io_w(value,
 			csiphybase + csiphy_dev->ctrl_reg->csiphy_snps_reg
@@ -578,6 +644,7 @@ static int msm_csiphy_snps_lane_config(
 		csiphybase + csiphy_dev->ctrl_reg->csiphy_snps_reg
 		.mipi_csiphy_enable_clk.addr);
 
+<<<<<<< Updated upstream
 	value = 0x0;
 	if (mode == AGGREGATE_MODE || mode == TWO_LANE_PHY_A)
 		value |= mask_ctrl_1_A;
@@ -608,6 +675,111 @@ static int msm_csiphy_snps_lane_config(
 	if ((value | SET_THE_BIT(4)) != value) {
 		pr_err("%s: SNPS phy config failed\n", __func__);
 		return -EINVAL;
+=======
+	if (mode == TWO_LANE_PHY_A) {
+		msm_camera_io_w(mask_reset_A,
+		csiphybase + csiphy_dev->ctrl_reg->csiphy_snps_reg
+		.mipi_csiphy_ctrl_1.addr);
+
+		msm_camera_io_w(mask_ctrl_1_A,
+		csiphybase + csiphy_dev->ctrl_reg->csiphy_snps_reg
+		.mipi_csiphy_ctrl_1.addr);
+
+		value = 0x0;
+		num_tries = 0;
+
+		do {
+			num_tries++;
+			value = msm_camera_io_r(csiphybase +
+				csiphy_dev->ctrl_reg->csiphy_snps_reg
+				.mipi_csiphy_rx_startup_obs_2_00.addr);
+			if ((value | SET_THE_BIT(4)) == value)
+				break;
+			usleep_range(100, 150);
+		} while (num_tries < 6);
+		if ((value | SET_THE_BIT(4)) != value) {
+			pr_err("%s: SNPS phy config failed\n", __func__);
+			return -EINVAL;
+		}
+	}
+
+	if (mode == TWO_LANE_PHY_B) {
+		msm_camera_io_w(mask_reset_B,
+		csiphybase + csiphy_dev->ctrl_reg->csiphy_snps_reg
+		.mipi_csiphy_ctrl_1.addr);
+
+		msm_camera_io_w(mask_ctrl_1_A|mask_ctrl_1_B,
+		csiphybase + csiphy_dev->ctrl_reg->csiphy_snps_reg
+		.mipi_csiphy_ctrl_1.addr);
+
+		value = 0x0;
+		num_tries = 0;
+
+		do {
+			num_tries++;
+			value = msm_camera_io_r(csiphybase +
+				csiphy_dev->ctrl_reg->csiphy_snps_reg
+				.mipi_csiphy_rx_startup_obs_2_00.addr + offset);
+			if ((value | SET_THE_BIT(4)) == value)
+				break;
+			usleep_range(100, 150);
+		} while (num_tries < 6);
+
+		if ((value | SET_THE_BIT(4)) != value) {
+			pr_err("%s: SNPS phy config failed\n", __func__);
+			return -EINVAL;
+		}
+	}
+
+	if (mode == AGGREGATE_MODE) {
+		msm_camera_io_w(mask_shutdown_A,
+		csiphybase + csiphy_dev->ctrl_reg->csiphy_snps_reg
+		.mipi_csiphy_ctrl_1.addr);
+
+		msm_camera_io_w(mask_reset_B,
+		csiphybase + csiphy_dev->ctrl_reg->csiphy_snps_reg
+		.mipi_csiphy_ctrl_1.addr);
+
+		value = 0x0;
+		num_tries = 0;
+
+		do {
+			num_tries++;
+			value = msm_camera_io_r(csiphybase +
+				csiphy_dev->ctrl_reg->csiphy_snps_reg
+				.mipi_csiphy_rx_startup_obs_2_00.addr);
+			if ((value | SET_THE_BIT(4)) == value)
+				break;
+			usleep_range(100, 150);
+		} while (num_tries < 6);
+
+		if ((value | SET_THE_BIT(4)) != value) {
+			pr_err("%s: SNPS phy config failed\n", __func__);
+			return -EINVAL;
+		}
+
+		msm_camera_io_w(mask_ctrl_1_A|mask_ctrl_1_B,
+		csiphybase + csiphy_dev->ctrl_reg->csiphy_snps_reg
+		.mipi_csiphy_ctrl_1.addr);
+
+		value = 0x0;
+		num_tries = 0;
+
+		do {
+			num_tries++;
+			value = msm_camera_io_r(csiphybase +
+				csiphy_dev->ctrl_reg->csiphy_snps_reg
+				.mipi_csiphy_rx_startup_obs_2_00.addr + offset);
+			if ((value | SET_THE_BIT(4)) == value)
+				break;
+			usleep_range(100, 150);
+		} while (num_tries < 6);
+
+		if ((value | SET_THE_BIT(4)) != value) {
+			pr_err("%s: SNPS phy config failed\n", __func__);
+			return -EINVAL;
+		}
+>>>>>>> Stashed changes
 	}
 
 	msm_camera_io_w(csiphy_dev->ctrl_reg->csiphy_snps_reg

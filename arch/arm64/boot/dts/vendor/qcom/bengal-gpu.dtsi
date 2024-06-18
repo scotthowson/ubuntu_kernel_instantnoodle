@@ -136,6 +136,10 @@
 		qcom,gpubw-dev = <&gpubw>;
 		qcom,bus-control;
 		qcom,msm-bus,name = "grp3d";
+<<<<<<< Updated upstream
+=======
+		qcom,bus-width = <32>;
+>>>>>>> Stashed changes
 		qcom,msm-bus,num-cases = <12>;
 		qcom,msm-bus,num-paths = <1>;
 		qcom,msm-bus,vectors-KBps =

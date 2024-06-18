@@ -44,6 +44,7 @@
 #include <linux/ctype.h>
 #include <linux/mm.h>
 #include <linux/mempolicy.h>
+#include <linux/string_helpers.h>
 
 #include <linux/compat.h>
 #include <linux/syscalls.h>
@@ -1209,6 +1210,24 @@ DECLARE_RWSEM(uts_sem);
 #define override_architecture(name)	0
 #endif
 
+static void override_custom_release(char __user *release, size_t len)
+{
+#ifdef CONFIG_UNAME_OVERRIDE
+	char *buf;
+
+	buf = kstrdup_quotable_cmdline(current, GFP_KERNEL);
+	if (buf == NULL)
+		return;
+
+	if (strstr(buf, CONFIG_UNAME_OVERRIDE_TARGET)) {
+		copy_to_user(release, CONFIG_UNAME_OVERRIDE_STRING,
+			       strlen(CONFIG_UNAME_OVERRIDE_STRING) + 1);
+	}
+
+	kfree(buf);
+#endif
+}
+
 /*
  * Work around broken programs that cannot handle "Linux 3.0".
  * Instead we map 3.x to 2.6.40+x, so e.g. 3.0 would be 2.6.40
@@ -1250,6 +1269,7 @@ SYSCALL_DEFINE1(newuname, struct new_utsname __user *, name)
 	if (copy_to_user(name, &tmp, sizeof(tmp)))
 		return -EFAULT;
 
+	override_custom_release(name->release, sizeof(name->release));
 	if (override_release(name->release, sizeof(name->release)))
 		return -EFAULT;
 	if (override_architecture(name))
@@ -1283,10 +1303,12 @@ SYSCALL_DEFINE1(uname, struct old_utsname __user *, name)
 
 SYSCALL_DEFINE1(olduname, struct oldold_utsname __user *, name)
 {
-	struct oldold_utsname tmp = {};
+	struct oldold_utsname tmp;
 
 	if (!name)
 		return -EFAULT;
+
+	memset(&tmp, 0, sizeof(tmp));
 
 	down_read(&uts_sem);
 	memcpy(&tmp.sysname, &utsname()->sysname, __OLD_UTS_LEN);
@@ -1536,6 +1558,8 @@ int do_prlimit(struct task_struct *tsk, unsigned int resource,
 
 	if (resource >= RLIM_NLIMITS)
 		return -EINVAL;
+	resource = array_index_nospec(resource, RLIM_NLIMITS);
+
 	if (new_rlim) {
 		if (new_rlim->rlim_cur > new_rlim->rlim_max)
 			return -EINVAL;
@@ -1936,13 +1960,6 @@ static int validate_prctl_map(struct prctl_mm_map *prctl_map)
 #undef __prctl_check_order
 
 	error = -EINVAL;
-
-	/*
-	 * @brk should be after @end_data in traditional maps.
-	 */
-	if (prctl_map->start_brk <= prctl_map->end_data ||
-	    prctl_map->brk <= prctl_map->end_data)
-		goto out;
 
 	/*
 	 * Neither we should allow to override limits if they set.

@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
+<<<<<<< Updated upstream
  * Copyright (c) 2017-2020, The Linux Foundation. All rights reserved.
+=======
+ * Copyright (c) 2017-2021, The Linux Foundation. All rights reserved.
+>>>>>>> Stashed changes
  */
 
 #include <linux/clk.h>
@@ -170,9 +174,16 @@ struct geni_i2c_clk_fld {
 
 static struct geni_i2c_clk_fld geni_i2c_clk_map[] = {
 	{KHz(100), 7, 10, 11, 26},
-	{KHz(400), 2,  5, 12, 24},
+	{KHz(400), 2,  7, 10, 24},
 	{KHz(1000), 1, 3,  9, 18},
 };
+
+int geni_i2c_get_adap_irq(struct i2c_client *client)
+{
+	struct geni_i2c_dev *gi2c = i2c_get_adapdata(client->adapter);
+
+	return gi2c->irq;
+}
 
 static int geni_i2c_clk_map_idx(struct geni_i2c_dev *gi2c)
 {
@@ -1288,6 +1299,7 @@ static struct platform_driver geni_i2c_driver = {
 		.name = "i2c_geni",
 		.pm = &geni_i2c_pm_ops,
 		.of_match_table = geni_i2c_dt_match,
+		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
 	},
 };
 

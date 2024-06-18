@@ -1,5 +1,10 @@
 /*
+<<<<<<< Updated upstream
  * Copyright (c) 2012-2020 The Linux Foundation. All rights reserved.
+=======
+ * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+>>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -44,6 +49,10 @@
 #include "wlan_hdd_sta_info.h"
 #include "cdp_txrx_host_stats.h"
 #include "cdp_txrx_misc.h"
+<<<<<<< Updated upstream
+=======
+#include "wlan_hdd_object_manager.h"
+>>>>>>> Stashed changes
 
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 0, 0)) && !defined(WITH_BACKPORTS)
 #define HDD_INFO_SIGNAL                 STATION_INFO_SIGNAL
@@ -438,7 +447,14 @@ static bool put_wifi_interface_info(struct wifi_interface_info *stats,
 		    CFG_COUNTRY_CODE_LEN, stats->apCountryStr) ||
 	    nla_put(vendor_event,
 		    QCA_WLAN_VENDOR_ATTR_LL_STATS_IFACE_INFO_COUNTRY_STR,
+<<<<<<< Updated upstream
 		    CFG_COUNTRY_CODE_LEN, stats->countryStr)) {
+=======
+		    CFG_COUNTRY_CODE_LEN, stats->countryStr) ||
+	    nla_put_u32(vendor_event,
+			QCA_WLAN_VENDOR_ATTR_LL_STATS_IFACE_INFO_TS_DUTY_CYCLE,
+			stats->time_slice_duty_cycle)) {
+>>>>>>> Stashed changes
 		hdd_err("QCA_WLAN_VENDOR_ATTR put fail");
 		return false;
 	}
@@ -6010,12 +6026,26 @@ int wlan_hdd_get_station_stats(struct hdd_adapter *adapter)
 	struct stats_event *stats;
 	struct wlan_mlme_nss_chains *dynamic_cfg;
 	uint32_t tx_nss, rx_nss;
+<<<<<<< Updated upstream
 
 	stats = wlan_cfg80211_mc_cp_stats_get_station_stats(adapter->vdev,
 							    &ret);
 	if (ret || !stats) {
 		wlan_cfg80211_mc_cp_stats_free_stats_event(stats);
 		return ret;
+=======
+	struct wlan_objmgr_vdev *vdev;
+
+	vdev = hdd_objmgr_get_vdev(adapter);
+	if (!vdev)
+		return -EINVAL;
+
+	stats = wlan_cfg80211_mc_cp_stats_get_station_stats(vdev,
+							    &ret);
+	if (ret || !stats) {
+		wlan_cfg80211_mc_cp_stats_free_stats_event(stats);
+		goto out;
+>>>>>>> Stashed changes
 	}
 
 	/* save summary stats to legacy location */
@@ -6056,11 +6086,20 @@ int wlan_hdd_get_station_stats(struct hdd_adapter *adapter)
 	adapter->hdd_stats.peer_stats.fcs_count =
 		stats->peer_adv_stats->fcs_count;
 
+<<<<<<< Updated upstream
 	dynamic_cfg = mlme_get_dynamic_vdev_config(adapter->vdev);
 	if (!dynamic_cfg) {
 		hdd_err("nss chain dynamic config NULL");
 		wlan_cfg80211_mc_cp_stats_free_stats_event(stats);
 		return -EINVAL;
+=======
+	dynamic_cfg = mlme_get_dynamic_vdev_config(vdev);
+	if (!dynamic_cfg) {
+		hdd_err("nss chain dynamic config NULL");
+		wlan_cfg80211_mc_cp_stats_free_stats_event(stats);
+		ret = -EINVAL;
+		goto out;
+>>>>>>> Stashed changes
 	}
 
 	switch (hdd_conn_get_connected_band(&adapter->session.station)) {
@@ -6073,6 +6112,7 @@ int wlan_hdd_get_station_stats(struct hdd_adapter *adapter)
 		rx_nss = dynamic_cfg->rx_nss[NSS_CHAINS_BAND_5GHZ];
 		break;
 	default:
+<<<<<<< Updated upstream
 		tx_nss = wlan_vdev_mlme_get_nss(adapter->vdev);
 		rx_nss = wlan_vdev_mlme_get_nss(adapter->vdev);
 	}
@@ -6082,6 +6122,17 @@ int wlan_hdd_get_station_stats(struct hdd_adapter *adapter)
 
 	if (rx_nss > wlan_vdev_mlme_get_nss(adapter->vdev))
 		rx_nss = wlan_vdev_mlme_get_nss(adapter->vdev);
+=======
+		tx_nss = wlan_vdev_mlme_get_nss(vdev);
+		rx_nss = wlan_vdev_mlme_get_nss(vdev);
+	}
+	/* Intersection of self and AP's NSS capability */
+	if (tx_nss > wlan_vdev_mlme_get_nss(vdev))
+		tx_nss = wlan_vdev_mlme_get_nss(vdev);
+
+	if (rx_nss > wlan_vdev_mlme_get_nss(vdev))
+		rx_nss = wlan_vdev_mlme_get_nss(vdev);
+>>>>>>> Stashed changes
 
 	/* save class a stats to legacy location */
 	adapter->hdd_stats.class_a_stat.tx_nss = tx_nss;
@@ -6111,7 +6162,13 @@ int wlan_hdd_get_station_stats(struct hdd_adapter *adapter)
 		     sizeof(stats->vdev_chain_rssi[0].chain_rssi));
 	wlan_cfg80211_mc_cp_stats_free_stats_event(stats);
 
+<<<<<<< Updated upstream
 	return 0;
+=======
+out:
+	hdd_objmgr_put_vdev(vdev);
+	return ret;
+>>>>>>> Stashed changes
 }
 
 struct temperature_priv {
@@ -6203,13 +6260,24 @@ int wlan_hdd_get_temperature(struct hdd_adapter *adapter, int *temperature)
 
 void wlan_hdd_display_txrx_stats(struct hdd_context *ctx)
 {
+<<<<<<< Updated upstream
 	struct hdd_adapter *adapter = NULL;
+=======
+	struct hdd_adapter *adapter = NULL, *next_adapter = NULL;
+>>>>>>> Stashed changes
 	struct hdd_tx_rx_stats *stats;
 	int i = 0;
 	uint32_t total_rx_pkt, total_rx_dropped,
 		 total_rx_delv, total_rx_refused;
+<<<<<<< Updated upstream
 
 	hdd_for_each_adapter_dev_held(ctx, adapter) {
+=======
+	wlan_net_dev_ref_dbgid dbgid = NET_DEV_HOLD_CACHE_STATION_STATS_CB;
+
+	hdd_for_each_adapter_dev_held_safe(ctx, adapter, next_adapter,
+					   dbgid) {
+>>>>>>> Stashed changes
 		total_rx_pkt = 0;
 		total_rx_dropped = 0;
 		total_rx_delv = 0;
@@ -6217,7 +6285,11 @@ void wlan_hdd_display_txrx_stats(struct hdd_context *ctx)
 		stats = &adapter->hdd_stats.tx_rx_stats;
 
 		if (adapter->vdev_id == INVAL_VDEV_ID) {
+<<<<<<< Updated upstream
 			dev_put(adapter->dev);
+=======
+			hdd_adapter_dev_put_debug(adapter, dbgid);
+>>>>>>> Stashed changes
 			continue;
 		}
 
@@ -6230,7 +6302,11 @@ void wlan_hdd_display_txrx_stats(struct hdd_context *ctx)
 		}
 
 		/* dev_put has to be done here */
+<<<<<<< Updated upstream
 		dev_put(adapter->dev);
+=======
+		hdd_adapter_dev_put_debug(adapter, dbgid);
+>>>>>>> Stashed changes
 
 		hdd_debug("TX - called %u, dropped %u orphan %u",
 			  stats->tx_called, stats->tx_dropped,

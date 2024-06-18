@@ -7,6 +7,10 @@
  */
 
 #include <linux/compiler.h>
+<<<<<<< Updated upstream
+=======
+#include <linux/ctype.h>
+>>>>>>> Stashed changes
 #include <linux/debugfs.h>
 #include <linux/delay.h>
 #include <linux/kref.h>
@@ -81,6 +85,10 @@ static int raw_event_queue_add(struct raw_event_queue *queue,
 static struct usb_raw_event *raw_event_queue_fetch(
 				struct raw_event_queue *queue)
 {
+<<<<<<< Updated upstream
+=======
+	int ret;
+>>>>>>> Stashed changes
 	unsigned long flags;
 	struct usb_raw_event *event;
 
@@ -89,11 +97,26 @@ static struct usb_raw_event *raw_event_queue_fetch(
 	 * there's at least one event queued by decrementing the semaphore,
 	 * and then take the lock to protect queue struct fields.
 	 */
+<<<<<<< Updated upstream
 	if (down_interruptible(&queue->sema))
 		return NULL;
 	spin_lock_irqsave(&queue->lock, flags);
 	if (WARN_ON(!queue->size))
 		return NULL;
+=======
+	ret = down_interruptible(&queue->sema);
+	if (ret)
+		return ERR_PTR(ret);
+	spin_lock_irqsave(&queue->lock, flags);
+	/*
+	 * queue->size must have the same value as queue->sema counter (before
+	 * the down_interruptible() call above), so this check is a fail-safe.
+	 */
+	if (WARN_ON(!queue->size)) {
+		spin_unlock_irqrestore(&queue->lock, flags);
+		return ERR_PTR(-ENODEV);
+	}
+>>>>>>> Stashed changes
 	event = queue->events[0];
 	queue->size--;
 	memmove(&queue->events[0], &queue->events[1],
@@ -115,8 +138,11 @@ static void raw_event_queue_destroy(struct raw_event_queue *queue)
 
 struct raw_dev;
 
+<<<<<<< Updated upstream
 #define USB_RAW_MAX_ENDPOINTS 32
 
+=======
+>>>>>>> Stashed changes
 enum ep_state {
 	STATE_EP_DISABLED,
 	STATE_EP_ENABLED,
@@ -126,6 +152,10 @@ struct raw_ep {
 	struct raw_dev		*dev;
 	enum ep_state		state;
 	struct usb_ep		*ep;
+<<<<<<< Updated upstream
+=======
+	u8			addr;
+>>>>>>> Stashed changes
 	struct usb_request	*req;
 	bool			urb_queued;
 	bool			disabling;
@@ -160,7 +190,12 @@ struct raw_dev {
 	bool				ep0_out_pending;
 	bool				ep0_urb_queued;
 	ssize_t				ep0_status;
+<<<<<<< Updated upstream
 	struct raw_ep			eps[USB_RAW_MAX_ENDPOINTS];
+=======
+	struct raw_ep			eps[USB_RAW_EPS_NUM_MAX];
+	int				eps_num;
+>>>>>>> Stashed changes
 
 	struct completion		ep0_done;
 	struct raw_event_queue		queue;
@@ -194,8 +229,13 @@ static void dev_free(struct kref *kref)
 		usb_ep_free_request(dev->gadget->ep0, dev->req);
 	}
 	raw_event_queue_destroy(&dev->queue);
+<<<<<<< Updated upstream
 	for (i = 0; i < USB_RAW_MAX_ENDPOINTS; i++) {
 		if (dev->eps[i].state != STATE_EP_ENABLED)
+=======
+	for (i = 0; i < dev->eps_num; i++) {
+		if (dev->eps[i].state == STATE_EP_DISABLED)
+>>>>>>> Stashed changes
 			continue;
 		usb_ep_disable(dev->eps[i].ep);
 		usb_ep_free_request(dev->eps[i].ep, dev->eps[i].req);
@@ -241,12 +281,35 @@ static void gadget_ep0_complete(struct usb_ep *ep, struct usb_request *req)
 	complete(&dev->ep0_done);
 }
 
+<<<<<<< Updated upstream
 static int gadget_bind(struct usb_gadget *gadget,
 			struct usb_gadget_driver *driver)
 {
 	int ret = 0;
 	struct raw_dev *dev = container_of(driver, struct raw_dev, driver);
 	struct usb_request *req;
+=======
+static u8 get_ep_addr(const char *name)
+{
+	/* If the endpoint has fixed function (named as e.g. "ep12out-bulk"),
+	 * parse the endpoint address from its name. We deliberately use
+	 * deprecated simple_strtoul() function here, as the number isn't
+	 * followed by '\0' nor '\n'.
+	 */
+	if (isdigit(name[2]))
+		return simple_strtoul(&name[2], NULL, 10);
+	/* Otherwise the endpoint is configurable (named as e.g. "ep-a"). */
+	return USB_RAW_EP_ADDR_ANY;
+}
+
+static int gadget_bind(struct usb_gadget *gadget,
+			struct usb_gadget_driver *driver)
+{
+	int ret = 0, i = 0;
+	struct raw_dev *dev = container_of(driver, struct raw_dev, driver);
+	struct usb_request *req;
+	struct usb_ep *ep;
+>>>>>>> Stashed changes
 	unsigned long flags;
 
 	if (strcmp(gadget->name, dev->udc_name) != 0)
@@ -265,6 +328,16 @@ static int gadget_bind(struct usb_gadget *gadget,
 	dev->req->context = dev;
 	dev->req->complete = gadget_ep0_complete;
 	dev->gadget = gadget;
+<<<<<<< Updated upstream
+=======
+	gadget_for_each_ep(ep, dev->gadget) {
+		dev->eps[i].ep = ep;
+		dev->eps[i].addr = get_ep_addr(ep->name);
+		dev->eps[i].state = STATE_EP_DISABLED;
+		i++;
+	}
+	dev->eps_num = i;
+>>>>>>> Stashed changes
 	spin_unlock_irqrestore(&dev->lock, flags);
 
 	/* Matches kref_put() in gadget_unbind(). */
@@ -392,9 +465,14 @@ static int raw_ioctl_init(struct raw_dev *dev, unsigned long value)
 	char *udc_device_name;
 	unsigned long flags;
 
+<<<<<<< Updated upstream
 	ret = copy_from_user(&arg, (void __user *)value, sizeof(arg));
 	if (ret)
 		return ret;
+=======
+	if (copy_from_user(&arg, (void __user *)value, sizeof(arg)))
+		return -EFAULT;
+>>>>>>> Stashed changes
 
 	switch (arg.speed) {
 	case USB_SPEED_UNKNOWN:
@@ -501,15 +579,23 @@ out_unlock:
 
 static int raw_ioctl_event_fetch(struct raw_dev *dev, unsigned long value)
 {
+<<<<<<< Updated upstream
 	int ret = 0;
+=======
+>>>>>>> Stashed changes
 	struct usb_raw_event arg;
 	unsigned long flags;
 	struct usb_raw_event *event;
 	uint32_t length;
 
+<<<<<<< Updated upstream
 	ret = copy_from_user(&arg, (void __user *)value, sizeof(arg));
 	if (ret)
 		return ret;
+=======
+	if (copy_from_user(&arg, (void __user *)value, sizeof(arg)))
+		return -EFAULT;
+>>>>>>> Stashed changes
 
 	spin_lock_irqsave(&dev->lock, flags);
 	if (dev->state != STATE_DEV_RUNNING) {
@@ -525,6 +611,7 @@ static int raw_ioctl_event_fetch(struct raw_dev *dev, unsigned long value)
 	spin_unlock_irqrestore(&dev->lock, flags);
 
 	event = raw_event_queue_fetch(&dev->queue);
+<<<<<<< Updated upstream
 	if (!event) {
 		dev_dbg(&dev->gadget->dev, "event fetching interrupted\n");
 		return -EINTR;
@@ -533,11 +620,30 @@ static int raw_ioctl_event_fetch(struct raw_dev *dev, unsigned long value)
 	ret = copy_to_user((void __user *)value, event,
 				sizeof(*event) + length);
 	return ret;
+=======
+	if (PTR_ERR(event) == -EINTR) {
+		dev_dbg(&dev->gadget->dev, "event fetching interrupted\n");
+		return -EINTR;
+	}
+	if (IS_ERR(event)) {
+		dev_err(&dev->gadget->dev, "failed to fetch event\n");
+		spin_lock_irqsave(&dev->lock, flags);
+		dev->state = STATE_DEV_FAILED;
+		spin_unlock_irqrestore(&dev->lock, flags);
+		return -ENODEV;
+	}
+	length = min(arg.length, event->length);
+	if (copy_to_user((void __user *)value, event, sizeof(*event) + length))
+		return -EFAULT;
+
+	return 0;
+>>>>>>> Stashed changes
 }
 
 static void *raw_alloc_io_data(struct usb_raw_ep_io *io, void __user *ptr,
 				bool get_from_user)
 {
+<<<<<<< Updated upstream
 	int ret;
 	void *data;
 
@@ -545,6 +651,13 @@ static void *raw_alloc_io_data(struct usb_raw_ep_io *io, void __user *ptr,
 	if (ret)
 		return ERR_PTR(ret);
 	if (io->ep >= USB_RAW_MAX_ENDPOINTS)
+=======
+	void *data;
+
+	if (copy_from_user(io, ptr, sizeof(*io)))
+		return ERR_PTR(-EFAULT);
+	if (io->ep >= USB_RAW_EPS_NUM_MAX)
+>>>>>>> Stashed changes
 		return ERR_PTR(-EINVAL);
 	if (!usb_raw_io_flags_valid(io->flags))
 		return ERR_PTR(-EINVAL);
@@ -658,16 +771,29 @@ static int raw_ioctl_ep0_read(struct raw_dev *dev, unsigned long value)
 	if (IS_ERR(data))
 		return PTR_ERR(data);
 	ret = raw_process_ep0_io(dev, &io, data, false);
+<<<<<<< Updated upstream
 	if (ret < 0) {
 		kfree(data);
 		return ret;
 	}
 	length = min(io.length, (unsigned int)ret);
 	ret = copy_to_user((void __user *)(value + sizeof(io)), data, length);
+=======
+	if (ret < 0)
+		goto free;
+
+	length = min(io.length, (unsigned int)ret);
+	if (copy_to_user((void __user *)(value + sizeof(io)), data, length))
+		ret = -EFAULT;
+	else
+		ret = length;
+free:
+>>>>>>> Stashed changes
 	kfree(data);
 	return ret;
 }
 
+<<<<<<< Updated upstream
 static bool check_ep_caps(struct usb_ep *ep,
 				struct usb_endpoint_descriptor *desc)
 {
@@ -694,6 +820,50 @@ static bool check_ep_caps(struct usb_ep *ep,
 		return false;
 
 	return true;
+=======
+static int raw_ioctl_ep0_stall(struct raw_dev *dev, unsigned long value)
+{
+	int ret = 0;
+	unsigned long flags;
+
+	if (value)
+		return -EINVAL;
+	spin_lock_irqsave(&dev->lock, flags);
+	if (dev->state != STATE_DEV_RUNNING) {
+		dev_dbg(dev->dev, "fail, device is not running\n");
+		ret = -EINVAL;
+		goto out_unlock;
+	}
+	if (!dev->gadget) {
+		dev_dbg(dev->dev, "fail, gadget is not bound\n");
+		ret = -EBUSY;
+		goto out_unlock;
+	}
+	if (dev->ep0_urb_queued) {
+		dev_dbg(&dev->gadget->dev, "fail, urb already queued\n");
+		ret = -EBUSY;
+		goto out_unlock;
+	}
+	if (!dev->ep0_in_pending && !dev->ep0_out_pending) {
+		dev_dbg(&dev->gadget->dev, "fail, no request pending\n");
+		ret = -EBUSY;
+		goto out_unlock;
+	}
+
+	ret = usb_ep_set_halt(dev->gadget->ep0);
+	if (ret < 0)
+		dev_err(&dev->gadget->dev,
+				"fail, usb_ep_set_halt returned %d\n", ret);
+
+	if (dev->ep0_in_pending)
+		dev->ep0_in_pending = false;
+	else
+		dev->ep0_out_pending = false;
+
+out_unlock:
+	spin_unlock_irqrestore(&dev->lock, flags);
+	return ret;
+>>>>>>> Stashed changes
 }
 
 static int raw_ioctl_ep_enable(struct raw_dev *dev, unsigned long value)
@@ -701,7 +871,11 @@ static int raw_ioctl_ep_enable(struct raw_dev *dev, unsigned long value)
 	int ret = 0, i;
 	unsigned long flags;
 	struct usb_endpoint_descriptor *desc;
+<<<<<<< Updated upstream
 	struct usb_ep *ep = NULL;
+=======
+	struct raw_ep *ep;
+>>>>>>> Stashed changes
 
 	desc = memdup_user((void __user *)value, sizeof(*desc));
 	if (IS_ERR(desc))
@@ -729,6 +903,7 @@ static int raw_ioctl_ep_enable(struct raw_dev *dev, unsigned long value)
 		goto out_free;
 	}
 
+<<<<<<< Updated upstream
 	for (i = 0; i < USB_RAW_MAX_ENDPOINTS; i++) {
 		if (dev->eps[i].state == STATE_EP_ENABLED)
 			continue;
@@ -748,11 +923,25 @@ static int raw_ioctl_ep_enable(struct raw_dev *dev, unsigned long value)
 			continue;
 		ep->desc = desc;
 		ret = usb_ep_enable(ep);
+=======
+	for (i = 0; i < dev->eps_num; i++) {
+		ep = &dev->eps[i];
+		if (ep->state != STATE_EP_DISABLED)
+			continue;
+		if (ep->addr != usb_endpoint_num(desc) &&
+				ep->addr != USB_RAW_EP_ADDR_ANY)
+			continue;
+		if (!usb_gadget_ep_match_desc(dev->gadget, ep->ep, desc, NULL))
+			continue;
+		ep->ep->desc = desc;
+		ret = usb_ep_enable(ep->ep);
+>>>>>>> Stashed changes
 		if (ret < 0) {
 			dev_err(&dev->gadget->dev,
 				"fail, usb_ep_enable returned %d\n", ret);
 			goto out_free;
 		}
+<<<<<<< Updated upstream
 		dev->eps[i].req = usb_ep_alloc_request(ep, GFP_ATOMIC);
 		if (!dev->eps[i].req) {
 			dev_err(&dev->gadget->dev,
@@ -764,6 +953,18 @@ static int raw_ioctl_ep_enable(struct raw_dev *dev, unsigned long value)
 		dev->eps[i].ep = ep;
 		dev->eps[i].state = STATE_EP_ENABLED;
 		ep->driver_data = &dev->eps[i];
+=======
+		ep->req = usb_ep_alloc_request(ep->ep, GFP_ATOMIC);
+		if (!ep->req) {
+			dev_err(&dev->gadget->dev,
+				"fail, usb_ep_alloc_request failed\n");
+			usb_ep_disable(ep->ep);
+			ret = -ENOMEM;
+			goto out_free;
+		}
+		ep->state = STATE_EP_ENABLED;
+		ep->ep->driver_data = ep;
+>>>>>>> Stashed changes
 		ret = i;
 		goto out_unlock;
 	}
@@ -782,10 +983,13 @@ static int raw_ioctl_ep_disable(struct raw_dev *dev, unsigned long value)
 {
 	int ret = 0, i = value;
 	unsigned long flags;
+<<<<<<< Updated upstream
 	const void *desc;
 
 	if (i < 0 || i >= USB_RAW_MAX_ENDPOINTS)
 		return -EINVAL;
+=======
+>>>>>>> Stashed changes
 
 	spin_lock_irqsave(&dev->lock, flags);
 	if (dev->state != STATE_DEV_RUNNING) {
@@ -798,7 +1002,16 @@ static int raw_ioctl_ep_disable(struct raw_dev *dev, unsigned long value)
 		ret = -EBUSY;
 		goto out_unlock;
 	}
+<<<<<<< Updated upstream
 	if (dev->eps[i].state != STATE_EP_ENABLED) {
+=======
+	if (i < 0 || i >= dev->eps_num) {
+		dev_dbg(dev->dev, "fail, invalid endpoint\n");
+		ret = -EBUSY;
+		goto out_unlock;
+	}
+	if (dev->eps[i].state == STATE_EP_DISABLED) {
+>>>>>>> Stashed changes
 		dev_dbg(&dev->gadget->dev, "fail, endpoint is not enabled\n");
 		ret = -EINVAL;
 		goto out_unlock;
@@ -822,10 +1035,15 @@ static int raw_ioctl_ep_disable(struct raw_dev *dev, unsigned long value)
 
 	spin_lock_irqsave(&dev->lock, flags);
 	usb_ep_free_request(dev->eps[i].ep, dev->eps[i].req);
+<<<<<<< Updated upstream
 	desc = dev->eps[i].ep->desc;
 	dev->eps[i].ep = NULL;
 	dev->eps[i].state = STATE_EP_DISABLED;
 	kfree(desc);
+=======
+	kfree(dev->eps[i].ep->desc);
+	dev->eps[i].state = STATE_EP_DISABLED;
+>>>>>>> Stashed changes
 	dev->eps[i].disabling = false;
 
 out_unlock:
@@ -833,6 +1051,77 @@ out_unlock:
 	return ret;
 }
 
+<<<<<<< Updated upstream
+=======
+static int raw_ioctl_ep_set_clear_halt_wedge(struct raw_dev *dev,
+		unsigned long value, bool set, bool halt)
+{
+	int ret = 0, i = value;
+	unsigned long flags;
+
+	spin_lock_irqsave(&dev->lock, flags);
+	if (dev->state != STATE_DEV_RUNNING) {
+		dev_dbg(dev->dev, "fail, device is not running\n");
+		ret = -EINVAL;
+		goto out_unlock;
+	}
+	if (!dev->gadget) {
+		dev_dbg(dev->dev, "fail, gadget is not bound\n");
+		ret = -EBUSY;
+		goto out_unlock;
+	}
+	if (i < 0 || i >= dev->eps_num) {
+		dev_dbg(dev->dev, "fail, invalid endpoint\n");
+		ret = -EBUSY;
+		goto out_unlock;
+	}
+	if (dev->eps[i].state == STATE_EP_DISABLED) {
+		dev_dbg(&dev->gadget->dev, "fail, endpoint is not enabled\n");
+		ret = -EINVAL;
+		goto out_unlock;
+	}
+	if (dev->eps[i].disabling) {
+		dev_dbg(&dev->gadget->dev,
+				"fail, disable is in progress\n");
+		ret = -EINVAL;
+		goto out_unlock;
+	}
+	if (dev->eps[i].urb_queued) {
+		dev_dbg(&dev->gadget->dev,
+				"fail, waiting for urb completion\n");
+		ret = -EINVAL;
+		goto out_unlock;
+	}
+	if (usb_endpoint_xfer_isoc(dev->eps[i].ep->desc)) {
+		dev_dbg(&dev->gadget->dev,
+				"fail, can't halt/wedge ISO endpoint\n");
+		ret = -EINVAL;
+		goto out_unlock;
+	}
+
+	if (set && halt) {
+		ret = usb_ep_set_halt(dev->eps[i].ep);
+		if (ret < 0)
+			dev_err(&dev->gadget->dev,
+				"fail, usb_ep_set_halt returned %d\n", ret);
+	} else if (!set && halt) {
+		ret = usb_ep_clear_halt(dev->eps[i].ep);
+		if (ret < 0)
+			dev_err(&dev->gadget->dev,
+				"fail, usb_ep_clear_halt returned %d\n", ret);
+	} else if (set && !halt) {
+		ret = usb_ep_set_wedge(dev->eps[i].ep);
+		if (ret < 0)
+			dev_err(&dev->gadget->dev,
+				"fail, usb_ep_set_wedge returned %d\n", ret);
+	}
+
+out_unlock:
+	spin_unlock_irqrestore(&dev->lock, flags);
+	return ret;
+}
+
+>>>>>>> Stashed changes
 static void gadget_ep_complete(struct usb_ep *ep, struct usb_request *req)
 {
 	struct raw_ep *r_ep = (struct raw_ep *)ep->driver_data;
@@ -854,7 +1143,11 @@ static int raw_process_ep_io(struct raw_dev *dev, struct usb_raw_ep_io *io,
 {
 	int ret = 0;
 	unsigned long flags;
+<<<<<<< Updated upstream
 	struct raw_ep *ep = &dev->eps[io->ep];
+=======
+	struct raw_ep *ep;
+>>>>>>> Stashed changes
 	DECLARE_COMPLETION_ONSTACK(done);
 
 	spin_lock_irqsave(&dev->lock, flags);
@@ -868,6 +1161,15 @@ static int raw_process_ep_io(struct raw_dev *dev, struct usb_raw_ep_io *io,
 		ret = -EBUSY;
 		goto out_unlock;
 	}
+<<<<<<< Updated upstream
+=======
+	if (io->ep >= dev->eps_num) {
+		dev_dbg(&dev->gadget->dev, "fail, invalid endpoint\n");
+		ret = -EINVAL;
+		goto out_unlock;
+	}
+	ep = &dev->eps[io->ep];
+>>>>>>> Stashed changes
 	if (ep->state != STATE_EP_ENABLED) {
 		dev_dbg(&dev->gadget->dev, "fail, endpoint is not enabled\n");
 		ret = -EBUSY;
@@ -952,12 +1254,24 @@ static int raw_ioctl_ep_read(struct raw_dev *dev, unsigned long value)
 	if (IS_ERR(data))
 		return PTR_ERR(data);
 	ret = raw_process_ep_io(dev, &io, data, false);
+<<<<<<< Updated upstream
 	if (ret < 0) {
 		kfree(data);
 		return ret;
 	}
 	length = min(io.length, (unsigned int)ret);
 	ret = copy_to_user((void __user *)(value + sizeof(io)), data, length);
+=======
+	if (ret < 0)
+		goto free;
+
+	length = min(io.length, (unsigned int)ret);
+	if (copy_to_user((void __user *)(value + sizeof(io)), data, length))
+		ret = -EFAULT;
+	else
+		ret = length;
+free:
+>>>>>>> Stashed changes
 	kfree(data);
 	return ret;
 }
@@ -1010,6 +1324,74 @@ out_unlock:
 	return ret;
 }
 
+<<<<<<< Updated upstream
+=======
+static void fill_ep_caps(struct usb_ep_caps *caps,
+				struct usb_raw_ep_caps *raw_caps)
+{
+	raw_caps->type_control = caps->type_control;
+	raw_caps->type_iso = caps->type_iso;
+	raw_caps->type_bulk = caps->type_bulk;
+	raw_caps->type_int = caps->type_int;
+	raw_caps->dir_in = caps->dir_in;
+	raw_caps->dir_out = caps->dir_out;
+}
+
+static void fill_ep_limits(struct usb_ep *ep, struct usb_raw_ep_limits *limits)
+{
+	limits->maxpacket_limit = ep->maxpacket_limit;
+	limits->max_streams = ep->max_streams;
+}
+
+static int raw_ioctl_eps_info(struct raw_dev *dev, unsigned long value)
+{
+	int ret = 0, i;
+	unsigned long flags;
+	struct usb_raw_eps_info *info;
+	struct raw_ep *ep;
+
+	info = kmalloc(sizeof(*info), GFP_KERNEL);
+	if (!info) {
+		ret = -ENOMEM;
+		goto out;
+	}
+
+	spin_lock_irqsave(&dev->lock, flags);
+	if (dev->state != STATE_DEV_RUNNING) {
+		dev_dbg(dev->dev, "fail, device is not running\n");
+		ret = -EINVAL;
+		spin_unlock_irqrestore(&dev->lock, flags);
+		goto out_free;
+	}
+	if (!dev->gadget) {
+		dev_dbg(dev->dev, "fail, gadget is not bound\n");
+		ret = -EBUSY;
+		spin_unlock_irqrestore(&dev->lock, flags);
+		goto out_free;
+	}
+
+	memset(info, 0, sizeof(*info));
+	for (i = 0; i < dev->eps_num; i++) {
+		ep = &dev->eps[i];
+		strscpy(&info->eps[i].name[0], ep->ep->name,
+				USB_RAW_EP_NAME_MAX);
+		info->eps[i].addr = ep->addr;
+		fill_ep_caps(&ep->ep->caps, &info->eps[i].caps);
+		fill_ep_limits(ep->ep, &info->eps[i].limits);
+	}
+	ret = dev->eps_num;
+	spin_unlock_irqrestore(&dev->lock, flags);
+
+	if (copy_to_user((void __user *)value, info, sizeof(*info)))
+		ret = -EFAULT;
+
+out_free:
+	kfree(info);
+out:
+	return ret;
+}
+
+>>>>>>> Stashed changes
 static long raw_ioctl(struct file *fd, unsigned int cmd, unsigned long value)
 {
 	struct raw_dev *dev = fd->private_data;
@@ -1052,6 +1434,27 @@ static long raw_ioctl(struct file *fd, unsigned int cmd, unsigned long value)
 	case USB_RAW_IOCTL_VBUS_DRAW:
 		ret = raw_ioctl_vbus_draw(dev, value);
 		break;
+<<<<<<< Updated upstream
+=======
+	case USB_RAW_IOCTL_EPS_INFO:
+		ret = raw_ioctl_eps_info(dev, value);
+		break;
+	case USB_RAW_IOCTL_EP0_STALL:
+		ret = raw_ioctl_ep0_stall(dev, value);
+		break;
+	case USB_RAW_IOCTL_EP_SET_HALT:
+		ret = raw_ioctl_ep_set_clear_halt_wedge(
+					dev, value, true, true);
+		break;
+	case USB_RAW_IOCTL_EP_CLEAR_HALT:
+		ret = raw_ioctl_ep_set_clear_halt_wedge(
+					dev, value, false, true);
+		break;
+	case USB_RAW_IOCTL_EP_SET_WEDGE:
+		ret = raw_ioctl_ep_set_clear_halt_wedge(
+					dev, value, true, false);
+		break;
+>>>>>>> Stashed changes
 	default:
 		ret = -EINVAL;
 	}

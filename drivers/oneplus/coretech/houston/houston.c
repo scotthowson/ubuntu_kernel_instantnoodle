@@ -1,37 +1,28 @@
-#include <linux/init.h>
-#include <linux/kthread.h>
 #include <linux/module.h>
-#include <linux/tick.h>
-#include <linux/kernel.h>
-#include <linux/kernel_stat.h>
-#include <linux/delay.h>
 #include <linux/proc_fs.h>
-#include <linux/seq_file.h>
-#include <linux/cpufreq.h>
-#include <linux/cpumask.h>
-#include <linux/freezer.h>
-#include <linux/wait.h>
 #include <linux/device.h>
-#include <linux/poll.h>
-#include <linux/ioctl.h>
-#include <linux/oem/houston.h>
-#include <linux/perf_event.h>
 #include <linux/cdev.h>
-#include <linux/workqueue.h>
-#include <linux/clk.h>
-#include <linux/jiffies.h>
+#include <linux/poll.h>
 
-#include "../drivers/gpu/msm/kgsl.h"
-#include "../drivers/gpu/msm/kgsl_pwrctrl.h"
+#define HT_CLUSTERS 3
+#define HT_MONITOR_SIZE 58
+#define HT_CTL_NODE "ht_ctl"
 
-#include <oneplus/houston/houston_helper.h>
+static dev_t ht_ctl_dev;
+static struct class *driver_class;
+static struct cdev cdev;
 
-#include <linux/smp.h>
+static unsigned int ht_ctl_poll(struct file *fp, poll_table *wait)
+{
+	return POLLIN;
+}
 
-#ifdef CONFIG_OPCHAIN
-#include <oneplus/uxcore/opchain_helper.h>
-#endif
+static long ht_ctl_ioctl(struct file *file, unsigned int cmd, unsigned long __user arg)
+{
+	return 0;
+}
 
+<<<<<<< Updated upstream
 #ifdef CONFIG_CONTROL_CENTER
 #include <linux/oem/control_center.h>
 #endif
@@ -78,6 +69,51 @@ static struct game_fps_data {
  * lv == 2 -> wraning error
  * lv >= 3 -> error
  */
+=======
+static const struct file_operations ht_ctl_fops = {
+	.owner = THIS_MODULE,
+	.poll = ht_ctl_poll,
+	.unlocked_ioctl = ht_ctl_ioctl,
+	.compat_ioctl = ht_ctl_ioctl,
+};
+
+static int fps_sync_init(void)
+{
+	int rc;
+	struct device *class_dev;
+
+	rc = alloc_chrdev_region(&ht_ctl_dev, 0, 1, HT_CTL_NODE);
+	if (rc < 0) {
+		return 0;
+	}
+
+	driver_class = class_create(THIS_MODULE, HT_CTL_NODE);
+	if (IS_ERR(driver_class)) {
+		rc = -ENOMEM;
+		goto exit_unreg_chrdev_region;
+	}
+	class_dev = device_create(driver_class, NULL, ht_ctl_dev, NULL, HT_CTL_NODE);
+	if (IS_ERR(class_dev)) {
+		rc = -ENOMEM;
+		goto exit_destroy_class;
+	}
+	cdev_init(&cdev, &ht_ctl_fops);
+	cdev.owner = THIS_MODULE;
+	rc = cdev_add(&cdev, MKDEV(MAJOR(ht_ctl_dev), 0), 1);
+	if (rc < 0) {
+		goto exit_destroy_device;
+	}
+	return 0;
+exit_destroy_device:
+	device_destroy(driver_class, ht_ctl_dev);
+exit_destroy_class:
+	class_destroy(driver_class);
+exit_unreg_chrdev_region:
+	unregister_chrdev_region(ht_ctl_dev, 1);
+	return 0;
+}
+
+>>>>>>> Stashed changes
 static int ht_log_lv = 1;
 module_param_named(log_lv, ht_log_lv, int, 0664);
 
@@ -99,9 +135,8 @@ module_param_named(game_fps_pid, game_fps_pid, int, 0664);
 
 static int pccore_always_on;
 module_param_named(pcc_always_on, pccore_always_on, int, 0664);
-/* pmu */
-static int perf_ready = -1;
 
+<<<<<<< Updated upstream
 #ifdef CONFIG_ONEPLUS_FG_OPT
 unsigned int ht_fuse_boost = 0;
 module_param_named(fuse_boost, ht_fuse_boost, uint, 0664);
@@ -141,6 +176,14 @@ static struct list_head ht_rtg_head = LIST_HEAD_INIT(ht_rtg_head);
  * list to store these tasks, and then collect perf data in safe context.
  */
 static struct list_head ht_rtg_perf_head = LIST_HEAD_INIT(ht_rtg_perf_head);
+=======
+unsigned int ht_fuse_boost = 0;
+module_param_named(fuse_boost, ht_fuse_boost, uint, 0664);
+
+/* hwui boost online config switch */
+static int ht_hwui_boost_enable = 1;
+module_param_named(hwui_boost_enable, ht_hwui_boost_enable, int, 0664);
+>>>>>>> Stashed changes
 
 /* report skin_temp to ais */
 static unsigned int thermal_update_period_hz = 100;
@@ -156,28 +199,6 @@ module_param_named(base_util, base_util, uint, 0664);
 static unsigned int rtg_filter_cnt = 10;
 module_param_named(rtg_filter_cnt, rtg_filter_cnt, uint, 0664);
 
-/* sched */
-extern unsigned long long task_sched_runtime(struct task_struct *p);
-
-/* fps boost info */
-static atomic_t boost_cnt = ATOMIC_INIT(0);
-
-/* fps tag to align other dump report */
-static atomic64_t fps_align_ns;
-
-/* cpuload tracking */
-/* TODO these info maybe useless to sufraceflinger, should remove later */
-struct cpuload_info {
-	int cnt;
-	int cmin;
-	int cmax;
-	int sum;
-	long long iowait_min;
-	long long iowait_max;
-	long long iowait_sum;
-};
-static long long ht_iowait[8] = {0};
-static long long ht_delta_iowait[8] = {0};
 static bool cpuload_query = false;
 module_param_named(cpuload_query, cpuload_query, bool, 0664);
 
@@ -191,8 +212,6 @@ module_param_named(bat_sample_high_resolution, bat_sample_high_resolution, bool,
 /* force update battery current */
 static unsigned long bat_update_period_us = 1000000; // 1 sec
 module_param_named(bat_update_period_us, bat_update_period_us, ulong, 0664);
-
-extern void bq27541_force_update_current(void);
 
 /* fps boost switch */
 static bool fps_boost_enable = true;
@@ -226,39 +245,6 @@ module_param_named(fps_boost_type, fps_boost_type, uint, 0664);
 static unsigned long fps_boost_filter_us = 8000;
 module_param_named(fps_boost_filter_us, fps_boost_filter_us, ulong, 0664);
 
-/* houston monitor
- * data: sample data
- * layer: sample data for frame info
- * process: sample data for frame process info
- */
-struct sample_data {
-	u64 data[MAX_REPORT_PERIOD][HT_MONITOR_SIZE];
-	char layer[MAX_REPORT_PERIOD][FPS_LAYER_LEN];
-	char process[MAX_REPORT_PERIOD][FPS_PROCESS_NAME_LEN];
-};
-
-struct ht_monitor {
-	struct power_supply *psy;
-	struct thermal_zone_device* tzd[HT_MONITOR_SIZE];
-	struct task_struct *thread;
-	struct sample_data *buf;
-} monitor = {
-	.psy = NULL,
-	.thread = NULL,
-	.buf = NULL,
-};
-
-struct ht_util_pol {
-	unsigned long *utils[HT_CPUS_PER_CLUS];
-	unsigned long *hi_util;
-};
-
-/* monitor switch */
-static unsigned int ht_enable = 0;
-
-/* mask only allow within 64 events */
-static unsigned long ht_all_mask = 0;
-
 static unsigned long filter_mask = 0;
 module_param_named(filter_mask, filter_mask, ulong, 0664);
 
@@ -268,30 +254,16 @@ module_param_named(disable_mask, disable_mask, ulong, 0664);
 static unsigned int report_div[HT_MONITOR_SIZE];
 module_param_array_named(div, report_div, uint, NULL, 0664);
 
-/*
- * monitor configuration
- * sidx: current used idx (should be update only by monitor thread)
- * record_cnt: current recorded sample amount
- * cached_fps: to record current efps and fps info
- * cached_layer_name: to record layer name. (debug purpose)
- * ht_tzd_idx: thermal zone index
- * gpwe: saved kgsl ptr, to get gpu freq
- * sample_rate: sample rate in ms
- * ht_utils: saved util prt, update from sugov
- * keep_alive: monitor life cycle
- */
-static int sidx;
-static unsigned int record_cnt = 0;
+static int perf_ready;
+module_param_named(perf_ready, perf_ready, int, 0664);
 
-static atomic_t cached_fps[2];
-/*ignore pass layer name to aischeduler*/
-//static char cached_layer_name[FPS_CACHE_LAYER_LEN] = {0};
+static int fps_boost_strategy;
+module_param_named(fps_boost_strategy, fps_boost_strategy, int, 0664);
 
-static int ht_tzd_idx = HT_CPU_0;
-static struct kgsl_pwrctrl *gpwr;
-static unsigned int sample_rate = 3000;
-static struct ht_util_pol ht_utils[HT_CLUSTERS];
+static int ht_enable;
+module_param_named(ht_enable, ht_enable, int, 0664);
 
+<<<<<<< Updated upstream
 static bool __read_mostly keep_alive = false;
 
 static dev_t ht_ctl_dev;
@@ -1201,6 +1173,13 @@ static int ht_fps_boost_store(const char *buf, const struct kernel_param *kp)
 
 	do_fps_boost(vals[3], vals[4] * 1000 /* us */);
 #endif
+=======
+static int sample_rate_ms;
+module_param_named(sample_rate_ms, sample_rate_ms, int, 0664);
+
+static int ht_fps_boost_store(const char *buf, const struct kernel_param *kp)
+{
+>>>>>>> Stashed changes
 	return 0;
 }
 
@@ -1209,6 +1188,7 @@ static struct kernel_param_ops ht_fps_boost_ops = {
 };
 module_param_cb(fps_boost, &ht_fps_boost_ops, NULL, 0220);
 
+<<<<<<< Updated upstream
 inline void tb_parse_req_v2(
 	unsigned int tb_pol,
 	unsigned int tb_type,
@@ -1509,6 +1489,10 @@ static int tb_ctl_store(const char *buf, const struct kernel_param *kp)
 		tb_parse_req(tb_pol, tb_type, v);
 	}
 
+=======
+static int tb_ctl_store(const char *buf, const struct kernel_param *kp)
+{
+>>>>>>> Stashed changes
 	return 0;
 }
 
@@ -1517,6 +1501,7 @@ static struct kernel_param_ops tb_ctl_ops = {
 };
 module_param_cb(tb_ctl, &tb_ctl_ops, NULL, 0220);
 
+<<<<<<< Updated upstream
 void ht_register_kgsl_pwrctrl(void *pwr)
 {
 	gpwr = (struct kgsl_pwrctrl*) pwr;
@@ -1695,6 +1680,10 @@ static int ht_fps_data_sync_store(const char *buf, const struct kernel_param *kp
 	monitor.buf->data[cur_idx][HT_FPS_PID] = fps_data[4]; //pid
 	monitor.buf->data[cur_idx][HT_FPS_ALIGN]= fps_align; //fps align ts
 
+=======
+static int ht_fps_data_sync_store(const char *buf, const struct kernel_param *kp)
+{
+>>>>>>> Stashed changes
 	return 0;
 }
 
@@ -1703,6 +1692,7 @@ static struct kernel_param_ops ht_fps_data_sync_ops = {
 };
 module_param_cb(fps_data_sync, &ht_fps_data_sync_ops, NULL, 0220);
 
+<<<<<<< Updated upstream
 /* poll for fps data synchronization */
 static unsigned int ht_ctl_poll(struct file *fp, poll_table *wait)
 {
@@ -2148,22 +2138,10 @@ static struct kernel_param_ops ht_registed_ops = {
 };
 module_param_cb(ht_registed, &ht_registed_ops, NULL, 0444);
 
+=======
+>>>>>>> Stashed changes
 static int ht_reset_store(const char *buf, const struct kernel_param *kp)
 {
-	int val;
-	if (sscanf(buf, "%d\n", &val) != 1)
-		return -EINVAL;
-
-	if (val != 1)
-		return 0;
-
-	if (monitor.buf)
-		memset(monitor.buf, 0, sizeof(struct sample_data));
-
-	record_cnt = 0;
-	RenPid = -1;
-	ht_logi("sample data reset\n");
-
 	return 0;
 }
 
@@ -2172,6 +2150,7 @@ static struct kernel_param_ops ht_reset_ops = {
 };
 module_param_cb(reset, &ht_reset_ops, NULL, 0664);
 
+<<<<<<< Updated upstream
 static int ht_report_proc_show(struct seq_file *m, void *v)
 {
 	unsigned int i, cnt = 0, j;
@@ -2665,3 +2644,6 @@ static int ht_init(void)
 	return 0;
 }
 pure_initcall(ht_init);
+=======
+pure_initcall(fps_sync_init);
+>>>>>>> Stashed changes

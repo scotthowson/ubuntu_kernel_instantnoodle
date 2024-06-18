@@ -59,6 +59,7 @@
 #else
 
 #define _ANDROID_KABI_REPLACE(_orig, _new)			\
+<<<<<<< Updated upstream
 	union {							\
 		_new;						\
 		struct {					\
@@ -70,6 +71,13 @@
 #endif /* __GENKSYMS__ */
 
 #define _ANDROID_KABI_RESERVE(n)		u64 android_kabi_reserved##n
+=======
+	_new
+
+#endif /* __GENKSYMS__ */
+
+#define _ANDROID_KABI_RESERVE(n)
+>>>>>>> Stashed changes
 
 
 /*
@@ -83,7 +91,15 @@
  *   number: the "number" of the padding variable in the structure.  Start with
  *   1 and go up.
  */
+<<<<<<< Updated upstream
 #define ANDROID_KABI_RESERVE(number)	_ANDROID_KABI_RESERVE(number)
+=======
+#ifdef CONFIG_ANDROID_KABI_RESERVE
+#define ANDROID_KABI_RESERVE(number)	_ANDROID_KABI_RESERVE(number)
+#else
+#define ANDROID_KABI_RESERVE(number)
+#endif
+>>>>>>> Stashed changes
 
 
 /*

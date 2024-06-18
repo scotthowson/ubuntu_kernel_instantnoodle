@@ -7,11 +7,14 @@
 		project_info = <1>;
 	};
 
+<<<<<<< Updated upstream
 	bootloader_log {
 		compatible = "bootloader_log";
 		linux,contiguous-region = <&bootloader_log_mem>;
 	};
 
+=======
+>>>>>>> Stashed changes
 	fingerprint_detect:fingerprint_detect {
 		oneplus,19805;
 		compatible = "oneplus,fpdetect";
@@ -271,6 +274,7 @@
 		panel = <&dsi_boe_nt37800_fhd_dsc_cmd &dsi_samsung_dd305_dsc_cmd &dsi_samsung_amb655x_dsc_cmd>;
 	};
 };
+<<<<<<< Updated upstream
 &qupv3_se13_i2c {
 	status = "ok";
 	goodix-gt9897@5D {
@@ -303,6 +307,8 @@
 	};
 };
 
+=======
+>>>>>>> Stashed changes
 &tlmm {
 	tp_irq_active: tp_irq_active {
 		mux {
@@ -537,6 +543,7 @@
 };
 
 &reserved_memory {
+<<<<<<< Updated upstream
 
 	bootloader_log_mem: bootloader_log_mem@0x9FFF7000 {
 		reg = <0 0x9FFF7000 0 0x00009000>;
@@ -548,6 +555,8 @@
 		label = "param_mem";
 	};
 
+=======
+>>>>>>> Stashed changes
 	/*after cdsp_secure_heap we add a offset to ignore change address need reconfig*/
 	ramoops: ramoops@0xA9800000 {
 		compatible = "ramoops";
@@ -769,7 +778,11 @@
       };
 };
 
+<<<<<<< Updated upstream
 /* @bsp, 2019/07/08 Battery & Charging porting STRAT */
+=======
+
+>>>>>>> Stashed changes
 &qupv3_se16_i2c {
 	qcom,clk-freq-out = <100000>;
 	status = "ok";
@@ -1262,7 +1275,10 @@
 		};
 	};
 };
+<<<<<<< Updated upstream
 /* @bsp, 2019/07/08 Battery & Charging porting END */
+=======
+>>>>>>> Stashed changes
 
 &spmi_bus {
 	qcom,pm8150@0 {
@@ -1317,10 +1333,14 @@
 	qca,bt-vdd-rfa1-voltage-level = <1900000 2040000>;
 };
 
+<<<<<<< Updated upstream
 /* @bsp, usb config START */
 /* @bsp, As QRD-DVT have this config, keep the same config
  * for ldo18 power suspend
  */
+=======
+
+>>>>>>> Stashed changes
 &usb_qmp_dp_phy {
 	vdd-supply = <&pm8150_l18>;
 	qcom,vdd-voltage-level = <0 912000 912000>;
@@ -1335,7 +1355,11 @@
 		};
 	};
 };
+<<<<<<< Updated upstream
 /* @bsp, usb config END */
+=======
+
+>>>>>>> Stashed changes
 
 &wdog{
 	qcom,bark-time = <15000>;

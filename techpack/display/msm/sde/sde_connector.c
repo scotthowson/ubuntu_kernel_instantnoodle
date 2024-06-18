@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (c) 2016-2020, The Linux Foundation. All rights reserved.
+<<<<<<< Updated upstream
+=======
+ * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+>>>>>>> Stashed changes
  */
 
 #define pr_fmt(fmt)	"[drm:%s:%d] " fmt, __func__, __LINE__
@@ -506,7 +510,7 @@ void sde_connector_schedule_status_work(struct drm_connector *connector,
 				c_conn->esd_status_interval :
 					STATUS_CHECK_INTERVAL_MS;
 			/* Schedule ESD status check */
-			schedule_delayed_work(&c_conn->status_work,
+			queue_delayed_work(system_power_efficient_wq, &c_conn->status_work,
 				msecs_to_jiffies(interval));
 			c_conn->esd_status_check = true;
 			dsi_display_change_err_flag_irq_status(dsi_display, true);
@@ -2378,8 +2382,6 @@ static int sde_connector_atomic_check(struct drm_connector *connector,
 		struct drm_connector_state *new_conn_state)
 {
 	struct sde_connector *c_conn;
-	struct sde_connector_state *c_state;
-	bool qsync_dirty = false, has_modeset = false;
 
 	if (!connector) {
 		SDE_ERROR("invalid connector\n");
@@ -2392,19 +2394,6 @@ static int sde_connector_atomic_check(struct drm_connector *connector,
 	}
 
 	c_conn = to_sde_connector(connector);
-	c_state = to_sde_connector_state(new_conn_state);
-
-	has_modeset = sde_crtc_atomic_check_has_modeset(new_conn_state->state,
-						new_conn_state->crtc);
-	qsync_dirty = msm_property_is_dirty(&c_conn->property_info,
-					&c_state->property_state,
-					CONNECTOR_PROP_QSYNC_MODE);
-
-	SDE_DEBUG("has_modeset %d qsync_dirty %d\n", has_modeset, qsync_dirty);
-	if (has_modeset && qsync_dirty) {
-		SDE_ERROR("invalid qsync update during modeset\n");
-		return -EINVAL;
-	}
 
 	if (c_conn->ops.atomic_check)
 		return c_conn->ops.atomic_check(connector,
@@ -2520,7 +2509,7 @@ static void sde_connector_check_status_work(struct work_struct *work)
 		/* If debugfs property is not set then take default value */
 		interval = conn->esd_status_interval ?
 			conn->esd_status_interval : STATUS_CHECK_INTERVAL_MS;
-		schedule_delayed_work(&conn->status_work,
+		queue_delayed_work(system_power_efficient_wq, &conn->status_work,
 			msecs_to_jiffies(interval));
 		return;
 	}
@@ -2640,7 +2629,7 @@ int sde_connector_set_blob_data(struct drm_connector *conn,
 		return -EINVAL;
 	}
 
-	info = kzalloc(sizeof(*info), GFP_KERNEL);
+	info = vzalloc(sizeof(*info));
 	if (!info)
 		return -ENOMEM;
 
@@ -2698,7 +2687,7 @@ int sde_connector_set_blob_data(struct drm_connector *conn,
 			SDE_KMS_INFO_DATALEN(info),
 			prop_id);
 exit:
-	kfree(info);
+	vfree(info);
 
 	return rc;
 }

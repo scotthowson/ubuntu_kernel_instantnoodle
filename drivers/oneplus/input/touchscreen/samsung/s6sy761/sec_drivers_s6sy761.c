@@ -24,10 +24,9 @@
 
 #include "sec_drivers_s6sy761.h"
 
+static struct dma_buf_s6sy761 *dma_buffer;
 extern int tp_register_times;
 extern struct touchpanel_data *g_tp;
-#define PM_QOS_VALUE_TP 200
-struct pm_qos_request pm_qos_req_stp;
 
 /****************** Start of Log Tag Declear and level define*******************************/
 #define TPD_DEVICE "sec-s6sy761"
@@ -422,7 +421,7 @@ int sec_wait_for_ready(struct chip_data_s6sy761 *chip_info, unsigned int ack)
 	int rc = -1;
 	int retry = 0, retry_cnt = 100;
 	int8_t status = -1;
-	u8 tBuff[SEC_EVENT_BUFF_SIZE] = {0,};
+	u8 *tBuff = dma_buffer->tBuff;
 	int num = 0;
 
 	while (touch_i2c_read_block(chip_info->client, SEC_READ_ONE_EVENT, SEC_EVENT_BUFF_SIZE, tBuff) > 0) {
@@ -452,7 +451,7 @@ int sec_wait_for_ready(struct chip_data_s6sy761 *chip_info, unsigned int ack)
 static int sec_enter_fw_mode(struct chip_data_s6sy761 *chip_info)
 {
 	int ret = -1;
-	u8 device_id[3] = {0};
+	u8 *device_id = dma_buffer->device_id;
 	u8 fw_update_mode_passwd[] = {0x55, 0xAC};
 
 	ret = touch_i2c_write_block(chip_info->client, SEC_CMD_ENTER_FW_MODE, sizeof(fw_update_mode_passwd), fw_update_mode_passwd);
@@ -518,7 +517,7 @@ static u8 sec_checksum(u8 *data, int offset, int size)
 static int sec_flash_page_erase(struct chip_data_s6sy761 *chip_info, u32 page_idx, u32 page_num)
 {
 	int ret = -1;
-	u8 tCmd[6] = {0};
+	u8 tCmd[6];
 
 	tCmd[0] = SEC_CMD_FLASH_ERASE;
 	tCmd[1] = (u8)((page_idx >> 8) & 0xFF);
@@ -604,7 +603,7 @@ static int sec_flash_write(struct chip_data_s6sy761 *chip_info, u32 mem_addr, u8
 	int ret = -1;
 	u32 page_idx = 0, size_copy = 0, flash_page_size = 0;
 	u32 page_idx_start = 0, page_idx_end = 0, page_num = 0;
-	u8 page_buf[SEC_FW_BLK_SIZE_MAX] = {0};
+	u8 page_buf[SEC_FW_BLK_SIZE_MAX];
 
 	if (mem_size == 0)
 		return 0;
@@ -669,7 +668,6 @@ static int sec_block_read(struct chip_data_s6sy761 *chip_info, u32 mem_addr, int
 {
 	int ret;
 	u8 cmd[5];
-	u8 *data;
 
 	if (mem_size >= 64 * 1024) {
 		TPD_INFO("%s: mem size over 64K\n", __func__);
@@ -701,9 +699,8 @@ static int sec_block_read(struct chip_data_s6sy761 *chip_info, u32 mem_addr, int
 
 	udelay(10);
 	cmd[0] = (u8)SEC_CMD_FLASH_READ_DATA;
-	data = buf;
 
-	ret = touch_i2c_read(chip_info->client, cmd, 1, data, mem_size);
+	ret = touch_i2c_read(chip_info->client, cmd, 1, buf, mem_size);
 	if (ret < 0) {
 		TPD_INFO("%s: memory read failed\n", __func__);
 		return -EIO;
@@ -722,7 +719,7 @@ static int sec_memory_read(struct chip_data_s6sy761 *chip_info, u32 mem_addr, u8
 	int read_left = (int)mem_size;
 	u8 *tmp_data;
 
-	tmp_data = kmalloc(max_size, GFP_KERNEL);
+	tmp_data = kmalloc(max_size, GFP_KERNEL | GFP_DMA);
 	if (!tmp_data) {
 		TPD_INFO("%s: failed to kmalloc\n", __func__);
 		return -ENOMEM;
@@ -802,7 +799,7 @@ err_write_fail:
 int sec_read_calibration_report(struct chip_data_s6sy761 *chip_info)
 {
 	int ret;
-	u8 buf[5] = { 0 };
+	u8 buf[5];
 
 	buf[0] = SEC_CMD_READ_CALIBRATION_REPORT;
 
@@ -957,7 +954,7 @@ static int sec_power_control(void *chip_data, bool enable)
 static fw_check_state sec_fw_check(void *chip_data, struct resolution_info *resolution_info, struct panel_info *panel_data)
 {
 	int ret = 0;
-	unsigned char data[5] = { 0 };
+	unsigned char *data = dma_buffer->fw_data;
 	bool valid_fw_integrity = false;
 	struct chip_data_s6sy761 *chip_info = (struct chip_data_s6sy761 *)chip_data;
 
@@ -977,6 +974,7 @@ static fw_check_state sec_fw_check(void *chip_data, struct resolution_info *reso
 	if (ret < 0) {
 		TPD_INFO("%s: failed to read boot status\n", __func__);
 	} else {
+        data[0] = 0;
 		ret = touch_i2c_read_block(chip_info->client, SEC_READ_TS_STATUS, 4, &data[1]);
 		if (ret < 0) {
 			TPD_INFO("%s: failed to read touch status\n", __func__);
@@ -987,7 +985,7 @@ static fw_check_state sec_fw_check(void *chip_data, struct resolution_info *reso
 		return FW_ABNORMAL;
 	}
 
-	memset(data, 0, 5);
+	data[0] = 0;
 	touch_i2c_read_block(chip_info->client, SEC_READ_IMG_VERSION, 4, data);
 	panel_data->TP_FW = (data[0] << 24) | (data[1] << 16) | (data[2] << 8) | data[3];
 	if (panel_data->manufacture_info.version)
@@ -1000,9 +998,14 @@ static fw_check_state sec_fw_check(void *chip_data, struct resolution_info *reso
 
 static fw_update_state sec_fw_update(void *chip_data, const struct firmware *fw, bool force)
 {
+<<<<<<< Updated upstream
 	u32 i = 0;
 	int ret = 0;
 	u8 buf[4] = {0};
+=======
+	int i = 0, ret = 0;
+	u8 *buf = dma_buffer->fw_buf;
+>>>>>>> Stashed changes
 	u8 *fd = NULL;
 	uint8_t cal_status = 0;
 	sec_fw_chunk *fw_ch = NULL;
@@ -1025,7 +1028,6 @@ static fw_update_state sec_fw_update(void *chip_data, const struct firmware *fw,
 	buf[1] = (fw_hd->img_ver >> 8) & 0xff;
 	buf[0] = (fw_hd->img_ver >> 0) & 0xff;
 	fw_version_in_bin = (buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3];
-	memset(buf, 0, 4);
 	touch_i2c_read_block(chip_info->client, SEC_READ_IMG_VERSION, 4, buf);
 	fw_version_in_ic = (buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3];
 	TPD_INFO("img version in bin is 0x%04x, img version in ic is 0x%04x\n", fw_version_in_bin, fw_version_in_ic);
@@ -1035,7 +1037,6 @@ static fw_update_state sec_fw_update(void *chip_data, const struct firmware *fw,
 	buf[1] = (fw_hd->para_ver >> 8) & 0xff;
 	buf[0] = (fw_hd->para_ver >> 0) & 0xff;
 	config_version_in_bin = (buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3];
-	memset(buf, 0, 4);
 	touch_i2c_read_block(chip_info->client, SEC_READ_CONFIG_VERSION, 4, buf);
 	config_version_in_ic = (buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3];
 	TPD_INFO("config version in bin is 0x%04x, config version in ic is 0x%04x\n", config_version_in_bin, config_version_in_ic);
@@ -1111,8 +1112,6 @@ static u8 sec_trigger_reason(void *chip_data, int gesture_enable, int is_suspend
 	struct chip_data_s6sy761 *chip_info = (struct chip_data_s6sy761 *)chip_data;
 	struct fp_underscreen_info tp_info;
 
-	pm_qos_add_request(&pm_qos_req_stp, PM_QOS_CPU_DMA_LATENCY, PM_QOS_VALUE_TP);
-	memset(chip_info->first_event, 0, SEC_EVENT_BUFF_SIZE);
 	ret = touch_i2c_read_block(chip_info->client, SEC_READ_ONE_EVENT, SEC_EVENT_BUFF_SIZE, chip_info->first_event);
 	if (ret < 0) {
 		while(ret < 0 && i2c_error_num < 4) {
@@ -1127,7 +1126,6 @@ static u8 sec_trigger_reason(void *chip_data, int gesture_enable, int is_suspend
 				sec_reset(chip_info);
 				operate_mode_switch(g_tp);
 			}
-			pm_qos_remove_request(&pm_qos_req_stp);
 			return IRQ_IGNORE;
 		}
 	}
@@ -1138,7 +1136,6 @@ static u8 sec_trigger_reason(void *chip_data, int gesture_enable, int is_suspend
 
 	if (chip_info->first_event[0] == 0) {
 		TPD_DETAIL("%s: event buffer is empty\n", __func__);
-		pm_qos_remove_request(&pm_qos_req_stp);
 		return IRQ_IGNORE;
 	}
 	p_event_status = (struct sec_event_status *)chip_info->first_event;
@@ -1156,7 +1153,6 @@ static u8 sec_trigger_reason(void *chip_data, int gesture_enable, int is_suspend
 		if (ret < 0) {
 			TPD_INFO("%s: clear event buffer failed\n", __func__);
 		}
-		pm_qos_remove_request(&pm_qos_req_stp);
 		return IRQ_IGNORE;
 	}
 
@@ -1171,7 +1167,6 @@ static u8 sec_trigger_reason(void *chip_data, int gesture_enable, int is_suspend
 			if (ret < 0) {
 				TPD_INFO("%s: write sense on failed\n", __func__);
 			}
-			pm_qos_remove_request(&pm_qos_req_stp);
 			return IRQ_FW_AUTO_RESET;
 		}
 
@@ -1183,14 +1178,12 @@ static u8 sec_trigger_reason(void *chip_data, int gesture_enable, int is_suspend
 
 		if ((p_event_status->stype == TYPE_STATUS_EVENT_ERR) && (p_event_status->status_id == SEC_ERR_EVENT_ESD)) {
 			TPD_INFO("%s: ESD detected. run reset\n", __func__);
-			pm_qos_remove_request(&pm_qos_req_stp);
 			return IRQ_EXCEPTION;
 		}
 
 		if ((p_event_status->stype == TYPE_STATUS_EVENT_VENDOR_INFO) && (p_event_status->status_id == SEC_STATUS_EARDETECTED)) {
 			chip_info->proximity_status = p_event_status->status_data_1;
 			TPD_INFO("%s: face detect status %d\n",__func__, chip_info->proximity_status);
-			pm_qos_remove_request(&pm_qos_req_stp);
 			return IRQ_FACE_STATE;
 		}
 
@@ -1211,14 +1204,12 @@ static u8 sec_trigger_reason(void *chip_data, int gesture_enable, int is_suspend
 				opticalfp_irq_handler(&tp_info);
 			}
 			TPD_INFO("%s: touch_hold status %d\n",__func__, p_event_status->status_data_1);
-			pm_qos_remove_request(&pm_qos_req_stp);
 			return IRQ_IGNORE;
 		}
 
 		if ((p_event_status->stype == TYPE_STATUS_EVENT_INFO) && (p_event_status->status_id == SEC_TS_ACK_WET_MODE)) {
 			chip_info->wet_mode = p_event_status->status_data_1;
 			TPD_INFO("%s: water wet mode %d\n",__func__, chip_info->wet_mode);
-			pm_qos_remove_request(&pm_qos_req_stp);
 			return IRQ_IGNORE;
 		}
 		if ((p_event_status->stype == TYPE_STATUS_EVENT_VENDOR_INFO) && (p_event_status->status_id == SEC_TS_VENDOR_ACK_NOISE_STATUS_NOTI)) {
@@ -1229,7 +1220,6 @@ static u8 sec_trigger_reason(void *chip_data, int gesture_enable, int is_suspend
 			TPD_INFO("%s: TSP NOISE MODE %s[%d]\n",
 					__func__,chip_info->touch_noise_status == 0 ? "OFF" : "ON",
 					p_event_status->status_data_1);
-			pm_qos_remove_request(&pm_qos_req_stp);
 			return IRQ_IGNORE;
 		}
 	} else if (event_id == SEC_COORDINATE_EVENT) {
@@ -1237,7 +1227,6 @@ static u8 sec_trigger_reason(void *chip_data, int gesture_enable, int is_suspend
 	} else if (event_id == SEC_GESTURE_EVENT) {
 		return IRQ_GESTURE;
 	}
-	pm_qos_remove_request(&pm_qos_req_stp);
 	return IRQ_IGNORE;
 }
 
@@ -1249,15 +1238,9 @@ static int sec_get_touch_points(void *chip_data, struct point_info *points, int 
 	int left_event = 0;
 	struct sec_event_coordinate *p_event_coord = NULL;
 	uint32_t obj_attention = 0;
-	u8 *event_buff;
+	u8 *event_buff = dma_buffer->event_buff;
 	struct chip_data_s6sy761 *chip_info = (struct chip_data_s6sy761 *)chip_data;
 
-	event_buff = kzalloc(MAX_EVENT_COUNT*SEC_EVENT_BUFF_SIZE * (sizeof(uint8_t)), GFP_KERNEL);
-	if (!event_buff) {
-		TPD_INFO("event_buff kzalloc failed\n");
-		pm_qos_remove_request(&pm_qos_req_stp);
-		return -ENOMEM;
-	}
 	p_event_coord = (struct sec_event_coordinate *)chip_info->first_event;
 	t_id = (p_event_coord->tid - 1);
 	if ((t_id < max_num) && ((p_event_coord->tchsta == SEC_COORDINATE_ACTION_PRESS) || (p_event_coord->tchsta == SEC_COORDINATE_ACTION_MOVE))) {
@@ -1276,18 +1259,14 @@ static int sec_get_touch_points(void *chip_data, struct point_info *points, int 
 
 	left_event = chip_info->first_event[7] & 0x3F;
 	if (left_event == 0) {
-		kfree(event_buff);
-		pm_qos_remove_request(&pm_qos_req_stp);
 		return obj_attention;
 	} else if (left_event > max_num - 1) {
 		TPD_INFO("%s: read left event beyond max touch points\n", __func__);
 		left_event = max_num - 1;
 	}
-	ret = touch_i2c_read_block(chip_info->client, SEC_READ_ALL_EVENT, sizeof(u8) * (SEC_EVENT_BUFF_SIZE) * (left_event), &event_buff[0]);
+	ret = touch_i2c_read_block(chip_info->client, SEC_READ_ALL_EVENT, SEC_EVENT_BUFF_SIZE * left_event, &event_buff[0]);
 	if (ret < 0) {
 		TPD_INFO("%s: i2c read all event failed\n", __func__);
-		kfree(event_buff);
-		pm_qos_remove_request(&pm_qos_req_stp);
 		return obj_attention;
 	}
 
@@ -1308,15 +1287,13 @@ static int sec_get_touch_points(void *chip_data, struct point_info *points, int 
 			obj_attention = obj_attention | (1 << t_id);    //set touch bit
 		}
 	}
-	kfree(event_buff);
-	pm_qos_remove_request(&pm_qos_req_stp);
 	return obj_attention;
 }
 
 static int sec_get_gesture_info(void *chip_data, struct gesture_info * gesture)
 {
 	int i = 0, ret = -1;
-	uint8_t coord[18] = {0};
+	uint8_t *coord = dma_buffer->coord;
 	struct Coordinate limitPoint[4];
 	struct sec_gesture_status *p_event_gesture = NULL;
 	struct chip_data_s6sy761 *chip_info = (struct chip_data_s6sy761 *)chip_data;
@@ -1513,7 +1490,6 @@ static int sec_get_gesture_info(void *chip_data, struct gesture_info * gesture)
 			gesture->Point_2nd.x, gesture->Point_2nd.y, \
 			gesture->Point_3rd.x, gesture->Point_3rd.y, \
 			gesture->Point_4th.x, gesture->Point_4th.y);
-	pm_qos_remove_request(&pm_qos_req_stp);
 
 	return 0;
 }
@@ -1768,7 +1744,7 @@ err_out:
 static int sec_read_mutual(struct chip_data_s6sy761 *chip_info, u8 type, char *data, int len)
 {
 	int ret = 0;
-	u8 buf[2] = {0};
+	u8 buf[2];
 	unsigned int data_len = (chip_info->hw_res->TX_NUM * chip_info->hw_res->RX_NUM) * 2;
 
 	if ((len > data_len) || (len % chip_info->hw_res->TX_NUM != 0)) {
@@ -1815,12 +1791,11 @@ static void sec_delta_read(struct seq_file *s, void *chip_data)
 	struct chip_data_s6sy761 *chip_info = (struct chip_data_s6sy761 *)chip_data;
 	int readbytes = chip_info->hw_res->TX_NUM * (chip_info->hw_res->RX_NUM) * 2;
 
-	data = kmalloc(readbytes, GFP_KERNEL);
+	data = kmalloc(readbytes, GFP_KERNEL | GFP_DMA);
 	if (!data) {
 		return;
 	}
 
-	memset(data, 0, readbytes);
 	ret = sec_read_mutual(chip_info, TYPE_SIGNAL_DATA, data, readbytes);
 	if (ret < 0) {
 		seq_printf(s, "read delta failed\n");
@@ -1849,13 +1824,12 @@ static void sec_baseline_read(struct seq_file *s, void *chip_data)
 	struct chip_data_s6sy761 *chip_info = (struct chip_data_s6sy761 *)chip_data;
 	int readbytes = (chip_info->hw_res->TX_NUM * chip_info->hw_res->RX_NUM) * 2;
 
-	data = kmalloc(readbytes, GFP_KERNEL);
+	data = kmalloc(readbytes, GFP_KERNEL | GFP_DMA);
 	if (!data) {
 		return;
 	}
 
 	//read decoded data
-	memset(data, 0, readbytes);
 	ret = sec_read_mutual(chip_info, TYPE_DECODED_DATA, data, readbytes);
 	if (ret < 0) {
 		seq_printf(s, "read rawdata failed\n");
@@ -1874,7 +1848,6 @@ static void sec_baseline_read(struct seq_file *s, void *chip_data)
 	seq_printf(s, "\n");
 
 	//read ambient data
-	memset(data, 0, readbytes);
 	ret = sec_read_mutual(chip_info, TYPE_AMBIENT_DATA, data, readbytes);
 	if (ret < 0) {
 		seq_printf(s, "read rawdata failed\n");
@@ -1904,12 +1877,11 @@ static void sec_self_delta_read(struct seq_file *s, void *chip_data)
 	struct chip_data_s6sy761 *chip_info = (struct chip_data_s6sy761 *)chip_data;
 	int readbytes = (chip_info->hw_res->TX_NUM + chip_info->hw_res->RX_NUM) * 2;
 
-	data = kmalloc(readbytes, GFP_KERNEL);
+	data = kmalloc(readbytes, GFP_KERNEL | GFP_DMA);
 	if (!data) {
 		return;
 	}
 
-	memset(data, 0, readbytes);
 	ret = sec_read_self(chip_info, TYPE_SIGNAL_DATA, data, readbytes);
 	if (ret < 0) {
 		seq_printf(s, "read self delta failed\n");
@@ -1942,12 +1914,11 @@ static void sec_self_raw_read(struct seq_file *s, void *chip_data)
 	struct chip_data_s6sy761 *chip_info = (struct chip_data_s6sy761 *)chip_data;
 	int readbytes = (chip_info->hw_res->TX_NUM + chip_info->hw_res->RX_NUM) * 2;
 
-	data = kmalloc(readbytes, GFP_KERNEL);
+	data = kmalloc(readbytes, GFP_KERNEL| GFP_DMA);
 	if (!data) {
 		return;
 	}
 
-	memset(data, 0, readbytes);
 	ret = sec_read_self(chip_info, TYPE_RAW_DATA, data, readbytes);
 	if (ret < 0) {
 		seq_printf(s, "read self rawdata failed\n");
@@ -1975,7 +1946,7 @@ kfree_out:
 
 static void sec_main_register_read(struct seq_file *s, void *chip_data)
 {
-	u8 buf[4] = {0};
+	u8 *buf = dma_buffer->reg_buf;
 	int state = -1;
 	struct chip_data_s6sy761 *chip_info = (struct chip_data_s6sy761 *)chip_data;
 
@@ -1988,7 +1959,7 @@ static void sec_main_register_read(struct seq_file *s, void *chip_data)
 	state = touch_i2c_read_byte(chip_info->client, SET_CMD_SET_CHARGER_MODE);
 	seq_printf(s, "charger state: 0x%02x\n", state);
 
-	memset(buf, 0, 4);
+	buf[0] = 0;
 	touch_i2c_read_block(chip_info->client, SEC_READ_ID, 3, buf);
 	seq_printf(s, "boot state: 0x%02x\n", buf[0]);
 
@@ -2001,11 +1972,9 @@ static void sec_main_register_read(struct seq_file *s, void *chip_data)
 	state = touch_i2c_read_word(chip_info->client, SEC_CMD_WAKEUP_GESTURE_MODE);
 	seq_printf(s, "gesture mode: 0x%04x\n", state);
 
-	memset(buf, 0, 4);
 	touch_i2c_read_block(chip_info->client, SEC_READ_IMG_VERSION, 4, buf);
 	seq_printf(s, "fw img version: 0x%08x\n", (buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3]);
 
-	memset(buf, 0, 4);
 	touch_i2c_read_block(chip_info->client, SEC_READ_CONFIG_VERSION, 4, buf);
 	seq_printf(s, "config version: 0x%08x\n", (buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3]);
 
@@ -2021,7 +1990,6 @@ static void sec_main_register_read(struct seq_file *s, void *chip_data)
 	state = touch_i2c_read_word(chip_info->client, SEC_CMD_GRIP_SWITCH);
 	seq_printf(s, "grip state: 0x%04x(0x0000-off/0x2000-on)\n", state);
 
-	memset(buf, 0, 4);
 	touch_i2c_read_block(chip_info->client, SEC_READ_TS_STATUS, 4, buf);
 	seq_printf(s, "power mode: 0x%02x[normal-0x02/lpwg-0x05], 0x%02x[indle-0x00/active-0x02]\n", buf[1], buf[3]);
 	return;
@@ -2055,9 +2023,9 @@ static struct debug_info_proc_operations debug_info_proc_ops = {
 static void sec_earsese_rawdata_read(void *chip_data, char *rawdata, int read_len)
 {
 	int ret = 0;
-	u8 buf[2] = {0};
+	u8 buf[2];
 	int i = 0, j = 0;
-	int8_t tmp_byte[2] = {0};
+	int8_t tmp_byte[2];
 	struct chip_data_s6sy761 *chip_info = (struct chip_data_s6sy761 *)chip_data;
 	uint8_t len_y = chip_info->hw_res->EARSENSE_RX_NUM;
 	uint8_t len_x = chip_info->hw_res->EARSENSE_TX_NUM;
@@ -2102,9 +2070,9 @@ static void sec_earsese_rawdata_read(void *chip_data, char *rawdata, int read_le
 static void sec_earsese_delta_read(void *chip_data, char *earsense_delta, int read_len)
 {
 	int ret = 0, hover_status = 0, data_type = 0;
-	u8 buf[2] = {0};
+	u8 buf[2];
 	int i = 0, j = 0;
-	int8_t tmp_byte[2] = {0};
+	int8_t tmp_byte[2];
 	struct chip_data_s6sy761 *chip_info = (struct chip_data_s6sy761 *)chip_data;
 	uint8_t len_x = chip_info->hw_res->EARSENSE_TX_NUM;
 	uint8_t len_y = chip_info->hw_res->EARSENSE_RX_NUM;
@@ -2219,7 +2187,7 @@ static int sec_execute_selftest(struct seq_file *s, struct chip_data_s6sy761 *ch
 	/* save selftest result in flash */
 	tpara[0] = 0x21;
 
-	rBuff = kzalloc(result_size, GFP_KERNEL);
+	rBuff = kzalloc(result_size, GFP_KERNEL | GFP_DMA);
 	if (!rBuff) {
 		seq_printf(s, "kzalloc space failed\n");
 		return -ENOMEM;
@@ -2421,7 +2389,7 @@ static void sec_auto_test(struct seq_file *s, void *chip_data, struct sec_testda
 		}
 	}
 
-	pRead = kzalloc(readbytes, GFP_KERNEL);
+	pRead = kzalloc(readbytes, GFP_KERNEL | GFP_DMA);
 	if (!pRead) {
 		TPD_INFO("kzalloc space failed\n");
 		seq_printf(s, "kzalloc space failed\n");
@@ -2609,7 +2577,6 @@ static void sec_auto_test(struct seq_file *s, void *chip_data, struct sec_testda
 
 		sec_mdelay(100);
 		/* read raw data */
-		memset(pRead, 0, readbytes); //clear buffer
 		ret = touch_i2c_read_block(chip_info->client, SEC_READ_TOUCH_SELF_RAWDATA, readselfbytes, pRead);
 		if (ret < 0) {
 			err_cnt++;
@@ -2709,7 +2676,6 @@ static void sec_auto_test(struct seq_file *s, void *chip_data, struct sec_testda
 
 		sec_mdelay(100);
 		/* read raw data */
-		memset(pRead, 0, readbytes); //clear buffer
 		ret = touch_i2c_read_block(chip_info->client, SEC_READ_TOUCH_RAWDATA, readbytes, pRead);
 		if (ret < 0) {
 			err_cnt++;
@@ -2752,7 +2718,6 @@ static void sec_auto_test(struct seq_file *s, void *chip_data, struct sec_testda
 
 		sec_mdelay(100);
 		/* read raw data */
-		memset(pRead, 0, readbytes); //clear buffer
 		ret = touch_i2c_read_block(chip_info->client, SEC_READ_TOUCH_RAWDATA, readbytes, pRead);
 		if (ret < 0) {
 			err_cnt++;
@@ -3169,7 +3134,7 @@ static int sec_ts_read_frame(struct chip_data_s6sy761 *chip_info, u8 type, short
 	/* set data length, allocation buffer memory */
 	readbytes = chip_info->hw_res->TX_NUM * chip_info->hw_res->RX_NUM * 2;
 
-	pRead = kzalloc(readbytes, GFP_KERNEL);
+	pRead = kzalloc(readbytes, GFP_KERNEL | GFP_DMA);
 	if (!pRead)
 		return -ENOMEM;
 
@@ -3321,6 +3286,7 @@ void sec_ts_run_rawdata_all(void *chip_data, bool full_read)
 out:
 	TPD_INFO("%s: done (noise:%d, wet:%d)##\n",
 			__func__, chip_info->touch_noise_status, chip_info->wet_mode);
+    kfree(chip_info->pFrame);
 
 	tp_touch_btnkey_release();
 
@@ -3397,13 +3363,19 @@ static int sec_tp_probe(struct i2c_client *client, const struct i2c_device_id *i
 		return -1;
 	}
 	/* 1. alloc chip info */
-	chip_info = kzalloc(sizeof(struct chip_data_s6sy761), GFP_KERNEL);
+	chip_info = kzalloc(sizeof(struct chip_data_s6sy761), GFP_KERNEL | GFP_DMA);
 	if (chip_info == NULL) {
 		TPD_INFO("chip info kzalloc error\n");
 		ret = -ENOMEM;
 		return ret;
 	}
-	memset(chip_info, 0, sizeof(*chip_info));
+
+	dma_buffer = kmalloc(sizeof(struct dma_buf_s6sy761), GFP_KERNEL | GFP_DMA);
+	if (dma_buffer == NULL) {
+		TPD_INFO("dma buffer kzalloc error\n");
+		ret = -ENOMEM;
+		return ret;
+	}
 
 	/* 2. Alloc common ts */
 	ts = common_touch_data_alloc();
@@ -3411,7 +3383,6 @@ static int sec_tp_probe(struct i2c_client *client, const struct i2c_device_id *i
 		TPD_INFO("ts kzalloc error\n");
 		goto ts_malloc_failed;
 	}
-	memset(ts, 0, sizeof(*ts));
 
 	/* 3. bind client and dev for easy operate */
 	chip_info->client = client;
@@ -3437,6 +3408,7 @@ static int sec_tp_probe(struct i2c_client *client, const struct i2c_device_id *i
 	sec_raw_device_init(ts);
 	sec_create_proc(ts, &sec_proc_ops);
 	schedule_delayed_work(&ts->work_read_info, msecs_to_jiffies(50));
+
 	TPD_INFO("%s, probe normal end\n", __func__);
 	return 0;
 

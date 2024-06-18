@@ -54,6 +54,10 @@ u32 arm_smmu_debug_tcu_testbus_select(phys_addr_t phys_addr,
 		offset = ARM_SMMU_TESTBUS_SEL_HLOS1_NS;
 		if (write) {
 			writel_relaxed(val, tcu_base + offset);
+<<<<<<< Updated upstream
+=======
+			/* Make sure tcu select register is written to */
+>>>>>>> Stashed changes
 			wmb();
 		} else {
 			return readl_relaxed(tcu_base + offset);
@@ -62,11 +66,19 @@ u32 arm_smmu_debug_tcu_testbus_select(phys_addr_t phys_addr,
 		offset = ARM_SMMU_TESTBUS_SEL;
 		if (write) {
 			scm_io_write((phys_addr + offset), val);
+<<<<<<< Updated upstream
+=======
+			/* Make sure tcu select register is written to */
+>>>>>>> Stashed changes
 			wmb();
 		} else {
 			return scm_io_read(phys_addr + offset);
 		}
 	}
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 
 	return 0;
 }

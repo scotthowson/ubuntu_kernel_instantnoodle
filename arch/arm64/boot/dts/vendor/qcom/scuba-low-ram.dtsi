@@ -34,10 +34,13 @@
 			alignment = <0x0 0x400000>;
 			size = <0x0 0x400000>;
 		};
+<<<<<<< Updated upstream
 
 		linux,cma {
 			size = <0x0 0x1000000>;
 		};
+=======
+>>>>>>> Stashed changes
 	};
 };
 

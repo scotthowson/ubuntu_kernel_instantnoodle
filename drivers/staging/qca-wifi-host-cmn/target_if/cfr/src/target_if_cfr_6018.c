@@ -282,7 +282,11 @@ static void dump_metadata(struct csi_cfr_header *header, uint32_t cookie)
 		  "cfr_capture_type = %d\n"
 		  "sts_count = %d\n"
 		  "num_rx_chain = %d\n"
+<<<<<<< Updated upstream
 		  "timestamp = 0x%x\n"
+=======
+		  "timestamp = %llu\n"
+>>>>>>> Stashed changes
 		  "length = %d\n"
 		  "is_mu_ppdu = %d\n"
 		  "num_users = %d\n",
@@ -668,7 +672,15 @@ void target_if_cfr_rx_tlv_process(struct wlan_objmgr_pdev *pdev, void *nbuf)
 		goto done;
 	}
 
+<<<<<<< Updated upstream
 	vdev = wlan_objmgr_pdev_get_first_vdev(pdev, WLAN_CFR_ID);
+=======
+	if (pcfr->rcc_param.vdev_id == CFR_INVALID_VDEV_ID)
+		vdev = wlan_objmgr_pdev_get_first_vdev(pdev, WLAN_CFR_ID);
+	else
+		vdev = wlan_objmgr_get_vdev_by_id_from_pdev(
+				pdev, pcfr->rcc_param.vdev_id, WLAN_CFR_ID);
+>>>>>>> Stashed changes
 	if (qdf_unlikely(!vdev)) {
 		cfr_debug("vdev is null\n");
 		goto done;

@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
+<<<<<<< Updated upstream
  * Copyright (c) 2017-2020, The Linux Foundation. All rights reserved.
+=======
+ * Copyright (c) 2017-2021, The Linux Foundation. All rights reserved.
+>>>>>>> Stashed changes
  */
 
 #include <linux/firmware.h>
@@ -89,9 +93,33 @@ static u32 a6xx_ifpc_pwrup_reglist[] = {
 };
 
 /* Applicable to a620 and a650 */
+<<<<<<< Updated upstream
 static u32 a650_pwrup_reglist[] = {
 	A6XX_RBBM_GBIF_CLIENT_QOS_CNTL,
 	A6XX_CP_PROTECT_REG + 47,         /* Programmed for infinite span */
+=======
+static u32 a650_ifpc_pwrup_reglist[] = {
+	A6XX_CP_PROTECT_REG+32,
+	A6XX_CP_PROTECT_REG+33,
+	A6XX_CP_PROTECT_REG+34,
+	A6XX_CP_PROTECT_REG+35,
+	A6XX_CP_PROTECT_REG+36,
+	A6XX_CP_PROTECT_REG+37,
+	A6XX_CP_PROTECT_REG+38,
+	A6XX_CP_PROTECT_REG+39,
+	A6XX_CP_PROTECT_REG+40,
+	A6XX_CP_PROTECT_REG+41,
+	A6XX_CP_PROTECT_REG+42,
+	A6XX_CP_PROTECT_REG+43,
+	A6XX_CP_PROTECT_REG+44,
+	A6XX_CP_PROTECT_REG+45,
+	A6XX_CP_PROTECT_REG+46,
+	A6XX_CP_PROTECT_REG+47,
+};
+
+static u32 a650_pwrup_reglist[] = {
+	A6XX_RBBM_GBIF_CLIENT_QOS_CNTL,
+>>>>>>> Stashed changes
 	A6XX_TPL1_BICUBIC_WEIGHTS_TABLE_0,
 	A6XX_TPL1_BICUBIC_WEIGHTS_TABLE_1,
 	A6XX_TPL1_BICUBIC_WEIGHTS_TABLE_2,
@@ -351,14 +379,21 @@ struct a6xx_reglist_list {
 
 static void a6xx_patch_pwrup_reglist(struct adreno_device *adreno_dev)
 {
-	struct a6xx_reglist_list reglist[3];
+	struct a6xx_reglist_list reglist[4];
 	void *ptr = adreno_dev->pwrup_reglist.hostptr;
 	struct cpu_gpu_lock *lock = ptr;
 	int items = 0, i, j;
 	u32 *dest = ptr + sizeof(*lock);
+	u16 list_offset = 0;
 
 	/* Static IFPC-only registers */
-	reglist[items++] = REGLIST(a6xx_ifpc_pwrup_reglist);
+	reglist[items] = REGLIST(a6xx_ifpc_pwrup_reglist);
+	list_offset += reglist[items++].count * 2;
+
+	if (adreno_is_a650_family(adreno_dev)) {
+		reglist[items] = REGLIST(a650_ifpc_pwrup_reglist);
+		list_offset += reglist[items++].count * 2;
+	}
 
 	/* Static IFPC + preemption registers */
 	reglist[items++] = REGLIST(a6xx_pwrup_reglist);
@@ -401,7 +436,7 @@ static void a6xx_patch_pwrup_reglist(struct adreno_device *adreno_dev)
 	 * all the lists and list_offset should be specified as the size in
 	 * dwords of the first entry in the list.
 	 */
-	lock->list_offset = reglist[0].count * 2;
+	lock->list_offset = list_offset;
 }
 
 /*
@@ -1142,7 +1177,13 @@ static int a6xx_reset(struct kgsl_device *device, int fault)
 	if (!gmu_core_isenabled(device))
 		return adreno_reset(device, fault);
 
+<<<<<<< Updated upstream
 	device->pwrctrl.ctrl_flags = 0;
+=======
+	/* Clear ctrl_flags to ensure clocks and regulators are turned off */
+	device->pwrctrl.ctrl_flags = 0;
+
+>>>>>>> Stashed changes
 	/* Transition from ACTIVE to RESET state */
 	kgsl_pwrctrl_change_state(device, KGSL_STATE_RESET);
 
@@ -1392,18 +1433,39 @@ static void a6xx_cp_callback(struct adreno_device *adreno_dev, int bit)
 	struct kgsl_device *device = KGSL_DEVICE(adreno_dev);
 
 	if (adreno_is_preemption_enabled(adreno_dev))
-		a6xx_preemption_trigger(adreno_dev);
+		a6xx_preemption_trigger(adreno_dev, true);
 
 	adreno_dispatcher_schedule(device);
 }
 
+<<<<<<< Updated upstream
+=======
+/*
+ * a6xx_gpc_err_int_callback() - Isr for GPC error interrupts
+ * @adreno_dev: Pointer to device
+ * @bit: Interrupt bit
+ */
+>>>>>>> Stashed changes
 static void a6xx_gpc_err_int_callback(struct adreno_device *adreno_dev, int bit)
 {
 	struct kgsl_device *device = KGSL_DEVICE(adreno_dev);
 
+<<<<<<< Updated upstream
 	dev_crit_ratelimited(device->dev, "RBBM: GPC error\n");
 	adreno_irqctrl(adreno_dev, 0);
 
+=======
+	/*
+	 * GPC error is typically the result of mistake SW programming.
+	 * Force GPU fault for this interrupt so that we can debug it
+	 * with help of register dump.
+	 */
+
+	dev_crit_ratelimited(device->dev, "RBBM: GPC error\n");
+	adreno_irqctrl(adreno_dev, 0);
+
+	/* Trigger a fault in the dispatcher - this will effect a restart */
+>>>>>>> Stashed changes
 	adreno_set_gpu_fault(adreno_dev, ADRENO_SOFT_FAULT);
 	adreno_dispatcher_schedule(device);
 }

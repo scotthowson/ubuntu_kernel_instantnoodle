@@ -2302,6 +2302,7 @@ static void cxgb_down(struct adapter *adapter)
 
 	t4_sge_stop(adapter);
 	t4_free_sge_resources(adapter);
+
 	adapter->flags &= ~FULL_INIT_DONE;
 }
 

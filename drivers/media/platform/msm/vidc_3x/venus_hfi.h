@@ -52,6 +52,13 @@
 
 extern unsigned long __calc_bw(struct bus_info *bus,
 				struct msm_vidc_gov_data *vidc_data);
+<<<<<<< Updated upstream
+=======
+
+extern int msm_vidc_table_get_target_freq(struct msm_vidc_bus_table_gov *gov,
+					struct msm_vidc_gov_data *vidc_data,
+					unsigned long *frequency);
+>>>>>>> Stashed changes
 struct hfi_queue_table_header {
 	u32 qtbl_version;
 	u32 qtbl_size;

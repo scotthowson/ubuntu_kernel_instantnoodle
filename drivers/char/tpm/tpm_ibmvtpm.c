@@ -250,6 +250,14 @@ again:
 			IBMVTPM_VALID_CMD, VTPM_TPM_COMMAND,
 			count, ibmvtpm->rtce_dma_handle);
 	if (rc != H_SUCCESS) {
+<<<<<<< Updated upstream
+=======
+		/*
+		 * H_CLOSED can be returned after LPM resume.  Call
+		 * tpm_ibmvtpm_resume() to re-enable the CRQ then retry
+		 * ibmvtpm_send_crq() once before failing.
+		 */
+>>>>>>> Stashed changes
 		if (rc == H_CLOSED && retry) {
 			tpm_ibmvtpm_resume(ibmvtpm->dev);
 			retry = false;
@@ -583,6 +591,7 @@ static irqreturn_t ibmvtpm_interrupt(int irq, void *vtpm_instance)
 	 */
 	while ((crq = ibmvtpm_crq_get_next(ibmvtpm)) != NULL) {
 		ibmvtpm_crq_process(crq, ibmvtpm);
+		wake_up_interruptible(&ibmvtpm->crq_queue.wq);
 		crq->valid = 0;
 		smp_wmb();
 	}
@@ -630,6 +639,7 @@ static int tpm_ibmvtpm_probe(struct vio_dev *vio_dev,
 	}
 
 	crq_q->num_entry = CRQ_RES_BUF_SIZE / sizeof(*crq_q->crq_addr);
+	init_waitqueue_head(&crq_q->wq);
 	ibmvtpm->crq_dma_handle = dma_map_single(dev, crq_q->crq_addr,
 						 CRQ_RES_BUF_SIZE,
 						 DMA_BIDIRECTIONAL);
@@ -681,6 +691,14 @@ static int tpm_ibmvtpm_probe(struct vio_dev *vio_dev,
 	rc = ibmvtpm_crq_get_rtce_size(ibmvtpm);
 	if (rc)
 		goto init_irq_cleanup;
+
+	if (!wait_event_timeout(ibmvtpm->crq_queue.wq,
+				ibmvtpm->rtce_buf != NULL,
+				HZ)) {
+		rc = -ENODEV;
+		dev_err(dev, "CRQ response timed out\n");
+		goto init_irq_cleanup;
+	}
 
 	return tpm_chip_register(chip);
 init_irq_cleanup:

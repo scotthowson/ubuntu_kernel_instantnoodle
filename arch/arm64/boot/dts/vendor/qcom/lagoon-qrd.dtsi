@@ -121,6 +121,7 @@
 	status = "ok";
 };
 
+<<<<<<< Updated upstream
 &dsi_hx83112_tianma_fhd_video {
        qcom,panel-supply-entries = <&dsi_panel_pwr_supply>;
        qcom,mdss-dsi-bl-pmic-control-type = "bl_ctrl_wled";
@@ -131,6 +132,8 @@
        qcom,platform-tp-reset-gpio = <&tlmm 21 0>;
 };
 
+=======
+>>>>>>> Stashed changes
 &dsi_r66451_amoled_60hz_video {
 	qcom,panel-supply-entries = <&dsi_panel_pwr_supply>;
 	qcom,mdss-dsi-bl-pmic-control-type = "bl_ctrl_dcs";
@@ -159,6 +162,7 @@
 	qcom,platform-reset-gpio = <&pm6150l_gpios 9 0>;
 };
 
+<<<<<<< Updated upstream
 &dsi_s6e3fc3_samsung_amoled_cmd {
 	qcom,panel-supply-entries = <&dsi_panel_pwr_supply>;
 	qcom,mdss-dsi-bl-pmic-control-type = "bl_ctrl_dcs";
@@ -171,6 +175,8 @@
 };
 
 
+=======
+>>>>>>> Stashed changes
 &dsi_r66451_amoled_60hz_cmd {
 	qcom,panel-supply-entries = <&dsi_panel_pwr_supply>;
 	qcom,mdss-dsi-bl-pmic-control-type = "bl_ctrl_dcs";
@@ -203,7 +209,11 @@
 };
 
 &sde_dsi {
+<<<<<<< Updated upstream
 	qcom,dsi-default-panel = <&dsi_hx83112_tianma_fhd_video>;
+=======
+	qcom,dsi-default-panel = <&dsi_r66451_amoled_120hz_video>;
+>>>>>>> Stashed changes
 };
 
 &qupv3_se0_i2c {
@@ -268,6 +278,7 @@
 				500000>;
 };
 
+<<<<<<< Updated upstream
 &pm7250b_charger {
 	qcom,dc-icl-ua = <1200000>;
 	qcom,fcc-max-ua = <2000000>;
@@ -353,6 +364,11 @@
 &pm7250b_qg {
 	status = "ok";
 	io-channels = <&pm7250b_vadc ADC_BAT_THERM_PU1>,
+=======
+&pm7250b_qg {
+	status = "ok";
+	io-channels = <&pm7250b_vadc ADC_BAT_THERM_PU2>,
+>>>>>>> Stashed changes
 		      <&pm7250b_vadc ADC_BAT_ID_PU2>;
 	io-channel-names = "batt-therm",
 			   "batt-id";
@@ -488,11 +504,16 @@
 				<&lpi_tlmm>, <&bolero>;
 };
 
+<<<<<<< Updated upstream
 &qupv3_se0_i2c {
+=======
+&qupv3_se8_i2c {
+>>>>>>> Stashed changes
 	#address-cells = <1>;
 	#size-cells = <0>;
 
 	status = "ok";
+<<<<<<< Updated upstream
 	qcom,i2c-touch-active = "focaltech,focal";
 
 	focaltech@38 {
@@ -567,6 +588,33 @@
 			drive-strength = <8>;
 			bias-pull-down;
 		};
+=======
+	qcom,i2c-touch-active = "focaltech,fts_ts";
+
+	focaltech@38 {
+		compatible = "focaltech,fts_ts";
+		reg = <0x38>;
+		interrupt-parent = <&tlmm>;
+		interrupts = <22 0x2008>;
+		focaltech,reset-gpio = <&tlmm 21 0x00>;
+		focaltech,irq-gpio = <&tlmm 22 0x2008>;
+		focaltech,max-touch-number = <5>;
+		focaltech,display-coords = <0 0 1080 2340>;
+
+		vdd-supply = <&L6A>;
+
+		pinctrl-names = "pmx_ts_active", "pmx_ts_suspend","pmx_ts_release";
+		pinctrl-0 = <&ts_active>;
+		pinctrl-1 = <&ts_int_suspend &ts_reset_suspend>;
+		pinctrl-2 = <&pmx_ts_release>;
+
+		panel = <&dsi_r66451_amoled_60hz_cmd
+			 &dsi_r66451_amoled_90hz_cmd
+			 &dsi_r66451_amoled_120hz_cmd
+			 &dsi_r66451_amoled_60hz_video
+			 &dsi_r66451_amoled_90hz_video
+			 &dsi_r66451_amoled_120hz_video>;
+>>>>>>> Stashed changes
 	};
 };
 
@@ -727,5 +775,8 @@
 		pinctrl-2 = <&fpc_int_low>;
 	};
 };
+<<<<<<< Updated upstream
 
 #include "oplus-charge.dtsi"
+=======
+>>>>>>> Stashed changes

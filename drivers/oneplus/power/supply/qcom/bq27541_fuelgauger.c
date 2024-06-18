@@ -80,7 +80,11 @@ static int bq27541_read_i2c_block(u8 cmd, u8 length, u8 *returnData,
 static void bq28z610_modify_soc_smooth_parameter(struct bq27541_device_info *di);
 static int bq28z610_get_time_to_full(void);
 static int bq27541_get_batt_bq_soc(void);
+<<<<<<< Updated upstream
 static bool get_dash_started(void);
+=======
+static inline bool is_dash_started(void);
+>>>>>>> Stashed changes
 static int bq27541_set_allow_reading(int enable);
 
 static int bq27541_read(u8 reg, int *rt_value, int b_single,
@@ -406,7 +410,11 @@ static int bq27541_chip_config(struct bq27541_device_info *di)
 	return 0;
 }
 static bool bq27541_registered;
+<<<<<<< Updated upstream
 struct bq27541_device_info *bq27541_di;
+=======
+static struct bq27541_device_info *bq27541_di;
+>>>>>>> Stashed changes
 static struct i2c_client *new_client;
 
 #define TEN_PERCENT                            10
@@ -430,13 +438,19 @@ static struct i2c_client *new_client;
 #define CAPACITY_CALIBRATE_TIME_60_PERCENT     45 /* 45s */
 #define LOW_BATTERY_CAPACITY_THRESHOLD         20
 
+<<<<<<< Updated upstream
 #define SHORT_TIME_STANDBY_SOC_CHECK_COUNT     15
+=======
+>>>>>>> Stashed changes
 #define LOW_BATTERY_LEVEL_THRESHOLD            8
 #define BATTERY_SOC_UPDATE_MS 12000
 #define LOW_BAT_SOC_UPDATE_MS 6000
 
+<<<<<<< Updated upstream
 #define RESUME_SCHDULE_SOC_UPDATE_WORK_MS 60000
 
+=======
+>>>>>>> Stashed changes
 static int get_current_time(unsigned long *now_tm_sec)
 {
 	struct rtc_time tm;
@@ -886,6 +900,64 @@ static int bq27541_remaining_capacity(struct bq27541_device_info *di)
 	di->remain_pre = cap;
 	return cap;
 }
+
+static int get_batt_full_available_capacity(struct bq27541_device_info *di)
+{
+        int ret;
+        int cap = 0;
+
+        if (atomic_read(&di->suspended) == 1)
+                return di->full_available_capacity_pre;
+        if (di->allow_reading || panel_flag1) {
+#ifdef CONFIG_GAUGE_BQ27411
+                ret = bq27541_read(BQ27411_REG_FAC,
+                                &cap, 0, di);
+#else
+                ret = bq27541_read(BQ27541_REG_RM, &cap, 0, di);
+#endif
+                if (ret) {
+                        pr_err("error reading full_available_capacity.\n");
+                        return ret;
+                }
+                if (panel_flag1)
+                        panel_flag1 = 0;
+        } else {
+                return di->full_available_capacity_pre;
+        }
+
+        di->full_available_capacity_pre = cap;
+        return cap;
+}
+
+
+static int get_batt_full_available_capacity_filtered(struct bq27541_device_info *di)
+{
+        int ret;
+        int cap = 0;
+
+        if (atomic_read(&di->suspended) == 1)
+                return di->full_available_capacity_filtered_pre;
+        if (di->allow_reading || panel_flag1) {
+#ifdef CONFIG_GAUGE_BQ27411
+                ret = bq27541_read(BQ27411_REG_FCCF,
+                                &cap, 0, di);
+#else
+                ret = bq27541_read(BQ27541_REG_RM, &cap, 0, di);
+#endif
+                if (ret) {
+                        pr_err("error reading full_available_capacity_filtered_pre.\n");
+                        return ret;
+                }
+                if (panel_flag1)
+                        panel_flag1 = 0;
+        } else {
+                return di->full_available_capacity_filtered_pre;
+        }
+
+        di->full_available_capacity_filtered_pre = cap;
+        return cap;
+}
+
 static int bq27541_full_chg_capacity(struct bq27541_device_info *di)
 {
 	int ret;
@@ -897,8 +969,17 @@ static int bq27541_full_chg_capacity(struct bq27541_device_info *di)
 
 	if (di->allow_reading || panel_flag2) {
 #ifdef CONFIG_GAUGE_BQ27411
+<<<<<<< Updated upstream
 		ret = bq27541_read(di->cmd_addr.reg_fcc,
 				&cap, 0, di);
+=======
+		if (di->batt_bq28z610)
+			ret = bq27541_read(BQ28Z610_REG_CHARGE_FULL_CAPACITY,
+					&cap, 0, di);
+		else
+			ret = bq27541_read(di->cmd_addr.reg_fcc,
+					&cap, 0, di);
+>>>>>>> Stashed changes
 #else
 		ret = bq27541_read(BQ27541_REG_FCC, &cap, 0, di);
 #endif
@@ -923,8 +1004,12 @@ static int bq27541_batt_health(struct bq27541_device_info *di)
 	int health = 0;
 
 	if (di->allow_reading) {
-		ret = bq27541_read(di->cmd_addr.reg_helth,
-				&health, 0, di);
+		if (di->batt_bq28z610)
+			ret = bq27541_read(BQ28Z610_REG_BATTERY_HEALTH,
+					&health, 0, di);
+		else
+			ret = bq27541_read(di->cmd_addr.reg_helth,
+					&health, 0, di);
 		if (ret) {
 			pr_err("error reading health\n");
 			return ret;
@@ -948,6 +1033,16 @@ static int bq27541_get_batt_remaining_capacity(void)
 	return bq27541_remaining_capacity(bq27541_di);
 }
 
+static int bq27541_get_batt_full_available_capacity(void)
+{
+        return get_batt_full_available_capacity(bq27541_di);
+}
+
+static int bq27541_get_batt_full_available_capacity_filtered(void)
+{
+        return get_batt_full_available_capacity_filtered(bq27541_di);
+}
+
 static int bq27541_get_batt_full_chg_capacity(void)
 {
 	return bq27541_full_chg_capacity(bq27541_di);
@@ -960,16 +1055,25 @@ static int bq27541_get_batt_bq_soc(void)
 {
 	int soc;
 
+<<<<<<< Updated upstream
 	if (!get_dash_started()) {
+=======
+	if (!is_dash_started()) {
+>>>>>>> Stashed changes
 		if (!bq27541_di->allow_reading)
 			bq27541_set_allow_reading(true);
 	}
 	bq27541_di->disable_calib_soc = true;
 	soc = bq27541_battery_soc(bq27541_di, 0);
 	bq27541_di->disable_calib_soc = false;
+<<<<<<< Updated upstream
 	if (!get_dash_started()) {
 		if (!bq27541_di->allow_reading)
 			bq27541_set_allow_reading(false);
+=======
+	if (!is_dash_started()) {
+		bq27541_set_allow_reading(false);
+>>>>>>> Stashed changes
 	}
 	return soc;
 }
@@ -1077,7 +1181,7 @@ static int bq27541_set_lcd_off_status(int off)
 			bq27541_di->lcd_off_delt_soc, soc,
 					bq27541_di->soc_pre);
 			get_current_time(&bq27541_di->lcd_off_time);
-					bq27541_di->lcd_is_off = true;
+			bq27541_di->lcd_is_off = true;
 		} else {
 			bq27541_di->lcd_is_off = false;
 			bq27541_di->lcd_off_delt_soc = 0;
@@ -1114,6 +1218,10 @@ static struct external_battery_gauge bq27541_batt_gauge = {
 	.is_battery_id_valid        = bq27541_is_battery_id_valid,
 	.get_batt_remaining_capacity
 		= bq27541_get_batt_remaining_capacity,
+	.get_batt_full_available_capacity
+                = bq27541_get_batt_full_available_capacity,
+	.get_batt_full_available_capacity_filtered
+                = bq27541_get_batt_full_available_capacity_filtered,
 	.get_batt_full_chg_capacity
 		= bq27541_get_batt_full_chg_capacity,
 	.get_batt_health        = bq27541_get_batt_health,
@@ -1131,7 +1239,7 @@ static struct external_battery_gauge bq27541_batt_gauge = {
 };
 
 
-static int is_usb_pluged(void)
+static inline int is_usb_plugged(void)
 {
 	static struct power_supply *psy;
 	union power_supply_propval ret = {0,};
@@ -1156,7 +1264,7 @@ static int is_usb_pluged(void)
 	return usb_present;
 }
 
-static bool get_dash_started(void)
+static inline bool is_dash_started(void)
 {
 	if (bq27541_di && bq27541_di->fastchg_started)
 		return bq27541_di->fastchg_started;
@@ -1188,6 +1296,7 @@ static int bq27541_temperature_thrshold_update(int temp)
 
 static void update_battery_soc_work(struct work_struct *work)
 {
+<<<<<<< Updated upstream
 	int schedule_time, vbat, temp, switch_flag = 0;
 	static int pre_plugin_status = 0;
 	static bool pre_dash_started = 0;
@@ -1202,10 +1311,28 @@ static void update_battery_soc_work(struct work_struct *work)
 	pre_plugin_status = is_usb_pluged();
 	pre_dash_started = get_dash_started();
 	if (is_usb_pluged() || get_dash_started()) {
+=======
+	int vbat, temp, switch_flag = 0;
+	static int pre_plugin_status = 0;
+	static bool pre_dash_started = 0;
+	int plugged = is_usb_plugged();
+	bool dash_started = is_dash_started();
+
+	pr_info("plugin:%d,dash_start:%d:smooth:%d\n",
+				plugged, dash_started,bq27541_di->set_smoothing);
+	switch_flag = REFRESH_TRUE;
+	if (pre_plugin_status != plugged
+		|| pre_dash_started != dash_started)
+		pr_info("usb_plugin:%d,dash_started:%d:set_smooth:%d\n",
+				plugged, dash_started,bq27541_di->set_smoothing);
+	pre_plugin_status = plugged;
+	pre_dash_started = dash_started;
+	if (plugged || dash_started) {
+>>>>>>> Stashed changes
 		schedule_delayed_work(
 				&bq27541_di->battery_soc_work,
 				msecs_to_jiffies(BATTERY_SOC_UPDATE_MS));
-		if (get_dash_started())
+		if (dash_started)
 			return;
 		if (bq27541_di->set_smoothing)
 			return;
@@ -1226,13 +1353,16 @@ static void update_battery_soc_work(struct work_struct *work)
 	if (!bq27541_di->already_modify_smooth)
 		schedule_delayed_work(
 		&bq27541_di->modify_soc_smooth_parameter, 1000);
+<<<<<<< Updated upstream
 	if (bq27541_di->lcd_is_off)
 		schedule_time = 2 * RESUME_SCHDULE_SOC_UPDATE_WORK_MS;
 	else
 		schedule_time =
 			vbat < 3600 ? LOW_BAT_SOC_UPDATE_MS : BATTERY_SOC_UPDATE_MS;
+=======
+>>>>>>> Stashed changes
 	schedule_delayed_work(&bq27541_di->battery_soc_work,
-			msecs_to_jiffies(schedule_time));
+			msecs_to_jiffies(vbat < 3600 ? LOW_BAT_SOC_UPDATE_MS : BATTERY_SOC_UPDATE_MS));
 }
 
 bool get_extern_fg_regist_done(void)
@@ -1271,7 +1401,11 @@ static void gauge_set_cmd_addr(int device_type)
 		bq27541_di->cmd_addr.reg_soc = BQ27541_REG_SOC;
 		bq27541_di->cmd_addr.reg_helth = BQ27541_REG_NIC;
 		bq27541_di->cmd_addr.reg_fcc = BQ27541_REG_FCC;
+<<<<<<< Updated upstream
 	} else { /* device_bq27411 */
+=======
+	} else {
+>>>>>>> Stashed changes
 		bq27541_di->cmd_addr.reg_temp = BQ27411_REG_TEMP;
 		bq27541_di->cmd_addr.reg_volt = BQ27411_REG_VOLT;
 		bq27541_di->cmd_addr.reg_rm = BQ27411_REG_RM;
@@ -1289,7 +1423,7 @@ static void bq_modify_soc_smooth_parameter(struct work_struct *work)
 
 	di = container_of(work, struct bq27541_device_info,
 			modify_soc_smooth_parameter.work);
-	if (get_dash_started())
+	if (is_dash_started())
 		return;
 	if (di->already_modify_smooth)
 		return;
@@ -2191,8 +2325,12 @@ static void bq28z610_modify_soc_smooth_parameter(struct bq27541_device_info *di)
 	int rc = 0;
 	bool tried_again = false;
 
+<<<<<<< Updated upstream
 	if (di->modify_soc_smooth == false
 		|| di->device_type != DEVICE_BQ28Z610) {
+=======
+	if (di->modify_soc_smooth == false) {
+>>>>>>> Stashed changes
 		return;
 	}
 
@@ -2349,7 +2487,11 @@ static int bq28z610_get_time_to_full(void)
 	if (!bq27541_di->batt_bq28z610)
 		return -ENODATA;
 
+<<<<<<< Updated upstream
 	if (get_dash_started())
+=======
+	if (is_dash_started())
+>>>>>>> Stashed changes
 		return -ENODATA;
 
 	if (bq27541_di->allow_reading) {
@@ -2514,7 +2656,11 @@ static int bq27541_battery_suspend(struct device *dev)
 	struct bq27541_device_info *di = dev_get_drvdata(dev);
 
 	pr_info("bq27541_battery_suspend\n");
+<<<<<<< Updated upstream
 	//cancel_delayed_work_sync(&di->battery_soc_work);
+=======
+	cancel_delayed_work_sync(&di->battery_soc_work);
+>>>>>>> Stashed changes
 	atomic_set(&di->suspended, 1);
 	ret = get_current_time(&di->rtc_suspend_time);
 	if (ret) {
@@ -2525,9 +2671,6 @@ static int bq27541_battery_suspend(struct device *dev)
 }
 
 
-/*1 minute*/
-
-#define RESUME_TIME  60
 static int bq27541_battery_resume(struct device *dev)
 {
 	int ret = 0;
@@ -2543,10 +2686,14 @@ static int bq27541_battery_resume(struct device *dev)
 	suspend_time =  di->rtc_resume_time - di->rtc_suspend_time;
 	pr_info("suspend_time=%d\n", suspend_time);
 	update_pre_capacity_data.suspend_time = suspend_time;
+<<<<<<< Updated upstream
 	if (di->soc_pre < LOW_BATTERY_LEVEL_THRESHOLD)
 		di->short_time_standby_count += SHORT_TIME_STANDBY_SOC_CHECK_COUNT;
 	if ((di->rtc_resume_time - di->lcd_off_time >= TWO_POINT_FIVE_MINUTES)
 		|| di->short_time_standby_count >= SHORT_TIME_STANDBY_SOC_CHECK_COUNT) {
+=======
+	if (di->soc_pre < LOW_BATTERY_LEVEL_THRESHOLD) {
+>>>>>>> Stashed changes
 		pr_err("di->rtc_resume_time - di->lcd_off_time=%ld\n",
 				di->rtc_resume_time - di->lcd_off_time);
 		__pm_stay_awake(di->update_soc_wake_lock);
@@ -2560,7 +2707,7 @@ static int bq27541_battery_resume(struct device *dev)
 			di->short_time_standby_count++;
 	}
 	schedule_delayed_work(&bq27541_di->battery_soc_work,
-			msecs_to_jiffies(RESUME_SCHDULE_SOC_UPDATE_WORK_MS));
+			msecs_to_jiffies(BATTERY_SOC_UPDATE_MS));
 	return 0;
 }
 

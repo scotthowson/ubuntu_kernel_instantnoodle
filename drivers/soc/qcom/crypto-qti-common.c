@@ -398,7 +398,11 @@ int crypto_qti_keyslot_program(void *priv_data,
 			       unsigned int slot,
 			       u8 data_unit_mask, int capid)
 {
+<<<<<<< Updated upstream
 	int err = 0;
+=======
+	int err1 = 0, err2 = 0;
+>>>>>>> Stashed changes
 	struct crypto_vops_qti_entry *ice_entry;
 
 	ice_entry = (struct crypto_vops_qti_entry *) priv_data;
@@ -407,6 +411,7 @@ int crypto_qti_keyslot_program(void *priv_data,
 		return -EINVAL;
 	}
 
+<<<<<<< Updated upstream
 	err = crypto_qti_program_key(ice_entry, key, slot,
 				data_unit_mask, capid);
 	if (err) {
@@ -420,6 +425,21 @@ int crypto_qti_keyslot_program(void *priv_data,
 	}
 
 	return err;
+=======
+	err1 = crypto_qti_program_key(ice_entry, key, slot,
+				data_unit_mask, capid);
+	if (err1) {
+		pr_err("%s: program key failed with error %d\n",
+			__func__, err1);
+		err2 = crypto_qti_invalidate_key(ice_entry, slot);
+		if (err2) {
+			pr_err("%s: invalidate key failed with error %d\n",
+				__func__, err2);
+		}
+	}
+
+	return err1;
+>>>>>>> Stashed changes
 }
 
 int crypto_qti_keyslot_evict(void *priv_data, unsigned int slot)

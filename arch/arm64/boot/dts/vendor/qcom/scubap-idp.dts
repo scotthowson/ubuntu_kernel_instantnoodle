@@ -9,6 +9,7 @@
 	qcom,msm-id = <471 0x10000>;
 	qcom,board-id = <34 0>;
 };
+<<<<<<< Updated upstream
 
 &soc {
 	qcom,rmnet-ipa {
@@ -19,3 +20,5 @@
 &ipa_hw {
 	status = "disabled";
 };
+=======
+>>>>>>> Stashed changes

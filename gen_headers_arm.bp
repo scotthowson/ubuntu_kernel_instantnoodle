@@ -94,7 +94,10 @@ gen_headers_out_arm = [
     "drm/mga_drm.h",
     "drm/msm_drm.h",
     "drm/msm_drm_pp.h",
+<<<<<<< Updated upstream
     "drm/msm_drm_iris.h",
+=======
+>>>>>>> Stashed changes
     "drm/nouveau_drm.h",
     "drm/omap_drm.h",
     "drm/qxl_drm.h",
@@ -149,6 +152,10 @@ gen_headers_out_arm = [
     "linux/b1lli.h",
     "linux/batadv_packet.h",
     "linux/batman_adv.h",
+<<<<<<< Updated upstream
+=======
+    "linux/batterydata-interface.h",
+>>>>>>> Stashed changes
     "linux/baycom.h",
     "linux/bcache.h",
     "linux/bcm933xx_hcs.h",
@@ -232,6 +239,10 @@ gen_headers_out_arm = [
     "linux/fou.h",
     "linux/fpga-dfl.h",
     "linux/fs.h",
+<<<<<<< Updated upstream
+=======
+    "linux/fscrypt.h",
+>>>>>>> Stashed changes
     "linux/fsi.h",
     "linux/fsl_hypervisor.h",
     "linux/fsmap.h",
@@ -247,6 +258,10 @@ gen_headers_out_arm = [
     "linux/gsmmux.h",
     "linux/gtp.h",
     "linux/hash_info.h",
+<<<<<<< Updated upstream
+=======
+    "linux/hbtp_input.h",
+>>>>>>> Stashed changes
     "linux/hdlc.h",
     "linux/hdlcdrv.h",
     "linux/hdreg.h",
@@ -475,6 +490,11 @@ gen_headers_out_arm = [
     "linux/qemu_fw_cfg.h",
     "linux/qg-profile.h",
     "linux/qg.h",
+<<<<<<< Updated upstream
+=======
+    "linux/qbg-profile.h",
+    "linux/qbg.h",
+>>>>>>> Stashed changes
     "linux/qnx4_fs.h",
     "linux/qnxtypes.h",
     "linux/qrng.h",
@@ -525,6 +545,10 @@ gen_headers_out_arm = [
     "linux/shm.h",
     "linux/signal.h",
     "linux/signalfd.h",
+<<<<<<< Updated upstream
+=======
+    "linux/slatecom_interface.h",
+>>>>>>> Stashed changes
     "linux/smc.h",
     "linux/smc_diag.h",
     "linux/smcinvoke.h",
@@ -622,6 +646,10 @@ gen_headers_out_arm = [
     "linux/virtio_scsi.h",
     "linux/virtio_types.h",
     "linux/virtio_vsock.h",
+<<<<<<< Updated upstream
+=======
+    "linux/vm_bms.h",
+>>>>>>> Stashed changes
     "linux/vm_sockets.h",
     "linux/vm_sockets_diag.h",
     "linux/vmcore.h",
@@ -633,6 +661,10 @@ gen_headers_out_arm = [
     "linux/watchdog.h",
     "linux/wil6210_uapi.h",
     "linux/wimax.h",
+<<<<<<< Updated upstream
+=======
+    "linux/wireguard.h",
+>>>>>>> Stashed changes
     "linux/wireless.h",
     "linux/wmi.h",
     "linux/x25.h",
@@ -641,14 +673,26 @@ gen_headers_out_arm = [
     "linux/xilinx-v4l2-controls.h",
     "linux/zorro.h",
     "linux/zorro_ids.h",
+<<<<<<< Updated upstream
     "linux/fscrypt.h",
     "media/msm_cvp_private.h",
     "media/msm_cvp_utils.h",
+=======
+    "media/msm_cam_sensor.h",
+    "media/msm_camera.h",
+    "media/msm_camsensor_sdk.h",
+    "media/msm_cvp_private.h",
+    "media/msm_cvp_utils.h",
+    "media/msm_fd.h",
+    "media/msm_jpeg.h",
+    "media/msm_jpeg_dma.h",
+>>>>>>> Stashed changes
     "media/msm_media_info.h",
     "media/msm_sde_rotator.h",
     "media/msm_vidc.h",
     "media/msm_vidc_private.h",
     "media/msm_vidc_utils.h",
+<<<<<<< Updated upstream
     "media/radio-iris-commands.h",
     "media/radio-iris.h",
     "media/synx.h",
@@ -663,6 +707,16 @@ gen_headers_out_arm = [
     "media/msm_fd.h",
     "media/msm_jpeg_dma.h",
     "media/msm_camera.h",
+=======
+    "media/msmb_camera.h",
+    "media/msmb_generic_buf_mgr.h",
+    "media/msmb_isp.h",
+    "media/msmb_ispif.h",
+    "media/msmb_pproc.h",
+    "media/radio-iris-commands.h",
+    "media/radio-iris.h",
+    "media/synx.h",
+>>>>>>> Stashed changes
     "misc/cxl.h",
     "misc/ocxl.h",
     "misc/wigig_sensing_uapi.h",
@@ -974,6 +1028,30 @@ gen_headers_out_arm = [
 
     // From techpack/*/include/uapi/*/**/*.h
 
+<<<<<<< Updated upstream
+=======
+    "linux/avtimer.h",
+    "linux/mfd/wcd9xxx/wcd9xxx_registers.h",
+    "linux/mfd/wcd9xxx/wcd9320_registers.h",
+    "linux/msm_audio.h",
+    "linux/msm_audio_aac.h",
+    "linux/msm_audio_ac3.h",
+    "linux/msm_audio_alac.h",
+    "linux/msm_audio_amrnb.h",
+    "linux/msm_audio_amrwb.h",
+    "linux/msm_audio_amrwbplus.h",
+    "linux/msm_audio_ape.h",
+    "linux/msm_audio_calibration.h",
+    "linux/msm_audio_g711.h",
+    "linux/msm_audio_g711_dec.h",
+    "linux/msm_audio_mvs.h",
+    "linux/msm_audio_qcp.h",
+    "linux/msm_audio_sbc.h",
+    "linux/msm_audio_voicememo.h",
+    "linux/msm_audio_wma.h",
+    "linux/msm_audio_wmapro.h",
+    "linux/wcd-spi-ac-params.h",
+>>>>>>> Stashed changes
     "media/cam_cpas.h",
     "media/cam_custom.h",
     "media/cam_defs.h",
@@ -990,6 +1068,16 @@ gen_headers_out_arm = [
     "media/cam_sensor.h",
     "media/cam_sync.h",
     "media/cam_tfe.h",
+<<<<<<< Updated upstream
+=======
+    "sound/audio_effects.h",
+    "sound/audio_slimslave.h",
+    "sound/devdep_params.h",
+    "sound/lsm_params.h",
+    "sound/msmcal-hwdep.h",
+    "sound/voice_params.h",
+    "sound/wcd-dsp-glink.h",
+>>>>>>> Stashed changes
 ]
 
 genrule {
@@ -1016,7 +1104,14 @@ genrule {
 
 genrule {
     name: "qti_generate_kernel_headers_arm",
+<<<<<<< Updated upstream
     tools: ["headers_install.sh"],
+=======
+    tools: [
+        "headers_install.sh",
+        "unifdef",
+    ],
+>>>>>>> Stashed changes
     tool_files: [
         "kernel_headers.py",
         "arch/arm/tools/syscallhdr.sh",
@@ -1041,6 +1136,10 @@ genrule {
         "--arch_syscall_tool $(location arch/arm/tools/syscallhdr.sh) " +
         "--arch_syscall_tbl $(location arch/arm/tools/syscall.tbl) " +
         "--headers_install $(location headers_install.sh) " +
+<<<<<<< Updated upstream
+=======
+        "--unifdef $(location unifdef) " +
+>>>>>>> Stashed changes
         "--include_uapi $(locations include/uapi/**/*.h)",
     out: ["linux/version.h"] + gen_headers_out_arm,
 }

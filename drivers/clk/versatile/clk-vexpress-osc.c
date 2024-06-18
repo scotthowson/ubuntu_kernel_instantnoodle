@@ -26,6 +26,59 @@ struct clk_sp810;
 
 struct clk_sp810_timerclken {
 	struct clk_hw hw;
+<<<<<<< Updated upstream
+=======
+	unsigned long rate_min;
+	unsigned long rate_max;
+};
+
+#define to_vexpress_osc(osc) container_of(osc, struct vexpress_osc, hw)
+
+static unsigned long vexpress_osc_recalc_rate(struct clk_hw *hw,
+		unsigned long parent_rate)
+{
+	struct vexpress_osc *osc = to_vexpress_osc(hw);
+	u32 rate;
+
+	regmap_read(osc->reg, 0, &rate);
+
+	return rate;
+}
+
+static long vexpress_osc_round_rate(struct clk_hw *hw, unsigned long rate,
+		unsigned long *parent_rate)
+{
+	struct vexpress_osc *osc = to_vexpress_osc(hw);
+
+	if (osc->rate_min && rate < osc->rate_min)
+		rate = osc->rate_min;
+
+	if (osc->rate_max && rate > osc->rate_max)
+		rate = osc->rate_max;
+
+	return rate;
+}
+
+static int vexpress_osc_set_rate(struct clk_hw *hw, unsigned long rate,
+		unsigned long parent_rate)
+{
+	struct vexpress_osc *osc = to_vexpress_osc(hw);
+
+	return regmap_write(osc->reg, 0, rate);
+}
+
+static const struct clk_ops vexpress_osc_ops = {
+	.recalc_rate = vexpress_osc_recalc_rate,
+	.round_rate = vexpress_osc_round_rate,
+	.set_rate = vexpress_osc_set_rate,
+};
+
+
+static int vexpress_osc_probe(struct platform_device *pdev)
+{
+	struct clk_init_data init = {};
+	struct vexpress_osc *osc;
+>>>>>>> Stashed changes
 	struct clk *clk;
 	struct clk_sp810 *sp810;
 	int channel;

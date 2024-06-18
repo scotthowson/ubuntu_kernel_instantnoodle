@@ -9,10 +9,6 @@
 #include <linux/sched/clock.h>
 #include <soc/qcom/sysmon.h>
 #include "esoc-mdm.h"
-#include <linux/oem/oem_force_dump.h>
-#include <linux/module.h>
-#include <soc/qcom/subsystem_restart.h>
-#include <linux/input/qpnp-power-on.h>
 
 enum gpio_update_config {
 	GPIO_UPDATE_BOOTING_CONFIG = 1,
@@ -367,41 +363,6 @@ static void mdm_status_fn(struct work_struct *work)
 	mdm_update_gpio_configs(mdm, GPIO_UPDATE_RUNNING_CONFIG);
 }
 
-int esoc_ssr_state;
-int mdm_umount_state;
-module_param(mdm_umount_state, int, 0644);
-MODULE_PARM_DESC(mdm_umount_state,	"mdm_umount_state ");
-
-int ap_mdm_dump_once(void)
-{
-	return 1;
-}
-int set_esoc_ssr_state(int state)
-{
-	esoc_ssr_state = state;
-	return 0;
-}
-int get_esoc_ssr_state(void)
-{
-	return esoc_ssr_state;
-}
-
-int get_mdm_umount_state(void)
-{
-	int i = 0;
-
-	for (i = 0; i < 10; i++) {
-		if (!mdm_umount_state) {
-			esoc_mdm_log("mdm_umount_state=%d i=%d\n", mdm_umount_state, i);
-			pr_err("mdm_umount_state=%d i=%d\n", mdm_umount_state, i);
-			msleep(1000);
-		} else
-			break;
-	}
-	msleep(3000);
-	return 0;
-}
-
 static void mdm_get_restart_reason(struct work_struct *work)
 {
 	int ret, ntries = 0;
@@ -416,9 +377,6 @@ static void mdm_get_restart_reason(struct work_struct *work)
 		if (!ret) {
 			esoc_mdm_log("restart reason is %s\n", sfr_buf);
 			dev_err(dev, "mdm restart reason is %s\n", sfr_buf);
-			dev_err(dev, "[OEM_MDM] SSR: send esoc crash reason\n");
-			subsys_store_crash_reason(mdm->esoc->subsys_dev, sfr_buf);
-			subsys_send_uevent_notify(&mdm->esoc->subsys);
 			break;
 		}
 		msleep(SFR_RETRY_INTERVAL);
@@ -429,6 +387,7 @@ static void mdm_get_restart_reason(struct work_struct *work)
 						__func__, ret);
 	}
 	mdm->get_restart_reason = false;
+<<<<<<< Updated upstream
 
 	if (get_esoc_ssr_state() || oem_get_twice_modemdump_state()) {
 		if (oem_get_download_mode()) {
@@ -450,6 +409,8 @@ static void mdm_get_restart_reason(struct work_struct *work)
 		}
 		set_esoc_ssr_state(0);
 	}
+=======
+>>>>>>> Stashed changes
 }
 
 void mdm_wait_for_status_low(struct mdm_ctrl *mdm, bool atomic)
@@ -622,7 +583,11 @@ static irqreturn_t mdm_status_change(int irq, void *dev_id)
 		esoc_clink_evt_notify(ESOC_BOOT_STATE, esoc);
 		mdm_trigger_dbg(mdm);
 		queue_work(mdm->mdm_queue, &mdm->mdm_status_work);
+<<<<<<< Updated upstream
 		if (mdm->get_restart_reason || oem_get_twice_modemdump_state())
+=======
+		if (mdm->get_restart_reason)
+>>>>>>> Stashed changes
 			queue_work(mdm->mdm_queue, &mdm->restart_reason_work);
 		if (esoc->auto_boot)
 			esoc->clink_ops->notify(ESOC_BOOT_DONE, esoc);

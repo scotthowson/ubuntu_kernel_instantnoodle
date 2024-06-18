@@ -598,12 +598,6 @@ struct perf_event {
 	int				group_caps;
 
 	struct perf_event		*group_leader;
-
-	/*
-	 * Protect the pmu, attributes and context of a group leader.
-	 * Note: does not protect the pointer to the group_leader.
-	 */
-	struct mutex			group_leader_mutex;
 	struct pmu			*pmu;
 	void				*pmu_private;
 
@@ -1016,14 +1010,30 @@ extern void perf_event_output(struct perf_event *event,
 			      struct pt_regs *regs);
 
 static inline bool
-is_default_overflow_handler(struct perf_event *event)
+__is_default_overflow_handler(perf_overflow_handler_t overflow_handler)
 {
-	if (likely(event->overflow_handler == perf_event_output_forward))
+	if (likely(overflow_handler == perf_event_output_forward))
 		return true;
-	if (unlikely(event->overflow_handler == perf_event_output_backward))
+	if (unlikely(overflow_handler == perf_event_output_backward))
 		return true;
 	return false;
 }
+
+#define is_default_overflow_handler(event) \
+	__is_default_overflow_handler((event)->overflow_handler)
+
+#ifdef CONFIG_BPF_SYSCALL
+static inline bool uses_default_overflow_handler(struct perf_event *event)
+{
+	if (likely(is_default_overflow_handler(event)))
+		return true;
+
+	return __is_default_overflow_handler(event->orig_overflow_handler);
+}
+#else
+#define uses_default_overflow_handler(event) \
+	is_default_overflow_handler(event)
+#endif
 
 extern void
 perf_event_header__init_id(struct perf_event_header *header,
@@ -1219,6 +1229,7 @@ int perf_event_max_stack_handler(struct ctl_table *table, int write,
 
 /* Access to perf_event_open(2) syscall. */
 #define PERF_SECURITY_OPEN		0
+<<<<<<< Updated upstream
 
 /* Finer grained perf_event_open(2) access control. */
 #define PERF_SECURITY_CPU		1
@@ -1230,6 +1241,14 @@ static inline bool perf_paranoid_any(void)
 	return sysctl_perf_event_paranoid > 2;
 }
 
+=======
+
+/* Finer grained perf_event_open(2) access control. */
+#define PERF_SECURITY_CPU		1
+#define PERF_SECURITY_KERNEL		2
+#define PERF_SECURITY_TRACEPOINT	3
+
+>>>>>>> Stashed changes
 static inline int perf_is_paranoid(void)
 {
 	return sysctl_perf_event_paranoid > -1;
@@ -1471,19 +1490,15 @@ static struct device_attribute format_attr_##_name = __ATTR_RO(_name)
 #ifdef CONFIG_PERF_EVENTS
 int perf_event_init_cpu(unsigned int cpu);
 int perf_event_exit_cpu(unsigned int cpu);
+#if defined(CONFIG_HOTPLUG_CPU) || defined(CONFIG_KEXEC_CORE)
 int perf_event_restart_events(unsigned int cpu);
+#else
+static inline int perf_event_restart_events(unsigned int cpu)		{ return 0; }
+#endif
 #else
 #define perf_event_init_cpu	NULL
 #define perf_event_exit_cpu	NULL
 #define perf_event_restart_events NULL
-#endif
-
-#ifdef CONFIG_HOUSTON
-extern bool ht_perf_event_open(pid_t pid, int id);
-extern u64 ht_perf_read(struct task_struct *task, int id);
-#else
-static inline bool ht_perf_event_open(pid_t pid, int id) { return false; };
-static inline u64 ht_perf_read(struct task_struct *task, int id) { return 0; };
 #endif
 
 #endif /* _LINUX_PERF_EVENT_H */

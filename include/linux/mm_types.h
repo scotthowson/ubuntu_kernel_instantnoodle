@@ -12,6 +12,7 @@
 #include <linux/completion.h>
 #include <linux/cpumask.h>
 #include <linux/uprobes.h>
+#include <linux/rcupdate.h>
 #include <linux/page-flags-layout.h>
 #include <linux/workqueue.h>
 #include <linux/android_kabi.h>
@@ -205,9 +206,6 @@ struct page {
 #ifdef LAST_CPUPID_NOT_IN_PAGE_FLAGS
 	int _last_cpupid;
 #endif
-#if defined(CONFIG_MEMPLUS) && !(defined(CONFIG_PAGE_EXTENSION) && defined(CONFIG_PAGE_OWNER_ENABLE_DEFAULT))
-	int8_t next_event;
-#endif
 } _struct_page_alignment;
 
 #define PAGE_FRAG_CACHE_MAX_SIZE	__ALIGN_MASK(32768, ~PAGE_MASK)
@@ -295,12 +293,15 @@ struct vm_area_struct {
 	struct mm_struct *vm_mm;	/* The address space we belong to. */
 	pgprot_t vm_page_prot;		/* Access permissions of this VMA. */
 	unsigned long vm_flags;		/* Flags, see mm.h. */
+<<<<<<< Updated upstream
 #ifdef CONFIG_VM_FRAGMENT_MONITOR
 	unsigned long rb_glfragment_gap;
 #endif
 #ifdef CONFIG_MEMPLUS
 	unsigned int memplus_flags;
 #endif
+=======
+>>>>>>> Stashed changes
 
 	/*
 	 * For areas with an address space and backing store,
@@ -345,10 +346,13 @@ struct vm_area_struct {
 	struct mempolicy *vm_policy;	/* NUMA policy for the VMA */
 #endif
 	struct vm_userfaultfd_ctx vm_userfaultfd_ctx;
+<<<<<<< Updated upstream
 #ifdef CONFIG_SPECULATIVE_PAGE_FAULT
 	seqcount_t vm_sequence;		/* Speculative page fault field */
 	atomic_t vm_ref_count;		/* see vma_get(), vma_put() */
 #endif
+=======
+>>>>>>> Stashed changes
 
 	ANDROID_KABI_RESERVE(1);
 	ANDROID_KABI_RESERVE(2);
@@ -373,9 +377,12 @@ struct mm_struct {
 		struct vm_area_struct *mmap;		/* list of VMAs */
 		struct rb_root mm_rb;
 		u64 vmacache_seqnum;                   /* per-thread vmacache */
+<<<<<<< Updated upstream
 #ifdef CONFIG_SPECULATIVE_PAGE_FAULT
 		rwlock_t mm_rb_lock;	/* Speculative page fault field */
 #endif
+=======
+>>>>>>> Stashed changes
 #ifdef CONFIG_MMU
 		unsigned long (*get_unmapped_area) (struct file *filp,
 				unsigned long addr, unsigned long len,
@@ -516,6 +523,9 @@ struct mm_struct {
 		bool tlb_flush_batched;
 #endif
 		struct uprobes_state uprobes_state;
+#ifdef CONFIG_PREEMPT_RT_BASE
+		struct rcu_head delayed_drop;
+#endif
 #ifdef CONFIG_HUGETLB_PAGE
 		atomic_long_t hugetlb_usage;
 #endif
@@ -525,9 +535,6 @@ struct mm_struct {
 		/* HMM needs to track a few things per mm */
 		struct hmm *hmm;
 #endif
-		unsigned int zygoteheap_in_MB;
-		int va_feature;
-		unsigned long va_feature_rnd;
 	} __randomize_layout;
 
 	/*

@@ -1,5 +1,9 @@
 /*
+<<<<<<< Updated upstream
  * Copyright (c) 2017-2020 The Linux Foundation. All rights reserved.
+=======
+ * Copyright (c) 2017-2021 The Linux Foundation. All rights reserved.
+>>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -244,6 +248,10 @@ struct scan_vdev_obj {
  * @pno_wake_lock: pno wake lock
  * @pno_cb: callback to call on PNO completion
  * @mawc_params: Configuration parameters for NLO MAWC.
+<<<<<<< Updated upstream
+=======
+ * @user_config_sched_scan_plan: if enabled set user confing sched scan plan
+>>>>>>> Stashed changes
  */
 struct pno_def_config {
 	bool pno_offload_enabled;
@@ -262,6 +270,10 @@ struct pno_def_config {
 	qdf_wake_lock_t pno_wake_lock;
 	struct cb_handler pno_cb;
 	struct nlo_mawc_params mawc_params;
+<<<<<<< Updated upstream
+=======
+	bool user_config_sched_scan_plan;
+>>>>>>> Stashed changes
 };
 #endif
 
@@ -500,6 +512,11 @@ struct scan_cb {
  * @scan_start_request_buff: buffer used to pass
  *      scan config to event handlers
  * @rnr_channel_db: RNR channel list database
+<<<<<<< Updated upstream
+=======
+ * @allow_bss_with_incomplete_ie: Continue scan entry even if any corrupted IES
+ *  are present.
+>>>>>>> Stashed changes
  */
 struct wlan_scan_obj {
 	uint32_t scan_disabled;
@@ -528,6 +545,10 @@ struct wlan_scan_obj {
 #ifdef FEATURE_6G_SCAN_CHAN_SORT_ALGO
 	struct channel_list_db rnr_channel_db;
 #endif
+<<<<<<< Updated upstream
+=======
+	bool allow_bss_with_incomplete_ie;
+>>>>>>> Stashed changes
 };
 
 /**

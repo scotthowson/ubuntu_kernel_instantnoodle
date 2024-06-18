@@ -1,5 +1,9 @@
 /*
+<<<<<<< Updated upstream
  * Copyright (c) 2016-2020 The Linux Foundation. All rights reserved.
+=======
+ * Copyright (c) 2016-2021 The Linux Foundation. All rights reserved.
+>>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -2600,7 +2604,11 @@ static int os_if_process_nan_enable_req(struct wlan_objmgr_psoc *psoc,
 	return qdf_status_to_os_return(status);
 }
 
+<<<<<<< Updated upstream
 int os_if_process_nan_req(struct wlan_objmgr_psoc *psoc,
+=======
+int os_if_process_nan_req(struct wlan_objmgr_psoc *psoc, uint8_t vdev_id,
+>>>>>>> Stashed changes
 			  const void *data, int data_len)
 {
 	uint32_t nan_subcmd;
@@ -2623,8 +2631,15 @@ int os_if_process_nan_req(struct wlan_objmgr_psoc *psoc,
 	 * sure that HW mode is not set to DBS by NAN Enable request. NAN state
 	 * machine will remain unaffected in this case.
 	 */
+<<<<<<< Updated upstream
 	if (!ucfg_is_nan_dbs_supported(psoc))
 		return os_if_nan_generic_req(psoc, tb);
+=======
+	if (!ucfg_is_nan_dbs_supported(psoc)) {
+		policy_mgr_check_and_stop_opportunistic_timer(psoc, vdev_id);
+		return os_if_nan_generic_req(psoc, tb);
+	}
+>>>>>>> Stashed changes
 
 	/*
 	 * Send all requests other than Enable/Disable as type GENERIC.

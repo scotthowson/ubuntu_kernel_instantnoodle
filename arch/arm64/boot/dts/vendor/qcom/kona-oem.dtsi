@@ -6,11 +6,6 @@
 		interrupt-parent = <&tlmm>;
 	};
 
-	bootloader_log {
-		compatible = "bootloader_log";
-		linux,contiguous-region = <&bootloader_log_mem>;
-	};
-
 	fingerprint_detect:fingerprint_detect {
 		compatible = "oneplus,fpdetect";
 		fp-gpio-id0 = <&tlmm 77 0>;
@@ -253,6 +248,7 @@
 		black_gesture_support = <1>;
 		//black_gesture_test_support = <1>;
 		game_switch_support = <1>;
+		glove_mode_support  = <1>;
 		face_detect_support = <1>;
 		touch_hold_support = <1>;
 		touchpanel,max-num-support = <10>;
@@ -560,17 +556,6 @@
 };
 
 &reserved_memory {
-
-	bootloader_log_mem: bootloader_log_mem@0x9FFF7000 {
-		reg = <0 0x9FFF7000 0 0x00009000>;
-		label = "bootloader_log_mem";
-	};
-
-	param_mem: param_mem@ac200000 {
-		reg = <0 0xAC200000 0 0x00100000>;
-		label = "param_mem";
-	};
-
 	/*after cdsp_secure_heap we add a offset to ignore change address need reconfig*/
 	ramoops: ramoops@0xA9800000 {
 		compatible = "ramoops";
@@ -793,7 +778,6 @@
       };
 };
 
-/* @bsp, 2019/07/08 Battery & Charging porting STRAT */
 &qupv3_se16_i2c {
 	qcom,clk-freq-out = <100000>;
 	status = "ok";
@@ -1138,9 +1122,7 @@
 		};
 	};
 };
-/* @bsp, 2019/07/08 Battery & Charging porting END */
 
-/* @bsp, 2019/08/30 Wireless Charging porting STRAT */
 &soc {
 	op_wlchg:oneplus_wlchg {
 		status = "disable";
@@ -1572,7 +1554,6 @@
 		};
 	};
 };
-/* @bsp, 2019/08/30 Wireless Charging porting END */
 
 &spmi_bus {
 	qcom,pm8150@0 {
@@ -1623,10 +1604,7 @@
 	qca,bt-vdd-rfa1-voltage-level = <1900000 2040000>;
 };
 
-/* @bsp, usb config START */
-/* @bsp, As QRD-DVT have this config, keep the same config
- * for ldo18 power suspend
- */
+
 &usb_qmp_dp_phy {
 	vdd-supply = <&pm8150_l18>;
 	qcom,vdd-voltage-level = <0 912000 912000>;
@@ -1641,7 +1619,6 @@
 		};
 	};
 };
-/* @bsp, usb config END */
 
 &wdog{
 	qcom,bark-time = <15000>;

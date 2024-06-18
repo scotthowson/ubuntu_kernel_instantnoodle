@@ -12,6 +12,7 @@
 #include <linux/fs.h>
 #include <linux/atomic.h>
 #include <linux/page-flags.h>
+#include <linux/locallock.h>
 #include <asm/page.h>
 
 struct notifier_block;
@@ -334,6 +335,7 @@ extern unsigned long nr_free_pagecache_pages(void);
 
 
 /* linux/mm/swap.c */
+DECLARE_LOCAL_IRQ_LOCK(swapvec_lock);
 extern void lru_cache_add(struct page *);
 extern void lru_cache_add_anon(struct page *page);
 extern void lru_cache_add_file(struct page *page);
@@ -346,17 +348,12 @@ extern void lru_add_drain_cpu(int cpu);
 extern void lru_add_drain_all(void);
 extern void rotate_reclaimable_page(struct page *page);
 extern void deactivate_file_page(struct page *page);
+extern void deactivate_page(struct page *page);
 extern void mark_page_lazyfree(struct page *page);
 extern void swap_setup(void);
 
-extern void __lru_cache_add_active_or_unevictable(struct page *page,
-						unsigned long vma_flags);
-
-static inline void lru_cache_add_active_or_unevictable(struct page *page,
-						struct vm_area_struct *vma)
-{
-	return __lru_cache_add_active_or_unevictable(page, vma->vm_flags);
-}
+extern void lru_cache_add_active_or_unevictable(struct page *page,
+						struct vm_area_struct *vma);
 
 /* linux/mm/vmscan.c */
 extern unsigned long zone_reclaimable_pages(struct zone *zone);
@@ -449,20 +446,26 @@ extern bool has_usable_swap(void);
 /* Swap 50% full? Release swapcache more aggressively.. */
 static inline bool vm_swap_full(void)
 {
+<<<<<<< Updated upstream
 	/*
 	 * don't bother replace any swapcache only entries
 	 */
 	if (__memplus_enabled())
 		return false;
 
+=======
+>>>>>>> Stashed changes
 	return atomic_long_read(&nr_swap_pages) * 2 < total_swap_pages;
 }
 
 static inline long get_nr_swap_pages(void)
 {
+<<<<<<< Updated upstream
 	if (__memplus_enabled())
 		return 0;
 
+=======
+>>>>>>> Stashed changes
 	return atomic_long_read(&nr_swap_pages);
 }
 

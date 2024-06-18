@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
- * Copyright (c) 2017-2019, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2017-2020, The Linux Foundation. All rights reserved.
  */
 #ifndef _CAM_OIS_DEV_H_
 #define _CAM_OIS_DEV_H_
@@ -189,6 +189,7 @@ struct cam_ois_ctrl_t {
 	uint8_t ois_fw_flag;
 	uint8_t is_ois_calib;
 	struct cam_ois_opcode opcode;
+	uint32_t open_cnt;
 	enum cam_ois_type_vendor ois_type;  //Master or Slave
 	uint8_t ois_gyro_position;          //Gyro positon
 	uint8_t ois_gyro_vendor;            //Gyro vendor

@@ -106,7 +106,15 @@ do {                                            \
  * (Exception frames and TQM bypass frames)
  */
 #define HAL_TX_COMP_HTT_STATUS_OFFSET 8
+<<<<<<< Updated upstream
 #define HAL_TX_COMP_HTT_STATUS_LEN 16
+=======
+#ifdef CONFIG_BERYLLIUM
+#define HAL_TX_COMP_HTT_STATUS_LEN 20
+#else
+#define HAL_TX_COMP_HTT_STATUS_LEN 16
+#endif
+>>>>>>> Stashed changes
 
 #define HAL_TX_BUF_TYPE_BUFFER 0
 #define HAL_TX_BUF_TYPE_EXT_DESC 1

@@ -172,6 +172,7 @@ TRACE_EVENT(cpu_frequency_limits,
 		  (unsigned long)__entry->max_freq,
 		  (unsigned long)__entry->cpu_id)
 );
+<<<<<<< Updated upstream
 #ifdef CONFIG_PCCORE
 // 2020-05-11, add for pccore CONFIG_PCCORE
 TRACE_EVENT(find_freq,
@@ -244,6 +245,8 @@ TRACE_EVENT(cpu_frequency_select,
 				 __entry->cpu, __entry->num)
 );
 #endif
+=======
+>>>>>>> Stashed changes
 
 TRACE_EVENT(cpu_frequency_switch_start,
 

@@ -159,7 +159,11 @@ out:
 
 static void ufshcd_clear_keyslot(struct ufs_hba *hba, int slot)
 {
+<<<<<<< Updated upstream
 	union ufs_crypto_cfg_entry cfg = { {0} };
+=======
+	union ufs_crypto_cfg_entry cfg = {};
+>>>>>>> Stashed changes
 	int err;
 
 	err = ufshcd_program_key(hba, &cfg, slot);

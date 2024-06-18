@@ -1,5 +1,9 @@
 /*
+<<<<<<< Updated upstream
  * Copyright (c) 2014-2020 The Linux Foundation. All rights reserved.
+=======
+ * Copyright (c) 2014-2021 The Linux Foundation. All rights reserved.
+>>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -90,13 +94,21 @@ do { \
 	uint64_t BEFORE_LOCK_time; \
 	uint64_t AFTER_LOCK_time;  \
 	bool BEFORE_LOCK_is_locked = was_locked; \
+<<<<<<< Updated upstream
 	BEFORE_LOCK_time = qdf_get_log_timestamp(); \
+=======
+	BEFORE_LOCK_time = qdf_get_log_timestamp_lightweight(); \
+>>>>>>> Stashed changes
 	do {} while (0)
 
 
 #define AFTER_LOCK(lock, func) \
 	lock->stats.acquired_by = func; \
+<<<<<<< Updated upstream
 	AFTER_LOCK_time = qdf_get_log_timestamp(); \
+=======
+	AFTER_LOCK_time = qdf_get_log_timestamp_lightweight(); \
+>>>>>>> Stashed changes
 	lock->stats.acquired++; \
 	lock->stats.last_acquired = AFTER_LOCK_time; \
 	if (BEFORE_LOCK_is_locked) { \
@@ -121,11 +133,19 @@ do { \
 do { \
 	uint64_t BEFORE_LOCK_time; \
 	uint64_t AFTER_LOCK_time;  \
+<<<<<<< Updated upstream
 	BEFORE_LOCK_time = qdf_get_log_timestamp(); \
 	do {} while (0)
 
 #define AFTER_TRYLOCK(lock, trylock_return, func) \
 	AFTER_LOCK_time = qdf_get_log_timestamp(); \
+=======
+	BEFORE_LOCK_time = qdf_get_log_timestamp_lightweight(); \
+	do {} while (0)
+
+#define AFTER_TRYLOCK(lock, trylock_return, func) \
+	AFTER_LOCK_time = qdf_get_log_timestamp_lightweight(); \
+>>>>>>> Stashed changes
 	if (trylock_return) { \
 		lock->stats.acquired++; \
 		lock->stats.last_acquired = AFTER_LOCK_time; \
@@ -138,8 +158,20 @@ do { \
 /* max_hold_time in US */
 #define BEFORE_UNLOCK(lock, max_hold_time) \
 do {\
+<<<<<<< Updated upstream
 	uint64_t held_time = qdf_get_log_timestamp() - \
 		lock->stats.last_acquired; \
+=======
+	uint64_t BEFORE_UNLOCK_time;  \
+	uint64_t held_time;  \
+	BEFORE_UNLOCK_time = qdf_get_log_timestamp_lightweight(); \
+\
+	if (unlikely(BEFORE_UNLOCK_time < lock->stats.last_acquired)) \
+		held_time = 0; \
+	else \
+		held_time = BEFORE_UNLOCK_time - lock->stats.last_acquired; \
+\
+>>>>>>> Stashed changes
 	lock->stats.held_time += held_time; \
 \
 	if (held_time > lock->stats.max_held_time) \

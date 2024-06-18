@@ -18,7 +18,7 @@
 #include "mhi_internal.h"
 
 static void mhi_process_sfr(struct mhi_controller *mhi_cntrl,
-	struct file_info *info, char *buf, size_t len)
+	struct file_info *info)
 {
 	struct mhi_buf *mhi_buf = mhi_cntrl->rddm_image->mhi_buf;
 	u8 *sfr_buf, *file_offset = info->file_offset;
@@ -59,10 +59,6 @@ static void mhi_process_sfr(struct mhi_controller *mhi_cntrl,
 
 	/* force sfr string to log in kernel msg */
 	MHI_ERR("%s\n", sfr_buf);
-
-	/* return sfr string for subsystem crash reason */
-	if (info->file_size < SFR_BUF_SIZE)
-		strlcpy(buf, sfr_buf, info->file_size);
 err:
 	kfree(sfr_buf);
 }
@@ -102,7 +98,7 @@ static int mhi_find_next_file_offset(struct mhi_controller *mhi_cntrl,
 	return 0;
 }
 
-void mhi_dump_sfr(struct mhi_controller *mhi_cntrl, char *buf, size_t len)
+void mhi_dump_sfr(struct mhi_controller *mhi_cntrl)
 {
 	struct mhi_buf *mhi_buf = mhi_cntrl->rddm_image->mhi_buf;
 	struct rddm_header *rddm_header =
@@ -110,11 +106,6 @@ void mhi_dump_sfr(struct mhi_controller *mhi_cntrl, char *buf, size_t len)
 	struct rddm_table_info *table_info;
 	struct file_info info = {0};
 	u32 table_size, n;
-
-	if (buf == NULL || len == 0) {
-		MHI_ERR("invalid sfr buf\n");
-		return;
-	}
 
 	if (rddm_header->header_size > sizeof(*rddm_header) ||
 			rddm_header->header_size < 8) {
@@ -136,7 +127,7 @@ void mhi_dump_sfr(struct mhi_controller *mhi_cntrl, char *buf, size_t len)
 
 		if (!strcmp(table_info->file_name, "Q6-SFR.bin")) {
 			info.file_size = table_info->size;
-			mhi_process_sfr(mhi_cntrl, &info, buf, len);
+			mhi_process_sfr(mhi_cntrl, &info);
 			return;
 		}
 
@@ -194,7 +185,7 @@ static int __mhi_download_rddm_in_panic(struct mhi_controller *mhi_cntrl)
 	enum mhi_ee ee;
 	const u32 delayus = 5000;
 	u32 retry = (mhi_cntrl->timeout_ms * 1000) / delayus;
-	const u32 rddm_timeout_us = 200000;
+	const u32 rddm_timeout_us = 350000;
 	int rddm_retry = rddm_timeout_us / delayus; /* time to enter rddm */
 	void __iomem *base = mhi_cntrl->bhie;
 
@@ -295,7 +286,7 @@ int mhi_download_rddm_img(struct mhi_controller *mhi_cntrl, bool in_panic)
 	MHI_CNTRL_LOG("Waiting for image download completion\n");
 
 	/* waiting for image download completion */
-	wait_event_timeout(mhi_cntrl->state_event,
+	swait_event_timeout_exclusive(mhi_cntrl->state_event,
 			   mhi_read_reg_field(mhi_cntrl, base,
 					      BHIE_RXVECSTATUS_OFFS,
 					      BHIE_RXVECSTATUS_STATUS_BMSK,
@@ -347,7 +338,7 @@ static int mhi_fw_load_amss(struct mhi_controller *mhi_cntrl,
 	MHI_CNTRL_LOG("Waiting for image transfer completion\n");
 
 	/* waiting for image download completion */
-	wait_event_timeout(mhi_cntrl->state_event,
+	swait_event_timeout_exclusive(mhi_cntrl->state_event,
 			   MHI_PM_IN_ERROR_STATE(mhi_cntrl->pm_state) ||
 			   mhi_read_reg_field(mhi_cntrl, base,
 					      BHIE_TXVECSTATUS_OFFS,
@@ -407,7 +398,7 @@ static int mhi_fw_load_sbl(struct mhi_controller *mhi_cntrl,
 	MHI_CNTRL_LOG("Waiting for image transfer completion\n");
 
 	/* waiting for image download completion */
-	wait_event_timeout(mhi_cntrl->state_event,
+	swait_event_timeout_exclusive(mhi_cntrl->state_event,
 			   MHI_PM_IN_ERROR_STATE(mhi_cntrl->pm_state) ||
 			   mhi_read_reg_field(mhi_cntrl, base, BHI_STATUS,
 					      BHI_STATUS_MASK, BHI_STATUS_SHIFT,
@@ -583,7 +574,7 @@ void mhi_fw_load_handler(struct mhi_controller *mhi_cntrl)
 			"No firmware image defined or !sbl_size || !seg_len\n");
 		return;
 	}
-	MHI_LOG("loading firmware fw_name=%s\n", fw_name);
+
 	ret = request_firmware(&firmware, fw_name, mhi_cntrl->dev);
 	if (ret) {
 		if (!mhi_cntrl->fw_image_fallback) {
@@ -665,7 +656,7 @@ fw_load_ee_pthru:
 	}
 
 	/* wait for SBL event */
-	ret = wait_event_timeout(mhi_cntrl->state_event,
+	ret = swait_event_timeout_exclusive(mhi_cntrl->state_event,
 				 mhi_cntrl->ee == MHI_EE_SBL ||
 				 MHI_PM_IN_ERROR_STATE(mhi_cntrl->pm_state),
 				 msecs_to_jiffies(mhi_cntrl->timeout_ms));

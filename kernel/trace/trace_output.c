@@ -448,6 +448,7 @@ int trace_print_lat_fmt(struct trace_seq *s, struct trace_entry *entry)
 {
 	char hardsoft_irq;
 	char need_resched;
+	char need_resched_lazy;
 	char irqs_off;
 	int hardirq;
 	int softirq;
@@ -478,6 +479,9 @@ int trace_print_lat_fmt(struct trace_seq *s, struct trace_entry *entry)
 		break;
 	}
 
+	need_resched_lazy =
+		(entry->flags & TRACE_FLAG_NEED_RESCHED_LAZY) ? 'L' : '.';
+
 	hardsoft_irq =
 		(nmi && hardirq)     ? 'Z' :
 		nmi                  ? 'z' :
@@ -486,11 +490,22 @@ int trace_print_lat_fmt(struct trace_seq *s, struct trace_entry *entry)
 		softirq              ? 's' :
 		                       '.' ;
 
-	trace_seq_printf(s, "%c%c%c",
-			 irqs_off, need_resched, hardsoft_irq);
+	trace_seq_printf(s, "%c%c%c%c",
+			 irqs_off, need_resched, need_resched_lazy,
+			 hardsoft_irq);
 
 	if (entry->preempt_count)
 		trace_seq_printf(s, "%x", entry->preempt_count);
+	else
+		trace_seq_putc(s, '.');
+
+	if (entry->preempt_lazy_count)
+		trace_seq_printf(s, "%x", entry->preempt_lazy_count);
+	else
+		trace_seq_putc(s, '.');
+
+	if (entry->migrate_disable)
+		trace_seq_printf(s, "%x", entry->migrate_disable);
 	else
 		trace_seq_putc(s, '.');
 
@@ -1395,7 +1410,7 @@ static struct trace_event *events[] __initdata = {
 	NULL
 };
 
-__init static int init_events(void)
+__init int init_events(void)
 {
 	struct trace_event *event;
 	int i, ret;
@@ -1413,4 +1428,3 @@ __init static int init_events(void)
 
 	return 0;
 }
-early_initcall(init_events);

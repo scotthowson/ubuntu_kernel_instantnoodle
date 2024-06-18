@@ -305,6 +305,10 @@ struct msm_spi {
 	struct msm_bus_client_handle *bus_cl_hdl;
 	unsigned long            mem_phys_addr;
 	size_t                   mem_size;
+<<<<<<< Updated upstream
+=======
+	void			*ipc_logs; /* ipc logs handler */
+>>>>>>> Stashed changes
 	int                      input_fifo_size;
 	int                      output_fifo_size;
 	u32                      rx_bytes_remaining;

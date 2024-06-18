@@ -12,8 +12,9 @@ struct target_nrg {
 	struct reciprocal_value rdiv;
 };
 
-int schedtune_cpu_boost(int cpu);
+int schedtune_cpu_boost_with(int cpu, struct task_struct *p);
 int schedtune_task_boost(struct task_struct *tsk);
+int schedtune_task_boost_rcu_locked(struct task_struct *tsk);
 
 int schedtune_prefer_idle(struct task_struct *tsk);
 
@@ -30,15 +31,26 @@ bool prefer_top(struct task_struct *tsk);
 
 #else /* CONFIG_SCHED_TUNE */
 
-#define schedtune_cpu_boost(cpu)  0
+#define schedtune_cpu_boost_with(cpu, p) 0
+#ifdef CONFIG_UCLAMP_TASK
+#define schedtune_task_boost(tsk) uclamp_boosted(tsk)
+#else 
 #define schedtune_task_boost(tsk) 0
+#endif
 
+#ifdef CONFIG_UCLAMP_TASK_GROUP
+#define schedtune_prefer_idle(tsk) uclamp_latency_sensitive(tsk)
+#else
 #define schedtune_prefer_idle(tsk) 0
+#endif
 
 #define schedtune_enqueue_task(task, cpu) do { } while (0)
 #define schedtune_dequeue_task(task, cpu) do { } while (0)
 
+<<<<<<< Updated upstream
 #define stune_util(cpu, other_util, walt_load) cpu_util_cfs(cpu_rq(cpu))
 #define prefer_sched_group(tsk) 0
 #define prefer_top(tsk) 0
+=======
+>>>>>>> Stashed changes
 #endif /* CONFIG_SCHED_TUNE */

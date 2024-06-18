@@ -1,6 +1,10 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
+<<<<<<< Updated upstream
  * Copyright (c) 2016-2020, The Linux Foundation. All rights reserved.
+=======
+ * Copyright (c) 2016-2021, The Linux Foundation. All rights reserved.
+>>>>>>> Stashed changes
  *
  */
 
@@ -324,7 +328,13 @@ struct sdhci_msm_host {
 	u32 ice_clk_rate;
 	bool debug_mode_enabled;
 	bool reg_store;
+<<<<<<< Updated upstream
 	struct reset_control *core_reset;
+=======
+	bool vbias_skip_wa;
+	struct reset_control *core_reset;
+	u32 minor;
+>>>>>>> Stashed changes
 };
 
 extern char *saved_command_line;

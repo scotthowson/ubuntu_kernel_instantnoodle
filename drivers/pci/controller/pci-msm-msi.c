@@ -386,6 +386,7 @@ int msm_msi_init(struct device *dev)
 
 	for (i = 0; i < msi->nr_irqs; i++) {
 		unsigned int irq = irq_of_parse_and_map(msi->of_node, i);
+
 		struct irq_desc *desc;
 		const char *devname;
 		static const char rc0_name[] = "1c00000.qcom,pcie";
@@ -409,7 +410,11 @@ int msm_msi_init(struct device *dev)
 		else if (strncmp(devname, rc2_name, 17) == 0) /* pcie2: qcom,pcie@1c10000 */
 			desc->action->name = "qcommsi-rc2";
 		else
+<<<<<<< Updated upstream
 			desc->action->name = "qcommsi-rc1"; /* pcie1£ºqcom,pcie@1c08000 */
+=======
+			desc->action->name = "qcommsi-rc1"; /* pcie1Â£Âºqcom,pcie@1c08000 */
+>>>>>>> Stashed changes
 	}
 
 	return 0;

@@ -11,6 +11,10 @@
 #include "sde_connector.h"
 #include "dsi_drm.h"
 #include "sde_trace.h"
+<<<<<<< Updated upstream
+=======
+#include "sde_dbg.h"
+>>>>>>> Stashed changes
 #include "sde_encoder.h"
 #include "sde_dbg.h"
 
@@ -141,15 +145,11 @@ void dsi_convert_to_drm_mode(const struct dsi_display_mode *dsi_mode,
 		drm_mode->flags |= DRM_MODE_FLAG_CMD_MODE_PANEL;
 
 	/* set mode name */
-	snprintf(drm_mode->name, DRM_DISPLAY_MODE_LEN, "%dx%dx%dx%d%s",
-			drm_mode->hdisplay, drm_mode->vdisplay,
-			drm_mode->vrefresh, drm_mode->clock,
-			video_mode ? "vid" : "cmd");
+	*drm_mode->name = '\0';
 }
 
 static int dsi_bridge_attach(struct drm_bridge *bridge)
 {
-	struct dsi_bridge *c_bridge = to_dsi_bridge(bridge);
 
 	if (!bridge) {
 		DSI_ERR("Invalid params\n");
@@ -177,7 +177,8 @@ static void dsi_bridge_pre_enable(struct drm_bridge *bridge)
 		return;
 	}
 
-	atomic_set(&c_bridge->display->panel->esd_recovery_pending, 0);
+	if (bridge->encoder->crtc->state->active_changed)
+		atomic_set(&c_bridge->display->panel->esd_recovery_pending, 0);
 
 	/* By this point mode should have been validated through mode_fixup */
 	rc = dsi_display_set_mode(c_bridge->display,
@@ -598,14 +599,16 @@ int dsi_conn_set_info_blob(struct drm_connector *connector,
 	case DSI_OP_VIDEO_MODE:
 		sde_kms_info_add_keystr(info, "panel mode", "video");
 		sde_kms_info_add_keystr(info, "qsync support",
-				panel->qsync_min_fps ? "true" : "false");
+				panel->qsync_caps.qsync_min_fps ?
+				"true" : "false");
 		break;
 	case DSI_OP_CMD_MODE:
 		sde_kms_info_add_keystr(info, "panel mode", "command");
 		sde_kms_info_add_keyint(info, "mdp_transfer_time_us",
 				mode_info->mdp_transfer_time_us);
 		sde_kms_info_add_keystr(info, "qsync support",
-				panel->qsync_min_fps ? "true" : "false");
+				panel->qsync_caps.qsync_min_fps ?
+				"true" : "false");
 		break;
 	default:
 		DSI_DEBUG("invalid panel type:%d\n", panel->panel_mode);
@@ -865,9 +868,6 @@ int dsi_connector_get_modes(struct drm_connector *connector, void *data,
 	for (i = 0; i < count; i++) {
 		struct drm_display_mode *m;
 
-		if (modes[i].splash_dms)
-			modes[i].dsi_mode_flags |= DSI_MODE_FLAG_DMS;
-
 		memset(&drm_mode, 0x0, sizeof(drm_mode));
 		dsi_convert_to_drm_mode(&modes[i], &drm_mode);
 		m = drm_mode_duplicate(connector->dev, &drm_mode);
@@ -880,6 +880,7 @@ int dsi_connector_get_modes(struct drm_connector *connector, void *data,
 		}
 		m->width_mm = connector->display_info.width_mm;
 		m->height_mm = connector->display_info.height_mm;
+<<<<<<< Updated upstream
 
 		if (display->cmdline_timing != NO_OVERRIDE) {
 			/* get the preferred mode from dsi display mode */
@@ -890,10 +891,18 @@ int dsi_connector_get_modes(struct drm_connector *connector, void *data,
 			m->type |= DRM_MODE_TYPE_PREFERRED;
 		}
 		drm_mode_probed_add(connector, m);
+=======
+>>>>>>> Stashed changes
 
-		if (modes[i].splash_dms)
-			drm_set_preferred_mode(
-				connector, m->hdisplay, m->vdisplay);
+		if (display->cmdline_timing != NO_OVERRIDE) {
+			/* get the preferred mode from dsi display mode */
+			if (modes[i].is_preferred)
+				m->type |= DRM_MODE_TYPE_PREFERRED;
+		} else if (i == 0) {
+			/* set the first mode in list as preferred */
+			m->type |= DRM_MODE_TYPE_PREFERRED;
+		}
+		drm_mode_probed_add(connector, m);
 	}
 
 	rc = dsi_drm_update_edid_name(&edid, display->panel->name);

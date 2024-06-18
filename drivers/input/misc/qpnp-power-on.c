@@ -27,8 +27,6 @@
 #include <linux/regulator/of_regulator.h>
 
 #include <linux/oem/power/oem_external_fg.h>
-#include <linux/oem/oem_force_dump.h>
-#include <linux/oem/param_rw.h>
 #include <linux/oem/boot_mode.h>
 #include <linux/input/qpnp-power-on.h>
 #include <linux/power_supply.h>
@@ -146,6 +144,7 @@
 
 #define QPNP_PON_UVLO_DLOAD_EN			BIT(7)
 #define QPNP_PON_SMPL_EN			BIT(7)
+#define QPNP_PON_KPDPWR_ON			BIT(0)
 
 /* Limits */
 #define QPNP_PON_S1_TIMER_MAX			10256
@@ -203,7 +202,6 @@ struct pon_regulator {
 	u32			bit;
 	bool			enabled;
 };
-
 
 static int pon_ship_mode_en;
 module_param_named(
@@ -960,6 +958,7 @@ static int qpnp_pon_input_dispatch(struct qpnp_pon *pon, u32 pon_type)
 	switch (cfg->pon_type) {
 	case PON_KPDPWR:
 		pon_rt_bit = QPNP_PON_KPDPWR_N_SET;
+<<<<<<< Updated upstream
 		if ((pon_rt_sts & pon_rt_bit) == 0) {
 			pr_info("Power-Key UP\n");
 			set_pwr_status(KEY_RELEASED);
@@ -980,6 +979,8 @@ static int qpnp_pon_input_dispatch(struct qpnp_pon *pon, u32 pon_type)
 			schedule_delayed_work(&pon->press_work_flush, msecs_to_jiffies(7000));
 #endif
 		}
+=======
+>>>>>>> Stashed changes
 		break;
 	case PON_RESIN:
 		pon_rt_bit = QPNP_PON_RESIN_N_SET;
@@ -1007,6 +1008,10 @@ static int qpnp_pon_input_dispatch(struct qpnp_pon *pon, u32 pon_type)
 	 * Simulate a press event in case release event occurred without a press
 	 * event
 	 */
+	if (pon->log_kpd_event && (cfg->pon_type == PON_KPDPWR))
+		pr_info_ratelimited("PMIC input: KPDPWR status=0x%02x, KPDPWR_ON=%d\n",
+			pon_rt_sts, (pon_rt_sts & QPNP_PON_KPDPWR_ON));
+
 	if (!cfg->old_state && !key_status) {
 		input_report_key(pon->pon_input, cfg->key_code, 1);
 		input_sync(pon->pon_input);
@@ -1016,8 +1021,6 @@ static int qpnp_pon_input_dispatch(struct qpnp_pon *pon, u32 pon_type)
 	input_sync(pon->pon_input);
 
 	cfg->old_state = !!key_status;
-
-	oem_check_force_dump_key(cfg->key_code, key_status);
 
 	return 0;
 }
@@ -1167,6 +1170,7 @@ static void bark_work_func(struct work_struct *work)
 	}
 }
 
+<<<<<<< Updated upstream
 int check_powerkey_count(int press)
 {
 	int ret = 0;
@@ -1330,6 +1334,8 @@ err_return:
 }
 #endif
 
+=======
+>>>>>>> Stashed changes
 static irqreturn_t qpnp_resin_bark_irq(int irq, void *_pon)
 {
 	struct qpnp_pon *pon = _pon;
@@ -1639,6 +1645,7 @@ static int qpnp_pon_config_kpdpwr_init(struct qpnp_pon *pon,
 				       struct device_node *node)
 {
 	int rc;
+	uint pon_rt_sts;
 
 	cfg->state_irq = platform_get_irq_byname(pdev, "kpdpwr");
 	if (cfg->state_irq < 0) {
@@ -1675,6 +1682,16 @@ static int qpnp_pon_config_kpdpwr_init(struct qpnp_pon *pon,
 	} else {
 		cfg->s2_cntl_addr = QPNP_PON_KPDPWR_S2_CNTL(pon);
 		cfg->s2_cntl2_addr = QPNP_PON_KPDPWR_S2_CNTL2(pon);
+	}
+
+	if (pon->log_kpd_event) {
+		/* Read PON_RT_STS status during driver initialization. */
+		rc = qpnp_pon_read(pon, QPNP_PON_RT_STS(pon), &pon_rt_sts);
+		if (rc < 0)
+			pr_err("failed to read QPNP_PON_RT_STS rc=%d\n", rc);
+
+		pr_info("KPDPWR status at init=0x%02x, KPDPWR_ON=%d\n",
+			pon_rt_sts, (pon_rt_sts & QPNP_PON_KPDPWR_ON));
 	}
 
 	return 0;
@@ -2872,12 +2889,15 @@ static int qpnp_pon_probe(struct platform_device *pdev)
 	dev_set_drvdata(dev, pon);
 
 	INIT_DELAYED_WORK(&pon->bark_work, bark_work_func);
+<<<<<<< Updated upstream
 	INIT_DELAYED_WORK(&pon->press_work, press_work_func);
 	INIT_DELAYED_WORK(&pon->press_pwr, press_pwr_func);
 #ifdef CONFIG_KEY_FLUSH
 	INIT_DELAYED_WORK(&pon->press_work_flush, press_work_flush_func);
 #endif
 	INIT_WORK(&pon->up_work, up_work_func);
+=======
+>>>>>>> Stashed changes
 
 	rc = qpnp_pon_parse_dt_power_off_config(pon);
 	if (rc)
@@ -2916,6 +2936,9 @@ static int qpnp_pon_probe(struct platform_device *pdev)
 		spin_unlock_irqrestore(&spon_list_slock, flags);
 		pon->is_spon = true;
 	}
+
+	pon->log_kpd_event = of_property_read_bool(dev->of_node,
+				"qcom,log-kpd-event");
 
 	/* Register the PON configurations */
 	rc = qpnp_pon_config_init(pon, pdev);

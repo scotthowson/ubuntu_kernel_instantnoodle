@@ -2,6 +2,10 @@
 
 #include "scuba-iot.dtsi"
 #include "scuba-iot-idp.dtsi"
+<<<<<<< Updated upstream
+=======
+#include "scuba-iot-qcs.dtsi"
+>>>>>>> Stashed changes
 
 / {
 	model = "Qualcomm Technologies, Inc. Scubap IOT IDP";
@@ -9,6 +13,7 @@
 	qcom,msm-id = <474 0x10000>;
 	qcom,board-id = <34 0>;
 };
+<<<<<<< Updated upstream
 
 &soc {
 	qcom,rmnet-ipa {
@@ -19,3 +24,5 @@
 &ipa_hw {
 	status = "disabled";
 };
+=======
+>>>>>>> Stashed changes

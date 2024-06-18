@@ -96,6 +96,11 @@ struct sched_param {
  * on a CPU with a capacity big enough to fit the specified value.
  * A task with a max utilization value smaller than 1024 is more likely
  * scheduled on a CPU with no more capacity than the specified value.
+<<<<<<< Updated upstream
+=======
+ *
+ * A task utilization boundary can be reset by setting the attribute to -1.
+>>>>>>> Stashed changes
  */
 struct sched_attr {
 	__u32 size;

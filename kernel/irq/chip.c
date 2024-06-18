@@ -266,8 +266,19 @@ int irq_startup(struct irq_desc *desc, bool resend, bool force)
 	} else {
 		switch (__irq_startup_managed(desc, aff, force)) {
 		case IRQ_STARTUP_NORMAL:
+			if (d->chip->flags & IRQCHIP_AFFINITY_PRE_STARTUP) {
+				if (irqd_has_set(&desc->irq_data, IRQD_PERF_CRITICAL))
+					setup_perf_irq_locked(desc, desc->action->flags);
+				else
+					irq_setup_affinity(desc);
+			}
 			ret = __irq_startup(desc);
-			irq_setup_affinity(desc);
+			if (!(d->chip->flags & IRQCHIP_AFFINITY_PRE_STARTUP)) {
+				if (irqd_has_set(&desc->irq_data, IRQD_PERF_CRITICAL))
+					setup_perf_irq_locked(desc, desc->action->flags);
+				else
+					irq_setup_affinity(desc);
+			}
 			break;
 		case IRQ_STARTUP_MANAGED:
 			irq_do_set_affinity(d, aff, false);
@@ -502,6 +513,7 @@ static bool irq_check_poll(struct irq_desc *desc)
 
 static bool irq_may_run(struct irq_desc *desc)
 {
+<<<<<<< Updated upstream
 	unsigned int mask = IRQD_IRQ_INPROGRESS | IRQD_WAKEUP_ARMED;
 
 	/*
@@ -522,16 +534,27 @@ static bool irq_may_run(struct irq_desc *desc)
 						   irq, name);
 		}
 #endif
+=======
+	/* Proceed if the IRQ isn't in progress and isn't a wakeup interrupt */
+	if (!irqd_has_set(&desc->irq_data, IRQD_IRQ_INPROGRESS |
+			  IRQD_WAKEUP_ARMED | IRQD_WAKEUP_STATE))
+>>>>>>> Stashed changes
 		return true;
 	}
 
 	/*
 	 * If the interrupt is an armed wakeup source, mark it pending
 	 * and suspended, disable it and notify the pm core about the
-	 * event.
+	 * event. If it's a wakeup interrupt and has yet to be armed
+	 * but suspend is in progress, do a wakeup to cancel suspend.
+	 * The IRQ will be allowed to run via the check right below.
 	 */
 	if (irq_pm_check_wakeup(desc))
 		return false;
+
+	/* Run the IRQ as usual if it's a wakeup source and isn't yet armed */
+	if (irqd_is_wakeup_set(&desc->irq_data))
+		return true;
 
 	/*
 	 * Handle a potential concurrent poll on a different core.

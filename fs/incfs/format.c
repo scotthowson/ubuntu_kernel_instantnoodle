@@ -15,7 +15,12 @@
 #include "format.h"
 #include "data_mgmt.h"
 
+<<<<<<< Updated upstream
 struct backing_file_context *incfs_alloc_bfc(struct file *backing_file)
+=======
+struct backing_file_context *incfs_alloc_bfc(struct mount_info *mi,
+					     struct file *backing_file)
+>>>>>>> Stashed changes
 {
 	struct backing_file_context *result = NULL;
 
@@ -24,6 +29,10 @@ struct backing_file_context *incfs_alloc_bfc(struct file *backing_file)
 		return ERR_PTR(-ENOMEM);
 
 	result->bc_file = get_file(backing_file);
+<<<<<<< Updated upstream
+=======
+	result->bc_cred = mi->mi_owner;
+>>>>>>> Stashed changes
 	mutex_init(&result->bc_mutex);
 	return result;
 }
@@ -116,7 +125,11 @@ static int append_zeros(struct backing_file_context *bfc, size_t len)
 static int write_to_bf(struct backing_file_context *bfc, const void *buf,
 			size_t count, loff_t pos)
 {
+<<<<<<< Updated upstream
 	ssize_t res = incfs_kwrite(bfc->bc_file, buf, count, pos);
+=======
+	ssize_t res = incfs_kwrite(bfc, buf, count, pos);
+>>>>>>> Stashed changes
 
 	if (res < 0)
 		return res;
@@ -531,8 +544,12 @@ int incfs_read_blockmap_entries(struct backing_file_context *bfc,
 	if (start_index < 0 || bm_base_off <= 0)
 		return -ENODATA;
 
+<<<<<<< Updated upstream
 	result = incfs_kread(bfc->bc_file, entries, bytes_to_read,
 			     bm_entry_off);
+=======
+	result = incfs_kread(bfc, entries, bytes_to_read, bm_entry_off);
+>>>>>>> Stashed changes
 	if (result < 0)
 		return result;
 	return result / sizeof(*entries);
@@ -548,8 +565,12 @@ int incfs_read_file_header(struct backing_file_context *bfc,
 	if (!bfc || !first_md_off)
 		return -EFAULT;
 
+<<<<<<< Updated upstream
 	LOCK_REQUIRED(bfc->bc_mutex);
 	bytes_read = incfs_kread(bfc->bc_file, &fh, sizeof(fh), 0);
+=======
+	bytes_read = incfs_kread(bfc, &fh, sizeof(fh), 0);
+>>>>>>> Stashed changes
 	if (bytes_read < 0)
 		return bytes_read;
 
@@ -603,8 +624,13 @@ int incfs_read_next_metadata_record(struct backing_file_context *bfc,
 		return -EPERM;
 
 	memset(&handler->md_buffer, 0, max_md_size);
+<<<<<<< Updated upstream
 	bytes_read = incfs_kread(bfc->bc_file, &handler->md_buffer,
 				 max_md_size, handler->md_record_offset);
+=======
+	bytes_read = incfs_kread(bfc, &handler->md_buffer, max_md_size,
+				 handler->md_record_offset);
+>>>>>>> Stashed changes
 	if (bytes_read < 0)
 		return bytes_read;
 	if (bytes_read < sizeof(*md_hdr))
@@ -680,6 +706,7 @@ int incfs_read_next_metadata_record(struct backing_file_context *bfc,
 	return res;
 }
 
+<<<<<<< Updated upstream
 ssize_t incfs_kread(struct file *f, void *buf, size_t size, loff_t pos)
 {
 	return kernel_read(f, buf, size, &pos);
@@ -688,4 +715,24 @@ ssize_t incfs_kread(struct file *f, void *buf, size_t size, loff_t pos)
 ssize_t incfs_kwrite(struct file *f, const void *buf, size_t size, loff_t pos)
 {
 	return kernel_write(f, buf, size, &pos);
+=======
+ssize_t incfs_kread(struct backing_file_context *bfc, void *buf, size_t size,
+		    loff_t pos)
+{
+	const struct cred *old_cred = override_creds(bfc->bc_cred);
+	int ret = kernel_read(bfc->bc_file, buf, size, &pos);
+
+	revert_creds(old_cred);
+	return ret;
+}
+
+ssize_t incfs_kwrite(struct backing_file_context *bfc, const void *buf,
+		     size_t size, loff_t pos)
+{
+	const struct cred *old_cred = override_creds(bfc->bc_cred);
+	int ret = kernel_write(bfc->bc_file, buf, size, &pos);
+
+	revert_creds(old_cred);
+	return ret;
+>>>>>>> Stashed changes
 }

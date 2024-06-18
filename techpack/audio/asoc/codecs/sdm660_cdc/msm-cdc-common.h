@@ -1,6 +1,10 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
+<<<<<<< Updated upstream
  * Copyright (c) 2016-2017, 2020, The Linux Foundation. All rights reserved.
+=======
+ * Copyright (c) 2016-2017, 2020-2021, The Linux Foundation. All rights reserved.
+>>>>>>> Stashed changes
  */
 
 #include <linux/regmap.h>
@@ -56,5 +60,9 @@ enum dig_cdc_notify_event {
 	DIG_CDC_EVENT_POST_RX2_INT_OFF,
 	DIG_CDC_EVENT_SSR_DOWN,
 	DIG_CDC_EVENT_SSR_UP,
+<<<<<<< Updated upstream
+=======
+	DIG_CDC_EVENT_CAP_CONFIGURE,
+>>>>>>> Stashed changes
 	DIG_CDC_EVENT_LAST,
 };

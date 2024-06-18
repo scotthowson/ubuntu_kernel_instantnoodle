@@ -22,8 +22,13 @@
  */
 struct binderfs_device {
 	char name[BINDERFS_MAX_NAME + 1];
+<<<<<<< Updated upstream
 	__u8 major;
 	__u8 minor;
+=======
+	__u32 major;
+	__u32 minor;
+>>>>>>> Stashed changes
 };
 
 /**

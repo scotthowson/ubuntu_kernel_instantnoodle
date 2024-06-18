@@ -808,6 +808,7 @@ struct csr_roamstruct {
  * the 2.4 GHz band, meaning. it is NOT operating in the 5.0 GHz band.
  */
 #define CSR_IS_24_BAND_ONLY(mac) \
+<<<<<<< Updated upstream
 	(BAND_2G == (mac)->mlme_cfg->gen.band)
 
 #define CSR_IS_5G_BAND_ONLY(mac) \
@@ -818,6 +819,19 @@ struct csr_roamstruct {
 
 #define CSR_IS_RADIO_BG_ONLY(mac) \
 	(BAND_2G == (mac)->mlme_cfg->gen.band_capability)
+=======
+	(BIT(REG_BAND_2G) == (mac)->mlme_cfg->gen.band)
+
+#define CSR_IS_5G_BAND_ONLY(mac) \
+	(BIT(REG_BAND_5G) == (mac)->mlme_cfg->gen.band)
+
+#define CSR_IS_RADIO_DUAL_BAND(mac) \
+	((BIT(REG_BAND_2G) | BIT(REG_BAND_5G)) == \
+		(mac)->mlme_cfg->gen.band_capability)
+
+#define CSR_IS_RADIO_BG_ONLY(mac) \
+	(BIT(REG_BAND_2G) == (mac)->mlme_cfg->gen.band_capability)
+>>>>>>> Stashed changes
 
 /*
  * this function returns true if the NIC is operating exclusively in the 5.0 GHz

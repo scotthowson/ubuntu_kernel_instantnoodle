@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0-only
-/* Copyright (c) 2018-2020, The Linux Foundation. All rights reserved. */
+/* Copyright (c) 2018-2021, The Linux Foundation. All rights reserved. */
 
 #include <linux/debugfs.h>
 #include <linux/device.h>
@@ -89,9 +89,12 @@ struct mhi_controller *find_mhi_controller_by_name(const char *name)
 
 const char *to_mhi_pm_state_str(enum MHI_PM_STATE state)
 {
-	int index = find_last_bit((unsigned long *)&state, 32);
+	int index;
 
-	if (index >= ARRAY_SIZE(mhi_pm_state_str))
+	if (state)
+		index = __fls(state);
+
+	if (!state || index >= ARRAY_SIZE(mhi_pm_state_str))
 		return "Invalid State";
 
 	return mhi_pm_state_str[index];
@@ -322,10 +325,29 @@ static const struct attribute_group mhi_sysfs_group = {
 
 void mhi_create_sysfs(struct mhi_controller *mhi_cntrl)
 {
+<<<<<<< Updated upstream
 	sysfs_create_group(&mhi_cntrl->mhi_dev->dev.kobj, &mhi_sysfs_group);
 	if (mhi_cntrl->mhi_tsync)
 		sysfs_create_group(&mhi_cntrl->mhi_dev->dev.kobj,
 				   &mhi_tsync_group);
+=======
+	int ret;
+
+	ret = sysfs_create_group(&mhi_cntrl->mhi_dev->dev.kobj,
+				 &mhi_sysfs_group);
+	if (ret)
+		return ret;
+
+	if (mhi_cntrl->mhi_tsync) {
+		ret = sysfs_create_group(&mhi_cntrl->mhi_dev->dev.kobj,
+					 &mhi_tsync_group);
+		if (ret)
+			sysfs_remove_group(&mhi_cntrl->mhi_dev->dev.kobj,
+					   &mhi_sysfs_group);
+	}
+
+	return ret;
+>>>>>>> Stashed changes
 }
 
 void mhi_destroy_sysfs(struct mhi_controller *mhi_cntrl)
@@ -1048,7 +1070,16 @@ void mhi_deinit_chan_ctxt(struct mhi_controller *mhi_cntrl,
 	vfree(buf_ring->base);
 
 	buf_ring->base = tre_ring->base = NULL;
+	tre_ring->ctxt_wp = NULL;
 	chan_ctxt->rbase = 0;
+	chan_ctxt->rlen = 0;
+	chan_ctxt->rp = chan_ctxt->wp = chan_ctxt->rbase;
+	tre_ring->rp = tre_ring->wp = tre_ring->base;
+	buf_ring->rp = buf_ring->wp = buf_ring->base;
+
+	/* Update to all cores */
+	smp_wmb();
+
 }
 
 int mhi_init_chan_ctxt(struct mhi_controller *mhi_cntrl,
@@ -1558,10 +1589,14 @@ int of_register_mhi_controller(struct mhi_controller *mhi_cntrl)
 	spin_lock_init(&mhi_cntrl->transition_lock);
 	spin_lock_init(&mhi_cntrl->wlock);
 	INIT_WORK(&mhi_cntrl->st_worker, mhi_pm_st_worker);
-	init_waitqueue_head(&mhi_cntrl->state_event);
+	init_swait_queue_head(&mhi_cntrl->state_event);
 
+<<<<<<< Updated upstream
 	mhi_cntrl->wq = alloc_ordered_workqueue("mhi_w",
 						WQ_MEM_RECLAIM | WQ_HIGHPRI);
+=======
+	mhi_cntrl->wq = alloc_ordered_workqueue("mhi_w", WQ_HIGHPRI);
+>>>>>>> Stashed changes
 	if (!mhi_cntrl->wq)
 		goto error_alloc_cmd;
 
@@ -1672,7 +1707,6 @@ int of_register_mhi_controller(struct mhi_controller *mhi_cntrl)
 
 	mhi_cntrl->parent = debugfs_lookup(mhi_bus_type.name, NULL);
 	mhi_cntrl->klog_lvl = MHI_MSG_LVL_ERROR;
-	mhi_cntrl->log_lvl = MHI_MSG_LVL_VERBOSE;
 
 	/* adding it to this list only for debug purpose */
 	mutex_lock(&mhi_bus.lock);
@@ -1993,7 +2027,11 @@ static int mhi_driver_remove(struct device *dev)
 		    ch_state[dir] != MHI_CH_STATE_DISABLED && !interrupted) {
 			MHI_ERR("Channel %s busy, wait for it to be reset\n",
 				mhi_dev->chan_name);
+<<<<<<< Updated upstream
 			ret = wait_event_interruptible(mhi_cntrl->state_event,
+=======
+			ret = swait_event_interruptible_exclusive(mhi_cntrl->state_event,
+>>>>>>> Stashed changes
 				mhi_chan->ch_state == MHI_CH_STATE_DISABLED ||
 				MHI_PM_IN_ERROR_STATE(mhi_cntrl->pm_state));
 			if (unlikely(ret))

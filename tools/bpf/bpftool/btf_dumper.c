@@ -26,7 +26,11 @@ static void btf_dumper_ptr(const void *data, json_writer_t *jw,
 			   bool is_plain_text)
 {
 	if (is_plain_text)
+<<<<<<< Updated upstream
 		jsonw_printf(jw, "%p", data);
+=======
+		jsonw_printf(jw, "%p", *(void **)data);
+>>>>>>> Stashed changes
 	else
 		jsonw_printf(jw, "%lu", *(unsigned long *)data);
 }
@@ -164,7 +168,7 @@ static int btf_dumper_int(const struct btf_type *t, __u8 bit_offset,
 					     *(char *)data);
 		break;
 	case BTF_INT_BOOL:
-		jsonw_bool(jw, *(int *)data);
+		jsonw_bool(jw, *(bool *)data);
 		break;
 	default:
 		/* shouldn't happen */

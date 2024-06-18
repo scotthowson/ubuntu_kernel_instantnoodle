@@ -33,8 +33,8 @@
 #include <linux/sched/topology.h>
 #include <linux/sched/sysctl.h>
 
-#include <linux/pm_qos.h>
 #include <trace/events/power.h>
+<<<<<<< Updated upstream
 #ifdef CONFIG_CONTROL_CENTER
 #include <oneplus/control_center/control_center_helper.h>
 #endif
@@ -46,6 +46,8 @@
 #endif
 #define GOLD_CPU_NUMBER 4
 #define GOLD_PLUS_CPU_NUMBER 7
+=======
+>>>>>>> Stashed changes
 
 static LIST_HEAD(cpufreq_policy_list);
 
@@ -71,29 +73,6 @@ static inline bool policy_is_inactive(struct cpufreq_policy *policy)
 static LIST_HEAD(cpufreq_governor_list);
 #define for_each_governor(__governor)				\
 	list_for_each_entry(__governor, &cpufreq_governor_list, governor_list)
-
-struct qos_request_value {
-	bool flag;
-	unsigned int max_cpufreq;
-	unsigned int min_cpufreq;
-};
-static struct qos_request_value c0_qos_request_value = {
-	.flag = false,
-	.max_cpufreq = INT_MAX,
-	.min_cpufreq = MIN_CPUFREQ,
-};
-static struct qos_request_value c1_qos_request_value = {
-	.flag = false,
-	.max_cpufreq = INT_MAX,
-	.min_cpufreq = MIN_CPUFREQ,
-};
-static struct qos_request_value c2_qos_request_value = {
-	.flag = false,
-	.max_cpufreq = INT_MAX,
-	.min_cpufreq = MIN_CPUFREQ,
-};
-unsigned int cluster1_first_cpu = GOLD_CPU_NUMBER;
-unsigned int cluster2_first_cpu = GOLD_PLUS_CPU_NUMBER;
 
 /**
  * The "cpufreq driver" - the arch- or hardware-dependent low
@@ -393,8 +372,7 @@ static void cpufreq_notify_transition(struct cpufreq_policy *policy,
 						 CPUFREQ_POSTCHANGE, freqs);
 		}
 
-		if (freqs->new != policy->cur)
-			cpufreq_stats_record_transition(policy, freqs->new);
+		cpufreq_stats_record_transition(policy, freqs->new);
 		cpufreq_times_record_transition(policy, freqs->new);
 		policy->cur = freqs->new;
 	}
@@ -543,6 +521,7 @@ EXPORT_SYMBOL_GPL(cpufreq_disable_fast_switch);
 unsigned int cpufreq_driver_resolve_freq(struct cpufreq_policy *policy,
 					 unsigned int target_freq)
 {
+<<<<<<< Updated upstream
 	struct qos_request_value *qos;
 
 #ifdef CONFIG_PCCORE
@@ -566,10 +545,14 @@ unsigned int cpufreq_driver_resolve_freq(struct cpufreq_policy *policy,
 	min_target = clamp_val(policy->min, policy->min, policy->max);
 	policy->min_idx = cpufreq_frequency_table_target(policy, min_target, CPUFREQ_RELATION_L);
 #endif
+=======
+	target_freq = clamp_val(target_freq, policy->min, policy->max);
+>>>>>>> Stashed changes
 	policy->cached_target_freq = target_freq;
 
 	if (cpufreq_driver->target_index) {
 		int idx;
+<<<<<<< Updated upstream
 #ifdef CONFIG_PCCORE
 		idx = cpufreq_frequency_table_target(policy, target_freq,
 			(get_op_select_freq_enable() &&
@@ -578,6 +561,11 @@ unsigned int cpufreq_driver_resolve_freq(struct cpufreq_policy *policy,
 #else
 		idx = cpufreq_frequency_table_target(policy, target_freq, CPUFREQ_RELATION_L);
 #endif
+=======
+
+		idx = cpufreq_frequency_table_target(policy, target_freq,
+						     CPUFREQ_RELATION_L);
+>>>>>>> Stashed changes
 		policy->cached_resolved_idx = idx;
 		return policy->freq_table[idx].frequency;
 	}
@@ -785,6 +773,9 @@ static ssize_t store_##file_name					\
 	int ret, temp;							\
 	struct cpufreq_policy new_policy;				\
 									\
+	if (&policy->object == &policy->min)				\
+		return count;						\
+									\
 	memcpy(&new_policy, policy, sizeof(*policy));			\
 	new_policy.min = policy->user_policy.min;			\
 	new_policy.max = policy->user_policy.max;			\
@@ -842,6 +833,13 @@ static ssize_t store_scaling_governor(struct cpufreq_policy *policy,
 	int ret;
 	char	str_governor[16];
 	struct cpufreq_policy new_policy;
+
+	/*
+	 * Force the LITTLE CPU cluster to use the default govenor (performance)
+	 * because keeping it at its maximum frequency is best.
+	 */
+	if (cpumask_test_cpu(policy->cpu, cpu_lp_mask))
+		return count;
 
 	memcpy(&new_policy, policy, sizeof(*policy));
 
@@ -1232,9 +1230,6 @@ static struct cpufreq_policy *cpufreq_policy_alloc(unsigned int cpu)
 	INIT_LIST_HEAD(&policy->policy_list);
 	init_rwsem(&policy->rwsem);
 	spin_lock_init(&policy->transition_lock);
-#ifdef CONFIG_CONTROL_CENTER
-	spin_lock_init(&policy->cc_lock);
-#endif
 	init_waitqueue_head(&policy->transition_wait);
 	init_completion(&policy->kobj_unregister);
 	INIT_WORK(&policy->update, handle_update);
@@ -1368,12 +1363,6 @@ static int cpufreq_online(unsigned int cpu)
 	} else {
 		policy->min = policy->user_policy.min;
 		policy->max = policy->user_policy.max;
-#ifdef CONFIG_CONTROL_CENTER
-		spin_lock(&policy->cc_lock);
-		policy->cc_min = policy->min;
-		policy->cc_max = policy->max;
-		spin_unlock(&policy->cc_lock);
-#endif
 	}
 
 	if (cpufreq_driver->get && !cpufreq_driver->setpolicy) {
@@ -1998,9 +1987,12 @@ unsigned int cpufreq_driver_fast_switch(struct cpufreq_policy *policy,
 	target_freq = clamp_val(target_freq, policy->min, policy->max);
 
 	ret = cpufreq_driver->fast_switch(policy, target_freq);
+<<<<<<< Updated upstream
 #ifdef CONFIG_PCCORE
 	trace_cpu_frequency_select(target_freq, ret, -2, policy->cpu, 2);
 #endif
+=======
+>>>>>>> Stashed changes
 	if (ret) {
 		cpufreq_times_record_transition(policy, ret);
 		cpufreq_stats_record_transition(policy, ret);
@@ -2103,10 +2095,6 @@ int __cpufreq_driver_target(struct cpufreq_policy *policy,
 	if (cpufreq_disabled())
 		return -ENODEV;
 
-#ifdef CONFIG_CONTROL_CENTER
-	if (likely(policy->cc_enable))
-		target_freq = clamp_val(target_freq, policy->cc_min, policy->cc_max);
-#endif
 	/* Make sure that target_freq is within supported range */
 	target_freq = clamp_val(target_freq, policy->min, policy->max);
 
@@ -2387,12 +2375,6 @@ static int cpufreq_set_policy(struct cpufreq_policy *policy,
 
 	policy->min = new_policy->min;
 	policy->max = new_policy->max;
-#ifdef CONFIG_CONTROL_CENTER
-	spin_lock(&policy->cc_lock);
-	policy->cc_min = policy->min;
-	policy->cc_max = policy->max;
-	spin_unlock(&policy->cc_lock);
-#endif
 	trace_cpu_frequency_limits(policy);
 
 #ifdef CONFIG_ONEPLUS_HEALTHINFO
@@ -2760,6 +2742,7 @@ static int __init cpufreq_core_init(void)
 }
 module_param(off, int, 0444);
 core_initcall(cpufreq_core_init);
+<<<<<<< Updated upstream
 
 static int get_c0_available_cpufreq(struct cpufreq_policy *policy)
 {
@@ -3033,3 +3016,5 @@ static int __init pm_qos_notifier_init(void)
 	return 0;
 }
 subsys_initcall(pm_qos_notifier_init);
+=======
+>>>>>>> Stashed changes

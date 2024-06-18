@@ -121,10 +121,14 @@
 						"qfe_wtr_pa3",
 						"sys_therm1",
 						"sys_therm2",
+<<<<<<< Updated upstream
 						"modem_tsens1",
 						"BEAMER_W_THERM",
 						"BEAMER_N_THERM",
 						"BEAMER_E_THERM";
+=======
+						"modem_tsens1";
+>>>>>>> Stashed changes
 		};
 	};
 };
@@ -377,6 +381,7 @@
 		thermal-sensors = <&qmi_sensor
 				(QMI_MODEM_INST_ID+QMI_QFE_MMW_3_MOD)>;
 		wake-capable-sensor;
+<<<<<<< Updated upstream
 
 		trips {
 			active-config0 {
@@ -429,6 +434,8 @@
 				(QMI_MODEM_INST_ID+QMI_BEAMER_E_THERM)>;
 		wake-capable-sensor;
 
+=======
+>>>>>>> Stashed changes
 		trips {
 			active-config0 {
 				temperature = <125000>;

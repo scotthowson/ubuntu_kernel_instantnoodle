@@ -1173,12 +1173,22 @@ static bool pe_filter_bcn_probe_frame(struct mac_context *mac_ctx,
 
 		ssid_ie = wlan_get_ie_ptr_from_eid(WLAN_ELEMID_SSID,
 				body + SIR_MAC_B_PR_SSID_OFFSET,
+<<<<<<< Updated upstream
 				frame_len);
+=======
+				frame_len - SIR_MAC_B_PR_SSID_OFFSET);
+>>>>>>> Stashed changes
 
 		if (!ssid_ie)
 			return false;
 
 		bcn_ssid.length = ssid_ie[1];
+<<<<<<< Updated upstream
+=======
+		if (bcn_ssid.length > WLAN_SSID_MAX_LEN)
+			return false;
+
+>>>>>>> Stashed changes
 		qdf_mem_copy(&bcn_ssid.ssId,
 			     &ssid_ie[2],
 			     bcn_ssid.length);
@@ -2253,6 +2263,10 @@ lim_roam_fill_bss_descr(struct mac_context *mac,
 				sizeof(bss_desc_ptr->length) + ie_len);
 
 	bss_desc_ptr->fProbeRsp = !roam_synch_ind_ptr->isBeacon;
+<<<<<<< Updated upstream
+=======
+	bss_desc_ptr->rssi = roam_synch_ind_ptr->rssi;
+>>>>>>> Stashed changes
 	/* Copy Timestamp */
 	bss_desc_ptr->scansystimensec = qdf_get_monotonic_boottime_ns();
 	if (parsed_frm_ptr->he_op.oper_info_6g_present) {
@@ -2290,6 +2304,14 @@ lim_roam_fill_bss_descr(struct mac_context *mac,
 	qdf_mem_copy((uint8_t *) &bss_desc_ptr->bssId,
 		     (uint8_t *)roam_synch_ind_ptr->bssid.bytes,
 		     sizeof(tSirMacAddr));
+<<<<<<< Updated upstream
+=======
+
+	qdf_mem_copy((uint8_t *)&bss_desc_ptr->seq_ctrl,
+		     (uint8_t *)&mac_hdr->seqControl,
+		     sizeof(tSirMacSeqCtl));
+
+>>>>>>> Stashed changes
 	bss_desc_ptr->received_time =
 		      (uint64_t)qdf_mc_timer_get_system_time();
 	if (parsed_frm_ptr->mdiePresent) {

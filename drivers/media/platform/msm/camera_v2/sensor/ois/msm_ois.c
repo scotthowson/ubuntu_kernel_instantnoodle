@@ -875,6 +875,7 @@ static long msm_ois_subdev_do_ioctl(
 		case CFG_OIS_CONTROL:
 			ois_data.cfg.set_info.ois_params.setting_size =
 				u32->cfg.set_info.ois_params.setting_size;
+<<<<<<< Updated upstream
 				ois_data.cfg.set_info.ois_params.i2c_addr =
 					u32->cfg.set_info.ois_params.i2c_addr;
 				ois_data.cfg.set_info.ois_params.i2c_freq_mode =
@@ -888,6 +889,21 @@ static long msm_ois_subdev_do_ioctl(
 							.settings);
 				parg = &ois_data;
 				break;
+=======
+			ois_data.cfg.set_info.ois_params.i2c_addr =
+				u32->cfg.set_info.ois_params.i2c_addr;
+			ois_data.cfg.set_info.ois_params.i2c_freq_mode =
+				u32->cfg.set_info.ois_params.i2c_freq_mode;
+			ois_data.cfg.set_info.ois_params.i2c_addr_type =
+				u32->cfg.set_info.ois_params.i2c_addr_type;
+			ois_data.cfg.set_info.ois_params.i2c_data_type =
+				u32->cfg.set_info.ois_params.i2c_data_type;
+			ois_data.cfg.set_info.ois_params.settings =
+				compat_ptr(u32->cfg.set_info.ois_params
+					.settings);
+			parg = &ois_data;
+			break;
+>>>>>>> Stashed changes
 		case CFG_OIS_I2C_WRITE_SEQ_TABLE:
 			if (copy_from_user(&settings32,
 			(void __user *)compat_ptr(u32->cfg.settings),
@@ -920,8 +936,13 @@ static long msm_ois_subdev_do_ioctl(
 	}
 	rc = msm_ois_subdev_ioctl(sd, cmd, parg);
 
+<<<<<<< Updated upstream
 			return rc;
 	}
+=======
+	return rc;
+}
+>>>>>>> Stashed changes
 
 static long msm_ois_subdev_fops_ioctl(struct file *file, unsigned int cmd,
 	unsigned long arg)

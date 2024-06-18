@@ -1957,6 +1957,14 @@ bool csr_is_phy_mode_match(struct mac_context *mac, uint32_t phyMode,
 	uint32_t bitMask, loopCount;
 	uint32_t bss_chan_freq;
 
+<<<<<<< Updated upstream
+=======
+	if (!pProfile) {
+		sme_err("profile not found");
+		return fMatch;
+	}
+
+>>>>>>> Stashed changes
 	if (!QDF_IS_STATUS_SUCCESS(csr_get_phy_mode_from_bss(mac, pSirBssDesc,
 					&phyModeInBssDesc, pIes)))
 		return fMatch;
@@ -2019,6 +2027,7 @@ bool csr_is_phy_mode_match(struct mac_context *mac, uint32_t phyMode,
 	cfgDot11ModeToUse = csr_get_vdev_dot11_mode(mac, pProfile->csrPersona,
 						    cfgDot11ModeToUse);
 	if (fMatch && pReturnCfgDot11Mode) {
+<<<<<<< Updated upstream
 		if (pProfile) {
 			/*
 			 * IEEE 11n spec (8.4.3): HT STA shall
@@ -2043,6 +2052,30 @@ bool csr_is_phy_mode_match(struct mac_context *mac, uint32_t phyMode,
 					cfgDot11ModeToUse =
 						eCSR_CFG_DOT11_MODE_11A;
 				}
+=======
+		/*
+		 * IEEE 11n spec (8.4.3): HT STA shall
+		 * eliminate TKIP as a choice for the pairwise
+		 * cipher suite if CCMP is advertised by the AP
+		 * or if the AP included an HT capabilities
+		 * element in its Beacons and Probe Response.
+		 */
+		if ((!CSR_IS_11n_ALLOWED(
+				pProfile->negotiatedUCEncryptionType))
+				&& ((eCSR_CFG_DOT11_MODE_11N ==
+					cfgDot11ModeToUse) ||
+				(eCSR_CFG_DOT11_MODE_11AC ==
+					cfgDot11ModeToUse) ||
+				(eCSR_CFG_DOT11_MODE_11AX ==
+					cfgDot11ModeToUse))) {
+			/* We cannot do 11n here */
+			if (WLAN_REG_IS_24GHZ_CH_FREQ(bss_chan_freq)) {
+				cfgDot11ModeToUse =
+					eCSR_CFG_DOT11_MODE_11G;
+			} else {
+				cfgDot11ModeToUse =
+					eCSR_CFG_DOT11_MODE_11A;
+>>>>>>> Stashed changes
 			}
 		}
 		*pReturnCfgDot11Mode = cfgDot11ModeToUse;

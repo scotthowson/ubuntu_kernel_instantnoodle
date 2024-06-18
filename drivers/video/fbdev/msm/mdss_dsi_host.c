@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-only
+<<<<<<< Updated upstream
 /* Copyright (c) 2012-2018, 2020, The Linux Foundation. All rights reserved. */
+=======
+/* Copyright (c) 2012-2018, 2020-2021, The Linux Foundation. All rights reserved. */
+>>>>>>> Stashed changes
 
 #include <linux/module.h>
 #include <linux/interrupt.h>
@@ -77,6 +81,11 @@ struct mdss_dsi_event {
 static struct mdss_dsi_event dsi_event;
 
 static int dsi_event_thread(void *data);
+<<<<<<< Updated upstream
+=======
+static void dsi_send_events(struct mdss_dsi_ctrl_pdata *ctrl,
+					u32 events, u32 arg);
+>>>>>>> Stashed changes
 
 void mdss_dsi_ctrl_init(struct device *ctrl_dev,
 			struct mdss_dsi_ctrl_pdata *ctrl)
@@ -296,6 +305,33 @@ void mdss_dsi_read_phy_revision(struct mdss_dsi_ctrl_pdata *ctrl)
 		return;
 
 	reg_val = MIPI_INP(ctrl->phy_io.base);
+<<<<<<< Updated upstream
+=======
+	if (!reg_val) {
+		/*
+		 * DSI_0_PHY_DSIPHY_REVISION_ID3 for phy 1.0
+		 * reset value = 0x10
+		 * 7:4 Major
+		 * 3:0 Minor
+		 */
+		reg_val = MIPI_INP(ctrl->phy_io.base + 0x20c);
+		reg_val = reg_val >> 4;
+		if (!reg_val) {
+			/*
+			 * DSI_0_PHY_DSIPHY_REVISION_ID3 for 12nm PHY
+			 * reset value = 0x20
+			 * 7:4 Major
+			 * 3:0 Minor
+			 */
+			reg_val = MIPI_INP(ctrl->phy_io.base + 0x3dc);
+			reg_val = reg_val >> 4;
+			if (reg_val == 0x2) {
+				ctrl->shared_data->phy_rev = DSI_PHY_REV_12NM;
+				return;
+			}
+		}
+	}
+>>>>>>> Stashed changes
 
 	if (reg_val == DSI_PHY_REV_30)
 		ctrl->shared_data->phy_rev = DSI_PHY_REV_30;
@@ -418,6 +454,12 @@ void mdss_dsi_host_init(struct mdss_panel_data *pdata)
 
 	mdss_dsi_config_data_lane_swap(ctrl_pdata);
 
+<<<<<<< Updated upstream
+=======
+	if (ctrl_pdata->shared_data->phy_rev == DSI_PHY_REV_12NM)
+		goto next;
+
+>>>>>>> Stashed changes
 	/* clock out ctrl */
 	data = pinfo->t_clk_post & 0x3f;	/* 6 bits */
 	data <<= 8;
@@ -425,6 +467,10 @@ void mdss_dsi_host_init(struct mdss_panel_data *pdata)
 	/* DSI_CLKOUT_TIMING_CTRL */
 	MIPI_OUTP((ctrl_pdata->ctrl_base) + 0xc4, data);
 
+<<<<<<< Updated upstream
+=======
+next:
+>>>>>>> Stashed changes
 	data = 0;
 	if (pinfo->rx_eot_ignore)
 		data |= BIT(4);
@@ -801,8 +847,15 @@ static void mdss_dsi_ctl_phy_reset(struct mdss_dsi_ctrl_pdata *ctrl, u32 event)
 		 * Disable PHY contention detection and receive.
 		 * Configure the strength ctrl 1 register.
 		 */
+<<<<<<< Updated upstream
 		MIPI_OUTP((ctrl0->phy_io.base) + 0x0188, 0);
 		MIPI_OUTP((ctrl1->phy_io.base) + 0x0188, 0);
+=======
+		if (ctrl0->shared_data->phy_rev != DSI_PHY_REV_12NM) {
+			MIPI_OUTP((ctrl0->phy_io.base) + 0x0188, 0);
+			MIPI_OUTP((ctrl1->phy_io.base) + 0x0188, 0);
+		}
+>>>>>>> Stashed changes
 
 		data0 = MIPI_INP(ctrl0->ctrl_base + 0x0004);
 		data1 = MIPI_INP(ctrl1->ctrl_base + 0x0004);
@@ -857,6 +910,21 @@ static void mdss_dsi_ctl_phy_reset(struct mdss_dsi_ctrl_pdata *ctrl, u32 event)
 			udelay(u_dly);
 		}
 		if (i == loop) {
+<<<<<<< Updated upstream
+=======
+			if ((ctrl0->shared_data->phy_rev == DSI_PHY_REV_12NM) &&
+				(event == DSI_EV_LP_RX_TIMEOUT)) {
+				struct mdss_panel_info *pinfo =
+					&ctrl0->panel_data.panel_info;
+				/* If ESD is not enabled, report panel dead */
+				if (!pinfo->esd_check_enabled &&
+					ctrl0->recovery)
+					ctrl0->recovery->fxn(
+						ctrl0->recovery->data,
+						MDP_INTF_DSI_PANEL_DEAD);
+				return;
+			}
+>>>>>>> Stashed changes
 			MDSS_XLOG(ctrl0->ndx, ln0, 0x1f1f);
 			MDSS_XLOG(ctrl1->ndx, ln1, 0x1f1f);
 			pr_err("%s: Clock lane still in stop state\n",
@@ -886,16 +954,35 @@ static void mdss_dsi_ctl_phy_reset(struct mdss_dsi_ctrl_pdata *ctrl, u32 event)
 		 * Enable PHY contention detection and receive.
 		 * Configure the strength ctrl 1 register.
 		 */
+<<<<<<< Updated upstream
 		MIPI_OUTP((ctrl0->phy_io.base) + 0x0188, 0x6);
 		MIPI_OUTP((ctrl1->phy_io.base) + 0x0188, 0x6);
+=======
+		if (ctrl0->shared_data->phy_rev != DSI_PHY_REV_12NM) {
+			MIPI_OUTP((ctrl0->phy_io.base) + 0x0188, 0x6);
+			MIPI_OUTP((ctrl1->phy_io.base) + 0x0188, 0x6);
+		}
+>>>>>>> Stashed changes
 		/*
 		 * Add sufficient delay to make sure
 		 * pixel transmission as started
 		 */
 		udelay(200);
+<<<<<<< Updated upstream
 	} else {
 		/* Disable PHY contention detection and receive */
 		MIPI_OUTP((ctrl->phy_io.base) + 0x0188, 0);
+=======
+		/* Un-mask LP_RX_TIMEOUT error if recovery successful */
+		if (event == DSI_EV_LP_RX_TIMEOUT) {
+			mdss_dsi_set_reg(ctrl0, 0x10c, BIT(5), 0);
+			mdss_dsi_set_reg(ctrl1, 0x10c, BIT(5), 0);
+		}
+	} else {
+		/* Disable PHY contention detection and receive */
+		if (ctrl->shared_data->phy_rev != DSI_PHY_REV_12NM)
+			MIPI_OUTP((ctrl->phy_io.base) + 0x0188, 0);
+>>>>>>> Stashed changes
 
 		data0 = MIPI_INP(ctrl->ctrl_base + 0x0004);
 		/* Disable DSI video mode */
@@ -936,6 +1023,20 @@ static void mdss_dsi_ctl_phy_reset(struct mdss_dsi_ctrl_pdata *ctrl, u32 event)
 			udelay(u_dly);
 		}
 		if (i == loop) {
+<<<<<<< Updated upstream
+=======
+			if ((ctrl->shared_data->phy_rev == DSI_PHY_REV_12NM) &&
+				(event == DSI_EV_LP_RX_TIMEOUT)) {
+				struct mdss_panel_info *pinfo =
+					&ctrl->panel_data.panel_info;
+				/* If ESD is not enabled, report panel dead */
+				if (!pinfo->esd_check_enabled && ctrl->recovery)
+					ctrl->recovery->fxn(
+						ctrl->recovery->data,
+						MDP_INTF_DSI_PANEL_DEAD);
+				return;
+			}
+>>>>>>> Stashed changes
 			MDSS_XLOG(ctrl->ndx, ln0, 0x1f1f);
 			pr_err("%s: Clock lane still in stop state\n",
 					__func__);
@@ -958,12 +1059,23 @@ static void mdss_dsi_ctl_phy_reset(struct mdss_dsi_ctrl_pdata *ctrl, u32 event)
 		/* Enable Video mode for DSI controller */
 		MIPI_OUTP(ctrl->ctrl_base + 0x004, data0);
 		/* Enable PHY contention detection and receiver */
+<<<<<<< Updated upstream
 		MIPI_OUTP((ctrl->phy_io.base) + 0x0188, 0x6);
+=======
+		if (ctrl->shared_data->phy_rev != DSI_PHY_REV_12NM)
+			MIPI_OUTP((ctrl->phy_io.base) + 0x0188, 0x6);
+>>>>>>> Stashed changes
 		/*
 		 * Add sufficient delay to make sure
 		 * pixel transmission as started
 		 */
 		udelay(200);
+<<<<<<< Updated upstream
+=======
+		/* Un-mask LP_RX_TIMEOUT error if recovery successful */
+		if (event == DSI_EV_LP_RX_TIMEOUT)
+			mdss_dsi_set_reg(ctrl, 0x10c, BIT(5), 0);
+>>>>>>> Stashed changes
 	}
 	pr_debug("Recovery done\n");
 }
@@ -1616,6 +1728,7 @@ int mdss_dsi_bta_status_check(struct mdss_dsi_ctrl_pdata *ctrl_pdata)
 	ret = wait_for_completion_killable_timeout(&ctrl_pdata->bta_comp,
 						DSI_BTA_EVENT_TIMEOUT);
 	if (ret <= 0) {
+<<<<<<< Updated upstream
 		mdss_dsi_disable_irq(ctrl_pdata, DSI_BTA_TERM);
 		pr_err("%s: DSI BTA error: %i\n", __func__, ret);
 	}
@@ -1625,6 +1738,47 @@ int mdss_dsi_bta_status_check(struct mdss_dsi_ctrl_pdata *ctrl_pdata)
 		mdss_dsi_set_reg(ctrl_pdata, 0xc, 0xffffffff, 0x44440000);
 		/* restore overflow isr */
 		mdss_dsi_set_reg(ctrl_pdata, 0x10c, 0x0f0000, 0);
+=======
+		u32 reg_val, status;
+
+		reg_val = MIPI_INP(ctrl_pdata->ctrl_base + 0x0110);
+		status = reg_val & DSI_INTR_BTA_DONE;
+		if (status) {
+			reg_val &= DSI_INTR_MASK_ALL;
+			/* clear BTA_DONE isr only */
+			reg_val |= DSI_INTR_BTA_DONE;
+			MIPI_OUTP(ctrl_pdata->ctrl_base + 0x0110, reg_val);
+			mdss_dsi_disable_irq(ctrl_pdata, DSI_BTA_TERM);
+			complete(&ctrl_pdata->bta_comp);
+			ret = 1;
+			pr_warn("%s: bta done but irq not triggered\n",
+				__func__);
+		} else {
+			pr_err("%s: DSI BTA error: %i\n", __func__, ret);
+			/*
+			 * For 12nm DSI PHY, BTA_TO interrupt may not trigger.
+			 * Treat software timer timeout as BTA_TO.
+			 */
+			if (ctrl_pdata->shared_data->phy_rev ==
+				DSI_PHY_REV_12NM) {
+				/* Mask BTA_TIMEOUT/LP_RX_TIMEOUT error */
+				mdss_dsi_set_reg(ctrl_pdata, 0x10c,
+					(BIT(5) | BIT(7)), (BIT(5) | BIT(7)));
+				dsi_send_events(ctrl_pdata,
+					DSI_EV_LP_RX_TIMEOUT, 0);
+			}
+			ret = -ETIMEDOUT;
+		}
+	}
+
+	if (ignore_underflow) {
+		u32 data = MIPI_INP((ctrl_pdata->ctrl_base) + 0x10c);
+		/* clear pending overflow status */
+		mdss_dsi_set_reg(ctrl_pdata, 0xc, 0xffffffff, 0x44440000);
+		/* restore overflow isr if LP_RX_TO not masked*/
+		if (!(data & BIT(5)))
+			mdss_dsi_set_reg(ctrl_pdata, 0x10c, 0x0f0000, 0);
+>>>>>>> Stashed changes
 	}
 
 	mdss_dsi_clk_ctrl(ctrl_pdata, ctrl_pdata->dsi_clk_handle,
@@ -2271,10 +2425,19 @@ static int mdss_dsi_cmd_dma_tx(struct mdss_dsi_ctrl_pdata *ctrl,
 
 	if (mctrl && mctrl->dma_addr) {
 		if (ignored) {
+<<<<<<< Updated upstream
 			/* clear pending overflow status */
 			mdss_dsi_set_reg(mctrl, 0xc, 0xffffffff, 0x44440000);
 			/* restore overflow isr */
 			mdss_dsi_set_reg(mctrl, 0x10c, 0x0f0000, 0);
+=======
+			u32 data = MIPI_INP((mctrl->ctrl_base) + 0x10c);
+			/* clear pending overflow status */
+			mdss_dsi_set_reg(mctrl, 0xc, 0xffffffff, 0x44440000);
+			/* restore overflow isr if LP_RX_TO not masked*/
+			if (!(data & BIT(5)))
+				mdss_dsi_set_reg(mctrl, 0x10c, 0x0f0000, 0);
+>>>>>>> Stashed changes
 		}
 		if (mctrl->dmap_iommu_map) {
 			mdss_smmu_dsi_unmap_buffer(mctrl->dma_addr, domain,
@@ -2292,10 +2455,19 @@ static int mdss_dsi_cmd_dma_tx(struct mdss_dsi_ctrl_pdata *ctrl,
 	}
 
 	if (ignored) {
+<<<<<<< Updated upstream
 		/* clear pending overflow status */
 		mdss_dsi_set_reg(ctrl, 0xc, 0xffffffff, 0x44440000);
 		/* restore overflow isr */
 		mdss_dsi_set_reg(ctrl, 0x10c, 0x0f0000, 0);
+=======
+		u32 data = MIPI_INP((ctrl->ctrl_base) + 0x10c);
+		/* clear pending overflow status */
+		mdss_dsi_set_reg(ctrl, 0xc, 0xffffffff, 0x44440000);
+		/* restore overflow isr if LP_RX_TO/BTA_TO not masked*/
+		if (!(data & BIT(5)))
+			mdss_dsi_set_reg(ctrl, 0x10c, 0x0f0000, 0);
+>>>>>>> Stashed changes
 	}
 	ctrl->dma_addr = 0;
 	ctrl->dma_size = 0;
@@ -3103,8 +3275,17 @@ static bool mdss_dsi_timeout_status(struct mdss_dsi_ctrl_pdata *ctrl)
 
 	if (status & 0x0111) {
 		MIPI_OUTP(base + 0x00c0, status);
+<<<<<<< Updated upstream
 		if (status & 0x0110)
 			dsi_send_events(ctrl, DSI_EV_LP_RX_TIMEOUT, 0);
+=======
+		if (status & 0x0110) {
+			/* Mask BTA_TIMEOUT/LP_RX_TIMEOUT error */
+			mdss_dsi_set_reg(ctrl, 0x10c,
+				(BIT(5) | BIT(7)), (BIT(5) | BIT(7)));
+			dsi_send_events(ctrl, DSI_EV_LP_RX_TIMEOUT, 0);
+		}
+>>>>>>> Stashed changes
 		pr_err("%s: status=%x\n", __func__, status);
 		ret = true;
 	}

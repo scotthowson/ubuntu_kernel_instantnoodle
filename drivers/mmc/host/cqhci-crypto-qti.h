@@ -1,6 +1,10 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
+<<<<<<< Updated upstream
  * Copyright (c) 2020, The Linux Foundation. All rights reserved.
+=======
+ * Copyright (c) 2020 - 2021, The Linux Foundation. All rights reserved.
+>>>>>>> Stashed changes
  */
 
 #ifndef _UFSHCD_CRYPTO_QTI_H
@@ -28,4 +32,9 @@ int cqhci_crypto_qti_prep_desc(struct cqhci_host *host,
 
 int cqhci_crypto_qti_reset(struct cqhci_host *host);
 
+<<<<<<< Updated upstream
+=======
+int cqhci_crypto_qti_recovery_finish(struct cqhci_host *host);
+
+>>>>>>> Stashed changes
 #endif /* _UFSHCD_ICE_QTI_H */

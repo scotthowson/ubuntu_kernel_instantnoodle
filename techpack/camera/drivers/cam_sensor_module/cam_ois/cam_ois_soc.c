@@ -79,11 +79,11 @@ static int cam_ois_get_dt_data(struct cam_ois_ctrl_t *o_ctrl)
  */
 int cam_ois_driver_soc_init(struct cam_ois_ctrl_t *o_ctrl)
 {
-	int                            rc = 0;
-	const char                     *p = NULL;
+	int                             rc = 0;
 	struct cam_hw_soc_info         *soc_info = &o_ctrl->soc_info;
 	struct device_node             *of_node = NULL;
 	struct device_node             *of_parent = NULL;
+	const char                     *p = NULL;
 	int                             ret = 0;
 	int                             id;
 
@@ -113,7 +113,7 @@ int cam_ois_driver_soc_init(struct cam_ois_ctrl_t *o_ctrl)
 			o_ctrl->cci_num = CCI_DEVICE_0;
 
 		o_ctrl->io_master_info.cci_client->cci_device = o_ctrl->cci_num;
-		CAM_DBG(CAM_OIS, "cci-device %d", o_ctrl->cci_num);
+		CAM_DBG(CAM_OIS, "cci-device %d", o_ctrl->cci_num, rc);
 
 	}
 

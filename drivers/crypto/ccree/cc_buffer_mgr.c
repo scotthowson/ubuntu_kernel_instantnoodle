@@ -1242,6 +1242,10 @@ int cc_map_aead_request(struct cc_drvdata *drvdata, struct aead_request *req)
 	}
 
 	size_to_map = req->cryptlen + areq_ctx->assoclen;
+<<<<<<< Updated upstream
+=======
+	/* If we do in-place encryption, we also need the auth tag */
+>>>>>>> Stashed changes
 	if ((areq_ctx->gen_ctx.op_type == DRV_CRYPTO_DIRECTION_ENCRYPT) &&
 	   (req->src == req->dst)) {
 		size_to_map += authsize;

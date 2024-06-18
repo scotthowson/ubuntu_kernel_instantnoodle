@@ -604,8 +604,16 @@ static ssize_t log_read(struct file *f, char __user *buf, size_t len,
 
 	reads_to_collect = min_t(ssize_t, rl_size, reads_to_collect);
 	while (reads_to_collect > 0) {
+<<<<<<< Updated upstream
 		struct read_log_state next_state = READ_ONCE(log_state->state);
 		int reads_collected = incfs_collect_logged_reads(
+=======
+		struct read_log_state next_state;
+		int reads_collected;
+
+		memcpy(&next_state, &log_state->state, sizeof(next_state));
+		reads_collected = incfs_collect_logged_reads(
+>>>>>>> Stashed changes
 			mi, &next_state, reads_buf,
 			min_t(ssize_t, reads_to_collect, reads_per_page));
 		if (reads_collected <= 0) {
@@ -624,7 +632,11 @@ static ssize_t log_read(struct file *f, char __user *buf, size_t len,
 			goto out;
 		}
 
+<<<<<<< Updated upstream
 		WRITE_ONCE(log_state->state, next_state);
+=======
+		memcpy(&log_state->state, &next_state, sizeof(next_state));
+>>>>>>> Stashed changes
 		total_reads_collected += reads_collected;
 		buf += reads_collected * sizeof(*reads_buf);
 		reads_to_collect -= reads_collected;
@@ -754,7 +766,12 @@ static struct dentry *incfs_lookup_dentry(struct dentry *parent,
 	return result;
 }
 
+<<<<<<< Updated upstream
 static struct dentry *open_or_create_index_dir(struct dentry *backing_dir)
+=======
+static struct dentry *open_or_create_index_dir(struct dentry *backing_dir,
+					       bool *created)
+>>>>>>> Stashed changes
 {
 	static const char name[] = ".index";
 	struct dentry *index_dentry;
@@ -768,6 +785,10 @@ static struct dentry *open_or_create_index_dir(struct dentry *backing_dir)
 		return index_dentry;
 	} else if (d_really_is_positive(index_dentry)) {
 		/* Index already exists. */
+<<<<<<< Updated upstream
+=======
+		*created = false;
+>>>>>>> Stashed changes
 		return index_dentry;
 	}
 
@@ -776,14 +797,25 @@ static struct dentry *open_or_create_index_dir(struct dentry *backing_dir)
 	err = vfs_mkdir(backing_inode, index_dentry, 0777);
 	inode_unlock(backing_inode);
 
+<<<<<<< Updated upstream
 	if (err)
 		return ERR_PTR(err);
+=======
+	if (err) {
+		dput(index_dentry);
+		return ERR_PTR(err);
+	}
+>>>>>>> Stashed changes
 
 	if (!d_really_is_positive(index_dentry)) {
 		dput(index_dentry);
 		return ERR_PTR(-EINVAL);
 	}
 
+<<<<<<< Updated upstream
+=======
+	*created = true;
+>>>>>>> Stashed changes
 	return index_dentry;
 }
 
@@ -897,14 +929,22 @@ static int init_new_file(struct mount_info *mi, struct dentry *dentry,
 		.dentry = dentry
 	};
 	new_file = dentry_open(&path, O_RDWR | O_NOATIME | O_LARGEFILE,
+<<<<<<< Updated upstream
 			       mi->mi_owner);
+=======
+			       current_cred());
+>>>>>>> Stashed changes
 
 	if (IS_ERR(new_file)) {
 		error = PTR_ERR(new_file);
 		goto out;
 	}
 
+<<<<<<< Updated upstream
 	bfc = incfs_alloc_bfc(new_file);
+=======
+	bfc = incfs_alloc_bfc(mi, new_file);
+>>>>>>> Stashed changes
 	fput(new_file);
 	if (IS_ERR(bfc)) {
 		error = PTR_ERR(bfc);
@@ -1025,7 +1065,11 @@ static int dir_relative_path_resolve(
 	if (dir_fd < 0)
 		return dir_fd;
 
+<<<<<<< Updated upstream
 	dir_f = dentry_open(base_path, O_RDONLY | O_NOATIME, mi->mi_owner);
+=======
+	dir_f = dentry_open(base_path, O_RDONLY | O_NOATIME, current_cred());
+>>>>>>> Stashed changes
 
 	if (IS_ERR(dir_f)) {
 		error = PTR_ERR(dir_f);
@@ -1903,10 +1947,20 @@ static int file_open(struct inode *inode, struct file *file)
 	struct file *backing_file = NULL;
 	struct path backing_path = {};
 	int err = 0;
+<<<<<<< Updated upstream
 
 	get_incfs_backing_path(file->f_path.dentry, &backing_path);
 	backing_file = dentry_open(
 		&backing_path, O_RDWR | O_NOATIME | O_LARGEFILE, mi->mi_owner);
+=======
+	const struct cred *old_cred;
+
+	get_incfs_backing_path(file->f_path.dentry, &backing_path);
+	old_cred = override_creds(mi->mi_owner);
+	backing_file = dentry_open(&backing_path,
+			O_RDWR | O_NOATIME | O_LARGEFILE, current_cred());
+	revert_creds(old_cred);
+>>>>>>> Stashed changes
 	path_put(&backing_path);
 
 	if (IS_ERR(backing_file)) {
@@ -2169,6 +2223,10 @@ struct dentry *incfs_mount_fs(struct file_system_type *type, int flags,
 	struct super_block *src_fs_sb = NULL;
 	struct inode *root_inode = NULL;
 	struct super_block *sb = sget(type, NULL, set_anon_super, flags, NULL);
+<<<<<<< Updated upstream
+=======
+	bool dir_created = false;
+>>>>>>> Stashed changes
 	int error = 0;
 
 	if (IS_ERR(sb))
@@ -2185,17 +2243,34 @@ struct dentry *incfs_mount_fs(struct file_system_type *type, int flags,
 
 	BUILD_BUG_ON(PAGE_SIZE != INCFS_DATA_FILE_BLOCK_SIZE);
 
+<<<<<<< Updated upstream
 	error = parse_options(&options, (char *)data);
 	if (error != 0) {
 		pr_err("incfs: Options parsing error. %d\n", error);
 		goto err;
+=======
+	if (!dev_name) {
+		pr_err("incfs: Backing dir is not set, filesystem can't be mounted.\n");
+		error = -ENOENT;
+		goto err_deactivate;
+	}
+
+	error = parse_options(&options, (char *)data);
+	if (error != 0) {
+		pr_err("incfs: Options parsing error. %d\n", error);
+		goto err_deactivate;
+>>>>>>> Stashed changes
 	}
 
 	sb->s_bdi->ra_pages = options.readahead_pages;
 	if (!dev_name) {
 		pr_err("incfs: Backing dir is not set, filesystem can't be mounted.\n");
 		error = -ENOENT;
+<<<<<<< Updated upstream
 		goto err;
+=======
+		goto err_deactivate;
+>>>>>>> Stashed changes
 	}
 
 	error = kern_path(dev_name, LOOKUP_FOLLOW | LOOKUP_DIRECTORY,
@@ -2204,6 +2279,7 @@ struct dentry *incfs_mount_fs(struct file_system_type *type, int flags,
 		!d_really_is_positive(backing_dir_path.dentry)) {
 		pr_err("incfs: Error accessing: %s.\n",
 			dev_name);
+<<<<<<< Updated upstream
 		goto err;
 	}
 	src_fs_sb = backing_dir_path.dentry->d_sb;
@@ -2219,10 +2295,35 @@ struct dentry *incfs_mount_fs(struct file_system_type *type, int flags,
 	}
 
 	index_dir = open_or_create_index_dir(backing_dir_path.dentry);
+=======
+		goto err_deactivate;
+	}
+	src_fs_sb = backing_dir_path.dentry->d_sb;
+	sb->s_maxbytes = src_fs_sb->s_maxbytes;
+	sb->s_stack_depth = src_fs_sb->s_stack_depth + 1;
+
+	if (sb->s_stack_depth > FILESYSTEM_MAX_STACK_DEPTH) {
+		error = -EINVAL;
+		goto err_put_path;
+	}
+
+	mi = incfs_alloc_mount_info(sb, &options, &backing_dir_path);
+	if (IS_ERR_OR_NULL(mi)) {
+		error = PTR_ERR(mi);
+		pr_err("incfs: Error allocating mount info. %d\n", error);
+		goto err_put_path;
+	}
+
+	sb->s_fs_info = mi;
+	mi->mi_backing_dir_path = backing_dir_path;
+	index_dir = open_or_create_index_dir(backing_dir_path.dentry,
+					     &dir_created);
+>>>>>>> Stashed changes
 	if (IS_ERR_OR_NULL(index_dir)) {
 		error = PTR_ERR(index_dir);
 		pr_err("incfs: Can't find or create .index dir in %s\n",
 			dev_name);
+<<<<<<< Updated upstream
 		goto err;
 	}
 	mi->mi_index_dir = index_dir;
@@ -2232,27 +2333,56 @@ struct dentry *incfs_mount_fs(struct file_system_type *type, int flags,
 	if (IS_ERR(root_inode)) {
 		error = PTR_ERR(root_inode);
 		goto err;
+=======
+		goto err_put_path;
+	}
+
+	mi->mi_index_dir = index_dir;
+	mi->mi_index_free = dir_created;
+
+	root_inode = fetch_regular_inode(sb, backing_dir_path.dentry);
+	if (IS_ERR(root_inode)) {
+		error = PTR_ERR(root_inode);
+		goto err_put_path;
+>>>>>>> Stashed changes
 	}
 
 	sb->s_root = d_make_root(root_inode);
 	if (!sb->s_root) {
 		error = -ENOMEM;
+<<<<<<< Updated upstream
 		goto err;
 	}
 	error = incfs_init_dentry(sb->s_root, &backing_dir_path);
 	if (error)
 		goto err;
+=======
+		goto err_put_path;
+	}
+	error = incfs_init_dentry(sb->s_root, &backing_dir_path);
+	if (error)
+		goto err_put_path;
+>>>>>>> Stashed changes
 
 	path_put(&backing_dir_path);
 	sb->s_flags |= SB_ACTIVE;
 
 	pr_debug("incfs: mount\n");
 	return dget(sb->s_root);
+<<<<<<< Updated upstream
 err:
 	sb->s_fs_info = NULL;
 	path_put(&backing_dir_path);
 	incfs_free_mount_info(mi);
 	deactivate_locked_super(sb);
+=======
+
+err_put_path:
+	path_put(&backing_dir_path);
+err_deactivate:
+	deactivate_locked_super(sb);
+	pr_err("incfs: mount failed %d\n", error);
+>>>>>>> Stashed changes
 	return ERR_PTR(error);
 }
 
@@ -2278,10 +2408,35 @@ static int incfs_remount_fs(struct super_block *sb, int *flags, char *data)
 void incfs_kill_sb(struct super_block *sb)
 {
 	struct mount_info *mi = sb->s_fs_info;
+<<<<<<< Updated upstream
 
 	pr_debug("incfs: unmount\n");
 	incfs_free_mount_info(mi);
 	generic_shutdown_super(sb);
+=======
+	struct inode *dinode = NULL;
+
+	pr_debug("incfs: unmount\n");
+
+	/*
+	 * We must kill the super before freeing mi, since killing the super
+	 * triggers inode eviction, which triggers the final update of the
+	 * backing file, which uses certain information for mi
+	 */
+	kill_anon_super(sb);
+
+	if (mi) {
+		if (mi->mi_backing_dir_path.dentry)
+			dinode = d_inode(mi->mi_backing_dir_path.dentry);
+
+		if (dinode) {
+			if (mi->mi_index_dir && mi->mi_index_free)
+				vfs_rmdir(dinode, mi->mi_index_dir);
+		}
+		incfs_free_mount_info(mi);
+		sb->s_fs_info = NULL;
+	}
+>>>>>>> Stashed changes
 }
 
 static int show_options(struct seq_file *m, struct dentry *root)

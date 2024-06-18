@@ -1129,12 +1129,21 @@ void initialCalibValue(short calib_dnHall_UpV, short calib_dnHall_MdV,
 	calib_upHall_UD_distance = Minus(calib_upHall_UpV, calib_upHall_DnV);
 	calib_dnHall_UD_distance = Minus(calib_dnHall_UpV, calib_dnHall_DnV);
 	if (g_the_chip->project_info){
+<<<<<<< Updated upstream
 	up_mid_tol = (short)(abs(calib_UpValueMin - calib_MdValueMin) * position_degree);
 	up_tolerance = (short)(abs(calib_UpValueMin - calib_MdValueMin) * side_position_degree);
 	mid_down_tol = (short)(abs(calib_MdValueMin - calib_DnValueMin) * position_degree);
 	down_tolerance = (short)(abs(calib_MdValueMin - calib_DnValueMin) * side_position_degree);
 	up_mid_distance = (short)(abs(calib_UpValueMin - calib_MdValueMin) * position_distance_degree);
 	mid_down_distance = (short)(abs(calib_MdValueMin - calib_DnValueMin) * position_distance_degree);
+=======
+	up_mid_tol = (short)(abs(calib_UpValueMin - calib_MdValueMin) * (short)position_degree);
+	up_tolerance = (short)(abs(calib_UpValueMin - calib_MdValueMin) * (short)side_position_degree);
+	mid_down_tol = (short)(abs(calib_MdValueMin - calib_DnValueMin) * (short)position_degree);
+	down_tolerance = (short)(abs(calib_MdValueMin - calib_DnValueMin) * (short)side_position_degree);
+	up_mid_distance = (short)(abs(calib_UpValueMin - calib_MdValueMin) * (short)position_distance_degree);
+	mid_down_distance = (short)(abs(calib_MdValueMin - calib_DnValueMin) * (short)position_distance_degree);
+>>>>>>> Stashed changes
 	}
 	TRI_KEY_LOG("Upmin:%d, Mdmin:%d, Dnmin:%d, up_mid_tol:%d, mid_down_tol:%d\n",
 		calib_UpValueMin, calib_MdValueMin, calib_DnValueMin, up_mid_tol,mid_down_tol);
@@ -1438,7 +1447,7 @@ static int __init tri_key_platform_init(void)
 	return res;
 }
 
-module_init(tri_key_platform_init);
+late_initcall(tri_key_platform_init);
 
 static void __exit tri_key_platform_exit(void)
 {

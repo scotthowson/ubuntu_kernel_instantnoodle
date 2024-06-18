@@ -897,7 +897,11 @@ static __iw_softap_setparam(struct net_device *dev,
 	case QCASAP_NSS_CMD:
 	{
 		hdd_debug("QCASAP_NSS_CMD val %d", set_value);
+<<<<<<< Updated upstream
 		hdd_update_nss(adapter, set_value);
+=======
+		hdd_update_nss(adapter, set_value, set_value);
+>>>>>>> Stashed changes
 		ret = wma_cli_set_command(adapter->vdev_id,
 					  WMI_VDEV_PARAM_NSS,
 					  set_value, VDEV_CMD);
@@ -1139,7 +1143,11 @@ static __iw_softap_getparam(struct net_device *dev,
 
 	switch (sub_cmd) {
 	case QCSAP_PARAM_MAX_ASSOC:
+<<<<<<< Updated upstream
 		if (ucfg_mlme_set_assoc_sta_limit(hdd_ctx->psoc, *value) !=
+=======
+		if (ucfg_mlme_get_assoc_sta_limit(hdd_ctx->psoc, value) !=
+>>>>>>> Stashed changes
 		    QDF_STATUS_SUCCESS) {
 			hdd_err("CFG_ASSOC_STA_LIMIT failed");
 			ret = -EIO;
@@ -1918,6 +1926,7 @@ static int iw_get_channel_list(struct net_device *dev,
 {
 	uint32_t num_channels = 0;
 	uint8_t i = 0;
+<<<<<<< Updated upstream
 	uint8_t band_start_channel = MIN_24GHZ_CHANNEL;
 	uint8_t band_end_channel = MAX_5GHZ_CHANNEL;
 	struct hdd_adapter *hostapd_adapter = (netdev_priv(dev));
@@ -1928,6 +1937,15 @@ static int iw_get_channel_list(struct net_device *dev,
 	struct hdd_context *hdd_ctx;
 	int ret;
 	bool is_dfs_mode_enabled = false;
+=======
+	struct hdd_adapter *hostapd_adapter = (netdev_priv(dev));
+	struct channel_list_info *channel_list =
+		(struct channel_list_info *)extra;
+	struct regulatory_channel *cur_chan_list = NULL;
+	struct hdd_context *hdd_ctx;
+	int ret;
+	QDF_STATUS status;
+>>>>>>> Stashed changes
 
 	hdd_enter_dev(dev);
 
@@ -1940,6 +1958,7 @@ static int iw_get_channel_list(struct net_device *dev,
 	if (0 != ret)
 		return ret;
 
+<<<<<<< Updated upstream
 	if (QDF_STATUS_SUCCESS != ucfg_reg_get_band(hdd_ctx->pdev, &cur_band)) {
 		hdd_err_rl("not able get the current frequency band");
 		return -EIO;
@@ -1993,6 +2012,46 @@ static int iw_get_channel_list(struct net_device *dev,
 	wrqu->data.length = num_channels + 1;
 	hdd_exit();
 
+=======
+	cur_chan_list = qdf_mem_malloc(sizeof(*cur_chan_list) * NUM_CHANNELS);
+	if (!cur_chan_list)
+		return -ENOMEM;
+
+	status = ucfg_reg_get_current_chan_list(hdd_ctx->pdev, cur_chan_list);
+	if (status != QDF_STATUS_SUCCESS) {
+		hdd_err_rl("Failed to get the current channel list");
+		qdf_mem_free(cur_chan_list);
+		return -EIO;
+	}
+
+	for (i = 0; i < NUM_CHANNELS; i++) {
+		/*
+		 * current channel list includes all channels. do not report
+		 * disabled channels
+		 */
+		if (cur_chan_list[i].chan_flags & REGULATORY_CHAN_DISABLED)
+			continue;
+
+		/*
+		 * do not include 6 GHz channels since they are ambiguous with
+		 * 2.4 GHz and 5 GHz channels. 6 GHz-aware applications should
+		 * not be using this interface, but instead should be using the
+		 * frequency-based interface
+		 */
+		if (wlan_reg_is_6ghz_chan_freq(cur_chan_list[i].center_freq))
+			continue;
+		channel_list->channels[num_channels] =
+						cur_chan_list[i].chan_num;
+		num_channels++;
+
+	}
+
+	qdf_mem_free(cur_chan_list);
+	hdd_debug_rl("number of channels %d", num_channels);
+	channel_list->num_channels = num_channels;
+	wrqu->data.length = num_channels + 1;
+	hdd_exit();
+>>>>>>> Stashed changes
 	return 0;
 }
 
@@ -2007,9 +2066,14 @@ int iw_get_channel_list_with_cc(struct net_device *dev,
 	uint8_t ubuf[CFG_COUNTRY_CODE_LEN] = {0};
 	uint8_t ubuf_len = CFG_COUNTRY_CODE_LEN;
 	struct channel_list_info channel_list;
+<<<<<<< Updated upstream
 
 	hdd_enter_dev(dev);
 
+=======
+	struct mac_context *mac = MAC_CONTEXT(mac_handle);
+	hdd_enter_dev(dev);
+>>>>>>> Stashed changes
 	memset(&channel_list, 0, sizeof(channel_list));
 
 	if (0 != iw_get_channel_list(dev, info, wrqu, (char *)&channel_list)) {
@@ -2028,6 +2092,7 @@ int iw_get_channel_list_with_cc(struct net_device *dev,
 		return -EINVAL;
 	}
 	len = scnprintf(buf, WE_MAX_STR_LEN, "%u ", channel_list.num_channels);
+<<<<<<< Updated upstream
 	if (QDF_STATUS_SUCCESS == sme_get_country_code(mac_handle, ubuf,
 						       &ubuf_len)) {
 		/* Printing Country code in getChannelList */
@@ -2037,6 +2102,15 @@ int iw_get_channel_list_with_cc(struct net_device *dev,
 	for (i = 0; i < channel_list.num_channels; i++)
 		len += scnprintf(buf + len, WE_MAX_STR_LEN - len, " %u", channel_list.channels[i]);
 
+=======
+	ucfg_reg_get_cc_and_src(mac->psoc, ubuf);
+	/* Printing Country code in getChannelList */
+	for (i = 0; i < (ubuf_len - 1); i++)
+		len += scnprintf(buf + len, WE_MAX_STR_LEN - len, "%c", ubuf[i]);
+
+	for (i = 0; i < channel_list.num_channels; i++)
+		len += scnprintf(buf + len, WE_MAX_STR_LEN - len, " %u", channel_list.channels[i]);
+>>>>>>> Stashed changes
 	wrqu->data.length = strlen(extra) + 1;
 
 	hdd_exit();

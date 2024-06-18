@@ -68,7 +68,13 @@ struct binderfs_info {
 	kgid_t root_gid;
 	struct binderfs_mount_opts mount_opts;
 	int device_count;
+<<<<<<< Updated upstream
 	struct dentry *proc_log_dir;
+=======
+#ifdef CONFIG_ANDROID_BINDER_LOGS
+	struct dentry *proc_log_dir;
+#endif
+>>>>>>> Stashed changes
 };
 
 extern const struct file_operations binder_fops;
@@ -105,6 +111,10 @@ static inline int __init init_binderfs(void)
 }
 #endif
 
+<<<<<<< Updated upstream
+=======
+#ifdef CONFIG_ANDROID_BINDER_LOGS
+>>>>>>> Stashed changes
 int binder_stats_show(struct seq_file *m, void *unused);
 DEFINE_SHOW_ATTRIBUTE(binder_stats);
 
@@ -132,7 +142,11 @@ struct binder_transaction_log_entry {
 	int return_error_line;
 	uint32_t return_error;
 	uint32_t return_error_param;
+<<<<<<< Updated upstream
 	const char *context_name;
+=======
+	char context_name[BINDERFS_MAX_NAME + 1];
+>>>>>>> Stashed changes
 };
 
 struct binder_transaction_log {
@@ -143,4 +157,8 @@ struct binder_transaction_log {
 
 extern struct binder_transaction_log binder_transaction_log;
 extern struct binder_transaction_log binder_transaction_log_failed;
+<<<<<<< Updated upstream
+=======
+#endif
+>>>>>>> Stashed changes
 #endif /* _LINUX_BINDER_INTERNAL_H */

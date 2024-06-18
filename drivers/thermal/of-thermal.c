@@ -20,10 +20,6 @@
 
 #include "thermal_core.h"
 
-#ifdef CONFIG_HOUSTON
-#include <oneplus/houston/houston_helper.h>
-#endif
-
 /***   Private data structures to represent thermal device tree data ***/
 
 /**
@@ -659,6 +655,14 @@ static void handle_thermal_trip(struct thermal_zone_device *tz,
 				THERMAL_EVENT_UNSPECIFIED, trip_temp);
 		}
 	}
+<<<<<<< Updated upstream
+=======
+
+	/*
+	 * It is better to notify at least one thermal zone if trip is violated
+	 * for none.
+	 */
+>>>>>>> Stashed changes
 	if (temp_valid && !notify)
 		thermal_zone_device_update_temp(tz, THERMAL_EVENT_UNSPECIFIED,
 				trip_temp);
@@ -1510,10 +1514,6 @@ int __init of_parse_thermal_zones(void)
 			/* attempting to build remaining zones still */
 			continue;
 		}
-
-#ifdef CONFIG_HOUSTON
-		ht_register_thermal_zone_device(zone);
-#endif
 		tz->tzd = zone;
 	}
 	of_node_put(np);

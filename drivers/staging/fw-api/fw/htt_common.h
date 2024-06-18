@@ -1,5 +1,9 @@
 /*
  * Copyright (c) 2012-2016, 2020 The Linux Foundation. All rights reserved.
+<<<<<<< Updated upstream
+=======
+ * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+>>>>>>> Stashed changes
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -62,7 +66,11 @@ enum htt_rx_ind_mpdu_status {
     HTT_RX_IND_MPDU_STATUS_ERR_INV_PEER,
     HTT_RX_IND_MPDU_STATUS_UNAUTH_PEER, /* only accept EAPOL frames */
     HTT_RX_IND_MPDU_STATUS_OUT_OF_SYNC,
+<<<<<<< Updated upstream
     HTT_RX_IND_MPDU_STATUS_MGMT_CTRL, /* Non-data in promiscous mode */
+=======
+    HTT_RX_IND_MPDU_STATUS_MGMT_CTRL, /* Non-data in promiscuous mode */
+>>>>>>> Stashed changes
     HTT_RX_IND_MPDU_STATUS_TKIP_MIC_ERR,
     HTT_RX_IND_MPDU_STATUS_DECRYPT_ERR,
     HTT_RX_IND_MPDU_STATUS_MPDU_LENGTH_ERR,

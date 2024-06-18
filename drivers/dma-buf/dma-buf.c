@@ -34,19 +34,33 @@
 #include <linux/poll.h>
 #include <linux/reservation.h>
 #include <linux/mm.h>
-#include <linux/kernel.h>
-#include <linux/atomic.h>
 #include <linux/sched/signal.h>
 #include <linux/fdtable.h>
 #include <linux/list_sort.h>
 #include <linux/hashtable.h>
 #include <linux/mount.h>
 #include <linux/dcache.h>
+<<<<<<< Updated upstream
+
+#include <uapi/linux/dma-buf.h>
+#include <uapi/linux/magic.h>
+=======
+>>>>>>> Stashed changes
 
 #include <uapi/linux/dma-buf.h>
 #include <uapi/linux/magic.h>
 
-static atomic_long_t name_counter;
+static struct kmem_cache *kmem_attach_pool;
+static struct kmem_cache *kmem_dma_buf_pool;
+
+void __init init_dma_buf_kmem_pool(void)
+{
+	kmem_attach_pool = KMEM_CACHE(dma_buf_attachment, SLAB_HWCACHE_ALIGN | SLAB_PANIC);
+	kmem_dma_buf_pool = kmem_cache_create("dma_buf",
+		(sizeof(struct dma_buf) + sizeof(struct reservation_object)),
+		(sizeof(struct dma_buf) + sizeof(struct reservation_object)),
+		SLAB_HWCACHE_ALIGN | SLAB_PANIC, NULL);
+}
 
 static inline int is_dma_buf_file(struct file *);
 
@@ -74,7 +88,14 @@ static void dmabuf_dent_put(struct dma_buf *dmabuf)
 {
 	if (atomic_dec_and_test(&dmabuf->dent_count)) {
 		kfree(dmabuf->name);
+<<<<<<< Updated upstream
 		kfree(dmabuf);
+=======
+		if (dmabuf->from_kmem)
+			kmem_cache_free(kmem_dma_buf_pool, dmabuf);
+		else
+			kfree(dmabuf);
+>>>>>>> Stashed changes
 	}
 }
 
@@ -102,6 +123,7 @@ out:
 			     dentry->d_name.name, ret > 0 ? name : "");
 }
 
+<<<<<<< Updated upstream
 static const struct dentry_operations dma_buf_dentry_ops = {
 	.d_dname = dmabuffs_dname,
 };
@@ -122,15 +144,15 @@ static struct file_system_type dma_buf_fs_type = {
 };
 
 static int dma_buf_release(struct inode *inode, struct file *file)
+=======
+static void dma_buf_release(struct dentry *dentry)
+>>>>>>> Stashed changes
 {
 	struct dma_buf *dmabuf;
 	struct dentry *dentry = file->f_path.dentry;
 	int dtor_ret = 0;
 
-	if (!is_dma_buf_file(file))
-		return -EINVAL;
-
-	dmabuf = file->private_data;
+	dmabuf = dentry->d_fsdata;
 
 	spin_lock(&dentry->d_lock);
 	dentry->d_fsdata = NULL;
@@ -146,10 +168,6 @@ static int dma_buf_release(struct inode *inode, struct file *file)
 	 * dma-buf while still having pending operation to the buffer.
 	 */
 	BUG_ON(dmabuf->cb_shared.active || dmabuf->cb_excl.active);
-
-	mutex_lock(&db_list.lock);
-	list_del(&dmabuf->list_node);
-	mutex_unlock(&db_list.lock);
 
 	if (dmabuf->dtor)
 		dtor_ret = dmabuf->dtor(dmabuf, dmabuf->dtor_data);
@@ -167,8 +185,46 @@ static int dma_buf_release(struct inode *inode, struct file *file)
 
 	module_put(dmabuf->owner);
 	dmabuf_dent_put(dmabuf);
+<<<<<<< Updated upstream
+=======
+}
+
+static int dma_buf_file_release(struct inode *inode, struct file *file)
+{
+	struct dma_buf *dmabuf;
+
+	if (!is_dma_buf_file(file))
+		return -EINVAL;
+
+	dmabuf = file->private_data;
+
+	mutex_lock(&db_list.lock);
+	list_del(&dmabuf->list_node);
+	mutex_unlock(&db_list.lock);
+
+>>>>>>> Stashed changes
 	return 0;
 }
+
+static const struct dentry_operations dma_buf_dentry_ops = {
+	.d_dname = dmabuffs_dname,
+	.d_release = dma_buf_release,
+};
+
+static struct vfsmount *dma_buf_mnt;
+
+static struct dentry *dma_buf_fs_mount(struct file_system_type *fs_type,
+		int flags, const char *name, void *data)
+{
+	return mount_pseudo(fs_type, "dmabuf:", NULL, &dma_buf_dentry_ops,
+			DMA_BUF_MAGIC);
+}
+
+static struct file_system_type dma_buf_fs_type = {
+	.name = "dmabuf",
+	.mount = dma_buf_fs_mount,
+	.kill_sb = kill_anon_super,
+};
 
 static int dma_buf_mmap_internal(struct file *file, struct vm_area_struct *vma)
 {
@@ -268,7 +324,7 @@ static __poll_t dma_buf_poll(struct file *file, poll_table *poll)
 		return 0;
 
 retry:
-	seq = read_seqcount_begin(&resv->seq);
+	seq = read_seqbegin(&resv->seq);
 	rcu_read_lock();
 
 	fobj = rcu_dereference(resv->fence);
@@ -277,7 +333,7 @@ retry:
 	else
 		shared_count = 0;
 	fence_excl = rcu_dereference(resv->fence_excl);
-	if (read_seqcount_retry(&resv->seq, seq)) {
+	if (read_seqretry(&resv->seq, seq)) {
 		rcu_read_unlock();
 		goto retry;
 	}
@@ -363,6 +419,45 @@ retry:
 out:
 	rcu_read_unlock();
 	return events;
+}
+
+/**
+ * dma_buf_set_name - Set a name to a specific dma_buf to track the usage.
+ * The name of the dma-buf buffer can only be set when the dma-buf is not
+ * attached to any devices. It could theoritically support changing the
+ * name of the dma-buf if the same piece of memory is used for multiple
+ * purpose between different devices.
+ *
+ * @dmabuf [in]     dmabuf buffer that will be renamed.
+ * @buf:   [in]     A piece of userspace memory that contains the name of
+ *                  the dma-buf.
+ *
+ * Returns 0 on success. If the dma-buf buffer is already attached to
+ * devices, return -EBUSY.
+ *
+ */
+static long dma_buf_set_name(struct dma_buf *dmabuf, const char __user *buf)
+{
+	char *name = strndup_user(buf, DMA_BUF_NAME_LEN);
+	long ret = 0;
+
+	if (IS_ERR(name))
+		return PTR_ERR(name);
+
+	mutex_lock(&dmabuf->lock);
+	spin_lock(&dmabuf->name_lock);
+	if (!list_empty(&dmabuf->attachments)) {
+		ret = -EBUSY;
+		kfree(name);
+		goto out_unlock;
+	}
+	kfree(dmabuf->name);
+	dmabuf->name = name;
+
+out_unlock:
+	spin_unlock(&dmabuf->name_lock);
+	mutex_unlock(&dmabuf->lock);
+	return ret;
 }
 
 static int dma_buf_begin_cpu_access_umapped(struct dma_buf *dmabuf,
@@ -465,7 +560,12 @@ static long dma_buf_ioctl(struct file *file,
 
 		return ret;
 
+<<<<<<< Updated upstream
 	case DMA_BUF_SET_NAME:
+=======
+	case DMA_BUF_SET_NAME_A:
+	case DMA_BUF_SET_NAME_B:
+>>>>>>> Stashed changes
 		return dma_buf_set_name(dmabuf, (const char __user *)arg);
 
 	default:
@@ -487,16 +587,46 @@ static void dma_buf_show_fdinfo(struct seq_file *m, struct file *file)
 	spin_unlock(&dmabuf->name_lock);
 }
 
+<<<<<<< Updated upstream
 static const struct file_operations dma_buf_fops = {
 	.release	= dma_buf_release,
 	.mmap		= dma_buf_mmap_internal,
 	.llseek		= dma_buf_llseek,
 	.poll		= dma_buf_poll,
 	.unlocked_ioctl	= dma_buf_ioctl,
+=======
+>>>>>>> Stashed changes
 #ifdef CONFIG_COMPAT
-	.compat_ioctl	= dma_buf_ioctl,
+static long dma_buf_ioctl_compat(struct file *file, unsigned int cmd,
+				 unsigned long arg)
+{
+	switch (_IOC_NR(cmd)) {
+	case _IOC_NR(DMA_BUF_SET_NAME):
+		/* Fix up pointer size*/
+		if (_IOC_SIZE(cmd) == sizeof(compat_uptr_t)) {
+			cmd &= ~IOCSIZE_MASK;
+			cmd |= sizeof(void *) << IOCSIZE_SHIFT;
+		}
+		break;
+	}
+	return dma_buf_ioctl(file, cmd, (unsigned long)compat_ptr(arg));
+}
 #endif
+<<<<<<< Updated upstream
 	.show_fdinfo	= dma_buf_show_fdinfo,
+=======
+
+static const struct file_operations dma_buf_fops = {
+	.release = dma_buf_file_release,
+	.mmap = dma_buf_mmap_internal,
+	.llseek = dma_buf_llseek,
+	.poll = dma_buf_poll,
+	.unlocked_ioctl = dma_buf_ioctl,
+#ifdef CONFIG_COMPAT
+	.compat_ioctl = dma_buf_ioctl_compat,
+#endif
+	.show_fdinfo = dma_buf_show_fdinfo,
+>>>>>>> Stashed changes
 };
 
 /*
@@ -587,9 +717,8 @@ struct dma_buf *dma_buf_export(const struct dma_buf_export_info *exp_info)
 	struct reservation_object *resv = exp_info->resv;
 	struct file *file;
 	size_t alloc_size = sizeof(struct dma_buf);
-	char *bufname;
 	int ret;
-	long cnt;
+	bool from_kmem;
 
 	if (!exp_info->resv)
 		alloc_size += sizeof(struct reservation_object);
@@ -610,17 +739,20 @@ struct dma_buf *dma_buf_export(const struct dma_buf_export_info *exp_info)
 	if (!try_module_get(exp_info->owner))
 		return ERR_PTR(-ENOENT);
 
-	cnt = atomic_long_inc_return(&name_counter);
-	bufname = kasprintf(GFP_KERNEL, "dmabuf%ld", cnt);
-	if (!bufname) {
-		ret = -ENOMEM;
-		goto err_module;
+
+	from_kmem = (alloc_size ==
+		     (sizeof(struct dma_buf) + sizeof(struct reservation_object)));
+
+	if (from_kmem) {
+		dmabuf = kmem_cache_zalloc(kmem_dma_buf_pool, GFP_KERNEL);
+		dmabuf->from_kmem = true;
+	} else {
+		dmabuf = kzalloc(alloc_size, GFP_KERNEL);
 	}
 
-	dmabuf = kzalloc(alloc_size, GFP_KERNEL);
 	if (!dmabuf) {
 		ret = -ENOMEM;
-		goto err_name;
+		goto err_module;
 	}
 
 	dmabuf->priv = exp_info->priv;
@@ -631,9 +763,15 @@ struct dma_buf *dma_buf_export(const struct dma_buf_export_info *exp_info)
 	init_waitqueue_head(&dmabuf->poll);
 	dmabuf->cb_excl.poll = dmabuf->cb_shared.poll = &dmabuf->poll;
 	dmabuf->cb_excl.active = dmabuf->cb_shared.active = 0;
+<<<<<<< Updated upstream
 	dmabuf->buf_name = bufname;
 	dmabuf->name = bufname;
 	dmabuf->ktime = ktime_get();
+=======
+#if defined(CONFIG_DEBUG_FS)
+	dmabuf->ktime = ktime_get();
+#endif
+>>>>>>> Stashed changes
 	atomic_set(&dmabuf->dent_count, 1);
 
 	if (!resv) {
@@ -665,9 +803,10 @@ struct dma_buf *dma_buf_export(const struct dma_buf_export_info *exp_info)
 	return dmabuf;
 
 err_dmabuf:
-	kfree(dmabuf);
-err_name:
-	kfree(bufname);
+	if (from_kmem)
+		kmem_cache_free(kmem_dma_buf_pool, dmabuf);
+	else
+		kfree(dmabuf);
 err_module:
 	module_put(exp_info->owner);
 	return ERR_PTR(ret);
@@ -772,8 +911,8 @@ struct dma_buf_attachment *dma_buf_attach(struct dma_buf *dmabuf,
 	if (WARN_ON(!dmabuf || !dev))
 		return ERR_PTR(-EINVAL);
 
-	attach = kzalloc(sizeof(*attach), GFP_KERNEL);
-	if (!attach)
+	attach = kmem_cache_zalloc(kmem_attach_pool, GFP_KERNEL);
+	if (attach == NULL)
 		return ERR_PTR(-ENOMEM);
 
 	attach->dev = dev;
@@ -792,7 +931,7 @@ struct dma_buf_attachment *dma_buf_attach(struct dma_buf *dmabuf,
 	return attach;
 
 err_attach:
-	kfree(attach);
+	kmem_cache_free(kmem_attach_pool, attach);
 	mutex_unlock(&dmabuf->lock);
 	return ERR_PTR(ret);
 }
@@ -817,7 +956,7 @@ void dma_buf_detach(struct dma_buf *dmabuf, struct dma_buf_attachment *attach)
 		dmabuf->ops->detach(dmabuf, attach);
 
 	mutex_unlock(&dmabuf->lock);
-	kfree(attach);
+	kmem_cache_free(kmem_attach_pool, attach);
 }
 EXPORT_SYMBOL_GPL(dma_buf_detach);
 
@@ -1342,9 +1481,14 @@ static int dma_buf_debug_show(struct seq_file *s, void *unused)
 		return ret;
 
 	seq_puts(s, "\nDma-buf Objects:\n");
+<<<<<<< Updated upstream
 	seq_printf(s, "%-8s\t%-8s\t%-8s\t%-8s\t%-12s\t%-s\t%-8s\n",
 		   "size", "flags", "mode", "count", "exp_name",
 		   "buf name", "ino");
+=======
+	seq_printf(s, "%-8s\t%-8s\t%-8s\t%-8s\texp_name\t%-8s\n",
+		   "size", "flags", "mode", "count", "ino");
+>>>>>>> Stashed changes
 
 	list_for_each_entry(buf_obj, &db_list.head, list_node) {
 		ret = mutex_lock_interruptible(&buf_obj->lock);
@@ -1355,22 +1499,30 @@ static int dma_buf_debug_show(struct seq_file *s, void *unused)
 			continue;
 		}
 
+<<<<<<< Updated upstream
 		seq_printf(s, "%08zu\t%08x\t%08x\t%08ld\t%-12s\t%-s\t%08lu\t%s\n",
 				buf_obj->size,
 				buf_obj->file->f_flags, buf_obj->file->f_mode,
 				file_count(buf_obj->file),
 				buf_obj->exp_name, buf_obj->buf_name,
+=======
+		seq_printf(s, "%08zu\t%08x\t%08x\t%08ld\t%s\t%08lu\t%s\n",
+				buf_obj->size,
+				buf_obj->file->f_flags, buf_obj->file->f_mode,
+				file_count(buf_obj->file),
+				buf_obj->exp_name,
+>>>>>>> Stashed changes
 				file_inode(buf_obj->file)->i_ino,
 				buf_obj->name ?: "");
 
 		robj = buf_obj->resv;
 		while (true) {
-			seq = read_seqcount_begin(&robj->seq);
+			seq = read_seqbegin(&robj->seq);
 			rcu_read_lock();
 			fobj = rcu_dereference(robj->fence);
 			shared_count = fobj ? fobj->shared_count : 0;
 			fence = rcu_dereference(robj->fence_excl);
-			if (!read_seqcount_retry(&robj->seq, seq))
+			if (!read_seqretry(&robj->seq, seq))
 				break;
 			rcu_read_unlock();
 		}

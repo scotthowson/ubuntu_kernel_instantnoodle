@@ -1,5 +1,6 @@
 # oem device deriver
 obj-y += input/
+<<<<<<< Updated upstream
 #obj-y += framework/
 obj-y += kernel/
 obj-y += coretech/
@@ -15,3 +16,11 @@ obj-y += opslalib/
 obj-y += vl53L1/
 obj-$(CONFIG_OP_FREEZER) += op_freezer/
 obj-y += hung_task_enhance/
+=======
+obj-y += vibrator/
+obj-y += vl53L1/
+obj-y += power/
+obj-y += misc/
+obj-y += coretech/
+obj-y += tri_state_key/
+>>>>>>> Stashed changes

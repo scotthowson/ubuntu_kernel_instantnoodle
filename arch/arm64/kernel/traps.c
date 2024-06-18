@@ -249,7 +249,7 @@ void die(const char *str, struct pt_regs *regs, int err)
 	raw_spin_unlock_irqrestore(&die_lock, flags);
 
 	if (ret != NOTIFY_STOP)
-		do_exit(SIGSEGV);
+		make_task_dead(SIGSEGV);
 }
 
 static bool show_unhandled_signals_ratelimited(void)
@@ -505,6 +505,15 @@ static void ctr_read_handler(unsigned int esr, struct pt_regs *regs)
 {
 	int rt = (esr & ESR_ELx_SYS64_ISS_RT_MASK) >> ESR_ELx_SYS64_ISS_RT_SHIFT;
 	unsigned long val = arm64_ftr_reg_user_value(&arm64_ftr_reg_ctrel0);
+
+	if (cpus_have_const_cap(ARM64_WORKAROUND_1542419)) {
+		/* Hide DIC so that we can trap the unnecessary maintenance...*/
+		val &= ~BIT(CTR_DIC_SHIFT);
+
+		/* ... and fake IminLine to reduce the number of traps. */
+		val &= ~CTR_IMINLINE_MASK;
+		val |= (PAGE_SHIFT - 2) & CTR_IMINLINE_MASK;
+	}
 
 	pt_regs_write_reg(regs, rt, val);
 
@@ -966,9 +975,8 @@ static int bug_handler(struct pt_regs *regs, unsigned int esr)
 }
 
 static struct break_hook bug_break_hook = {
-	.esr_val = 0xf2000000 | BUG_BRK_IMM,
-	.esr_mask = 0xffffffff,
 	.fn = bug_handler,
+	.imm = BUG_BRK_IMM,
 };
 
 #ifdef CONFIG_KASAN_SW_TAGS
@@ -1017,9 +1025,15 @@ static int kasan_handler(struct pt_regs *regs, unsigned int esr)
 #define KASAN_ESR_MASK 0xffffff00
 
 static struct break_hook kasan_break_hook = {
+<<<<<<< Updated upstream
 	.esr_val = KASAN_ESR_VAL,
 	.esr_mask = KASAN_ESR_MASK,
 	.fn = kasan_handler,
+=======
+	.fn = kasan_handler,
+	.imm = KASAN_BRK_IMM,
+	.mask = KASAN_BRK_MASK,
+>>>>>>> Stashed changes
 };
 #endif
 
@@ -1037,11 +1051,55 @@ int __init early_brk64(unsigned long addr, unsigned int esr,
 	return bug_handler(regs, esr) != DBG_HOOK_HANDLED;
 }
 
+static int refcount_overflow_handler(struct pt_regs *regs, unsigned int esr)
+{
+	u32 dummy_cbz = le32_to_cpup((__le32 *)(regs->pc + 4));
+	bool zero = regs->pstate & PSR_Z_BIT;
+	u32 rt;
+
+	/*
+	 * Find the register that holds the counter address from the
+	 * dummy 'cbz' instruction that follows the 'brk' instruction
+	 * that sent us here.
+	 */
+	rt = aarch64_insn_decode_register(AARCH64_INSN_REGTYPE_RT, dummy_cbz);
+
+	/* First unconditionally saturate the refcount. */
+	*(int *)regs->regs[rt] = INT_MIN / 2;
+
+	/*
+	 * This function has been called because either a negative refcount
+	 * value was seen by any of the refcount functions, or a zero
+	 * refcount value was seen by refcount_{add,dec}().
+	 */
+
+	/* point pc to the branch instruction that detected the overflow */
+	regs->pc += 4 + aarch64_get_branch_offset(dummy_cbz);
+	refcount_error_report(regs, zero ? "hit zero" : "overflow");
+
+	/* advance pc and proceed */
+	regs->pc += 4;
+	return DBG_HOOK_HANDLED;
+}
+
+static struct break_hook refcount_break_hook = {
+	.fn	= refcount_overflow_handler,
+	.imm	= REFCOUNT_BRK_IMM,
+};
+
 /* This registration must happen early, before debug_traps_init(). */
 void __init trap_init(void)
 {
+<<<<<<< Updated upstream
 	register_break_hook(&bug_break_hook);
 #ifdef CONFIG_KASAN_SW_TAGS
 	register_break_hook(&kasan_break_hook);
 #endif
+=======
+	register_kernel_break_hook(&bug_break_hook);
+#ifdef CONFIG_KASAN_SW_TAGS
+	register_kernel_break_hook(&kasan_break_hook);
+#endif
+	register_kernel_break_hook(&refcount_break_hook);
+>>>>>>> Stashed changes
 }

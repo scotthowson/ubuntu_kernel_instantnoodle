@@ -112,6 +112,10 @@ void hif_record_ce_srng_desc_event(struct hif_softc *scn, int ce_id,
 
 	event->type = type;
 	event->time = qdf_get_log_timestamp();
+<<<<<<< Updated upstream
+=======
+	event->cpu_id = qdf_get_cpu();
+>>>>>>> Stashed changes
 
 	if (descriptor)
 		qdf_mem_copy(&event->descriptor, descriptor,
@@ -1013,7 +1017,11 @@ static struct ce_ops ce_service_srng = {
 #endif
 };
 
+<<<<<<< Updated upstream
 struct ce_ops *ce_services_srng()
+=======
+struct ce_ops *ce_services_srng(void)
+>>>>>>> Stashed changes
 {
 	return &ce_service_srng;
 }

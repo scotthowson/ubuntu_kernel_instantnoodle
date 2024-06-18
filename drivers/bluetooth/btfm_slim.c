@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
+<<<<<<< Updated upstream
  * Copyright (c) 2016-2020, The Linux Foundation. All rights reserved.
+=======
+ * Copyright (c) 2016-2021, The Linux Foundation. All rights reserved.
+>>>>>>> Stashed changes
  */
 
 #include <linux/init.h>
@@ -151,6 +155,13 @@ int btfm_slim_enable_ch(struct btfmslim *btfmslim, struct btfmslim_ch *ch,
 	chipset_ver = get_chipset_version();
 	BTFMSLIM_INFO("chipset soc version:%x", chipset_ver);
 
+<<<<<<< Updated upstream
+=======
+	/* Delay port opening for few chipsets if:
+	 *	1. for 8k, feedback channel
+	 *	2. 44.1k, 88.2k rxports
+	 */
+>>>>>>> Stashed changes
 	if (((rates == 8000 && btfm_feedback_ch_setting && rxport == 0) ||
 		(rxport == 1 && (rates == 44100 || rates == 88200))) &&
 		btfm_slim_is_sb_reset_needed(chipset_ver)) {
@@ -438,6 +449,11 @@ int btfm_slim_hw_init(struct btfmslim *btfmslim)
 
 	if (chipset_ver == QCA_HSP_SOC_ID_0100 ||
 		chipset_ver == QCA_HSP_SOC_ID_0110 ||
+<<<<<<< Updated upstream
+=======
+		chipset_ver == QCA_HSP_SOC_ID_0210 ||
+		chipset_ver == QCA_HSP_SOC_ID_1211 ||
+>>>>>>> Stashed changes
 		chipset_ver == QCA_HSP_SOC_ID_0200) {
 		BTFMSLIM_INFO("chipset is hastings prime, overwriting EA");
 		slim->e_addr[0] = 0x00;

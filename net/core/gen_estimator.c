@@ -46,7 +46,7 @@
 struct net_rate_estimator {
 	struct gnet_stats_basic_packed	*bstats;
 	spinlock_t		*stats_lock;
-	seqcount_t		*running;
+	net_seqlock_t		*running;
 	struct gnet_stats_basic_cpu __percpu *cpu_bstats;
 	u8			ewma_log;
 	u8			intvl_log; /* period : (250ms << intvl_log) */
@@ -84,11 +84,11 @@ static void est_timer(struct timer_list *t)
 	u64 rate, brate;
 
 	est_fetch_counters(est, &b);
-	brate = (b.bytes - est->last_bytes) << (10 - est->ewma_log - est->intvl_log);
-	brate -= (est->avbps >> est->ewma_log);
+	brate = (b.bytes - est->last_bytes) << (10 - est->intvl_log);
+	brate = (brate >> est->ewma_log) - (est->avbps >> est->ewma_log);
 
-	rate = (u64)(b.packets - est->last_packets) << (10 - est->ewma_log - est->intvl_log);
-	rate -= (est->avpps >> est->ewma_log);
+	rate = (u64)(b.packets - est->last_packets) << (10 - est->intvl_log);
+	rate = (rate >> est->ewma_log) - (est->avpps >> est->ewma_log);
 
 	write_seqcount_begin(&est->seq);
 	est->avbps += brate;
@@ -129,7 +129,7 @@ int gen_new_estimator(struct gnet_stats_basic_packed *bstats,
 		      struct gnet_stats_basic_cpu __percpu *cpu_bstats,
 		      struct net_rate_estimator __rcu **rate_est,
 		      spinlock_t *lock,
-		      seqcount_t *running,
+		      net_seqlock_t *running,
 		      struct nlattr *opt)
 {
 	struct gnet_estimator *parm = nla_data(opt);
@@ -145,6 +145,9 @@ int gen_new_estimator(struct gnet_stats_basic_packed *bstats,
 	 *  1 : 2 sec,    2 : 4 sec,    3 : 8 sec
 	 */
 	if (parm->interval < -2 || parm->interval > 3)
+		return -EINVAL;
+
+	if (parm->ewma_log == 0 || parm->ewma_log >= 31)
 		return -EINVAL;
 
 	est = kzalloc(sizeof(*est), GFP_KERNEL);
@@ -227,7 +230,7 @@ int gen_replace_estimator(struct gnet_stats_basic_packed *bstats,
 			  struct gnet_stats_basic_cpu __percpu *cpu_bstats,
 			  struct net_rate_estimator __rcu **rate_est,
 			  spinlock_t *lock,
-			  seqcount_t *running, struct nlattr *opt)
+			  net_seqlock_t *running, struct nlattr *opt)
 {
 	return gen_new_estimator(bstats, cpu_bstats, rate_est,
 				 lock, running, opt);

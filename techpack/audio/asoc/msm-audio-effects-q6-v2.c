@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /* Copyright (c) 2013-2019, The Linux Foundation. All rights reserved.
+<<<<<<< Updated upstream
+=======
+ * Copyright (c) 2023, Qualcomm Innovation Center, Inc. All rights reserved.
+>>>>>>> Stashed changes
  */
 
 #include <linux/slab.h>
@@ -1002,6 +1006,17 @@ int msm_audio_effects_pbe_handler(struct audio_client *ac,
 			pbe->config.reserved =
 				GET_NEXT(values, param_max_offset, rc);
 
+<<<<<<< Updated upstream
+=======
+			if ((pbe->config.bandpass_filter_order > 3) ||
+				(pbe->config.bandpass_filter_order < 1)) {
+				pr_err("%s: Invalid BPF order\n",
+					__func__);
+				rc = -EINVAL;
+				goto invalid_config;
+			}
+
+>>>>>>> Stashed changes
 			p_coeffs = &pbe->config.p1LowPassCoeffs[0];
 			lpf_len = (pbe->config.xover_filter_order == 3) ? 10 : 5;
 			hpf_len = (pbe->config.xover_filter_order == 3) ? 10 : 5;

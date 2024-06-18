@@ -1,6 +1,10 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (c) 2017-2020, The Linux Foundation. All rights reserved.
+<<<<<<< Updated upstream
+=======
+ * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+>>>>>>> Stashed changes
  */
 
 #ifndef _A6XX_REG_H
@@ -391,6 +395,11 @@
 #define A6XX_RBBM_PERFCTR_RBBM_SEL_2             0x509
 #define A6XX_RBBM_PERFCTR_RBBM_SEL_3             0x50A
 #define A6XX_RBBM_PERFCTR_GPU_BUSY_MASKED        0x50B
+<<<<<<< Updated upstream
+=======
+#define A6XX_RBBM_PERFCTR_SRAM_INIT_CMD          0x50e
+#define A6XX_RBBM_PERFCTR_SRAM_INIT_STATUS       0x50f
+>>>>>>> Stashed changes
 #define A6XX_RBBM_PERFCTR_MHUB_0_LO              0x512
 #define A6XX_RBBM_PERFCTR_MHUB_0_HI              0x513
 #define A6XX_RBBM_PERFCTR_MHUB_1_LO              0x514

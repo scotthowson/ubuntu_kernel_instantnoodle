@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
+<<<<<<< Updated upstream
  * Copyright (c) 2015-2019, The Linux Foundation. All rights reserved.
+=======
+ * Copyright (c) 2015-2019, 2021, The Linux Foundation. All rights reserved.
+>>>>>>> Stashed changes
  */
 #include <linux/module.h>
 #include <linux/init.h>
@@ -2430,9 +2434,15 @@ static int slim_tx_mixer_put(struct snd_kcontrol *kcontrol,
 	mutex_lock(&tasha_p->codec_mutex);
 
 	if (tasha_p->intf_type == WCD9XXX_INTERFACE_TYPE_SLIMBUS) {
+<<<<<<< Updated upstream
 		if (dai_id != AIF1_CAP) {
 			dev_err(component->dev, "%s: invalid AIF for I2C mode\n",
 				__func__);
+=======
+		if (dai_id >= ARRAY_SIZE(vport_slim_check_table)) {
+			dev_err(component->dev, "%s: dai_id: %d, out of bounds\n",
+					__func__, dai_id);
+>>>>>>> Stashed changes
 			mutex_unlock(&tasha_p->codec_mutex);
 			return -EINVAL;
 		}
@@ -2441,6 +2451,10 @@ static int slim_tx_mixer_put(struct snd_kcontrol *kcontrol,
 		if (dai_id >= ARRAY_SIZE(vport_i2s_check_table)) {
 			dev_err(component->dev, "%s: dai_id: %d, out of bounds\n",
 				__func__, dai_id);
+<<<<<<< Updated upstream
+=======
+			mutex_unlock(&tasha_p->codec_mutex);
+>>>>>>> Stashed changes
 			return -EINVAL;
 		}
 		vtable = vport_i2s_check_table[dai_id];
@@ -4271,7 +4285,11 @@ static int tasha_codec_enable_spk_anc(struct snd_soc_dapm_widget *w,
 	switch (event) {
 	case SND_SOC_DAPM_PRE_PMU:
 		ret = tasha_codec_enable_anc(w, kcontrol, event);
+<<<<<<< Updated upstream
 		schedule_delayed_work(&tasha->spk_anc_dwork.dwork,
+=======
+		queue_delayed_work(system_power_efficient_wq, &tasha->spk_anc_dwork.dwork,
+>>>>>>> Stashed changes
 				      msecs_to_jiffies(spk_anc_en_delay));
 		break;
 	case SND_SOC_DAPM_POST_PMD:
@@ -6010,11 +6028,19 @@ static int tasha_codec_enable_dec(struct snd_soc_dapm_widget *w,
 					WCD9335_MBHC_ZDET_RAMP_CTL, 0x03);
 		}
 		/* schedule work queue to Remove Mute */
+<<<<<<< Updated upstream
 		schedule_delayed_work(&tasha->tx_mute_dwork[decimator].dwork,
 				      msecs_to_jiffies(tx_unmute_delay));
 		if (tasha->tx_hpf_work[decimator].hpf_cut_off_freq !=
 							CF_MIN_3DB_150HZ)
 			schedule_delayed_work(
+=======
+		queue_delayed_work(system_power_efficient_wq, &tasha->tx_mute_dwork[decimator].dwork,
+				      msecs_to_jiffies(tx_unmute_delay));
+		if (tasha->tx_hpf_work[decimator].hpf_cut_off_freq !=
+							CF_MIN_3DB_150HZ)
+			queue_delayed_work(system_power_efficient_wq, 
+>>>>>>> Stashed changes
 					&tasha->tx_hpf_work[decimator].dwork,
 					msecs_to_jiffies(300));
 		/* apply gain after decimator is enabled */
@@ -12422,7 +12448,11 @@ static int tasha_dig_core_power_collapse(struct tasha_priv *tasha,
 
 	if (req_state == POWER_COLLAPSE) {
 		if (tasha->power_active_ref == 0) {
+<<<<<<< Updated upstream
 			schedule_delayed_work(&tasha->power_gate_work,
+=======
+			queue_delayed_work(system_power_efficient_wq, &tasha->power_gate_work,
+>>>>>>> Stashed changes
 			msecs_to_jiffies(dig_core_collapse_timer * 1000));
 		}
 	} else if (req_state == POWER_RESUME) {
@@ -13287,9 +13317,17 @@ done:
 static struct wcd_cpe_core *tasha_codec_get_cpe_core(
 		struct snd_soc_component *component)
 {
+<<<<<<< Updated upstream
 	struct tasha_priv *priv = snd_soc_component_get_drvdata(component);
 
 	return priv->cpe_core;
+=======
+	struct tasha_priv *priv = NULL;
+	priv = dev_get_drvdata(component->dev);
+	if (priv)
+		return priv->cpe_core;
+	return NULL;
+>>>>>>> Stashed changes
 }
 
 static int tasha_codec_cpe_fll_update_divider(

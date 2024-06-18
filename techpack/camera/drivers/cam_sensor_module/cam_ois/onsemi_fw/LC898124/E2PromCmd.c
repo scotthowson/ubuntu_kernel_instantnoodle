@@ -990,7 +990,10 @@ UINT8	WrAfParameter( UINT8 SelectAct )
 	
 	return(ans);
 }
+<<<<<<< Updated upstream
 #endif
+=======
+>>>>>>> Stashed changes
 
 #if ((SELECT_VENDOR & 0x80 ) != 0x80)
 //********************************************************************************
@@ -1246,6 +1249,10 @@ UINT8	WrHallLnData(  UINT8 UcMode, mlLinearityValue *linval )
 	
 	return( 0 );
 }
+<<<<<<< Updated upstream
+=======
+#endif
+>>>>>>> Stashed changes
 
 //********************************************************************************
 // Function Name 	: WrMixCalData124

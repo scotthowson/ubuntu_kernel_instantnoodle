@@ -1,5 +1,9 @@
 /*
  * Copyright (c) 2018-2020 The Linux Foundation. All rights reserved.
+<<<<<<< Updated upstream
+=======
+ * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+>>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -578,13 +582,75 @@
 	CFG_INI_BOOL("LROEnable", WLAN_LRO_ENABLE, \
 	"DP LRO Enable")
 
+<<<<<<< Updated upstream
+=======
+/*
+ * <ini>
+ * CFG_DP_SG - Enable the SG feature standalonely
+ * @Min: 0
+ * @Max: 1
+ * @Default: 1
+ *
+ * This ini entry is used to enable/disable SG feature standalonely.
+ * Also does Rome support SG on TX, lithium does not.
+ * For example the lithium does not support SG on UDP frames.
+ * Which is able to handle SG only for TSO frames(in case TSO is enabled).
+ *
+ * Usage: External
+ *
+ * </ini>
+ */
+>>>>>>> Stashed changes
 #define CFG_DP_SG \
 	CFG_INI_BOOL("dp_sg_support", false, \
 	"DP SG Enable")
 
+<<<<<<< Updated upstream
 #define CFG_DP_GRO \
 	CFG_INI_BOOL("GROEnable", false, \
 	"DP GRO Enable")
+=======
+#define WLAN_CFG_GRO_ENABLE_MIN 0
+#define WLAN_CFG_GRO_ENABLE_MAX 3
+#define WLAN_CFG_GRO_ENABLE_DEFAULT 0
+#define DP_GRO_ENABLE_BIT_SET     BIT(0)
+#define DP_TC_BASED_DYNAMIC_GRO   BIT(1)
+
+/*
+ * <ini>
+ * CFG_DP_GRO - Enable the GRO feature standalonely
+ * @Min: 0
+ * @Max: 3
+ * @Default: 0
+ *
+ * This ini entry is used to enable/disable GRO feature standalonely.
+ * Value 0: Disable GRO feature
+ * Value 1: Enable GRO feature always
+ * Value 3: Enable GRO dynamic feature where TC rule can control GRO
+ *          behavior
+ *
+ * Usage: External
+ *
+ * </ini>
+ */
+#define CFG_DP_GRO \
+		CFG_INI_UINT("GROEnable", \
+		WLAN_CFG_GRO_ENABLE_MIN, \
+		WLAN_CFG_GRO_ENABLE_MAX, \
+		WLAN_CFG_GRO_ENABLE_DEFAULT, \
+		CFG_VALUE_OR_DEFAULT, "DP GRO Enable")
+
+#define WLAN_CFG_TC_INGRESS_PRIO_MIN 0
+#define WLAN_CFG_TC_INGRESS_PRIO_MAX 0xFFFF
+#define WLAN_CFG_TC_INGRESS_PRIO_DEFAULT 0
+
+#define CFG_DP_TC_INGRESS_PRIO \
+		CFG_INI_UINT("tc_ingress_prio", \
+		WLAN_CFG_TC_INGRESS_PRIO_MIN, \
+		WLAN_CFG_TC_INGRESS_PRIO_MAX, \
+		WLAN_CFG_TC_INGRESS_PRIO_DEFAULT, \
+		CFG_VALUE_OR_DEFAULT, "DP tc ingress prio")
+>>>>>>> Stashed changes
 
 #define CFG_DP_OL_TX_CSUM \
 	CFG_INI_BOOL("dp_offload_tx_csum_support", false, \
@@ -945,6 +1011,27 @@
 		false, \
 		"enable rx frame pending check in WoW mode")
 
+<<<<<<< Updated upstream
+=======
+/*
+ * <ini>
+ * gForceRX64BA - enable force 64 blockack mode for RX
+ * @Min: 0
+ * @Max: 1
+ * @Default: 0
+ *
+ * This ini is used to control DP Software to use 64 blockack
+ * for RX direction forcibly
+ *
+ * Usage: Internal
+ *
+ * </ini>
+ */
+#define CFG_FORCE_RX_64_BA \
+		CFG_INI_BOOL("gForceRX64BA", \
+		false, "Enable/Disable force 64 blockack in RX side")
+
+>>>>>>> Stashed changes
 #define CFG_DP \
 		CFG(CFG_DP_HTT_PACKET_TYPE) \
 		CFG(CFG_DP_INT_BATCH_THRESHOLD_OTHER) \
@@ -974,6 +1061,10 @@
 		CFG(CFG_DP_LRO) \
 		CFG(CFG_DP_SG) \
 		CFG(CFG_DP_GRO) \
+<<<<<<< Updated upstream
+=======
+		CFG(CFG_DP_TC_INGRESS_PRIO) \
+>>>>>>> Stashed changes
 		CFG(CFG_DP_OL_TX_CSUM) \
 		CFG(CFG_DP_OL_RX_CSUM) \
 		CFG(CFG_DP_RAWMODE) \
@@ -1023,5 +1114,10 @@
 		CFG(CFG_DP_LEGACY_MODE_CSUM_DISABLE) \
 		CFG(CFG_DP_RX_PENDING_HL_THRESHOLD) \
 		CFG(CFG_DP_RX_PENDING_LO_THRESHOLD) \
+<<<<<<< Updated upstream
 		CFG(CFG_DP_WOW_CHECK_RX_PENDING)
+=======
+		CFG(CFG_DP_WOW_CHECK_RX_PENDING) \
+		CFG(CFG_FORCE_RX_64_BA)
+>>>>>>> Stashed changes
 #endif /* _CFG_DP_H_ */

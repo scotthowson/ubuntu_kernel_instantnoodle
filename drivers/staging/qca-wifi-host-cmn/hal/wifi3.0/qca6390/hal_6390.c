@@ -1122,6 +1122,10 @@ struct hal_hw_txrx_ops qca6390_hal_hw_txrx_ops = {
 	NULL,
 	NULL,
 	NULL,
+<<<<<<< Updated upstream
+=======
+	NULL
+>>>>>>> Stashed changes
 };
 
 struct hal_hw_srng_config hw_srng_table_6390[] = {

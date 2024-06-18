@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (c) 2016-2020, The Linux Foundation. All rights reserved.
+<<<<<<< Updated upstream
+=======
+ * Copyright (c) 2022, Qualcomm Innovation Center, Inc. All rights reserved.
+>>>>>>> Stashed changes
  */
 
 #include <linux/of_device.h>
@@ -880,8 +884,8 @@ int dsi_phy_enable(struct msm_dsi_phy *phy,
 
 	memcpy(&phy->mode, &config->video_timing, sizeof(phy->mode));
 	memcpy(&phy->cfg.lane_map, &config->lane_map, sizeof(config->lane_map));
-	phy->data_lanes = config->common_config.data_lanes;
 	phy->dst_format = config->common_config.dst_format;
+	phy->cfg.data_lanes = config->common_config.data_lanes;
 	phy->cfg.pll_source = pll_source;
 	phy->cfg.bit_clk_rate_hz = config->bit_clk_rate_hz;
 
@@ -1100,6 +1104,7 @@ int dsi_phy_set_timing_params(struct msm_dsi_phy *phy,
 		phy->cfg.is_phy_timing_present = true;
 
 	if (phy->hw.ops.commit_phy_timing && commit)
+<<<<<<< Updated upstream
 		phy->hw.ops.commit_phy_timing(&phy->hw, &phy->cfg.timing);
 
 	mutex_unlock(&phy->phy_lock);
@@ -1125,9 +1130,9 @@ int dsi_phy_set_timing_params_commit(struct msm_dsi_phy *phy,
 		phy->cfg.is_phy_timing_present = true;
 
 	if (phy->hw.ops.commit_phy_timing)
+=======
+>>>>>>> Stashed changes
 		phy->hw.ops.commit_phy_timing(&phy->hw, &phy->cfg.timing);
-	else
-		pr_warn("WARNING: No function to commit PHY timing!!\n");
 
 	mutex_unlock(&phy->phy_lock);
 	return rc;

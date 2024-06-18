@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
+<<<<<<< Updated upstream
  * fs/verity/measure.c: ioctl to get a verity file's measurement
+=======
+ * Ioctl to get a verity file's digest
+>>>>>>> Stashed changes
  *
  * Copyright 2019 Google LLC
  */
@@ -10,10 +14,19 @@
 #include <linux/uaccess.h>
 
 /**
+<<<<<<< Updated upstream
  * fsverity_ioctl_measure() - get a verity file's measurement
  *
  * Retrieve the file measurement that the kernel is enforcing for reads from a
  * verity file.  See the "FS_IOC_MEASURE_VERITY" section of
+=======
+ * fsverity_ioctl_measure() - get a verity file's digest
+ * @filp: file to get digest of
+ * @_uarg: user pointer to fsverity_digest
+ *
+ * Retrieve the file digest that the kernel is enforcing for reads from a verity
+ * file.  See the "FS_IOC_MEASURE_VERITY" section of
+>>>>>>> Stashed changes
  * Documentation/filesystems/fsverity.rst for the documentation.
  *
  * Return: 0 on success, -errno on failure
@@ -49,7 +62,11 @@ int fsverity_ioctl_measure(struct file *filp, void __user *_uarg)
 	if (copy_to_user(uarg, &arg, sizeof(arg)))
 		return -EFAULT;
 
+<<<<<<< Updated upstream
 	if (copy_to_user(uarg->digest, vi->measurement, hash_alg->digest_size))
+=======
+	if (copy_to_user(uarg->digest, vi->file_digest, hash_alg->digest_size))
+>>>>>>> Stashed changes
 		return -EFAULT;
 
 	return 0;

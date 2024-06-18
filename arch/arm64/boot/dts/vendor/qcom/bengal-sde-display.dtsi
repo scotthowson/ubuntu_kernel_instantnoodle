@@ -1,8 +1,11 @@
 #include "dsi-panel-td4330-truly-v2-singlemipi-fhd-cmd.dtsi"
 #include "dsi-panel-td4330-truly-v2-singlemipi-fhd-vid.dtsi"
 #include "dsi-panel-nt36525-truly-hd-plus-vid.dtsi"
+<<<<<<< Updated upstream
 #include "dsi-panel-r66451-hd-plus-90hz-video.dtsi"
 #include "dsi-panel-r66451-hd-plus-90hz-cmd.dtsi"
+=======
+>>>>>>> Stashed changes
 #include <dt-bindings/clock/mdss-14nm-pll-clk.h>
 
 &pmi632_gpios {
@@ -129,12 +132,15 @@
 		cell-index = <0>;
 		label = "wb_display";
 	};
+<<<<<<< Updated upstream
 
 	msm_notifier: qcom,msm_notifier@0 {
 		compatible = "qcom,msm-notifier";
 		panel = <&dsi_r66451_amoled_hd_90hz_video
 			&dsi_r66451_amoled_hd_90hz_cmd>;
 	};
+=======
+>>>>>>> Stashed changes
 };
 
 &mdss_mdp {
@@ -247,6 +253,7 @@
 		};
 	};
 };
+<<<<<<< Updated upstream
 
 &dsi_r66451_amoled_hd_90hz_video {
 	qcom,mdss-dsi-t-clk-post = <0x0c>;
@@ -287,3 +294,5 @@
 		};
 	};
 };
+=======
+>>>>>>> Stashed changes

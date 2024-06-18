@@ -269,10 +269,17 @@ static int bolero_cdc_register_notifier(void *handle,
 		return -EINVAL;
 	}
 	if (enable)
+<<<<<<< Updated upstream
 		return blocking_notifier_chain_register(&priv->notifier,
 							nblock);
 
 	return blocking_notifier_chain_unregister(&priv->notifier,
+=======
+		return srcu_notifier_chain_register(&priv->notifier,
+							nblock);
+
+	return srcu_notifier_chain_unregister(&priv->notifier,
+>>>>>>> Stashed changes
 						  nblock);
 }
 
@@ -280,7 +287,11 @@ static void bolero_cdc_notifier_call(struct bolero_priv *priv,
 				     u32 data)
 {
 	dev_dbg(priv->dev, "%s: notifier call, data:%d\n", __func__, data);
+<<<<<<< Updated upstream
 	blocking_notifier_call_chain(&priv->notifier,
+=======
+	srcu_notifier_call_chain(&priv->notifier,
+>>>>>>> Stashed changes
 				     data, (void *)priv->wcd_dev);
 }
 
@@ -1379,7 +1390,10 @@ static int bolero_probe(struct platform_device *pdev)
 	mutex_init(&priv->vote_lock);
 	INIT_WORK(&priv->bolero_add_child_devices_work,
 		  bolero_add_child_devices);
+<<<<<<< Updated upstream
 	schedule_work(&priv->bolero_add_child_devices_work);
+=======
+>>>>>>> Stashed changes
 
 	/* Register LPASS core hw vote */
 	lpass_core_hw_vote = devm_clk_get(&pdev->dev, "lpass_core_hw_vote");
@@ -1403,6 +1417,10 @@ static int bolero_probe(struct platform_device *pdev)
 	}
 	priv->lpass_audio_hw_vote = lpass_audio_hw_vote;
 
+<<<<<<< Updated upstream
+=======
+	schedule_work(&priv->bolero_add_child_devices_work);
+>>>>>>> Stashed changes
 	return 0;
 }
 

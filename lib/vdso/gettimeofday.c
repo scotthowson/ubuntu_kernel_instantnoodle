@@ -232,8 +232,16 @@ __cvdso_clock_getres_time32(clockid_t clock, struct old_timespec32 *res)
 	if (unlikely(ret))
 		return clock_getres32_fallback(clock, res);
 #else
+<<<<<<< Updated upstream
 	if (unlikely(ret))
 		ret = clock_getres_fallback(clock, &ts);
+=======
+	if (unlikely(ret)) {
+		ret = clock_getres_fallback(clock, &ts);
+		if (unlikely(ret))
+			return ret;
+	}
+>>>>>>> Stashed changes
 #endif
 
 	if (likely(res)) {

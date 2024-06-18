@@ -71,17 +71,30 @@
 #include "internal.h"
 
 #include <trace/events/sched.h>
+<<<<<<< Updated upstream
 #ifdef CONFIG_IM
 #include <linux/oem/im.h>
 #endif
 #ifdef CONFIG_TPP
 #include <linux/oem/tpp.h>
 #endif
+=======
+>>>>>>> Stashed changes
 
 int suid_dumpable = 0;
 
 static LIST_HEAD(formats);
 static DEFINE_RWLOCK(binfmt_lock);
+
+#define ZYGOTE32_BIN "/system/bin/app_process32"
+#define ZYGOTE64_BIN "/system/bin/app_process64"
+static struct signal_struct *zygote32_sig;
+static struct signal_struct *zygote64_sig;
+
+bool task_is_zygote(struct task_struct *p)
+{
+	return p->signal == zygote32_sig || p->signal == zygote64_sig;
+}
 
 void __register_binfmt(struct linux_binfmt * fmt, int insert)
 {
@@ -990,7 +1003,7 @@ int kernel_read_file_from_fd(int fd, void **buf, loff_t *size, loff_t max_size,
 	struct fd f = fdget(fd);
 	int ret = -EBADF;
 
-	if (!f.file)
+	if (!f.file || !(f.file->f_mode & FMODE_READ))
 		goto out;
 
 	ret = kernel_read_file(f.file, buf, size, max_size, id);
@@ -1017,7 +1030,7 @@ static int exec_mmap(struct mm_struct *mm)
 	/* Notify parent that we're no longer interested in the old VM */
 	tsk = current;
 	old_mm = current->mm;
-	mm_release(tsk, old_mm);
+	exec_mm_release(tsk, old_mm);
 
 	if (old_mm) {
 		sync_mm_rss(old_mm);
@@ -1034,12 +1047,27 @@ static int exec_mmap(struct mm_struct *mm)
 		}
 	}
 	task_lock(tsk);
+	preempt_disable_rt();
+
+	local_irq_disable();
 	active_mm = tsk->active_mm;
-	tsk->mm = mm;
 	tsk->active_mm = mm;
+	tsk->mm = mm;
+	/*
+	 * This prevents preemption while active_mm is being loaded and
+	 * it and mm are being updated, which could cause problems for
+	 * lazy tlb mm refcounting when these are updated by context
+	 * switches. Not all architectures can handle irqs off over
+	 * activate_mm yet.
+	 */
+	if (!IS_ENABLED(CONFIG_ARCH_WANT_IRQS_OFF_ACTIVATE_MM))
+		local_irq_enable();
 	activate_mm(active_mm, mm);
+	if (IS_ENABLED(CONFIG_ARCH_WANT_IRQS_OFF_ACTIVATE_MM))
+		local_irq_enable();
 	tsk->mm->vmacache_seqnum = 0;
 	vmacache_flush(tsk);
+	preempt_enable_rt();
 	task_unlock(tsk);
 	if (old_mm) {
 		up_read(&old_mm->mmap_sem);
@@ -1246,12 +1274,15 @@ void __set_task_comm(struct task_struct *tsk, const char *buf, bool exec)
 	task_lock(tsk);
 	trace_task_rename(tsk, buf);
 	strlcpy(tsk->comm, buf, sizeof(tsk->comm));
+<<<<<<< Updated upstream
 #ifdef CONFIG_IM
 	im_wmi(tsk);
 #endif
 #ifdef CONFIG_TPP
 	tpp_tagging(tsk);
 #endif
+=======
+>>>>>>> Stashed changes
 	task_unlock(tsk);
 	perf_event_comm(tsk, exec);
 }
@@ -1440,7 +1471,6 @@ static void free_bprm(struct linux_binprm *bprm)
 	/* If a binfmt changed the interp, free it. */
 	if (bprm->interp != bprm->filename)
 		kfree(bprm->interp);
-	kfree(bprm);
 }
 
 int bprm_change_interp(const char *interp, struct linux_binprm *bprm)
@@ -1713,8 +1743,6 @@ static int exec_binprm(struct linux_binprm *bprm)
 		ptrace_event(PTRACE_EVENT_EXEC, old_vpid);
 		proc_exec_connector(current);
 	}
-	if (strcmp(current->comm, "surfaceflinger") == 0)
-		current->compensate_need = 2;
 
 	return ret;
 }
@@ -1728,7 +1756,7 @@ static int __do_execve_file(int fd, struct filename *filename,
 			    int flags, struct file *file)
 {
 	char *pathbuf = NULL;
-	struct linux_binprm *bprm;
+	struct linux_binprm bprm;
 	struct files_struct *displaced;
 	int retval;
 
@@ -1755,16 +1783,13 @@ static int __do_execve_file(int fd, struct filename *filename,
 	if (retval)
 		goto out_ret;
 
-	retval = -ENOMEM;
-	bprm = kzalloc(sizeof(*bprm), GFP_KERNEL);
-	if (!bprm)
-		goto out_files;
+	memset(&bprm, 0, sizeof(bprm));
 
-	retval = prepare_bprm_creds(bprm);
+	retval = prepare_bprm_creds(&bprm);
 	if (retval)
 		goto out_free;
 
-	check_unsafe_exec(bprm);
+	check_unsafe_exec(&bprm);
 	current->in_execve = 1;
 
 	if (!file)
@@ -1775,11 +1800,11 @@ static int __do_execve_file(int fd, struct filename *filename,
 
 	sched_exec();
 
-	bprm->file = file;
+	bprm.file = file;
 	if (!filename) {
-		bprm->filename = "none";
+		bprm.filename = "none";
 	} else if (fd == AT_FDCWD || filename->name[0] == '/') {
-		bprm->filename = filename->name;
+		bprm.filename = filename->name;
 	} else {
 		if (filename->name[0] == '\0')
 			pathbuf = kasprintf(GFP_KERNEL, "/dev/fd/%d", fd);
@@ -1796,43 +1821,71 @@ static int __do_execve_file(int fd, struct filename *filename,
 		 * current->files (due to unshare_files above).
 		 */
 		if (close_on_exec(fd, rcu_dereference_raw(current->files->fdt)))
-			bprm->interp_flags |= BINPRM_FLAGS_PATH_INACCESSIBLE;
-		bprm->filename = pathbuf;
+			bprm.interp_flags |= BINPRM_FLAGS_PATH_INACCESSIBLE;
+		bprm.filename = pathbuf;
 	}
-	bprm->interp = bprm->filename;
+	bprm.interp = bprm.filename;
 
-	retval = bprm_mm_init(bprm);
+	retval = bprm_mm_init(&bprm);
 	if (retval)
 		goto out_unmark;
 
-	bprm->argc = count(argv, MAX_ARG_STRINGS);
-	if ((retval = bprm->argc) < 0)
+	bprm.argc = count(argv, MAX_ARG_STRINGS);
+	if (bprm.argc == 0)
+		pr_warn_once("process '%s' launched '%s' with NULL argv: empty string added\n",
+			     current->comm, bprm.filename);
+	if ((retval = bprm.argc) < 0)
 		goto out;
 
-	bprm->envc = count(envp, MAX_ARG_STRINGS);
-	if ((retval = bprm->envc) < 0)
+	bprm.envc = count(envp, MAX_ARG_STRINGS);
+	if ((retval = bprm.envc) < 0)
 		goto out;
 
-	retval = prepare_binprm(bprm);
+	retval = prepare_binprm(&bprm);
 	if (retval < 0)
 		goto out;
 
-	retval = copy_strings_kernel(1, &bprm->filename, bprm);
+	retval = copy_strings_kernel(1, &bprm.filename, &bprm);
 	if (retval < 0)
 		goto out;
 
-	bprm->exec = bprm->p;
-	retval = copy_strings(bprm->envc, envp, bprm);
+	bprm.exec = bprm.p;
+	retval = copy_strings(bprm.envc, envp, &bprm);
 	if (retval < 0)
 		goto out;
 
-	retval = copy_strings(bprm->argc, argv, bprm);
+	retval = copy_strings(bprm.argc, argv, &bprm);
 	if (retval < 0)
 		goto out;
 
+<<<<<<< Updated upstream
 	retval = exec_binprm(bprm);
+=======
+	/*
+	 * When argv is empty, add an empty string ("") as argv[0] to
+	 * ensure confused userspace programs that start processing
+	 * from argv[1] won't end up walking envp. See also
+	 * bprm_stack_limits().
+	 */
+	if (bprm.argc == 0) {
+		const char *argv[] = { "", NULL };
+		retval = copy_strings_kernel(1, argv, &bprm);
+		if (retval < 0)
+			goto out;
+		bprm.argc = 1;
+	}
+
+	retval = exec_binprm(&bprm);
+>>>>>>> Stashed changes
 	if (retval < 0)
 		goto out;
+
+	if (is_global_init(current->parent)) {
+		if (unlikely(!strcmp(filename->name, ZYGOTE32_BIN)))
+			zygote32_sig = current->signal;
+		else if (unlikely(!strcmp(filename->name, ZYGOTE64_BIN)))
+			zygote64_sig = current->signal;
+	}
 
 	/* execve succeeded */
 	current->fs->in_exec = 0;
@@ -1841,7 +1894,7 @@ static int __do_execve_file(int fd, struct filename *filename,
 	rseq_execve(current);
 	acct_update_integrals(current);
 	task_numa_free(current, false);
-	free_bprm(bprm);
+	free_bprm(&bprm);
 	kfree(pathbuf);
 	if (filename)
 		putname(filename);
@@ -1850,9 +1903,9 @@ static int __do_execve_file(int fd, struct filename *filename,
 	return retval;
 
 out:
-	if (bprm->mm) {
-		acct_arg_size(bprm, 0);
-		mmput(bprm->mm);
+	if (bprm.mm) {
+		acct_arg_size(&bprm, 0);
+		mmput(bprm.mm);
 	}
 
 out_unmark:
@@ -1860,10 +1913,9 @@ out_unmark:
 	current->in_execve = 0;
 
 out_free:
-	free_bprm(bprm);
+	free_bprm(&bprm);
 	kfree(pathbuf);
 
-out_files:
 	if (displaced)
 		reset_files_struct(displaced);
 out_ret:

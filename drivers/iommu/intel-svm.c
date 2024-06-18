@@ -625,6 +625,10 @@ static irqreturn_t prq_event_thread(int irq, void *d)
 		if (!is_canonical_address(address))
 			goto bad_req;
 
+<<<<<<< Updated upstream
+=======
+		/* If the mm is already defunct, don't handle faults. */
+>>>>>>> Stashed changes
 		if (!mmget_not_zero(svm->mm))
 			goto bad_req;
 

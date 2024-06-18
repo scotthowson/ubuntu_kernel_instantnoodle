@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-only
+<<<<<<< Updated upstream
 /* Copyright (c) 2012-2020, The Linux Foundation. All rights reserved. */
+=======
+/* Copyright (c) 2012-2021, The Linux Foundation. All rights reserved. */
+>>>>>>> Stashed changes
 
 #include <linux/module.h>
 #include <linux/interrupt.h>
@@ -38,6 +42,10 @@ void mdss_dsi_panel_pwm_cfg(struct mdss_dsi_ctrl_pdata *ctrl)
 	if (ctrl->pwm_bl == NULL || IS_ERR(ctrl->pwm_bl)) {
 		pr_err("%s: Error: lpg_chan=%d pwm request failed\n",
 				__func__, ctrl->pwm_lpg_chan);
+<<<<<<< Updated upstream
+=======
+		ctrl->pwm_bl = NULL;
+>>>>>>> Stashed changes
 	}
 	ctrl->pwm_enabled = 0;
 }
@@ -2504,6 +2512,12 @@ int mdss_dsi_panel_timing_switch(struct mdss_dsi_ctrl_pdata *ctrl,
 	for (i = 0; i < ARRAY_SIZE(pt->phy_timing_8996); i++)
 		pinfo->mipi.dsi_phy_db.timing_8996[i] = pt->phy_timing_8996[i];
 
+<<<<<<< Updated upstream
+=======
+	for (i = 0; i < ARRAY_SIZE(pt->phy_timing_12nm); i++)
+		pinfo->mipi.dsi_phy_db.timing_12nm[i] = pt->phy_timing_12nm[i];
+
+>>>>>>> Stashed changes
 	ctrl->on_cmds = pt->on_cmds;
 	ctrl->post_panel_on_cmds = pt->post_panel_on_cmds;
 
@@ -2617,6 +2631,21 @@ static int mdss_dsi_panel_timing_from_dt(struct device_node *np,
 			pt->phy_timing_8996[i] = data[i];
 		phy_timings_present = true;
 	}
+<<<<<<< Updated upstream
+=======
+
+	data = of_get_property(np,
+		"qcom,mdss-dsi-panel-timings-phy-12nm", &len);
+	if ((!data) || (len != 8)) {
+		pr_debug("%s:%d,Unable to read 12nm Phy lane timing settings\n",
+		       __func__, __LINE__);
+	} else {
+		for (i = 0; i < len; i++)
+			pt->phy_timing_12nm[i] = data[i];
+		phy_timings_present = true;
+	}
+
+>>>>>>> Stashed changes
 	if (!phy_timings_present) {
 		pr_err("%s: phy timing settings not present\n", __func__);
 		return -EINVAL;

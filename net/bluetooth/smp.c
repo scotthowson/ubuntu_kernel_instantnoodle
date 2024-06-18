@@ -632,7 +632,8 @@ static void smp_send_cmd(struct l2cap_conn *conn, u8 code, u16 len, void *data)
 	smp = chan->data;
 
 	cancel_delayed_work_sync(&smp->security_timer);
-	schedule_delayed_work(&smp->security_timer, SMP_TIMEOUT);
+	queue_delayed_work(system_power_efficient_wq,
+			&smp->security_timer, SMP_TIMEOUT);
 }
 
 static u8 authreq_to_seclevel(u8 authreq)
@@ -2702,6 +2703,15 @@ static int smp_cmd_public_key(struct l2cap_conn *conn, struct sk_buff *skb)
 
 	if (skb->len < sizeof(*key))
 		return SMP_INVALID_PARAMS;
+
+	/* Check if remote and local public keys are the same and debug key is
+	 * not in use.
+	 */
+	if (!test_bit(SMP_FLAG_DEBUG_KEY, &smp->flags) &&
+	    !crypto_memneq(key, smp->local_pk, 64)) {
+		bt_dev_err(hdev, "Remote and local public keys are identical");
+		return SMP_UNSPECIFIED;
+	}
 
 	memcpy(smp->remote_pk, key, 64);
 

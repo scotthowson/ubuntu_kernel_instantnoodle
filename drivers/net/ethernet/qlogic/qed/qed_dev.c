@@ -3454,7 +3454,7 @@ qed_chain_alloc_pbl(struct qed_dev *cdev,
 	/* The allocation of the PBL table is done with its full size, since it
 	 * is expected to be successive.
 	 * qed_chain_init_pbl_mem() is called even in a case of an allocation
-	 * failure, since pp_virt_addr_tbl was previously allocated, and it
+	 * failure, since tbl was previously allocated, and it
 	 * should be saved to allow its freeing during the error flow.
 	 */
 	size = page_cnt * QED_CHAIN_PBL_ENTRY_SIZE;
@@ -4061,6 +4061,11 @@ static int qed_init_wfq_param(struct qed_hwfn *p_hwfn,
 	int non_requested_count = 0, req_count = 0, i, num_vports;
 
 	num_vports = p_hwfn->qm_info.num_vports;
+
+	if (num_vports < 2) {
+		DP_NOTICE(p_hwfn, "Unexpected num_vports: %d\n", num_vports);
+		return -EINVAL;
+	}
 
 	/* Accounting for the vports which are configured for WFQ explicitly */
 	for (i = 0; i < num_vports; i++) {

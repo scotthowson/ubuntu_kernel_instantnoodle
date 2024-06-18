@@ -1,5 +1,9 @@
 /*
  * Copyright (c) 2012-2020 The Linux Foundation. All rights reserved.
+<<<<<<< Updated upstream
+=======
+ * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+>>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -269,7 +273,11 @@
  * gSoftApMaxPeers - Set Max peers connected for SAP
  * @Min: 1
  * @Max: 32
+<<<<<<< Updated upstream
  * @Default: 32
+=======
+ * @Default: 10
+>>>>>>> Stashed changes
  *
  * This ini is used to set Max peers connected for SAP
  *
@@ -285,7 +293,11 @@
 			"gSoftApMaxPeers", \
 			1, \
 			32, \
+<<<<<<< Updated upstream
 			32, \
+=======
+			10, \
+>>>>>>> Stashed changes
 			CFG_VALUE_OR_DEFAULT, \
 			"max no of peers")
 

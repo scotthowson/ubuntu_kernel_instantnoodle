@@ -107,7 +107,11 @@ void __qdf_delayed_work_destroy(struct qdf_delayed_work *dwork,
 
 bool qdf_delayed_work_start(struct qdf_delayed_work *dwork, uint32_t msec)
 {
+<<<<<<< Updated upstream
 	return schedule_delayed_work(&dwork->dwork, msecs_to_jiffies(msec));
+=======
+	return queue_delayed_work(system_power_efficient_wq, &dwork->dwork, msecs_to_jiffies(msec));
+>>>>>>> Stashed changes
 }
 
 bool qdf_delayed_work_stop_sync(struct qdf_delayed_work *dwork)

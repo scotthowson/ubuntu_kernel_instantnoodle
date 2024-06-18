@@ -1294,6 +1294,14 @@ static void smb1390_taper_work(struct work_struct *work)
 				goto out;
 			}
 
+<<<<<<< Updated upstream
+=======
+			/*
+			 * fcc and fcc_main are the same for VPH config, hence
+			 * reduce fcc_main from fcc only in VBAT (output config)
+			 * where fcc_main is a portion of full-fcc.
+			 */
+>>>>>>> Stashed changes
 			fcc_cp_ua = fcc_uA;
 			if (chip->pl_output_mode == POWER_SUPPLY_PL_OUTPUT_VBAT)
 				fcc_cp_ua = fcc_uA - main_fcc_ua;

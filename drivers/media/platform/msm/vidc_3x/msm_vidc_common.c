@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
+<<<<<<< Updated upstream
  * Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
+=======
+ * Copyright (c) 2012-2021, The Linux Foundation. All rights reserved.
+>>>>>>> Stashed changes
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -2831,12 +2835,17 @@ static int msm_vidc_deinit_core(struct msm_vidc_inst *inst)
 	if (core->state == VIDC_CORE_UNINIT) {
 		dprintk(VIDC_INFO, "Video core: %d is already in state: %d\n",
 				core->id, core->state);
+<<<<<<< Updated upstream
+=======
+		mutex_unlock(&core->lock);
+>>>>>>> Stashed changes
 		goto core_already_uninited;
 	}
 	mutex_unlock(&core->lock);
 
 	msm_comm_scale_clocks_and_bus(inst);
 
+<<<<<<< Updated upstream
 	mutex_lock(&core->lock);
 
 	if (!core->resources.never_unload_fw) {
@@ -2860,6 +2869,10 @@ static int msm_vidc_deinit_core(struct msm_vidc_inst *inst)
 core_already_uninited:
 	change_inst_state(inst, MSM_VIDC_CORE_UNINIT);
 	mutex_unlock(&core->lock);
+=======
+core_already_uninited:
+	change_inst_state(inst, MSM_VIDC_CORE_UNINIT);
+>>>>>>> Stashed changes
 	return 0;
 }
 
@@ -5313,6 +5326,7 @@ int msm_comm_smem_cache_operations(struct msm_vidc_inst *inst,
 					mem->size, cache_ops);
 }
 
+<<<<<<< Updated upstream
 void msm_vidc_fw_unload_handler(struct work_struct *work)
 {
 	struct msm_vidc_core *core = NULL;
@@ -5350,6 +5364,8 @@ void msm_vidc_fw_unload_handler(struct work_struct *work)
 	mutex_unlock(&core->lock);
 }
 
+=======
+>>>>>>> Stashed changes
 int msm_comm_set_color_format(struct msm_vidc_inst *inst,
 		enum hal_buffer buffer_type, int fourcc)
 {

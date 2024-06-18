@@ -519,6 +519,7 @@ struct aw8697 {
     int index;
     int vmax;
     int gain;
+    int level;
 
     unsigned char seq[AW8697_SEQUENCER_SIZE];
     unsigned char loop[AW8697_SEQUENCER_SIZE];
@@ -566,6 +567,7 @@ struct aw8697 {
     unsigned int gun_type;
     unsigned int bullet_nr;
     unsigned int gun_mode;
+<<<<<<< Updated upstream
 #ifdef AAC_RICHTAP
     uint8_t *rtp_ptr;
     struct mmap_buf_format *start_buf;
@@ -575,6 +577,8 @@ struct aw8697 {
     bool done_flag;
     bool f0_flag;
 #endif
+=======
+>>>>>>> Stashed changes
 };
 
 struct aw8697_container{

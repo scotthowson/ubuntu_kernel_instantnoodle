@@ -73,7 +73,11 @@ int pld_init(void)
 	if (!pld_context)
 		return -ENOMEM;
 
+<<<<<<< Updated upstream
 	spin_lock_init(&pld_context->pld_lock);
+=======
+	raw_spin_lock_init(&pld_context->pld_lock);
+>>>>>>> Stashed changes
 
 	INIT_LIST_HEAD(&pld_context->dev_list);
 
@@ -89,9 +93,16 @@ int pld_init(void)
  */
 void pld_deinit(void)
 {
+<<<<<<< Updated upstream
 	struct dev_node *dev_node;
 	struct pld_context *pld_context;
 	unsigned long flags;
+=======
+	struct dev_node *dev_node, *tmp;
+	struct pld_context *pld_context;
+	unsigned long flags;
+	LIST_HEAD(dev_list);
+>>>>>>> Stashed changes
 
 	pld_context = pld_ctx;
 	if (!pld_context) {
@@ -99,6 +110,7 @@ void pld_deinit(void)
 		return;
 	}
 
+<<<<<<< Updated upstream
 	spin_lock_irqsave(&pld_context->pld_lock, flags);
 	while (!list_empty(&pld_context->dev_list)) {
 		dev_node = list_first_entry(&pld_context->dev_list,
@@ -107,6 +119,14 @@ void pld_deinit(void)
 		kfree(dev_node);
 	}
 	spin_unlock_irqrestore(&pld_context->pld_lock, flags);
+=======
+	raw_spin_lock_irqsave(&pld_context->pld_lock, flags);
+	list_splice_tail_init(&pld_context->dev_list, &dev_list);
+	raw_spin_unlock_irqrestore(&pld_context->pld_lock, flags);
+
+	list_for_each_entry_safe(dev_node, tmp, &dev_list, list)
+		kfree(dev_node);
+>>>>>>> Stashed changes
 
 	kfree(pld_context);
 
@@ -148,9 +168,15 @@ int pld_add_dev(struct pld_context *pld_context,
 	dev_node->ifdev = ifdev;
 	dev_node->bus_type = type;
 
+<<<<<<< Updated upstream
 	spin_lock_irqsave(&pld_context->pld_lock, flags);
 	list_add_tail(&dev_node->list, &pld_context->dev_list);
 	spin_unlock_irqrestore(&pld_context->pld_lock, flags);
+=======
+	raw_spin_lock_irqsave(&pld_context->pld_lock, flags);
+	list_add_tail(&dev_node->list, &pld_context->dev_list);
+	raw_spin_unlock_irqrestore(&pld_context->pld_lock, flags);
+>>>>>>> Stashed changes
 
 	return 0;
 }
@@ -167,6 +193,7 @@ void pld_del_dev(struct pld_context *pld_context,
 {
 	unsigned long flags;
 	struct dev_node *dev_node, *tmp;
+<<<<<<< Updated upstream
 
 	spin_lock_irqsave(&pld_context->pld_lock, flags);
 	list_for_each_entry_safe(dev_node, tmp, &pld_context->dev_list, list) {
@@ -176,6 +203,19 @@ void pld_del_dev(struct pld_context *pld_context,
 		}
 	}
 	spin_unlock_irqrestore(&pld_context->pld_lock, flags);
+=======
+	LIST_HEAD(dev_list);
+
+	raw_spin_lock_irqsave(&pld_context->pld_lock, flags);
+	list_for_each_entry_safe(dev_node, tmp, &pld_context->dev_list, list) {
+		if (dev_node->dev == dev)
+			list_move(&dev_node->list, &dev_list);
+	}
+	raw_spin_unlock_irqrestore(&pld_context->pld_lock, flags);
+
+	list_for_each_entry_safe(dev_node, tmp, &dev_list, list)
+		kfree(dev_node);
+>>>>>>> Stashed changes
 }
 
 static struct dev_node *pld_get_dev_node(struct device *dev)
@@ -192,6 +232,7 @@ static struct dev_node *pld_get_dev_node(struct device *dev)
 		return NULL;
 	}
 
+<<<<<<< Updated upstream
 	spin_lock_irqsave(&pld_context->pld_lock, flags);
 	list_for_each_entry(dev_node, &pld_context->dev_list, list) {
 		if (dev_node->dev == dev) {
@@ -200,6 +241,16 @@ static struct dev_node *pld_get_dev_node(struct device *dev)
 		}
 	}
 	spin_unlock_irqrestore(&pld_context->pld_lock, flags);
+=======
+	raw_spin_lock_irqsave(&pld_context->pld_lock, flags);
+	list_for_each_entry(dev_node, &pld_context->dev_list, list) {
+		if (dev_node->dev == dev) {
+			raw_spin_unlock_irqrestore(&pld_context->pld_lock, flags);
+			return dev_node;
+		}
+	}
+	raw_spin_unlock_irqrestore(&pld_context->pld_lock, flags);
+>>>>>>> Stashed changes
 
 	return NULL;
 }
@@ -661,6 +712,37 @@ void pld_is_pci_link_down(struct device *dev)
 }
 
 /**
+<<<<<<< Updated upstream
+=======
+ * pld_get_bus_reg_dump() - Get bus reg dump
+ * @dev: device
+ * @buffer: buffer for hang data
+ * @len: len of hang data
+ *
+ * Get pci reg dump for hang data.
+ *
+ * Return: void
+ */
+void pld_get_bus_reg_dump(struct device *dev, uint8_t *buf, uint32_t len)
+{
+	switch (pld_get_bus_type(dev)) {
+	case PLD_BUS_TYPE_PCIE_FW_SIM:
+		break;
+	case PLD_BUS_TYPE_PCIE:
+		pld_pcie_get_reg_dump(dev, buf, len);
+		break;
+	case PLD_BUS_TYPE_SNOC_FW_SIM:
+	case PLD_BUS_TYPE_SNOC:
+	case PLD_BUS_TYPE_IPCI:
+		break;
+	default:
+		pr_err("Invalid device type\n");
+		break;
+	}
+}
+
+/**
+>>>>>>> Stashed changes
  * pld_schedule_recovery_work() - Schedule recovery work
  * @dev: device
  * @reason: recovery reason
@@ -2100,6 +2182,10 @@ int pld_pci_read_config_word(struct pci_dev *pdev, int offset, uint16_t *val)
 	case PLD_BUS_TYPE_SNOC_FW_SIM:
 		break;
 	case PLD_BUS_TYPE_PCIE_FW_SIM:
+<<<<<<< Updated upstream
+=======
+		ret = pld_pcie_fw_sim_read_config_word(&pdev->dev, offset, val);
+>>>>>>> Stashed changes
 		break;
 	case PLD_BUS_TYPE_IPCI:
 		break;
@@ -2690,6 +2776,7 @@ int pld_idle_shutdown(struct device *dev,
 
 	type = pld_get_bus_type(dev);
 	switch (type) {
+<<<<<<< Updated upstream
 		case PLD_BUS_TYPE_SDIO:
 		case PLD_BUS_TYPE_USB:
 		case PLD_BUS_TYPE_SNOC:
@@ -2710,6 +2797,30 @@ int pld_idle_shutdown(struct device *dev,
 		default:
 			pr_err("Invalid device type %d\n", type);
 			break;
+=======
+	case PLD_BUS_TYPE_SDIO:
+	case PLD_BUS_TYPE_USB:
+		errno = shutdown_cb(dev);
+		break;
+	case PLD_BUS_TYPE_SNOC:
+		errno = pld_snoc_idle_shutdown(dev);
+		break;
+	case PLD_BUS_TYPE_PCIE:
+		errno = pld_pcie_idle_shutdown(dev);
+		break;
+	case PLD_BUS_TYPE_PCIE_FW_SIM:
+		errno = pld_pcie_fw_sim_idle_shutdown(dev);
+		break;
+	case PLD_BUS_TYPE_SNOC_FW_SIM:
+		errno = pld_snoc_fw_sim_idle_shutdown(dev);
+		break;
+	case PLD_BUS_TYPE_IPCI:
+		errno = pld_ipci_idle_shutdown(dev);
+		break;
+	default:
+		pr_err("Invalid device type %d\n", type);
+		break;
+>>>>>>> Stashed changes
 	}
 
 	return errno;
@@ -2726,6 +2837,7 @@ int pld_idle_restart(struct device *dev,
 
 	type = pld_get_bus_type(dev);
 	switch (type) {
+<<<<<<< Updated upstream
 		case PLD_BUS_TYPE_SDIO:
 		case PLD_BUS_TYPE_USB:
 		case PLD_BUS_TYPE_SNOC:
@@ -2746,6 +2858,30 @@ int pld_idle_restart(struct device *dev,
 		default:
 			pr_err("Invalid device type %d\n", type);
 			break;
+=======
+	case PLD_BUS_TYPE_SDIO:
+	case PLD_BUS_TYPE_USB:
+		errno = restart_cb(dev);
+		break;
+	case PLD_BUS_TYPE_SNOC:
+		errno = pld_snoc_idle_restart(dev);
+		break;
+	case PLD_BUS_TYPE_PCIE:
+		errno = pld_pcie_idle_restart(dev);
+		break;
+	case PLD_BUS_TYPE_PCIE_FW_SIM:
+		errno = pld_pcie_fw_sim_idle_restart(dev);
+		break;
+	case PLD_BUS_TYPE_SNOC_FW_SIM:
+		errno = pld_snoc_fw_sim_idle_restart(dev);
+		break;
+	case PLD_BUS_TYPE_IPCI:
+		errno = pld_ipci_idle_restart(dev);
+		break;
+	default:
+		pr_err("Invalid device type %d\n", type);
+		break;
+>>>>>>> Stashed changes
 	}
 
 	return errno;

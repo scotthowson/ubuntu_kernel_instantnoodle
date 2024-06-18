@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
+<<<<<<< Updated upstream
  * fs/verity/enable.c: ioctl to enable verity on a file
+=======
+ * Ioctl to enable verity on a file
+>>>>>>> Stashed changes
  *
  * Copyright 2019 Google LLC
  */
@@ -10,7 +14,10 @@
 #include <crypto/hash.h>
 #include <linux/backing-dev.h>
 #include <linux/mount.h>
+<<<<<<< Updated upstream
 #include <linux/pagemap.h>
+=======
+>>>>>>> Stashed changes
 #include <linux/sched/signal.h>
 #include <linux/uaccess.h>
 
@@ -329,6 +336,11 @@ rollback:
 
 /**
  * fsverity_ioctl_enable() - enable verity on a file
+<<<<<<< Updated upstream
+=======
+ * @filp: file to enable verity on
+ * @uarg: user pointer to fsverity_enable_arg
+>>>>>>> Stashed changes
  *
  * Enable fs-verity on a file.  See the "FS_IOC_ENABLE_VERITY" section of
  * Documentation/filesystems/fsverity.rst for the documentation.
@@ -389,25 +401,38 @@ int fsverity_ioctl_enable(struct file *filp, const void __user *uarg)
 		goto out_drop_write;
 
 	err = enable_verity(filp, &arg);
+<<<<<<< Updated upstream
 	if (err)
 		goto out_allow_write_access;
+=======
+>>>>>>> Stashed changes
 
 	/*
 	 * Some pages of the file may have been evicted from pagecache after
 	 * being used in the Merkle tree construction, then read into pagecache
 	 * again by another process reading from the file concurrently.  Since
+<<<<<<< Updated upstream
 	 * these pages didn't undergo verification against the file measurement
 	 * which fs-verity now claims to be enforcing, we have to wipe the
 	 * pagecache to ensure that all future reads are verified.
 	 */
 	filemap_write_and_wait(inode->i_mapping);
 	invalidate_inode_pages2(inode->i_mapping);
+=======
+	 * these pages didn't undergo verification against the file digest which
+	 * fs-verity now claims to be enforcing, we have to wipe the pagecache
+	 * to ensure that all future reads are verified.
+	 */
+>>>>>>> Stashed changes
 
 	/*
 	 * allow_write_access() is needed to pair with deny_write_access().
 	 * Regardless, the filesystem won't allow writing to verity files.
 	 */
+<<<<<<< Updated upstream
 out_allow_write_access:
+=======
+>>>>>>> Stashed changes
 	allow_write_access(filp);
 out_drop_write:
 	mnt_drop_write_file(filp);

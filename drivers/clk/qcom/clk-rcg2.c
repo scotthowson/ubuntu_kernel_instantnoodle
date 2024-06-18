@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
+<<<<<<< Updated upstream
  * Copyright (c) 2013, 2018-2020, The Linux Foundation. All rights reserved.
+=======
+ * Copyright (c) 2013, 2018-2021, The Linux Foundation. All rights reserved.
+>>>>>>> Stashed changes
  */
 
 #include <linux/kernel.h>
@@ -327,6 +331,10 @@ static int _determine_parent_and_update_div(struct clk_hw *hw,
 	u32 old_cfg, cfg, mask, regval;
 	int ret, curr_src_index, next_src_index;
 
+<<<<<<< Updated upstream
+=======
+	/* Get the current parent for the current frequency */
+>>>>>>> Stashed changes
 	f_curr = qcom_find_freq(rcg->freq_tbl, rcg->current_freq);
 	if (!f_curr)
 		return -EINVAL;
@@ -344,10 +352,18 @@ static int _determine_parent_and_update_div(struct clk_hw *hw,
 	if (next_src_index < 0)
 		return next_src_index;
 
+<<<<<<< Updated upstream
+=======
+	/* Slew PLL and  no update in RCG is required. */
+>>>>>>> Stashed changes
 	if ((curr_parent == next_parent) && (f->pre_div == f_curr->pre_div))
 		return 0;
 
 	if (curr_parent == next_parent || curr_parent != next_parent) {
+<<<<<<< Updated upstream
+=======
+		/* Read back the old configuration */
+>>>>>>> Stashed changes
 		regmap_read(rcg->clkr.regmap, rcg->cmd_rcgr + CFG_REG,
 				&old_cfg);
 
@@ -503,7 +519,7 @@ static bool clk_rcg2_current_config(struct clk_rcg2 *rcg,
 
 static int __clk_rcg2_configure(struct clk_rcg2 *rcg, const struct freq_tbl *f)
 {
-	u32 cfg, mask;
+	u32 cfg, mask, d_val, not2d_val, n_minus_m;
 	struct clk_hw *hw = &rcg->clkr.hw;
 	int ret, index = qcom_find_src_index(hw, rcg->parent_map, f->src);
 
@@ -522,8 +538,17 @@ static int __clk_rcg2_configure(struct clk_rcg2 *rcg, const struct freq_tbl *f)
 		if (ret)
 			return ret;
 
+		/* Calculate 2d value */
+		d_val = f->n;
+
+		n_minus_m = f->n - f->m;
+		n_minus_m *= 2;
+
+		d_val = clamp_t(u32, d_val, f->m, n_minus_m);
+		not2d_val = ~d_val & mask;
+
 		ret = regmap_update_bits(rcg->clkr.regmap,
-				rcg->cmd_rcgr + D_REG, mask, ~f->n);
+				rcg->cmd_rcgr + D_REG, mask, not2d_val);
 		if (ret)
 			return ret;
 	}
@@ -1099,6 +1124,7 @@ static const struct frac_entry frac_table_pixel[] = {
 	{ 2, 9 },
 	{ 4, 9 },
 	{ 1, 1 },
+	{ 2, 3 },
 	{ }
 };
 
@@ -1392,7 +1418,23 @@ static int clk_gfx3d_src_set_rate_and_parent(struct clk_hw *hw,
 	if (ret)
 		return ret;
 
+<<<<<<< Updated upstream
 	return update_config(rcg, old_cfg);
+=======
+	if ((!clk_rcg2_is_force_enabled(hw) && (!clk_hw_is_prepared(hw)
+		|| !clk_hw_is_enabled(hw))))
+		clk_rcg2_set_force_enable(hw);
+
+	ret = update_config(rcg, old_cfg);
+	if (ret)
+		return ret;
+
+	if ((clk_rcg2_is_force_enabled(hw) && (!clk_hw_is_prepared(hw)
+		|| !clk_hw_is_enabled(hw))))
+		clk_rcg2_clear_force_enable(hw);
+
+	return ret;
+>>>>>>> Stashed changes
 }
 
 static int clk_gfx3d_src_determine_rate(struct clk_hw *hw,

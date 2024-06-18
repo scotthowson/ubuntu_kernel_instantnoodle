@@ -44,8 +44,11 @@
 #define APP_TYPE_CONFIG_IDX_SAMPLE_RATE 2
 #define APP_TYPE_CONFIG_IDX_BE_ID 3
 
+<<<<<<< Updated upstream
 static DEFINE_MUTEX(transcode_loopback_session_lock);
 
+=======
+>>>>>>> Stashed changes
 struct msm_transcode_audio_effects {
 	struct bass_boost_params bass_boost;
 	struct pbe_params pbe;

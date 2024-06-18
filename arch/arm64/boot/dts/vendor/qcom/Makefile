@@ -4,24 +4,36 @@ ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY_NOT_OEM),y)
                 kona-cdp-lcd-overlay.dtbo \
                 kona-mtp-overlay.dtbo \
                 kona-mtp-ws-overlay.dtbo \
+<<<<<<< Updated upstream
 		kona-sa-mtp-overlay.dtbo \
+=======
+>>>>>>> Stashed changes
                 kona-xr-overlay.dtbo \
                 kona-rumi-overlay.dtbo \
                 kona-qrd-overlay.dtbo \
 		kona-xrfusion-overlay.dtbo \
+<<<<<<< Updated upstream
 		kona-xrfusion-ult-overlay.dtbo \
+=======
+>>>>>>> Stashed changes
                 kona-hdk-overlay.dtbo
 
 kona-cdp-overlay.dtbo-base := kona.dtb kona-v2.dtb kona-v2.1.dtb
 kona-cdp-lcd-overlay.dtbo-base := kona.dtb kona-v2.dtb kona-v2.1.dtb
 kona-mtp-overlay.dtbo-base := kona.dtb kona-v2.dtb kona-v2.1.dtb
 kona-mtp-ws-overlay.dtbo-base := kona.dtb kona-v2.dtb kona-v2.1.dtb
+<<<<<<< Updated upstream
 kona-sa-mtp-overlay.dtbo-base := kona.dtb kona-v2.dtb kona-v2.1.dtb
+=======
+>>>>>>> Stashed changes
 kona-xr-overlay.dtbo-base := kona.dtb kona-v2.dtb kona-v2.1.dtb
 kona-rumi-overlay.dtbo-base := kona.dtb kona-v2.dtb kona-v2.1.dtb
 kona-qrd-overlay.dtbo-base := kona.dtb kona-v2.dtb kona-v2.1.dtb
 kona-xrfusion-overlay.dtbo-base := kona.dtb kona-v2.dtb kona-v2.1.dtb
+<<<<<<< Updated upstream
 kona-xrfusion-ult-overlay.dtbo-base := kona.dtb kona-v2.dtb kona-v2.1.dtb
+=======
+>>>>>>> Stashed changes
 kona-hdk-overlay.dtbo-base := kona.dtb kona-v2.dtb kona-v2.1.dtb
 else
 ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
@@ -36,8 +48,12 @@ ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
                 instantnoodlev-overlay-t0.dtbo \
                 instantnoodlev-overlay-evt1.dtbo \
                 instantnoodlev-overlay-dvt.dtbo \
+<<<<<<< Updated upstream
                 kebab-overlay.dtbo \
                 lemonades-overlay.dtbo
+=======
+                kebab-overlay.dtbo
+>>>>>>> Stashed changes
 
 instantnoodlep-overlay-evb.dtbo-base := kona.dtb kona-v2.dtb kona-v2.1.dtb
 instantnoodlep-overlay-t0.dtbo-base := kona.dtb kona-v2.dtb kona-v2.1.dtb
@@ -53,15 +69,23 @@ instantnoodlev-overlay-evt1.dtbo-base := kona.dtb kona-v2.dtb kona-v2.1.dtb
 instantnoodlev-overlay-dvt.dtbo-base := kona.dtb kona-v2.dtb kona-v2.1.dtb
 
 kebab-overlay.dtbo-base := kona.dtb kona-v2.dtb kona-v2.1.dtb
+<<<<<<< Updated upstream
 lemonades-overlay.dtbo-base := kona.dtb kona-v2.dtb kona-v2.1.dtb
+=======
+>>>>>>> Stashed changes
 else
 dtb-$(CONFIG_ARCH_KONA) += kona-rumi.dtb \
         kona-mtp.dtb \
         kona-mtp-ws.dtb \
+<<<<<<< Updated upstream
         kona-mtp-sa.dtb \
         kona-xr.dtb \
 	kona-xrfusion.dtb \
 	kona-xrfusion-ult.dtb \
+=======
+        kona-xr.dtb \
+	kona-xrfusion.dtb \
+>>>>>>> Stashed changes
         kona-cdp.dtb \
         kona-cdp-lcd.dtb \
         kona-qrd.dtb \
@@ -72,7 +96,10 @@ dtb-$(CONFIG_ARCH_KONA) += kona-rumi.dtb \
         kona-v2-cdp.dtb \
         kona-v2-qrd.dtb \
 	kona-v2-xrfusion.dtb \
+<<<<<<< Updated upstream
 	kona-v2-xrfusion-ult.dtb \
+=======
+>>>>>>> Stashed changes
         kona-hdk.dtb \
         kona-v2.1-mtp.dtb \
         kona-v2.1-mtp-ws.dtb \
@@ -81,12 +108,16 @@ dtb-$(CONFIG_ARCH_KONA) += kona-rumi.dtb \
         kona-v2.1-qrd.dtb \
         kona-v2.1-hdk.dtb \
 	kona-v2.1-xrfusion.dtb \
+<<<<<<< Updated upstream
 	kona-v2.1-xrfusion-ult.dtb \
+=======
+>>>>>>> Stashed changes
         qrb5165-iot-rb5.dtb \
         kona-v2.1-iot-rb5.dtb
 endif
 endif
 
+<<<<<<< Updated upstream
 ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
 dtbo-$(CONFIG_ARCH_LITO) += lito-rumi-overlay.dtbo \
                 lito-mtp-overlay.dtbo \
@@ -158,6 +189,9 @@ dtb-$(CONFIG_ARCH_LAGOON) += \
 		lagoon-atp.dtb \
 		lagoon-qrd.dtb
 endif
+=======
+
+>>>>>>> Stashed changes
 
 ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
         dtbo-$(CONFIG_ARCH_BENGAL) += \
@@ -170,6 +204,7 @@ ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
                 bengal-idp-2gb-overlay.dtbo \
                 bengal-idp-usbc-1gb-overlay.dtbo \
                 bengal-idp-usbc-2gb-overlay.dtbo \
+<<<<<<< Updated upstream
                 bengal-iot-idp-overlay.dtbo \
                 bengalp-iot-idp-overlay.dtbo \
                 bengal-iot-idp-2gb-overlay.dtbo \
@@ -178,6 +213,15 @@ ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
                 bengalp-iot-idp-2gb-overlay.dtbo \
                 bengalp-iot-idp-usbc-2gb-overlay.dtbo \
                 bengalp-iot-idp-usbc-overlay.dtbo
+=======
+                qcm4290-iot-idp-overlay.dtbo \
+                qcs4290-iot-idp-overlay.dtbo \
+                qcm4290-iot-idp-1gb-overlay.dtbo \
+                qcm4290-iot-idp-2gb-overlay.dtbo \
+                qcm4290-iot-idp-usbc-1gb-overlay.dtbo \
+                qcm4290-iot-idp-usbc-2gb-overlay.dtbo \
+                qcm4290-iot-idp-usbc-overlay.dtbo
+>>>>>>> Stashed changes
 
 bengal-rumi-overlay.dtbo-base := bengal.dtb
 bengal-qrd-overlay.dtbo-base := bengal.dtb
@@ -188,6 +232,7 @@ bengal-idp-1gb-overlay.dtbo-base := bengal-1gb.dtb
 bengal-idp-2gb-overlay.dtbo-base := bengal-2gb.dtb
 bengal-idp-usbc-1gb-overlay.dtbo-base := bengal-1gb.dtb
 bengal-idp-usbc-2gb-overlay.dtbo-base := bengal-2gb.dtb
+<<<<<<< Updated upstream
 bengal-iot-idp-overlay.dtbo-base := bengal-iot.dtb
 bengalp-iot-idp-overlay.dtbo-base := bengalp-iot.dtb
 bengal-iot-idp-2gb-overlay.dtbo-base := bengal-iot-2gb.dtb
@@ -196,6 +241,15 @@ bengal-iot-idp-usbc-overlay.dtbo-base := bengal-iot.dtb
 bengalp-iot-idp-2gb-overlay.dtbo-base := bengalp-iot-2gb.dtb
 bengalp-iot-idp-usbc-2gb-overlay.dtbo-base := bengalp-iot-2gb.dtb
 bengalp-iot-idp-usbc-overlay.dtbo-base := bengalp-iot.dtb
+=======
+qcm4290-iot-idp-overlay.dtbo-base := qcm4290.dtb
+qcs4290-iot-idp-overlay.dtbo-base := qcs4290.dtb
+qcm4290-iot-idp-1gb-overlay.dtbo-base := qcm4290-iot-1gb.dtb
+qcm4290-iot-idp-2gb-overlay.dtbo-base := qcm4290-iot-2gb.dtb
+qcm4290-iot-idp-usbc-1gb-overlay.dtbo-base := qcm4290-iot-1gb.dtb
+qcm4290-iot-idp-usbc-2gb-overlay.dtbo-base := qcm4290-iot-2gb.dtb
+qcm4290-iot-idp-usbc-overlay.dtbo-base := qcm4290.dtb
+>>>>>>> Stashed changes
 else
 dtb-$(CONFIG_ARCH_BENGAL) += bengal-rumi.dtb \
                 bengal-qrd.dtb \
@@ -206,6 +260,7 @@ dtb-$(CONFIG_ARCH_BENGAL) += bengal-rumi.dtb \
 		bengal-idp-2gb.dtb \
 		bengal-idp-usbc-1gb.dtb \
 		bengal-idp-usbc-2gb.dtb \
+<<<<<<< Updated upstream
 		bengal-iot-idp.dtb \
 		bengalp-iot-idp.dtb \
 		bengal-iot-idp-2gb.dtb \
@@ -214,6 +269,15 @@ dtb-$(CONFIG_ARCH_BENGAL) += bengal-rumi.dtb \
 		bengalp-iot-idp-2gb.dtb \
 		bengalp-iot-idp-usbc-2gb.dtb \
 		bengalp-iot-idp-usbc.dtb
+=======
+		qcm4290-iot-idp.dtb \
+		qcs4290-iot-idp.dtb \
+		qcm4290-iot-idp-1gb.dtb \
+		qcm4290-iot-idp-2gb.dtb \
+		qcm4290-iot-idp-usbc-1gb.dtb \
+		qcm4290-iot-idp-usbc-2gb.dtb \
+		qcm4290-iot-idp-usbc.dtb
+>>>>>>> Stashed changes
 endif
 
 ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
@@ -222,21 +286,28 @@ ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
 		scuba-idp-overlay.dtbo \
 		scuba-idp-usbc-overlay.dtbo \
 		scuba-qrd-eldo-overlay.dtbo \
+<<<<<<< Updated upstream
 		scuba-qrd-non-eldo-overlay.dtbo \
 		scuba-iot-idp-overlay.dtbo \
 		scuba-iot-idp-usbc-overlay.dtbo \
 		scuba-iot-qrd-eldo-overlay.dtbo \
 		scuba-iot-qrd-non-eldo-overlay.dtbo
+=======
+		scuba-qrd-non-eldo-overlay.dtbo
+>>>>>>> Stashed changes
 
 scuba-rumi-overlay.dtbo-base := scuba.dtb scubap.dtb scuba-2gb.dtb
 scuba-idp-overlay.dtbo-base := scuba.dtb scubap.dtb scuba-2gb.dtb
 scuba-qrd-eldo-overlay.dtbo-base := scuba.dtb scubap.dtb scuba-2gb.dtb
 scuba-qrd-non-eldo-overlay.dtbo-base := scuba.dtb scubap.dtb scuba-2gb.dtb
 scuba-idp-usbc-overlay.dtbo-base := scuba.dtb scubap.dtb scuba-2gb.dtb
+<<<<<<< Updated upstream
 scuba-iot-idp-overlay.dtbo-base := scuba-iot.dtb scubap-iot.dtb scuba-iot-2gb.dtb
 scuba-iot-qrd-eldo-overlay.dtbo-base := scuba-iot.dtb scubap-iot.dtb scuba-iot-2gb.dtb
 scuba-iot-qrd-non-eldo-overlay.dtbo-base := scuba-iot.dtb scubap-iot.dtb scuba-iot-2gb.dtb
 scuba-iot-idp-usbc-overlay.dtbo-base := scuba-iot.dtb scubap-iot.dtb scuba-iot-2gb.dtb
+=======
+>>>>>>> Stashed changes
 else
 dtb-$(CONFIG_ARCH_SCUBA) += scuba-rumi.dtb \
 	scuba-idp.dtb \
@@ -246,6 +317,7 @@ dtb-$(CONFIG_ARCH_SCUBA) += scuba-rumi.dtb \
 	scubap-idp.dtb \
 	scubap-idp-2gb.dtb \
 	scuba-idp-2gb.dtb \
+<<<<<<< Updated upstream
 	scuba-idp-usbc-2gb.dtb \
 	scuba-iot-idp.dtb \
 	scuba-iot-idp-usbc.dtb \
@@ -319,6 +391,9 @@ sdm660-internal-codec-cdp.dtb \
         sdm660-pm660a-headset-jacktype-no-rcm.dtb \
         sdm660-usbc-audio-mtp.dtb \
         sdm660-usbc-audio-rcm.dtb
+=======
+	scuba-idp-usbc-2gb.dtb
+>>>>>>> Stashed changes
 endif
 
 always		:= $(dtb-y)

@@ -73,8 +73,12 @@ bool __refrigerator(bool check_kthr_stop)
 		spin_lock_irq(&freezer_lock);
 		current->flags |= PF_FROZEN;
 		if (!freezing(current) ||
+<<<<<<< Updated upstream
 			(check_kthr_stop && kthread_should_stop()) ||
 			current->kill_flag)
+=======
+		    (check_kthr_stop && kthread_should_stop()))
+>>>>>>> Stashed changes
 			current->flags &= ~PF_FROZEN;
 		spin_unlock_irq(&freezer_lock);
 
@@ -107,6 +111,7 @@ static void fake_signal_wake_up(struct task_struct *p)
 	}
 }
 
+<<<<<<< Updated upstream
 bool freeze_cgroup_task(struct task_struct *p)
 {
 	unsigned long flags;
@@ -126,6 +131,8 @@ bool freeze_cgroup_task(struct task_struct *p)
 	return true;
 }
 
+=======
+>>>>>>> Stashed changes
 /**
  * freeze_task - send a freeze request to given task
  * @p: task to send the request to

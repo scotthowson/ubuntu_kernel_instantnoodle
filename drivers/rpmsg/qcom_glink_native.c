@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (c) 2016-2017, Linaro Ltd
+<<<<<<< Updated upstream
  * Copyright (c) 2018-2020, The Linux Foundation. All rights reserved.
+=======
+ * Copyright (c) 2018-2021, The Linux Foundation. All rights reserved.
+>>>>>>> Stashed changes
  */
 
 #include <linux/idr.h>
@@ -41,12 +45,20 @@ do {									     \
 			       ch->lcid, ch->rcid, __func__, ##__VA_ARGS__); \
 } while (0)
 
-
 #define GLINK_ERR(ctxt, x, ...)						  \
 do {									  \
 	pr_err_ratelimited("[%s]: "x, __func__, ##__VA_ARGS__);		  \
 	if (ctxt)							  \
 		ipc_log_string(ctxt, "[%s]: "x, __func__, ##__VA_ARGS__); \
+
+#define CH_ERR(ch, x, ...)						     \
+do {									     \
+	if (ch->glink) {						     \
+		ipc_log_string(ch->glink->ilc, "%s[%d:%d] %s: "x, ch->name,  \
+			       ch->lcid, ch->rcid, __func__, ##__VA_ARGS__); \
+		dev_err_ratelimited(ch->glink->dev, "[%s]: "x, __func__,     \
+							##__VA_ARGS__);      \
+	}								     \
 } while (0)
 
 #define GLINK_NAME_SIZE		32
@@ -273,6 +285,10 @@ static struct glink_channel *qcom_glink_alloc_channel(struct qcom_glink *glink,
 
 	channel->glink = glink;
 	channel->name = kstrdup(name, GFP_KERNEL);
+	if (!channel->name) {
+		kfree(channel);
+		return ERR_PTR(-ENOMEM);
+	}
 
 	init_completion(&channel->open_req);
 	init_completion(&channel->open_ack);
@@ -1030,6 +1046,7 @@ static int qcom_glink_rx_data(struct qcom_glink *glink, size_t avail)
 			dev_err(glink->dev,
 				"no intent found for channel %s intent %d",
 				channel->name, liid);
+			ret = -ENOENT;
 			goto advance_rx;
 		}
 	}
@@ -1054,12 +1071,23 @@ static int qcom_glink_rx_data(struct qcom_glink *glink, size_t avail)
 					intent->offset,
 					channel->ept.priv,
 					RPMSG_ADDR_ANY);
+<<<<<<< Updated upstream
 			if (ret < 0)
 				CH_INFO(channel,
 					"glink:callback error ret = %d\n", ret);
 		} else {
 			CH_INFO(channel, "callback not present\n");
 			dev_err(glink->dev, "glink:callback not present\n");
+=======
+
+			if (ret < 0 && ret != -ENODEV) {
+				CH_ERR(channel,
+					"callback error ret = %d\n", ret);
+				ret = 0;
+			}
+		} else {
+			CH_ERR(channel, "callback not present\n");
+>>>>>>> Stashed changes
 		}
 		spin_unlock(&channel->recv_lock);
 
@@ -1107,6 +1135,7 @@ static void qcom_glink_handle_intent(struct qcom_glink *glink,
 	spin_unlock_irqrestore(&glink->idr_lock, flags);
 	if (!channel) {
 		dev_err(glink->dev, "intents for non-existing channel\n");
+		qcom_glink_rx_advance(glink, ALIGN(msglen, 8));
 		return;
 	}
 
@@ -1804,7 +1833,7 @@ static void qcom_glink_rx_close(struct qcom_glink *glink, unsigned int rcid)
 	kthread_cancel_work_sync(&channel->intent_work);
 
 	if (channel->rpdev) {
-		strlcpy(chinfo.name, channel->name, sizeof(chinfo.name));
+		strscpy_pad(chinfo.name, channel->name, sizeof(chinfo.name));
 		chinfo.src = RPMSG_ADDR_ANY;
 		chinfo.dst = RPMSG_ADDR_ANY;
 
@@ -2007,6 +2036,7 @@ static void qcom_glink_cancel_rx_work(struct qcom_glink *glink)
 	list_for_each_entry_safe(dcmd, tmp, &glink->rx_queue, node)
 		kfree(dcmd);
 }
+<<<<<<< Updated upstream
 
 /* Modify for glink name */
 struct g_sub_name {
@@ -2019,6 +2049,8 @@ struct g_sub_name {
 	{"modem", "glink-modem"},
 	{"npu", "glink-npu"},
 };
+=======
+>>>>>>> Stashed changes
 
 struct qcom_glink *qcom_glink_native_probe(struct device *dev,
 					   unsigned long features,
@@ -2031,8 +2063,6 @@ struct qcom_glink *qcom_glink_native_probe(struct device *dev,
 	int size;
 	int irq;
 	int ret;
-	/* Modify for glink name */
-	int i;
 
 	glink = devm_kzalloc(dev, sizeof(*glink), GFP_KERNEL);
 	if (!glink)
@@ -2095,6 +2125,7 @@ struct qcom_glink *qcom_glink_native_probe(struct device *dev,
 	if (ret) {
 		dev_err(dev, "failed to request IRQ\n");
 		goto unregister;
+<<<<<<< Updated upstream
 	}
 
 	/* Modify for glink name */
@@ -2110,6 +2141,8 @@ struct qcom_glink *qcom_glink_native_probe(struct device *dev,
 			}
 			break;
 		}
+=======
+>>>>>>> Stashed changes
 	}
 	glink->irq = irq;
 

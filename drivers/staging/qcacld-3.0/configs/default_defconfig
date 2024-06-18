@@ -46,6 +46,10 @@ ifeq ($(CONFIG_CNSS_QCA6490), y)
 	CONFIG_HASTINGS_BT_WAR := y
 	CONFIG_WDI3_IPA_OVER_GSI :=y
 	CONFIG_GENERIC_SHADOW_REGISTER_ACCESS_ENABLE :=y
+<<<<<<< Updated upstream
+=======
+	CONFIG_DUMP_REO_QUEUE_INFO_IN_DDR :=y
+>>>>>>> Stashed changes
 endif
 
 ifeq ($(CONFIG_CNSS_QCA6750), y)
@@ -103,7 +107,10 @@ ifeq ($(CONFIG_ICNSS), y)
 	CONFIG_HELIUMPLUS := y
 	CONFIG_64BIT_PADDR := y
 	CONFIG_FEATURE_TSO := y
+<<<<<<< Updated upstream
 	CONFIG_FEATURE_TSO_DEBUG := y
+=======
+>>>>>>> Stashed changes
 	ifeq ($(CONFIG_INET_LRO), y)
 		CONFIG_WLAN_LRO := y
 	else
@@ -113,7 +120,11 @@ endif
 
 ifneq ($(DEVELOPER_DISABLE_BUILD_TIMESTAMP), y)
 ifneq ($(WLAN_DISABLE_BUILD_TAG), y)
+<<<<<<< Updated upstream
 CONFIG_BUILD_TAG := y
+=======
+CONFIG_BUILD_TAG := n
+>>>>>>> Stashed changes
 endif
 endif
 
@@ -202,6 +213,10 @@ endif
 
 ifeq ($(CONFIG_ARCH_SM8150), y)
 CONFIG_QCACLD_FEATURE_METERING := y
+<<<<<<< Updated upstream
+=======
+CONFIG_DYNAMIC_RX_AGGREGATION := y
+>>>>>>> Stashed changes
 endif
 
 ifeq ($(CONFIG_HELIUMPLUS), y)
@@ -396,6 +411,10 @@ endif #CONFIG_HELIUMPLUS
 
 ifeq ($(CONFIG_LITHIUM), y)
 CONFIG_RX_DEFRAG_DO_NOT_REINJECT := y
+<<<<<<< Updated upstream
+=======
+CONFIG_IPA_SET_RESET_TX_DB_PA := y
+>>>>>>> Stashed changes
 #
 # Enable Shadow V2 for all lithium platform
 #
@@ -428,6 +447,12 @@ CONFIG_VERBOSE_DEBUG := y
 CONFIG_RX_DESC_SANITY_WAR := y
 ifeq ($(CONFIG_PCI_MSM), y)
 	CONFIG_FEATURE_HAL_DELAYED_REG_WRITE := y
+<<<<<<< Updated upstream
+=======
+ifeq ($(CONFIG_CNSS_QCA6390), y)
+	CONFIG_SHADOW_WRITE_DELAY := y
+endif
+>>>>>>> Stashed changes
 endif
 endif
 
@@ -444,7 +469,11 @@ CONFIG_HTT_PADDR64 := y
 CONFIG_RX_OL := y
 CONFIG_TX_TID_OVERRIDE := y
 CONFIG_DP_TXRX_SOC_ATTACH := y
+<<<<<<< Updated upstream
 CONFIG_WLAN_CLD_PM_QOS := y
+=======
+CONFIG_WLAN_CLD_PM_QOS := n
+>>>>>>> Stashed changes
 CONFIG_DISABLE_DP_STATS := n
 CONFIG_MAX_ALLOC_PAGE_SIZE := y
 CONFIG_REO_DESC_DEFER_FREE := y
@@ -454,7 +483,10 @@ CONFIG_DP_MEM_PRE_ALLOC := y
 
 ifeq ($(CONFIG_FEATURE_TSO), y)
 	CONFIG_FEATURE_TSO_STATS := y
+<<<<<<< Updated upstream
 	CONFIG_TSO_DEBUG_LOG_ENABLE := y
+=======
+>>>>>>> Stashed changes
 endif
 
 ifeq ($(CONFIG_DISABLE_DP_STATS), y)
@@ -531,9 +563,12 @@ CONFIG_WLAN_LOG_FATAL := y
 CONFIG_WLAN_LOG_ERROR := y
 CONFIG_WLAN_LOG_WARN := y
 CONFIG_WLAN_LOG_INFO := y
+<<<<<<< Updated upstream
 CONFIG_WLAN_LOG_DEBUG := y
 CONFIG_WLAN_LOG_ENTER := y
 CONFIG_WLAN_LOG_EXIT := y
+=======
+>>>>>>> Stashed changes
 
 #Enable OL debug and wmi unified functions
 CONFIG_ATH_PERF_PWR_OFFLOAD := y
@@ -795,24 +830,36 @@ CONFIG_FEATURE_HTC_CREDIT_HISTORY := y
 #Flag to enable MTRACE feature
 CONFIG_TRACE_RECORD_FEATURE := y
 
+<<<<<<< Updated upstream
 #Flag to enable p2p debug feature
 CONFIG_WLAN_FEATURE_P2P_DEBUG := y
 
 #Flag to enable roam debug log
 CONFIG_FEATURE_ROAM_DEBUG := y
 
+=======
+>>>>>>> Stashed changes
 #Flag to enable DFS Master feature
 CONFIG_WLAN_DFS_MASTER_ENABLE := y
 
 #Flag to enable WEXT support for STA/AP/P2P interfaces
 CONFIG_WLAN_WEXT_SUPPORT_ENABLE := y
 
+<<<<<<< Updated upstream
 #Flag to enable/disable MTRACE feature
 CONFIG_ENABLE_MTRACE_LOG := y
 
 #Flag to enable nud tracking feature
 CONFIG_WLAN_NUD_TRACKING := y
 
+=======
+#Flag to enable nud tracking feature
+CONFIG_WLAN_NUD_TRACKING := y
+
+#Flag to enable/Disable Function call trace
+CONFIG_FUNC_CALL_MAP := n
+
+>>>>>>> Stashed changes
 #Flag to enable wbuff feature
 CONFIG_WLAN_WBUFF := y
 
@@ -852,9 +899,12 @@ CONFIG_FEATURE_WLAN_WAPI := y
 
 CONFIG_AGEIE_ON_SCAN_RESULTS := y
 
+<<<<<<< Updated upstream
 #Flag to enable FW log parsing support feature
 CONFIG_FEATURE_FW_LOG_PARSING := y
 
+=======
+>>>>>>> Stashed changes
 CONFIG_PTT_SOCK_SVC_ENABLE := y
 CONFIG_SOFTAP_CHANNEL_RANGE := y
 CONFIG_FEATURE_WLAN_SCAN_PNO := y
@@ -947,7 +997,10 @@ ifeq ($(CONFIG_LITHIUM), y)
 		CONFIG_WLAN_FEATURE_DP_RX_RING_HISTORY := y
 		CONFIG_ALLOW_PKT_DROPPING := y
 	endif
+<<<<<<< Updated upstream
 	CONFIG_DYNAMIC_RX_AGGREGATION := y
+=======
+>>>>>>> Stashed changes
 	CONFIG_RX_DESC_DEBUG_CHECK:= y
 	CONFIG_WLAN_SUPPORT_DATA_STALL := y
 	CONFIG_WLAN_DP_PER_RING_TYPE_CONFIG := y
@@ -955,11 +1008,17 @@ ifeq ($(CONFIG_LITHIUM), y)
 	#Enable WMI TX/RX over QMI
 	CONFIG_WMI_SEND_RECV_QMI := y
 	CONFIG_WLAN_DP_PENDING_MEM_FLUSH := y
+<<<<<<< Updated upstream
 endif
 
 #Flag to enable hdd memory dump feature
 CONFIG_FEATURE_MEMDUMP_ENABLE := y
 
+=======
+	CONFIG_DYNAMIC_RX_AGGREGATION := y
+endif
+
+>>>>>>> Stashed changes
 #Flag to enable/disable WLAN D0-WOW
 ifeq ($(CONFIG_PCI_MSM), y)
 ifeq ($(CONFIG_HIF_PCI), y)
@@ -1065,5 +1124,10 @@ endif
 
 CONFIG_WLAN_HANG_EVENT := y
 
+<<<<<<< Updated upstream
+=======
+CONFIG_FEATURE_GPIO_CFG := y
+
+>>>>>>> Stashed changes
 #Enable VDEV Response wakelock feature
 CONFIG_FEATURE_VDEV_RSP_WAKELOCK := y

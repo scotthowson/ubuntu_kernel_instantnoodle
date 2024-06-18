@@ -1,5 +1,9 @@
 /*
+<<<<<<< Updated upstream
  * Copyright (c) 2011, 2013-2017, 2019 The Linux Foundation. All rights reserved.
+=======
+ * Copyright (c) 2011, 2013-2017, 2019, 2021 The Linux Foundation. All rights reserved.
+>>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -37,6 +41,7 @@
 	} while (0)
 
 int ol_rx_pn_cmp24(union htt_rx_pn_t *new_pn,
+<<<<<<< Updated upstream
 		   union htt_rx_pn_t *old_pn, int is_unicast, int opmode)
 {
 	int rc = ((new_pn->pn24 & 0xffffff) <= (old_pn->pn24 & 0xffffff));
@@ -56,6 +61,38 @@ int ol_rx_pn_wapi_cmp(union htt_rx_pn_t *new_pn,
 {
 	int pn_is_replay = 0;
 
+=======
+		   union htt_rx_pn_t *old_pn, int is_unicast, int opmode,
+		   bool strict_chk)
+{
+	if (strict_chk)
+		return ((new_pn->pn24 & 0xffffff) - (old_pn->pn24 & 0xffffff)
+			!= 1);
+	else
+		return ((new_pn->pn24 & 0xffffff) <= (old_pn->pn24 & 0xffffff));
+}
+
+int ol_rx_pn_cmp48(union htt_rx_pn_t *new_pn,
+		   union htt_rx_pn_t *old_pn, int is_unicast, int opmode,
+		   bool strict_chk)
+{
+	if (strict_chk)
+		return ((new_pn->pn48 & 0xffffffffffffULL) -
+			(old_pn->pn48 & 0xffffffffffffULL) != 1);
+	else
+		return ((new_pn->pn48 & 0xffffffffffffULL) <=
+			(old_pn->pn48 & 0xffffffffffffULL));
+}
+
+int ol_rx_pn_wapi_cmp(union htt_rx_pn_t *new_pn,
+		      union htt_rx_pn_t *old_pn, int is_unicast, int opmode,
+		      bool strict_chk)
+{
+	int pn_is_replay = 0;
+
+	/* TODO Strick check for WAPI is not implemented*/
+
+>>>>>>> Stashed changes
 	if (new_pn->pn128[1] == old_pn->pn128[1])
 		pn_is_replay = (new_pn->pn128[0] <= old_pn->pn128[0]);
 	else
@@ -73,7 +110,11 @@ int ol_rx_pn_wapi_cmp(union htt_rx_pn_t *new_pn,
 qdf_nbuf_t
 ol_rx_pn_check_base(struct ol_txrx_vdev_t *vdev,
 		    struct ol_txrx_peer_t *peer,
+<<<<<<< Updated upstream
 		    unsigned int tid, qdf_nbuf_t msdu_list)
+=======
+		    unsigned int tid, qdf_nbuf_t msdu_list, bool strict_chk)
+>>>>>>> Stashed changes
 {
 	struct ol_txrx_pdev_t *pdev = vdev->pdev;
 	union htt_rx_pn_t *last_pn;
@@ -132,7 +173,11 @@ ol_rx_pn_check_base(struct ol_txrx_vdev_t *vdev,
 			pn_is_replay =
 				pdev->rx_pn[peer->security[index].sec_type].
 				cmp(&new_pn, last_pn, index == txrx_sec_ucast,
+<<<<<<< Updated upstream
 				    vdev->opmode);
+=======
+				    vdev->opmode, strict_chk);
+>>>>>>> Stashed changes
 		} else {
 			last_pn_valid = peer->tids_last_pn_valid[tid] = 1;
 		}
@@ -249,7 +294,11 @@ ol_rx_pn_check(struct ol_txrx_vdev_t *vdev,
 	       struct ol_txrx_peer_t *peer, unsigned int tid,
 	       qdf_nbuf_t msdu_list)
 {
+<<<<<<< Updated upstream
 	msdu_list = ol_rx_pn_check_base(vdev, peer, tid, msdu_list);
+=======
+	msdu_list = ol_rx_pn_check_base(vdev, peer, tid, msdu_list, false);
+>>>>>>> Stashed changes
 	ol_rx_fwd_check(vdev, peer, tid, msdu_list);
 }
 
@@ -258,7 +307,11 @@ ol_rx_pn_check_only(struct ol_txrx_vdev_t *vdev,
 		    struct ol_txrx_peer_t *peer,
 		    unsigned int tid, qdf_nbuf_t msdu_list)
 {
+<<<<<<< Updated upstream
 	msdu_list = ol_rx_pn_check_base(vdev, peer, tid, msdu_list);
+=======
+	msdu_list = ol_rx_pn_check_base(vdev, peer, tid, msdu_list, false);
+>>>>>>> Stashed changes
 	ol_rx_deliver(vdev, peer, tid, msdu_list);
 }
 

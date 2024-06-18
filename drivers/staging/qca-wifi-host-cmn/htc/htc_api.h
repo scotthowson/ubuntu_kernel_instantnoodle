@@ -1,5 +1,9 @@
 /*
+<<<<<<< Updated upstream
  * Copyright (c) 2013-2014, 2016-2020 The Linux Foundation. All rights reserved.
+=======
+ * Copyright (c) 2013-2014, 2016-2021 The Linux Foundation. All rights reserved.
+>>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -781,9 +785,29 @@ void htc_clear_bundle_stats(HTC_HANDLE HTCHandle);
 #ifdef FEATURE_RUNTIME_PM
 int htc_pm_runtime_get(HTC_HANDLE htc_handle);
 int htc_pm_runtime_put(HTC_HANDLE htc_handle);
+<<<<<<< Updated upstream
 #else
 static inline int htc_pm_runtime_get(HTC_HANDLE htc_handle) { return 0; }
 static inline int htc_pm_runtime_put(HTC_HANDLE htc_handle) { return 0; }
+=======
+
+/**
+ * htc_dec_return_runtime_cnt: Decrement htc runtime count
+ * @htc: HTC handle
+ *
+ * Return: value of runtime count after decrement
+ */
+int32_t htc_dec_return_runtime_cnt(HTC_HANDLE htc);
+#else
+static inline int htc_pm_runtime_get(HTC_HANDLE htc_handle) { return 0; }
+static inline int htc_pm_runtime_put(HTC_HANDLE htc_handle) { return 0; }
+
+static inline
+int32_t htc_dec_return_runtime_cnt(HTC_HANDLE htc)
+{
+	return -1;
+}
+>>>>>>> Stashed changes
 #endif
 
 /**
@@ -837,4 +861,22 @@ void htc_print_credit_history(HTC_HANDLE htc, uint32_t count,
 	print(print_priv, "HTC Credit History Feature is disabled");
 }
 #endif
+<<<<<<< Updated upstream
+=======
+
+#ifdef SYSTEM_PM_CHECK
+/**
+ * htc_system_resume() - Send out any pending WMI/HTT
+ *  messages pending in htc queues on system resume.
+ * @htc: HTC handle
+ *
+ * Return: None
+ */
+void htc_system_resume(HTC_HANDLE htc);
+#else
+static inline void htc_system_resume(HTC_HANDLE htc)
+{
+}
+#endif
+>>>>>>> Stashed changes
 #endif /* _HTC_API_H_ */

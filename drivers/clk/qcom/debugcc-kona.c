@@ -974,6 +974,7 @@ static struct clk_dummy measure_only_mccc_clk = {
 	},
 };
 
+<<<<<<< Updated upstream
 #if defined(CONFIG_CONTROL_CENTER) || defined(CONFIG_HOUSTON)
 int get_only_mccc_hw(struct clk_hw **hwptr)
 {
@@ -986,6 +987,8 @@ int get_only_mccc_hw(struct clk_hw **hwptr)
 }
 #endif
 
+=======
+>>>>>>> Stashed changes
 static struct clk_dummy measure_only_memnoc_clk = {
 	.rrate = 1000,
 	.hw.init = &(struct clk_init_data){

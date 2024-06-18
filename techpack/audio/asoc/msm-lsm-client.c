@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (c) 2013-2020, The Linux Foundation. All rights reserved.
+<<<<<<< Updated upstream
+=======
+ * Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
+>>>>>>> Stashed changes
  */
 #include <linux/init.h>
 #include <linux/err.h>
@@ -2112,6 +2116,10 @@ static int msm_lsm_ioctl_compat(struct snd_pcm_substream *substream,
 	case SNDRV_LSM_GET_MODULE_PARAMS_32: {
 		struct lsm_params_get_info_32 p_info_32, *param_info_rsp = NULL;
 		struct lsm_params_get_info *p_info = NULL;
+<<<<<<< Updated upstream
+=======
+		prtd->lsm_client->get_param_payload = NULL;
+>>>>>>> Stashed changes
 
 		memset(&p_info_32, 0 , sizeof(p_info_32));
 		if (!prtd->lsm_client->use_topology) {
@@ -2162,6 +2170,10 @@ static int msm_lsm_ioctl_compat(struct snd_pcm_substream *substream,
 				__func__, err);
 			kfree(p_info);
 			kfree(prtd->lsm_client->get_param_payload);
+<<<<<<< Updated upstream
+=======
+			prtd->lsm_client->get_param_payload = NULL;
+>>>>>>> Stashed changes
 			goto done;
 		}
 
@@ -2172,6 +2184,10 @@ static int msm_lsm_ioctl_compat(struct snd_pcm_substream *substream,
 			err = -ENOMEM;
 			kfree(p_info);
 			kfree(prtd->lsm_client->get_param_payload);
+<<<<<<< Updated upstream
+=======
+			prtd->lsm_client->get_param_payload = NULL;
+>>>>>>> Stashed changes
 			goto done;
 		}
 
@@ -2196,6 +2212,10 @@ free:
 		kfree(p_info);
 		kfree(param_info_rsp);
 		kfree(prtd->lsm_client->get_param_payload);
+<<<<<<< Updated upstream
+=======
+		prtd->lsm_client->get_param_payload = NULL;
+>>>>>>> Stashed changes
 		break;
 	}
 	case SNDRV_LSM_REG_SND_MODEL_V2:
@@ -2407,6 +2427,10 @@ static int msm_lsm_ioctl(struct snd_pcm_substream *substream,
 
 	case SNDRV_LSM_GET_MODULE_PARAMS: {
 		struct lsm_params_get_info temp_p_info, *p_info = NULL;
+<<<<<<< Updated upstream
+=======
+		prtd->lsm_client->get_param_payload = NULL;
+>>>>>>> Stashed changes
 
 		memset(&temp_p_info, 0, sizeof(temp_p_info));
 		if (!prtd->lsm_client->use_topology) {
@@ -2425,6 +2449,18 @@ static int msm_lsm_ioctl(struct snd_pcm_substream *substream,
 			err = -EFAULT;
 			goto done;
 		}
+<<<<<<< Updated upstream
+=======
+
+		if (temp_p_info.param_size > 0 &&
+			((INT_MAX - sizeof(temp_p_info)) <
+				temp_p_info.param_size)) {
+			pr_err("%s: Integer overflow\n", __func__);
+			err = -EINVAL;
+			goto done;
+		}
+
+>>>>>>> Stashed changes
 		size = sizeof(temp_p_info) + temp_p_info.param_size;
 		p_info = kzalloc(size, GFP_KERNEL);
 
@@ -2478,6 +2514,10 @@ static int msm_lsm_ioctl(struct snd_pcm_substream *substream,
 free:
 		kfree(p_info);
 		kfree(prtd->lsm_client->get_param_payload);
+<<<<<<< Updated upstream
+=======
+		prtd->lsm_client->get_param_payload = NULL;
+>>>>>>> Stashed changes
 		break;
 	}
 	case SNDRV_LSM_EVENT_STATUS:

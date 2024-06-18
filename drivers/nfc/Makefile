@@ -18,4 +18,7 @@ obj-$(CONFIG_NFC_NXP_NCI)	+= nxp-nci/
 obj-$(CONFIG_NFC_S3FWRN5)	+= s3fwrn5/
 obj-$(CONFIG_NFC_ST95HF)	+= st95hf/
 obj-$(CONFIG_NFC_NQ)            += nq-nci.o
+<<<<<<< Updated upstream
 obj-$(CONFIG_NXP_NFC_ESE_DEVICE)    += nxp/
+=======
+>>>>>>> Stashed changes

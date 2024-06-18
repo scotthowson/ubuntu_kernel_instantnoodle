@@ -146,6 +146,7 @@
 		thermal-sensors = <&pm2250_adc_tm_iio ADC_AMUX_THM2_PU2>;
 		wake-capable-sensor;
 		trips {
+<<<<<<< Updated upstream
 			quiet_modem_trip0: quiet-modem-trip0 {
 				temperature = <40000>;
 				hysteresis = <5000>;
@@ -173,10 +174,16 @@
 			quiet_modem_trip2: quiet-modem-trip2 {
 				temperature = <43000>;
 				hysteresis = <5000>;
+=======
+			quiet_gpu_trip: quiet-gpu-trip {
+				temperature = <43000>;
+				hysteresis = <0>;
+>>>>>>> Stashed changes
 				type = "passive";
 			};
 
 			quiet_cpu0_trip: quiet-cpu0-trip {
+<<<<<<< Updated upstream
 				temperature = <44000>;
 				hysteresis = <0>;
 				type = "passive";
@@ -205,18 +212,30 @@
 				hysteresis = <5000>;
 				type = "passive";
 			};
+=======
+				temperature = <41000>;
+				hysteresis = <0>;
+				type = "passive";
+			};
+>>>>>>> Stashed changes
 		};
 
 		cooling-maps {
 			gpu-cdev {
 				trip = <&quiet_gpu_trip>;
+<<<<<<< Updated upstream
 				/* throttle from fmax to 921600000Hz */
 				cooling-device = <&msm_gpu THERMAL_NO_LIMIT
 							(THERMAL_MAX_LIMIT - 4)>;
+=======
+				cooling-device = <&msm_gpu THERMAL_NO_LIMIT
+							(THERMAL_MAX_LIMIT - 3)>;
+>>>>>>> Stashed changes
 			};
 
 			cpu0-cdev {
 				trip = <&quiet_cpu0_trip>;
+<<<<<<< Updated upstream
 				/* throttle from fmax to 1420800KHz */
 				cooling-device = <&CPU0 THERMAL_NO_LIMIT
 							(THERMAL_MAX_LIMIT - 5)>;
@@ -266,6 +285,11 @@
 				trip = <&quiet_batt_trip3>;
 				cooling-device = <&pm2250_charger 4 4>;
 			};
+=======
+				cooling-device = <&CPU0 THERMAL_NO_LIMIT
+							(THERMAL_MAX_LIMIT - 5)>;
+			};
+>>>>>>> Stashed changes
 		};
 	};
 };

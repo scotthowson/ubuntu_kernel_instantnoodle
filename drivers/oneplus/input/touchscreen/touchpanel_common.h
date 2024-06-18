@@ -27,6 +27,8 @@
 #include <linux/delay.h>
 //#include <linux/oneplus/boot_mode.h>
 #include <linux/workqueue.h>
+#include <linux/pm_qos.h>
+#include <linux/i2c-qcom-geni.h>
 
 
 #include "util_interface/touch_interfaces.h"
@@ -60,6 +62,7 @@
 #define Sgestrue            14  // S
 #define FingerprintDown     16
 #define FingerprintUp       17
+<<<<<<< Updated upstream
 
 #define KEY_GESTURE_W               246
 #define KEY_GESTURE_M               247
@@ -71,6 +74,8 @@
 #define KEY_GESTURE_LEFT_ARROW      253
 #define KEY_GESTURE_RIGHT_ARROW     254
 #define KEY_GESTURE_SINGLE_TAP      255
+=======
+>>>>>>> Stashed changes
 
 #define BIT0 (0x1 << 0)
 #define BIT1 (0x1 << 1)
@@ -454,7 +459,6 @@ struct monitor_data {
 struct debug_info_proc_operations;
 struct earsense_proc_operations;
 struct touchpanel_data {
-	bool register_is_16bit;                             /*register is 16bit*/
 	bool glove_mode_support;                            /*glove_mode support feature*/
 	bool black_gesture_support;                         /*black_gesture support feature*/
 	bool charger_pump_support;                          /*charger_pump support feature*/
@@ -541,11 +545,17 @@ struct touchpanel_data {
 	u8 touchold_event;									/*0 is touchhold down 1 is up*/
 	bool reverse_charge_status;							/*reverse charge status*/
 	bool wet_mode_status;								/*wet mode status*/
+<<<<<<< Updated upstream
 	bool kernel_grip_support;								/* just defined to pass compilation */
 	bool kernel_grip_support_special;
 	bool report_flow_unlock_support;                    /*report flow is unlock, need to lock when all touch release*/
 	bool game_mode_status;                              /*status of game mode*/	
 	bool glass_mode_status;								/*status of glass mode*/
+=======
+	bool report_flow_unlock_support;						/*report flow is unlock, need to lock when all touch release*/
+	bool game_mode_status;
+	bool glass_mode_status;
+>>>>>>> Stashed changes
 #if defined(TPD_USE_EINT)
 	struct hrtimer         timer;                       /*using polling instead of IRQ*/
 #endif
@@ -599,6 +609,9 @@ struct touchpanel_data {
 	struct earsense_proc_operations *earsense_ops;
 	struct register_info reg_info;                      /*debug node for register length*/
 	struct black_gesture_test gesture_test;             /*gesture test struct*/
+
+	struct pm_qos_request pm_i2c_req;
+	struct pm_qos_request pm_touch_req;
 
 	void                  *chip_data;                   /*Chip Related data*/
 	void                  *private_data;                /*Reserved Private data*/
@@ -718,8 +731,16 @@ extern bool tp_judge_ic_match(char * tp_ic_name);
 /* add haptic audio tp mask */
 extern int msm_drm_notifier_call_chain(unsigned long val, void *v);
 extern int gf_opticalfp_irq_handler(int event);
+#ifdef CONFIG_ONEPLUS_WIRELESSCHG
 extern int register_reverse_charge_notifier(struct notifier_block *nb);
 extern int unregister_reverse_charge_notifier(struct notifier_block *nb);
+<<<<<<< Updated upstream
+=======
+#else
+static inline int register_reverse_charge_notifier(struct notifier_block *nb){ return 0; }
+static inline int unregister_reverse_charge_notifier(struct notifier_block *nb){ return 0; }
+#endif
+>>>>>>> Stashed changes
 extern int register_tp_delta_print_notifier(struct notifier_block *nb);
 extern int unregister_tp_delta_print_notifier(struct notifier_block *nb);
 

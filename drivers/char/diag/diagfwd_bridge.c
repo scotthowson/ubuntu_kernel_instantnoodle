@@ -22,7 +22,6 @@
 #include "diagfwd_mhi.h"
 #include "diag_dci.h"
 #include "diag_ipc_logging.h"
-#include "diagfwd.h"
 
 #ifdef CONFIG_MHI_BUS
 #define diag_mdm_init		diag_mhi_init
@@ -311,6 +310,7 @@ int diagfwd_bridge_close(int id)
 
 bool diagfwd_bridge_is_quit_cmd(unsigned char *buf)
 {
+<<<<<<< Updated upstream
 	uint16_t cmd_code;
 	uint16_t subsys_id;
 	uint16_t cmd_code_lo;
@@ -338,6 +338,8 @@ int diagfwd_bridge_write(int id, unsigned char *buf, int len)
 	else if (diagfwd_bridge_is_quit_cmd(buf + 4*sizeof(uint8_t)))
 		diag_process_non_hdlc_pkt(buf, len, 0);
 
+=======
+>>>>>>> Stashed changes
 	if (id < 0 || id >= NUM_REMOTE_DEV)
 		return -EINVAL;
 	if (bridge_info[id].dev_ops && bridge_info[id].dev_ops->write) {

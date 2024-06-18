@@ -1056,7 +1056,11 @@ static int __init vpa_debugfs_init(void)
 {
 	char name[16];
 	long i;
+<<<<<<< Updated upstream
 	static struct dentry *vpa_dir;
+=======
+	struct dentry *vpa_dir;
+>>>>>>> Stashed changes
 
 	if (!firmware_has_feature(FW_FEATURE_SPLPAR))
 		return 0;

@@ -140,7 +140,12 @@ struct pmic_data {
  * @all_ramp_down_done_irq		: IRQ number for all ramp down interrupt
  * @led_fault_irq		: IRQ number for LED fault interrupt
  * @base		: Base address of the flash LED module
+<<<<<<< Updated upstream
  * @ref_count		: Reference count used to enable/disable flash LED
+=======
+ * @chan_en_map		: Bit map of individual channel enable
+ * @module_en		: Flag used to enable/disable flash LED module
+>>>>>>> Stashed changes
  */
 struct qti_flash_led {
 	struct platform_device		*pdev;

@@ -46,10 +46,13 @@ extern struct kmem_cache *request_cachep;
 extern struct kobj_type blk_queue_ktype;
 extern struct ida blk_queue_ida;
 
+<<<<<<< Updated upstream
 #ifdef CONFIG_PANIC_FLUSH
 extern unsigned long sysctl_blkdev_issue_flush_count;
 #endif
 
+=======
+>>>>>>> Stashed changes
 /*
  * @q->queue_lock is set while a queue is being initialized. Since we know
  * that no other threads access the queue object before @q->queue_lock has
@@ -316,9 +319,7 @@ extern int blk_update_nr_requests(struct request_queue *, unsigned int);
  */
 static inline bool blk_do_io_stat(struct request *rq)
 {
-	return rq->rq_disk &&
-	       (rq->rq_flags & RQF_IO_STAT) &&
-		!blk_rq_is_passthrough(rq);
+	return false;
 }
 
 static inline void req_set_nomerge(struct request_queue *q, struct request *req)

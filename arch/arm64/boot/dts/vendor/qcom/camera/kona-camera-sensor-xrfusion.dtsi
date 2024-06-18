@@ -83,6 +83,7 @@
 				&cam_sensor_rgb_vio_suspend
 				&cam_sensor_rgb_vdig_suspend>;
 	};
+<<<<<<< Updated upstream
 
 	cam_csid_lite2: qcom,csid-lite2@acdd600 {
 		cell-index = <4>;
@@ -287,6 +288,8 @@
 		clock-control-debugfs = "true";
 		status = "ok";
 	};
+=======
+>>>>>>> Stashed changes
 };
 
 &cam_cci0 {

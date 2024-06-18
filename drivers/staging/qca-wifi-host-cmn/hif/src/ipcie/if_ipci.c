@@ -184,7 +184,11 @@ static int hif_ce_srng_msi_free_irq(struct hif_softc *scn)
  *
  * Return: none
  */
+<<<<<<< Updated upstream
 static void hif_ipci_deconfigure_grp_irq(struct hif_softc *scn)
+=======
+void hif_ipci_deconfigure_grp_irq(struct hif_softc *scn)
+>>>>>>> Stashed changes
 {
 	int i, j, irq;
 	struct HIF_CE_state *hif_state = HIF_GET_CE_STATE(scn);

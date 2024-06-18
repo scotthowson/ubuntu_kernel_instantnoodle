@@ -1,5 +1,9 @@
 /*
  * Copyright (c) 2012-2020 The Linux Foundation. All rights reserved.
+<<<<<<< Updated upstream
+=======
+ * Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc. All rights reserved.
+>>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -1529,7 +1533,10 @@ void policy_mgr_set_dual_mac_fw_mode_config(struct wlan_objmgr_psoc *psoc,
 
 /**
  * policy_mgr_soc_set_dual_mac_cfg_cb() - Callback for set dual mac config
+<<<<<<< Updated upstream
  * @psoc: PSOC object information
+=======
+>>>>>>> Stashed changes
  * @status: Status of set dual mac config
  * @scan_config: Current scan config whose status is the first param
  * @fw_mode_config: Current FW mode config whose status is the first param
@@ -1538,10 +1545,15 @@ void policy_mgr_set_dual_mac_fw_mode_config(struct wlan_objmgr_psoc *psoc,
  *
  * Return: None
  */
+<<<<<<< Updated upstream
 void policy_mgr_soc_set_dual_mac_cfg_cb(struct wlan_objmgr_psoc *psoc,
 					enum set_hw_mode_status status,
 					uint32_t scan_config,
 					uint32_t fw_mode_config);
+=======
+void policy_mgr_soc_set_dual_mac_cfg_cb(enum set_hw_mode_status status,
+		uint32_t scan_config, uint32_t fw_mode_config);
+>>>>>>> Stashed changes
 
 /**
  * policy_mgr_map_concurrency_mode() - to map concurrency mode
@@ -1708,6 +1720,7 @@ QDF_STATUS policy_mgr_reset_connection_update(struct wlan_objmgr_psoc *psoc);
 QDF_STATUS policy_mgr_set_connection_update(struct wlan_objmgr_psoc *psoc);
 
 /**
+<<<<<<< Updated upstream
  * policy_mgr_reset_dual_mac_configuration() - Reset dual MAC configuration
  * complete event
  * @psoc: PSOC object information
@@ -1746,6 +1759,8 @@ policy_mgr_dual_mac_configuration_complete(struct wlan_objmgr_psoc *psoc);
 
 
 /**
+=======
+>>>>>>> Stashed changes
  * policy_mgr_set_chan_switch_complete_evt() - set channel
  * switch completion event
  * @psoc: PSOC object information
@@ -2791,6 +2806,25 @@ QDF_STATUS policy_mgr_get_updated_scan_and_fw_mode_config(
 		uint32_t channel_select_logic_conc);
 
 /**
+<<<<<<< Updated upstream
+=======
+ * policy_mgr_is_sta_present_on_dfs_channel() - to find whether any DFS STA is
+ *                                              present
+ * @psoc: PSOC object information
+ * @vdev_id: pointer to vdev_id. It will be filled with the vdev_id of DFS STA
+ * @ch_freq: pointer to channel frequency on which DFS STA is present
+ * @ch_width: pointer channel width on which DFS STA is connected
+ * If any STA is connected on DFS channel then this function will return true
+ *
+ * Return: true if session is on DFS or false if session is on non-dfs channel
+ */
+bool policy_mgr_is_sta_present_on_dfs_channel(struct wlan_objmgr_psoc *psoc,
+					      uint8_t *vdev_id,
+					      qdf_freq_t *ch_freq,
+					      enum hw_mode_bandwidth *ch_width);
+
+/**
+>>>>>>> Stashed changes
  * policy_mgr_is_safe_channel - Check if the channel is in LTE
  * coex channel avoidance list
  * @psoc: PSOC object information
@@ -3000,6 +3034,19 @@ bool policy_mgr_is_sta_sap_scc_allowed_on_dfs_chan(
 bool policy_mgr_is_sta_connected_2g(struct wlan_objmgr_psoc *psoc);
 
 /**
+<<<<<<< Updated upstream
+=======
+ * policy_mgr_is_connected_sta_5g() - check if sta connected in 5 GHz
+ * @psoc: pointer to soc
+ * @freq: Pointer to the frequency on which sta is connected
+ *
+ * Return: true if sta is connected in 5 GHz else false
+ */
+bool policy_mgr_is_connected_sta_5g(struct wlan_objmgr_psoc *psoc,
+				    qdf_freq_t *freq);
+
+/**
+>>>>>>> Stashed changes
  * policy_mgr_scan_trim_5g_chnls_for_dfs_ap() - check if sta scan should skip
  * 5g channel when dfs ap is present.
  *

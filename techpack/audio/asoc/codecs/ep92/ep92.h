@@ -1,6 +1,10 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
+<<<<<<< Updated upstream
  * Copyright (c) 2018-2020, The Linux Foundation. All rights reserved.
+=======
+ * Copyright (c) 2018-2021, The Linux Foundation. All rights reserved.
+>>>>>>> Stashed changes
  */
 
 #ifndef __EP92_H__
@@ -69,6 +73,7 @@
 
 #define   EP92_MAX_REGISTER_ADDR                EP92_OTHER_PACKETS_GC_PACKET_2
 
+<<<<<<< Updated upstream
 
 /* EP92 register default values */
 static struct reg_default ep92_reg_defaults[] = {
@@ -126,6 +131,8 @@ static struct reg_default ep92_reg_defaults[] = {
 };
 
 
+=======
+>>>>>>> Stashed changes
 /* shift/masks for register bits
  * GI = General Info
  * GC = General Control
@@ -211,4 +218,9 @@ enum {
 	EP92_KCTL_MAX
 };
 
+<<<<<<< Updated upstream
+=======
+int ep92_set_ext_mclk(struct snd_soc_codec *codec, uint32_t mclk_freq);
+
+>>>>>>> Stashed changes
 #endif /* __EP92_H__ */

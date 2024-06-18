@@ -69,8 +69,7 @@ config ATMEL_TCB_CLKSRC
 	  are combined to make a single 32-bit timer.
 
 	  When GENERIC_CLOCKEVENTS is defined, the third timer channel
-	  may be used as a clock event device supporting oneshot mode
-	  (delays of up to two seconds) based on the 32 KiHz clock.
+	  may be used as a clock event device supporting oneshot mode.
 
 config ATMEL_TCB_CLKSRC_BLOCK
 	int
@@ -82,6 +81,15 @@ config ATMEL_TCB_CLKSRC_BLOCK
 	  choice of which one to use for the clock framework.  The other
 	  TC can be used for other purposes, such as PWM generation and
 	  interval timing.
+
+config ATMEL_TCB_CLKSRC_USE_SLOW_CLOCK
+	bool "TC Block use 32 KiHz clock"
+	depends on ATMEL_TCB_CLKSRC
+	default y
+	help
+	  Select this to use 32 KiHz base clock rate as TC block clock
+	  source for clock events.
+
 
 config DUMMY_IRQ
 	tristate "Dummy IRQ handler"
@@ -532,7 +540,7 @@ config MISC_RTSX
 
 config UID_SYS_STATS
 	bool "Per-UID statistics"
-	depends on PROFILING && TASK_XACCT && TASK_IO_ACCOUNTING
+	depends on TASK_XACCT && TASK_IO_ACCOUNTING
 	help
 	  Per UID based cpu time statistics exported to /proc/uid_cputime
 	  Per UID based io statistics exported to /proc/uid_io
@@ -622,6 +630,18 @@ config QTI_MAXIM_FAN_CONTROLLER
 	  Also, this driver initializes the power for the fan controller
 	  and exposes sysfs node to control different speeds of fan.
 
+<<<<<<< Updated upstream
+=======
+config KINECTICS_XR_NORDIC
+	tristate "Nordic Misc driver support in XR Reference devices"
+	help
+	  This driver supports Nordic Chip in XR Reference devices.
+	  This driver interfaces with SoC to Nordic chip over SPI and contains
+	  code to power up the Nordic chip and initializes SPI interface. Also,
+	  this also parses the gpios and interrupts from device tree and sets
+	  the gpios and interrupt handler for handling the interrupt.
+
+>>>>>>> Stashed changes
 source "drivers/misc/c2port/Kconfig"
 source "drivers/misc/eeprom/Kconfig"
 source "drivers/misc/cb710/Kconfig"
@@ -637,6 +657,10 @@ source "drivers/misc/cxl/Kconfig"
 source "drivers/misc/ocxl/Kconfig"
 source "drivers/misc/cardreader/Kconfig"
 source "drivers/misc/fpr_FingerprintCard/Kconfig"
+<<<<<<< Updated upstream
+=======
+source "drivers/misc/qrc/Kconfig"
+>>>>>>> Stashed changes
 endmenu
 
 config OKL4_USER_VIPC

@@ -1,5 +1,9 @@
 /*
+<<<<<<< Updated upstream
  * Copyright (c) 2016-2020 The Linux Foundation. All rights reserved.
+=======
+ * Copyright (c) 2016-2021 The Linux Foundation. All rights reserved.
+>>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -277,6 +281,10 @@
  * @WLAN_UMAC_COMP_COEX:          Coex config component
  * @WLAN_UMAC_COMP_FTM_TIME_SYNC: WLAN FTM TIMESYNC
  * @WLAN_UMAC_COMP_PKT_CAPTURE:   Packet capture component
+<<<<<<< Updated upstream
+=======
+ * @WLAN_UMAC_COMP_GPIO:          GPIO Configuration
+>>>>>>> Stashed changes
  * @WLAN_UMAC_COMP_ID_MAX:        Maximum components in UMAC
  *
  * This id is static.
@@ -319,6 +327,10 @@ enum wlan_umac_comp_id {
 	WLAN_UMAC_COMP_COEX               = 33,
 	WLAN_UMAC_COMP_FTM_TIME_SYNC      = 34,
 	WLAN_UMAC_COMP_PKT_CAPTURE        = 35,
+<<<<<<< Updated upstream
+=======
+	WLAN_UMAC_COMP_GPIO               = 39,
+>>>>>>> Stashed changes
 	WLAN_UMAC_COMP_ID_MAX,
 };
 

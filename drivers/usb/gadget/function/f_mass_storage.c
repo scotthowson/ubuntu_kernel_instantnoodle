@@ -951,7 +951,7 @@ static void invalidate_sub(struct fsg_lun *curlun)
 {
 	struct file	*filp = curlun->filp;
 	struct inode	*inode = file_inode(filp);
-	unsigned long	rc;
+	unsigned long __maybe_unused	rc;
 
 	rc = invalidate_mapping_pages(inode->i_mapping, 0, -1);
 	VLDBG(curlun, "invalidate_mapping_pages -> %ld\n", rc);
@@ -2521,9 +2521,6 @@ static int fsg_set_alt(struct usb_function *f, unsigned intf, unsigned alt)
 {
 	int rc;
 	struct fsg_dev *fsg = fsg_from_func(f);
-
-	/* prevents usb LPM until thread runs to completion */
-	usb_gadget_autopm_get_async(fsg->common->gadget);
 
 	/* Enable the endpoints */
 

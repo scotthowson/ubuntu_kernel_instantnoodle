@@ -1,5 +1,9 @@
 /*
+<<<<<<< Updated upstream
  * Copyright (c) 2017-2019 The Linux Foundation. All rights reserved.
+=======
+ * Copyright (c) 2017-2019, 2021 The Linux Foundation. All rights reserved.
+>>>>>>> Stashed changes
  *
  *
  * Permission to use, copy, modify, and/or distribute this software for
@@ -119,6 +123,7 @@ QDF_STATUS ucfg_reg_get_current_cc(struct wlan_objmgr_pdev *pdev,
 #ifdef CONFIG_REG_CLIENT
 
 QDF_STATUS ucfg_reg_set_band(struct wlan_objmgr_pdev *pdev,
+<<<<<<< Updated upstream
 			     enum band_info band)
 {
 	return reg_set_band(pdev, band);
@@ -128,6 +133,17 @@ QDF_STATUS ucfg_reg_get_band(struct wlan_objmgr_pdev *pdev,
 			     enum band_info *band)
 {
 	return reg_get_band(pdev, band);
+=======
+			     uint32_t band_bitmap)
+{
+	return reg_set_band(pdev, band_bitmap);
+}
+
+QDF_STATUS ucfg_reg_get_band(struct wlan_objmgr_pdev *pdev,
+			     uint32_t *band_bitmap)
+{
+	return reg_get_band(pdev, band_bitmap);
+>>>>>>> Stashed changes
 }
 
 /**
@@ -227,6 +243,7 @@ QDF_STATUS ucfg_reg_enable_dfs_channels(struct wlan_objmgr_pdev *pdev,
 	return reg_enable_dfs_channels(pdev, dfs_enable);
 }
 
+<<<<<<< Updated upstream
 QDF_STATUS ucfg_reg_get_curr_band(struct wlan_objmgr_pdev *pdev,
 				  enum band_info *band)
 {
@@ -234,6 +251,8 @@ QDF_STATUS ucfg_reg_get_curr_band(struct wlan_objmgr_pdev *pdev,
 
 }
 
+=======
+>>>>>>> Stashed changes
 void ucfg_reg_register_chan_change_callback(struct wlan_objmgr_psoc *psoc,
 					    void *cbk, void *arg)
 {
@@ -319,14 +338,26 @@ void ucfg_reg_cache_channel_state(struct wlan_objmgr_pdev *pdev,
 }
 #endif /* CONFIG_CHAN_NUM_API */
 
+<<<<<<< Updated upstream
 /**
  * ucfg_reg_restore_cached_channels() - Cache the current state of the channles
  * @pdev: The physical dev to cache the channels for
  */
+=======
+>>>>>>> Stashed changes
 void ucfg_reg_restore_cached_channels(struct wlan_objmgr_pdev *pdev)
 {
 	reg_restore_cached_channels(pdev);
 }
+<<<<<<< Updated upstream
+=======
+
+void ucfg_reg_disable_cached_channels(struct wlan_objmgr_pdev *pdev)
+{
+	reg_disable_cached_channels(pdev);
+}
+
+>>>>>>> Stashed changes
 #endif
 
 QDF_STATUS ucfg_set_ignore_fw_reg_offload_ind(struct wlan_objmgr_psoc *psoc)

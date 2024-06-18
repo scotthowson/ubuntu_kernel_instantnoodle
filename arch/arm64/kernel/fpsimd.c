@@ -159,6 +159,16 @@ static void sve_free(struct task_struct *task)
 	__sve_free(task);
 }
 
+static void *sve_free_atomic(struct task_struct *task)
+{
+	void *sve_state = task->thread.sve_state;
+
+	WARN_ON(test_tsk_thread_flag(task, TIF_SVE));
+
+	task->thread.sve_state = NULL;
+	return sve_state;
+}
+
 /*
  * TIF_SVE controls whether a task can use SVE without trapping while
  * in userspace, and also the way a task's FPSIMD/SVE state is stored
@@ -304,7 +314,7 @@ static unsigned int find_supported_vector_length(unsigned int vl)
 	return sve_vl_from_vq(bit_to_vq(bit));
 }
 
-#ifdef CONFIG_SYSCTL
+#if defined(CONFIG_ARM64_SVE) && defined(CONFIG_SYSCTL)
 
 static int sve_proc_do_default_vl(struct ctl_table *table, int write,
 				  void __user *buffer, size_t *lenp,
@@ -350,9 +360,9 @@ static int __init sve_sysctl_init(void)
 	return 0;
 }
 
-#else /* ! CONFIG_SYSCTL */
+#else /* ! (CONFIG_ARM64_SVE && CONFIG_SYSCTL) */
 static int __init sve_sysctl_init(void) { return 0; }
-#endif /* ! CONFIG_SYSCTL */
+#endif /* ! (CONFIG_ARM64_SVE && CONFIG_SYSCTL) */
 
 #define ZREG(sve_state, vq, n) ((char *)(sve_state) +		\
 	(SVE_SIG_ZREG_OFFSET(vq, n) - SVE_SIG_REGS_OFFSET))
@@ -434,7 +444,7 @@ size_t sve_state_size(struct task_struct const *task)
 void sve_alloc(struct task_struct *task)
 {
 	if (task->thread.sve_state) {
-		memset(task->thread.sve_state, 0, sve_state_size(current));
+		memset(task->thread.sve_state, 0, sve_state_size(task));
 		return;
 	}
 
@@ -549,6 +559,7 @@ int sve_set_vector_length(struct task_struct *task,
 	 * non-SVE thread.
 	 */
 	if (task == current) {
+		preempt_disable();
 		local_bh_disable();
 
 		fpsimd_save();
@@ -559,8 +570,10 @@ int sve_set_vector_length(struct task_struct *task,
 	if (test_and_clear_tsk_thread_flag(task, TIF_SVE))
 		sve_to_fpsimd(task);
 
-	if (task == current)
+	if (task == current) {
 		local_bh_enable();
+		preempt_enable();
+	}
 
 	/*
 	 * Force reallocation of task SVE state to the correct size
@@ -815,6 +828,7 @@ asmlinkage void do_sve_acc(unsigned int esr, struct pt_regs *regs)
 
 	sve_alloc(current);
 
+	preempt_disable();
 	local_bh_disable();
 
 	fpsimd_save();
@@ -828,6 +842,7 @@ asmlinkage void do_sve_acc(unsigned int esr, struct pt_regs *regs)
 		WARN_ON(1); /* SVE access shouldn't have trapped */
 
 	local_bh_enable();
+	preempt_enable();
 }
 
 /*
@@ -894,10 +909,12 @@ void fpsimd_thread_switch(struct task_struct *next)
 void fpsimd_flush_thread(void)
 {
 	int vl, supported_vl;
+	void *mem = NULL;
 
 	if (!system_supports_fpsimd())
 		return;
 
+	preempt_disable();
 	local_bh_disable();
 
 	memset(&current->thread.uw.fpsimd_state, 0,
@@ -906,7 +923,7 @@ void fpsimd_flush_thread(void)
 
 	if (system_supports_sve()) {
 		clear_thread_flag(TIF_SVE);
-		sve_free(current);
+		mem = sve_free_atomic(current);
 
 		/*
 		 * Reset the task vector length as required.
@@ -942,6 +959,8 @@ void fpsimd_flush_thread(void)
 	set_thread_flag(TIF_FOREIGN_FPSTATE);
 
 	local_bh_enable();
+	preempt_enable();
+	kfree(mem);
 }
 
 /*
@@ -953,9 +972,11 @@ void fpsimd_preserve_current_state(void)
 	if (!system_supports_fpsimd())
 		return;
 
+	preempt_disable();
 	local_bh_disable();
 	fpsimd_save();
 	local_bh_enable();
+	preempt_enable();
 }
 
 /*
@@ -1026,6 +1047,7 @@ void fpsimd_restore_current_state(void)
 		return;
 	}
 
+	preempt_disable();
 	local_bh_disable();
 
 	if (test_and_clear_thread_flag(TIF_FOREIGN_FPSTATE)) {
@@ -1034,6 +1056,7 @@ void fpsimd_restore_current_state(void)
 	}
 
 	local_bh_enable();
+	preempt_enable();
 }
 
 /*
@@ -1046,6 +1069,7 @@ void fpsimd_update_current_state(struct user_fpsimd_state const *state)
 	if (WARN_ON(!system_supports_fpsimd()))
 		return;
 
+	preempt_disable();
 	local_bh_disable();
 
 	current->thread.uw.fpsimd_state = *state;
@@ -1058,6 +1082,7 @@ void fpsimd_update_current_state(struct user_fpsimd_state const *state)
 	clear_thread_flag(TIF_FOREIGN_FPSTATE);
 
 	local_bh_enable();
+	preempt_enable();
 }
 
 /*
@@ -1104,6 +1129,7 @@ void kernel_neon_begin(void)
 
 	BUG_ON(!may_use_simd());
 
+	preempt_disable();
 	local_bh_disable();
 
 	__this_cpu_write(kernel_neon_busy, true);
@@ -1117,6 +1143,7 @@ void kernel_neon_begin(void)
 	preempt_disable();
 
 	local_bh_enable();
+	preempt_enable();
 }
 EXPORT_SYMBOL(kernel_neon_begin);
 

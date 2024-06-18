@@ -208,11 +208,19 @@ void hdd_reset_global_reg_params(void)
 static void reg_program_config_vars(struct hdd_context *hdd_ctx,
 				    struct reg_config_vars *config_vars)
 {
+<<<<<<< Updated upstream
 	uint8_t band_capability = 0, indoor_chnl_marking = 0;
 	uint32_t scan_11d_interval = 0;
 	bool indoor_chan_enabled = false;
 	uint32_t restart_beaconing = 0;
 	bool enable_srd_chan = false;
+=======
+	uint8_t indoor_chnl_marking = 0;
+	uint32_t band_capability = 0, scan_11d_interval = 0;
+	bool indoor_chan_enabled = false;
+	uint32_t restart_beaconing = 0;
+	uint8_t enable_srd_chan;
+>>>>>>> Stashed changes
 	QDF_STATUS status;
 	bool country_priority = 0;
 	bool value = false;
@@ -258,8 +266,13 @@ static void reg_program_config_vars(struct hdd_context *hdd_ctx,
 						    &restart_beaconing);
 	config_vars->restart_beaconing = restart_beaconing;
 
+<<<<<<< Updated upstream
 	ucfg_mlme_get_etsi13_srd_chan_in_master_mode(hdd_ctx->psoc,
 						     &enable_srd_chan);
+=======
+	ucfg_mlme_get_etsi_srd_chan_in_master_mode(hdd_ctx->psoc,
+						   &enable_srd_chan);
+>>>>>>> Stashed changes
 	config_vars->enable_srd_chan_in_master_mode = enable_srd_chan;
 
 	ucfg_mlme_get_11d_in_world_mode(hdd_ctx->psoc,
@@ -749,6 +762,7 @@ int hdd_reg_set_country(struct hdd_context *hdd_ctx, char *country_code)
 	return qdf_status_to_os_return(status);
 }
 
+<<<<<<< Updated upstream
 int hdd_reg_set_band(struct net_device *dev, u8 ui_band)
 {
 	struct hdd_adapter *adapter = WLAN_HDD_GET_PRIV_PTR(dev);
@@ -779,11 +793,52 @@ int hdd_reg_set_band(struct net_device *dev, u8 ui_band)
 	hdd_debug("change band to %u", band);
 
 	if (ucfg_reg_get_curr_band(hdd_ctx->pdev, &current_band) !=
+=======
+uint32_t hdd_reg_legacy_setband_to_reg_wifi_band_bitmap(uint8_t qca_setband)
+{
+	uint32_t band_bitmap = 0;
+
+	switch (qca_setband) {
+	case QCA_SETBAND_AUTO:
+		band_bitmap |= (BIT(REG_BAND_2G) | BIT(REG_BAND_5G));
+		break;
+	case QCA_SETBAND_5G:
+		band_bitmap |= BIT(REG_BAND_5G);
+		break;
+	case QCA_SETBAND_2G:
+		band_bitmap |= BIT(REG_BAND_2G);
+		break;
+	default:
+		hdd_err("Invalid band value %u", qca_setband);
+		return 0;
+	}
+
+	return band_bitmap;
+}
+
+int hdd_reg_set_band(struct net_device *dev, uint32_t band_bitmap)
+{
+	struct hdd_adapter *adapter = WLAN_HDD_GET_PRIV_PTR(dev);
+	struct hdd_context *hdd_ctx;
+	uint32_t current_band;
+
+	hdd_ctx = WLAN_HDD_GET_CTX(adapter);
+
+	if (!band_bitmap) {
+		hdd_err("Can't disable all bands");
+		return -EINVAL;
+	}
+
+	hdd_debug("change band to %u", band_bitmap);
+
+	if (ucfg_reg_get_band(hdd_ctx->pdev, &current_band) !=
+>>>>>>> Stashed changes
 	    QDF_STATUS_SUCCESS) {
 		hdd_debug("Failed to get current band config");
 		return -EIO;
 	}
 
+<<<<<<< Updated upstream
 	if (current_band == band)
 		return 0;
 
@@ -835,6 +890,19 @@ int hdd_reg_set_band(struct net_device *dev, u8 ui_band)
 
 	if (QDF_IS_STATUS_ERROR(ucfg_reg_set_band(hdd_ctx->pdev, band))) {
 		hdd_err("Failed to set the band value to %u", band);
+=======
+	if (current_band == band_bitmap) {
+		hdd_debug("band is the same so not updating");
+		return 0;
+	}
+
+	hdd_ctx->curr_band = wlan_reg_band_bitmap_to_band_info(band_bitmap);
+
+	if (QDF_IS_STATUS_ERROR(ucfg_reg_set_band(hdd_ctx->pdev,
+						  band_bitmap))) {
+		hdd_err("Failed to set the band bitmap value to %u",
+			band_bitmap);
+>>>>>>> Stashed changes
 		return -EINVAL;
 	}
 

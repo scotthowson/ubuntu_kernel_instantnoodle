@@ -17,6 +17,7 @@
 #include <linux/mutex.h>
 #include <linux/interrupt.h>
 #include <linux/devfreq.h>
+#include <linux/devfreq_boost.h>
 #include <linux/slab.h>
 #include <linux/of.h>
 #include <linux/of_fdt.h>
@@ -29,19 +30,6 @@
 #define MAX_PATHS	2
 #define DBL_BUF		2
 
-#include <linux/pm_qos.h>
-struct qos_request_v {
-	int max_state;
-	int max_devfreq;
-	int min_devfreq;
-};
-
-static bool cpubw_flag;
-static struct qos_request_v qos_request_value = {
-	.max_state = 0,
-	.max_devfreq = INT_MAX,
-	.min_devfreq = 0,
-};
 struct dev_data {
 	struct msm_bus_vectors vectors[MAX_PATHS * DBL_BUF];
 	struct msm_bus_paths bw_levels[DBL_BUF];
@@ -85,50 +73,6 @@ static int set_bw(struct device *dev, int new_ib, int new_ab)
 	return ret;
 }
 
-static void find_freq_cpubw(struct devfreq_dev_profile *p, unsigned long *freq,
-				u32 flags)
-{
-	int i;
-	unsigned long atmost, atleast, f;
-	int min_index, max_index;
-
-	min_index = qos_request_value.min_devfreq;
-	if (p->max_state > qos_request_value.max_devfreq)
-		max_index = qos_request_value.max_devfreq;
-	else
-		max_index = p->max_state;
-
-	atmost = p->freq_table[min_index];
-	atleast = p->freq_table[max_index-1];
-
-	for (i = min_index; i < max_index; i++) {
-		f = p->freq_table[i];
-		if (f <= *freq)
-			atmost = max(f, atmost);
-		if (f >= *freq)
-			atleast = min(f, atleast);
-	}
-
-	if (flags & DEVFREQ_FLAG_LEAST_UPPER_BOUND)
-		*freq = atmost;
-	else
-		*freq = atleast;
-}
-
-static int devbw_target_cpubw(struct device *dev, unsigned long *freq,
-				u32 flags)
-{
-	struct dev_data *d = dev_get_drvdata(dev);
-	struct dev_pm_opp *opp;
-
-	opp = devfreq_recommended_opp(dev, freq, flags);
-	if (!IS_ERR(opp))
-		dev_pm_opp_put(opp);
-	find_freq_cpubw(&d->dp, freq, flags);
-
-	return set_bw(dev, *freq, d->gov_ab);
-}
-
 static int devbw_target(struct device *dev, unsigned long *freq, u32 flags)
 {
 	struct dev_data *d = dev_get_drvdata(dev);
@@ -150,6 +94,7 @@ static int devbw_get_dev_status(struct device *dev,
 	return 0;
 }
 
+<<<<<<< Updated upstream
 static int devfreq_qos_handler(struct notifier_block *b, unsigned long val,
 				void *v)
 {
@@ -187,6 +132,8 @@ static struct notifier_block devfreq_qos_notifier = {
 	.notifier_call = devfreq_qos_handler,
 };
 
+=======
+>>>>>>> Stashed changes
 #define PROP_PORTS "qcom,src-dst-ports"
 #define PROP_ACTIVE "qcom,active-only"
 
@@ -242,13 +189,7 @@ int devfreq_add_devbw(struct device *dev)
 
 	p = &d->dp;
 	p->polling_ms = 50;
-
-	if (strnstr(d->bw_data.name, "soc:qcom,cpu-cpu-llcc-bw",
-				strlen(d->bw_data.name)) != NULL) {
-		p->target = devbw_target_cpubw;
-		cpubw_flag = true;
-	} else
-		p->target = devbw_target;
+	p->target = devbw_target;
 	p->get_dev_status = devbw_get_dev_status;
 
 	if (of_device_is_compatible(dev->of_node, "qcom,devbw-ddr")) {
@@ -279,12 +220,9 @@ int devfreq_add_devbw(struct device *dev)
 		return PTR_ERR(d->df);
 	}
 
-	if (cpubw_flag) {
-		cpubw_flag = false;
-		qos_request_value.max_state = p->max_state;
-		qos_request_value.min_devfreq = 0;
-		qos_request_value.max_devfreq = p->max_state;
-	}
+	if (!strcmp(dev_name(dev), "soc:qcom,cpu-llcc-ddr-bw"))
+		devfreq_register_boost_device(DEVFREQ_CPU_LLCC_DDR_BW, d->df);
+
 	return 0;
 }
 
@@ -334,11 +272,11 @@ static struct platform_driver devbw_driver = {
 	.driver = {
 		.name = "devbw",
 		.of_match_table = devbw_match_table,
-		.owner = THIS_MODULE,
 		.suppress_bind_attrs = true,
 	},
 };
 
+<<<<<<< Updated upstream
 static int __init devbw_init(void)
 {
 	cpubw_flag = false;
@@ -348,5 +286,8 @@ static int __init devbw_init(void)
 	return 0;
 }
 device_initcall(devbw_init);
+=======
+module_platform_driver(devbw_driver);
+>>>>>>> Stashed changes
 MODULE_DESCRIPTION("Device DDR bandwidth voting driver MSM SoCs");
 MODULE_LICENSE("GPL v2");

@@ -32,11 +32,14 @@
 
 #include "of_private.h"
 
+<<<<<<< Updated upstream
 #ifdef CONFIG_PARAM_READ_WRITE
 void init_param_mem_base_size(phys_addr_t base, unsigned long size);
 #endif
 
 
+=======
+>>>>>>> Stashed changes
 /*
  * of_fdt_limit_memory - limit the number of regions in the /memory node
  * @limit: maximum entries
@@ -489,7 +492,7 @@ static int unflatten_dt_nodes(const void *blob,
 	for (offset = 0;
 	     offset >= 0 && depth >= initial_depth;
 	     offset = fdt_next_node(blob, offset, &depth)) {
-		if (WARN_ON_ONCE(depth >= FDT_MAX_DEPTH))
+		if (WARN_ON_ONCE(depth >= FDT_MAX_DEPTH - 1))
 			continue;
 
 		if (!IS_ENABLED(CONFIG_OF_KOBJ) &&
@@ -674,9 +677,10 @@ static int __init __reserved_mem_reserve_reg(unsigned long node,
 
 		if (size &&
 		    early_init_dt_reserve_memory_arch(base, size, nomap) == 0)
-			pr_debug("Reserved memory: reserved region for node '%s': base %pa, size %ld MiB\n",
-				uname, &base, (unsigned long)size / SZ_1M);
+			pr_debug("Reserved memory: reserved region for node '%s': base %pa, size %lu MiB\n",
+				uname, &base, (unsigned long)(size / SZ_1M));
 		else
+<<<<<<< Updated upstream
 			pr_info("Reserved memory: failed to reserve memory for node '%s': base %pa, size %ld MiB\n",
 				uname, &base, (unsigned long)size / SZ_1M);
 
@@ -684,6 +688,10 @@ static int __init __reserved_mem_reserve_reg(unsigned long node,
 		if (!strncmp(uname, "param_mem", 9))
 			init_param_mem_base_size(base, size);
 		#endif
+=======
+			pr_info("Reserved memory: failed to reserve memory for node '%s': base %pa, size %lu MiB\n",
+				uname, &base, (unsigned long)(size / SZ_1M));
+>>>>>>> Stashed changes
 
 		len -= t_len;
 		if (first) {

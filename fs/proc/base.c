@@ -96,6 +96,7 @@
 #include <linux/posix-timers.h>
 #include <linux/cpufreq_times.h>
 #include <trace/events/oom.h>
+#include <linux/swait.h>
 #include "internal.h"
 #include "fd.h"
 
@@ -556,7 +557,7 @@ static int proc_oom_score(struct seq_file *m, struct pid_namespace *ns,
 	unsigned long totalpages = totalram_pages + total_swap_pages;
 	unsigned long points = 0;
 
-	points = oom_badness(task, NULL, NULL, totalpages, false) *
+	points = oom_badness(task, NULL, NULL, totalpages) *
 					1000 / totalpages;
 	seq_printf(m, "%lu\n", points);
 
@@ -840,7 +841,7 @@ static ssize_t mem_rw(struct file *file, char __user *buf,
 	flags = FOLL_FORCE | (write ? FOLL_WRITE : 0);
 
 	while (count > 0) {
-		int this_len = min_t(int, count, PAGE_SIZE);
+		size_t this_len = min_t(size_t, count, PAGE_SIZE);
 
 		if (write && copy_from_user(page, buf, this_len)) {
 			copied = -EFAULT;
@@ -2300,7 +2301,7 @@ bool proc_fill_cache(struct file *file, struct dir_context *ctx,
 
 	child = d_hash_and_lookup(dir, &qname);
 	if (!child) {
-		DECLARE_WAIT_QUEUE_HEAD_ONSTACK(wq);
+		DECLARE_SWAIT_QUEUE_HEAD_ONSTACK(wq);
 		child = d_alloc_parallel(dir, &qname, &wq);
 		if (IS_ERR(child))
 			goto end_instantiate;
@@ -2946,6 +2947,13 @@ out:
 }
 
 #ifdef CONFIG_SECURITY
+static int proc_pid_attr_open(struct inode *inode, struct file *file)
+{
+	file->private_data = NULL;
+	__mem_open(inode, file, PTRACE_MODE_READ_FSCREDS);
+	return 0;
+}
+
 static ssize_t proc_pid_attr_read(struct file * file, char __user * buf,
 				  size_t count, loff_t *ppos)
 {
@@ -2974,6 +2982,10 @@ static ssize_t proc_pid_attr_write(struct file * file, const char __user * buf,
 	struct task_struct *task;
 	void *page;
 	int rv;
+
+	/* A task may only write when it was the opener. */
+	if (file->private_data != current->mm)
+		return -EPERM;
 
 	rcu_read_lock();
 	task = pid_task(proc_pid(inode), PIDTYPE_PID);
@@ -3020,9 +3032,11 @@ out:
 }
 
 static const struct file_operations proc_pid_attr_operations = {
+	.open		= proc_pid_attr_open,
 	.read		= proc_pid_attr_read,
 	.write		= proc_pid_attr_write,
 	.llseek		= generic_file_llseek,
+	.release	= mem_release,
 };
 
 static const struct pid_entry attr_dir_stuff[] = {
@@ -3536,6 +3550,7 @@ static int proc_pid_patch_state(struct seq_file *m, struct pid_namespace *ns,
 }
 #endif /* CONFIG_LIVEPATCH */
 
+<<<<<<< Updated upstream
 #ifdef CONFIG_IM
 static int proc_im_flag(struct seq_file *m, struct pid_namespace *ns,
 				struct pid *pid, struct task_struct *task)
@@ -3835,6 +3850,8 @@ static const struct file_operations proc_va_feature_operations = {
 	.write          = proc_va_feature_write,
 };
 
+=======
+>>>>>>> Stashed changes
 /*
  * Thread groups
  */
@@ -3890,7 +3907,11 @@ static const struct pid_entry tgid_base_stuff[] = {
 	REG("mountinfo",  S_IRUGO, proc_mountinfo_operations),
 	REG("mountstats", S_IRUSR, proc_mountstats_operations),
 #ifdef CONFIG_PROCESS_RECLAIM
+<<<<<<< Updated upstream
 	REG("reclaim", 0222, proc_reclaim_operations),
+=======
+	REG("reclaim",    S_IWUGO, proc_reclaim_operations),
+>>>>>>> Stashed changes
 #endif
 #ifdef CONFIG_PROC_PAGE_MONITOR
 	REG("clear_refs", S_IWUSR, proc_clear_refs_operations),
@@ -3956,6 +3977,7 @@ static const struct pid_entry tgid_base_stuff[] = {
 #ifdef CONFIG_CPU_FREQ_TIMES
 	ONE("time_in_state", 0444, proc_time_in_state_show),
 #endif
+<<<<<<< Updated upstream
 #ifdef CONFIG_ONEPLUS_HEALTHINFO
 /*2020-06-19, add for stuck monitor*/
 	REG("stuck_info", 0666, proc_stuck_trace_operations),
@@ -3977,6 +3999,8 @@ static const struct pid_entry tgid_base_stuff[] = {
 #ifdef CONFIG_TPD
 	REG("tpd", 0666, proc_tpd_operation),
 #endif
+=======
+>>>>>>> Stashed changes
 };
 
 static int proc_tgid_base_readdir(struct file *file, struct dir_context *ctx)
@@ -4271,7 +4295,8 @@ static int proc_tid_comm_permission(struct inode *inode, int mask)
 }
 
 static const struct inode_operations proc_tid_comm_inode_operations = {
-		.permission = proc_tid_comm_permission,
+		.setattr	= proc_setattr,
+		.permission	= proc_tid_comm_permission,
 };
 
 /*
@@ -4371,6 +4396,7 @@ static const struct pid_entry tid_base_stuff[] = {
 #ifdef CONFIG_CPU_FREQ_TIMES
 	ONE("time_in_state", 0444, proc_time_in_state_show),
 #endif
+<<<<<<< Updated upstream
 #ifdef CONFIG_UXCHAIN
 	REG("static_ux", 0666, proc_static_ux_operations),
 #endif
@@ -4384,6 +4410,8 @@ static const struct pid_entry tid_base_stuff[] = {
 #ifdef CONFIG_TPD
 	REG("tpd", 0666, proc_tpd_operation),
 #endif
+=======
+>>>>>>> Stashed changes
 };
 
 static int proc_tid_base_readdir(struct file *file, struct dir_context *ctx)

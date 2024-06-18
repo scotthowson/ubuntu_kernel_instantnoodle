@@ -625,12 +625,20 @@ struct mdss_dp_drv_pdata {
 	struct completion aux_comp;
 	struct completion idle_comp;
 	struct completion video_comp;
+<<<<<<< Updated upstream
+=======
+	struct completion audio_comp;
+>>>>>>> Stashed changes
 	struct completion notification_comp;
 	struct mutex aux_mutex;
 	struct mutex train_mutex;
 	struct mutex attention_lock;
 	struct mutex hdcp_mutex;
 	bool cable_connected;
+<<<<<<< Updated upstream
+=======
+	bool audio_en;
+>>>>>>> Stashed changes
 	u32 s3d_mode;
 	u32 aux_cmd_busy;
 	u32 aux_cmd_i2c;

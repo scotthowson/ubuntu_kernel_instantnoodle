@@ -40,9 +40,12 @@
 #include <linux/init_task.h>
 #include <linux/uaccess.h>
 #include <linux/build_bug.h>
+<<<<<<< Updated upstream
 #ifdef CONFIG_FSC
 #include <linux/oem/fsc.h>
 #endif
+=======
+>>>>>>> Stashed changes
 
 #include "internal.h"
 #include "mount.h"
@@ -1743,7 +1746,7 @@ static struct dentry *__lookup_slow(const struct qstr *name,
 {
 	struct dentry *dentry, *old;
 	struct inode *inode = dir->d_inode;
-	DECLARE_WAIT_QUEUE_HEAD_ONSTACK(wq);
+	DECLARE_SWAIT_QUEUE_HEAD_ONSTACK(wq);
 
 	/* Don't go there if it's already dead */
 	if (unlikely(IS_DEADDIR(inode)))
@@ -2436,17 +2439,13 @@ static int filename_lookup(int dfd, struct filename *name, unsigned flags,
 {
 	int retval;
 	struct nameidata nd;
-#ifdef CONFIG_FSC
-	unsigned int hidx = 0;
-	size_t len = 0;
-	bool is_fsc_path_candidate = false;
-#endif
 	if (IS_ERR(name))
 		return PTR_ERR(name);
 	if (unlikely(root)) {
 		nd.root = *root;
 		flags |= LOOKUP_ROOT;
 	}
+<<<<<<< Updated upstream
 #ifdef CONFIG_FSC
 	is_fsc_path_candidate = (fsc_enable && fsc_allow_list_cur &&
 					fsc_path_check(name, &len));
@@ -2455,24 +2454,14 @@ static int filename_lookup(int dfd, struct filename *name, unsigned flags,
 		return -ENOENT;
 	}
 #endif
+=======
+>>>>>>> Stashed changes
 	set_nameidata(&nd, dfd, name);
 	retval = path_lookupat(&nd, flags | LOOKUP_RCU, path);
 	if (unlikely(retval == -ECHILD))
 		retval = path_lookupat(&nd, flags, path);
 	if (unlikely(retval == -ESTALE))
 		retval = path_lookupat(&nd, flags | LOOKUP_REVAL, path);
-
-#ifdef CONFIG_FSC
-	if (is_fsc_path_candidate) {
-		hidx = fsc_get_hidx(name->name, len);
-		fsc_spin_lock(hidx);
-		if (retval == -ENOENT)
-			fsc_insert_absence_path_locked(name->name, len, hidx);
-		else
-			fsc_delete_absence_path_locked(name->name, len, hidx);
-		fsc_spin_unlock(hidx);
-	}
-#endif
 
 	if (likely(!retval))
 		audit_inode(name, path->dentry, flags & LOOKUP_PARENT);
@@ -2703,6 +2692,26 @@ struct dentry *lookup_one_len_unlocked(const char *name,
 }
 EXPORT_SYMBOL(lookup_one_len_unlocked);
 
+/*
+ * Like lookup_one_len_unlocked(), except that it yields ERR_PTR(-ENOENT)
+ * on negatives.  Returns known positive or ERR_PTR(); that's what
+ * most of the users want.  Note that pinned negative with unlocked parent
+ * _can_ become positive at any time, so callers of lookup_one_len_unlocked()
+ * need to be very careful; pinned positives have ->d_inode stable, so
+ * this one avoids such problems.
+ */
+struct dentry *lookup_positive_unlocked(const char *name,
+				       struct dentry *base, int len)
+{
+	struct dentry *ret = lookup_one_len_unlocked(name, base, len);
+	if (!IS_ERR(ret) && d_is_negative(ret)) {
+		dput(ret);
+		ret = ERR_PTR(-ENOENT);
+	}
+	return ret;
+}
+EXPORT_SYMBOL(lookup_positive_unlocked);
+
 #ifdef CONFIG_UNIX98_PTYS
 int path_pts(struct path *path)
 {
@@ -2721,7 +2730,7 @@ int path_pts(struct path *path)
 	this.name = "pts";
 	this.len = 3;
 	child = d_hash_and_lookup(parent, &this);
-	if (!child)
+	if (IS_ERR_OR_NULL(child))
 		return -ENOENT;
 
 	path->dentry = child;
@@ -3281,7 +3290,7 @@ static int lookup_open(struct nameidata *nd, struct path *path,
 	struct dentry *dentry;
 	int error, create_error = 0;
 	umode_t mode = op->mode;
-	DECLARE_WAIT_QUEUE_HEAD_ONSTACK(wq);
+	DECLARE_SWAIT_QUEUE_HEAD_ONSTACK(wq);
 
 	if (unlikely(IS_DEADDIR(dir_inode)))
 		return -ENOENT;
@@ -3599,6 +3608,8 @@ struct dentry *vfs_tmpfile(struct dentry *dentry, umode_t mode, int open_flag)
 	child = d_alloc(dentry, &slash_name);
 	if (unlikely(!child))
 		goto out_err;
+	if (!IS_POSIXACL(dir))
+		mode &= ~current_umask();
 	error = dir->i_op->tmpfile(dir, child, mode);
 	if (error)
 		goto out_err;
@@ -3829,10 +3840,6 @@ EXPORT_SYMBOL(kern_path_create);
 
 void done_path_create(struct path *path, struct dentry *dentry)
 {
-#ifdef CONFIG_FSC
-	if (fsc_enable && fsc_allow_list_cur)
-		fsc_delete_absence_path_dentry(path, dentry);
-#endif
 	dput(dentry);
 	inode_unlock(path->dentry->d_inode);
 	mnt_drop_write(path->mnt);
@@ -4824,12 +4831,6 @@ retry_deleg:
 	error = vfs_rename2(old_path.mnt, old_path.dentry->d_inode, old_dentry,
 			   new_path.dentry->d_inode, new_dentry,
 			   &delegated_inode, flags);
-
-#ifdef CONFIG_FSC
-	if (fsc_enable && fsc_allow_list_cur && !error)
-		fsc_delete_absence_path_dentry(&new_path, new_dentry);
-#endif
-
 exit5:
 	dput(new_dentry);
 exit4:
@@ -5025,7 +5026,7 @@ int __page_symlink(struct inode *inode, const char *symname, int len, int nofs)
 {
 	struct address_space *mapping = inode->i_mapping;
 	struct page *page;
-	void *fsdata;
+	void *fsdata = NULL;
 	int err;
 	unsigned int flags = 0;
 	if (nofs)

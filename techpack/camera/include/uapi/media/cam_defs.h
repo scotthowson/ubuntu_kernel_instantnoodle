@@ -38,8 +38,7 @@
 #define CAM_COMMON_OPCODE_BASE_v2           0x150
 #define CAM_ACQUIRE_HW                      (CAM_COMMON_OPCODE_BASE_v2 + 0x1)
 #define CAM_RELEASE_HW                      (CAM_COMMON_OPCODE_BASE_v2 + 0x2)
-//add dpc read for imx471
-#define CAM_GET_DPC_DATA                    (CAM_COMMON_OPCODE_BASE_v2 + 0x3)
+#define CAM_DUMP_REQ                        (CAM_COMMON_OPCODE_BASE_v2 + 0x3)
 
 #define CAM_EXT_OPCODE_BASE                     0x200
 #define CAM_CONFIG_DEV_EXTERNAL                 (CAM_EXT_OPCODE_BASE + 0x1)
@@ -86,14 +85,6 @@ enum flush_type_t {
 	CAM_FLUSH_TYPE_REQ,
 	CAM_FLUSH_TYPE_ALL,
 	CAM_FLUSH_TYPE_MAX
-};
-
-/*add for get hall dat for EIS*/
-#define HALL_MAX_NUMBER 12
-struct ois_hall_type {
-	uint32_t dataNum;
-	uint32_t mdata[HALL_MAX_NUMBER];
-	uint32_t timeStamp;
 };
 
 /**
@@ -880,5 +871,26 @@ struct cam_reg_dump_input_info {
 	uint32_t                   dump_set_offsets[1];
 };
 
+/**
+ * struct cam_dump_req_cmd -
+ *        Dump the information of issue req id
+ *
+ * @issue_req_id   : Issue Request Id
+ * @offset         : Offset for the buffer
+ * @buf_handle     : Buffer Handle
+ * @error_type     : Error type, using it, dumping information can be extended
+ * @session_handle : Session Handle
+ * @link_hdl       : link handle
+ * @dev_handle     : Device Handle
+ */
+struct cam_dump_req_cmd {
+	uint64_t       issue_req_id;
+	size_t         offset;
+	uint32_t       buf_handle;
+	uint32_t       error_type;
+	int32_t        session_handle;
+	int32_t        link_hdl;
+	int32_t        dev_handle;
+};
 
 #endif /* __UAPI_CAM_DEFS_H__ */

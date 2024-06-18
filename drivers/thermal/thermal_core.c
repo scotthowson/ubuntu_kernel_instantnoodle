@@ -9,7 +9,6 @@
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
-#include <linux/pm_qos.h>
 #include <linux/module.h>
 #include <linux/device.h>
 #include <linux/err.h>
@@ -35,9 +34,6 @@ MODULE_DESCRIPTION("Generic thermal management sysfs support");
 MODULE_LICENSE("GPL v2");
 
 #define THERMAL_MAX_ACTIVE	16
-#define THERMAL_MAX_MASK	(1UL<<8)
-#define THERMAL_TRIP_POINT	(1UL<<7)
-#define THERMAL_TEMP_MASK	0x7F
 
 static DEFINE_IDA(thermal_tz_ida);
 static DEFINE_IDA(thermal_cdev_ida);
@@ -56,10 +52,6 @@ static bool power_off_triggered;
 static struct thermal_governor *def_governor;
 
 static struct workqueue_struct *thermal_passive_wq;
-
-static struct thermal_zone_device *msm_tz, *skin_tz;
-static struct thermal_zone_device *xo_mmw1_tz, *modem_mmw2_tz;
-static struct thermal_zone_device *modem_skin_tz, *pa1_mmw0_tz;
 
 /*
  * Governor section: set of functions to handle thermal governors
@@ -240,15 +232,14 @@ int thermal_build_list_of_policies(char *buf)
 {
 	struct thermal_governor *pos;
 	ssize_t count = 0;
-	ssize_t size = PAGE_SIZE;
 
 	mutex_lock(&thermal_governor_lock);
 
 	list_for_each_entry(pos, &thermal_governor_list, governor_list) {
-		size = PAGE_SIZE - count;
-		count += scnprintf(buf + count, size, "%s ", pos->name);
+		count += scnprintf(buf + count, PAGE_SIZE - count, "%s ",
+				   pos->name);
 	}
-	count += scnprintf(buf + count, size, "\n");
+	count += scnprintf(buf + count, PAGE_SIZE - count, "\n");
 
 	mutex_unlock(&thermal_governor_lock);
 
@@ -308,11 +299,12 @@ static void thermal_zone_device_set_polling(struct workqueue_struct *queue,
 					    int delay)
 {
 	if (delay > 1000)
-		mod_delayed_work(queue, &tz->poll_queue,
+		mod_delayed_work(system_freezable_power_efficient_wq,
+				 &tz->poll_queue,
 				 round_jiffies(msecs_to_jiffies(delay)));
 	else if (delay)
-		mod_delayed_work(queue, &tz->poll_queue,
-				 msecs_to_jiffies(delay));
+		mod_delayed_work(system_freezable_power_efficient_wq,
+				 &tz->poll_queue, msecs_to_jiffies(delay));
 	else
 		cancel_delayed_work(&tz->poll_queue);
 }
@@ -482,6 +474,8 @@ static void thermal_zone_device_init(struct thermal_zone_device *tz)
 {
 	struct thermal_instance *pos;
 	tz->temperature = THERMAL_TEMP_INVALID;
+	tz->prev_low_trip = -INT_MAX;
+	tz->prev_high_trip = INT_MAX;
 	list_for_each_entry(pos, &tz->thermal_instances, tz_node)
 		pos->initialized = false;
 }
@@ -1332,6 +1326,7 @@ thermal_zone_device_register(const char *type, int trips, int mask,
 	/* A new thermal zone needs to be updated anyway. */
 	atomic_set(&tz->need_update, 1);
 
+<<<<<<< Updated upstream
 	/*To unify the common skin thermal node that readable easier.
 	 * Use
 	 * /sys/class/thermal/msm-therm/ and /sys/class/thermal/skin-therm/
@@ -1358,6 +1353,9 @@ thermal_zone_device_register(const char *type, int trips, int mask,
 	else if (strcmp(tz->type, "skin-therm-usr") ==  0)
 		modem_skin_tz = tz;
 
+=======
+	dev_set_name(&tz->device, "thermal_zone%d", tz->id);
+>>>>>>> Stashed changes
 	result = device_register(&tz->device);
 	if (result)
 		goto remove_device_groups;
@@ -1426,7 +1424,7 @@ free_tz:
 EXPORT_SYMBOL_GPL(thermal_zone_device_register);
 
 /**
- * thermal_device_unregister - removes the registered thermal zone device
+ * thermal_zone_device_unregister - removes the registered thermal zone device
  * @tz: the thermal zone device to remove
  */
 void thermal_zone_device_unregister(struct thermal_zone_device *tz)
@@ -1522,6 +1520,20 @@ exit:
 }
 EXPORT_SYMBOL_GPL(thermal_zone_get_zone_by_name);
 
+<<<<<<< Updated upstream
+=======
+/**
+ * thermal_zone_get_cdev_by_name() - search for a cooling device and returns
+ * its ref.
+ * @name: thermal cdev name to fetch the temperature
+ *
+ * When only one cdev is found with the passed name, returns a reference to it.
+ *
+ * Return: On success returns a reference to an unique thermal cooling device
+ * with matching name equals to @name, an ERR_PTR otherwise (-EINVAL for
+ * invalid paramenters, -ENODEV for not found and -EEXIST for multiple matches).
+ */
+>>>>>>> Stashed changes
 struct thermal_cooling_device *thermal_zone_get_cdev_by_name(const char *name)
 {
 	struct thermal_cooling_device *pos = NULL, *ref = ERR_PTR(-EINVAL);
@@ -1680,101 +1692,6 @@ static struct notifier_block thermal_pm_nb = {
 	.notifier_call = thermal_pm_notify,
 };
 
-static int update_thermal_target(struct thermal_zone_device *tz, unsigned long val, int thermal_type)
-{
-	int ret = -1;
-	int temperature = 0, trip = 0;
-
-	pr_info("%s::val = %ul, thermal_type = %d\n", __func__, val, thermal_type);
-
-	if (val > THERMAL_MAX_MASK - 1) {
-		pr_err("%s: The input parameter is illegal, val = %ul\n", __func__, val);
-		return -EINVAL;
-	}
-
-	if (!tz->ops->set_trip_temp) {
-		pr_err("%s: set_trip_temp is NULL!\n", __func__);
-		return -EINVAL;
-	}
-
-	trip = (val & THERMAL_TRIP_POINT) >> 7;
-	temperature = THERMAL_TEMP_MASK & val;
-
-	pr_err("%s: trip = %d, temp = %d\n", __func__, trip, temperature);
-
-	if (temperature < 30) {
-		pr_err("%s: temp trip is too small!!\n", __func__);
-		return -EPERM;
-	}
-
-	if (((temperature > 86) && (thermal_type == 0))|((temperature > 61) && (thermal_type == 1))) {
-		pr_err("%s: temp trip is too larger!!\n", __func__);
-		return -EPERM;
-	}
-
-	ret = tz->ops->set_trip_temp(tz, trip, temperature*1000);
-	if (ret)
-		return ret;
-
-	thermal_zone_device_update(tz, THERMAL_EVENT_UNSPECIFIED);
-	pr_notice("%s: update_thermal config successful\n", __func__);
-	return ret;
-}
-
-static int modem_skin_thermal_qos_handler(struct notifier_block *b, unsigned long val, void *v)
-{
-	return update_thermal_target(modem_skin_tz, val, 0);
-}
-
-static struct notifier_block modem_skin_thermal_qos_notifier = {
-	.notifier_call = modem_skin_thermal_qos_handler,
-};
-
-static int pa1_mmw0_thermal_qos_handler(struct notifier_block *b, unsigned long val, void *v)
-{
-	return update_thermal_target(pa1_mmw0_tz, val, 0);
-}
-
-static struct notifier_block pa1_mmw0_thermal_qos_notifier = {
-	.notifier_call = pa1_mmw0_thermal_qos_handler,
-};
-
-static int xo_mmw1_thermal_qos_handler(struct notifier_block *b, unsigned long val, void *v)
-{
-	return update_thermal_target(xo_mmw1_tz, val, 0);
-}
-
-static struct notifier_block xo_mmw1_thermal_qos_notifier = {
-	.notifier_call = xo_mmw1_thermal_qos_handler,
-};
-
-static int modem_mmw2_qos_handler(struct notifier_block *b, unsigned long val, void *v)
-{
-	return update_thermal_target(modem_mmw2_tz, val, 0);
-}
-
-static struct notifier_block modem_mmw2_qos_notifier = {
-	.notifier_call = modem_mmw2_qos_handler,
-};
-
-static int msm_thermal_qos_handler(struct notifier_block *b, unsigned long val, void *v)
-{
-	return update_thermal_target(msm_tz, val, 0);
-}
-
-static struct notifier_block msm_thermal_qos_notifier = {
-	.notifier_call = msm_thermal_qos_handler,
-};
-
-static int skin_thermal_qos_handler(struct notifier_block *b, unsigned long val, void *v)
-{
-	return update_thermal_target(skin_tz, val, 1);
-}
-
-static struct notifier_block skin_thermal_qos_notifier = {
-	.notifier_call = skin_thermal_qos_handler,
-};
-
 static int __init thermal_init(void)
 {
 	int result;
@@ -1806,6 +1723,7 @@ static int __init thermal_init(void)
 		pr_warn("Thermal: Can not register suspend notifier, return %d\n",
 			result);
 
+<<<<<<< Updated upstream
 	/*Power Teams add dynamic thermal qos notify */
 	pm_qos_add_notifier(PM_QOS_MSM_THERMAL, &msm_thermal_qos_notifier);
 	pm_qos_add_notifier(PM_QOS_SKIN_THERMAL, &skin_thermal_qos_notifier);
@@ -1814,6 +1732,8 @@ static int __init thermal_init(void)
 	pm_qos_add_notifier(PM_QOS_MMW0_THERMAL, &pa1_mmw0_thermal_qos_notifier);
 	pm_qos_add_notifier(PM_QOS_MMW2_THERMAL, &modem_mmw2_qos_notifier);
 
+=======
+>>>>>>> Stashed changes
 	return 0;
 
 exit_zone_parse:

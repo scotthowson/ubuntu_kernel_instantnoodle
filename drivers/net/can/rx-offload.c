@@ -281,7 +281,11 @@ int can_rx_offload_queue_sorted(struct can_rx_offload *offload,
 
 	if (skb_queue_len(&offload->skb_queue) >
 	    offload->skb_queue_len_max) {
+<<<<<<< Updated upstream
 		kfree_skb(skb);
+=======
+		dev_kfree_skb_any(skb);
+>>>>>>> Stashed changes
 		return -ENOBUFS;
 	}
 
@@ -326,7 +330,11 @@ int can_rx_offload_queue_tail(struct can_rx_offload *offload,
 {
 	if (skb_queue_len(&offload->skb_queue) >
 	    offload->skb_queue_len_max) {
+<<<<<<< Updated upstream
 		kfree_skb(skb);
+=======
+		dev_kfree_skb_any(skb);
+>>>>>>> Stashed changes
 		return -ENOBUFS;
 	}
 

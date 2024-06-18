@@ -140,6 +140,7 @@
 				qcom,hw-settle-time = <200>;
 				qcom,pre-scaling = <1 1>;
 			};
+<<<<<<< Updated upstream
 
 			die_temp_s3 {
 				reg = <ADC_SBUx>;
@@ -147,6 +148,8 @@
 				qcom,pre-scaling = <1 3>;
 				qcom,scale-fn-type = <ADC_SCALE_HW_CALIB_PM2250_S3_DIE_TEMP>;
 			};
+=======
+>>>>>>> Stashed changes
 		};
 
 

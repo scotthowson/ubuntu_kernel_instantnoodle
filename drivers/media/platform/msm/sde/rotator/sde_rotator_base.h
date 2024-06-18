@@ -18,7 +18,10 @@
 #include "sde_rotator_io_util.h"
 #include "sde_rotator_smmu.h"
 #include "sde_rotator_formats.h"
+<<<<<<< Updated upstream
 #include <linux/pm_qos.h>
+=======
+>>>>>>> Stashed changes
 
 /* HW Revisions for different targets */
 #define SDE_GET_MAJOR_REV(rev)	((rev) >> 28)
@@ -35,6 +38,7 @@
 	 (((minor) & 0x0FFF) << 16) | \
 	  ((step)  & 0xFFFF))
 
+<<<<<<< Updated upstream
 #define SDE_MDP_HW_REV_107	SDE_MDP_REV(1, 0, 7)
 #define SDE_MDP_HW_REV_300	SDE_MDP_REV(3, 0, 0)
 #define SDE_MDP_HW_REV_301	SDE_MDP_REV(3, 0, 1)
@@ -47,6 +51,20 @@
 #define SDE_MDP_HW_REV_540	SDE_MDP_REV(5, 4, 0)
 #define SDE_MDP_HW_REV_620	SDE_MDP_REV(6, 2, 0)
 #define SDE_MDP_HW_REV_320	SDE_MDP_REV(3, 2, 0)
+=======
+#define SDE_MDP_HW_REV_107	SDE_MDP_REV(1, 0, 7)	/* 8996 v1.0 */
+#define SDE_MDP_HW_REV_300	SDE_MDP_REV(3, 0, 0)	/* 8998 v1.0 */
+#define SDE_MDP_HW_REV_301	SDE_MDP_REV(3, 0, 1)	/* 8998 v1.1 */
+#define SDE_MDP_HW_REV_320	SDE_MDP_REV(3, 2, 0)    /* sdm660 */
+#define SDE_MDP_HW_REV_400	SDE_MDP_REV(4, 0, 0)	/* sdm845 v1.0 */
+#define SDE_MDP_HW_REV_410	SDE_MDP_REV(4, 1, 0)	/* sdm670 v1.0 */
+#define SDE_MDP_HW_REV_500	SDE_MDP_REV(5, 0, 0)	/* sm8150 v1.0 */
+#define SDE_MDP_HW_REV_520	SDE_MDP_REV(5, 2, 0)	/* sdmmagpie v1.0 */
+#define SDE_MDP_HW_REV_530	SDE_MDP_REV(5, 3, 0)	/* sm6150 v1.0 */
+#define SDE_MDP_HW_REV_540	SDE_MDP_REV(5, 4, 0)	/* sdmtrinket v1.0 */
+#define SDE_MDP_HW_REV_620	SDE_MDP_REV(6, 2, 0)	/* atoll */
+#define SDE_MDP_HW_REV_320	SDE_MDP_REV(3, 2, 0)	/* sdm660 */
+>>>>>>> Stashed changes
 
 #define SDE_MDP_VBIF_4_LEVEL_REMAPPER	4
 #define SDE_MDP_VBIF_8_LEVEL_REMAPPER	8
@@ -56,8 +74,13 @@
 #define XIN_WRITEBACK	1
 #define MAX_XIN		2
 
+<<<<<<< Updated upstream
 #define MDSS_MDP_HW_REV_320	0x30020000
 #define MDSS_MDP_HW_REV_330	0x30030000
+=======
+#define MDSS_MDP_HW_REV_320	0x30020000  /* sdm660 */
+#define MDSS_MDP_HW_REV_330	0x30030000  /* sdm630 */
+>>>>>>> Stashed changes
 
 struct sde_mult_factor {
 	uint32_t numer;
@@ -264,11 +287,14 @@ struct sde_rot_data_type {
 
 	u32 vbif_xin_id[MAX_XIN];
 
+<<<<<<< Updated upstream
 	struct pm_qos_request pm_qos_rot_cpu_req;
 	u32 rot_pm_qos_cpu_count;
 	u32 rot_pm_qos_cpu_mask;
 	u32 rot_pm_qos_cpu_dma_latency;
 
+=======
+>>>>>>> Stashed changes
 	u32 vbif_memtype_count;
 	u32 *vbif_memtype;
 
@@ -277,6 +303,11 @@ struct sde_rot_data_type {
 	int (*iommu_ctrl)(int enable);
 	int (*secure_session_ctrl)(int enable);
 	int (*wait_for_transition)(int state, int request);
+<<<<<<< Updated upstream
+=======
+	void (*vbif_reg_lock)(void);
+	void (*vbif_reg_unlock)(void);
+>>>>>>> Stashed changes
 	struct sde_rot_vbif_debug_bus *nrt_vbif_dbg_bus;
 	u32 nrt_vbif_dbg_bus_size;
 	struct sde_rot_debug_bus *rot_dbg_bus;

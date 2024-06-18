@@ -43,6 +43,26 @@ int32_t hdd_cfg80211_get_station_cmd(struct wiphy *wiphy,
 				     const void *data,
 				     int data_len);
 
+<<<<<<< Updated upstream
+=======
+/**
+ * hdd_cfg80211_get_sta_info_cmd() - Handle get sta info vendor cmd
+ * @wiphy: corestack handler
+ * @wdev: wireless device
+ * @data: data
+ * @data_len: data length
+ *
+ * Handles QCA_NL80211_VENDOR_SUBCMD_GET_STA_INFO.
+ * Validate cmd attributes and send the sta info to upper layers.
+ *
+ * Return: Success(0) or reason code for failure
+ */
+int32_t hdd_cfg80211_get_sta_info_cmd(struct wiphy *wiphy,
+				      struct wireless_dev *wdev,
+				      const void *data,
+				      int data_len);
+
+>>>>>>> Stashed changes
 #define FEATURE_STATION_INFO_VENDOR_COMMANDS				\
 {									\
 	.info.vendor_id = QCA_NL80211_VENDOR_ID,			\
@@ -51,6 +71,17 @@ int32_t hdd_cfg80211_get_station_cmd(struct wiphy *wiphy,
 		WIPHY_VENDOR_CMD_NEED_NETDEV |				\
 		WIPHY_VENDOR_CMD_NEED_RUNNING,				\
 	.doit = hdd_cfg80211_get_station_cmd				\
+<<<<<<< Updated upstream
+=======
+},									\
+{									\
+	.info.vendor_id = QCA_NL80211_VENDOR_ID,			\
+	.info.subcmd = QCA_NL80211_VENDOR_SUBCMD_GET_STA_INFO,		\
+	.flags = WIPHY_VENDOR_CMD_NEED_WDEV |				\
+	WIPHY_VENDOR_CMD_NEED_NETDEV |					\
+	WIPHY_VENDOR_CMD_NEED_RUNNING,					\
+	.doit = hdd_cfg80211_get_sta_info_cmd,				\
+>>>>>>> Stashed changes
 },
 #else /* FEATURE_STATION_INFO */
 #define FEATURE_STATION_INFO_VENDOR_COMMANDS

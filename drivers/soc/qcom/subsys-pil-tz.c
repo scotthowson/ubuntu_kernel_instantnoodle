@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
+<<<<<<< Updated upstream
  * Copyright (c) 2014-2020, The Linux Foundation. All rights reserved.
+=======
+ * Copyright (c) 2014-2021, The Linux Foundation. All rights reserved.
+>>>>>>> Stashed changes
  */
 
 #include <linux/kernel.h>
@@ -24,7 +28,6 @@
 
 #include <linux/soc/qcom/smem.h>
 #include <linux/soc/qcom/smem_state.h>
-#include <linux/oem/project_info.h>
 
 #include "peripheral-loader.h"
 
@@ -39,6 +42,13 @@
 
 #define desc_to_data(d) container_of(d, struct pil_tz_data, desc)
 #define subsys_to_data(d) container_of(d, struct pil_tz_data, subsys_desc)
+
+struct pil_map_fw_info {
+	void *region;
+	unsigned long attrs;
+	phys_addr_t base_addr;
+	struct device *dev;
+};
 
 /**
  * struct reg_info - regulator info
@@ -600,16 +610,21 @@ static void pil_remove_proxy_vote(struct pil_desc *pil)
 }
 
 static int pil_init_image_trusted(struct pil_desc *pil,
-		const u8 *metadata, size_t size)
+		const u8 *metadata, size_t size, phys_addr_t mdata_phys,
+		void *region)
 {
 	struct pil_tz_data *d = desc_to_data(pil);
 	u32 scm_ret = 0;
 	void *mdata_buf;
-	dma_addr_t mdata_phys;
 	int ret;
-	unsigned long attrs = 0;
-	struct device dev = {0};
 	struct scm_desc desc = {0};
+	struct pil_map_fw_info map_fw_info = {
+		.attrs = pil->attrs,
+		.region = region,
+		.base_addr = mdata_phys,
+		.dev = pil->dev,
+	};
+	void *map_data = pil->map_data ? pil->map_data : &map_fw_info;
 
 	if (d->subsys_desc.no_auth)
 		return 0;
@@ -617,15 +632,10 @@ static int pil_init_image_trusted(struct pil_desc *pil,
 	ret = scm_pas_enable_bw();
 	if (ret)
 		return ret;
-	arch_setup_dma_ops(&dev, 0, 0, NULL, 0);
 
-	dev.coherent_dma_mask =
-		DMA_BIT_MASK(sizeof(dma_addr_t) * 8);
-	attrs |= DMA_ATTR_STRONGLY_ORDERED;
-	mdata_buf = dma_alloc_attrs(&dev, size, &mdata_phys, GFP_KERNEL,
-					attrs);
+	mdata_buf = pil->map_fw_mem(mdata_phys, size, map_data);
 	if (!mdata_buf) {
-		pr_err("scm-pas: Allocation for metadata failed.\n");
+		dev_err(pil->dev, "Failed to map memory for metadata.\n");
 		scm_pas_disable_bw();
 		return -ENOMEM;
 	}
@@ -639,7 +649,7 @@ static int pil_init_image_trusted(struct pil_desc *pil,
 			&desc);
 	scm_ret = desc.ret[0];
 
-	dma_free_attrs(&dev, size, mdata_buf, mdata_phys, attrs);
+	pil->unmap_fw_mem(mdata_buf, size, map_data);
 	scm_pas_disable_bw();
 	if (ret)
 		return ret;
@@ -799,7 +809,7 @@ static struct pil_reset_ops pil_ops_trusted = {
 static void log_failure_reason(const struct pil_tz_data *d)
 {
 	size_t size;
-	char *smem_reason, reason[MAX_SSR_REASON_LEN], *function_name;
+	char *smem_reason, reason[MAX_SSR_REASON_LEN];
 	const char *name = d->subsys_desc.name;
 
 	if (d->smem_id == -1)
@@ -817,10 +827,7 @@ static void log_failure_reason(const struct pil_tz_data *d)
 	}
 
 	strlcpy(reason, smem_reason, min(size, (size_t)MAX_SSR_REASON_LEN));
-	function_name = parse_function_builtin_return_address((unsigned long)__builtin_return_address(0));
-	save_dump_reason_to_smem(reason, function_name);
 	pr_err("%s subsystem failure reason: %s.\n", name, reason);
-	subsys_store_crash_reason(d->subsys, reason);
 }
 
 static int subsys_shutdown(const struct subsys_desc *subsys, bool force_stop)
@@ -979,7 +986,7 @@ static void clear_pbl_done(struct pil_tz_data *d)
 		pr_err("PBL error status spare2 register: 0x%08x\n",
 			rmb_err_spare2);
 	} else {
-		pr_info("PBL_DONE - 1st phase loading [%s] completed finish\n",
+		pr_info("PBL_DONE - 1st phase loading [%s] completed ok\n",
 			d->subsys_desc.name);
 	}
 	__raw_writel(BIT(d->bits_arr[PBL_DONE]), d->irq_clear);
@@ -990,7 +997,7 @@ static void clear_err_ready(struct pil_tz_data *d)
 	pr_debug("Subsystem error services up received from %s\n",
 							d->subsys_desc.name);
 
-	pr_info("SW_INIT_DONE - 2nd phase loading [%s] completed finish\n",
+	pr_info("SW_INIT_DONE - 2nd phase loading [%s] completed ok\n",
 		d->subsys_desc.name);
 
 	__raw_writel(BIT(d->bits_arr[ERR_READY]), d->irq_clear);

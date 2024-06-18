@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (c) 2016-2020, The Linux Foundation. All rights reserved.
+<<<<<<< Updated upstream
+=======
+ * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+>>>>>>> Stashed changes
  */
 
 #include <linux/gpio.h>
@@ -261,12 +265,23 @@ static int lpi_gpio_set_mux(struct pinctrl_dev *pctldev, unsigned int function,
 
 	pad = pctldev->desc->pins[pin].drv_data;
 
+<<<<<<< Updated upstream
 	pad->function = function;
 
 	val = lpi_gpio_read(pad, LPI_GPIO_REG_VAL_CTL);
 	val &= ~(LPI_GPIO_REG_FUNCTION_MASK);
 	val |= pad->function << LPI_GPIO_REG_FUNCTION_SHIFT;
 	lpi_gpio_write(pad, LPI_GPIO_REG_VAL_CTL, val);
+=======
+	if (pad != NULL) {
+		pad->function = function;
+
+		val = lpi_gpio_read(pad, LPI_GPIO_REG_VAL_CTL);
+		val &= ~(LPI_GPIO_REG_FUNCTION_MASK);
+		val |= pad->function << LPI_GPIO_REG_FUNCTION_SHIFT;
+		lpi_gpio_write(pad, LPI_GPIO_REG_VAL_CTL, val);
+	}
+>>>>>>> Stashed changes
 	return 0;
 }
 

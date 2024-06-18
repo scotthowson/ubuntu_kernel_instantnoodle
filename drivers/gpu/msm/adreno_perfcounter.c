@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (c) 2002,2007-2020, The Linux Foundation. All rights reserved.
+<<<<<<< Updated upstream
+=======
+ * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+>>>>>>> Stashed changes
  */
 
 #include <linux/slab.h>
@@ -129,7 +133,12 @@ void adreno_perfcounter_restore(struct adreno_device *adreno_dev)
 	if (adreno_is_a702(adreno_dev))
 		return;
 
+<<<<<<< Updated upstream
 	if (counters == NULL)
+=======
+	/* Do not save/restore if not requested */
+	if (counters == NULL || !adreno_dev->perfcounter)
+>>>>>>> Stashed changes
 		return;
 
 	for (groupid = 0; groupid < counters->group_count; groupid++) {
@@ -165,7 +174,12 @@ inline void adreno_perfcounter_save(struct adreno_device *adreno_dev)
 	if (adreno_is_a702(adreno_dev))
 		return;
 
+<<<<<<< Updated upstream
 	if (counters == NULL)
+=======
+	/* Do not save/restore if not requested */
+	if (counters == NULL || !adreno_dev->perfcounter)
+>>>>>>> Stashed changes
 		return;
 
 	for (groupid = 0; groupid < counters->group_count; groupid++) {

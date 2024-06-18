@@ -2314,7 +2314,11 @@ struct roam_offload_scan_req {
 	uint32_t roam_inactive_data_packet_count;
 	uint32_t roam_scan_period_after_inactivity;
 	uint32_t btm_query_bitmask;
+<<<<<<< Updated upstream
 	struct roam_trigger_min_rssi min_rssi_params[NUM_OF_ROAM_TRIGGERS];
+=======
+	struct roam_trigger_min_rssi min_rssi_params[NUM_OF_ROAM_MIN_RSSI];
+>>>>>>> Stashed changes
 	struct roam_trigger_score_delta score_delta_param[NUM_OF_ROAM_TRIGGERS];
 	uint32_t full_roam_scan_period;
 };
@@ -2557,6 +2561,10 @@ typedef struct sSirScanOffloadEvent {
  * @dfsSet: is dfs supported or not
  * @half_rate: is the channel operating at 10MHz
  * @quarter_rate: is the channel operating at 5MHz
+<<<<<<< Updated upstream
+=======
+ * @nan_disabled: is NAN disabled on @freq
+>>>>>>> Stashed changes
  */
 typedef struct sSirUpdateChanParam {
 	uint32_t freq;
@@ -2564,6 +2572,10 @@ typedef struct sSirUpdateChanParam {
 	bool dfsSet;
 	bool half_rate;
 	bool quarter_rate;
+<<<<<<< Updated upstream
+=======
+	bool nan_disabled;
+>>>>>>> Stashed changes
 } tSirUpdateChanParam, *tpSirUpdateChanParam;
 
 typedef struct sSirUpdateChan {
@@ -3023,6 +3035,10 @@ struct roam_offload_synch_ind {
 #ifdef WLAN_FEATURE_ROAM_OFFLOAD
 struct handoff_failure_ind {
 	uint8_t vdev_id;
+<<<<<<< Updated upstream
+=======
+	struct qdf_mac_addr bssid;
+>>>>>>> Stashed changes
 };
 
 struct roam_offload_synch_fail {
@@ -3571,6 +3587,10 @@ struct wifi_interface_info {
 	uint8_t apCountryStr[CFG_COUNTRY_CODE_LEN];
 	/* country string for this association */
 	uint8_t countryStr[CFG_COUNTRY_CODE_LEN];
+<<<<<<< Updated upstream
+=======
+	uint8_t time_slice_duty_cycle;
+>>>>>>> Stashed changes
 };
 
 /**
@@ -5401,6 +5421,10 @@ struct ppet_hdr {
 #define HE_CH_WIDTH_COMBINE(b0, b1, b2, b3, b4, b5, b6)             \
 	((uint8_t)(b0) | ((b1) << 1) | ((b2) << 2) |  ((b3) << 3) | \
 	((b4) << 4) | ((b5) << 5) | ((b6) << 6))
+<<<<<<< Updated upstream
+=======
+#define HE_CH_WIDTH_CLR_BIT(ch_wd, bit)      (((ch_wd) >> (bit)) & ~1)
+>>>>>>> Stashed changes
 
 /*
  * MCS values are interpreted as in IEEE 11ax-D1.4 spec onwards

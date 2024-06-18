@@ -364,7 +364,7 @@ enum mhi_cmd_type {
 #define MHI_RSCTRE_DATA_DWORD0(cookie) (cookie)
 #define MHI_RSCTRE_DATA_DWORD1 (MHI_PKT_TYPE_COALESCING << 16)
 
-#define MHI_RSC_MIN_CREDITS (8)
+#define MHI_RSC_MIN_CREDITS (10)
 
 enum MHI_CMD {
 	MHI_CMD_RESET_CHAN,
@@ -529,6 +529,7 @@ enum MHI_XFER_TYPE {
 #define MHI_DEV_WAKE_DB (127)
 #define MHI_MAX_MTU (0xffff)
 
+<<<<<<< Updated upstream
 #define MHI_TIMESYNC_DB_SETUP(er_index) ((MHI_TIMESYNC_CHAN_DB << \
 	TIMESYNC_CFG_CHAN_DB_ID_SHIFT) & TIMESYNC_CFG_CHAN_DB_ID_MASK | \
 	(1 << TIMESYNC_CFG_ENABLED_SHIFT) & TIMESYNC_CFG_ENABLED_MASK | \
@@ -538,6 +539,17 @@ enum MHI_XFER_TYPE {
 	BW_SCALE_CFG_CHAN_DB_ID_SHIFT) & BW_SCALE_CFG_CHAN_DB_ID_MASK | \
 	(1 << BW_SCALE_CFG_ENABLED_SHIFT) & BW_SCALE_CFG_ENABLED_MASK | \
 	((er_index) << BW_SCALE_CFG_ER_ID_SHIFT) & BW_SCALE_CFG_ER_ID_MASK)
+=======
+#define MHI_TIMESYNC_DB_SETUP(er_index) (((MHI_TIMESYNC_CHAN_DB << \
+	TIMESYNC_CFG_CHAN_DB_ID_SHIFT) & TIMESYNC_CFG_CHAN_DB_ID_MASK) | \
+	((1 << TIMESYNC_CFG_ENABLED_SHIFT) & TIMESYNC_CFG_ENABLED_MASK) | \
+	(((er_index) << TIMESYNC_CFG_ER_ID_SHIFT) & TIMESYNC_CFG_ER_ID_MASK))
+
+#define MHI_BW_SCALE_SETUP(er_index) (((MHI_BW_SCALE_CHAN_DB << \
+	BW_SCALE_CFG_CHAN_DB_ID_SHIFT) & BW_SCALE_CFG_CHAN_DB_ID_MASK) | \
+	((1 << BW_SCALE_CFG_ENABLED_SHIFT) & BW_SCALE_CFG_ENABLED_MASK) | \
+	(((er_index) << BW_SCALE_CFG_ER_ID_SHIFT) & BW_SCALE_CFG_ER_ID_MASK))
+>>>>>>> Stashed changes
 
 #define MHI_BW_SCALE_RESULT(status, seq) ((status & 0xF) << 8 | (seq & 0xFF))
 #define MHI_BW_SCALE_NACK 0xF
@@ -808,6 +820,12 @@ static inline void mhi_trigger_resume(struct mhi_controller *mhi_cntrl)
 	pm_wakeup_hard_event(&mhi_cntrl->mhi_dev->dev);
 }
 
+static inline bool is_valid_ring_ptr(struct mhi_ring *ring, dma_addr_t addr)
+{
+	return ((addr >= ring->iommu_base &&
+		addr < ring->iommu_base + ring->len) && (addr % 16 == 0));
+}
+
 /* queue transfer buffer */
 int mhi_gen_tre(struct mhi_controller *mhi_cntrl, struct mhi_chan *mhi_chan,
 		void *buf, void *cb, size_t buf_len, enum MHI_FLAGS flags);
@@ -847,7 +865,11 @@ int mhi_get_capability_offset(struct mhi_controller *mhi_cntrl, u32 capability,
 			      u32 *offset);
 void *mhi_to_virtual(struct mhi_ring *ring, dma_addr_t addr);
 int mhi_init_sfr(struct mhi_controller *mhi_cntrl);
+<<<<<<< Updated upstream
 void mhi_create_sysfs(struct mhi_controller *mhi_cntrl);
+=======
+int mhi_create_sysfs(struct mhi_controller *mhi_cntrl);
+>>>>>>> Stashed changes
 void mhi_destroy_sysfs(struct mhi_controller *mhi_cntrl);
 int mhi_early_notify_device(struct device *dev, void *data);
 void mhi_write_reg_offload(struct mhi_controller *mhi_cntrl,

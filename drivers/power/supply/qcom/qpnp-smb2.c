@@ -413,6 +413,10 @@ static enum power_supply_property smb2_usb_props[] = {
 	POWER_SUPPLY_PROP_TYPEC_MODE,
 	POWER_SUPPLY_PROP_TYPEC_POWER_ROLE,
 	POWER_SUPPLY_PROP_TYPEC_CC_ORIENTATION,
+<<<<<<< Updated upstream
+=======
+	POWER_SUPPLY_PROP_TYPEC_SRC_RP,
+>>>>>>> Stashed changes
 	POWER_SUPPLY_PROP_PD_ALLOWED,
 	POWER_SUPPLY_PROP_PD_ACTIVE,
 	POWER_SUPPLY_PROP_INPUT_CURRENT_SETTLED,
@@ -503,6 +507,12 @@ static int smb2_usb_get_prop(struct power_supply *psy,
 		else
 			rc = smblib_get_prop_typec_cc_orientation(chg, val);
 		break;
+<<<<<<< Updated upstream
+=======
+	case POWER_SUPPLY_PROP_TYPEC_SRC_RP:
+		rc = smblib_get_prop_typec_select_rp(chg, val);
+		break;
+>>>>>>> Stashed changes
 	case POWER_SUPPLY_PROP_PD_ALLOWED:
 		rc = smblib_get_prop_pd_allowed(chg, val);
 		break;
@@ -595,6 +605,12 @@ static int smb2_usb_set_prop(struct power_supply *psy,
 	case POWER_SUPPLY_PROP_TYPEC_POWER_ROLE:
 		rc = smblib_set_prop_typec_power_role(chg, val);
 		break;
+<<<<<<< Updated upstream
+=======
+	case POWER_SUPPLY_PROP_TYPEC_SRC_RP:
+		rc = smblib_set_prop_typec_select_rp(chg, val);
+		break;
+>>>>>>> Stashed changes
 	case POWER_SUPPLY_PROP_PD_ACTIVE:
 		rc = smblib_set_prop_pd_active(chg, val);
 		break;

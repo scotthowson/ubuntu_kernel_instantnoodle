@@ -1,6 +1,10 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
+<<<<<<< Updated upstream
  * Copyright (c) 2017-2020, The Linux Foundation. All rights reserved.
+=======
+ * Copyright (c) 2017-2021, The Linux Foundation. All rights reserved.
+>>>>>>> Stashed changes
  */
 
 #ifndef _NPU_MGR_H
@@ -84,8 +88,8 @@ struct npu_network {
 	atomic_t ref_cnt;
 	bool is_valid;
 	bool is_active;
+	bool is_unloading;
 	bool fw_error;
-	bool is_async;
 	struct npu_client *client;
 	struct list_head cmd_list;
 };
@@ -131,10 +135,15 @@ struct npu_host_ctx {
 	uint32_t err_irq_sts;
 	uint32_t wdg_irq_sts;
 	bool fw_error;
+	bool dev_shuttingdown;
 	bool cancel_work;
 	bool app_crashed;
 	struct notifier_block nb;
 	struct notifier_block panic_nb;
+<<<<<<< Updated upstream
+=======
+	struct notifier_block reboot_nb;
+>>>>>>> Stashed changes
 	void *notif_hdle;
 	spinlock_t bridge_mbox_lock;
 	bool bridge_mbox_pwr_on;

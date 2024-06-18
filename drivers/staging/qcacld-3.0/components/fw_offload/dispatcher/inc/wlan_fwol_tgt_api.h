@@ -1,5 +1,9 @@
 /*
+<<<<<<< Updated upstream
  * Copyright (c) 2019 The Linux Foundation. All rights reserved.
+=======
+ * Copyright (c) 2019-2020 The Linux Foundation. All rights reserved.
+>>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -24,6 +28,11 @@
 
 #include "wlan_fwol_public_structs.h"
 
+<<<<<<< Updated upstream
+=======
+#define FWOL_WILDCARD_PDEV_ID   0
+
+>>>>>>> Stashed changes
 /**
  * tgt_fwol_register_ev_handler() - register south bound event handler
  * @psoc: psoc handle
@@ -47,4 +56,18 @@ QDF_STATUS tgt_fwol_unregister_ev_handler(struct wlan_objmgr_psoc *psoc);
  * Return: QDF_STATUS_SUCCESS on success
  */
 QDF_STATUS tgt_fwol_register_rx_ops(struct wlan_fwol_rx_ops *rx_ops);
+<<<<<<< Updated upstream
+=======
+
+/**
+ * tgt_fwol_pdev_param_send() - send pdev params to firmware
+ * @pdev: pdev handle
+ * @pdev_params: pdev params
+ *
+ * Return: QDF_STATUS_SUCCESS on success
+ */
+QDF_STATUS tgt_fwol_pdev_param_send(struct wlan_objmgr_pdev *pdev,
+				    struct pdev_params pdev_param);
+
+>>>>>>> Stashed changes
 #endif /* _WLAN_FWOL_TGT_API_H */

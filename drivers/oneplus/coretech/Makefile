@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 obj-$(CONFIG_OPCHAIN) += uxcore/
 CORE_PATH = $(KBUILD_SRC)/drivers/oneplus/coretech/uxcore/core
 ifeq ($(CORE_PATH),$(wildcard $(CORE_PATH)))
@@ -34,3 +35,6 @@ obj-$(CONFIG_TPP) += tpp/
 obj-$(CONFIG_MEMEX_STANDALONE) += memex_standalone_support/core/
 obj-$(CONFIG_RATP) += ratp/
 obj-$(CONFIG_ZWB_HANDLE) += zwb_handle/
+=======
+obj-y += houston/
+>>>>>>> Stashed changes

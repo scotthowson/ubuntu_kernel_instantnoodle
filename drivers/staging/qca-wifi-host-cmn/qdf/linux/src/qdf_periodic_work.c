@@ -78,7 +78,11 @@ static void __qdf_periodic_work_handler(struct work_struct *work)
 	/* this is intentionally racy; see qdf_periodic_work_stop_sync() */
 	msec = pwork->msec;
 	if (msec)
+<<<<<<< Updated upstream
 		schedule_delayed_work(&pwork->dwork, msecs_to_jiffies(msec));
+=======
+		queue_delayed_work(system_power_efficient_wq, &pwork->dwork, msecs_to_jiffies(msec));
+>>>>>>> Stashed changes
 }
 
 QDF_STATUS __qdf_periodic_work_create(struct qdf_periodic_work *pwork,
@@ -120,7 +124,11 @@ bool qdf_periodic_work_start(struct qdf_periodic_work *pwork, uint32_t msec)
 
 	pwork->msec = msec;
 
+<<<<<<< Updated upstream
 	return schedule_delayed_work(&pwork->dwork, msecs_to_jiffies(msec));
+=======
+	return queue_delayed_work(system_power_efficient_wq, &pwork->dwork, msecs_to_jiffies(msec));
+>>>>>>> Stashed changes
 }
 
 bool qdf_periodic_work_stop_async(struct qdf_periodic_work *pwork)

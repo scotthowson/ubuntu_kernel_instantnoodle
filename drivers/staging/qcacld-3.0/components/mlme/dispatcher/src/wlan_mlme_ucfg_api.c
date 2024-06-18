@@ -1,5 +1,9 @@
 /*
  * Copyright (c) 2018-2020 The Linux Foundation. All rights reserved.
+<<<<<<< Updated upstream
+=======
+ * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+>>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -1537,23 +1541,47 @@ ucfg_mlme_get_mws_coex_scc_channel_avoid_delay(struct wlan_objmgr_psoc *psoc,
 #endif
 
 QDF_STATUS
+<<<<<<< Updated upstream
 ucfg_mlme_get_etsi13_srd_chan_in_master_mode(struct wlan_objmgr_psoc *psoc,
 					     bool *value)
+=======
+ucfg_mlme_get_etsi_srd_chan_in_master_mode(struct wlan_objmgr_psoc *psoc,
+					   uint8_t *value)
+>>>>>>> Stashed changes
 {
 	struct wlan_mlme_psoc_ext_obj *mlme_obj;
 
 	mlme_obj = mlme_get_psoc_ext_obj(psoc);
 	if (!mlme_obj) {
+<<<<<<< Updated upstream
 		*value = cfg_default(CFG_ETSI13_SRD_CHAN_IN_MASTER_MODE);
+=======
+		*value = cfg_default(CFG_ETSI_SRD_CHAN_IN_MASTER_MODE);
+>>>>>>> Stashed changes
 		mlme_legacy_err("Failed to get MLME Obj");
 		return QDF_STATUS_E_INVAL;
 	}
 
+<<<<<<< Updated upstream
 	*value = mlme_obj->cfg.reg.etsi13_srd_chan_in_master_mode;
+=======
+	*value = mlme_obj->cfg.reg.etsi_srd_chan_in_master_mode;
+>>>>>>> Stashed changes
 
 	return QDF_STATUS_SUCCESS;
 }
 
+<<<<<<< Updated upstream
+=======
+QDF_STATUS
+ucfg_mlme_get_srd_master_mode_for_vdev(struct wlan_objmgr_psoc *psoc,
+				       enum QDF_OPMODE vdev_opmode,
+				       bool *value)
+{
+	return wlan_mlme_get_srd_master_mode_for_vdev(psoc, vdev_opmode, value);
+}
+
+>>>>>>> Stashed changes
 #ifdef SAP_AVOID_ACS_FREQ_LIST
 QDF_STATUS
 ucfg_mlme_get_acs_avoid_freq_list(struct wlan_objmgr_psoc *psoc,
@@ -1776,6 +1804,24 @@ ucfg_mlme_set_obss_detection_offload_enabled(struct wlan_objmgr_psoc *psoc,
 }
 
 QDF_STATUS
+<<<<<<< Updated upstream
+=======
+ucfg_mlme_set_bss_color_collision_det_sta(struct wlan_objmgr_psoc *psoc,
+					  uint8_t value)
+{
+	struct wlan_mlme_psoc_ext_obj *mlme_obj;
+
+	mlme_obj = mlme_get_psoc_ext_obj(psoc);
+	if (!mlme_obj)
+		return QDF_STATUS_E_INVAL;
+
+	mlme_obj->cfg.obss_ht40.bss_color_collision_det_sta = value;
+
+	return QDF_STATUS_SUCCESS;
+}
+
+QDF_STATUS
+>>>>>>> Stashed changes
 ucfg_mlme_set_obss_color_collision_offload_enabled(
 		struct wlan_objmgr_psoc *psoc, uint8_t value)
 {
@@ -1911,3 +1957,16 @@ bool ucfg_mlme_validate_scan_period(uint32_t roam_scan_period)
 
 	return is_valid;
 }
+<<<<<<< Updated upstream
+=======
+
+bool ucfg_is_roaming_enabled(struct wlan_objmgr_pdev *pdev, uint8_t vdev_id)
+{
+	struct wlan_objmgr_psoc *psoc = wlan_pdev_get_psoc(pdev);
+
+	if (mlme_get_roam_state(psoc, vdev_id) == ROAM_RSO_STARTED)
+		return true;
+
+	return false;
+}
+>>>>>>> Stashed changes

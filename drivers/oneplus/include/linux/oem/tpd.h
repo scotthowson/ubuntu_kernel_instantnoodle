@@ -3,7 +3,10 @@
 
 #include <linux/cpumask.h>
 #include <linux/sched.h>
+<<<<<<< Updated upstream
 #include <linux/cpufreq.h>
+=======
+>>>>>>> Stashed changes
 
 #define TPD_CLUSTER_0 (1 << 0)
 #define TPD_CLUSTER_1 (1 << 1)
@@ -18,7 +21,10 @@
 #define TPD_TYPE_PGS (TPD_CLUSTER_2 | TPD_CLUSTER_1 | TPD_CLUSTER_0)	/* all */
 
 #define MAX_THREAD_INPUT 6
+<<<<<<< Updated upstream
 #define MAX_MISS_LIST 20
+=======
+>>>>>>> Stashed changes
 
 #define TPD_TAG "TPD_DEBUG: "
 
@@ -51,6 +57,7 @@ enum dynamic_tpd_type {
 
 #ifdef CONFIG_TPD
 extern bool is_tpd_enable(void);
+<<<<<<< Updated upstream
 extern int tpd_suggested(struct task_struct* tsk, int request_cluster);
 extern void tpd_mask(struct task_struct* tsk, cpumask_t *request);
 extern bool tpd_check(struct task_struct *tsk, int dest_cpu);
@@ -69,6 +76,25 @@ static inline bool is_tpd_task(struct task_struct *tsk) { return false; }
 static inline void tpd_tglist_del(struct task_struct *tsk) {};
 static inline void tpd_init_policy(struct cpufreq_policy *policy) {}
 static inline int tpd_suggested_cpu(struct task_struct* tsk, int request_cpu) { return request_cpu; }
+=======
+extern int tpd_suggested(struct task_struct* tsk, int min_idx, int mid_idx,
+		int max_idx, int request_cpu);
+extern void tpd_mask(struct task_struct* tsk, int min_idx, int mid_idx, int max_idx,
+		cpumask_t *request, int nrcpu);
+extern bool tpd_check(struct task_struct *tsk, int dest_cpu, int min_idx, int mid_idx, int max_idx);
+extern bool is_dynamic_tpd_task(struct task_struct *tsk);
+static inline bool is_tpd_task(struct task_struct *tsk) { return tsk ? (tsk->tpd != 0) : false; }
+#else
+static inline bool is_tpd_enable(void) { return false; }
+static inline int tpd_suggested(struct task_struct* tsk, int min_idx, int mid_idx,
+			int max_idx, int request_cpu) { return request_cpu; }
+static inline void tpd_mask(struct task_struct* tsk, int min_idx, int mid_idx, int max_idx,
+			cpumask_t *request, int nrcpu) {}
+static inline bool tpd_check(struct task_struct *tsk, int dest_cpu, int min_idx,
+			int mid_idx, int max_idx) { return false; }
+static inline bool is_dynamic_tpd_task(struct task_struct *tsk) { return false; }
+static inline bool is_tpd_task(struct task_struct *tsk) { return false; }
+>>>>>>> Stashed changes
 #endif
 
 #endif

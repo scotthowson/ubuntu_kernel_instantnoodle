@@ -11,15 +11,22 @@
 #include "dsi-panel-sim-cmd.dtsi"
 #include "dsi-panel-sim-video.dtsi"
 #include "dsi-panel-r66451-dsc-fhd-plus-144hz-cmd.dtsi"
+<<<<<<< Updated upstream
 #include "dsi-panel-hx83112-tianma-fhd-video.dtsi"
 #include "dsi-panel-s6e3fc3-samsung-fhd-plus-cmd.dtsi"
+=======
+>>>>>>> Stashed changes
 
 #include <dt-bindings/clock/mdss-10nm-pll-clk.h>
 
 &pm6150l_gpios {
 	disp_pins {
 		disp_pins_default: disp_pins_default {
+<<<<<<< Updated upstream
 			pins = "gpio3";
+=======
+			pins = "gpio9";
+>>>>>>> Stashed changes
 			function = "func1";
 			qcom,drive-strength = <2>;
 			power-source = <1>;
@@ -29,6 +36,7 @@
 	};
 };
 
+<<<<<<< Updated upstream
 &pm7250b_gpios {
 	disp_pins {
 		sde_vddr_en: sde_vddr_en {
@@ -43,6 +51,8 @@
 	};
 };
 
+=======
+>>>>>>> Stashed changes
 &soc {
 	dsi_panel_pwr_supply: dsi_panel_pwr_supply {
 		#address-cells = <1>;
@@ -67,6 +77,27 @@
 			qcom,supply-disable-load = <0>;
 			qcom,supply-post-on-sleep = <0>;
 		};
+<<<<<<< Updated upstream
+=======
+
+		qcom,panel-supply-entry@2 {
+			reg = <2>;
+			qcom,supply-name = "lab";
+			qcom,supply-min-voltage = <4600000>;
+			qcom,supply-max-voltage = <6000000>;
+			qcom,supply-enable-load = <363000>;
+			qcom,supply-disable-load = <100>;
+		};
+
+		qcom,panel-supply-entry@3 {
+			reg = <2>;
+			qcom,supply-name = "ibb";
+			qcom,supply-min-voltage = <4600000>;
+			qcom,supply-max-voltage = <6000000>;
+			qcom,supply-enable-load = <363000>;
+			qcom,supply-disable-load = <20>;
+		};
+>>>>>>> Stashed changes
 	};
 
 	dsi_panel_pwr_supply_144: dsi_panel_pwr_supply_144 {
@@ -187,7 +218,11 @@
 				"shadow_byte_clk0", "shadow_pixel_clk0";
 
 		pinctrl-names = "panel_active", "panel_suspend";
+<<<<<<< Updated upstream
 		pinctrl-0 = <&sde_te_active>;
+=======
+		pinctrl-0 = <&sde_te_active &disp_pins_default>;
+>>>>>>> Stashed changes
 		pinctrl-1 = <&sde_te_suspend>;
 
 		qcom,platform-te-gpio = <&tlmm 23 0>;
@@ -195,6 +230,11 @@
 
 		vddio-supply = <&L1E>;
 		vdd-supply = <&L8A>;
+<<<<<<< Updated upstream
+=======
+		lab-supply = <&ab_vreg>;
+		ibb-supply = <&ibb_vreg>;
+>>>>>>> Stashed changes
 
 		qcom,mdp = <&mdss_mdp>;
 		qcom,dsi-default-panel = <&dsi_rm69299_visionox_amoled_video>;
@@ -225,6 +265,7 @@
 
 };
 
+<<<<<<< Updated upstream
 &mdss_mdp {
 	connectors = <&sde_wb &sde_dsi &sde_rscc>;
 };
@@ -268,6 +309,18 @@
 			qcom,default-topology-index = <0>;
 		};
 	};
+=======
+&sde_dp {
+	qcom,dp-usbpd-detection = <&pm7250b_pdphy>;
+	qcom,ext-disp = <&ext_disp>;
+	qcom,dp-aux-switch = <&fsa4480>;
+
+	extcon = <&pm7250b_pdphy>;
+};
+
+&mdss_mdp {
+	connectors = <&sde_wb &sde_dsi &sde_rscc &sde_dp>;
+>>>>>>> Stashed changes
 };
 
 &dsi_rm69299_visionox_amoled_video {

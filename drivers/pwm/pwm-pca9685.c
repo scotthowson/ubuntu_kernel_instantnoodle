@@ -102,11 +102,25 @@ static bool pca9685_pwm_test_and_set_inuse(struct pca9685 *pca, int pwm_idx)
 
 	mutex_lock(&pca->lock);
 	if (pwm_idx >= PCA9685_MAXCHAN) {
+<<<<<<< Updated upstream
+=======
+		/*
+		 * "all LEDs" channel:
+		 * pretend already in use if any of the PWMs are requested
+		 */
+>>>>>>> Stashed changes
 		if (!bitmap_empty(pca->pwms_inuse, PCA9685_MAXCHAN)) {
 			is_inuse = true;
 			goto out;
 		}
 	} else {
+<<<<<<< Updated upstream
+=======
+		/*
+		 * regular channel:
+		 * pretend already in use if the "all LEDs" channel is requested
+		 */
+>>>>>>> Stashed changes
 		if (test_bit(PCA9685_MAXCHAN, pca->pwms_inuse)) {
 			is_inuse = true;
 			goto out;

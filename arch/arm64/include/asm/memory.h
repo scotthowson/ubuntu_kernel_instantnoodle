@@ -41,11 +41,7 @@
  * requires its definition to be available at this point in the inclusion
  * chain, and it may not be a power of 2 in the first place.
  */
-#if defined(CONFIG_MEMPLUS) && !(defined(CONFIG_PAGE_EXTENSION) && defined(CONFIG_PAGE_OWNER_ENABLE_DEFAULT))
-#define STRUCT_PAGE_MAX_SHIFT	7
-#else
 #define STRUCT_PAGE_MAX_SHIFT	6
-#endif
 
 /*
  * VMEMMAP_SIZE - allows the whole linear region to be covered by
@@ -341,6 +337,11 @@ static inline void *phys_to_virt(phys_addr_t x)
 #define ARCH_PFN_OFFSET		((unsigned long)PHYS_PFN_OFFSET)
 
 #ifndef CONFIG_SPARSEMEM_VMEMMAP
+#define page_to_virt(x)	({						\
+	__typeof__(x) __page = x;					\
+	void *__addr = __va(page_to_phys(__page));			\
+	(void *)__tag_set((const void *)__addr, page_kasan_tag(__page));\
+})
 #define virt_to_page(kaddr)	pfn_to_page(__pa(kaddr) >> PAGE_SHIFT)
 #define _virt_addr_valid(kaddr)	pfn_valid(__pa(kaddr) >> PAGE_SHIFT)
 #else

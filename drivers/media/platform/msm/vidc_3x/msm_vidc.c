@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
+<<<<<<< Updated upstream
  * Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
+=======
+ * Copyright (c) 2012-2021, The Linux Foundation. All rights reserved.
+>>>>>>> Stashed changes
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -533,7 +537,11 @@ int map_and_register_buf(struct msm_vidc_inst *inst, struct v4l2_buffer *b)
 		}
 		dprintk(VIDC_DBG,
 			"%s: [MAP] binfo = %pK, handle[%d] = %pK, device_addr = %pa, fd = %d, offset = %d, mapped = %d\n",
+<<<<<<< Updated upstream
 			__func__, binfo, i, binfo->smem[i],
+=======
+			__func__, binfo, i, &binfo->smem[i],
+>>>>>>> Stashed changes
 			&binfo->device_addr[i], binfo->fd[i],
 			binfo->buff_off[i], binfo->mapped[i]);
 	}
@@ -586,7 +594,11 @@ int unmap_and_deregister_buf(struct msm_vidc_inst *inst,
 	for (i = 0; i < temp->num_planes; i++) {
 		dprintk(VIDC_DBG,
 			"%s: [UNMAP] binfo = %pK, handle[%d] = %pK, device_addr = %pa, fd = %d, offset = %d, mapped = %d\n",
+<<<<<<< Updated upstream
 			__func__, temp, i, temp->smem[i],
+=======
+			__func__, temp, i, &temp->smem[i],
+>>>>>>> Stashed changes
 			&temp->device_addr[i], temp->fd[i],
 			temp->buff_off[i], temp->mapped[i]);
 		/*
@@ -902,7 +914,11 @@ free_and_unmap:
 				if (bi->mapped[i]) {
 					dprintk(VIDC_DBG,
 						"%s: [UNMAP] binfo = %pK, handle[%d] = %pK, device_addr = %pa, fd = %d, offset = %d, mapped = %d\n",
+<<<<<<< Updated upstream
 						__func__, bi, i, bi->smem[i],
+=======
+						__func__, bi, i, &bi->smem[i],
+>>>>>>> Stashed changes
 						&bi->device_addr[i], bi->fd[i],
 						bi->buff_off[i], bi->mapped[i]);
 					msm_comm_smem_free(inst,

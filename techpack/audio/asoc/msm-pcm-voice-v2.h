@@ -1,5 +1,9 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
+<<<<<<< Updated upstream
 /* Copyright (c) 2012-2015, The Linux Foundation. All rights reserved.
+=======
+/* Copyright (c) 2012-2015, 2021, The Linux Foundation. All rights reserved.
+>>>>>>> Stashed changes
  */
 #ifndef _MSM_PCM_VOICE_H
 #define _MSM_PCM_VOICE_H
@@ -31,4 +35,9 @@ struct msm_voice {
 	int capture_start;
 };
 
+<<<<<<< Updated upstream
+=======
+int msm_voice_get_probe_status(void);
+
+>>>>>>> Stashed changes
 #endif /*_MSM_PCM_VOICE_H*/

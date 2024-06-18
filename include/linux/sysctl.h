@@ -44,8 +44,11 @@ extern int proc_dostring(struct ctl_table *, int,
 			 void __user *, size_t *, loff_t *);
 extern int proc_dointvec(struct ctl_table *, int,
 			 void __user *, size_t *, loff_t *);
+<<<<<<< Updated upstream
 extern int proc_dointvec_oem(struct ctl_table *table, int write,
 		     void __user *buffer, size_t *lenp, loff_t *ppos);
+=======
+>>>>>>> Stashed changes
 extern int proc_douintvec(struct ctl_table *, int,
 			 void __user *, size_t *, loff_t *);
 extern int proc_dointvec_minmax(struct ctl_table *, int,
@@ -207,6 +210,9 @@ struct ctl_table_header *register_sysctl_paths(const struct ctl_path *path,
 void unregister_sysctl_table(struct ctl_table_header * table);
 
 extern int sysctl_init(void);
+extern void __register_sysctl_init(const char *path, struct ctl_table *table,
+				 const char *table_name);
+#define register_sysctl_init(path, table) __register_sysctl_init(path, table, #table)
 
 extern struct ctl_table sysctl_mount_point[];
 

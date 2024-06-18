@@ -82,7 +82,11 @@ unsigned int mc146818_get_time(struct rtc_time *time)
 	time->tm_year += real_year - 72;
 #endif
 
+<<<<<<< Updated upstream
 	if (century > 20)
+=======
+	if (century > 19)
+>>>>>>> Stashed changes
 		time->tm_year += (century - 19) * 100;
 
 	/*

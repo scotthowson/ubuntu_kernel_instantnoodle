@@ -693,7 +693,11 @@ UINT_8 FlashDownload128( UINT_8 ModuleVendor, UINT_8 ActVer, UINT_8 MasterSlave,
 	do {
 		if((ptr->Index == ( ((UINT_32)ModuleVendor<<16) + ((UINT_32)ActVer<<8) + MasterSlave)) && (ptr->FWType == FWType)) {
 
+<<<<<<< Updated upstream
 			// UploadFile‚ª64Byte‚Ý‚ÉPadding‚³‚ê‚Ä‚¢‚È‚¢‚È‚ç‚ÎAErrorB
+=======
+			// UploadFile\82\AA64Byte\8D\8F\82Ý‚\C9Padding\82\B3\82\EA\82Ä‚\A2\82È‚\A2\82È‚\E7\82ÎAError\81B
+>>>>>>> Stashed changes
 			if( ( ptr->SizeFromCode % 64 ) != 0 )	return (0xF1) ;
 
 			if(!RamRead32A(0x8000, &data1)) {
@@ -986,6 +990,10 @@ const UINT_8 PACT0Tbl[] = { 0xFF, 0xFF };	/* Dummy table */
 const UINT_8 PACT1Tbl[] = { 0x20, 0xDF };	/* [ACT_02][ACT_01][ACT_03][ACT_05] */
 
 
+<<<<<<< Updated upstream
+=======
+#if 0
+>>>>>>> Stashed changes
 UINT_8 SetAngleCorrection( float DegreeGap, UINT_8 SelectAct, UINT_8 Arrangement )
 {
 	double OffsetAngle = 0.0f;
@@ -1075,6 +1083,10 @@ UINT_8 SetAngleCorrection( float DegreeGap, UINT_8 SelectAct, UINT_8 Arrangement
 
 	return ( 0 );
 }
+<<<<<<< Updated upstream
+=======
+#endif
+>>>>>>> Stashed changes
 
 void	SetGyroCoef( UINT_8 UcCnvF )
 {
@@ -1271,6 +1283,10 @@ void	SscDis( void )
  #define		ACT_THR			0x000003E8	
  #define		ACT_MARGIN		0.75f		
  
+<<<<<<< Updated upstream
+=======
+#if 0
+>>>>>>> Stashed changes
 UINT_8	TstActMov( UINT_8 UcDirSel )
 {
 	UINT_8	UcRsltSts = 0;
@@ -1392,6 +1408,10 @@ UINT_8	RunHea( void )
 	
 	return( UcRst ) ;
 }
+<<<<<<< Updated upstream
+=======
+#endif
+>>>>>>> Stashed changes
 
 
  #define		GEA_NUM			512				
@@ -1617,11 +1637,19 @@ UINT_8 LoadUareToPM( DOWNLOAD_TBL_EXT* ptr , UINT_8 mode )
 	
 	if( !mode ){
 		RamWrite32A( 0xE000 , 0x00000000 );		// to boot
+<<<<<<< Updated upstream
 		WitTim( 15 ) ;													// BootƒvƒƒOƒ‰ƒ€‚ð‰ñ‚·‚Ì‚É15msec•K—vB
 		IORead32A( ROMINFO,				(UINT_32 *)&UlReadVal ) ;	
 		if( UlReadVal != 0x0B ){
 			IOWrite32A( SYSDSP_REMAP,				0x00001400 ) ;		// CORE_RST[12], MC_IGNORE2[10] = 1
 			WitTim( 15 ) ;												// BootƒvƒƒOƒ‰ƒ€‚ð‰ñ‚·‚Ì‚É15msec•K—vB
+=======
+		WitTim( 15 ) ;													// Boot\83v\83\8D\83O\83\89\83\80\82\F0\89ñ‚·‚Ì‚\C915msec\95K\97v\81B
+		IORead32A( ROMINFO,				(UINT_32 *)&UlReadVal ) ;	
+		if( UlReadVal != 0x0B ){
+			IOWrite32A( SYSDSP_REMAP,				0x00001400 ) ;		// CORE_RST[12], MC_IGNORE2[10] = 1
+			WitTim( 15 ) ;												// Boot\83v\83\8D\83O\83\89\83\80\82\F0\89ñ‚·‚Ì‚\C915msec\95K\97v\81B
+>>>>>>> Stashed changes
 			IORead32A( ROMINFO,				(UINT_32 *)&UlReadVal ) ;	
 			if( UlReadVal != 0x0B) {
 				return( 0x02 );
@@ -1643,7 +1671,11 @@ UINT_8 LoadUareToPM( DOWNLOAD_TBL_EXT* ptr , UINT_8 mode )
 			IOWrite32A( 0xE0701C , 0x00000002);
 			return (0x10) ;									// trans ng
 		}
+<<<<<<< Updated upstream
 		RamRead32A( 0x5004, &UlReadVal );					// PmCheck.ExecFlag‚Ì“Ç‚Ýo‚µ
+=======
+		RamRead32A( 0x5004, &UlReadVal );					// PmCheck.ExecFlag\82Ì“Ç‚Ýo\82\B5
+>>>>>>> Stashed changes
 	}while ( UlReadVal != 0 );
 	IOWrite32A( 0xE0701C , 0x00000002);
 	

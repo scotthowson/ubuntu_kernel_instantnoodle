@@ -5,3 +5,11 @@ void mm_event_count(enum mm_event_type event, int count)
 {
 }
 EXPORT_SYMBOL_GPL(mm_event_count);
+<<<<<<< Updated upstream
+=======
+
+void mm_event_end(enum mm_event_type event, ktime_t start)
+{
+}
+EXPORT_SYMBOL_GPL(mm_event_end);
+>>>>>>> Stashed changes

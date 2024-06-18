@@ -10,6 +10,11 @@
 
 static const char *scuba_dt_match[] __initconst = {
 	"qcom,scuba",
+<<<<<<< Updated upstream
+=======
+	"qcom,scuba-iot",
+	"qcom,scubap-iot",
+>>>>>>> Stashed changes
 	NULL
 };
 

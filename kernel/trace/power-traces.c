@@ -18,8 +18,11 @@ EXPORT_TRACEPOINT_SYMBOL_GPL(suspend_resume);
 EXPORT_TRACEPOINT_SYMBOL_GPL(cpu_idle);
 EXPORT_TRACEPOINT_SYMBOL_GPL(cpu_frequency);
 EXPORT_TRACEPOINT_SYMBOL_GPL(powernv_throttle);
+<<<<<<< Updated upstream
 #ifdef CONFIG_PCCORE
 EXPORT_TRACEPOINT_SYMBOL_GPL(cpu_frequency_select);
 #endif
+=======
+>>>>>>> Stashed changes
 
 EXPORT_TRACEPOINT_SYMBOL_GPL(clock_set_rate);

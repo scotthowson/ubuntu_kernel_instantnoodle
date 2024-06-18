@@ -1,5 +1,10 @@
 /*
+<<<<<<< Updated upstream
  * Copyright (c) 2012-2020 The Linux Foundation. All rights reserved.
+=======
+ * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+>>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -450,6 +455,10 @@ int hdd_set_p2p_noa(struct net_device *dev, uint8_t *command)
 	hdd_debug("P2P_SET GO noa: count=%d interval=%d duration=%d",
 		count, interval, duration);
 	duration = MS_TO_TU_MUS(duration);
+<<<<<<< Updated upstream
+=======
+	interval = MS_TO_TU_MUS(interval);
+>>>>>>> Stashed changes
 	/* PS Selection
 	 * Periodic noa (2)
 	 * Single NOA   (4)
@@ -457,15 +466,31 @@ int hdd_set_p2p_noa(struct net_device *dev, uint8_t *command)
 	noa.opp_ps = 0;
 	noa.ct_window = 0;
 	if (count == 1) {
+<<<<<<< Updated upstream
+=======
+		if (duration > interval)
+			duration = interval;
+>>>>>>> Stashed changes
 		noa.duration = 0;
 		noa.single_noa_duration = duration;
 		noa.ps_selection = P2P_POWER_SAVE_TYPE_SINGLE_NOA;
 	} else {
+<<<<<<< Updated upstream
+=======
+		if (count && (duration >= interval)) {
+			hdd_err("Duration should be less than interval");
+			return -EINVAL;
+		}
+>>>>>>> Stashed changes
 		noa.duration = duration;
 		noa.single_noa_duration = 0;
 		noa.ps_selection = P2P_POWER_SAVE_TYPE_PERIODIC_NOA;
 	}
+<<<<<<< Updated upstream
 	noa.interval = MS_TO_TU_MUS(interval);
+=======
+	noa.interval = interval;
+>>>>>>> Stashed changes
 	noa.count = count;
 	noa.vdev_id = adapter->vdev_id;
 
@@ -727,6 +752,11 @@ struct wireless_dev *__wlan_hdd_add_virtual_intf(struct wiphy *wiphy,
 		return ERR_PTR(-ENOSPC);
 	}
 
+<<<<<<< Updated upstream
+=======
+	adapter->delete_in_progress = false;
+
+>>>>>>> Stashed changes
 	/* ensure physcial soc is up */
 	ret = hdd_trigger_psoc_idle_restart(hdd_ctx);
 	if (ret) {
@@ -874,7 +904,13 @@ int wlan_hdd_del_virtual_intf(struct wiphy *wiphy, struct wireless_dev *wdev)
 {
 	int errno;
 	struct osif_vdev_sync *vdev_sync;
+<<<<<<< Updated upstream
 
+=======
+	struct hdd_adapter *adapter = WLAN_HDD_GET_PRIV_PTR(wdev->netdev);
+
+	adapter->delete_in_progress = true;
+>>>>>>> Stashed changes
 	errno = osif_vdev_sync_trans_start_wait(wdev->netdev, &vdev_sync);
 	if (errno)
 		return errno;

@@ -110,6 +110,7 @@ enum vm_event_item { PGPGIN, PGPGOUT, PGPGOUTCLEAN, PSWPIN, PSWPOUT,
 		SWAP_RA,
 		SWAP_RA_HIT,
 #endif
+<<<<<<< Updated upstream
 #ifdef CONFIG_SPECULATIVE_PAGE_FAULT
 		SPECULATIVE_PGFAULT_ANON,	/* Speculative page fault field */
 		SPECULATIVE_PGFAULT_FILE,	/* Speculative page fault field */
@@ -119,6 +120,8 @@ enum vm_event_item { PGPGIN, PGPGOUT, PGPGOUTCLEAN, PSWPIN, PSWPOUT,
 		PGCACHEMISS, READFAULT, COWFAULT, SHAREDFAULT,
 		FILEMAJFAULT, RETRYPAGE, SPECRETRY,
 #endif
+=======
+>>>>>>> Stashed changes
 		NR_VM_EVENT_ITEMS
 };
 

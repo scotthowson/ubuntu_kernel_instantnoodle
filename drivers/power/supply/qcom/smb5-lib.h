@@ -1,6 +1,10 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
+<<<<<<< Updated upstream
  * Copyright (c) 2018-2020 The Linux Foundation. All rights reserved.
+=======
+ * Copyright (c) 2018-2021 The Linux Foundation. All rights reserved.
+>>>>>>> Stashed changes
  */
 
 #ifndef __SMB5_CHARGER_H
@@ -106,6 +110,7 @@ enum print_reason {
 #define JEITA_ARB_VOTER			"JEITA_ARB_VOTER"
 #define MOISTURE_VOTER			"MOISTURE_VOTER"
 #define HVDCP2_ICL_VOTER		"HVDCP2_ICL_VOTER"
+#define HVDCP2_12V_ICL_VOTER		"HVDCP2_12V_ICL_VOTER"
 #define AICL_THRESHOLD_VOTER		"AICL_THRESHOLD_VOTER"
 #define USBOV_DBC_VOTER			"USBOV_DBC_VOTER"
 #define CHG_TERMINATION_VOTER		"CHG_TERMINATION_VOTER"
@@ -787,6 +792,7 @@ struct smb_charger {
 	int			fake_batt_status;
 	bool			step_chg_enabled;
 	bool			sw_jeita_enabled;
+	bool			jeita_arb_enable;
 	bool			typec_legacy_use_rp_icl;
 	bool			is_hdc;
 	bool			chg_done;
@@ -953,7 +959,14 @@ extern bool get_prop_fast_chg_started(struct smb_charger *chg);
 extern void mcu_en_gpio_set(int value);
 extern void switch_mode_to_normal(void);
 extern void enhance_dash_type_set(int type);
+<<<<<<< Updated upstream
+=======
+#ifdef CONFIG_ONEPLUS_WIRELESSCHG
+>>>>>>> Stashed changes
 extern void notify_pd_in_to_wireless(void);
+#else
+static inline void notify_pd_in_to_wireless(void){}
+#endif
 extern struct smb_charger *g_chg;
 extern struct drm_panel *lcd_active_panel;
 
@@ -1222,7 +1235,14 @@ int smblib_get_qc3_main_icl_offset(struct smb_charger *chg, int *offset_ua);
 
 int smblib_init(struct smb_charger *chg);
 int smblib_deinit(struct smb_charger *chg);
+<<<<<<< Updated upstream
+=======
+#ifdef CONFIG_ONEPLUS_WIRELESSCHG
+>>>>>>> Stashed changes
 extern void exchg_information_register(struct smb_charger *chg);
+#else
+static inline void exchg_information_register(struct smb_charger *chg){}
+#endif
 extern void op_release_usb_lock(void);
 #ifdef OP_SWARP_SUPPORTED
 bool is_op_chg_available(struct smb_charger *chg);

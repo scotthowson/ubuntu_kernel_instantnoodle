@@ -48,6 +48,7 @@
 #define SDE_ROTATOR_DEGREE_180		180
 #define SDE_ROTATOR_DEGREE_90		90
 
+<<<<<<< Updated upstream
 /* Inline rotator qos request */
 #define SDE_ROTATOR_ADD_REQUEST		1
 #define SDE_ROTATOR_REMOVE_REQUEST		0
@@ -57,6 +58,10 @@ static void sde_rotator_submit_handler(struct kthread_work *work);
 static void sde_rotator_retire_handler(struct kthread_work *work);
 static void sde_rotator_pm_qos_request(struct sde_rotator_device *rot_dev,
 					 bool add_request);
+=======
+static void sde_rotator_submit_handler(struct kthread_work *work);
+static void sde_rotator_retire_handler(struct kthread_work *work);
+>>>>>>> Stashed changes
 #ifdef CONFIG_COMPAT
 static long sde_rotator_compat_ioctl32(struct file *file,
 	unsigned int cmd, unsigned long arg);
@@ -1037,8 +1042,11 @@ struct sde_rotator_ctx *sde_rotator_ctx_open(
 		SDEDEV_DBG(ctx->rot_dev->dev, "timeline is not available\n");
 
 	sde_rot_mgr_lock(rot_dev->mgr);
+<<<<<<< Updated upstream
 	sde_rotator_pm_qos_request(rot_dev,
 				 SDE_ROTATOR_ADD_REQUEST);
+=======
+>>>>>>> Stashed changes
 	ret = sde_rotator_session_open(rot_dev->mgr, &ctx->private,
 			ctx->session_id, &ctx->work_queue);
 	if (ret < 0) {
@@ -1163,8 +1171,11 @@ static int sde_rotator_ctx_release(struct sde_rotator_ctx *ctx,
 	}
 	SDEDEV_DBG(rot_dev->dev, "release session s:%d\n", session_id);
 	sde_rot_mgr_lock(rot_dev->mgr);
+<<<<<<< Updated upstream
 	sde_rotator_pm_qos_request(rot_dev,
 			SDE_ROTATOR_REMOVE_REQUEST);
+=======
+>>>>>>> Stashed changes
 	sde_rotator_session_close(rot_dev->mgr, ctx->private, session_id);
 	sde_rot_mgr_unlock(rot_dev->mgr);
 	SDEDEV_DBG(rot_dev->dev, "release retire work s:%d\n", session_id);
@@ -1279,6 +1290,7 @@ static bool sde_rotator_is_request_retired(struct sde_rotator_request *request)
 	return retire_delta >= 0;
 }
 
+<<<<<<< Updated upstream
 static void sde_rotator_pm_qos_remove(struct sde_rot_data_type *rot_mdata)
 {
 	struct pm_qos_request *req;
@@ -1377,6 +1389,8 @@ static void sde_rotator_pm_qos_request(struct sde_rotator_device *rot_dev,
 		cpu_dma_latency);
 }
 
+=======
+>>>>>>> Stashed changes
 /*
  * sde_rotator_inline_open - open inline rotator session
  * @pdev: Pointer to rotator platform device
@@ -3725,7 +3739,10 @@ static int sde_rotator_remove(struct platform_device *pdev)
 		return 0;
 	}
 
+<<<<<<< Updated upstream
 	sde_rotator_pm_qos_remove(rot_dev->mdata);
+=======
+>>>>>>> Stashed changes
 	for (i = MAX_ROT_OPEN_SESSION - 1; i >= 0; i--)
 		kthread_stop(rot_dev->rot_thread[i]);
 	sde_rotator_destroy_debugfs(rot_dev->debugfs_root);

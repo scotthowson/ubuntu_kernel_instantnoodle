@@ -229,7 +229,8 @@ static void irqsoff_trace_open(struct trace_iterator *iter)
 {
 	if (is_graph(iter->tr))
 		graph_trace_open(iter);
-
+	else
+		iter->private = NULL;
 }
 
 static void irqsoff_trace_close(struct trace_iterator *iter)
@@ -743,10 +744,13 @@ struct preempt_store {
 
 static DEFINE_PER_CPU(struct preempt_store, the_ps);
 #endif /* CONFIG_PREEMPTIRQ_EVENTS */
+<<<<<<< Updated upstream
 #ifdef CONFIG_ONEPLUS_HEALTHINFO
 unsigned int ohm_preempt_stat_thresh = 1000000UL;
 DEFINE_PER_CPU(u64, preempt_stime);
 #endif
+=======
+>>>>>>> Stashed changes
 
 void tracer_preempt_on(unsigned long a0, unsigned long a1)
 {

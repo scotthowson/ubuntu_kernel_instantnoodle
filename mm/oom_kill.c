@@ -43,7 +43,6 @@
 #include <linux/mmu_notifier.h>
 #include <linux/memory_hotplug.h>
 #include <linux/show_mem_notifier.h>
-#include <linux/psi.h>
 
 #include <asm/tlb.h>
 #include "internal.h"
@@ -52,14 +51,9 @@
 #define CREATE_TRACE_POINTS
 #include <trace/events/oom.h>
 
-int sysctl_panic_on_oom =
-IS_ENABLED(CONFIG_DEBUG_PANIC_ON_OOM) ? 2 : 0;
+int sysctl_panic_on_oom;
 int sysctl_oom_kill_allocating_task;
 int sysctl_oom_dump_tasks = 1;
-int sysctl_reap_mem_on_sigkill = 1;
-
-static int panic_on_adj_zero;
-module_param(panic_on_adj_zero, int, 0644);
 
 /*
  * Serializes oom killer invocations (out_of_memory()) from all contexts to
@@ -70,6 +64,7 @@ module_param(panic_on_adj_zero, int, 0644);
  * and mark_oom_victim
  */
 DEFINE_MUTEX(oom_lock);
+<<<<<<< Updated upstream
 DEFINE_MUTEX(oom_adj_mutex);
 
 /*
@@ -241,6 +236,10 @@ void ulmk_update_last_kill(void)
 	atomic64_set(&ulmk_kill_jiffies, jiffies);
 }
 #endif
+=======
+/* Serializes oom_score_adj and oom_score_adj_min updates */
+DEFINE_MUTEX(oom_adj_mutex);
+>>>>>>> Stashed changes
 
 #ifdef CONFIG_NUMA
 /**
@@ -380,8 +379,7 @@ static bool is_dump_unreclaim_slabs(void)
  * task consuming the most memory to avoid subsequent oom failures.
  */
 unsigned long oom_badness(struct task_struct *p, struct mem_cgroup *memcg,
-			  const nodemask_t *nodemask, unsigned long totalpages,
-			  bool only_positive_adj)
+			  const nodemask_t *nodemask, unsigned long totalpages)
 {
 	long points;
 	long adj;
@@ -400,7 +398,6 @@ unsigned long oom_badness(struct task_struct *p, struct mem_cgroup *memcg,
 	 */
 	adj = (long)p->signal->oom_score_adj;
 	if (adj == OOM_SCORE_ADJ_MIN ||
-			(only_positive_adj && adj < 0) ||
 			test_bit(MMF_OOM_SKIP, &p->mm->flags) ||
 			in_vfork(p)) {
 		task_unlock(p);
@@ -522,8 +519,7 @@ static int oom_evaluate_task(struct task_struct *task, void *arg)
 		goto select;
 	}
 
-	points = oom_badness(task, NULL, oc->nodemask, oc->totalpages,
-				oc->only_positive_adj);
+	points = oom_badness(task, NULL, oc->nodemask, oc->totalpages);
 	if (!points || points < oc->chosen_points)
 		goto next;
 
@@ -819,21 +815,13 @@ static int oom_reaper(void *unused)
 
 static void wake_oom_reaper(struct task_struct *tsk)
 {
-	/*
-	 * Move the lock here to avoid scenario of queuing
-	 * the same task by both OOM killer and any other SIGKILL
-	 * path.
-	 */
-	spin_lock(&oom_reaper_lock);
-
 	/* mm is already queued? */
-	if (test_and_set_bit(MMF_OOM_REAP_QUEUED, &tsk->signal->oom_mm->flags)) {
-		spin_unlock(&oom_reaper_lock);
+	if (test_and_set_bit(MMF_OOM_REAP_QUEUED, &tsk->signal->oom_mm->flags))
 		return;
-	}
 
 	get_task_struct(tsk);
 
+	spin_lock(&oom_reaper_lock);
 	tsk->oom_reaper_list = oom_reaper_list;
 	oom_reaper_list = tsk;
 	spin_unlock(&oom_reaper_lock);
@@ -853,16 +841,6 @@ static inline void wake_oom_reaper(struct task_struct *tsk)
 }
 #endif /* CONFIG_MMU */
 
-static void __mark_oom_victim(struct task_struct *tsk)
-{
-	struct mm_struct *mm = tsk->mm;
-
-	if (!cmpxchg(&tsk->signal->oom_mm, NULL, mm)) {
-		mmgrab(tsk->signal->oom_mm);
-		set_bit(MMF_OOM_VICTIM, &mm->flags);
-	}
-}
-
 /**
  * mark_oom_victim - mark the given task as OOM victim
  * @tsk: task to mark
@@ -875,13 +853,18 @@ static void __mark_oom_victim(struct task_struct *tsk)
  */
 static void mark_oom_victim(struct task_struct *tsk)
 {
+	struct mm_struct *mm = tsk->mm;
+
 	WARN_ON(oom_killer_disabled);
 	/* OOM killer might race with memcg OOM */
 	if (test_and_set_tsk_thread_flag(tsk, TIF_MEMDIE))
 		return;
 
 	/* oom_mm is bound to the signal struct life time. */
-	__mark_oom_victim(tsk);
+	if (!cmpxchg(&tsk->signal->oom_mm, NULL, mm)) {
+		mmgrab(tsk->signal->oom_mm);
+		set_bit(MMF_OOM_VICTIM, &mm->flags);
+	}
 
 	/*
 	 * Make sure that the task is woken up from uninterruptible sleep
@@ -1059,12 +1042,11 @@ static void __oom_kill_process(struct task_struct *victim)
 	 */
 	do_send_sig_info(SIGKILL, SEND_SIG_FORCED, victim, PIDTYPE_TGID);
 	mark_oom_victim(victim);
-	pr_err("Killed process %d (%s) total-vm:%lukB, anon-rss:%lukB, file-rss:%lukB, shmem-rss:%lukB oom_score_adj=%hd\n",
+	pr_err("Killed process %d (%s) total-vm:%lukB, anon-rss:%lukB, file-rss:%lukB, shmem-rss:%lukB\n",
 		task_pid_nr(victim), victim->comm, K(victim->mm->total_vm),
 		K(get_mm_counter(victim->mm, MM_ANONPAGES)),
 		K(get_mm_counter(victim->mm, MM_FILEPAGES)),
-		K(get_mm_counter(victim->mm, MM_SHMEMPAGES)),
-		p->signal->oom_score_adj);
+		K(get_mm_counter(victim->mm, MM_SHMEMPAGES)));
 	task_unlock(victim);
 
 	/*
@@ -1122,8 +1104,7 @@ static int oom_kill_memcg_member(struct task_struct *task, void *unused)
 	return 0;
 }
 
-static void oom_kill_process(struct oom_control *oc, const char *message,
-				bool quiet)
+static void oom_kill_process(struct oom_control *oc, const char *message)
 {
 	struct task_struct *p = oc->chosen;
 	unsigned int points = oc->chosen_points;
@@ -1150,17 +1131,15 @@ static void oom_kill_process(struct oom_control *oc, const char *message,
 	}
 	task_unlock(p);
 
+<<<<<<< Updated upstream
 	if (!quiet && __ratelimit(&oom_rs))
+=======
+	if (__ratelimit(&oom_rs))
+>>>>>>> Stashed changes
 		dump_header(oc, p);
 
 	pr_err("%s: Kill process %d (%s) score %u or sacrifice child\n",
 		message, task_pid_nr(p), p->comm, points);
-
-	if (!strcmp("system_server", p->comm)) {
-		pr_err("%s: Kernel try to kill (%s) process, I prevent it.\n",
-				message, p->comm);
-		panic("Out of memory: panic on oom!!!\n");
-	}
 
 	/*
 	 * If any of p's children has a different mm and is eligible for kill,
@@ -1186,8 +1165,7 @@ static void oom_kill_process(struct oom_control *oc, const char *message,
 			 * oom_badness() returns 0 if the thread is unkillable
 			 */
 			child_points = oom_badness(child,
-				oc->memcg, oc->nodemask, oc->totalpages,
-				oc->only_positive_adj);
+				oc->memcg, oc->nodemask, oc->totalpages);
 			if (child_points > victim_points) {
 				put_task_struct(victim);
 				victim = child;
@@ -1206,12 +1184,6 @@ static void oom_kill_process(struct oom_control *oc, const char *message,
 	 */
 	oom_group = mem_cgroup_get_oom_group(victim, oc->memcg);
 
-	/*
-	 * If ->only_positive_adj = true in oom context,
-	 * consider them as kill from ulmk.
-	 */
-	if (oc->only_positive_adj)
-		ulmk_update_last_kill();
 	__oom_kill_process(victim);
 
 	/*
@@ -1242,7 +1214,7 @@ static void check_panic_on_oom(struct oom_control *oc,
 			return;
 	}
 	/* Do not panic for oom kills triggered by sysrq */
-	if (is_sysrq_oom(oc) || oc->only_positive_adj)
+	if (is_sysrq_oom(oc))
 		return;
 	dump_header(oc, NULL);
 	panic("Out of memory: %s panic_on_oom is enabled\n",
@@ -1276,6 +1248,10 @@ bool out_of_memory(struct oom_control *oc)
 {
 	unsigned long freed = 0;
 	enum oom_constraint constraint = CONSTRAINT_NONE;
+
+	/* Return true since Simple LMK automatically kills in the background */
+	if (IS_ENABLED(CONFIG_ANDROID_SIMPLE_LMK))
+		return true;
 
 	if (oom_killer_disabled)
 		return false;
@@ -1328,8 +1304,7 @@ bool out_of_memory(struct oom_control *oc)
 	    current->signal->oom_score_adj != OOM_SCORE_ADJ_MIN) {
 		get_task_struct(current);
 		oc->chosen = current;
-		oom_kill_process(oc, "Out of memory (oom_kill_allocating_task)",
-				 false);
+		oom_kill_process(oc, "Out of memory (oom_kill_allocating_task)");
 		return true;
 	}
 
@@ -1343,85 +1318,32 @@ bool out_of_memory(struct oom_control *oc)
 		 * system level, we cannot survive this and will enter
 		 * an endless loop in the allocator. Bail out now.
 		 */
-		if (!is_sysrq_oom(oc) && !is_memcg_oom(oc) &&
-		    !oc->only_positive_adj)
+		if (!is_sysrq_oom(oc) && !is_memcg_oom(oc))
 			panic("System is deadlocked on memory\n");
 	}
 	if (oc->chosen && oc->chosen != (void *)-1UL)
 		oom_kill_process(oc, !is_memcg_oom(oc) ? "Out of memory" :
-				 "Memory cgroup out of memory",
-			IS_ENABLED(CONFIG_HAVE_USERSPACE_LOW_MEMORY_KILLER));
+				 "Memory cgroup out of memory");
 	return !!oc->chosen;
 }
 
 /*
- * The pagefault handler calls here because it is out of memory, so kill a
- * memory-hogging task. If oom_lock is held by somebody else, a parallel oom
- * killing is already in progress so do nothing.
+ * The pagefault handler calls here because some allocation has failed. We have
+ * to take care of the memcg OOM here because this is the only safe context without
+ * any locks held but let the oom killer triggered from the allocation context care
+ * about the global OOM.
  */
 void pagefault_out_of_memory(void)
 {
-	struct oom_control oc = {
-		.zonelist = NULL,
-		.nodemask = NULL,
-		.memcg = NULL,
-		.gfp_mask = 0,
-		.order = 0,
-	};
-
-	if (IS_ENABLED(CONFIG_HAVE_LOW_MEMORY_KILLER) ||
-	    IS_ENABLED(CONFIG_HAVE_USERSPACE_LOW_MEMORY_KILLER))
-		return;
+	static DEFINE_RATELIMIT_STATE(pfoom_rs, DEFAULT_RATELIMIT_INTERVAL,
+				      DEFAULT_RATELIMIT_BURST);
 
 	if (mem_cgroup_oom_synchronize(true))
 		return;
 
-	if (!mutex_trylock(&oom_lock))
-		return;
-	out_of_memory(&oc);
-	mutex_unlock(&oom_lock);
-}
-
-void add_to_oom_reaper(struct task_struct *p)
-{
-	static DEFINE_RATELIMIT_STATE(reaper_rs, DEFAULT_RATELIMIT_INTERVAL,
-						 DEFAULT_RATELIMIT_BURST);
-
-	if (!sysctl_reap_mem_on_sigkill)
+	if (fatal_signal_pending(current))
 		return;
 
-	p = find_lock_task_mm(p);
-	if (!p)
-		return;
-
-	get_task_struct(p);
-	if (task_will_free_mem(p)) {
-		__mark_oom_victim(p);
-		wake_oom_reaper(p);
-	}
-
-	task_unlock(p);
-
-	if (!strcmp(current->comm, ULMK_MAGIC) && __ratelimit(&reaper_rs)
-			&& p->signal->oom_score_adj == 0) {
-		show_mem(SHOW_MEM_FILTER_NODES, NULL);
-		show_mem_call_notifiers();
-	}
-
-	put_task_struct(p);
-}
-
-/*
- * Should be called prior to sending sigkill. To guarantee that the
- * process to-be-killed is still untouched.
- */
-void check_panic_on_foreground_kill(struct task_struct *p)
-{
-	if (unlikely(!strcmp(current->comm, ULMK_MAGIC)
-			&& p->signal->oom_score_adj == 0
-			&& panic_on_adj_zero)) {
-		show_mem(SHOW_MEM_FILTER_NODES, NULL);
-		show_mem_call_notifiers();
-		panic("Attempt to kill foreground task: %s", p->comm);
-	}
+	if (__ratelimit(&pfoom_rs))
+		pr_warn("Huh VM_FAULT_OOM leaked out to the #PF handler. Retrying PF\n");
 }

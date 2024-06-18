@@ -68,6 +68,11 @@ msm_drm-$(CONFIG_DRM_MSM_SDE) += sde/sde_crtc.o \
 	sde/sde_hw_ds.o \
 	sde/sde_fence.o \
 	sde/sde_hw_qdss.o \
+	sde/sde_hw_rc.o \
+
+msm_drm-$(CONFIG_DEBUG_FS) += \
+	sde_dbg.o \
+	sde_dbg_evtlog.o
 
 msm_drm-$(CONFIG_DEBUG_FS) += sde_dbg.o \
 	sde_dbg_evtlog.o \
@@ -75,7 +80,10 @@ msm_drm-$(CONFIG_DEBUG_FS) += sde_dbg.o \
 msm_drm-$(CONFIG_DRM_SDE_WB) += sde/sde_wb.o \
 	sde/sde_encoder_phys_wb.o \
 
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 msm_drm-$(CONFIG_DRM_SDE_RSC) += sde_rsc.o \
 	sde_rsc_hw.o \
 	sde_rsc_hw_v3.o \
@@ -121,7 +129,10 @@ msm_drm-$(CONFIG_DRM_MSM_DSI) += dsi/iris/dsi_iris5_ioctl.o \
 				dsi/iris/msm_iris5_extended.o \
 				dsi/iris/sde_iris5_extended.o \
 				dsi/iris/dsi_iris5_extended.o
+<<<<<<< Updated upstream
 $(warning "Defined CONFIG_PXLW_IRIS and PXLW_IRIS_DUAL in makefile")
+=======
+>>>>>>> Stashed changes
 ccflags-y += -DCONFIG_PXLW_IRIS
 ccflags-y += -DPXLW_IRIS_DUAL
 #endif

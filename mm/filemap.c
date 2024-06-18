@@ -2571,12 +2571,12 @@ static struct file *do_sync_mmap_readahead(struct vm_fault *vmf)
 	pgoff_t offset = vmf->pgoff;
 
 	/* If we don't want any read-ahead, don't bother */
-	if (vmf->vma_flags & VM_RAND_READ)
+	if (vmf->vma->vm_flags & VM_RAND_READ)
 		return fpin;
 	if (!ra->ra_pages)
 		return fpin;
 
-	if (vmf->vma_flags & VM_SEQ_READ) {
+	if (vmf->vma->vm_flags & VM_SEQ_READ) {
 		fpin = maybe_unlock_mmap_for_io(vmf, fpin);
 		page_cache_sync_readahead(mapping, ra, file, offset,
 					  ra->ra_pages);
@@ -2620,7 +2620,7 @@ static struct file *do_async_mmap_readahead(struct vm_fault *vmf,
 	pgoff_t offset = vmf->pgoff;
 
 	/* If we don't want any read-ahead, don't bother */
-	if (vmf->vma_flags & VM_RAND_READ)
+	if (vmf->vma->vm_flags & VM_RAND_READ || !ra->ra_pages)
 		return fpin;
 	if (ra->mmap_miss > 0)
 		ra->mmap_miss--;
@@ -2643,7 +2643,7 @@ static struct file *do_async_mmap_readahead(struct vm_fault *vmf,
  * it in the page cache, and handles the special cases reasonably without
  * having a lot of duplicated code.
  *
- * vma->vm_mm->mmap_sem must be held on entry (except FAULT_FLAG_SPECULATIVE).
+ * vma->vm_mm->mmap_sem must be held on entry.
  *
  * If our return value has VM_FAULT_RETRY set, it's because
  * lock_page_or_retry() returned 0.
@@ -2683,9 +2683,12 @@ vm_fault_t filemap_fault(struct vm_fault *vmf)
 		 */
 		fpin = do_async_mmap_readahead(vmf, page);
 	} else if (!page) {
+<<<<<<< Updated upstream
 #ifdef CONFIG_MEMPLUS
 		count_vm_event(FILEMAJFAULT);
 #endif
+=======
+>>>>>>> Stashed changes
 		/* No page in the page cache at all */
 		count_vm_event(PGMAJFAULT);
 		count_memcg_event_mm(vmf->vma->vm_mm, PGMAJFAULT);
@@ -3052,6 +3055,14 @@ filler:
 		unlock_page(page);
 		goto out;
 	}
+
+	/*
+	 * A previous I/O error may have been due to temporary
+	 * failures.
+	 * Clear page error before actual read, PG_error will be
+	 * set again if read page fails.
+	 */
+	ClearPageError(page);
 	goto filler;
 
 out:
@@ -3296,7 +3307,7 @@ ssize_t generic_perform_write(struct file *file,
 		unsigned long offset;	/* Offset into pagecache page */
 		unsigned long bytes;	/* Bytes to write to page */
 		size_t copied;		/* Bytes copied from user */
-		void *fsdata;
+		void *fsdata = NULL;
 
 #ifdef CONFIG_CGROUP_IOLIMIT
 		if (iolimit_enable)

@@ -331,6 +331,10 @@ struct config_fils_params {
  * @lower32: Lower 32 bits in the 1st 64-bit value
  * @higher32: Higher 32 bits in the 1st 64-bit value
  * @lower32_2: Lower 32 bits in the 2nd 64-bit value
+<<<<<<< Updated upstream
+=======
+ * @higher32_2: Higher 32 bits in the 2nd 64-bit value
+>>>>>>> Stashed changes
  */
 struct config_ratemask_params {
 	uint8_t vdev_id;
@@ -338,6 +342,10 @@ struct config_ratemask_params {
 	uint32_t lower32;
 	uint32_t higher32;
 	uint32_t lower32_2;
+<<<<<<< Updated upstream
+=======
+	uint32_t higher32_2;
+>>>>>>> Stashed changes
 };
 
 /**

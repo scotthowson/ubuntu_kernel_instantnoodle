@@ -26,7 +26,6 @@
 #include <linux/soc/qcom/smem.h>
 #include <linux/soc/qcom/smem_state.h>
 #include <linux/spinlock.h>
-#include <linux/pm_wakeup.h>
 
 #include <linux/ipc_logging.h>
 
@@ -161,7 +160,10 @@ struct qcom_smp2p {
 	struct regmap *ipc_regmap;
 	int ipc_offset;
 	int ipc_bit;
+<<<<<<< Updated upstream
 	struct wakeup_source *ws;
+=======
+>>>>>>> Stashed changes
 
 	struct mbox_client mbox_client;
 	struct mbox_chan *mbox_chan;
@@ -289,16 +291,13 @@ static void qcom_smp2p_notify_in(struct qcom_smp2p *smp2p)
 			    (!(val & BIT(i)) && test_bit(i, entry->irq_falling))) {
 				irq_pin = irq_find_mapping(entry->domain, i);
 				handle_nested_irq(irq_pin);
-
-				if (test_bit(i, entry->irq_enabled))
-					clear_bit(i, entry->irq_pending);
-				else
-					set_bit(i, entry->irq_pending);
+				clear_bit(i, entry->irq_pending);
 			}
 		}
 	}
 }
 
+<<<<<<< Updated upstream
 static irqreturn_t qcom_smp2p_isr(int irq, void *data)
 {
 	struct qcom_smp2p *smp2p = data;
@@ -307,6 +306,8 @@ static irqreturn_t qcom_smp2p_isr(int irq, void *data)
 	return IRQ_WAKE_THREAD;
 }
 
+=======
+>>>>>>> Stashed changes
 /**
  * qcom_smp2p_intr() - interrupt handler for incoming notifications
  * @irq:	unused
@@ -331,7 +332,7 @@ static irqreturn_t qcom_smp2p_intr(int irq, void *data)
 		if (IS_ERR(in)) {
 			dev_err(smp2p->dev,
 				"Unable to acquire remote smp2p item\n");
-			goto out;
+			return IRQ_HANDLED;
 		}
 
 		smp2p->in = in;
@@ -350,8 +351,11 @@ static irqreturn_t qcom_smp2p_intr(int irq, void *data)
 			qcom_smp2p_do_ssr_ack(smp2p);
 	}
 
+<<<<<<< Updated upstream
 out:
 	__pm_relax(smp2p->ws);
+=======
+>>>>>>> Stashed changes
 	return IRQ_HANDLED;
 }
 
@@ -392,11 +396,23 @@ static int smp2p_set_irq_type(struct irq_data *irqd, unsigned int type)
 	return 0;
 }
 
+static int smp2p_retrigger_irq(struct irq_data *irqd)
+{
+	struct smp2p_entry *entry = irq_data_get_irq_chip_data(irqd);
+	irq_hw_number_t irq = irqd_to_hwirq(irqd);
+
+	SMP2P_INFO("%d: %s: %lu\n", entry->smp2p->remote_pid, entry->name, irq);
+	set_bit(irq, entry->irq_pending);
+
+	return 0;
+}
+
 static struct irq_chip smp2p_irq_chip = {
 	.name           = "smp2p",
 	.irq_mask       = smp2p_mask_irq,
 	.irq_unmask     = smp2p_unmask_irq,
 	.irq_set_type	= smp2p_set_irq_type,
+	.irq_retrigger	= smp2p_retrigger_irq,
 };
 
 static int smp2p_irq_map(struct irq_domain *d,
@@ -436,15 +452,16 @@ static int qcom_smp2p_inbound_entry(struct qcom_smp2p *smp2p,
 static int smp2p_update_bits(void *data, u32 mask, u32 value)
 {
 	struct smp2p_entry *entry = data;
+	unsigned long flags;
 	u32 orig;
 	u32 val;
 
-	spin_lock(&entry->lock);
+	spin_lock_irqsave(&entry->lock, flags);
 	val = orig = readl(entry->value);
 	val &= ~mask;
 	val |= value;
 	writel(val, entry->value);
-	spin_unlock(&entry->lock);
+	spin_unlock_irqrestore(&entry->lock, flags);
 	SMP2P_INFO("%d: %s: orig:0x%0x new:0x%0x\n",
 		   entry->smp2p->remote_pid, entry->name, orig, val);
 
@@ -540,6 +557,7 @@ static int smp2p_parse_ipc(struct qcom_smp2p *smp2p)
 	}
 
 	smp2p->ipc_regmap = syscon_node_to_regmap(syscon);
+	of_node_put(syscon);
 	if (IS_ERR(smp2p->ipc_regmap))
 		return PTR_ERR(smp2p->ipc_regmap);
 
@@ -648,18 +666,21 @@ static int qcom_smp2p_probe(struct platform_device *pdev)
 			list_add(&entry->node, &smp2p->outbound);
 		}
 	}
+<<<<<<< Updated upstream
 
 	smp2p->ws = wakeup_source_register(&pdev->dev, "smp2p");
 	if (!smp2p->ws) {
 		ret = -ENOMEM;
 		goto unwind_interfaces;
 	}
+=======
+>>>>>>> Stashed changes
 
 	/* Kick the outgoing edge after allocating entries */
 	qcom_smp2p_kick(smp2p);
 
 	ret = devm_request_threaded_irq(&pdev->dev, smp2p->irq,
-					qcom_smp2p_isr, qcom_smp2p_intr,
+					NULL, qcom_smp2p_intr,
 					IRQF_NO_SUSPEND | IRQF_ONESHOT,
 					"smp2p", (void *)smp2p);
 	if (ret) {

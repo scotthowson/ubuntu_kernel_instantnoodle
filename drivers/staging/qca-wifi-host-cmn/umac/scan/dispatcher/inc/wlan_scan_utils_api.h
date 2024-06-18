@@ -709,6 +709,10 @@ util_scan_copy_beacon_data(struct scan_cache_entry *new_entry,
 	ie_lst->extender = conv_ptr(ie_lst->extender, old_ptr, new_ptr);
 	ie_lst->adaptive_11r = conv_ptr(ie_lst->adaptive_11r, old_ptr, new_ptr);
 	ie_lst->single_pmk = conv_ptr(ie_lst->single_pmk, old_ptr, new_ptr);
+<<<<<<< Updated upstream
+=======
+	ie_lst->rsnxe = conv_ptr(ie_lst->rsnxe, old_ptr, new_ptr);
+>>>>>>> Stashed changes
 
 	return QDF_STATUS_SUCCESS;
 }
@@ -1401,7 +1405,11 @@ util_scan_entry_get_extcap(struct scan_cache_entry *scan_entry,
 	if (!ext_cap)
 		return QDF_STATUS_E_NULL_VALUE;
 
+<<<<<<< Updated upstream
 	if (ext_cap->ext_cap_len < ext_caps_byte)
+=======
+	if (ext_cap->ext_cap_len <= ext_caps_byte)
+>>>>>>> Stashed changes
 		return QDF_STATUS_E_NULL_VALUE;
 
 	*extcap_value =
@@ -1601,6 +1609,23 @@ util_scan_entry_mbo_oce(struct scan_cache_entry *scan_entry)
 }
 
 /**
+<<<<<<< Updated upstream
+=======
+ * util_scan_entry_rsnxe() - function to read RSNXE ie
+ * @scan_entry: scan entry
+ *
+ * API, function to read RSNXE ie
+ *
+ * Return: RSNXE ie
+ */
+static inline uint8_t *
+util_scan_entry_rsnxe(struct scan_cache_entry *scan_entry)
+{
+	return scan_entry->ie_list.rsnxe;
+}
+
+/**
+>>>>>>> Stashed changes
  * util_scan_scm_chan_to_band() - function to tell band for channel number
  * @chan: Channel number
  *

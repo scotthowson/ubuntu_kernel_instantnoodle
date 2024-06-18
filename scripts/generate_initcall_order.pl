@@ -41,7 +41,11 @@ sub find_initcalls {
 
 	die "$0: object file $object doesn't exist?" if (! -f $object);
 
+<<<<<<< Updated upstream
 	open(my $fh, "\"$nm\" -just-symbol-name -defined-only \"$object\" 2>/dev/null |")
+=======
+	open(my $fh, "\"$nm\" --just-symbol-name --defined-only \"$object\" 2>/dev/null |")
+>>>>>>> Stashed changes
 		or die "$0: failed to execute \"$nm\": $!";
 
 	my $initcalls = {};

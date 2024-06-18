@@ -1,5 +1,9 @@
 /*
  * Copyright (c) 2011-2020 The Linux Foundation. All rights reserved.
+<<<<<<< Updated upstream
+=======
+ * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+>>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -91,6 +95,11 @@ struct txrx_pdev_cfg_t {
 	struct wlan_ipa_uc_rsc_t ipa_uc_rsc;
 	bool ip_tcp_udp_checksum_offload;
 	bool p2p_ip_tcp_udp_checksum_offload;
+<<<<<<< Updated upstream
+=======
+	/* IP, TCP and UDP checksum offload for NAN Mode*/
+	bool nan_tcp_udp_checksumoffload;
+>>>>>>> Stashed changes
 	bool enable_rxthread;
 	bool ce_classify_enabled;
 #if defined(QCA_LL_TX_FLOW_CONTROL_V2) || defined(QCA_LL_PDEV_TX_FLOW_CONTROL)
@@ -107,8 +116,16 @@ struct txrx_pdev_cfg_t {
 	u8 credit_update_enabled;
 	struct ol_tx_sched_wrr_ac_specs_t ac_specs[QCA_WLAN_AC_ALL];
 	bool gro_enable;
+<<<<<<< Updated upstream
 	bool tso_enable;
 	bool lro_enable;
+=======
+	bool tc_based_dyn_gro;
+	uint32_t tc_ingress_prio;
+	bool tso_enable;
+	bool lro_enable;
+	bool sg_enable;
+>>>>>>> Stashed changes
 	bool enable_data_stall_detection;
 	bool enable_flow_steering;
 	bool disable_intra_bss_fwd;

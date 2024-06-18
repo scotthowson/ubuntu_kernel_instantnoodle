@@ -8,6 +8,7 @@
 #include <linux/sched/jobctl.h>
 #include <linux/sched/task.h>
 #include <linux/cred.h>
+#include <linux/android_kabi.h>
 
 /*
  * Types defining task->signal and task->sighand and APIs using them:
@@ -223,12 +224,6 @@ struct signal_struct {
 	 * oom
 	 */
 	bool oom_flag_origin;
-#ifdef CONFIG_MEMPLUS
-	spinlock_t reclaim_state_lock;
-	unsigned long reclaim_timeout;
-	int swapin_should_readahead_m;
-	int memplus_type;
-#endif
 	short oom_score_adj;		/* OOM kill score adjustment */
 	short oom_score_adj_min;	/* OOM kill score adjustment min value.
 					 * Only settable by CAP_SYS_RESOURCE. */
@@ -238,6 +233,10 @@ struct signal_struct {
 	struct mutex cred_guard_mutex;	/* guard against foreign influences on
 					 * credential calculations
 					 * (notably. ptrace) */
+	ANDROID_KABI_RESERVE(1);
+	ANDROID_KABI_RESERVE(2);
+	ANDROID_KABI_RESERVE(3);
+	ANDROID_KABI_RESERVE(4);
 } __randomize_layout;
 
 /*

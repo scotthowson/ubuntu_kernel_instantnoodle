@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
+<<<<<<< Updated upstream
  * Copyright (c) 2013-2020, The Linux Foundation. All rights reserved.
+=======
+ * Copyright (c) 2013-2021, The Linux Foundation. All rights reserved.
+>>>>>>> Stashed changes
  */
 
 #include <linux/kernel.h>
@@ -1361,9 +1365,24 @@ static ssize_t show_info_show(struct device *dev, struct device_attribute *attr,
 {
 	struct cti_drvdata *drvdata = dev_get_drvdata(dev->parent);
 	ssize_t size = 0;
+<<<<<<< Updated upstream
 
 	size = scnprintf(&buf[size], PAGE_SIZE, "%d %d\n",
 			drvdata->trig_num_max, drvdata->ch_num_max);
+=======
+	unsigned int ctidevid, trig_num_max, ch_num_max;
+
+	pm_runtime_get_sync(drvdata->dev);
+
+	ctidevid = cti_readl(drvdata, DEVID);
+	trig_num_max = (ctidevid & GENMASK(15, 8)) >> 8;
+	ch_num_max = (ctidevid & GENMASK(21, 16)) >> 16;
+
+	pm_runtime_put(drvdata->dev);
+
+	size = scnprintf(&buf[size], PAGE_SIZE, "%d %d\n",
+			trig_num_max, ch_num_max);
+>>>>>>> Stashed changes
 
 	return size;
 }

@@ -1224,6 +1224,7 @@
 			};
 		};
 
+<<<<<<< Updated upstream
 		cam_sensor_active_rear_aux1: cam_sensor_active_rear_aux1 {
 			/* RESET REARAUX2 */
 			mux {
@@ -1253,6 +1254,8 @@
 			};
 		};
 
+=======
+>>>>>>> Stashed changes
 		cam_sensor_active_rear_aux2: cam_sensor_active_rear_aux2 {
 			/* RESET REARAUX2 */
 			mux {

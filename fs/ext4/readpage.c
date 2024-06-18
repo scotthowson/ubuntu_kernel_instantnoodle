@@ -46,7 +46,6 @@
 #include <linux/cleancache.h>
 
 #include "ext4.h"
-#include <trace/events/android_fs.h>
 
 #define NUM_PREALLOC_POST_READ_CTXS	128
 
@@ -89,6 +88,65 @@ static void __read_end_io(struct bio *bio)
 	if (bio->bi_private)
 		mempool_free(bio->bi_private, bio_post_read_ctx_pool);
 	bio_put(bio);
+<<<<<<< Updated upstream
+}
+
+static void bio_post_read_processing(struct bio_post_read_ctx *ctx);
+
+static void decrypt_work(struct work_struct *work)
+{
+	struct bio_post_read_ctx *ctx =
+		container_of(work, struct bio_post_read_ctx, work);
+
+	fscrypt_decrypt_bio(ctx->bio);
+
+	bio_post_read_processing(ctx);
+}
+
+static void verity_work(struct work_struct *work)
+{
+	struct bio_post_read_ctx *ctx =
+		container_of(work, struct bio_post_read_ctx, work);
+
+	fsverity_verify_bio(ctx->bio);
+
+	bio_post_read_processing(ctx);
+}
+
+static void bio_post_read_processing(struct bio_post_read_ctx *ctx)
+{
+	/*
+	 * We use different work queues for decryption and for verity because
+	 * verity may require reading metadata pages that need decryption, and
+	 * we shouldn't recurse to the same workqueue.
+	 */
+	switch (++ctx->cur_step) {
+	case STEP_DECRYPT:
+		if (ctx->enabled_steps & (1 << STEP_DECRYPT)) {
+			INIT_WORK(&ctx->work, decrypt_work);
+			fscrypt_enqueue_decrypt_work(&ctx->work);
+			return;
+		}
+		ctx->cur_step++;
+		/* fall-through */
+	case STEP_VERITY:
+		if (ctx->enabled_steps & (1 << STEP_VERITY)) {
+			INIT_WORK(&ctx->work, verity_work);
+			fsverity_enqueue_verify_work(&ctx->work);
+			return;
+		}
+		ctx->cur_step++;
+		/* fall-through */
+	default:
+		__read_end_io(ctx->bio);
+	}
+}
+
+static bool bio_post_read_required(struct bio *bio)
+{
+	return bio->bi_private && !bio->bi_status;
+=======
+>>>>>>> Stashed changes
 }
 
 static void bio_post_read_processing(struct bio_post_read_ctx *ctx);
@@ -147,17 +205,6 @@ static bool bio_post_read_required(struct bio *bio)
 	return bio->bi_private && !bio->bi_status;
 }
 
-static void
-ext4_trace_read_completion(struct bio *bio)
-{
-	struct page *first_page = bio->bi_io_vec[0].bv_page;
-
-	if (first_page != NULL)
-		trace_android_fs_dataread_end(first_page->mapping->host,
-					      page_offset(first_page),
-					      bio->bi_iter.bi_size);
-}
-
 /*
  * I/O completion handler for multipage BIOs.
  *
@@ -172,9 +219,12 @@ ext4_trace_read_completion(struct bio *bio)
  */
 static void mpage_end_io(struct bio *bio)
 {
+<<<<<<< Updated upstream
 	if (trace_android_fs_dataread_start_enabled())
 		ext4_trace_read_completion(bio);
 
+=======
+>>>>>>> Stashed changes
 	if (bio_post_read_required(bio)) {
 		struct bio_post_read_ctx *ctx = bio->bi_private;
 
@@ -183,6 +233,7 @@ static void mpage_end_io(struct bio *bio)
 		return;
 	}
 	__read_end_io(bio);
+<<<<<<< Updated upstream
 }
 
 static inline bool ext4_need_verity(const struct inode *inode, pgoff_t idx)
@@ -222,30 +273,47 @@ static inline loff_t ext4_readpage_limit(struct inode *inode)
 		return inode->i_sb->s_maxbytes;
 
 	return i_size_read(inode);
+=======
+>>>>>>> Stashed changes
 }
 
-static void
-ext4_submit_bio_read(struct bio *bio)
+static inline bool ext4_need_verity(const struct inode *inode, pgoff_t idx)
 {
-	if (trace_android_fs_dataread_start_enabled()) {
-		struct page *first_page = bio->bi_io_vec[0].bv_page;
+	return fsverity_active(inode) &&
+	       idx < DIV_ROUND_UP(inode->i_size, PAGE_SIZE);
+}
 
-		if (first_page != NULL) {
-			char *path, pathbuf[MAX_TRACE_PATHBUF_LEN];
+static struct bio_post_read_ctx *get_bio_post_read_ctx(struct inode *inode,
+						       struct bio *bio,
+						       pgoff_t first_idx)
+{
+	unsigned int post_read_steps = 0;
+	struct bio_post_read_ctx *ctx = NULL;
 
-			path = android_fstrace_get_pathname(pathbuf,
-						    MAX_TRACE_PATHBUF_LEN,
-						    first_page->mapping->host);
-			trace_android_fs_dataread_start(
-				first_page->mapping->host,
-				page_offset(first_page),
-				bio->bi_iter.bi_size,
-				current->pid,
-				path,
-				current->comm);
-		}
+	if (fscrypt_inode_uses_fs_layer_crypto(inode))
+		post_read_steps |= 1 << STEP_DECRYPT;
+
+	if (ext4_need_verity(inode, first_idx))
+		post_read_steps |= 1 << STEP_VERITY;
+
+	if (post_read_steps) {
+		ctx = mempool_alloc(bio_post_read_ctx_pool, GFP_NOFS);
+		if (!ctx)
+			return ERR_PTR(-ENOMEM);
+		ctx->bio = bio;
+		ctx->enabled_steps = post_read_steps;
+		bio->bi_private = ctx;
 	}
-	submit_bio(bio);
+	return ctx;
+}
+
+static inline loff_t ext4_readpage_limit(struct inode *inode)
+{
+	if (IS_ENABLED(CONFIG_FS_VERITY) &&
+	    (IS_VERITY(inode) || ext4_verity_in_progress(inode)))
+		return inode->i_sb->s_maxbytes;
+
+	return i_size_read(inode);
 }
 
 int ext4_mpage_readpages(struct address_space *mapping,
@@ -395,7 +463,7 @@ int ext4_mpage_readpages(struct address_space *mapping,
 		if (bio && (last_block_in_bio != blocks[0] - 1 ||
 			    !fscrypt_mergeable_bio(bio, inode, next_block))) {
 		submit_and_realloc:
-			ext4_submit_bio_read(bio);
+			submit_bio(bio);
 			bio = NULL;
 		}
 		if (bio == NULL) {
@@ -428,14 +496,14 @@ int ext4_mpage_readpages(struct address_space *mapping,
 		if (((map.m_flags & EXT4_MAP_BOUNDARY) &&
 		     (relative_block == map.m_len)) ||
 		    (first_hole != blocks_per_page)) {
-			ext4_submit_bio_read(bio);
+			submit_bio(bio);
 			bio = NULL;
 		} else
 			last_block_in_bio = blocks[blocks_per_page - 1];
 		goto next_page;
 	confused:
 		if (bio) {
-			ext4_submit_bio_read(bio);
+			submit_bio(bio);
 			bio = NULL;
 		}
 		if (!PageUptodate(page))
@@ -448,7 +516,7 @@ int ext4_mpage_readpages(struct address_space *mapping,
 	}
 	BUG_ON(pages && !list_empty(pages));
 	if (bio)
-		ext4_submit_bio_read(bio);
+		submit_bio(bio);
 	return 0;
 }
 

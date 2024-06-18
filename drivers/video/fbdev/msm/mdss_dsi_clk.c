@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-only
+<<<<<<< Updated upstream
 /* Copyright (c) 2015-2016, 2018-2020, The Linux Foundation. All rights reserved. */
+=======
+/* Copyright (c) 2015-2016, 2018-2021, The Linux Foundation. All rights reserved. */
+>>>>>>> Stashed changes
 
 #define pr_fmt(fmt) "mdss-dsi-clk:[%s] " fmt, __func__
 #include <linux/clk.h>
@@ -17,11 +21,17 @@ struct dsi_core_clks {
 };
 
 struct dsi_link_clks {
+<<<<<<< Updated upstream
 	struct mdss_dsi_link_clk_info clks;
 	u32 current_clk_state;
 	u32 byte_clk_rate;
 	u32 pix_clk_rate;
 	u32 esc_clk_rate;
+=======
+	struct mdss_dsi_link_hs_clk_info hs_clks;
+	struct mdss_dsi_link_lp_clk_info lp_clks;
+	u32 current_clk_state;
+>>>>>>> Stashed changes
 };
 
 struct mdss_dsi_clk_mngr {
@@ -63,8 +73,12 @@ static int dsi_core_clk_start(struct dsi_core_clks *c_clks)
 
 	rc = clk_prepare_enable(c_clks->clks.mdp_core_clk);
 	if (rc) {
+<<<<<<< Updated upstream
 		pr_err("%s: failed to enable mdp_core_clock. rc=%d\n",
 							 __func__, rc);
+=======
+		pr_err("failed to enable mdp_core_clock. rc=%d\n", rc);
+>>>>>>> Stashed changes
 		goto error;
 	}
 
@@ -84,15 +98,24 @@ static int dsi_core_clk_start(struct dsi_core_clks *c_clks)
 
 	rc = clk_prepare_enable(c_clks->clks.axi_clk);
 	if (rc) {
+<<<<<<< Updated upstream
 		pr_err("%s: failed to enable ahb clock. rc=%d\n", __func__, rc);
+=======
+		pr_err("failed to enable ahb clock. rc=%d\n", rc);
+>>>>>>> Stashed changes
 		goto disable_ahb_clk;
 	}
 
 	if (c_clks->clks.mmss_misc_ahb_clk) {
 		rc = clk_prepare_enable(c_clks->clks.mmss_misc_ahb_clk);
 		if (rc) {
+<<<<<<< Updated upstream
 			pr_err("%s: failed to enable mmss misc ahb clk.rc=%d\n",
 				__func__, rc);
+=======
+			pr_err("failed to enable mmss misc ahb clk.rc=%d\n",
+				rc);
+>>>>>>> Stashed changes
 			goto disable_axi_clk;
 		}
 	}
@@ -142,12 +165,24 @@ static int dsi_core_clk_stop(struct dsi_core_clks *c_clks)
 	return 0;
 }
 
+<<<<<<< Updated upstream
 static int dsi_link_clk_set_rate(struct dsi_link_clks *l_clks)
 {
 	int rc = 0;
 	struct mdss_dsi_clk_mngr *mngr;
 	struct mdss_dsi_ctrl_pdata *ctrl;
 
+=======
+static int dsi_link_hs_clk_set_rate(
+	struct mdss_dsi_link_hs_clk_info *link_hs_clks)
+{
+	int rc = 0;
+	struct mdss_dsi_clk_mngr *mngr;
+	struct dsi_link_clks *l_clks;
+	struct mdss_dsi_ctrl_pdata *ctrl;
+
+	l_clks = container_of(link_hs_clks, struct dsi_link_clks, hs_clks);
+>>>>>>> Stashed changes
 	mngr = container_of(l_clks, struct mdss_dsi_clk_mngr, link_clks);
 
 	/*
@@ -162,6 +197,7 @@ static int dsi_link_clk_set_rate(struct dsi_link_clks *l_clks)
 	if (ctrl->panel_data.panel_info.cont_splash_enabled)
 		return 0;
 
+<<<<<<< Updated upstream
 	rc = clk_set_rate(l_clks->clks.esc_clk, l_clks->esc_clk_rate);
 	if (rc) {
 		pr_err("clk_set_rate failed for esc_clk rc = %d\n", rc);
@@ -169,12 +205,19 @@ static int dsi_link_clk_set_rate(struct dsi_link_clks *l_clks)
 	}
 
 	rc = clk_set_rate(l_clks->clks.byte_clk, l_clks->byte_clk_rate);
+=======
+	rc = clk_set_rate(link_hs_clks->byte_clk, link_hs_clks->byte_clk_rate);
+>>>>>>> Stashed changes
 	if (rc) {
 		pr_err("clk_set_rate failed for byte_clk rc = %d\n", rc);
 		goto error;
 	}
 
+<<<<<<< Updated upstream
 	rc = clk_set_rate(l_clks->clks.pixel_clk, l_clks->pix_clk_rate);
+=======
+	rc = clk_set_rate(link_hs_clks->pixel_clk, link_hs_clks->pix_clk_rate);
+>>>>>>> Stashed changes
 	if (rc) {
 		pr_err("clk_set_rate failed for pixel_clk rc = %d\n", rc);
 		goto error;
@@ -186,9 +229,15 @@ static int dsi_link_clk_set_rate(struct dsi_link_clks *l_clks)
 	 *        byte_intf_clk_rate = byte_clk_rate / 2
 	 *  todo: this needs to be revisited when support for CPHY is added
 	 */
+<<<<<<< Updated upstream
 	if (l_clks->clks.byte_intf_clk) {
 		rc = clk_set_rate(l_clks->clks.byte_intf_clk,
 			l_clks->byte_clk_rate / 2);
+=======
+	if (link_hs_clks->byte_intf_clk) {
+		rc = clk_set_rate(link_hs_clks->byte_intf_clk,
+			link_hs_clks->byte_clk_rate / 2);
+>>>>>>> Stashed changes
 		if (rc) {
 			pr_err("set rate failed for byte intf clk rc=%d\n", rc);
 			goto error;
@@ -199,6 +248,7 @@ error:
 	return rc;
 }
 
+<<<<<<< Updated upstream
 static int dsi_link_clk_prepare(struct dsi_link_clks *l_clks)
 {
 	int rc = 0;
@@ -223,6 +273,27 @@ static int dsi_link_clk_prepare(struct dsi_link_clks *l_clks)
 
 	if (l_clks->clks.byte_intf_clk) {
 		rc = clk_prepare(l_clks->clks.byte_intf_clk);
+=======
+static int dsi_link_hs_clk_prepare(
+	struct mdss_dsi_link_hs_clk_info *link_hs_clks)
+{
+	int rc = 0;
+
+	rc = clk_prepare(link_hs_clks->byte_clk);
+	if (rc) {
+		pr_err("Failed to prepare dsi byte clk\n");
+		goto byte_clk_err;
+	}
+
+	rc = clk_prepare(link_hs_clks->pixel_clk);
+	if (rc) {
+		pr_err("Failed to prepare dsi pixel_clk\n");
+		goto pixel_clk_err;
+	}
+
+	if (link_hs_clks->byte_intf_clk) {
+		rc = clk_prepare(link_hs_clks->byte_intf_clk);
+>>>>>>> Stashed changes
 		if (rc) {
 			pr_err("%s: Failed to prepare dsi byte_intf clk\n",
 				__func__);
@@ -233,6 +304,7 @@ static int dsi_link_clk_prepare(struct dsi_link_clks *l_clks)
 	return rc;
 
 byte_intf_clk_err:
+<<<<<<< Updated upstream
 	clk_unprepare(l_clks->clks.pixel_clk);
 pixel_clk_err:
 	clk_unprepare(l_clks->clks.byte_clk);
@@ -249,10 +321,27 @@ static int dsi_link_clk_unprepare(struct dsi_link_clks *l_clks)
 	clk_unprepare(l_clks->clks.pixel_clk);
 	clk_unprepare(l_clks->clks.byte_clk);
 	clk_unprepare(l_clks->clks.esc_clk);
+=======
+	clk_unprepare(link_hs_clks->pixel_clk);
+pixel_clk_err:
+	clk_unprepare(link_hs_clks->byte_clk);
+byte_clk_err:
+	return rc;
+}
+
+static int dsi_link_hs_clk_unprepare(
+	struct mdss_dsi_link_hs_clk_info *link_hs_clks)
+{
+	if (link_hs_clks->byte_intf_clk)
+		clk_unprepare(link_hs_clks->byte_intf_clk);
+	clk_unprepare(link_hs_clks->pixel_clk);
+	clk_unprepare(link_hs_clks->byte_clk);
+>>>>>>> Stashed changes
 
 	return 0;
 }
 
+<<<<<<< Updated upstream
 static int dsi_link_clk_enable(struct dsi_link_clks *l_clks)
 {
 	int rc = 0;
@@ -277,6 +366,27 @@ static int dsi_link_clk_enable(struct dsi_link_clks *l_clks)
 
 	if (l_clks->clks.byte_intf_clk) {
 		rc = clk_enable(l_clks->clks.byte_intf_clk);
+=======
+static int dsi_link_hs_clk_enable(
+	struct mdss_dsi_link_hs_clk_info *link_hs_clks)
+{
+	int rc = 0;
+
+	rc = clk_enable(link_hs_clks->byte_clk);
+	if (rc) {
+		pr_err("Failed to enable dsi byte clk\n");
+		goto byte_clk_err;
+	}
+
+	rc = clk_enable(link_hs_clks->pixel_clk);
+	if (rc) {
+		pr_err("Failed to enable dsi pixel_clk\n");
+		goto pixel_clk_err;
+	}
+
+	if (link_hs_clks->byte_intf_clk) {
+		rc = clk_enable(link_hs_clks->byte_intf_clk);
+>>>>>>> Stashed changes
 		if (rc) {
 			pr_err("%s: Failed to enable dsi byte_intf clk\n",
 				__func__);
@@ -287,6 +397,7 @@ static int dsi_link_clk_enable(struct dsi_link_clks *l_clks)
 	return rc;
 
 byte_intf_clk_err:
+<<<<<<< Updated upstream
 	clk_disable(l_clks->clks.pixel_clk);
 pixel_clk_err:
 	clk_disable(l_clks->clks.byte_clk);
@@ -303,11 +414,28 @@ static int dsi_link_clk_disable(struct dsi_link_clks *l_clks)
 	clk_disable(l_clks->clks.esc_clk);
 	clk_disable(l_clks->clks.pixel_clk);
 	clk_disable(l_clks->clks.byte_clk);
+=======
+	clk_disable(link_hs_clks->pixel_clk);
+pixel_clk_err:
+	clk_disable(link_hs_clks->byte_clk);
+byte_clk_err:
+	return rc;
+}
+
+static int dsi_link_hs_clk_disable(
+	struct mdss_dsi_link_hs_clk_info *link_hs_clks)
+{
+	if (link_hs_clks->byte_intf_clk)
+		clk_disable(link_hs_clks->byte_intf_clk);
+	clk_disable(link_hs_clks->pixel_clk);
+	clk_disable(link_hs_clks->byte_clk);
+>>>>>>> Stashed changes
 
 	return 0;
 }
 
 
+<<<<<<< Updated upstream
 static int dsi_link_clk_start(struct dsi_link_clks *l_clks)
 {
 	int rc = 0;
@@ -337,10 +465,52 @@ static int dsi_link_clk_start(struct dsi_link_clks *l_clks)
 	return rc;
 error_unprepare:
 	dsi_link_clk_unprepare(l_clks);
+=======
+static int dsi_link_hs_clk_start(
+	struct mdss_dsi_link_hs_clk_info *link_hs_clks,
+	enum mdss_dsi_link_clk_op_type op_type)
+{
+	int rc = 0;
+	struct dsi_link_clks *l_clks;
+	struct mdss_dsi_clk_mngr *mngr;
+
+	l_clks = container_of(link_hs_clks, struct dsi_link_clks, hs_clks);
+	mngr = container_of(l_clks, struct mdss_dsi_clk_mngr, link_clks);
+
+	if (op_type & MDSS_DSI_LINK_CLK_SET_RATE) {
+		rc = dsi_link_hs_clk_set_rate(link_hs_clks);
+		if (rc) {
+			pr_err("failed to set HS clk rates, rc = %d\n", rc);
+			goto error;
+		}
+	}
+
+	if (op_type & MDSS_DSI_LINK_CLK_PREPARE) {
+		rc = dsi_link_hs_clk_prepare(link_hs_clks);
+		if (rc) {
+			pr_err("failed to prepare link HS clks, rc = %d\n", rc);
+			goto error;
+		}
+	}
+
+	if (op_type & MDSS_DSI_LINK_CLK_ENABLE) {
+		rc = dsi_link_hs_clk_enable(link_hs_clks);
+		if (rc) {
+			pr_err("failed to enable link HS clks, rc = %d\n", rc);
+			goto error_unprepare;
+		}
+	}
+
+	pr_debug("%s: LINK HS CLOCK IS ON\n", mngr->name);
+	return rc;
+error_unprepare:
+	dsi_link_hs_clk_unprepare(link_hs_clks);
+>>>>>>> Stashed changes
 error:
 	return rc;
 }
 
+<<<<<<< Updated upstream
 static int dsi_link_clk_stop(struct dsi_link_clks *l_clks)
 {
 	struct mdss_dsi_clk_mngr *mngr;
@@ -351,10 +521,91 @@ static int dsi_link_clk_stop(struct dsi_link_clks *l_clks)
 
 	(void)dsi_link_clk_unprepare(l_clks);
 	pr_debug("%s: LINK CLOCK IS OFF\n", mngr->name);
+=======
+static int dsi_link_lp_clk_start(
+	struct mdss_dsi_link_lp_clk_info *link_lp_clks)
+{
+	int rc = 0;
+	struct mdss_dsi_clk_mngr *mngr;
+	struct dsi_link_clks *l_clks;
+	struct mdss_dsi_ctrl_pdata *ctrl;
+
+	l_clks = container_of(link_lp_clks, struct dsi_link_clks, lp_clks);
+	mngr = container_of(l_clks, struct mdss_dsi_clk_mngr, link_clks);
+	/*
+	 * In an ideal world, cont_splash_enabled should not be required inside
+	 * the clock manager. But, in the current driver cont_splash_enabled
+	 * flag is set inside mdp driver and there is no interface event
+	 * associated with this flag setting. Also, set rate for clock need not
+	 * be called for every enable call. It should be done only once when
+	 * coming out of suspend.
+	 */
+	ctrl = mngr->priv_data;
+	if (ctrl->panel_data.panel_info.cont_splash_enabled)
+		goto prepare;
+
+	rc = clk_set_rate(link_lp_clks->esc_clk, link_lp_clks->esc_clk_rate);
+	if (rc) {
+		pr_err("clk_set_rate failed for esc_clk rc = %d\n", rc);
+		goto error;
+	}
+
+prepare:
+	rc = clk_prepare(link_lp_clks->esc_clk);
+	if (rc) {
+		pr_err("Failed to prepare dsi esc clk\n");
+		goto error;
+	}
+
+	rc = clk_enable(link_lp_clks->esc_clk);
+	if (rc) {
+		pr_err("Failed to enable dsi esc clk\n");
+		clk_unprepare(l_clks->lp_clks.esc_clk);
+		goto error;
+	}
+error:
+	pr_debug("%s: LINK LP CLOCK IS ON\n", mngr->name);
+	return rc;
+}
+
+static int dsi_link_hs_clk_stop(
+	struct mdss_dsi_link_hs_clk_info *link_hs_clks)
+{
+	struct dsi_link_clks *l_clks;
+	struct mdss_dsi_clk_mngr *mngr;
+
+	l_clks = container_of(link_hs_clks, struct dsi_link_clks, hs_clks);
+	mngr = container_of(l_clks, struct mdss_dsi_clk_mngr, link_clks);
+
+	(void)dsi_link_hs_clk_disable(link_hs_clks);
+
+	(void)dsi_link_hs_clk_unprepare(link_hs_clks);
+	pr_debug("%s: LINK HS CLOCK IS OFF\n", mngr->name);
+>>>>>>> Stashed changes
 
 	return 0;
 }
 
+<<<<<<< Updated upstream
+=======
+static int dsi_link_lp_clk_stop(
+	struct mdss_dsi_link_lp_clk_info *link_lp_clks)
+{
+	struct dsi_link_clks *l_clks;
+	struct mdss_dsi_clk_mngr *mngr;
+
+	l_clks = container_of(link_lp_clks, struct dsi_link_clks, lp_clks);
+	mngr = container_of(l_clks, struct mdss_dsi_clk_mngr, link_clks);
+
+	clk_disable(l_clks->lp_clks.esc_clk);
+	clk_unprepare(l_clks->lp_clks.esc_clk);
+
+	pr_debug("%s: LINK LP CLOCK IS OFF\n", mngr->name);
+	return 0;
+}
+
+
+>>>>>>> Stashed changes
 static int dsi_update_clk_state(struct dsi_core_clks *c_clks, u32 c_state,
 				struct dsi_link_clks *l_clks, u32 l_state)
 {
@@ -385,8 +636,13 @@ static int dsi_update_clk_state(struct dsi_core_clks *c_clks, u32 c_state,
 	if (c_clks && (c_state == MDSS_DSI_CLK_ON)) {
 		if (c_clks->current_clk_state == MDSS_DSI_CLK_OFF) {
 			rc = mngr->pre_clkon_cb(mngr->priv_data,
+<<<<<<< Updated upstream
 						MDSS_DSI_CORE_CLK,
 						MDSS_DSI_CLK_ON);
+=======
+				MDSS_DSI_CORE_CLK, MDSS_DSI_LINK_NONE,
+				MDSS_DSI_CLK_ON);
+>>>>>>> Stashed changes
 			if (rc) {
 				pr_err("failed to turn on MDP FS rc= %d\n", rc);
 				goto error;
@@ -400,8 +656,13 @@ static int dsi_update_clk_state(struct dsi_core_clks *c_clks, u32 c_state,
 
 		if (mngr->post_clkon_cb) {
 			rc = mngr->post_clkon_cb(mngr->priv_data,
+<<<<<<< Updated upstream
 						 MDSS_DSI_CORE_CLK,
 						 MDSS_DSI_CLK_ON);
+=======
+				 MDSS_DSI_CORE_CLK, MDSS_DSI_LINK_NONE,
+				 MDSS_DSI_CLK_ON);
+>>>>>>> Stashed changes
 			if (rc)
 				pr_err("post clk on cb failed, rc = %d\n", rc);
 		}
@@ -413,6 +674,7 @@ static int dsi_update_clk_state(struct dsi_core_clks *c_clks, u32 c_state,
 		if (l_state == MDSS_DSI_CLK_ON) {
 			if (mngr->pre_clkon_cb) {
 				rc = mngr->pre_clkon_cb(mngr->priv_data,
+<<<<<<< Updated upstream
 					MDSS_DSI_LINK_CLK, l_state);
 				if (rc)
 					pr_err("pre link clk on cb failed\n");
@@ -420,14 +682,59 @@ static int dsi_update_clk_state(struct dsi_core_clks *c_clks, u32 c_state,
 			rc = dsi_link_clk_start(l_clks);
 			if (rc) {
 				pr_err("failed to start link clk rc= %d\n", rc);
+=======
+					MDSS_DSI_LINK_CLK, MDSS_DSI_LINK_LP_CLK,
+					l_state);
+				if (rc)
+					pr_err("pre link LP clk on cb failed\n");
+			}
+			rc = dsi_link_lp_clk_start(&l_clks->lp_clks);
+			if (rc) {
+				pr_err("failed to start LP link clk clk\n");
+>>>>>>> Stashed changes
 				goto error;
 			}
 			if (mngr->post_clkon_cb) {
 				rc = mngr->post_clkon_cb(mngr->priv_data,
+<<<<<<< Updated upstream
 							MDSS_DSI_LINK_CLK,
 							l_state);
 				if (rc)
 					pr_err("post link clk on cb failed\n");
+=======
+					MDSS_DSI_LINK_CLK, MDSS_DSI_LINK_LP_CLK,
+					l_state);
+				if (rc)
+					pr_err("post LP clk on cb failed\n");
+			}
+
+			if (mngr->pre_clkon_cb) {
+				rc = mngr->pre_clkon_cb(mngr->priv_data,
+					MDSS_DSI_LINK_CLK, MDSS_DSI_LINK_HS_CLK,
+					l_state);
+				if (rc)
+					pr_err("pre HS clk on cb failed\n");
+			}
+			rc = dsi_link_hs_clk_start(&l_clks->hs_clks,
+				(MDSS_DSI_LINK_CLK_SET_RATE |
+				MDSS_DSI_LINK_CLK_PREPARE));
+			if (rc) {
+				pr_err("failed to prepare HS clk rc= %d\n", rc);
+				goto error;
+			}
+			if (mngr->post_clkon_cb) {
+				rc = mngr->post_clkon_cb(mngr->priv_data,
+					MDSS_DSI_LINK_CLK, MDSS_DSI_LINK_HS_CLK,
+					l_state);
+				if (rc)
+					pr_err("post HS clk on cb failed\n");
+			}
+			rc = dsi_link_hs_clk_start(&l_clks->hs_clks,
+				MDSS_DSI_LINK_CLK_ENABLE);
+			if (rc) {
+				pr_err("failed to enable HS clk rc= %d\n", rc);
+				goto error;
+>>>>>>> Stashed changes
 			}
 		} else {
 			/*
@@ -456,9 +763,22 @@ static int dsi_update_clk_state(struct dsi_core_clks *c_clks, u32 c_state,
 					goto error;
 				}
 
+<<<<<<< Updated upstream
 				rc = dsi_link_clk_start(l_clks);
 				if (rc) {
 					pr_err("Link clks did not start\n");
+=======
+				rc = dsi_link_lp_clk_start(&l_clks->lp_clks);
+				if (rc) {
+					pr_err("LP Link clks did not start\n");
+					goto error;
+				}
+
+				rc = dsi_link_hs_clk_start(&l_clks->hs_clks,
+						MDSS_DSI_LINK_CLK_START);
+				if (rc) {
+					pr_err("HS Link clks did not start\n");
+>>>>>>> Stashed changes
 					goto error;
 				}
 				l_c_on = true;
@@ -467,6 +787,7 @@ static int dsi_update_clk_state(struct dsi_core_clks *c_clks, u32 c_state,
 
 			if (mngr->pre_clkoff_cb) {
 				rc = mngr->pre_clkoff_cb(mngr->priv_data,
+<<<<<<< Updated upstream
 					MDSS_DSI_LINK_CLK, l_state);
 				if (rc)
 					pr_err("pre link clk off cb failed\n");
@@ -475,16 +796,59 @@ static int dsi_update_clk_state(struct dsi_core_clks *c_clks, u32 c_state,
 			rc = dsi_link_clk_stop(l_clks);
 			if (rc) {
 				pr_err("failed to stop link clk, rc = %d\n",
+=======
+					MDSS_DSI_LINK_CLK, MDSS_DSI_LINK_HS_CLK,
+					l_state);
+				if (rc)
+					pr_err("pre HS clk off cb failed\n");
+			}
+
+			rc = dsi_link_hs_clk_stop(&l_clks->hs_clks);
+			if (rc) {
+				pr_err("failed to stop HS clk, rc = %d\n",
+>>>>>>> Stashed changes
 				       rc);
 				goto error;
 			}
 
 			if (mngr->post_clkoff_cb) {
 				rc = mngr->post_clkoff_cb(mngr->priv_data,
+<<<<<<< Updated upstream
 					MDSS_DSI_LINK_CLK, l_state);
 				if (rc)
 					pr_err("post link clk off cb failed\n");
 			}
+=======
+					MDSS_DSI_LINK_CLK, MDSS_DSI_LINK_HS_CLK,
+					l_state);
+				if (rc)
+					pr_err("post HS clk off cb failed\n");
+			}
+
+			if (mngr->pre_clkoff_cb) {
+				rc = mngr->pre_clkoff_cb(mngr->priv_data,
+					MDSS_DSI_LINK_CLK, MDSS_DSI_LINK_LP_CLK,
+					l_state);
+				if (rc)
+					pr_err("pre LP clk off cb failed\n");
+			}
+
+			rc = dsi_link_lp_clk_stop(&l_clks->lp_clks);
+			if (rc) {
+				pr_err("failed to stop LP link clk, rc = %d\n",
+				       rc);
+				goto error;
+			}
+
+			if (mngr->post_clkoff_cb) {
+				rc = mngr->post_clkoff_cb(mngr->priv_data,
+					MDSS_DSI_LINK_CLK, MDSS_DSI_LINK_LP_CLK,
+					l_state);
+				if (rc)
+					pr_err("post LP clk off cb failed\n");
+			}
+
+>>>>>>> Stashed changes
 			/*
 			 * This check is to save unnecessary clock state
 			 * change when going from EARLY_GATE to OFF. In the
@@ -540,8 +904,13 @@ static int dsi_update_clk_state(struct dsi_core_clks *c_clks, u32 c_state,
 
 		if (mngr->pre_clkoff_cb) {
 			rc = mngr->pre_clkoff_cb(mngr->priv_data,
+<<<<<<< Updated upstream
 						 MDSS_DSI_CORE_CLK,
 						 c_state);
+=======
+				 MDSS_DSI_CORE_CLK, MDSS_DSI_LINK_NONE,
+				 c_state);
+>>>>>>> Stashed changes
 			if (rc)
 				pr_err("pre core clk off cb failed\n");
 		}
@@ -555,7 +924,11 @@ static int dsi_update_clk_state(struct dsi_core_clks *c_clks, u32 c_state,
 		if (c_state == MDSS_DSI_CLK_OFF) {
 			if (mngr->post_clkoff_cb) {
 				rc = mngr->post_clkoff_cb(mngr->priv_data,
+<<<<<<< Updated upstream
 						MDSS_DSI_CORE_CLK,
+=======
+					MDSS_DSI_CORE_CLK, MDSS_DSI_LINK_NONE,
+>>>>>>> Stashed changes
 						MDSS_DSI_CLK_OFF);
 				if (rc)
 					pr_err("post clkoff cb fail, rc = %d\n",
@@ -648,18 +1021,32 @@ static int dsi_set_clk_rate(struct mdss_dsi_clk_mngr *mngr, int clk, u32 rate,
 	MDSS_XLOG(clk, rate, flags);
 	switch (clk) {
 	case MDSS_DSI_LINK_ESC_CLK:
+<<<<<<< Updated upstream
 		mngr->link_clks.esc_clk_rate = rate;
 		if (!flags) {
 			rc = clk_set_rate(mngr->link_clks.clks.esc_clk, rate);
+=======
+		mngr->link_clks.lp_clks.esc_clk_rate = rate;
+		if (!flags) {
+			rc = clk_set_rate(mngr->link_clks.lp_clks.esc_clk,
+				rate);
+>>>>>>> Stashed changes
 			if (rc)
 				pr_err("set rate failed for esc clk rc=%d\n",
 				       rc);
 		}
 		break;
 	case MDSS_DSI_LINK_BYTE_CLK:
+<<<<<<< Updated upstream
 		mngr->link_clks.byte_clk_rate = rate;
 		if (!flags) {
 			rc = clk_set_rate(mngr->link_clks.clks.byte_clk, rate);
+=======
+		mngr->link_clks.hs_clks.byte_clk_rate = rate;
+		if (!flags) {
+			rc = clk_set_rate(mngr->link_clks.hs_clks.byte_clk,
+				rate);
+>>>>>>> Stashed changes
 			if (rc) {
 				pr_err("set rate failed for byte clk rc=%d\n",
 				       rc);
@@ -673,9 +1060,15 @@ static int dsi_set_clk_rate(struct mdss_dsi_clk_mngr *mngr, int clk, u32 rate,
 			 *  todo: this needs to be revisited when support for
 			 *  CPHY is added.
 			 */
+<<<<<<< Updated upstream
 			if (mngr->link_clks.clks.byte_intf_clk) {
 				rc = clk_set_rate(
 					mngr->link_clks.clks.byte_intf_clk,
+=======
+			if (mngr->link_clks.hs_clks.byte_intf_clk) {
+				rc = clk_set_rate(
+					mngr->link_clks.hs_clks.byte_intf_clk,
+>>>>>>> Stashed changes
 					rate / 2);
 				if (rc)
 					pr_err("set rate failed for byte intf clk rc=%d\n",
@@ -684,9 +1077,16 @@ static int dsi_set_clk_rate(struct mdss_dsi_clk_mngr *mngr, int clk, u32 rate,
 		}
 		break;
 	case MDSS_DSI_LINK_PIX_CLK:
+<<<<<<< Updated upstream
 		mngr->link_clks.pix_clk_rate = rate;
 		if (!flags) {
 			rc = clk_set_rate(mngr->link_clks.clks.pixel_clk, rate);
+=======
+		mngr->link_clks.hs_clks.pix_clk_rate = rate;
+		if (!flags) {
+			rc = clk_set_rate(mngr->link_clks.hs_clks.pixel_clk,
+				rate);
+>>>>>>> Stashed changes
 			if (rc)
 				pr_err("failed to set rate for pix clk rc=%d\n",
 				       rc);
@@ -945,8 +1345,15 @@ void *mdss_dsi_clk_init(struct mdss_dsi_clk_info *info)
 	mutex_init(&mngr->clk_mutex);
 	memcpy(&mngr->core_clks.clks, &info->core_clks, sizeof(struct
 						 mdss_dsi_core_clk_info));
+<<<<<<< Updated upstream
 	memcpy(&mngr->link_clks.clks, &info->link_clks, sizeof(struct
 						 mdss_dsi_link_clk_info));
+=======
+	memcpy(&mngr->link_clks.hs_clks, &info->link_hs_clks, sizeof(struct
+						 mdss_dsi_link_hs_clk_info));
+	memcpy(&mngr->link_clks.lp_clks, &info->link_lp_clks, sizeof(struct
+						 mdss_dsi_link_lp_clk_info));
+>>>>>>> Stashed changes
 
 	INIT_LIST_HEAD(&mngr->client_list);
 	mngr->pre_clkon_cb = info->pre_clkon_cb;
@@ -1038,6 +1445,7 @@ int mdss_dsi_clk_force_toggle(void *client, u32 clk)
 	if ((clk & MDSS_DSI_LINK_CLK) &&
 	    (mngr->link_clks.current_clk_state == MDSS_DSI_CLK_ON)) {
 
+<<<<<<< Updated upstream
 		rc = dsi_link_clk_stop(&mngr->link_clks);
 		if (rc) {
 			pr_err("failed to stop link clks\n");
@@ -1047,6 +1455,28 @@ int mdss_dsi_clk_force_toggle(void *client, u32 clk)
 		rc = dsi_link_clk_start(&mngr->link_clks);
 		if (rc)
 			pr_err("failed to start link clks\n");
+=======
+		rc = dsi_link_hs_clk_stop(&mngr->link_clks.hs_clks);
+		if (rc) {
+			pr_err("failed to stop HS link clks\n");
+			goto error;
+		}
+
+		rc = dsi_link_lp_clk_stop(&mngr->link_clks.lp_clks);
+		if (rc) {
+			pr_err("failed to stop LP link clks\n");
+			goto error;
+		}
+
+		rc = dsi_link_lp_clk_start(&mngr->link_clks.lp_clks);
+		if (rc)
+			pr_err("failed to start LP link clks\n");
+
+		rc = dsi_link_hs_clk_start(&mngr->link_clks.hs_clks,
+				MDSS_DSI_LINK_CLK_START);
+		if (rc)
+			pr_err("failed to start HS link clks\n");
+>>>>>>> Stashed changes
 
 	} else if (clk & MDSS_DSI_LINK_CLK) {
 		pr_err("cannot reset, link clock is off\n");

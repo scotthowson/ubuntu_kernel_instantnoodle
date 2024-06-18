@@ -804,6 +804,7 @@ pmo_core_enable_wow_in_fw(struct wlan_objmgr_psoc *psoc,
 
 	if (htc_can_suspend_link(pmo_core_psoc_get_htc_handle(psoc))) {
 		if (qdf_is_drv_connected()) {
+<<<<<<< Updated upstream
 			pmo_info("drv wow is enabled");
 			param.flags |= WMI_WOW_FLAG_ENABLE_DRV_PCIE_L1SS_SLEEP;
 		} else {
@@ -811,6 +812,15 @@ pmo_core_enable_wow_in_fw(struct wlan_objmgr_psoc *psoc,
 		}
 	} else {
 		pmo_info("Prevent link down, non-drv wow is enabled");
+=======
+			pmo_debug("drv wow is enabled");
+			param.flags |= WMI_WOW_FLAG_ENABLE_DRV_PCIE_L1SS_SLEEP;
+		} else {
+			pmo_debug("non-drv wow is enabled");
+		}
+	} else {
+		pmo_debug("Prevent link down, non-drv wow is enabled");
+>>>>>>> Stashed changes
 	}
 
 	if (type == QDF_SYSTEM_SUSPEND) {
@@ -1032,6 +1042,11 @@ QDF_STATUS pmo_core_psoc_bus_runtime_suspend(struct wlan_objmgr_psoc *psoc,
 	if (status != QDF_STATUS_SUCCESS)
 		goto resume_htc;
 
+<<<<<<< Updated upstream
+=======
+	hif_pm_set_link_state(hif_ctx, HIF_PM_LINK_STATE_DOWN);
+
+>>>>>>> Stashed changes
 	status = pmo_core_psoc_bus_suspend_req(psoc, QDF_RUNTIME_SUSPEND,
 					       &wow_params);
 	if (status != QDF_STATUS_SUCCESS)
@@ -1078,6 +1093,11 @@ pmo_resume_configure:
 	PMO_CORE_PSOC_RUNTIME_PM_QDF_BUG(QDF_STATUS_SUCCESS !=
 		pmo_core_psoc_configure_resume(psoc, true));
 
+<<<<<<< Updated upstream
+=======
+	hif_pm_set_link_state(hif_ctx, HIF_PM_LINK_STATE_UP);
+
+>>>>>>> Stashed changes
 resume_htc:
 	PMO_CORE_PSOC_RUNTIME_PM_QDF_BUG(QDF_STATUS_SUCCESS !=
 		pmo_tgt_psoc_set_runtime_pm_inprogress(psoc, false));
@@ -1158,6 +1178,11 @@ QDF_STATUS pmo_core_psoc_bus_runtime_resume(struct wlan_objmgr_psoc *psoc,
 	if (status != QDF_STATUS_SUCCESS)
 		goto fail;
 
+<<<<<<< Updated upstream
+=======
+	hif_pm_set_link_state(hif_ctx, HIF_PM_LINK_STATE_UP);
+
+>>>>>>> Stashed changes
 	status = pmo_core_psoc_configure_resume(psoc, true);
 	if (status != QDF_STATUS_SUCCESS)
 		goto fail;
@@ -1657,3 +1682,31 @@ out:
 	pmo_exit();
 	return status;
 }
+<<<<<<< Updated upstream
+=======
+
+#ifdef SYSTEM_PM_CHECK
+void pmo_core_system_resume(struct wlan_objmgr_psoc *psoc)
+{
+	struct pmo_psoc_priv_obj *psoc_ctx;
+	QDF_STATUS status;
+
+	if (!psoc) {
+		pmo_err("psoc is NULL");
+		return;
+	}
+
+	status = pmo_psoc_get_ref(psoc);
+	if (status != QDF_STATUS_SUCCESS) {
+		pmo_err("pmo cannot get the reference out of psoc");
+		return;
+	}
+
+	psoc_ctx = pmo_psoc_get_priv(psoc);
+
+	htc_system_resume(psoc_ctx->htc_hdl);
+
+	pmo_psoc_put_ref(psoc);
+}
+#endif
+>>>>>>> Stashed changes

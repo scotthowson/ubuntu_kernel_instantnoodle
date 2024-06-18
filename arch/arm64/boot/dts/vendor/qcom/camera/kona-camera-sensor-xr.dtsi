@@ -289,7 +289,11 @@
 		csiphy-sd-index = <2>;
 		sensor-position-roll = <270>;
 		sensor-position-pitch = <0>;
+<<<<<<< Updated upstream
 		sensor-position-yaw = <180>;
+=======
+		sensor-position-yaw = <0>;
+>>>>>>> Stashed changes
 		eeprom-src = <&eeprom_front>;
 		cam_vio-supply = <&pm8009_l7>;
 		cam_bob-supply = <&pm8150a_bob>;
@@ -341,7 +345,11 @@
 		csiphy-sd-index = <3>;
 		sensor-position-roll = <270>;
 		sensor-position-pitch = <0>;
+<<<<<<< Updated upstream
 		sensor-position-yaw = <180>;
+=======
+		sensor-position-yaw = <0>;
+>>>>>>> Stashed changes
 		cam_vio-supply = <&pm8009_l7>;
 		cam_bob-supply = <&pm8150a_bob>;
 		cam_vana-supply = <&pm8009_l6>;

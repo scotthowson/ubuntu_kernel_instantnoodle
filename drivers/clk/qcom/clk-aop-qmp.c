@@ -233,6 +233,14 @@ static int aop_qmp_clk_panic_callback(struct notifier_block *nfb,
 	char mbox_msg[MAX_LEN];
 	int ret;
 
+<<<<<<< Updated upstream
+=======
+	/*
+	 * The mbox channel cannot be used in blocking mode as panic notifier
+	 * callback function is called in atomic context. So update the channel
+	 * to non-blocking mode before sending message.
+	 */
+>>>>>>> Stashed changes
 	clk->mbox->cl->tx_block = false;
 	snprintf(mbox_msg, MAX_LEN, "{class: %s, res: %s, val: 0}",
 				clk->msg.class, clk->msg.res);

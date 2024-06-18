@@ -147,7 +147,11 @@
 			interrupt-names = "sc-irq";
 			qcom,pmic-revid = <&pm6150l_revid>;
 			qcom,voltage-step-ramp;
+<<<<<<< Updated upstream
 			//status = "disabled";
+=======
+			status = "disabled";
+>>>>>>> Stashed changes
 
 			lcdb_ldo_vreg: ldo {
 				label = "ldo";
@@ -302,6 +306,7 @@
 					  "flash-irq";
 			qcom,pmic-revid = <&pm6150l_revid>;
 			qcom,auto-calibration;
+<<<<<<< Updated upstream
 			//status = "disabled";
 			qcom,fs-current-limit = <20000>;
 			qcom,string-cfg= <3>;
@@ -310,6 +315,10 @@
 			qcom,cabc-sel = <1>;
 			qcom,ovp = <28000>;
 			qcom,boost-current-limit = <1050>;
+=======
+			status = "disabled";
+
+>>>>>>> Stashed changes
 			wled_flash: qcom,wled-flash {
 				label = "flash";
 				qcom,default-led-trigger = "wled_flash";

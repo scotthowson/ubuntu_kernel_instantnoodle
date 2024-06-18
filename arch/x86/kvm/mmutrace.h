@@ -339,7 +339,11 @@ TRACE_EVENT(
 		/* These depend on page entry type, so compute them now.  */
 		__field(bool, r)
 		__field(bool, x)
+<<<<<<< Updated upstream
 		__field(u8, u)
+=======
+		__field(signed char, u)
+>>>>>>> Stashed changes
 	),
 
 	TP_fast_assign(

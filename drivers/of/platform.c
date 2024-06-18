@@ -526,6 +526,8 @@ static int __init of_platform_default_populate_init(void)
 {
 	struct device_node *node;
 
+	device_links_supplier_sync_state_pause();
+
 	if (!of_have_populated_dt())
 		return -ENODEV;
 
@@ -545,7 +547,9 @@ static int __init of_platform_default_populate_init(void)
 	}
 
 	/* Populate everything else. */
+	fw_devlink_pause();
 	of_platform_default_populate(NULL, NULL, NULL);
+	fw_devlink_resume();
 
 	return 0;
 }
@@ -553,8 +557,12 @@ arch_initcall_sync(of_platform_default_populate_init);
 
 static int __init of_platform_sync_state_init(void)
 {
+<<<<<<< Updated upstream
 	if (of_have_populated_dt())
 		device_links_supplier_sync_state_resume();
+=======
+	device_links_supplier_sync_state_resume();
+>>>>>>> Stashed changes
 	return 0;
 }
 late_initcall_sync(of_platform_sync_state_init);

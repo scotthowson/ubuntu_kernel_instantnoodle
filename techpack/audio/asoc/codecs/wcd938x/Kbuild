@@ -79,7 +79,10 @@ CDEFINES +=	-DANI_LITTLE_BYTE_ENDIAN \
 		-DANI_OS_TYPE_ANDROID=6 \
 		-DPTT_SOCK_SVC_ENABLE \
 		-Wall\
+<<<<<<< Updated upstream
 		-Werror\
+=======
+>>>>>>> Stashed changes
 		-D__linux__
 
 KBUILD_CPPFLAGS += $(CDEFINES)
@@ -111,6 +114,9 @@ wcd938x_dlkm-y := $(WCD938X_OBJS)
 
 obj-$(CONFIG_SND_SOC_WCD938X_SLAVE) += wcd938x_slave_dlkm.o
 wcd938x_slave_dlkm-y := $(WCD938X_SLAVE_OBJS)
+<<<<<<< Updated upstream
 
 # inject some build related information
 DEFINES += -DBUILD_TIMESTAMP=\"$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')\"
+=======
+>>>>>>> Stashed changes

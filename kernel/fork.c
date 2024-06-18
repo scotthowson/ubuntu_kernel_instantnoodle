@@ -42,6 +42,7 @@
 #include <linux/hmm.h>
 #include <linux/fs.h>
 #include <linux/mm.h>
+#include <linux/kprobes.h>
 #include <linux/vmacache.h>
 #include <linux/nsproxy.h>
 #include <linux/capability.h>
@@ -95,6 +96,7 @@
 #include <linux/thread_info.h>
 #include <linux/cpufreq_times.h>
 #include <linux/scs.h>
+<<<<<<< Updated upstream
 #ifdef CONFIG_HOUSTON
 #include <oneplus/houston/houston_helper.h>
 #endif
@@ -105,6 +107,10 @@
 #include <linux/oem/im.h>
 #endif
 
+=======
+#include <linux/simple_lmk.h>
+#include <linux/devfreq_boost.h>
+>>>>>>> Stashed changes
 
 #include <asm/pgtable.h>
 #include <asm/pgalloc.h>
@@ -348,7 +354,7 @@ struct vm_area_struct *vm_area_dup(struct vm_area_struct *orig)
 
 	if (new) {
 		*new = *orig;
-		INIT_VMA(new);
+		INIT_LIST_HEAD(&new->anon_vma_chain);
 	}
 	return new;
 }
@@ -447,7 +453,7 @@ EXPORT_SYMBOL(free_task);
 static __latent_entropy int dup_mmap(struct mm_struct *mm,
 					struct mm_struct *oldmm)
 {
-	struct vm_area_struct *mpnt, *tmp, *prev, **pprev, *last = NULL;
+	struct vm_area_struct *mpnt, *tmp, *prev, **pprev;
 	struct rb_node **rb_link, *rb_parent;
 	int retval;
 	unsigned long charge;
@@ -566,18 +572,8 @@ static __latent_entropy int dup_mmap(struct mm_struct *mm,
 		rb_parent = &tmp->vm_rb;
 
 		mm->map_count++;
-		if (!(tmp->vm_flags & VM_WIPEONFORK)) {
-			if (IS_ENABLED(CONFIG_SPECULATIVE_PAGE_FAULT)) {
-				/*
-				 * Mark this VMA as changing to prevent the
-				 * speculative page fault hanlder to process
-				 * it until the TLB are flushed below.
-				 */
-				last = mpnt;
-				vm_write_begin(mpnt);
-			}
+		if (!(tmp->vm_flags & VM_WIPEONFORK))
 			retval = copy_page_range(mm, oldmm, mpnt);
-		}
 
 		if (tmp->vm_ops && tmp->vm_ops->open)
 			tmp->vm_ops->open(tmp);
@@ -590,22 +586,6 @@ static __latent_entropy int dup_mmap(struct mm_struct *mm,
 out:
 	up_write(&mm->mmap_sem);
 	flush_tlb_mm(oldmm);
-
-	if (IS_ENABLED(CONFIG_SPECULATIVE_PAGE_FAULT)) {
-		/*
-		 * Since the TLB has been flush, we can safely unmark the
-		 * copied VMAs and allows the speculative page fault handler to
-		 * process them again.
-		 * Walk back the VMA list from the last marked VMA.
-		 */
-		for (; last; last = last->vm_prev) {
-			if (last->vm_flags & VM_DONTCOPY)
-				continue;
-			if (!(last->vm_flags & VM_WIPEONFORK))
-				vm_write_end(last);
-		}
-	}
-
 	up_write(&oldmm->mmap_sem);
 	dup_userfaultfd_complete(&uf);
 fail_uprobe_end:
@@ -695,6 +675,19 @@ void __mmdrop(struct mm_struct *mm)
 }
 EXPORT_SYMBOL_GPL(__mmdrop);
 
+#ifdef CONFIG_PREEMPT_RT_BASE
+/*
+ * RCU callback for delayed mm drop. Not strictly rcu, but we don't
+ * want another facility to make this work.
+ */
+void __mmdrop_delayed(struct rcu_head *rhp)
+{
+	struct mm_struct *mm = container_of(rhp, struct mm_struct, delayed_drop);
+
+	__mmdrop(mm);
+}
+#endif
+
 static void mmdrop_async_fn(struct work_struct *work)
 {
 	struct mm_struct *mm;
@@ -729,12 +722,23 @@ static inline void put_signal_struct(struct signal_struct *sig)
 	if (atomic_dec_and_test(&sig->sigcnt))
 		free_signal_struct(sig);
 }
-
+#ifdef CONFIG_PREEMPT_RT_BASE
+static
+#endif
 void __put_task_struct(struct task_struct *tsk)
 {
 	WARN_ON(!tsk->exit_state);
 	WARN_ON(atomic_read(&tsk->usage));
 	WARN_ON(tsk == current);
+
+	/*
+	 * Remove function-return probe instances associated with this
+	 * task and put them back on the free list.
+	 */
+	kprobe_flush_task(tsk);
+
+	/* Task is done with its stack. */
+	put_task_stack(tsk);
 
 	cgroup_free(tsk);
 	task_numa_free(tsk, true);
@@ -746,7 +750,18 @@ void __put_task_struct(struct task_struct *tsk)
 	if (!profile_handoff_task(tsk))
 		free_task(tsk);
 }
+#ifndef CONFIG_PREEMPT_RT_BASE
 EXPORT_SYMBOL_GPL(__put_task_struct);
+#else
+void __put_task_struct_cb(struct rcu_head *rhp)
+{
+	struct task_struct *tsk = container_of(rhp, struct task_struct, put_rcu);
+
+	__put_task_struct(tsk);
+
+}
+EXPORT_SYMBOL_GPL(__put_task_struct_cb);
+#endif
 
 void __init __weak arch_task_cache_init(void) { }
 
@@ -909,6 +924,8 @@ static struct task_struct *dup_task_struct(struct task_struct *orig, int node)
 #ifdef CONFIG_STACKPROTECTOR
 	tsk->stack_canary = get_random_canary();
 #endif
+	if (orig->cpus_ptr == &orig->cpus_mask)
+		tsk->cpus_ptr = &tsk->cpus_mask;
 
 	/*
 	 * One for us, one for whoever does the "release_task()" (usually
@@ -921,6 +938,7 @@ static struct task_struct *dup_task_struct(struct task_struct *orig, int node)
 	tsk->splice_pipe = NULL;
 	tsk->task_frag.page = NULL;
 	tsk->wake_q.next = NULL;
+<<<<<<< Updated upstream
 #ifdef CONFIG_CONTROL_CENTER
 	tsk->nice_effect_ts = 0;
 	tsk->cached_prio = tsk->static_prio;
@@ -953,6 +971,9 @@ static struct task_struct *dup_task_struct(struct task_struct *orig, int node)
 	tsk->get_mmlock = 0;
 	tsk->get_mmlock_ts = 0;
 #endif
+=======
+	tsk->wake_q_sleeper.next = NULL;
+>>>>>>> Stashed changes
 
 	account_kernel_stack(tsk, 1);
 
@@ -1038,11 +1059,6 @@ static struct mm_struct *mm_init(struct mm_struct *mm, struct task_struct *p,
 	mm->mmap = NULL;
 	mm->mm_rb = RB_ROOT;
 	mm->vmacache_seqnum = 0;
-	mm->va_feature = 0;
-	mm->zygoteheap_in_MB = 0;
-#ifdef CONFIG_SPECULATIVE_PAGE_FAULT
-	rwlock_init(&mm->mm_rb_lock);
-#endif
 	atomic_set(&mm->mm_users, 1);
 	atomic_set(&mm->mm_count, 1);
 	init_rwsem(&mm->mmap_sem);
@@ -1066,6 +1082,7 @@ static struct mm_struct *mm_init(struct mm_struct *mm, struct task_struct *p,
 	mm->pmd_huge_pte = NULL;
 #endif
 	mm_init_uprobes_state(mm);
+	hugetlb_count_init(mm);
 
 	if (current->mm) {
 		mm->flags = current->mm->flags & MMF_INIT_MASK;
@@ -1115,6 +1132,7 @@ static inline void __mmput(struct mm_struct *mm)
 	ksm_exit(mm);
 	khugepaged_exit(mm); /* must run before exit_mmap */
 	exit_mmap(mm);
+	simple_lmk_mm_freed(mm);
 	mm_put_huge_zero_page(mm);
 	set_mm_exe_file(mm, NULL);
 	if (!list_empty(&mm->mmlist)) {
@@ -1293,7 +1311,9 @@ static int wait_for_vfork_done(struct task_struct *child,
 	int killed;
 
 	freezer_do_not_count();
+	cgroup_enter_frozen();
 	killed = wait_for_completion_killable(vfork);
+	cgroup_leave_frozen(false);
 	freezer_count();
 
 	if (killed) {
@@ -1319,24 +1339,8 @@ static int wait_for_vfork_done(struct task_struct *child,
  * restoring the old one. . .
  * Eric Biederman 10 January 1998
  */
-void mm_release(struct task_struct *tsk, struct mm_struct *mm)
+static void mm_release(struct task_struct *tsk, struct mm_struct *mm)
 {
-	/* Get rid of any futexes when releasing the mm */
-#ifdef CONFIG_FUTEX
-	if (unlikely(tsk->robust_list)) {
-		exit_robust_list(tsk);
-		tsk->robust_list = NULL;
-	}
-#ifdef CONFIG_COMPAT
-	if (unlikely(tsk->compat_robust_list)) {
-		compat_exit_robust_list(tsk);
-		tsk->compat_robust_list = NULL;
-	}
-#endif
-	if (unlikely(!list_empty(&tsk->pi_state_list)))
-		exit_pi_state_list(tsk);
-#endif
-
 	uprobe_free_utask(tsk);
 
 	/* Get rid of any cached register state */
@@ -1367,6 +1371,18 @@ void mm_release(struct task_struct *tsk, struct mm_struct *mm)
 	 */
 	if (tsk->vfork_done)
 		complete_vfork_done(tsk);
+}
+
+void exit_mm_release(struct task_struct *tsk, struct mm_struct *mm)
+{
+	futex_exit_release(tsk);
+	mm_release(tsk, mm);
+}
+
+void exec_mm_release(struct task_struct *tsk, struct mm_struct *mm)
+{
+	futex_exec_release(tsk);
+	mm_release(tsk, mm);
 }
 
 /*
@@ -1629,10 +1645,6 @@ static int copy_signal(unsigned long clone_flags, struct task_struct *tsk)
 	sig->oom_score_adj = current->signal->oom_score_adj;
 	sig->oom_score_adj_min = current->signal->oom_score_adj_min;
 
-	/* CONFIG_MEMPLUS add start by bin.zhong@ASTI */
-	memplus_init_task_reclaim_stat(sig);
-	/* add end */
-
 	mutex_init(&sig->cred_guard_mutex);
 
 	return 0;
@@ -1694,6 +1706,9 @@ static void rt_mutex_init_task(struct task_struct *p)
  */
 static void posix_cpu_timers_init(struct task_struct *tsk)
 {
+#ifdef CONFIG_PREEMPT_RT_BASE
+	tsk->posix_timer_list = NULL;
+#endif
 	tsk->cputime_expires.prof_exp = 0;
 	tsk->cputime_expires.virt_exp = 0;
 	tsk->cputime_expires.sched_exp = 0;
@@ -1776,11 +1791,19 @@ static void pidfd_show_fdinfo(struct seq_file *m, struct file *f)
 /*
  * Poll support for process exit notification.
  */
+<<<<<<< Updated upstream
 static unsigned int pidfd_poll(struct file *file, struct poll_table_struct *pts)
 {
 	struct task_struct *task;
 	struct pid *pid = file->private_data;
 	int poll_flags = 0;
+=======
+static __poll_t pidfd_poll(struct file *file, struct poll_table_struct *pts)
+{
+	struct task_struct *task;
+	struct pid *pid = file->private_data;
+	__poll_t poll_flags = 0;
+>>>>>>> Stashed changes
 
 	poll_wait(file, &pid->wait_pidfd, pts);
 
@@ -1792,7 +1815,11 @@ static unsigned int pidfd_poll(struct file *file, struct poll_table_struct *pts)
 	 * group, then poll(2) should block, similar to the wait(2) family.
 	 */
 	if (!task || (task->exit_state && thread_group_empty(task)))
+<<<<<<< Updated upstream
 		poll_flags = POLLIN | POLLRDNORM;
+=======
+		poll_flags = EPOLLIN | EPOLLRDNORM;
+>>>>>>> Stashed changes
 	rcu_read_unlock();
 
 	return poll_flags;
@@ -1806,6 +1833,7 @@ const struct file_operations pidfd_fops = {
 #endif
 };
 
+<<<<<<< Updated upstream
 /**
  * pidfd_create() - Create a new pid file descriptor.
  *
@@ -1831,6 +1859,8 @@ static int pidfd_create(struct pid *pid)
 	return fd;
 }
 
+=======
+>>>>>>> Stashed changes
 static void copy_oom_score_adj(u64 clone_flags, struct task_struct *tsk)
 {
 	/* Skip if kernel thread */
@@ -1872,6 +1902,7 @@ static __latent_entropy struct task_struct *copy_process(
 	int pidfd = -1, retval;
 	struct task_struct *p;
 	struct multiprocess_signals delayed;
+	struct file *pidfile = NULL;
 
 	/*
 	 * Don't allow sharing the root directory with processes in a different
@@ -1920,8 +1951,11 @@ static __latent_entropy struct task_struct *copy_process(
 	}
 
 	if (clone_flags & CLONE_PIDFD) {
+<<<<<<< Updated upstream
 		int reserved;
 
+=======
+>>>>>>> Stashed changes
 		/*
 		 * - CLONE_PARENT_SETTID is useless for pidfds and also
 		 *   parent_tidptr is used to return pidfds.
@@ -1932,6 +1966,7 @@ static __latent_entropy struct task_struct *copy_process(
 		if (clone_flags &
 		    (CLONE_DETACHED | CLONE_PARENT_SETTID | CLONE_THREAD))
 			return ERR_PTR(-EINVAL);
+<<<<<<< Updated upstream
 
 		/*
 		 * Verify that parent_tidptr is sane so we can potentially
@@ -1942,6 +1977,8 @@ static __latent_entropy struct task_struct *copy_process(
 
 		if (reserved != 0)
 			return ERR_PTR(-EINVAL);
+=======
+>>>>>>> Stashed changes
 	}
 
 	/*
@@ -2166,11 +2203,27 @@ static __latent_entropy struct task_struct *copy_process(
 	 * if the fd table isn't shared).
 	 */
 	if (clone_flags & CLONE_PIDFD) {
+<<<<<<< Updated upstream
 		retval = pidfd_create(pid);
+=======
+		retval = get_unused_fd_flags(O_RDWR | O_CLOEXEC);
+>>>>>>> Stashed changes
 		if (retval < 0)
 			goto bad_fork_free_pid;
 
 		pidfd = retval;
+<<<<<<< Updated upstream
+=======
+
+		pidfile = anon_inode_getfile("[pidfd]", &pidfd_fops, pid,
+					      O_RDWR | O_CLOEXEC);
+		if (IS_ERR(pidfile)) {
+			put_unused_fd(pidfd);
+			goto bad_fork_free_pid;
+		}
+		get_pid(pid);	/* held by pidfile now */
+
+>>>>>>> Stashed changes
 		retval = put_user(pidfd, parent_tidptr);
 		if (retval)
 			goto bad_fork_put_pidfd;
@@ -2179,14 +2232,8 @@ static __latent_entropy struct task_struct *copy_process(
 #ifdef CONFIG_BLOCK
 	p->plug = NULL;
 #endif
-#ifdef CONFIG_FUTEX
-	p->robust_list = NULL;
-#ifdef CONFIG_COMPAT
-	p->compat_robust_list = NULL;
-#endif
-	INIT_LIST_HEAD(&p->pi_state_list);
-	p->pi_state_cache = NULL;
-#endif
+	futex_init_task(p);
+
 	/*
 	 * sigaltstack should be cleared when sharing the same VM
 	 */
@@ -2207,14 +2254,9 @@ static __latent_entropy struct task_struct *copy_process(
 	/* ok, now we should be set up.. */
 	p->pid = pid_nr(pid);
 	if (clone_flags & CLONE_THREAD) {
-		p->exit_signal = -1;
 		p->group_leader = current->group_leader;
 		p->tgid = current->tgid;
 	} else {
-		if (clone_flags & CLONE_PARENT)
-			p->exit_signal = current->group_leader->exit_signal;
-		else
-			p->exit_signal = (clone_flags & CSIGNAL);
 		p->group_leader = p;
 		p->tgid = p->pid;
 	}
@@ -2259,9 +2301,14 @@ static __latent_entropy struct task_struct *copy_process(
 	if (clone_flags & (CLONE_PARENT|CLONE_THREAD)) {
 		p->real_parent = current->real_parent;
 		p->parent_exec_id = current->parent_exec_id;
+		if (clone_flags & CLONE_THREAD)
+			p->exit_signal = -1;
+		else
+			p->exit_signal = current->group_leader->exit_signal;
 	} else {
 		p->real_parent = current;
 		p->parent_exec_id = current->self_exec_id;
+		p->exit_signal = (clone_flags & CSIGNAL);
 	}
 
 	klp_copy_process(p);
@@ -2288,6 +2335,9 @@ static __latent_entropy struct task_struct *copy_process(
 		goto bad_fork_cancel_cgroup;
 	}
 
+	/* past the last point of failure */
+	if (pidfile)
+		fd_install(pidfd, pidfile);
 
 	init_task_pid_links(p);
 	if (likely(p->pid)) {
@@ -2338,6 +2388,7 @@ static __latent_entropy struct task_struct *copy_process(
 	write_unlock_irq(&tasklist_lock);
 
 	proc_fork_connector(p);
+	sched_post_fork(p);
 	cgroup_post_fork(p);
 	cgroup_threadgroup_change_end(current);
 	perf_event_fork(p);
@@ -2345,6 +2396,7 @@ static __latent_entropy struct task_struct *copy_process(
 	trace_task_newtask(p, clone_flags);
 	uprobe_copy_process(p, clone_flags);
 
+<<<<<<< Updated upstream
 #if defined(CONFIG_CONTROL_CENTER) || defined(CONFIG_HOUSTON) || defined(CONFIG_IM)
 	if (likely(!IS_ERR(p))) {
 #ifdef CONFIG_HOUSTON
@@ -2365,6 +2417,9 @@ static __latent_entropy struct task_struct *copy_process(
 #endif
 	}
 #endif
+=======
+	copy_oom_score_adj(clone_flags, p);
+>>>>>>> Stashed changes
 
 	copy_oom_score_adj(clone_flags, p);
 
@@ -2377,8 +2432,15 @@ bad_fork_cancel_cgroup:
 bad_fork_cgroup_threadgroup_change_end:
 	cgroup_threadgroup_change_end(current);
 bad_fork_put_pidfd:
+<<<<<<< Updated upstream
 	if (clone_flags & CLONE_PIDFD)
 		ksys_close(pidfd);
+=======
+	if (clone_flags & CLONE_PIDFD) {
+		fput(pidfile);
+		put_unused_fd(pidfd);
+	}
+>>>>>>> Stashed changes
 bad_fork_free_pid:
 	if (pid != &init_struct_pid)
 		free_pid(pid);
@@ -2413,7 +2475,6 @@ bad_fork_cleanup_perf:
 	perf_event_free_task(p);
 bad_fork_cleanup_policy:
 	lockdep_free_task(p);
-	free_task_load_ptrs(p);
 #ifdef CONFIG_NUMA
 	mpol_put(p->mempolicy);
 bad_fork_cleanup_threadgroup_lock:
@@ -2474,6 +2535,10 @@ long _do_fork(unsigned long clone_flags,
 	struct task_struct *p;
 	int trace = 0;
 	long nr;
+
+	/* Boost DDR bus to the max for 50 ms when userspace launches an app */
+	if (task_is_zygote(current))
+		devfreq_boost_kick_max(DEVFREQ_CPU_LLCC_DDR_BW, 50);
 
 	/*
 	 * Determine whether and which event to report to ptracer.  When

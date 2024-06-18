@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-only
+<<<<<<< Updated upstream
 /* Copyright (c) 2013-2018, 2020, The Linux Foundation. All rights reserved. */
+=======
+/* Copyright (c) 2013-2018, 2020-2021, The Linux Foundation. All rights reserved. */
+>>>>>>> Stashed changes
 
 #include <linux/kernel.h>
 #include <linux/pm_runtime.h>
@@ -1322,16 +1326,32 @@ static int mdss_mdp_cmd_intf_recovery(void *data, int event)
 		return -EINVAL;
 
 	/*
+<<<<<<< Updated upstream
 	 * Currently, only intf_fifo_underflow is
 	 * supported for recovery sequence for command
 	 * mode DSI interface
 	 */
 	if (event != MDP_INTF_DSI_CMD_FIFO_UNDERFLOW) {
+=======
+	 * Currently, intf_fifo_overflow is not
+	 * supported for recovery sequence for command
+	 * mode DSI interface
+	 */
+	if (event == MDP_INTF_DSI_VIDEO_FIFO_OVERFLOW) {
+>>>>>>> Stashed changes
 		pr_warn("%s: unsupported recovery event:%d\n",
 					__func__, event);
 		return -EPERM;
 	}
 
+<<<<<<< Updated upstream
+=======
+	if (event == MDP_INTF_DSI_PANEL_DEAD) {
+		mdss_fb_report_panel_dead(ctx->ctl->mfd);
+		return 0;
+	}
+
+>>>>>>> Stashed changes
 	if (atomic_read(&ctx->koff_cnt)) {
 		mdss_mdp_ctl_reset(ctx->ctl, true);
 		reset_done = true;

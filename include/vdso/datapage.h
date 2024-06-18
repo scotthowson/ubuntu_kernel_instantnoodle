@@ -2,8 +2,11 @@
 #ifndef __VDSO_DATAPAGE_H
 #define __VDSO_DATAPAGE_H
 
+<<<<<<< Updated upstream
 #ifdef __KERNEL__
 
+=======
+>>>>>>> Stashed changes
 #ifndef __ASSEMBLY__
 
 #include <linux/compiler.h>
@@ -116,6 +119,9 @@ extern struct vdso_data _vdso_data[CS_BASES] __attribute__((visibility("hidden")
 
 #endif /* !__ASSEMBLY__ */
 
+<<<<<<< Updated upstream
 #endif /* __KERNEL__ */
 
+=======
+>>>>>>> Stashed changes
 #endif /* __VDSO_DATAPAGE_H */

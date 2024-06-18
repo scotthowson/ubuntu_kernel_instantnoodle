@@ -385,7 +385,11 @@ static u8 assign_tag(struct kmem_cache *cache, const void *object,
 	/* For caches that either have a constructor or SLAB_TYPESAFE_BY_RCU: */
 #ifdef CONFIG_SLAB
 	/* For SLAB assign tags based on the object index in the freelist. */
+<<<<<<< Updated upstream
 	return (u8)obj_to_index(cache, virt_to_page(object), (void *)object);
+=======
+	return (u8)obj_to_index(cache, virt_to_head_page(object), (void *)object);
+>>>>>>> Stashed changes
 #else
 	/*
 	 * For SLUB assign a random tag during slab creation, otherwise reuse
@@ -695,7 +699,7 @@ static int __meminit kasan_mem_notifier(struct notifier_block *nb,
 			return NOTIFY_OK;
 
 		ret = __vmalloc_node_range(shadow_size, PAGE_SIZE, shadow_start,
-					shadow_end, GFP_KERNEL | __GFP_ZERO,
+					shadow_end, GFP_KERNEL,
 					PAGE_KERNEL, VM_NO_GUARD,
 					pfn_to_nid(mem_data->start_pfn),
 					__builtin_return_address(0));

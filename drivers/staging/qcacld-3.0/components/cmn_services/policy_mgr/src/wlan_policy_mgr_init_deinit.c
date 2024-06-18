@@ -1,5 +1,9 @@
 /*
  * Copyright (c) 2012-2020 The Linux Foundation. All rights reserved.
+<<<<<<< Updated upstream
+=======
+ * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+>>>>>>> Stashed changes
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -440,6 +444,7 @@ QDF_STATUS policy_mgr_psoc_enable(struct wlan_objmgr_psoc *psoc)
 		return status;
 	}
 
+<<<<<<< Updated upstream
 	/* init dual_mac_configuration_complete_evt */
 	status = qdf_event_create(&pm_ctx->dual_mac_configuration_complete_evt);
 	if (!QDF_IS_STATUS_SUCCESS(status)) {
@@ -447,6 +452,8 @@ QDF_STATUS policy_mgr_psoc_enable(struct wlan_objmgr_psoc *psoc)
 		return status;
 	}
 
+=======
+>>>>>>> Stashed changes
 	status = qdf_event_create(&pm_ctx->opportunistic_update_done_evt);
 	if (!QDF_IS_STATUS_SUCCESS(status)) {
 		policy_mgr_err("opportunistic_update_done_evt init failed");
@@ -601,6 +608,7 @@ QDF_STATUS policy_mgr_psoc_disable(struct wlan_objmgr_psoc *psoc)
 		QDF_ASSERT(0);
 	}
 
+<<<<<<< Updated upstream
 	/* destroy dual_mac_configuration_complete_evt */
 	if (!QDF_IS_STATUS_SUCCESS(qdf_event_destroy
 		(&pm_ctx->dual_mac_configuration_complete_evt))) {
@@ -609,6 +617,8 @@ QDF_STATUS policy_mgr_psoc_disable(struct wlan_objmgr_psoc *psoc)
 		QDF_ASSERT(0);
 	}
 
+=======
+>>>>>>> Stashed changes
 	/* deinit pm_conc_connection_list */
 	qdf_mem_zero(pm_conc_connection_list, sizeof(pm_conc_connection_list));
 

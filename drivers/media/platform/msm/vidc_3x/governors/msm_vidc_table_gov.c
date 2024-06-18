@@ -24,6 +24,7 @@
 #include "../vidc_hfi_api.h"
 
 
+<<<<<<< Updated upstream
 enum bus_profile {
 	VIDC_BUS_PROFILE_NORMAL			= BIT(0),
 	VIDC_BUS_PROFILE_LOW			= BIT(1),
@@ -45,6 +46,8 @@ struct msm_vidc_bus_table_gov {
 	struct devfreq_governor devfreq_gov;
 };
 
+=======
+>>>>>>> Stashed changes
 static int __get_bus_freq(struct msm_vidc_bus_table_gov *gov,
 		struct vidc_bus_vote_data *data,
 		enum bus_profile profile)
@@ -85,6 +88,7 @@ static int __get_bus_freq(struct msm_vidc_bus_table_gov *gov,
 }
 
 
+<<<<<<< Updated upstream
 static int msm_vidc_table_get_target_freq(struct devfreq *dev,
 		unsigned long *frequency)
 {
@@ -110,6 +114,21 @@ static int msm_vidc_table_get_target_freq(struct devfreq *dev,
 	dev->profile->get_dev_status(dev->dev.parent, &status);
 	vidc_data = (struct msm_vidc_gov_data *)status.private_data;
 
+=======
+int msm_vidc_table_get_target_freq(struct msm_vidc_bus_table_gov *gov,
+				struct msm_vidc_gov_data *vidc_data,
+				unsigned long *frequency)
+{
+	enum bus_profile profile = 0;
+	int i = 0;
+
+	if (!frequency || !gov || !vidc_data)  {
+		dprintk(VIDC_ERR, "%s: Invalid params %pK\n",
+			__func__, frequency);
+		return -EINVAL;
+	}
+
+>>>>>>> Stashed changes
 	*frequency = 0;
 	for (i = 0; i < vidc_data->data_count; i++) {
 		struct vidc_bus_vote_data *data = &vidc_data->data[i];
@@ -149,6 +168,7 @@ static int msm_vidc_table_get_target_freq(struct devfreq *dev,
 exit:
 	return 0;
 }
+<<<<<<< Updated upstream
 
 int msm_vidc_table_event_handler(struct devfreq *devfreq,
 		unsigned int event, void *data)
@@ -378,3 +398,5 @@ static void __exit msm_vidc_bus_table_exit(void)
 
 module_exit(msm_vidc_bus_table_exit);
 MODULE_LICENSE("GPL v2");
+=======
+>>>>>>> Stashed changes

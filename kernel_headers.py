@@ -310,7 +310,11 @@ def gen_arch_headers(
   return error_count
 
 
+<<<<<<< Updated upstream
 def run_headers_install(verbose, gen_dir, headers_install, prefix, h):
+=======
+def run_headers_install(verbose, gen_dir, headers_install, unifdef, prefix, h):
+>>>>>>> Stashed changes
   """Process a header through the headers_install script.
 
   The headers_install script does some processing of a header so that it is
@@ -325,6 +329,10 @@ def run_headers_install(verbose, gen_dir, headers_install, prefix, h):
     verbose: Set True to print progress messages.
     gen_dir: Where to place the generated files.
     headers_install: The script that munges the header.
+<<<<<<< Updated upstream
+=======
+    unifdef: The unifdef tool used by headers_install.
+>>>>>>> Stashed changes
     prefix: The prefix to strip from h to generate the output filename.
     h: The input header to process.
   Return:
@@ -344,7 +352,13 @@ def run_headers_install(verbose, gen_dir, headers_install, prefix, h):
   if verbose:
     print('run_headers_install: cmd is %s' % cmd)
 
+<<<<<<< Updated upstream
   result = subprocess.call(cmd)
+=======
+  env = os.environ.copy()
+  env["LOC_UNIFDEF"] = unifdef
+  result = subprocess.call(['sh', headers_install, out_h_dirname, h_dirname, out_h_basename], env=env)
+>>>>>>> Stashed changes
 
   if result != 0:
     print('error: run_headers_install: cmd %s failed %d' % (cmd, result))
@@ -511,6 +525,10 @@ def gen_blueprints(
 
   # Tools and tool files.
   headers_install_sh = 'headers_install.sh'
+<<<<<<< Updated upstream
+=======
+  unifdef = 'unifdef'
+>>>>>>> Stashed changes
   kernel_headers_py = 'kernel_headers.py'
   arm_syscall_tool = 'arch/arm/tools/syscallhdr.sh'
 
@@ -658,7 +676,14 @@ def gen_blueprints(
 
     f.write('genrule {\n')
     f.write('    name: "qti_generate_kernel_headers_%s",\n' % header_arch)
+<<<<<<< Updated upstream
     f.write('    tools: ["%s"],\n' % headers_install_sh)
+=======
+    f.write('    tools: [\n')
+    f.write('        "%s",\n' % headers_install_sh)
+    f.write('        "%s",\n' % unifdef)
+    f.write('    ],\n')
+>>>>>>> Stashed changes
     f.write('    tool_files: [\n')
     f.write('        "%s",\n' % kernel_headers_py)
 
@@ -692,6 +717,10 @@ def gen_blueprints(
       f.write('        "--arch_syscall_tbl $(location %s) " +\n' % arm_syscall_tbl)
 
     f.write('        "--headers_install $(location %s) " +\n' % headers_install_sh)
+<<<<<<< Updated upstream
+=======
+    f.write('        "--unifdef $(location %s) " +\n' % unifdef)
+>>>>>>> Stashed changes
     f.write('        "--include_uapi $(locations %s)",\n' % generic_src)
     f.write('    out: ["linux/version.h"] + gen_headers_out_%s,\n' % header_arch)
     f.write('}\n')
@@ -746,7 +775,11 @@ def headers_diff(old_file, new_file):
 def gen_headers(
     verbose, header_arch, gen_dir, arch_asm_kbuild, asm_generic_kbuild, module_dir,
     old_gen_headers_bp, new_gen_headers_bp, version_makefile,
+<<<<<<< Updated upstream
     arch_syscall_tool, arch_syscall_tbl, headers_install, include_uapi,
+=======
+    arch_syscall_tool, arch_syscall_tbl, headers_install, unifdef, include_uapi,
+>>>>>>> Stashed changes
     arch_include_uapi, techpack_include_uapi):
   """Generate the kernel headers.
 
@@ -768,6 +801,10 @@ def gen_headers(
     arch_syscall_tool: The arch script that generates syscall headers.
     arch_syscall_tbl: The arch script that defines syscall vectors.
     headers_install: The headers_install tool to process input headers.
+<<<<<<< Updated upstream
+=======
+    unifdef: The unifdef tool used by headers_install.
+>>>>>>> Stashed changes
     include_uapi: The list of include/uapi header files.
     arch_include_uapi: The list of arch/<arch>/include/uapi header files.
   Return:
@@ -795,20 +832,32 @@ def gen_headers(
 
   for h in include_uapi:
     if not run_headers_install(
+<<<<<<< Updated upstream
         verbose, gen_dir, headers_install,
+=======
+        verbose, gen_dir, headers_install, unifdef,
+>>>>>>> Stashed changes
         uapi_include_prefix, h):
       error_count += 1
 
   for h in arch_include_uapi:
     if not run_headers_install(
+<<<<<<< Updated upstream
         verbose, gen_dir, headers_install,
+=======
+        verbose, gen_dir, headers_install, unifdef,
+>>>>>>> Stashed changes
         arch_uapi_include_prefix, h):
       error_count += 1
 
   for h in techpack_include_uapi:
     techpack_uapi_include_prefix = os.path.join(h.split('/include/uapi')[0], 'include', 'uapi') + os.sep
     if not run_headers_install(
+<<<<<<< Updated upstream
         verbose, gen_dir, headers_install,
+=======
+        verbose, gen_dir, headers_install, unifdef,
+>>>>>>> Stashed changes
         techpack_uapi_include_prefix, h):
       error_count += 1
 
@@ -936,6 +985,13 @@ def main():
       required=True,
       help='The headers_install tool to process input headers.')
   parser_headers.add_argument(
+<<<<<<< Updated upstream
+=======
+      '--unifdef',
+      required=True,
+      help='The unifdef tool used by headers_install.')
+  parser_headers.add_argument(
+>>>>>>> Stashed changes
       '--include_uapi',
       required=True,
       nargs='*',
@@ -983,12 +1039,21 @@ def main():
       print('arch_syscall_tool [%s]' % args.arch_syscall_tool)
       print('arch_syscall_tbl [%s]' % args.arch_syscall_tbl)
       print('headers_install [%s]' % args.headers_install)
+<<<<<<< Updated upstream
+=======
+      print('unifdef [%s]' % args.unifdef)
+>>>>>>> Stashed changes
 
     return gen_headers(
         args.verbose, args.header_arch, args.gen_dir, args.arch_asm_kbuild,
         args.asm_generic_kbuild, module_dir, args.old_gen_headers_bp, args.new_gen_headers_bp,
         args.version_makefile, args.arch_syscall_tool, args.arch_syscall_tbl,
+<<<<<<< Updated upstream
         args.headers_install, args.include_uapi, args.arch_include_uapi, args.techpack_include_uapi)
+=======
+        args.headers_install, args.unifdef, args.include_uapi, args.arch_include_uapi,
+        args.techpack_include_uapi)
+>>>>>>> Stashed changes
 
   print('error: unknown mode: %s' % args.mode)
   return 1

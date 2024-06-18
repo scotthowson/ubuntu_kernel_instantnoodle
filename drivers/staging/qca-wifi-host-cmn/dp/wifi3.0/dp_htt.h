@@ -177,6 +177,11 @@ struct htt_soc {
 	struct {
 		int htc_err_cnt;
 		int htc_pkt_free;
+<<<<<<< Updated upstream
+=======
+		/* rtpm put skip count for ver req msg */
+		int htt_ver_req_put_skip;
+>>>>>>> Stashed changes
 	} stats;
 
 	HTT_TX_MUTEX_TYPE htt_tx_mutex;

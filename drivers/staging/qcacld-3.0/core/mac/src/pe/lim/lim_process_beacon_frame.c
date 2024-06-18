@@ -59,6 +59,12 @@ lim_process_beacon_frame(struct mac_context *mac_ctx, uint8_t *rx_pkt_info,
 {
 	tpSirMacMgmtHdr mac_hdr;
 	tSchBeaconStruct *bcn_ptr;
+<<<<<<< Updated upstream
+=======
+	uint8_t *frame;
+	const uint8_t *owe_transition_ie;
+	uint16_t frame_len;
+>>>>>>> Stashed changes
 
 	mac_ctx->lim.gLimNumBeaconsRcvd++;
 
@@ -67,6 +73,11 @@ lim_process_beacon_frame(struct mac_context *mac_ctx, uint8_t *rx_pkt_info,
 	 * beacon counter
 	 */
 	mac_hdr = WMA_GET_RX_MAC_HEADER(rx_pkt_info);
+<<<<<<< Updated upstream
+=======
+	frame = WMA_GET_RX_MPDU_DATA(rx_pkt_info);
+	frame_len = WMA_GET_RX_PAYLOAD_LEN(rx_pkt_info);
+>>>>>>> Stashed changes
 
 	pe_debug("Beacon (len %d): " QDF_MAC_ADDR_FMT " RSSI %d",
 		 WMA_GET_RX_MPDU_LEN(rx_pkt_info),
@@ -114,6 +125,22 @@ lim_process_beacon_frame(struct mac_context *mac_ctx, uint8_t *rx_pkt_info,
 
 	if (session->limMlmState ==
 			eLIM_MLM_WT_JOIN_BEACON_STATE) {
+<<<<<<< Updated upstream
+=======
+		owe_transition_ie = wlan_get_vendor_ie_ptr_from_oui(
+					OWE_TRANSITION_OUI_TYPE,
+					OWE_TRANSITION_OUI_SIZE,
+					frame + SIR_MAC_B_PR_SSID_OFFSET,
+					frame_len - SIR_MAC_B_PR_SSID_OFFSET);
+		if (session->connected_akm == ANI_AKM_TYPE_OWE &&
+		    owe_transition_ie) {
+			pe_debug("vdev:%d Drop OWE rx beacon. Wait for probe for join success",
+				 session->vdev_id);
+			qdf_mem_free(bcn_ptr);
+			return;
+		}
+
+>>>>>>> Stashed changes
 		if (session->beacon) {
 			qdf_mem_free(session->beacon);
 			session->beacon = NULL;

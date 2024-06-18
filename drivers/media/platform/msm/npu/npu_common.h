@@ -1,6 +1,10 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
+<<<<<<< Updated upstream
  * Copyright (c) 2017-2020, The Linux Foundation. All rights reserved.
+=======
+ * Copyright (c) 2017-2021, The Linux Foundation. All rights reserved.
+>>>>>>> Stashed changes
  */
 
 #ifndef _NPU_COMMON_H
@@ -134,7 +138,7 @@ struct npu_mbox {
 };
 
 /**
- * struct npul_pwrlevel - Struct holding different pwrlevel info obtained from
+ * struct npu_pwrlevel - Struct holding different pwrlevel info obtained
  * from dtsi file
  * @pwr_level:           NPU power level
  * @freq[]:              NPU frequency vote in Hz
@@ -176,6 +180,7 @@ struct npu_reg {
  */
 struct npu_pwrctrl {
 	int32_t pwr_vote_num;
+	int32_t pwr_vote_num_sysfs;
 
 	struct npu_pwrlevel pwrlevels[NPU_MAX_PWRLEVELS];
 	uint32_t active_pwrlevel;
@@ -245,6 +250,7 @@ struct mbox_bridge_data {
 
 struct npu_device {
 	struct mutex dev_lock;
+	spinlock_t ipc_lock;
 
 	struct platform_device *pdev;
 
@@ -292,18 +298,9 @@ struct npu_device {
 	uint32_t hw_version;
 };
 
-struct npu_kevent {
-	struct list_head list;
-	struct msm_npu_event evt;
-	uint64_t reserved[4];
-};
-
 struct npu_client {
 	struct npu_device *npu_dev;
-	wait_queue_head_t wait;
-
 	struct mutex list_lock;
-	struct list_head evt_list;
 	struct list_head mapped_buffer_list;
 };
 
@@ -341,7 +338,10 @@ void disable_fw(struct npu_device *npu_dev);
 int load_fw(struct npu_device *npu_dev);
 int unload_fw(struct npu_device *npu_dev);
 int npu_set_bw(struct npu_device *npu_dev, int new_ib, int new_ab);
+<<<<<<< Updated upstream
 int npu_process_kevent(struct npu_client *client, struct npu_kevent *kevt);
+=======
+>>>>>>> Stashed changes
 int npu_notify_cdsprm_cxlimit_activity(struct npu_device *npu_dev, bool enable);
 int npu_bridge_mbox_send_data(struct npu_host_ctx *host_ctx,
 	struct npu_mbox *mbox, void *data);

@@ -1027,7 +1027,11 @@ static int mdss_mdp_get_img(struct msmfb_data *img,
 
 
 			data->srcp_attachment->dma_map_attrs |=
+<<<<<<< Updated upstream
 					DMA_ATTR_DELAYED_UNMAP;
+=======
+			(DMA_ATTR_DELAYED_UNMAP | DMA_ATTR_SKIP_CPU_SYNC);
+>>>>>>> Stashed changes
 
 			data->srcp_table =
 				dma_buf_map_attachment(data->srcp_attachment,

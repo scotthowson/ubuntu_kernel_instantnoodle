@@ -1187,6 +1187,47 @@ static int __smblib_set_prop_typec_power_role(struct smb_charger *chg,
 	return rc;
 }
 
+<<<<<<< Updated upstream
+=======
+static inline bool typec_in_src_mode(struct smb_charger *chg)
+{
+	return (chg->typec_mode > POWER_SUPPLY_TYPEC_NONE &&
+		chg->typec_mode < POWER_SUPPLY_TYPEC_SOURCE_DEFAULT);
+}
+
+int smblib_get_prop_typec_select_rp(struct smb_charger *chg,
+				    union power_supply_propval *val)
+{
+	int rc, rp;
+	u8 stat;
+
+	if (!typec_in_src_mode(chg))
+		return -ENODATA;
+
+	rc = smblib_read(chg, TYPE_C_CFG_2_REG, &stat);
+	if (rc < 0) {
+		smblib_err(chg, "Couldn't read TYPE_C_CURRSRC_CFG_REG rc=%d\n",
+				rc);
+		return rc;
+	}
+
+	switch (stat & EN_80UA_180UA_CUR_SOURCE_BIT) {
+	case TYPEC_SRC_RP_STD:
+		rp = POWER_SUPPLY_TYPEC_SRC_RP_STD;
+		break;
+	case TYPEC_SRC_RP_1P5A:
+		rp = POWER_SUPPLY_TYPEC_SRC_RP_1P5A;
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	val->intval = rp;
+
+	return 0;
+}
+
+>>>>>>> Stashed changes
 /*********************
  * VOTABLE CALLBACKS *
  *********************/
@@ -2881,6 +2922,45 @@ int smblib_set_prop_typec_power_role(struct smb_charger *chg,
 	return 0;
 }
 
+<<<<<<< Updated upstream
+=======
+int smblib_set_prop_typec_select_rp(struct smb_charger *chg,
+				    const union power_supply_propval *val)
+{
+	int rc = 0;
+
+	if (!typec_in_src_mode(chg)) {
+		smblib_err(chg, "Couldn't set curr src: not in SRC mode\n");
+		return -EINVAL;
+	}
+
+	if (val->intval < 0 || val->intval >= TYPEC_SRC_RP_MAX_ELEMENTS)
+		return -EINVAL;
+
+	switch (val->intval) {
+	case TYPEC_SRC_RP_STD:
+		rc = smblib_masked_write(chg, TYPE_C_CFG_2_REG,
+			EN_80UA_180UA_CUR_SOURCE_BIT,
+			TYPEC_SRC_RP_STD);
+		break;
+	case TYPEC_SRC_RP_1P5A:
+	case TYPEC_SRC_RP_3A:
+	case TYPEC_SRC_RP_3A_DUPLICATE:
+		rc = smblib_masked_write(chg, TYPE_C_CFG_2_REG,
+			EN_80UA_180UA_CUR_SOURCE_BIT,
+			TYPEC_SRC_RP_1P5A);
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	if (rc < 0)
+		smblib_err(chg, "Couldn't write to TYPE_C_CURRSRC_CFG rc=%d\n",
+				rc);
+	return rc;
+}
+
+>>>>>>> Stashed changes
 int smblib_set_prop_pd_voltage_min(struct smb_charger *chg,
 				    const union power_supply_propval *val)
 {
@@ -3631,7 +3711,11 @@ void smblib_usb_plugin_locked(struct smb_charger *chg)
 
 		/* Schedule work to enable parallel charger */
 		vote(chg->awake_votable, PL_DELAY_VOTER, true, 0);
+<<<<<<< Updated upstream
 		schedule_delayed_work(&chg->pl_enable_work,
+=======
+		queue_delayed_work(system_power_efficient_wq, &chg->pl_enable_work,
+>>>>>>> Stashed changes
 					msecs_to_jiffies(PL_DELAY_MS));
 		/* vbus rising when APSD was disabled and PD_ACTIVE = 0 */
 		if (get_effective_result(chg->apsd_disable_votable) &&
@@ -3718,7 +3802,11 @@ irqreturn_t smblib_handle_icl_change(int irq, void *data)
 			delay = 0;
 
 		cancel_delayed_work_sync(&chg->icl_change_work);
+<<<<<<< Updated upstream
 		schedule_delayed_work(&chg->icl_change_work,
+=======
+		queue_delayed_work(system_power_efficient_wq, &chg->icl_change_work,
+>>>>>>> Stashed changes
 						msecs_to_jiffies(delay));
 	}
 
@@ -4020,7 +4108,11 @@ static void smblib_handle_apsd_done(struct smb_charger *chg, bool rising)
 		break;
 	case DCP_CHARGER_BIT:
 		if (chg->wa_flags & QC_CHARGER_DETECTION_WA_BIT)
+<<<<<<< Updated upstream
 			schedule_delayed_work(&chg->hvdcp_detect_work,
+=======
+			queue_delayed_work(system_power_efficient_wq, &chg->hvdcp_detect_work,
+>>>>>>> Stashed changes
 					      msecs_to_jiffies(HVDCP_DET_MS));
 		break;
 	default:
@@ -4597,7 +4689,11 @@ irqreturn_t smblib_handle_usb_typec_change(int irq, void *data)
 		cancel_delayed_work_sync(&chg->uusb_otg_work);
 		vote(chg->awake_votable, OTG_DELAY_VOTER, true, 0);
 		smblib_dbg(chg, PR_INTERRUPT, "Scheduling OTG work\n");
+<<<<<<< Updated upstream
 		schedule_delayed_work(&chg->uusb_otg_work,
+=======
+		queue_delayed_work(system_power_efficient_wq, &chg->uusb_otg_work,
+>>>>>>> Stashed changes
 				msecs_to_jiffies(chg->otg_delay_ms));
 		return IRQ_HANDLED;
 	}
@@ -4645,7 +4741,11 @@ irqreturn_t smblib_handle_high_duty_cycle(int irq, void *data)
 	if (chg->irq_info[HIGH_DUTY_CYCLE_IRQ].irq)
 		disable_irq_nosync(chg->irq_info[HIGH_DUTY_CYCLE_IRQ].irq);
 
+<<<<<<< Updated upstream
 	schedule_delayed_work(&chg->clear_hdc_work, msecs_to_jiffies(60));
+=======
+	queue_delayed_work(system_power_efficient_wq, &chg->clear_hdc_work, msecs_to_jiffies(60));
+>>>>>>> Stashed changes
 
 	return IRQ_HANDLED;
 }
@@ -4711,7 +4811,11 @@ irqreturn_t smblib_handle_switcher_power_ok(int irq, void *data)
 			 * permanently suspending the input if the boost-back
 			 * condition is unintentionally hit.
 			 */
+<<<<<<< Updated upstream
 			schedule_delayed_work(&chg->bb_removal_work,
+=======
+			queue_delayed_work(system_power_efficient_wq, &chg->bb_removal_work,
+>>>>>>> Stashed changes
 				msecs_to_jiffies(BOOST_BACK_UNVOTE_DELAY_MS));
 		}
 	}
@@ -4964,7 +5068,11 @@ static void smblib_otg_oc_work(struct work_struct *work)
 	 * triggered then it is likely that the software based soft start was
 	 * successful and the VBUS < 1V restriction should be re-enabled.
 	 */
+<<<<<<< Updated upstream
 	schedule_delayed_work(&chg->otg_ss_done_work, msecs_to_jiffies(500));
+=======
+	queue_delayed_work(system_power_efficient_wq, &chg->otg_ss_done_work, msecs_to_jiffies(500));
+>>>>>>> Stashed changes
 
 	rc = _smblib_vbus_regulator_disable(chg->vbus_vreg->rdev);
 	if (rc < 0) {

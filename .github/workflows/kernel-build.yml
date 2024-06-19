@@ -1,0 +1,42 @@
+name: Build on Tag
+
+on:
+  push:
+    tags: '*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout kernel source
+      uses: actions/checkout@v3
+    - name: DTC_EXT
+      run: |
+          curl --location https://android.googlesource.com/platform/prebuilts/misc/+/refs/heads/android10-gsi/linux-x86/dtc/dtc?format=TEXT | base64 --decode > /tmp/dtc_ext
+          chmod +x /tmp/dtc_ext
+
+    # - name: Checkout zipper
+    #   uses: actions/checkout@v2
+    #   with:
+    #     repository: DaniAsh551/kernel_oneplus_sm8250
+    #     path: zipper
+
+    - name: Android kernel build
+      uses: lemniskett/android-kernel-actions@master
+      id: build
+      env:
+        DTC_EXT: /tmp/dtc_ext
+        OEM_PRODUCT_DEVICE: kebab
+      with:
+        arch: arm64
+        compiler: proton-clang/20200502
+        defconfig: vendor/kebab-halium_defconfig
+        image: Image
+
+    - name: Release build
+      uses: actions/upload-artifact@v3
+      with:
+        path: ${{ steps.build.outputs.outfile }}
+        name: Image
+        token: ${{ secrets.GITHUB_TOKEN }}
